@@ -1,0 +1,11 @@
+=> Architecture
+
+- user accounts
+- space | organization
+  - collaborators
+  - environments [there is a default environment]
+    - access tokens
+    - client token with optional auth URL
+    - projects
+      - buckets
+        - files, folders and transformers
