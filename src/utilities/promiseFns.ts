@@ -54,6 +54,31 @@ export const wrapFireAndThrowError = <
     });
 };
 
+export const wrapFireAndThrowErrorNoAsync = <
+    Fn extends (...args: any) => any,
+    ReturnFn = (...args: Parameters<Fn>) => ReturnType<Fn>
+>(
+    fn: Fn,
+    throwError = true,
+    thrownError: typeof OperationError = ServerError
+): ReturnFn => {
+    return cast<ReturnFn>((...args: any) => {
+        try {
+            return fn(...args);
+        } catch (error) {
+            console.error(error);
+
+            if (throwError) {
+                if (thrownError) {
+                    throw new thrownError();
+                } else {
+                    throw error;
+                }
+            }
+        }
+    });
+};
+
 export const wrapFireAndDontThrow: typeof wrapFireAndThrowError = fn => {
     return wrapFireAndThrowError(fn, false);
 };

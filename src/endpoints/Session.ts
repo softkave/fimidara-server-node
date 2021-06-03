@@ -1,10 +1,10 @@
 import {merge} from 'lodash';
-import {IBaseContext} from './BaseContext';
+import {IBaseContext} from './contexts/BaseContext';
 import {isAfter} from 'date-fns';
 import {IUser} from '../definitions/user';
 import {resolveJWTError} from '../middlewares/handleErrors';
 import {wrapFireAndThrowError} from '../utilities/promiseFns';
-import AccessToken, {IBaseUserTokenData} from './AccessToken';
+import AccessToken, {IBaseUserTokenData} from './contexts/AccessToken';
 import RequestData from './RequestData';
 import {JWTEndpoints} from './types';
 import singletonFunc from '../utilities/singletonFunc';
@@ -13,7 +13,7 @@ import {
     UserDoesNotExistError,
     InvalidCredentialsError,
     LoginAgainError,
-} from './account/errors';
+} from './user/errors';
 
 // TODO: how can we validate user signin before getting to the endpoints that require user signin
 // for security purposes, in case we forgets to check in the endpoint

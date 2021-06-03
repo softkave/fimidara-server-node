@@ -8,7 +8,7 @@ import * as multer from 'multer';
 import {
     CredentialsExpiredError,
     InvalidCredentialsError,
-} from '../endpoints/account/errors';
+} from '../endpoints/user/errors';
 import {ServerError} from '../utilities/errors';
 
 export function resolveJWTError(err: Error) {

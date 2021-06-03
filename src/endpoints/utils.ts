@@ -1,5 +1,5 @@
 import {Response, Request} from 'express';
-import {IBaseContext} from './BaseContext';
+import {IBaseContext} from './contexts/BaseContext';
 import RequestData from './RequestData';
 import {Endpoint, IServerRequest} from './types';
 

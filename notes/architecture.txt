@@ -1,11 +1,94 @@
 => Architecture
 
 - user accounts
-- space | organization
+- organizations
   - collaborators
   - environments [there is a default environment]
-    - access tokens
-    - client token with optional auth URL
-    - projects
+    - spaces
+      - program access tokens
+      - client access tokens with required auth URL
       - buckets
-        - files, folders and transformers
+        - files and folders
+- transformers
+
+user
+- signup
+- login
+- forgot password
+- change password with token
+- change password with current password
+- update user
+- get user data
+- confirm email address
+- send email verification code
+
+organizations
+- create organization
+- update organization
+- get organization
+- delete organization
+- organization exists
+- get user organizations
+
+collaboration request
+- send request
+- respond to request
+- get user requests
+- get organization requests
+- update request
+- delete request
+- revoke request
+
+environment
+- create environment
+- update environment
+- get environment
+- delete environment
+- environment exists
+- get organization environments
+
+space
+- create space
+- update space
+- get space
+- delete space
+- space exists
+- get environment spaces
+
+program access token
+- create program access token
+- update program access token
+- get program access token
+- delete program access token
+- program access token exists
+- get space program access tokens
+
+client access token
+- create client access token
+- update client access token
+- get client access token
+- delete client access token
+- client access token exists
+- get space client access tokens
+
+bucket
+- create bucket
+- update bucket
+- get bucket
+- delete bucket
+- bucket exists
+- get space buckets
+
+file
+- create file
+- update file
+- get file
+- delete file
+- file exists
+- get bucket files
+
+transformer
+- create transformer
+- get transformer
+- transformer exists
+- get transformers

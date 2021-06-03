@@ -1,18 +1,32 @@
-export interface IImageSizeOption {
-    width: number;
-    height: number;
-    size: number; // TODO: what if the size exceeds what can be stored in a number?
+import {ITransformerParameterValue} from './transformers';
+
+export interface IBucketTransformerTransform {
+    params: ITransformerParameterValue[];
+    transformId: string;
+    name: string;
+    description?: string;
+    createdAt: string;
+    createdBy: string;
+    lastUpdatedBy?: string;
+    lastUpdatedAt?: string;
 }
 
-export interface IFile {
-    fileId: string;
-    URL: string;
+export interface IBucketTransformerMapping {
     mimetype: string;
-    size: number;
-    imageSizeOptions?: IImageSizeOption[];
+    transformerId: string;
+}
+
+export interface IBucket {
+    bucketId: string;
     organizationId: string;
+    environmentId: string;
+    projectId: string;
+    name: string;
+    description?: string;
     createdBy: string;
     createdAt: string;
     lastUpdatedBy?: string;
     lastUpdatedAt?: string;
+    transforms: IBucketTransformerTransform[];
+    transformerMappings: IBucketTransformerMapping[];
 }

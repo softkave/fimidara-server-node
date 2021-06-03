@@ -1,18 +1,23 @@
-export interface IImageSizeOption {
-    width: number;
-    height: number;
-    size: number; // TODO: what if the size exceeds what can be stored in a number?
+import {SessionAgentType} from './system';
+
+export enum FileCreator {
+    Transformer = 'transformer',
+}
+
+export interface IFileCreator {
+    createdBy: string;
+    type: FileCreator | SessionAgentType;
 }
 
 export interface IFile {
     fileId: string;
-    URL: string;
+    organizationId: string;
+    environmentId: string;
+    projectId: string;
+    bucketId: string;
     mimetype: string;
     size: number;
-    imageSizeOptions?: IImageSizeOption[];
-    organizationId: string;
-    createdBy: string;
+    createdBy: IFileCreator;
     createdAt: string;
-    lastUpdatedBy?: string;
-    lastUpdatedAt?: string;
+    originalFileId?: string;
 }
