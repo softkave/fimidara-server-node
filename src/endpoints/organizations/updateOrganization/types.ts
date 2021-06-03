@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../BaseContext';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewOrganizationInput} from '../addOrganization/types';
 import {IPublicOrganization} from '../types';

@@ -2,8 +2,8 @@ import OperationError from '../utilities/OperationError';
 import RequestData from './RequestData';
 import {Request} from 'express';
 import {IUser} from '../definitions/user';
-import {IBaseContext} from './BaseContext';
-import {IBaseUserTokenData} from './AccessToken';
+import {IBaseContext} from './contexts/BaseContext';
+import {IBaseUserTokenData} from './contexts/AccessToken';
 
 export interface IServerRequest extends Request {
     user?: IBaseUserTokenData; // coming from the JWT middleware

@@ -1,5 +1,5 @@
-import {IBaseUserTokenData} from '../../AccessToken';
-import {IBaseContext} from '../../BaseContext';
+import {IBaseUserTokenData} from '../../contexts/AccessToken';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {IPublicAuthKey} from '../types';
 

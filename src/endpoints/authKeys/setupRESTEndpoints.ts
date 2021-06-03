@@ -1,5 +1,5 @@
 import {Connection} from 'mongoose';
-import {getBaseContext} from '../BaseContext';
+import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import addAuthKey from './addAuthKey/handler';
 import {Express} from 'express';

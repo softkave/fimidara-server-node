@@ -1,0 +1,12 @@
+=> Session model
+
+get agent
+- validate token type is permitted
+- if user token
+  - validate token exists and add to request data
+  - validate user exists and add to request data
+- if program access token
+  - validate token exists and add to request data
+- if client access token
+  - validate token exists and add to request data
+  - make auth request to token's program access token auth URL

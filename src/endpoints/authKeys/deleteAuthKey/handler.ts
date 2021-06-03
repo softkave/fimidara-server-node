@@ -2,7 +2,7 @@ import {IAppointment} from '../../../definitions/appointment';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {IBaseUserTokenData} from '../../AccessToken';
+import {IBaseUserTokenData} from '../../contexts/AccessToken';
 import {InvalidRequestError} from '../../errors';
 import RequestData from '../../RequestData';
 import {AppointmentDoesNotExistError} from '../errors';

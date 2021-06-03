@@ -1,5 +1,5 @@
 import {validate} from '../../../utilities/validate';
-import {PermissionDeniedError} from '../../account/errors';
+import {PermissionDeniedError} from '../../user/errors';
 import {authKeyListExtractor} from '../utils';
 import {GetAppointmentsEndpoint} from './types';
 import {getAppointmentsJoiSchema} from './validation';

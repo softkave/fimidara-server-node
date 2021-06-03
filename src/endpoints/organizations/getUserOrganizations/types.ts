@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../BaseContext';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {IPublicOrganization} from '../types';
 import {Endpoint} from '../../types';
 

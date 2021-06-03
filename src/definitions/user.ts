@@ -8,7 +8,6 @@ export interface IUser {
     firstName: string;
     lastName: string;
     email: string;
-    phone: string;
     hash: string;
     createdAt: string;
     lastUpdatedAt?: string;
@@ -19,12 +18,6 @@ export interface IUser {
     emailVerifiedAt?: string | null;
     emailVerificationCode?: string | null;
     emailVerificationCodeSentAt?: string | null;
-
-    // phone verification
-    isPhoneVerified?: boolean;
-    phoneVerifiedAt?: string | null;
-    phoneVerificationSID?: string | null;
-    phoneVerificationCodeSentAt?: string | null;
 
     orgs: IUserOrganization[];
 }

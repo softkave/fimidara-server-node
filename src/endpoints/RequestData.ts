@@ -1,5 +1,5 @@
 import {IServerRequest} from './types';
-import {IBaseUserTokenData} from './AccessToken';
+import {IBaseUserTokenData} from './contexts/AccessToken';
 
 export interface IRequestContructorParams<
     T = any,
