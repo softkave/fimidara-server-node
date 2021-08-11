@@ -12,12 +12,12 @@ export default class SendEmailVerificationCodeEndpointContext
         context: IBaseContext,
         email: string,
         firstName: string,
-        code: string
+        link: string
     ) {
         try {
             await sendConfirmEmailAddressEmail(context, {
-                code,
                 firstName,
+                link,
                 emailAddress: email,
             });
         } catch (error) {

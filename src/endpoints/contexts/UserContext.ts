@@ -2,16 +2,23 @@ import {IUser} from '../../definitions/user';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
 import {IUpdateItemById} from '../../utilities/types';
+import {UserDoesNotExistError} from '../user/errors';
 import {IBaseContext} from './BaseContext';
 
 export interface IUserContext {
     getUserByEmail: (ctx: IBaseContext, email: string) => Promise<IUser | null>;
     getUserById: (ctx: IBaseContext, userId: string) => Promise<IUser | null>;
+    assertGetUserById: (ctx: IBaseContext, userId: string) => Promise<IUser>;
     updateUserById: (
         ctx: IBaseContext,
         userId: string,
         data: Partial<IUser>
     ) => Promise<IUser | null>;
+    assertUpdateUserById: (
+        ctx: IBaseContext,
+        userId: string,
+        data: Partial<IUser>
+    ) => Promise<IUser>;
     bulkUpdateUsersById: (
         ctx: IBaseContext,
         data: Array<IUpdateItemById<IUser>>
@@ -44,12 +51,36 @@ export default class UserContext implements IUserContext {
         }
     );
 
+    public assertGetUserById = wrapFireAndThrowError(
+        async (ctx: IBaseContext, userId: string) => {
+            const user = await ctx.user.getUserById(ctx, userId);
+
+            if (!user) {
+                throw new UserDoesNotExistError();
+            }
+
+            return user;
+        }
+    );
+
     public updateUserById = wrapFireAndThrowError(
         (ctx: IBaseContext, userId: string, data: Partial<IUser>) => {
             return ctx.db.user
                 .findOneAndUpdate({userId}, data, {new: true})
                 .lean()
                 .exec();
+        }
+    );
+
+    public assertUpdateUserById = wrapFireAndThrowError(
+        async (ctx: IBaseContext, userId: string, data: Partial<IUser>) => {
+            const user = await ctx.user.updateUserById(ctx, userId, data);
+
+            if (!user) {
+                throw new UserDoesNotExistError();
+            }
+
+            return user;
         }
     );
 

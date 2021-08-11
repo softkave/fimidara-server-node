@@ -1,8 +1,12 @@
 import * as argon2 from 'argon2';
+import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
+import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import AccessToken from '../../contexts/AccessToken';
-import {JWTEndpoints} from '../../types';
+import {
+    JWTEndpoint,
+    CURRENT_USER_TOKEN_VERSION,
+} from '../../contexts/UserTokenContext';
 import {InvalidEmailOrPasswordError} from '../errors';
 import {userExtractor} from '../utils';
 import {LoginEndpoint} from './types';
@@ -29,12 +33,20 @@ const login: LoginEndpoint = async (context, instData) => {
         throw new InvalidEmailOrPasswordError();
     }
 
+    const token =
+        (await context.userToken.getTokenByUserId(context, userData.userId)) ||
+        (await context.userToken.saveToken(context, {
+            tokenId: getNewId(),
+            userId: userData.userId,
+            audience: [JWTEndpoint.Login],
+            issuedAt: getDateString(),
+            version: CURRENT_USER_TOKEN_VERSION,
+        }));
+
+    instData.userTokenData = token;
     return {
         user: userExtractor(userData),
-        token: AccessToken.newUserToken({
-            user: userData,
-            audience: [JWTEndpoints.Login],
-        }),
+        token: context.userToken.encodeToken(context, token.tokenId),
     };
 };
 

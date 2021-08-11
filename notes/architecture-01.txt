@@ -1,15 +1,14 @@
-=> Architecture
+== Architecture 01
 
 - user accounts
 - organizations
-  - collaborators
+  - collaborators * limited functionality
   - environments [there is a default environment]
-    - spaces
-      - program access tokens
-      - client access tokens with required auth URL
-      - buckets
-        - files and folders
-- transformers
+    - files and folders
+    - program access tokens
+    - client access tokens with optional auth URL
+- pipelines, actions, transformers, matchers, storage
+- CDN
 
 user
 - signup
@@ -36,8 +35,8 @@ collaboration request
 - get user requests
 - get organization requests
 - update request
-- delete request
-- revoke request
+- delete requests
+- revoke requests
 
 environment
 - create environment

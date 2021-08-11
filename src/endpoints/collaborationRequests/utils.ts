@@ -1,24 +1,38 @@
-import {IOrganization} from '../../definitions/organization';
-import {IUser} from '../../definitions/user';
+import {
+    ICollaborationRequestSentEmailHistoryItem,
+    ICollaborationRequestStatus,
+} from '../../definitions/collaborationRequest';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {IPublicOrganization} from './types';
+import {IPublicCollaborationRequest} from './types';
 
-const organizationFields = getFields<IPublicOrganization>({
-    organizationId: true,
+const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
+    requestId: true,
+    recipientEmail: true,
+    message: true,
     createdBy: true,
     createdAt: getDateString,
-    lastUpdatedBy: true,
+    expiresAt: getDateString,
+    organizationId: true,
+    organizationName: true,
     lastUpdatedAt: getDateString,
-    name: true,
-    description: true,
+    lastUpdatedBy: true,
+    readAt: getDateString,
+    statusHistory: makeListExtract(
+        getFields<ICollaborationRequestStatus>({
+            status: true,
+            date: true,
+        })
+    ),
+    sentEmailHistory: makeListExtract(
+        getFields<ICollaborationRequestSentEmailHistoryItem>({
+            date: true,
+            reason: true,
+        })
+    ),
 });
 
-export const organizationExtractor = makeExtract(organizationFields);
-export const organizationListExtractor = makeListExtract(organizationFields);
-
-export function canReadOrganization(user: IUser, organization: IOrganization) {
-    return user.orgs.find(
-        org => org.organizationId === organization.organizationId
-    );
-}
+export const collabRequestExtractor = makeExtract(collaborationRequestFields);
+export const collabRequestListExtractor = makeListExtract(
+    collaborationRequestFields
+);

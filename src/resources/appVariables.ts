@@ -16,7 +16,9 @@ export interface IAppVariables extends IEnvVariables {
     awsEmailEncoding: string;
     dateFormat: string;
     clientLoginLink: string;
+    clientSignupLink: string;
     changePasswordPath: string;
+    verifyEmailPath: string;
 }
 
 const extractSchema: Record<
@@ -30,8 +32,8 @@ const extractSchema: Record<
     clientDomain: {
         required: false,
         name: 'CLIENT_DOMAIN',
-        // defaultValue: 'https://www.shops-by-softkave.com',
-        defaultValue: 'https://www.shops.softkave.com',
+        // defaultValue: 'https://www.files-by-softkave.com',
+        defaultValue: 'https://www.files.softkave.com',
     },
     mongoDbURI: {
         required: true,
@@ -101,7 +103,9 @@ export function extractEnvVariables(): IAppVariables {
         awsEmailEncoding: 'UTF-8',
         dateFormat: 'MMM DD, YYYY',
         clientLoginLink: `${envVariables.clientDomain}/login`,
+        clientSignupLink: `${envVariables.clientDomain}/signup`,
         changePasswordPath: '/change-password',
+        verifyEmailPath: '/verify-email',
     };
 
     return appVariables;

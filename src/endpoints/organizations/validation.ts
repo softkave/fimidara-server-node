@@ -1,3 +1,3 @@
-const shopValidationSchemas = {};
+const orgValidationSchemas = {};
 
-export default shopValidationSchemas;
+export default orgValidationSchemas;

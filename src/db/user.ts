@@ -15,8 +15,7 @@ const userSchema = ensureTypeFields<IUser>({
     passwordLastChangedAt: {type: Date},
     isEmailVerified: {type: Boolean},
     emailVerifiedAt: {type: Date},
-    emailVerificationCode: {type: String},
-    emailVerificationCodeSentAt: {type: Date},
+    emailVerificationEmailSentAt: {type: Date},
     orgs: {
         type: [
             {

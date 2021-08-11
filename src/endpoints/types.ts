@@ -3,10 +3,10 @@ import RequestData from './RequestData';
 import {Request} from 'express';
 import {IUser} from '../definitions/user';
 import {IBaseContext} from './contexts/BaseContext';
-import {IBaseUserTokenData} from './contexts/AccessToken';
+import {IBaseTokenData} from './contexts/ProgramAccessTokenContext';
 
 export interface IServerRequest extends Request {
-    user?: IBaseUserTokenData; // coming from the JWT middleware
+    user?: IBaseTokenData; // coming from the JWT middleware
     appUserData?: IUser | null;
 }
 
@@ -17,19 +17,11 @@ export interface IBaseEndpointResult {
 export type Endpoint<
     Context extends IBaseContext = IBaseContext,
     Data = any,
-    Result = any,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    TokenData extends object = any
+    Result = any
 > = (
     context: Context,
-    instData: RequestData<Data, TokenData>
-) => Promise<(Result & IBaseEndpointResult) | undefined>;
-
-export enum JWTEndpoints {
-    ChangePassword = 'ChangePassword',
-    Login = 'Login',
-    Global = '*',
-}
+    instData: RequestData<Data>
+) => Promise<Result & IBaseEndpointResult>;
 
 export enum ServerRecommendedActions {
     LoginAgain = 'LoginAgain',

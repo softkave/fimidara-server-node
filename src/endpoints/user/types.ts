@@ -8,6 +8,4 @@ export interface IPublicUserData {
     lastUpdatedAt?: string;
     isEmailVerified: boolean;
     emailVerifiedAt?: string | null;
-    isPhoneVerified?: boolean;
-    phoneVerifiedAt?: string | null;
 }

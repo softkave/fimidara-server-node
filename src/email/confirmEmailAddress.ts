@@ -9,8 +9,8 @@ import {appVariables} from '../resources/appVariables';
 export const confirmEmailAddressEmailTitle = 'Confirm Your Email Address';
 
 export interface IConfirmEmailAddressEmailProps {
-    code: string;
     firstName: string;
+    link: string;
 }
 
 // TODO: use better wordings
@@ -29,7 +29,7 @@ export function confirmEmailAddressEmailHTML(
         <style>
         ${getTemplateCSS()}
 
-        .shop-code {
+        .app-verify-code {
             text-align: center;
             font-size: 24px;
             margin: 24px 0px;
@@ -41,16 +41,13 @@ export function confirmEmailAddressEmailHTML(
         <div class="email-body">
             <div class="email-content-center">
                 <p>
-                    Hi ${props.firstName}, thank you for 
-                    signing up at ${
-                        appVariables.appName
-                    }. Enter this code in the Shops website to confirm your email address
+                    Hi ${props.firstName}, follow this 
+                    <a href=${props.link}>link</a> to verify your email address.
                 </p>
-                <div class="shop-code">${props.code}</div>
                 <p>
-                    If you did not signup on ${
+                    If you do not have a ${
                         appVariables.appName
-                    }, please ignore this mail.
+                    } account, please ignore this mail.
                 </p>
             </div>
         </div>
@@ -66,10 +63,13 @@ export function confirmEmailAddressEmailText(
     const text = `
     ${getHeaderText(confirmEmailAddressEmailTitle)}
 
-    Hi ${props.firstName}, thank you for signing up at ${appVariables.appName}.
-    Enter this code in the website to verify your email address - ${props.code}
+    Hi ${props.firstName},
+    Visit this link to verify your email address:
+    ${props.link} 
 
-    If you did not signup on ${appVariables.appName}, please ignore this mail.
+    If you do not have a ${
+        appVariables.appName
+    } account, please ignore this mail.
     `;
 
     return text;

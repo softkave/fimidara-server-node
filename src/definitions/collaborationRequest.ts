@@ -1,7 +1,3 @@
-export interface ICollaborationRequestRecipient {
-    recipientEmail: string;
-}
-
 export enum CollaborationRequestStatusType {
     Accepted = 'accepted',
     Declined = 'declined',
@@ -31,15 +27,15 @@ export interface ICollaborationRequestSentEmailHistoryItem {
 
 export interface ICollaborationRequest {
     requestId: string;
-    recipient: ICollaborationRequestRecipient;
+    recipientEmail: string;
     message: string;
     createdBy: string;
     createdAt: string;
     expiresAt?: string;
     organizationId: string;
     organizationName: string;
-    lastUpdatedAt: string;
-    lastUpdatedBy: string;
+    lastUpdatedAt?: string;
+    lastUpdatedBy?: string;
     readAt?: string;
     statusHistory?: ICollaborationRequestStatus[];
     sentEmailHistory?: ICollaborationRequestSentEmailHistoryItem[];

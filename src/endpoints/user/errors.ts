@@ -50,22 +50,12 @@ export class EmailAddressVerifiedError extends OperationError {
     public message = 'Email address already verified';
 }
 
-export class PhoneVerifiedError extends OperationError {
-    public name = 'PhoneVerifiedError';
-    public message = 'Phone number verified already';
-}
-
-export class VerificationCodeExpiredError extends OperationError {
-    public name = 'VerificationCodeExpiredError';
-    public message = 'Verification code expired';
-}
-
-export class VerificationCodeInvalidError extends OperationError {
-    public name = 'VerificationCodeInvalidError';
-    public message = 'Verification code invalid';
-}
-
 export class VerificationFailedError extends OperationError {
     public name = 'VerificationFailedError';
     public message = 'Verification failed'; // TODO: can we make this better?
+}
+
+export class IncorrectPasswordError extends OperationError {
+    public name = 'IncorrectPasswordError';
+    public message = 'The password you entered is incorrect';
 }

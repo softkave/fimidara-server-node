@@ -3,7 +3,6 @@ import {Twilio} from 'twilio';
 import {getUserModel, IUserModel} from '../../db/user';
 import {IAppVariables, appVariables} from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
-import {IEndpointSession, getSessionContext} from '../Session';
 import {getOrganizationModel, IOrganizationModel} from '../../db/organization';
 import {SES} from 'aws-sdk';
 import aws from '../../resources/aws';
@@ -21,7 +20,7 @@ import {
     IClientAssignedTokenModel,
 } from '../../db/clientAssignedToken';
 import {getUserTokenModel, IUserTokenModel} from '../../db/userToken';
-import {getTransformerModel, ITransformerModel} from '../../db/tranformer';
+// import {getTransformerModel, ITransformerModel} from '../../db/tranformer';
 import {
     getCollaborationRequestModel,
     ICollaborationRequestModel,
@@ -48,7 +47,8 @@ import {
     IOrganizationContext,
 } from './OrganizationContext';
 import {getSpaceContext, ISpaceContext} from './SpaceContext';
-import {getTransformerContext, ITransformerContext} from './TransformerContext';
+import {getSessionContext, ISessionContext} from './SessionContext';
+// import {getTransformerContext, ITransformerContext} from './TransformerContext';
 
 export interface IBaseContextDbModels {
     user: IUserModel;
@@ -60,7 +60,7 @@ export interface IBaseContextDbModels {
     programAccessToken: IProgramAccessTokenModel;
     clientAssignedToken: IClientAssignedTokenModel;
     userToken: IUserTokenModel;
-    transformer: ITransformerModel;
+    // transformer: ITransformerModel;
     collaborationRequest: ICollaborationRequestModel;
 }
 
@@ -70,7 +70,7 @@ export interface IBaseContext {
     dbConnection: Connection;
     db: IBaseContextDbModels;
     appVariables: IAppVariables;
-    session: IEndpointSession;
+    session: ISessionContext;
     user: IUserContext;
     organization: IOrganizationContext;
     environment: IEnvironmentContext;
@@ -80,14 +80,14 @@ export interface IBaseContext {
     programAccessToken: IProgramAccessTokenContext;
     clientAssignedToken: IClientAssignedTokenContext;
     userToken: IUserTokenContext;
-    transformer: ITransformerContext;
+    // transformer: ITransformerContext;
     collaborationRequest: ICollaborationRequestContext;
 }
 
 export default class BaseContext implements IBaseContext {
     public ses = new aws.SES();
     public twilio = twilioClient;
-    public session: IEndpointSession = getSessionContext();
+    public session: ISessionContext = getSessionContext();
     public appVariables = appVariables;
     public dbConnection: Connection;
     public db: IBaseContextDbModels;
@@ -100,7 +100,7 @@ export default class BaseContext implements IBaseContext {
     public programAccessToken = getProgramTokenContext();
     public clientAssignedToken = getClientAssignedTokenContext();
     public userToken = getUserTokenContext();
-    public transformer = getTransformerContext();
+    // public transformer = getTransformerContext();
     public collaborationRequest = getCollaborationRequestContext();
 
     constructor(connection: Connection) {
@@ -115,7 +115,7 @@ export default class BaseContext implements IBaseContext {
             programAccessToken: getProgramAccessTokenModel(connection),
             clientAssignedToken: getClientAssignedTokenModel(connection),
             userToken: getUserTokenModel(connection),
-            transformer: getTransformerModel(connection),
+            // transformer: getTransformerModel(connection),
             collaborationRequest: getCollaborationRequestModel(connection),
         };
     }

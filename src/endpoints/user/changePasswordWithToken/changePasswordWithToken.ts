@@ -1,5 +1,5 @@
-import AccessToken from '../../contexts/AccessToken';
-import {JWTEndpoints} from '../../types';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {JWTEndpoint} from '../../contexts/UserTokenContext';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
@@ -7,23 +7,42 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
     context,
     instData
 ) => {
-    const tokenData = context.session.getRequestTokenData(context, instData);
+    const tokenData = await context.session.getUserTokenData(
+        context,
+        instData,
+        JWTEndpoint.ChangePassword
+    );
 
     if (
-        !AccessToken.containsAudience(tokenData, [
-            JWTEndpoints.ChangePassword,
-            JWTEndpoints.Login,
-        ])
+        !context.userToken.containsAudience(
+            context,
+            tokenData,
+            JWTEndpoint.ChangePassword
+        )
     ) {
         throw new InvalidCredentialsError();
     }
 
-    // All change password tokens must have exp set
-    if (!tokenData.exp) {
+    if (!tokenData.expires) {
+        throw new InvalidCredentialsError();
+    }
+
+    if (Date.now() > tokenData.expires) {
         throw new CredentialsExpiredError();
     }
 
-    return context.changePassword(context, instData);
+    const user = await context.user.assertGetUserById(
+        context,
+        tokenData.userId
+    );
+
+    instData.user = user;
+    const result = await context.changePassword(context, instData);
+    fireAndForgetPromise(
+        context.userToken.deleteTokenById(context, tokenData.tokenId)
+    );
+
+    return result;
 };
 
 export default changePasswordWithToken;
