@@ -10,6 +10,7 @@ import {IBaseContext} from './BaseContext';
 import {
     IBaseTokenData,
     IGeneralTokenSubject,
+    TokenType,
 } from './ProgramAccessTokenContext';
 
 export const CURRENT_USER_TOKEN_VERSION = 1;
@@ -17,24 +18,34 @@ export const CURRENT_USER_TOKEN_VERSION = 1;
 export enum JWTEndpoint {
     Login = 'login',
     ChangePassword = 'changePassword',
+    ConfirmEmailAddress = 'confirmEmailAddress',
 }
 
 export interface IUserTokenContext {
     saveToken: (ctx: IBaseContext, token: IUserToken) => Promise<IUserToken>;
     getTokenById: (
         ctx: IBaseContext,
-        customId: string
+        tokenId: string
     ) => Promise<IUserToken | null>;
+    getTokenByUserId: (
+        ctx: IBaseContext,
+        userId: string
+    ) => Promise<IUserToken | null>;
+    assertGetTokenByUserId: (
+        ctx: IBaseContext,
+        userId: string
+    ) => Promise<IUserToken>;
     assertGetTokenById: (
         ctx: IBaseContext,
-        customId: string
+        tokenId: string
     ) => Promise<IUserToken>;
     updateTokenById: (
         ctx: IBaseContext,
-        customId: string,
+        tokenId: string,
         data: Partial<IUserToken>
     ) => Promise<IUserToken | null>;
     deleteTokenById: (ctx: IBaseContext, tokenId: string) => Promise<void>;
+    deleteTokensByUserId: (ctx: IBaseContext, userId: string) => Promise<void>;
     decodeToken: (
         ctx: IBaseContext,
         token: string
@@ -60,31 +71,42 @@ export default class UserTokenContext implements IUserTokenContext {
     );
 
     public getTokenById = wrapFireAndThrowError(
-        (ctx: IBaseContext, customId: string) => {
+        (ctx: IBaseContext, tokenId: string) => {
             return ctx.db.userToken
                 .findOne({
-                    customId,
+                    tokenId,
                 })
                 .lean()
                 .exec();
         }
     );
 
-    public getTokenByUserAndClientId = wrapFireAndThrowError(
-        (ctx: IBaseContext, userId: string, clientId: string) => {
+    public getTokenByUserId = wrapFireAndThrowError(
+        (ctx: IBaseContext, userId: string) => {
             return ctx.db.userToken
                 .findOne({
                     userId,
-                    clientId,
                 })
                 .lean()
                 .exec();
+        }
+    );
+
+    public assertGetTokenByUserId = wrapFireAndThrowError(
+        async (ctx: IBaseContext, userId: string) => {
+            const token = await ctx.userToken.getTokenByUserId(ctx, userId);
+
+            if (!token) {
+                throw new InvalidCredentialsError();
+            }
+
+            return token;
         }
     );
 
     public assertGetTokenById = wrapFireAndThrowError(
-        async (ctx: IBaseContext, customId: string) => {
-            const token = await ctx.userToken.getTokenById(ctx, customId);
+        async (ctx: IBaseContext, tokenId: string) => {
+            const token = await ctx.userToken.getTokenById(ctx, tokenId);
 
             if (!token) {
                 throw new InvalidCredentialsError();
@@ -95,11 +117,11 @@ export default class UserTokenContext implements IUserTokenContext {
     );
 
     public updateTokenById = wrapFireAndThrowError(
-        (ctx: IBaseContext, customId: string, data: Partial<IUserToken>) => {
+        (ctx: IBaseContext, tokenId: string, data: Partial<IUserToken>) => {
             return ctx.db.userToken
                 .findOneAndUpdate(
                     {
-                        customId,
+                        tokenId,
                     },
                     data,
                     {new: true}
@@ -109,22 +131,11 @@ export default class UserTokenContext implements IUserTokenContext {
         }
     );
 
-    public deleteTokenByUserAndClientId = wrapFireAndThrowError(
-        async (ctx: IBaseContext, clientId: string, userId: string) => {
-            await ctx.db.userToken
-                .deleteOne({
-                    clientId,
-                    userId,
-                })
-                .exec();
-        }
-    );
-
     public deleteTokenById = wrapFireAndThrowError(
         async (ctx: IBaseContext, tokenId: string) => {
             await ctx.db.userToken
                 .deleteOne({
-                    customId: tokenId,
+                    tokenId,
                 })
                 .exec();
         }
@@ -173,6 +184,7 @@ export default class UserTokenContext implements IUserTokenContext {
                 version: CURRENT_USER_TOKEN_VERSION,
                 sub: {
                     id: tokenId,
+                    type: TokenType.UserToken,
                 },
             };
 

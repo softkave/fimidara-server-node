@@ -3,7 +3,7 @@ import singletonFunc from '../../../utilities/singletonFunc';
 import BaseContext, {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import changePassword from '../changePassword/changePassword';
-import {IChangePasswordParams} from '../changePassword/types';
+import {IChangePasswordParameters} from '../changePassword/types';
 import {IChangePasswordWithTokenContext} from './types';
 
 export default class ChangePasswordWithTokenContext
@@ -11,9 +11,9 @@ export default class ChangePasswordWithTokenContext
     implements IChangePasswordWithTokenContext {
     public async changePassword(
         context: IBaseContext,
-        instData: RequestData<IChangePasswordParams>
+        instData: RequestData<IChangePasswordParameters>
     ) {
-        return changePassword(context, instData);
+        return await changePassword(context, instData);
     }
 }
 

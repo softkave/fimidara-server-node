@@ -1,7 +1,8 @@
 import {getDateString} from '../../../utilities/dateFns';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {OrganizationDoesNotExistError} from '../errors';
-import {organizationExtractor} from '../utils';
+import {canReadOrganization, organizationExtractor} from '../utils';
 import {UpdateOrganizationEndpoint} from './types';
 import {updateOrganizationJoiSchema} from './validation';
 
@@ -11,17 +12,31 @@ const updateOrganization: UpdateOrganizationEndpoint = async (
 ) => {
     const data = validate(instData.data, updateOrganizationJoiSchema);
     const user = await context.session.getUser(context, instData);
+    const org = await context.organization.assertGetOrganizationById(
+        context,
+        data.organizationId
+    );
+
+    canReadOrganization(user, org);
     const updatedOrganization = await context.organization.updateOrganizationById(
         context,
         data.organizationId,
-
-        // TODO: does this affect performance?
         {
             ...data.data,
             lastUpdatedAt: getDateString(),
             lastUpdatedBy: user.userId,
         }
     );
+
+    if (data.data.name) {
+        fireAndForgetPromise(
+            context.collaborationRequest.updateCollaborationRequestsByOrgId(
+                context,
+                org.organizationId,
+                {organizationName: data.data.name}
+            )
+        );
+    }
 
     if (!updatedOrganization) {
         throw new OrganizationDoesNotExistError();

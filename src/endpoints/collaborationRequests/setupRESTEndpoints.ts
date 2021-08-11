@@ -2,7 +2,7 @@ import {Connection} from 'mongoose';
 import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
-import addOrganization from './addOrganization/handler';
+import sendRequests from './sendRequests/handler';
 import deleteOrganization from './deleteOrganization/handler';
 import getOrganization from './getOrganization/handler';
 import getUserOrganizations from './getUserOrganizations/handler';
@@ -15,7 +15,7 @@ export default function setupOrganizationRESTEndpoints(
 ) {
     const endpoints = {
         addOrganization: wrapEndpointREST(
-            addOrganization,
+            sendRequests,
             getBaseContext(connection)
         ),
         deleteOrganization: wrapEndpointREST(

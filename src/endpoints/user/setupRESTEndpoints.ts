@@ -1,9 +1,6 @@
 import {Connection} from 'mongoose';
 import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
-import changePassword from './changePassword/changePassword';
-import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
-import {getChangePasswordWithTokenContext} from './changePasswordWithToken/context';
 import {getForgotPasswordContext} from './forgotPassword/context';
 import forgotPassword from './forgotPassword/forgotPassword';
 import getUserData from './getUserData/getUserData';
@@ -14,12 +11,13 @@ import userExists from './userExists/handler';
 import {Express} from 'express';
 import {getSignupContext} from './signup/context';
 import confirmEmailAddress from './confirmEmailAddress/handler';
-import confirmPhoneNumber from './confirmPhoneNumber/handler';
-import {getConfirmPhoneNumberContext} from './confirmPhoneNumber/context';
 import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
 import {getSendEmailVerificationCodeContext} from './sendEmailVerificationCode/context';
-import sendPhoneVerificationCode from './sendPhoneVerificationCode/handler';
-import {getSendPhoneVerificationCodeContext} from './sendPhoneVerificationCode/context';
+import {getChangePasswordWithCurrentPasswordContext} from './changePasswordWithCurrentPassword/context';
+import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
+import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
+import {getChangePasswordWithTokenContext} from './changePasswordWithToken/context';
+import {getUpdateUserEndpointContext} from './updateUser/context';
 
 export default function setupAccountRESTEndpoints(
     connection: Connection,
@@ -32,54 +30,44 @@ export default function setupAccountRESTEndpoints(
             forgotPassword,
             getForgotPasswordContext(connection)
         ),
-        changePassword: wrapEndpointREST(
-            changePassword,
-            getBaseContext(connection)
+        changePasswordWithCurrentPassword: wrapEndpointREST(
+            changePasswordWithCurrentPassword,
+            getChangePasswordWithCurrentPasswordContext(connection)
         ),
         changePasswordWithToken: wrapEndpointREST(
             changePasswordWithToken,
             getChangePasswordWithTokenContext(connection)
         ),
-        updateUser: wrapEndpointREST(updateUser, getBaseContext(connection)),
+        updateUser: wrapEndpointREST(
+            updateUser,
+            getUpdateUserEndpointContext(connection)
+        ),
         getUserData: wrapEndpointREST(getUserData, getBaseContext(connection)),
         userExists: wrapEndpointREST(userExists, getBaseContext(connection)),
         confirmEmailAddress: wrapEndpointREST(
             confirmEmailAddress,
             getBaseContext(connection)
         ),
-        confirmPhoneNumber: wrapEndpointREST(
-            confirmPhoneNumber,
-            getConfirmPhoneNumberContext(connection)
-        ),
         sendEmailVerificationCode: wrapEndpointREST(
             sendEmailVerificationCode,
             getSendEmailVerificationCodeContext(connection)
         ),
-        sendPhoneVerificationCode: wrapEndpointREST(
-            sendPhoneVerificationCode,
-            getSendPhoneVerificationCodeContext(connection)
-        ),
     };
 
-    app.post('/account/signup', account.signup);
-    app.post('/account/login', account.login);
-    app.post('/account/forgotPassword', account.forgotPassword);
-    app.post('/account/changePassword', account.changePassword);
+    app.post('/user/signup', account.signup);
+    app.post('/user/login', account.login);
+    app.post('/user/forgotPassword', account.forgotPassword);
     app.post(
-        '/account/changePasswordWithToken',
-        account.changePasswordWithToken
+        '/user/changePasswordWithCurrentPassword',
+        account.changePasswordWithCurrentPassword
     );
-    app.post('/account/updateUser', account.updateUser);
-    app.post('/account/getUserData', account.getUserData);
-    app.post('/account/userExists', account.userExists);
-    app.post('/account/confirmEmailAddress', account.confirmEmailAddress);
-    app.post('/account/confirmPhoneNumber', account.confirmPhoneNumber);
+    app.post('/user/changePasswordWithToken', account.changePasswordWithToken);
+    app.post('/user/updateUser', account.updateUser);
+    app.post('/user/getUserData', account.getUserData);
+    app.post('/user/userExists', account.userExists);
+    app.post('/user/confirmEmailAddress', account.confirmEmailAddress);
     app.post(
-        '/account/sendEmailVerificationCode',
+        '/user/sendEmailVerificationCode',
         account.sendEmailVerificationCode
-    );
-    app.post(
-        '/account/sendPhoneVerificationCode',
-        account.sendPhoneVerificationCode
     );
 }

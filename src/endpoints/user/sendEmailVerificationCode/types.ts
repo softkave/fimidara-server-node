@@ -7,7 +7,7 @@ export interface ISendEmailVerificationCodeEndpointContext
         ctx: IBaseContext,
         email: string,
         firstName: string,
-        code: string
+        link: string
     ) => Promise<void>;
 }
 

@@ -1,1 +1,3 @@
-export const organizationConstants = {};
+export const collabRequestConstants = {
+    maxNewRequests: 20,
+};

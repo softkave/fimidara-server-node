@@ -8,5 +8,5 @@ export const userConstants = {
     phoneVerificationCodeExpirationDurationInMins: 10,
     emailVerificationCodeExpirationDurationInMins: 30,
     verificationCodeRateLimitInMins: 1,
-    emailVerificationCodeLength: 6,
+    emailVerificationCodeLength: 5,
 };

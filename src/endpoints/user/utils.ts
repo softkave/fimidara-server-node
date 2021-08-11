@@ -12,8 +12,6 @@ const publicUserFields = getFields<IPublicUserData>({
     lastUpdatedAt: getDateString,
     isEmailVerified: true,
     emailVerifiedAt: getDateString,
-    isPhoneVerified: true,
-    phoneVerifiedAt: getDateString,
 });
 
 export const userExtractor = makeExtract(publicUserFields);

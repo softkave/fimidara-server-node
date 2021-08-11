@@ -16,8 +16,7 @@ export interface IUser {
     // email verification
     isEmailVerified: boolean;
     emailVerifiedAt?: string | null;
-    emailVerificationCode?: string | null;
-    emailVerificationCodeSentAt?: string | null;
+    emailVerificationEmailSentAt?: string | null;
 
     orgs: IUserOrganization[];
 }

@@ -1,3 +1,3 @@
-const shopValidationSchemas = {};
+const collabRequestsValidationSchemas = {};
 
-export default shopValidationSchemas;
+export default collabRequestsValidationSchemas;

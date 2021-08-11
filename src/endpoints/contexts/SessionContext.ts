@@ -10,6 +10,9 @@ import {IBaseContext} from './BaseContext';
 import {IBaseTokenData} from './ProgramAccessTokenContext';
 import {JWTEndpoint} from './UserTokenContext';
 
+// TODO: when retrieving cached tokens, check that the token contains
+// the input JWTEndpoints
+
 export interface ISessionContext {
     getIncomingTokenData: (
         ctx: IBaseContext,
@@ -18,7 +21,7 @@ export interface ISessionContext {
     getUserTokenData: (
         ctx: IBaseContext,
         data: RequestData,
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<IUserToken>;
     getProgramAccessTokenData: (
         ctx: IBaseContext,
@@ -32,12 +35,12 @@ export interface ISessionContext {
         ctx: IBaseContext,
         data: RequestData,
         permittedAgentTypes?: SessionAgentType[],
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<ISessionAgent>;
     getUser: (
         ctx: IBaseContext,
         data: RequestData,
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<IUser>;
     getProgramAccessToken: (
         ctx: IBaseContext,
@@ -51,18 +54,23 @@ export interface ISessionContext {
         ctx: IBaseContext,
         data: RequestData,
         permittedAgentTypes?: SessionAgentType[],
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<IUser | null>;
     tryGetUserTokenData: (
         ctx: IBaseContext,
         data: RequestData,
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<IUserToken | null>;
     assertAgent: (
         ctx: IBaseContext,
         data: RequestData,
         permittedAgentTypes?: SessionAgentType[],
-        audience?: JWTEndpoint
+        audience?: JWTEndpoint | JWTEndpoint[]
+    ) => Promise<boolean>;
+    assertUser: (
+        ctx: IBaseContext,
+        data: RequestData,
+        audience?: JWTEndpoint | JWTEndpoint[]
     ) => Promise<boolean>;
 }
 

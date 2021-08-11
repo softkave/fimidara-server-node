@@ -10,12 +10,14 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
     await context.session.assertUser(context, instData);
     await context.organization.deleteOrganization(context, data.organizationId);
 
+    // TODO:
+    // delete environments
     // delete spaces
     // delete buckets
-    // delete auth keys
+    // delete program access keys
+    // delete client assigned keys
     // remove orgs in users
     // delete files
-    // delete client tokens
 };
 
 export default deleteOrganization;

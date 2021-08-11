@@ -4,7 +4,12 @@ import {SendEmailVerificationCodeEndpoint} from './types';
 import {getDateString} from '../../../utilities/dateFns';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
-import {nanoid} from 'nanoid';
+import * as querystring from 'querystring';
+import getNewId from '../../../utilities/getNewId';
+import {
+    CURRENT_USER_TOKEN_VERSION,
+    JWTEndpoint,
+} from '../../contexts/UserTokenContext';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     context,
@@ -16,11 +21,11 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
         throw new EmailAddressVerifiedError();
     }
 
-    if (user.emailVerificationCodeSentAt) {
+    if (user.emailVerificationEmailSentAt) {
         const rateLimit = isBefore(
             new Date(),
             addMinutes(
-                new Date(user.emailVerificationCodeSentAt),
+                new Date(user.emailVerificationEmailSentAt),
                 userConstants.verificationCodeRateLimitInMins
             )
         );
@@ -30,13 +35,29 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
         }
     }
 
-    const code = nanoid(
-        userConstants.emailVerificationCodeLength
-    ).toUpperCase();
-    await context.sendEmail(context, user.email, user.firstName, code);
+    const token = await context.userToken.saveToken(context, {
+        audience: [JWTEndpoint.ConfirmEmailAddress],
+        issuedAt: getDateString(),
+        tokenId: getNewId(),
+        userId: user.userId,
+        version: CURRENT_USER_TOKEN_VERSION,
+    });
+
+    const encodedToken = context.userToken.encodeToken(
+        context,
+        token.tokenId,
+        token.expires
+    );
+
+    const link = `${context.appVariables.clientDomain}${
+        context.appVariables.verifyEmailPath
+    }?${querystring.stringify({
+        [userConstants.defaultTokenQueryParam]: encodedToken,
+    })}`;
+
+    await context.sendEmail(context, user.email, user.firstName, link);
     await context.user.updateUserById(context, user.userId, {
-        emailVerificationCode: code,
-        emailVerificationCodeSentAt: getDateString(),
+        emailVerificationEmailSentAt: getDateString(),
     });
 };
 

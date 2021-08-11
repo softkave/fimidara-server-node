@@ -1,50 +1,20 @@
-import {isAfter, addMinutes} from 'date-fns';
-import {
-    UserDoesNotExistError,
-    EmailAddressVerifiedError,
-    VerificationCodeExpiredError,
-    VerificationCodeInvalidError,
-} from '../errors';
+import {UserDoesNotExistError, EmailAddressVerifiedError} from '../errors';
 import {ConfirmEmailAddressEndpoint} from './types';
 import {getDateString} from '../../../utilities/dateFns';
-import AccessToken from '../../contexts/AccessToken';
-import {JWTEndpoints} from '../../types';
 import {userExtractor} from '../utils';
-import {InvalidRequestError} from '../../errors';
-import {userConstants} from '../constants';
-import {validate} from '../../../utilities/validate';
-import {confirmEmailAddressJoiSchema} from './validation';
+import {JWTEndpoint} from '../../contexts/UserTokenContext';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
     context,
     instData
 ) => {
-    const user = await context.session.getUser(context, instData);
-    const data = validate(instData.data, confirmEmailAddressJoiSchema);
+    const user = await context.session.getUser(context, instData, [
+        JWTEndpoint.ConfirmEmailAddress,
+    ]);
 
     if (user.isEmailVerified) {
         throw new EmailAddressVerifiedError();
-    }
-
-    if (!user.emailVerificationCode || !user.emailVerificationCodeSentAt) {
-        // TODO: is this the right error?
-        throw new InvalidRequestError();
-    }
-
-    const isCodeExpired = isAfter(
-        new Date(),
-        addMinutes(
-            new Date(user.emailVerificationCodeSentAt),
-            userConstants.emailVerificationCodeExpirationDurationInMins
-        )
-    );
-
-    if (isCodeExpired) {
-        throw new VerificationCodeExpiredError();
-    }
-
-    if (data.code !== user.emailVerificationCode) {
-        throw new VerificationCodeInvalidError();
     }
 
     const updatedUser = await context.user.updateUserById(
@@ -53,8 +23,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
         {
             isEmailVerified: true,
             emailVerifiedAt: getDateString(),
-            emailVerificationCode: null,
-            emailVerificationCodeSentAt: null,
+            emailVerificationEmailSentAt: null,
         }
     );
 
@@ -62,12 +31,30 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
         throw new UserDoesNotExistError();
     }
 
+    const verifyToken = await context.session.getUserTokenData(
+        context,
+        instData,
+        [JWTEndpoint.ConfirmEmailAddress]
+    );
+
+    fireAndForgetPromise(
+        context.userToken.deleteTokenById(context, verifyToken.tokenId)
+    );
+
+    const userToken = await context.userToken.assertGetTokenByUserId(
+        context,
+        user.userId
+    );
+
+    const encodedToken = context.userToken.encodeToken(
+        context,
+        userToken.tokenId,
+        userToken.expires
+    );
+
     return {
         user: userExtractor(updatedUser),
-        token: AccessToken.newUserToken({
-            user: updatedUser,
-            audience: [JWTEndpoints.Login],
-        }),
+        token: encodedToken,
     };
 };
 

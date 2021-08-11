@@ -44,6 +44,8 @@ const verificationCode = Joi.string()
     .max(validationConstants.maxVerificationCodeLength);
 
 const nanoid = Joi.string().trim().length(21);
+const fromNowMs = Joi.number().integer().min(0);
+const fromNowSecs = Joi.number().integer().min(0);
 
 export const validationSchemas = {
     uuid,
@@ -57,6 +59,8 @@ export const validationSchemas = {
     time,
     verificationCode,
     nanoid,
+    fromNowMs,
+    fromNowSecs,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {

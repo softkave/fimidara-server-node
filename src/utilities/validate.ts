@@ -6,7 +6,7 @@ export function validate<DataType>(
     data: DataType,
     schema: Joi.Schema,
     options?: Joi.ValidationOptions
-): DataType {
+): NonNullable<DataType> {
     const {error, value} = schema.validate(data, {
         abortEarly: false,
         convert: true,

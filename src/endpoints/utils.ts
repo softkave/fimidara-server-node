@@ -10,10 +10,12 @@ export const wrapEndpointREST = <Context extends IBaseContext>(
     return async (req: Request, res: Response) => {
         try {
             const data = req.body;
-            const instData = RequestData.fromExpressRequest(
+            const instData = await RequestData.fromExpressRequest(
+                context,
                 (req as unknown) as IServerRequest,
                 data
             );
+
             const result = await endpoint(context, instData);
             res.status(200).json(result || {});
         } catch (error) {

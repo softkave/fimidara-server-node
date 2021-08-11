@@ -17,14 +17,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
         update.emailVerifiedAt = null;
     }
 
-    if (data.phone) {
-        update.isPhoneVerified = false;
-        update.phoneVerifiedAt = null;
-    }
-
     await context.session.updateUser(context, instData, update);
-
-    // invalidate emailVerified and phoneVerified if the user updates these fields
 };
 
 export default updateUser;
