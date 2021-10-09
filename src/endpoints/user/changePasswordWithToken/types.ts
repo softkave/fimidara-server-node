@@ -5,14 +5,14 @@ import {IChangePasswordParameters} from '../changePassword/types';
 import {ILoginResult} from '../login/types';
 
 export interface IChangePasswordWithTokenContext extends IBaseContext {
-    changePassword: (
-        context: IBaseContext,
-        instData: RequestData<IChangePasswordParameters>
-    ) => Promise<ILoginResult>;
+  changePassword: (
+    context: IBaseContext,
+    instData: RequestData<IChangePasswordParameters>
+  ) => Promise<ILoginResult>;
 }
 
 export type ChangePasswordWithTokenEndpoint = Endpoint<
-    IChangePasswordWithTokenContext,
-    IChangePasswordParameters,
-    ILoginResult
+  IChangePasswordWithTokenContext,
+  IChangePasswordParameters,
+  ILoginResult
 >;

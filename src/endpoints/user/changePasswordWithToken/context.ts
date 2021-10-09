@@ -7,16 +7,16 @@ import {IChangePasswordParameters} from '../changePassword/types';
 import {IChangePasswordWithTokenContext} from './types';
 
 export default class ChangePasswordWithTokenContext
-    extends BaseContext
-    implements IChangePasswordWithTokenContext {
-    public async changePassword(
-        context: IBaseContext,
-        instData: RequestData<IChangePasswordParameters>
-    ) {
-        return await changePassword(context, instData);
-    }
+  extends BaseContext
+  implements IChangePasswordWithTokenContext {
+  public async changePassword(
+    context: IBaseContext,
+    instData: RequestData<IChangePasswordParameters>
+  ) {
+    return await changePassword(context, instData);
+  }
 }
 
 export const getChangePasswordWithTokenContext = singletonFunc(
-    (connection: Connection) => new ChangePasswordWithTokenContext(connection)
+  (connection: Connection) => new ChangePasswordWithTokenContext(connection)
 );

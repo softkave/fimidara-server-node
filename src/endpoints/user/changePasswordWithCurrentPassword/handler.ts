@@ -7,32 +7,28 @@ import {validate} from '../../../utilities/validate';
 import {IncorrectPasswordError} from '../errors';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint = async (
-    context,
-    instData
+  context,
+  instData
 ) => {
-    const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
-    const currentPassword = data.currentPassword;
-    let passwordMatch = false;
-    const user = await context.session.getUser(context, instData);
+  const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+  const currentPassword = data.currentPassword;
+  let passwordMatch = false;
+  const user = await context.session.getUser(context, instData);
 
-    try {
-        passwordMatch = await argon2.verify(user.hash, currentPassword);
-    } catch (error) {
-        console.error(error);
-        throw new ServerError();
-    }
+  try {
+    passwordMatch = await argon2.verify(user.hash, currentPassword);
+  } catch (error) {
+    console.error(error);
+    throw new ServerError();
+  }
 
-    if (!passwordMatch) {
-        throw new IncorrectPasswordError();
-    }
+  if (!passwordMatch) {
+    throw new IncorrectPasswordError();
+  }
 
-    const result = await context.changePassword(
-        context,
-        instData,
-        data.password
-    );
+  const result = await context.changePassword(context, instData, data.password);
 
-    return result;
+  return result;
 };
 
 export default changePasswordWithCurrentPassword;

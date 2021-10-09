@@ -2,12 +2,12 @@
 
 - user accounts
 - organizations
-  - collaborators * limited functionality
+  - collaborators
   - environments [there is a default environment]
     - files and folders
     - program access tokens
     - client access tokens with optional auth URL
-- pipelines, actions, transformers, matchers, storage
+- pipelines (uploads or requests), actions, transformers, matchers, storage
 - CDN
 
 user
@@ -46,13 +46,23 @@ environment
 - environment exists
 - get organization environments
 
-space
-- create space
-- update space
-- get space
-- delete space
-- space exists
-- get environment spaces
+folder
+- create folder
+- update folder
+- get folder
+- delete folder
+- folder exists
+- get environment folders
+- get folder items
+
+file
+- upload file
+- replace file
+- get file info
+- get file
+- delete file
+- file exists
+- get folder files info
 
 program access token
 - create program access token
@@ -60,7 +70,7 @@ program access token
 - get program access token
 - delete program access token
 - program access token exists
-- get space program access tokens
+- get resource's program access tokens
 
 client access token
 - create client access token
@@ -68,26 +78,4 @@ client access token
 - get client access token
 - delete client access token
 - client access token exists
-- get space client access tokens
-
-bucket
-- create bucket
-- update bucket
-- get bucket
-- delete bucket
-- bucket exists
-- get space buckets
-
-file
-- create file
-- update file
-- get file
-- delete file
-- file exists
-- get bucket files
-
-transformer
-- create transformer
-- get transformer
-- transformer exists
-- get transformers
+- get resource's client access tokens

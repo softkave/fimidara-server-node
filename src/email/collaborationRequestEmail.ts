@@ -1,17 +1,17 @@
 import {getFooterHTML, getHeaderHTML, getHeaderText} from './helpers';
 
 export interface ICollaborationRequestEmailProps {
-    signupLink: string;
-    loginLink: string;
-    organizationName: string;
-    isRecipientAUser: boolean;
-    title: string;
+  signupLink: string;
+  loginLink: string;
+  organizationName: string;
+  isRecipientAUser: boolean;
+  title: string;
 }
 
 export function collaborationRequestEmailHTML(
-    props: ICollaborationRequestEmailProps
+  props: ICollaborationRequestEmailProps
 ) {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -24,15 +24,15 @@ export function collaborationRequestEmailHTML(
         ${getHeaderHTML(props.title)}
         <p>
             You have a new collaboration request from <b>${
-                props.organizationName
+              props.organizationName
             }</b>.
         </p>
         <p>
             To respond to this request,
             ${
-                props.isRecipientAUser
-                    ? `<a href="${props.loginLink}">Login to your account here</a>`
-                    : `<a href="${props.signupLink}">Signup here</a>`
+              props.isRecipientAUser
+                ? `<a href="${props.loginLink}">Login to your account here</a>`
+                : `<a href="${props.signupLink}">Signup here</a>`
             }
         </p>
         ${getFooterHTML()}
@@ -43,21 +43,21 @@ export function collaborationRequestEmailHTML(
 }
 
 export function collaborationRequestEmailText(
-    props: ICollaborationRequestEmailProps
+  props: ICollaborationRequestEmailProps
 ) {
-    function getLink() {
-        return props.isRecipientAUser
-            ? `
+  function getLink() {
+    return props.isRecipientAUser
+      ? `
             Login to your account here - 
             ${props.loginLink}
             `
-            : `
+      : `
             Create an account here - 
             ${props.signupLink}
             `;
-    }
+  }
 
-    const txt = `
+  const txt = `
     ${getHeaderText(props.title)}
 
     You have a new collaboration request from ${props.organizationName}
@@ -65,5 +65,5 @@ export function collaborationRequestEmailText(
     To respond to this request, ${getLink()}
     `;
 
-    return txt;
+  return txt;
 }

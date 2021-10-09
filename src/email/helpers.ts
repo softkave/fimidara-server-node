@@ -1,7 +1,7 @@
 import {appVariables} from '../resources/appVariables';
 
 export function getFooterHTML() {
-    return `
+  return `
     <footer class="email-footer">
         <hr>
         &copy; ${appVariables.appName} ${new Date().getFullYear()}
@@ -10,7 +10,7 @@ export function getFooterHTML() {
 }
 
 export function getHeaderHTML(title: string) {
-    return `
+  return `
     <header class="email-header email-content-center">
         <h1>${appVariables.appName} | ${title}</h1>
         <hr>
@@ -19,13 +19,13 @@ export function getHeaderHTML(title: string) {
 }
 
 export function getHeaderText(title: string) {
-    return `${appVariables.appName} | ${title}`;
+  return `${appVariables.appName} | ${title}`;
 }
 
 const maxWidth = 500;
 
 export function getTemplateCSS() {
-    return `
+  return `
     .email-header {
         text-align: left;
     }

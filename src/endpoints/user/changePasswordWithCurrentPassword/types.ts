@@ -4,21 +4,21 @@ import {Endpoint} from '../../types';
 import {ILoginResult} from '../login/types';
 
 export interface IChangePasswordWithCurrentPasswordEndpointParams {
-    currentPassword: string;
-    password: string;
+  currentPassword: string;
+  password: string;
 }
 
 export interface IChangePasswordWithCurrentPasswordContext
-    extends IBaseContext {
-    changePassword: (
-        context: IBaseContext,
-        instData: RequestData,
-        password: string
-    ) => Promise<ILoginResult>;
+  extends IBaseContext {
+  changePassword: (
+    context: IBaseContext,
+    instData: RequestData,
+    password: string
+  ) => Promise<ILoginResult>;
 }
 
 export type ChangePasswordWithCurrentPasswordEndpoint = Endpoint<
-    IChangePasswordWithCurrentPasswordContext,
-    IChangePasswordWithCurrentPasswordEndpointParams,
-    ILoginResult
+  IChangePasswordWithCurrentPasswordContext,
+  IChangePasswordWithCurrentPasswordEndpointParams,
+  ILoginResult
 >;

@@ -4,13 +4,13 @@ import {getDate} from '../utilities/dateFns';
 import {ensureTypeFields} from './utils';
 
 const organizationSchema = ensureTypeFields<IOrganization>({
-    organizationId: {type: String, unique: true, index: true},
-    createdBy: {type: String},
-    createdAt: {type: Date, default: getDate},
-    lastUpdatedBy: {type: String},
-    lastUpdatedAt: {type: Date},
-    name: {type: String, unique: true, index: true},
-    description: {type: String},
+  organizationId: {type: String, unique: true, index: true},
+  createdBy: {type: String},
+  createdAt: {type: Date, default: getDate},
+  lastUpdatedBy: {type: String},
+  lastUpdatedAt: {type: Date},
+  name: {type: String, unique: true, index: true},
+  description: {type: String},
 });
 
 export interface IOrganizationDocument extends Document, IOrganization {}
@@ -20,13 +20,13 @@ const modelName = 'organization';
 const collectionName = 'organizations';
 
 export function getOrganizationModel(connection: Connection) {
-    const model = connection.model<IOrganizationDocument>(
-        modelName,
-        schema,
-        collectionName
-    );
+  const model = connection.model<IOrganizationDocument>(
+    modelName,
+    schema,
+    collectionName
+  );
 
-    return model;
+  return model;
 }
 
 export type IOrganizationModel = Model<IOrganizationDocument>;

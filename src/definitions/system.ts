@@ -1,18 +1,23 @@
 import {
-    IBaseTokenData,
-    TokenType,
+  IBaseTokenData,
+  TokenType,
 } from '../endpoints/contexts/ProgramAccessTokenContext';
 
 export enum SessionAgentType {
-    User = 'user',
-    ProgramAccessToken = 'programAccessToken',
-    ClientAssignedToken = 'clientAssignedToken',
+  User = 'user',
+  ProgramAccessToken = 'program-access-token',
+  ClientAssignedToken = 'client-assigned-token',
 }
 
 export interface ISessionAgent {
-    agentId: string;
-    agentType: SessionAgentType;
-    tokenId: string;
-    tokenType: TokenType;
-    incomingTokenData: IBaseTokenData;
+  agentId: string;
+  agentType: SessionAgentType;
+  tokenId: string;
+  tokenType: TokenType;
+  incomingTokenData?: IBaseTokenData | null;
+}
+
+export interface IAgent {
+  agentId: string;
+  agentType: SessionAgentType;
 }

@@ -2,15 +2,15 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IOrganizationExistsParameters {
-    name: string;
+  name: string;
 }
 
 export interface IOrganizationExistsResult {
-    exists: boolean;
+  exists: boolean;
 }
 
 export type OrganizationExistsEndpoint = Endpoint<
-    IBaseContext,
-    IOrganizationExistsParameters,
-    IOrganizationExistsResult
+  IBaseContext,
+  IOrganizationExistsParameters,
+  IOrganizationExistsResult
 >;

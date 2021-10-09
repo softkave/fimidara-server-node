@@ -1,23 +1,19 @@
-import {SessionAgentType} from './system';
-
-export enum FileCreator {
-    Transformer = 'transformer',
-}
-
-export interface IFileCreator {
-    createdBy: string;
-    type: FileCreator | SessionAgentType;
-}
+import {IAgent} from './system';
 
 export interface IFile {
-    fileId: string;
-    organizationId: string;
-    environmentId: string;
-    projectId: string;
-    bucketId: string;
-    mimetype: string;
-    size: number;
-    createdBy: IFileCreator;
-    createdAt: string;
-    originalFileId?: string;
+  fileId: string;
+  organizationId: string;
+  // environmentId: string;
+  bucketId: string;
+  folderId?: string;
+  mimetype: string;
+  encoding: string;
+  size: number;
+  createdBy: IAgent;
+  createdAt: string;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: string;
+  name: string;
+  description?: string;
+  meta?: Record<string, string | number | boolean | null>;
 }

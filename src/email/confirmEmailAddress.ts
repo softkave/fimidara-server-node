@@ -1,16 +1,16 @@
 import {
-    getFooterHTML,
-    getHeaderHTML,
-    getHeaderText,
-    getTemplateCSS,
+  getFooterHTML,
+  getHeaderHTML,
+  getHeaderText,
+  getTemplateCSS,
 } from './helpers';
 import {appVariables} from '../resources/appVariables';
 
 export const confirmEmailAddressEmailTitle = 'Confirm Your Email Address';
 
 export interface IConfirmEmailAddressEmailProps {
-    firstName: string;
-    link: string;
+  firstName: string;
+  link: string;
 }
 
 // TODO: use better wordings
@@ -18,9 +18,9 @@ export interface IConfirmEmailAddressEmailProps {
 // TODO: show time code expires?
 
 export function confirmEmailAddressEmailHTML(
-    props: IConfirmEmailAddressEmailProps
+  props: IConfirmEmailAddressEmailProps
 ): string {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -46,7 +46,7 @@ export function confirmEmailAddressEmailHTML(
                 </p>
                 <p>
                     If you do not have a ${
-                        appVariables.appName
+                      appVariables.appName
                     } account, please ignore this mail.
                 </p>
             </div>
@@ -58,9 +58,9 @@ export function confirmEmailAddressEmailHTML(
 }
 
 export function confirmEmailAddressEmailText(
-    props: IConfirmEmailAddressEmailProps
+  props: IConfirmEmailAddressEmailProps
 ): string {
-    const text = `
+  const text = `
     ${getHeaderText(confirmEmailAddressEmailTitle)}
 
     Hi ${props.firstName},
@@ -68,9 +68,9 @@ export function confirmEmailAddressEmailText(
     ${props.link} 
 
     If you do not have a ${
-        appVariables.appName
+      appVariables.appName
     } account, please ignore this mail.
     `;
 
-    return text;
+  return text;
 }

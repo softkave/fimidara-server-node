@@ -4,8 +4,8 @@ import {IPublicClientAssignedToken} from './types';
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({});
 
 export const clientAssignedTokenExtractor = makeExtract(
-    clientAssignedTokenFields
+  clientAssignedTokenFields
 );
 export const clientAssignedTokenListExtractor = makeListExtract(
-    clientAssignedTokenFields
+  clientAssignedTokenFields
 );
