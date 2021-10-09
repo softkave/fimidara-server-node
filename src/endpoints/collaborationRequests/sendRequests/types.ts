@@ -4,31 +4,31 @@ import {Endpoint} from '../../types';
 import {IPublicCollaborationRequest} from '../types';
 
 export interface ICollaborationRequestInput {
-    recipientEmail: string;
-    message: string;
-    expiresAt?: number;
+  recipientEmail: string;
+  message: string;
+  expiresAt?: number;
 }
 
 export interface ISendRequestsParams {
-    organizationId: string;
-    requests: ICollaborationRequestInput[];
+  organizationId: string;
+  requests: ICollaborationRequestInput[];
 }
 
 export interface ISendRequestsResult {
-    requests: IPublicCollaborationRequest[];
+  requests: IPublicCollaborationRequest[];
 }
 
 export interface ISendRequestsContext extends IBaseContext {
-    sendRequestEmail: (
-        ctx: IBaseContext,
-        request: ICollaborationRequest,
-        isRecipientAUser: boolean,
-        organizationName: string
-    ) => Promise<void>;
+  sendRequestEmail: (
+    ctx: IBaseContext,
+    request: ICollaborationRequest,
+    isRecipientAUser: boolean,
+    organizationName: string
+  ) => Promise<void>;
 }
 
 export type SendRequestsEndpoint = Endpoint<
-    ISendRequestsContext,
-    ISendRequestsParams,
-    ISendRequestsResult
+  ISendRequestsContext,
+  ISendRequestsParams,
+  ISendRequestsResult
 >;

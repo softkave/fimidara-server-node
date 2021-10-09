@@ -1,53 +1,53 @@
 {
-    "name": "file-server-node",
-    "version": "0.0.0",
-    "description": "",
-    "main": "build/src/index.js",
-    "types": "build/src/index.d.ts",
-    "files": [
-        "build/src"
-    ],
-    "license": "Apache-2.0",
-    "keywords": [],
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "lint": "gts lint",
-        "clean": "gts clean",
-        "compile": "tsc",
-        "fix": "gts fix",
-        "prepare": "npm.cmd run compile",
-        "pretest": "npm.cmd run compile",
-        "posttest": "npm.cmd run lint"
-    },
-    "dependencies": {
-        "argon2": "^0.27.1",
-        "aws-sdk": "^2.876.0",
-        "cors": "^2.8.5",
-        "date-fns": "^2.16.1",
-        "express": "^4.17.1",
-        "express-jwt": "^6.0.0",
-        "joi": "^17.3.0",
-        "jsonwebtoken": "^8.5.1",
-        "lodash": "^4.17.20",
-        "mongoose": "^5.12.2",
-        "multer": "^1.4.2",
-        "nanoid": "^3.1.20",
-        "sharp": "^0.27.0",
-        "twilio": "^3.60.0",
-        "validator": "^13.5.2",
-        "winston": "^3.3.3"
-    },
-    "devDependencies": {
-        "@types/express": "^4.17.9",
-        "@types/express-jwt": "^6.0.0",
-        "@types/jsonwebtoken": "^8.5.0",
-        "@types/lodash": "^4.14.165",
-        "@types/multer": "^1.4.5",
-        "@types/node": "^14.11.2",
-        "@types/sharp": "^0.26.1",
-        "@types/validator": "^13.1.2",
-        "@types/winston": "^2.4.4",
-        "gts": "^3.1.0",
-        "typescript": "^4.0.3"
-    }
+  "name": "file-server-node",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm.cmd run compile",
+    "pretest": "npm.cmd run compile",
+    "posttest": "npm.cmd run lint"
+  },
+  "dependencies": {
+    "argon2": "^0.27.1",
+    "aws-sdk": "^2.876.0",
+    "cors": "^2.8.5",
+    "date-fns": "^2.16.1",
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0",
+    "joi": "^17.3.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
+    "mongoose": "^5.12.2",
+    "multer": "^1.4.3",
+    "nanoid": "^3.1.20",
+    "sharp": "^0.27.0",
+    "twilio": "^3.60.0",
+    "validator": "^13.5.2",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/express-jwt": "^6.0.0",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/lodash": "^4.14.165",
+    "@types/multer": "^1.4.5",
+    "@types/node": "^14.11.2",
+    "@types/sharp": "^0.26.1",
+    "@types/validator": "^13.1.2",
+    "@types/winston": "^2.4.4",
+    "gts": "^3.1.0",
+    "typescript": "^4.0.3"
+  }
 }

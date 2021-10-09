@@ -5,20 +5,20 @@ import {userConstants} from './constants';
 const email = Joi.string().trim().lowercase().email();
 
 const password = Joi.string()
-    .trim()
-    .min(userConstants.minPasswordLength)
-    .max(userConstants.maxPasswordLength)
-    .regex(regExPatterns.password);
+  .trim()
+  .min(userConstants.minPasswordLength)
+  .max(userConstants.maxPasswordLength)
+  .regex(regExPatterns.password);
 
 const name = Joi.string()
-    .trim()
-    .min(userConstants.minNameLength)
-    .max(userConstants.maxNameLength);
+  .trim()
+  .min(userConstants.minNameLength)
+  .max(userConstants.maxNameLength);
 
 const userValidationSchemas = {
-    name,
-    email,
-    password,
+  name,
+  email,
+  password,
 };
 
 export default userValidationSchemas;

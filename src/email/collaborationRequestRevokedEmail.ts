@@ -1,15 +1,15 @@
 import {getFooterHTML, getHeaderHTML, getHeaderText} from './helpers';
 
 export interface ICollaborationRequestRevokedEmailProps {
-    organizationName: string;
+  organizationName: string;
 }
 
 export function collaborationRequestRevokedEmailHTML(
-    props: ICollaborationRequestRevokedEmailProps
+  props: ICollaborationRequestRevokedEmailProps
 ) {
-    const title = `Collaboration Request from ${props.organizationName} Revoked`;
+  const title = `Collaboration Request from ${props.organizationName} Revoked`;
 
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -22,7 +22,7 @@ export function collaborationRequestRevokedEmailHTML(
         ${getHeaderHTML(title)}
         <p>
             This is to notify you that the collaboration request sent from ${
-                props.organizationName
+              props.organizationName
             } has been revoked.
         </p>
         <p>
@@ -34,16 +34,16 @@ export function collaborationRequestRevokedEmailHTML(
 }
 
 export function collaborationRequestRevokedEmailText(
-    props: ICollaborationRequestRevokedEmailProps
+  props: ICollaborationRequestRevokedEmailProps
 ) {
-    const title = `Collaboration Request from ${props.organizationName} Revoked`;
-    const txt = `
+  const title = `Collaboration Request from ${props.organizationName} Revoked`;
+  const txt = `
     ${getHeaderText(title)}
 
     This is to notify you that the collaboration request sent from ${
-        props.organizationName
+      props.organizationName
     } has been revoked.
     `;
 
-    return txt;
+  return txt;
 }

@@ -9,118 +9,107 @@ import aws from '../../resources/aws';
 import twilioClient from '../../resources/twilio';
 import {getFileModel, IFileModel} from '../../db/file';
 import {
-    getProgramAccessTokenModel,
-    IProgramAccessTokenModel,
+  getProgramAccessTokenModel,
+  IProgramAccessTokenModel,
 } from '../../db/programAccessToken';
 import {getEnvironmentModel, IEnvironmentModel} from '../../db/environment';
-import {getSpaceModel, ISpaceModel} from '../../db/space';
-import {getBucketModel, IBucketModel} from '../../db/bucket';
 import {
-    getClientAssignedTokenModel,
-    IClientAssignedTokenModel,
+  getClientAssignedTokenModel,
+  IClientAssignedTokenModel,
 } from '../../db/clientAssignedToken';
 import {getUserTokenModel, IUserTokenModel} from '../../db/userToken';
-// import {getTransformerModel, ITransformerModel} from '../../db/tranformer';
 import {
-    getCollaborationRequestModel,
-    ICollaborationRequestModel,
+  getCollaborationRequestModel,
+  ICollaborationRequestModel,
 } from '../../db/collaborationRequest';
 import {getUserContext, IUserContext} from './UserContext';
 import {
-    getProgramTokenContext,
-    IProgramAccessTokenContext,
+  getProgramTokenContext,
+  IProgramAccessTokenContext,
 } from './ProgramAccessTokenContext';
 import {getUserTokenContext, IUserTokenContext} from './UserTokenContext';
 import {
-    getClientAssignedTokenContext,
-    IClientAssignedTokenContext,
+  getClientAssignedTokenContext,
+  IClientAssignedTokenContext,
 } from './ClientAssignedTokenContext';
-import {getBucketContext, IBucketContext} from './BucketContext';
 import {
-    getCollaborationRequestContext,
-    ICollaborationRequestContext,
+  getCollaborationRequestContext,
+  ICollaborationRequestContext,
 } from './CollaborationRequestContext';
 import {getEnvironmentContext, IEnvironmentContext} from './EnvironmentContext';
 import {getFileContext, IFileContext} from './FileContext';
 import {
-    getOrganizationContext,
-    IOrganizationContext,
+  getOrganizationContext,
+  IOrganizationContext,
 } from './OrganizationContext';
-import {getSpaceContext, ISpaceContext} from './SpaceContext';
 import {getSessionContext, ISessionContext} from './SessionContext';
-// import {getTransformerContext, ITransformerContext} from './TransformerContext';
+import {getFolderDatabaseModel, IFolderDatabaseModel} from '../../db/folder';
+import {IFolderProvider} from './FolderProvider';
+import {getFolderDatabaseProvider} from './FolderDatabaseProvider';
 
-export interface IBaseContextDbModels {
-    user: IUserModel;
-    organization: IOrganizationModel;
-    environment: IEnvironmentModel;
-    space: ISpaceModel;
-    bucket: IBucketModel;
-    file: IFileModel;
-    programAccessToken: IProgramAccessTokenModel;
-    clientAssignedToken: IClientAssignedTokenModel;
-    userToken: IUserTokenModel;
-    // transformer: ITransformerModel;
-    collaborationRequest: ICollaborationRequestModel;
+export interface IBaseContextDatabaseModels {
+  user: IUserModel;
+  organization: IOrganizationModel;
+  environment: IEnvironmentModel;
+  file: IFileModel;
+  programAccessToken: IProgramAccessTokenModel;
+  clientAssignedToken: IClientAssignedTokenModel;
+  userToken: IUserTokenModel;
+  collaborationRequest: ICollaborationRequestModel;
+  folder: IFolderDatabaseModel;
 }
 
 export interface IBaseContext {
-    ses: SES;
-    twilio: Twilio;
-    dbConnection: Connection;
-    db: IBaseContextDbModels;
-    appVariables: IAppVariables;
-    session: ISessionContext;
-    user: IUserContext;
-    organization: IOrganizationContext;
-    environment: IEnvironmentContext;
-    space: ISpaceContext;
-    bucket: IBucketContext;
-    file: IFileContext;
-    programAccessToken: IProgramAccessTokenContext;
-    clientAssignedToken: IClientAssignedTokenContext;
-    userToken: IUserTokenContext;
-    // transformer: ITransformerContext;
-    collaborationRequest: ICollaborationRequestContext;
+  ses: SES;
+  twilio: Twilio;
+  dbConnection: Connection;
+  db: IBaseContextDatabaseModels;
+  appVariables: IAppVariables;
+  session: ISessionContext;
+  user: IUserContext;
+  organization: IOrganizationContext;
+  environment: IEnvironmentContext;
+  file: IFileContext;
+  programAccessToken: IProgramAccessTokenContext;
+  clientAssignedToken: IClientAssignedTokenContext;
+  userToken: IUserTokenContext;
+  collaborationRequest: ICollaborationRequestContext;
+  folder: IFolderProvider;
 }
 
 export default class BaseContext implements IBaseContext {
-    public ses = new aws.SES();
-    public twilio = twilioClient;
-    public session: ISessionContext = getSessionContext();
-    public appVariables = appVariables;
-    public dbConnection: Connection;
-    public db: IBaseContextDbModels;
-    public user = getUserContext();
-    public organization = getOrganizationContext();
-    public file = getFileContext();
-    public environment = getEnvironmentContext();
-    public space = getSpaceContext();
-    public bucket = getBucketContext();
-    public programAccessToken = getProgramTokenContext();
-    public clientAssignedToken = getClientAssignedTokenContext();
-    public userToken = getUserTokenContext();
-    // public transformer = getTransformerContext();
-    public collaborationRequest = getCollaborationRequestContext();
+  public ses = new aws.SES();
+  public twilio = twilioClient;
+  public session: ISessionContext = getSessionContext();
+  public appVariables = appVariables;
+  public dbConnection: Connection;
+  public db: IBaseContextDatabaseModels;
+  public user = getUserContext();
+  public organization = getOrganizationContext();
+  public file = getFileContext();
+  public environment = getEnvironmentContext();
+  public programAccessToken = getProgramTokenContext();
+  public clientAssignedToken = getClientAssignedTokenContext();
+  public userToken = getUserTokenContext();
+  public collaborationRequest = getCollaborationRequestContext();
+  public folder = getFolderDatabaseProvider();
 
-    constructor(connection: Connection) {
-        this.dbConnection = connection;
-        this.db = {
-            user: getUserModel(connection),
-            organization: getOrganizationModel(connection),
-            file: getFileModel(connection),
-            environment: getEnvironmentModel(connection),
-            space: getSpaceModel(connection),
-            bucket: getBucketModel(connection),
-            programAccessToken: getProgramAccessTokenModel(connection),
-            clientAssignedToken: getClientAssignedTokenModel(connection),
-            userToken: getUserTokenModel(connection),
-            // transformer: getTransformerModel(connection),
-            collaborationRequest: getCollaborationRequestModel(connection),
-        };
-    }
+  constructor(connection: Connection) {
+    this.dbConnection = connection;
+    this.db = {
+      user: getUserModel(connection),
+      organization: getOrganizationModel(connection),
+      file: getFileModel(connection),
+      environment: getEnvironmentModel(connection),
+      programAccessToken: getProgramAccessTokenModel(connection),
+      clientAssignedToken: getClientAssignedTokenModel(connection),
+      userToken: getUserTokenModel(connection),
+      collaborationRequest: getCollaborationRequestModel(connection),
+      folder: getFolderDatabaseModel(connection),
+    };
+  }
 }
 
 export const getBaseContext = singletonFunc(
-    (connection: Connection) => new BaseContext(connection)
+  (connection: Connection) => new BaseContext(connection)
 );

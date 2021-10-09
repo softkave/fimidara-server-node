@@ -2,15 +2,15 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IUserExistsParams {
-    email: string;
+  email: string;
 }
 
 export interface IUserExistsResult {
-    exists: boolean;
+  exists: boolean;
 }
 
 export type UserExistsEndpoint = Endpoint<
-    IBaseContext,
-    IUserExistsParams,
-    IUserExistsResult
+  IBaseContext,
+  IUserExistsParams,
+  IUserExistsResult
 >;

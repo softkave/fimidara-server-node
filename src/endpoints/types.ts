@@ -4,26 +4,32 @@ import {Request} from 'express';
 import {IUser} from '../definitions/user';
 import {IBaseContext} from './contexts/BaseContext';
 import {IBaseTokenData} from './contexts/ProgramAccessTokenContext';
+import {SessionAgentType} from '../definitions/system';
 
 export interface IServerRequest extends Request {
-    user?: IBaseTokenData; // coming from the JWT middleware
-    appUserData?: IUser | null;
+  user?: IBaseTokenData; // coming from the JWT middleware
+  appUserData?: IUser | null;
 }
 
 export interface IBaseEndpointResult {
-    errors?: OperationError[];
+  errors?: OperationError[];
 }
 
 export type Endpoint<
-    Context extends IBaseContext = IBaseContext,
-    Data = any,
-    Result = any
+  Context extends IBaseContext = IBaseContext,
+  Data = any,
+  Result = any
 > = (
-    context: Context,
-    instData: RequestData<Data>
+  context: Context,
+  instData: RequestData<Data>
 ) => Promise<Result & IBaseEndpointResult>;
 
 export enum ServerRecommendedActions {
-    LoginAgain = 'LoginAgain',
-    Logout = 'Logout',
+  LoginAgain = 'LoginAgain',
+  Logout = 'Logout',
+}
+
+export interface IPublicAgent {
+  agentId: string;
+  agentType: SessionAgentType;
 }

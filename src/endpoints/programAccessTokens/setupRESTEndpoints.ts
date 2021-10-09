@@ -10,40 +10,40 @@ import organizationExists from './organizationExists/handler';
 import updateOrganization from './updateOrganization/handler';
 
 export default function setupOrganizationRESTEndpoints(
-    connection: Connection,
-    app: Express
+  connection: Connection,
+  app: Express
 ) {
-    const endpoints = {
-        addOrganization: wrapEndpointREST(
-            addOrganization,
-            getBaseContext(connection)
-        ),
-        deleteOrganization: wrapEndpointREST(
-            deleteOrganization,
-            getBaseContext(connection)
-        ),
-        getUserOrganizations: wrapEndpointREST(
-            getUserOrganizations,
-            getBaseContext(connection)
-        ),
-        organizationExists: wrapEndpointREST(
-            organizationExists,
-            getBaseContext(connection)
-        ),
-        updateOrganization: wrapEndpointREST(
-            updateOrganization,
-            getBaseContext(connection)
-        ),
-        getOrganization: wrapEndpointREST(
-            getOrganization,
-            getBaseContext(connection)
-        ),
-    };
+  const endpoints = {
+    addOrganization: wrapEndpointREST(
+      addOrganization,
+      getBaseContext(connection)
+    ),
+    deleteOrganization: wrapEndpointREST(
+      deleteOrganization,
+      getBaseContext(connection)
+    ),
+    getUserOrganizations: wrapEndpointREST(
+      getUserOrganizations,
+      getBaseContext(connection)
+    ),
+    organizationExists: wrapEndpointREST(
+      organizationExists,
+      getBaseContext(connection)
+    ),
+    updateOrganization: wrapEndpointREST(
+      updateOrganization,
+      getBaseContext(connection)
+    ),
+    getOrganization: wrapEndpointREST(
+      getOrganization,
+      getBaseContext(connection)
+    ),
+  };
 
-    app.post('/organizations/addOrganization', endpoints.addOrganization);
-    app.post('/organizations/deleteOrganization', endpoints.deleteOrganization);
-    app.post('/organizations/getOrganizations', endpoints.getUserOrganizations);
-    app.post('/organizations/organizationExists', endpoints.organizationExists);
-    app.post('/organizations/updateOrganization', endpoints.updateOrganization);
-    app.post('/organizations/getOrganization', endpoints.getOrganization);
+  app.post('/organizations/addOrganization', endpoints.addOrganization);
+  app.post('/organizations/deleteOrganization', endpoints.deleteOrganization);
+  app.post('/organizations/getOrganizations', endpoints.getUserOrganizations);
+  app.post('/organizations/organizationExists', endpoints.organizationExists);
+  app.post('/organizations/updateOrganization', endpoints.updateOrganization);
+  app.post('/organizations/getOrganization', endpoints.getOrganization);
 }

@@ -1,22 +1,22 @@
 import {
-    getFooterHTML,
-    getHeaderHTML,
-    getHeaderText,
-    getTemplateCSS,
+  getFooterHTML,
+  getHeaderHTML,
+  getHeaderText,
+  getTemplateCSS,
 } from './helpers';
 import {format, formatDistance} from 'date-fns';
 
 export const forgotPasswordEmailTitle = 'Change Your Password';
 
 export interface IForgotPasswordEmailProps {
-    link: string;
-    expiration: Date;
+  link: string;
+  expiration: Date;
 }
 
 export function forgotPasswordEmailHTML(
-    props: IForgotPasswordEmailProps
+  props: IForgotPasswordEmailProps
 ): string {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -42,8 +42,8 @@ export function forgotPasswordEmailHTML(
                 <p>
                     <strong>
                         This link expires in ${formatDistance(
-                            props.expiration,
-                            new Date()
+                          props.expiration,
+                          new Date()
                         )}, on ${format(props.expiration, 'MM/DD/YYYY hh:mmA')}
                     </strong>
                 </p>
@@ -63,25 +63,25 @@ export function forgotPasswordEmailHTML(
 }
 
 export function forgotPasswordEmailText(
-    props: IForgotPasswordEmailProps
+  props: IForgotPasswordEmailProps
 ): string {
-    const text = `
+  const text = `
     ${getHeaderText(forgotPasswordEmailTitle)}
 
     To change your password, copy the following link, and visit in your browser - ${
-        props.link
+      props.link
     }
 
     This link expires:
     - Immediately after you change your password -OR-
     - In ${formatDistance(props.expiration, new Date())}, on ${format(
-        props.expiration,
-        'MM/DD/YYYY hh:mmA'
-    )}
+    props.expiration,
+    'MM/DD/YYYY hh:mmA'
+  )}
 
     If you did not request a change of password, please ignore this mail.
     Also, do not share this link with anybody, as they'll be able to change your password with it.
     `;
 
-    return text;
+  return text;
 }

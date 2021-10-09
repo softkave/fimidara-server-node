@@ -21,69 +21,69 @@ const httpServer = http.createServer(app);
 const whiteListedCorsOrigins = [/^https?:\/\/www.softkave.com$/];
 
 if (process.env.NODE_ENV !== 'production') {
-    whiteListedCorsOrigins.push(/localhost/);
+  whiteListedCorsOrigins.push(/localhost/);
 }
 
 const corsOption: cors.CorsOptions = {
-    origin: whiteListedCorsOrigins,
-    optionsSuccessStatus: 200,
-    credentials: true,
+  origin: whiteListedCorsOrigins,
+  optionsSuccessStatus: 200,
+  credentials: true,
 };
 
 if (process.env.NODE_ENV === 'production') {
-    app.use(httpToHttps);
+  app.use(httpToHttps);
 }
 
 app.use(cors(corsOption));
 app.use(
-    express.json({
-        type: 'application/json',
-    })
+  express.json({
+    type: 'application/json',
+  })
 );
 
 function setupJWT(ctx: IBaseContext) {
-    app.use(
-        // TODO: do further research on options
-        expressJwt({
-            secret: ctx.appVariables.jwtSecret,
-            credentialsRequired: false,
-            algorithms: ['HS256'], // TODO: do further research
-        })
-    );
+  app.use(
+    // TODO: do further research on options
+    expressJwt({
+      secret: ctx.appVariables.jwtSecret,
+      credentialsRequired: false,
+      algorithms: ['HS256'], // TODO: do further research
+    })
+  );
 }
 
 async function setupConnection() {
-    const connection = await getMongoConnection();
-    return connection;
+  const connection = await getMongoConnection();
+  return connection;
 }
 
 async function setup() {
-    const connection = await setupConnection();
-    const ctx = getBaseContext(connection);
+  const connection = await setupConnection();
+  const ctx = getBaseContext(connection);
 
-    setupJWT(ctx);
-    setupAccountRESTEndpoints(connection, app);
-    setupShopRESTEndpoints(connection, app);
-    setupAppointmentRESTEndpoints(connection, app);
+  setupJWT(ctx);
+  setupAccountRESTEndpoints(connection, app);
+  setupShopRESTEndpoints(connection, app);
+  setupAppointmentRESTEndpoints(connection, app);
 
-    httpServer.listen(appVariables.port, async () => {
-        app.use(handleErrors);
+  httpServer.listen(appVariables.port, async () => {
+    app.use(handleErrors);
 
-        console.log(ctx.appVariables.appName);
-        console.log(`Server listening on port ${ctx.appVariables.port}`);
-    });
+    console.log(ctx.appVariables.appName);
+    console.log(`Server listening on port ${ctx.appVariables.port}`);
+  });
 }
 
 setup();
 
 process.on('uncaughtException', (exp: any, origin: any) => {
-    console.log('uncaughtException');
-    console.error(exp);
-    console.log(origin);
+  console.log('uncaughtException');
+  console.error(exp);
+  console.log(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.log('unhandledRejection');
-    console.log(promise);
-    console.log(reason);
+  console.log('unhandledRejection');
+  console.log(promise);
+  console.log(reason);
 });

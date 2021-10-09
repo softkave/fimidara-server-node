@@ -1,24 +1,17 @@
-import {IOrganization} from '../../definitions/organization';
-import {IUser} from '../../definitions/user';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {IPublicOrganization} from './types';
+import {IPublicEnvironment} from './types';
 
-const organizationFields = getFields<IPublicOrganization>({
-    organizationId: true,
-    createdBy: true,
-    createdAt: getDateString,
-    lastUpdatedBy: true,
-    lastUpdatedAt: getDateString,
-    name: true,
-    description: true,
+const environmentFields = getFields<IPublicEnvironment>({
+  environmentId: true,
+  createdBy: true,
+  createdAt: getDateString,
+  lastUpdatedBy: true,
+  lastUpdatedAt: getDateString,
+  name: true,
+  description: true,
+  organizationId: true,
 });
 
-export const organizationExtractor = makeExtract(organizationFields);
-export const organizationListExtractor = makeListExtract(organizationFields);
-
-export function canReadOrganization(user: IUser, organization: IOrganization) {
-    return user.orgs.find(
-        org => org.organizationId === organization.organizationId
-    );
-}
+export const environmentExtractor = makeExtract(environmentFields);
+export const environmentListExtractor = makeListExtract(environmentFields);
