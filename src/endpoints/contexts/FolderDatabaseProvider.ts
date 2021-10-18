@@ -1,7 +1,7 @@
 import {IFolder} from '../../definitions/folder';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
-import {FolderDoesNotExistError} from '../folders/errors';
+import {FolderNotFoundError} from '../folders/errors';
 import {IBaseContext} from './BaseContext';
 import {IFolderProvider} from './FolderProvider';
 
@@ -22,7 +22,7 @@ export default class FolderDatabaseProvider implements IFolderProvider {
       const folder = await ctx.folder.getFolderById(ctx, folderId);
 
       if (!folder) {
-        throw new FolderDoesNotExistError();
+        throw new FolderNotFoundError();
       }
 
       return folder;
@@ -36,7 +36,7 @@ export default class FolderDatabaseProvider implements IFolderProvider {
       });
 
       if (!exists) {
-        throw new FolderDoesNotExistError();
+        throw new FolderNotFoundError();
       }
 
       return exists;

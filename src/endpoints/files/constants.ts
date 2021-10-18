@@ -1,3 +1,3 @@
 export const fileConstants = {
-  maxFileSize: 1000 ^ 3, // 1Gb
+  maxFileSize: 1024 ** 3, // 1Gb
 };

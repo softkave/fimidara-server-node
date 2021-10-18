@@ -1,0 +1,245 @@
+import {forEach} from 'lodash';
+import {Document, FilterQuery, Model} from 'mongoose';
+import cast from '../../utilities/fns';
+import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {
+  IDataProvider,
+  DataProviderFilterValueOperator,
+  DataProviderFilterValueLogicalOperator,
+  DataProviderFilterCombineOperator,
+  IDataProviderFilter,
+  IGetManyItemsOptions,
+} from './DataProvider';
+
+export default class MongoDataProvider<T extends Record<string, unknown>>
+  implements IDataProvider<T> {
+  constructor(
+    private model: Model<Document<T>>,
+    private throwNotFound?: () => void
+  ) {}
+
+  checkItemExists = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>) => {
+      const mongoQuery = getMongoQueryFromFilter(filter);
+      return await this.model.exists(mongoQuery);
+    }
+  );
+
+  getItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    const item = await this.model.findOne(mongoQuery).lean().exec();
+    return cast<T | null>(item);
+  });
+
+  // TODO: use options with a sortBy field
+  getManyItems = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>, options?: IGetManyItemsOptions) => {
+      const mongoQuery = getMongoQueryFromFilter(filter);
+      const items = await this.model.find(mongoQuery).lean().exec();
+      return cast<T[]>(items);
+    }
+  );
+
+  deleteItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    await this.model.deleteOne(mongoQuery).exec();
+  });
+
+  deleteManyItems = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>) => {
+      const mongoQuery = getMongoQueryFromFilter(filter);
+      await this.model.deleteMany(mongoQuery).exec();
+    }
+  );
+
+  updateItem = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
+      const mongoQuery = getMongoQueryFromFilter(filter);
+      const item = await this.model
+        .findOneAndUpdate(mongoQuery, data, {new: true})
+        .lean()
+        .exec();
+      return cast<T | null>(item);
+    }
+  );
+
+  assertItemExists = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
+      const item = await this.getItem(filter);
+
+      if (!item) {
+        if (throwError) {
+          throwError();
+        } else if (this.throwNotFound) {
+          this.throwNotFound();
+        }
+      }
+
+      return true;
+    }
+  );
+
+  assertGetItem = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
+      const item = await this.getItem(filter);
+
+      if (!item) {
+        if (throwError) {
+          throwError();
+        } else if (this.throwNotFound) {
+          this.throwNotFound();
+        }
+      }
+
+      return cast<T>(item);
+    }
+  );
+
+  assertUpdateItem = wrapFireAndThrowError(
+    async (
+      filter: IDataProviderFilter<T>,
+      data: Partial<T>,
+      throwError?: () => void
+    ) => {
+      const item = await this.updateItem(filter, data);
+
+      if (!item) {
+        if (throwError) {
+          throwError();
+        } else if (this.throwNotFound) {
+          this.throwNotFound();
+        }
+      }
+
+      return cast<T>(item);
+    }
+  );
+
+  saveItem = wrapFireAndThrowError(async (data: T) => {
+    const item = new this.model(data);
+    const savedItem = await item.save();
+    return cast<T>(savedItem);
+  });
+
+  bulkSaveItems = wrapFireAndThrowError(async (data: T[]) => {
+    await this.model.insertMany(data);
+  });
+
+  bulkDeleteItems = wrapFireAndThrowError(
+    async (
+      items: Array<{
+        filter: IDataProviderFilter<T>;
+        deleteFirstItemOnly?: boolean;
+      }>
+    ) => {
+      await this.model.bulkWrite(
+        items.map(item => ({
+          [item.deleteFirstItemOnly ? 'deleteOne' : 'deleteMany']: {
+            filter: getMongoQueryFromFilter(item.filter),
+          },
+        }))
+      );
+    }
+  );
+
+  bulkUpdateItems = wrapFireAndThrowError(
+    async (
+      items: Array<{
+        filter: IDataProviderFilter<T>;
+        data: Partial<T>;
+        updateFirstItemOnly?: boolean;
+      }>
+    ) => {
+      await this.model.bulkWrite(
+        items.map(item => ({
+          [item.updateFirstItemOnly ? 'updateOne' : 'updateMany']: {
+            filter: getMongoQueryFromFilter(item.filter),
+            update: item.data,
+          },
+        }))
+      );
+    }
+  );
+}
+
+export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
+  const queries: Array<FilterQuery<any>> = filter.items.map(item => {
+    const itemMongoQuery: FilterQuery<any> = {};
+
+    forEach(item, (value, key) => {
+      if (!value) {
+        return;
+      }
+
+      let valueMongoQuery: FilterQuery<any> = {};
+
+      switch (value.queryOp) {
+        case DataProviderFilterValueOperator.GreaterThan:
+          valueMongoQuery = {$gt: value.value};
+          break;
+        case DataProviderFilterValueOperator.GreaterThanOrEqual:
+          valueMongoQuery = {$gte: value.value};
+          break;
+        case DataProviderFilterValueOperator.In:
+          valueMongoQuery = {$in: value.value};
+          break;
+        case DataProviderFilterValueOperator.LessThan:
+          valueMongoQuery = {$lt: value.value};
+          break;
+        case DataProviderFilterValueOperator.LessThanOrEqual:
+          valueMongoQuery = {$lte: value.value};
+          break;
+        case DataProviderFilterValueOperator.NotEqual:
+          valueMongoQuery = {$ne: value.value};
+          break;
+        case DataProviderFilterValueOperator.NotIn:
+          valueMongoQuery = {$nin: value.value};
+          break;
+        case DataProviderFilterValueOperator.Regex:
+          valueMongoQuery = {$regex: value.value, $options: 'i'};
+          break;
+        case DataProviderFilterValueOperator.Object:
+          valueMongoQuery = {$elemMatch: value.value};
+          break;
+        case DataProviderFilterValueOperator.Equal:
+          valueMongoQuery = {$eq: value.value};
+          break;
+        case DataProviderFilterValueOperator.None:
+        default:
+          valueMongoQuery = value.value;
+      }
+
+      if (
+        value.logicalOp &&
+        value.logicalOp === DataProviderFilterValueLogicalOperator.Not
+      ) {
+        valueMongoQuery = {$not: valueMongoQuery};
+      }
+
+      itemMongoQuery[key] = valueMongoQuery;
+    });
+
+    return itemMongoQuery;
+  });
+
+  let query: FilterQuery<any> = {};
+
+  if (queries.length === 1) {
+    query = queries[0];
+  } else {
+    switch (filter.combineOp) {
+      case DataProviderFilterCombineOperator.And:
+        query.$and = queries;
+        break;
+      case DataProviderFilterCombineOperator.Nor:
+        query.$nor = queries;
+        break;
+      case DataProviderFilterCombineOperator.Or:
+      default:
+        query.$or = queries;
+        break;
+    }
+  }
+
+  return query;
+}

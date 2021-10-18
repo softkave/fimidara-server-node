@@ -1,6 +1,7 @@
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {agentExtractor} from '../utils';
+import {FolderNotFoundError} from './errors';
 import {IPublicFolder} from './types';
 
 const folderFields = getFields<IPublicFolder>({
@@ -19,3 +20,13 @@ const folderFields = getFields<IPublicFolder>({
 
 export const folderExtractor = makeExtract(folderFields);
 export const folderListExtractor = makeListExtract(folderFields);
+
+export function throwFolderNotFound() {
+  throw new FolderNotFoundError();
+}
+
+export abstract class FolderUtils {
+  static getPublicFolder = folderExtractor;
+  static getPublicFolderList = folderListExtractor;
+  static throwFolderNotFound = throwFolderNotFound;
+}

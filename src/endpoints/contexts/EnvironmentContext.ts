@@ -9,6 +9,10 @@ export interface IEnvironmentContext {
     ctx: IBaseContext,
     environmentId: string
   ) => Promise<IEnvironment | null>;
+  getEnvironmentsByOrganizationId: (
+    ctx: IBaseContext,
+    organizationId: string
+  ) => Promise<IEnvironment[]>;
   getEnvironmentsByIds: (
     ctx: IBaseContext,
     environmentIds: string[]

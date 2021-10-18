@@ -22,3 +22,8 @@ const fileFields = getFields<IPublicFile>({
 
 export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
+
+export abstract class FileUtils {
+  static getPublicFile = fileExtractor;
+  static getPublicFileList = fileListExtractor;
+}

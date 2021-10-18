@@ -17,7 +17,7 @@ const folderSchema = ensureTypeFields<IFolder>({
   description: {type: String},
 });
 
-export interface IFolderDocument extends Document, IFolder {}
+export type IFolderDocument = Document<IFolder>;
 
 const schema = new Schema<IFolderDocument>(folderSchema);
 const modelName = 'folder';

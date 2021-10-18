@@ -46,6 +46,11 @@ import {getSessionContext, ISessionContext} from './SessionContext';
 import {getFolderDatabaseModel, IFolderDatabaseModel} from '../../db/folder';
 import {IFolderProvider} from './FolderProvider';
 import {getFolderDatabaseProvider} from './FolderDatabaseProvider';
+import {IDataProvider} from './DataProvider';
+import {IFolder} from '../../definitions/folder';
+import MongoDataProvider from './MongoDataProvider';
+import {throwFolderNotFound} from '../folders/utils';
+import {IFile} from '../../definitions/file';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -57,6 +62,11 @@ export interface IBaseContextDatabaseModels {
   userToken: IUserTokenModel;
   collaborationRequest: ICollaborationRequestModel;
   folder: IFolderDatabaseModel;
+}
+
+export interface IBaseContextDataProviders {
+  folder: IDataProvider<IFolder>;
+  file: IDataProvider<IFile>;
 }
 
 export interface IBaseContext {
@@ -75,6 +85,7 @@ export interface IBaseContext {
   userToken: IUserTokenContext;
   collaborationRequest: ICollaborationRequestContext;
   folder: IFolderProvider;
+  data: IBaseContextDataProviders;
 }
 
 export default class BaseContext implements IBaseContext {
@@ -106,6 +117,10 @@ export default class BaseContext implements IBaseContext {
       userToken: getUserTokenModel(connection),
       collaborationRequest: getCollaborationRequestModel(connection),
       folder: getFolderDatabaseModel(connection),
+    };
+
+    this.data = {
+      folder: new MongoDataProvider(this.db.folder, throwFolderNotFound),
     };
   }
 }
