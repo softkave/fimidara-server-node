@@ -21,3 +21,9 @@ export interface IAgent {
   agentId: string;
   agentType: SessionAgentType;
 }
+
+export enum ResourceType {
+  Bucket = 'bucket',
+  Folder = 'folder',
+  File = 'file',
+}

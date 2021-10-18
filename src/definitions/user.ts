@@ -1,6 +1,7 @@
 export interface IUserOrganization {
   organizationId: string;
   joinedAt: string;
+  roles: string[];
 }
 
 export interface IUser {

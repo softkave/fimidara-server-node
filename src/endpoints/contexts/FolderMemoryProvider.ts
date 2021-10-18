@@ -1,7 +1,7 @@
 import {IFolder} from '../../definitions/folder';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
-import {FolderDoesNotExistError} from '../folders/errors';
+import {FolderNotFoundError} from '../folders/errors';
 import {IBaseContext} from './BaseContext';
 import {IFolderProvider} from './FolderProvider';
 

@@ -3,9 +3,11 @@ import {IAgent} from './system';
 export interface IFile {
   fileId: string;
   organizationId: string;
-  // environmentId: string;
+  environmentId: string;
   bucketId: string;
   folderId?: string;
+  idPath: string[]; // TODO: idPath should be parent path
+  namePath: string[];
   mimetype: string;
   encoding: string;
   size: number;
@@ -15,5 +17,7 @@ export interface IFile {
   lastUpdatedAt?: string;
   name: string;
   description?: string;
-  meta?: Record<string, string | number | boolean | null>;
+  // meta?: Record<string, string | number | boolean | null>;
+
+  // TODO: look through other file platforms providers for features to implement
 }

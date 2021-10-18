@@ -7,12 +7,13 @@ export interface INewFileInput {
   description?: string;
   organizationId: string;
   environmentId: string;
+  bucketId: string;
   folderId?: string;
+  folderPath?: string;
   mimetype: string;
-  size: number;
   encoding: string;
   file: Buffer;
-  meta?: Record<string, string | number | boolean | null>;
+  // meta?: Record<string, string | number | boolean | null>;
 }
 
 export interface IUploadFileParams {

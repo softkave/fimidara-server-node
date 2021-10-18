@@ -9,7 +9,7 @@ const organizationSchema = ensureTypeFields<IOrganization>({
   createdAt: {type: Date, default: getDate},
   lastUpdatedBy: {type: String},
   lastUpdatedAt: {type: Date},
-  name: {type: String, unique: true, index: true},
+  name: {type: String},
   description: {type: String},
 });
 

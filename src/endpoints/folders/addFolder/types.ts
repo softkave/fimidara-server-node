@@ -5,8 +5,11 @@ import {IPublicFolder} from '../types';
 export interface INewFolderInput {
   organizationId: string;
   environmentId: string;
+  bucketId: string;
   name: string;
-  maxFileSize: number;
+  parentId?: string;
+  description?: string;
+  maxFileSize?: number;
 }
 
 export interface IAddFolderParams {
