@@ -16,11 +16,9 @@ import {addFolderJoiSchema} from './validation';
 async function internalCreateFolder(
   context: IBaseContext,
   user: IUser,
-  parentFolder: IFolder | null,
   input: INewFolderInput
 ) {
   const existingFolder = await context.data.folder.getItem(
-    // TODO: should we use parentId or namePath?
     FolderQueries.folderExists(input.bucketId, input.parentId, input.name)
   );
 
@@ -43,9 +41,6 @@ async function internalCreateFolder(
     maxFileSize: input.maxFileSize || fileConstants.maxFileSize,
     organizationId: input.organizationId,
     bucketId: input.bucketId,
-    idPath: parentFolder
-      ? parentFolder.idPath.concat(parentFolder.folderId)
-      : [],
   };
 
   return await context.data.folder.saveItem(newFolder);
@@ -59,7 +54,7 @@ export async function createFolderList(
   // TODO: add a max slash (folder separator count) for folder names and
   // if we're going to have arbitrarily deep folders, then we should rethink the
   // creation process for performance
-  const folderNames = input.name.split(folderConstants.folderNameSeparator);
+  const folderNames = input.name.split(folderConstants.nameSeparator);
   let previousFolder: IFolder | null = null;
 
   for (let i = 0; i < folderNames.length; i++) {
@@ -75,12 +70,7 @@ export async function createFolderList(
       maxFileSize: isInputFile ? input.maxFileSize : undefined,
     };
 
-    previousFolder = await internalCreateFolder(
-      context,
-      user,
-      previousFolder,
-      nextInput
-    );
+    previousFolder = await internalCreateFolder(context, user, nextInput);
   }
 
   if (!previousFolder) {

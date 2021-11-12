@@ -12,27 +12,18 @@ function getById(id: string) {
     .build();
 }
 
-function getByNamePath(namePath: string[], isPartial?: boolean) {
-  const name = namePath[namePath.length - 1];
-  const filter = newFilter().addItem(
-    'name',
-    name,
-    DataProviderFilterValueOperator.Regex
-  );
+function getByNameAndFolderId(name: string, folderId: string) {
+  return newFilter()
+    .addItem('name', name, DataProviderFilterValueOperator.Equal)
+    .addItem('folderId', folderId, DataProviderFilterValueOperator.Equal)
+    .build();
+}
 
-  if (isPartial) {
-    namePath.forEach((name, i) => {
-      filter.addItem(
-        `namePath.${i}`,
-        name,
-        DataProviderFilterValueOperator.Equal
-      );
-    });
-  } else {
-    filter.addItem('namePath', namePath, DataProviderFilterValueOperator.Equal);
-  }
-
-  return filter.build();
+function getByNameAndBUcketId(name: string, bucketId: string) {
+  return newFilter()
+    .addItem('name', name, DataProviderFilterValueOperator.Equal)
+    .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
+    .build();
 }
 
 function folderExists(
@@ -42,35 +33,29 @@ function folderExists(
 ) {
   return newFilter()
     .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
-    .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
+    .addItem('folderId', parentId, DataProviderFilterValueOperator.Equal)
     .addItem('name', name, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getFoldersByParentId(parentId: string) {
+function getFilesByParentId(parentId: string) {
   return newFilter()
-    .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
+    .addItem('folderId', parentId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getFoldersByParentNamePath(parentPath: string[]) {
-  return newFilter()
-    .addItem('namePath', parentPath, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getImmediateFoldersByBucketId(bucketId: string) {
+function getFilesByBucketId(bucketId: string) {
   return newFilter()
     .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
-    .addItem('namePath', [], DataProviderFilterValueOperator.Equal)
+    .addItem('folderId', null, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class FileQueries {
   static getById = getById;
   static folderExists = folderExists;
-  static getByNamePath = getByNamePath;
-  static getFoldersByParentId = getFoldersByParentId;
-  static getFoldersByParentNamePath = getFoldersByParentNamePath;
-  static getImmediateFoldersByBucketId = getImmediateFoldersByBucketId;
+  static getFilesByParentId = getFilesByParentId;
+  static getFilesByBucketId = getFilesByBucketId;
+  static getByNameAndBUcketId = getByNameAndBUcketId;
+  static getByNameAndFolderId = getByNameAndFolderId;
 }
