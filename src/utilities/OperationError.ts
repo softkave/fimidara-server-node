@@ -1,3 +1,5 @@
+import {isObject, isString} from 'lodash';
+
 export interface IOperationErrorParameters {
   message?: string;
   field?: string;
@@ -11,17 +13,19 @@ class OperationError extends Error {
   public action?: string;
   public value?: string;
 
-  constructor(props: IOperationErrorParameters = {}) {
-    super(props.message);
+  constructor(props?: IOperationErrorParameters | string) {
+    super(isString(props) ? props : props?.message);
 
-    // error data path
-    this.field = props.field;
+    if (isObject(props)) {
+      // error data path
+      this.field = props.field;
 
-    // recommended action for the client
-    this.action = props.action;
+      // recommended action for the client
+      this.action = props.action;
 
-    if (props.value) {
-      this.value = JSON.stringify(props.value);
+      if (props.value) {
+        this.value = JSON.stringify(props.value);
+      }
     }
   }
 }

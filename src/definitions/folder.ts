@@ -2,8 +2,6 @@ import {IAgent} from './system';
 
 export interface IFolder {
   folderId: string;
-  idPath: string[]; // TODO: idPath should be parent path
-  namePath: string[];
   organizationId: string;
   bucketId: string;
   environmentId: string;

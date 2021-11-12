@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
 
-export const getFoldersJoiSchema = Joi.object()
+export const listFolderContentJoiSchema = Joi.object()
   .keys({
     organizationId: validationSchemas.nanoid.required(),
   })

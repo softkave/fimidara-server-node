@@ -22,7 +22,7 @@ export interface IAgent {
   agentType: SessionAgentType;
 }
 
-export enum ResourceType {
+export enum AppResourceType {
   Bucket = 'bucket',
   Folder = 'folder',
   File = 'file',

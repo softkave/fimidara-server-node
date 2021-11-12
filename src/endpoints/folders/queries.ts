@@ -12,24 +12,21 @@ function getById(id: string) {
     .build();
 }
 
-function getByNamePath(namePath: string[], isPartial?: boolean) {
-  const name = namePath[namePath.length - 1];
-  const filter = newFilter().addItem(
+function getByName(name: string, parent?: IFolder) {
+  const filter: DataProviderFilterBuilder<IFolder> = newFilter().addItem(
     'name',
     name,
-    DataProviderFilterValueOperator.Regex
+    DataProviderFilterValueOperator.Equal
   );
 
-  if (isPartial) {
-    namePath.forEach((name, i) => {
-      filter.addItem(
-        `namePath.${i}`,
-        name,
-        DataProviderFilterValueOperator.Equal
-      );
-    });
+  if (parent) {
+    filter.addItem(
+      'parentId',
+      parent.folderId,
+      DataProviderFilterValueOperator.Equal
+    );
   } else {
-    filter.addItem('namePath', namePath, DataProviderFilterValueOperator.Equal);
+    filter.addItem('parentId', null, DataProviderFilterValueOperator.Equal);
   }
 
   return filter.build();
@@ -53,24 +50,17 @@ function getFoldersByParentId(parentId: string) {
     .build();
 }
 
-function getFoldersByParentNamePath(parentPath: string[]) {
-  return newFilter()
-    .addItem('namePath', parentPath, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getImmediateFoldersByBucketId(bucketId: string) {
+function getFoldersByBucketId(bucketId: string) {
   return newFilter()
     .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
-    .addItem('namePath', [], DataProviderFilterValueOperator.Equal)
+    .addItem('parentId', null, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class FolderQueries {
   static getById = getById;
+  static getByName = getByName;
   static folderExists = folderExists;
-  static getByNamePath = getByNamePath;
   static getFoldersByParentId = getFoldersByParentId;
-  static getFoldersByParentNamePath = getFoldersByParentNamePath;
-  static getImmediateFoldersByBucketId = getImmediateFoldersByBucketId;
+  static getFoldersByBucketId = getFoldersByBucketId;
 }

@@ -1,4 +1,4 @@
-import {ResourceType} from './system';
+import {AppResourceType} from './system';
 
 export enum AccessEntityType {
   ProgramAccessToken = 'program-access-token',
@@ -13,7 +13,7 @@ export interface IAccessControlItem {
   environmentId?: string;
   createdAt: string;
   resourceId: string;
-  resourceType: ResourceType;
+  resourceType: AppResourceType;
   accessEntityId: string;
   accessEntityType: AccessEntityType;
 }
