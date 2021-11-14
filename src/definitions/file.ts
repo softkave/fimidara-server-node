@@ -6,8 +6,8 @@ export interface IFile {
   environmentId: string;
   bucketId: string;
   folderId?: string;
-  mimetype: string;
-  encoding: string;
+  mimetype?: string;
+  encoding?: string;
   size: number;
   createdBy: IAgent;
   createdAt: string;

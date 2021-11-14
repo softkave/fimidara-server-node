@@ -37,28 +37,32 @@ export async function getFileByName(
       FileQueries.getByNameAndFolderId(fileName, folder.folderId)
     );
   } else if (bucketId) {
+    return await context.data.file.assertGetItem(
+      FileQueries.getByNameAndBucketId(fileName, bucketId)
+    );
   }
+
+  throw new InvalidRequestError('Missing bucket or folder');
 }
 
 export async function getFileByIdOrPath(
   context: IBaseContext,
   fileId: string | null | undefined,
-  path: string | null | undefined
+  path: string | null | undefined,
+  bucketId?: string
 ) {
   if (fileId) {
     return await context.data.file.assertGetItem(FileQueries.getById(fileId));
   } else if (path) {
-    return await context.data.file.assertGetItem(
-      FileQueries.getByNamePath(path.split(folderConstants.nameSeparator))
-    );
+    return await getFileByName(context, path, bucketId);
   }
 
-  throw new Error(); // TODO: add the right error
+  throw new InvalidRequestError('Missing file ID or file path');
 }
 
 const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileDetailsJoiSchema);
-  const user = await context.session.getUser(context, instData);
+  await context.session.getUser(context, instData);
   const file = await getFileByIdOrPath(context, data.fileId, data.path);
 
   return {

@@ -5,18 +5,16 @@ import {IPublicFile} from '../types';
 export interface INewFileInput {
   name: string;
   description?: string;
+  mimetype: string; // TODO: define mimetypes
+  encoding?: string;
+  data: Buffer;
+}
+
+export interface IUploadFileParams {
   organizationId: string;
   environmentId: string;
   bucketId: string;
   folderId?: string;
-  folderPath?: string;
-  mimetype: string;
-  encoding: string;
-  file: Buffer;
-  // meta?: Record<string, string | number | boolean | null>;
-}
-
-export interface IUploadFileParams {
   file: INewFileInput;
 }
 

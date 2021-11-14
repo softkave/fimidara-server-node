@@ -7,7 +7,7 @@ interface IEnvVariables {
   twilioAccountSID: string;
   twilioAuthToken: string;
   twilioVerificationServiceSID: string;
-  // S3Bucket: string;
+  S3Bucket: string;
 }
 
 export interface IAppVariables extends IEnvVariables {
@@ -33,7 +33,7 @@ const extractSchema: Record<
     required: false,
     name: 'CLIENT_DOMAIN',
     // defaultValue: 'https://www.files-by-softkave.com',
-    defaultValue: 'https://www.files.softkave.com',
+    defaultValue: 'https://files.softkave.com',
   },
   mongoDbURI: {
     required: true,
@@ -64,10 +64,10 @@ const extractSchema: Record<
     required: true,
     name: 'TWILIO_VERIFY_SERVICE_SID',
   },
-  // S3Bucket: {
-  //     required: true,
-  //     name: 'S3_BUCKET',
-  // },
+  S3Bucket: {
+    required: true,
+    name: 'S3_BUCKET',
+  },
 };
 
 export function extractEnvVariables(): IAppVariables {

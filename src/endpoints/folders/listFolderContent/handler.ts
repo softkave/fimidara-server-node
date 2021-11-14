@@ -1,7 +1,8 @@
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {InvalidRequestError} from '../../errors';
-import {folderConstants} from '../constants';
+import FileQueries from '../../files/queries';
+import {FileUtils} from '../../files/utils';
 import {getFolderByName} from '../getFolder/handler';
 import FolderQueries from '../queries';
 import {FolderUtils} from '../utils';
@@ -15,20 +16,27 @@ export async function getFoldersByBucketIdParentIdOrPath(
   parentPath: string | null | undefined
 ) {
   if (bucketId) {
-    return await context.data.folder.getManyItems(
-      FolderQueries.getFoldersByBucketId(bucketId)
-    );
-  }
-
-  if (parentId) {
-    return await context.data.folder.getManyItems(
-      FolderQueries.getFoldersByParentId(parentId)
-    );
+    return await Promise.all([
+      context.data.folder.getManyItems(
+        FolderQueries.getFoldersByBucketId(bucketId)
+      ),
+      context.data.file.getManyItems(FileQueries.getFilesByBucketId(bucketId)),
+    ]);
   }
 
   if (parentPath) {
     const folders = await getFolderByName(context, parentPath);
-    return folders[folders.length - 1];
+    const parentFolder = folders[folders.length - 1];
+    parentId = parentFolder.folderId;
+  }
+
+  if (parentId) {
+    return await Promise.all([
+      context.data.folder.getManyItems(
+        FolderQueries.getFoldersByParentId(parentId)
+      ),
+      context.data.file.getManyItems(FileQueries.getFilesByParentId(parentId)),
+    ]);
   }
 
   throw new InvalidRequestError(
@@ -42,7 +50,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
 ) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   await context.session.getUser(context, instData);
-  const folders = await getFoldersByBucketIdParentIdOrPath(
+  const [folders, files] = await getFoldersByBucketIdParentIdOrPath(
     context,
     data.bucketId,
     data.parentFolderId,
@@ -51,6 +59,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
 
   return {
     folders: FolderUtils.getPublicFolderList(folders),
+    files: FileUtils.getPublicFileList(files),
   };
 };
 
