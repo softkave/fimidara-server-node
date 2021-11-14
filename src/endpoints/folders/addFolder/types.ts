@@ -6,7 +6,7 @@ export interface INewFolderInput {
   organizationId: string;
   environmentId: string;
   bucketId: string;
-  name: string;
+  path: string;
   parentId?: string;
   description?: string;
   maxFileSize?: number;

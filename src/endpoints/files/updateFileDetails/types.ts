@@ -3,28 +3,24 @@ import {Endpoint} from '../../types';
 import {IPublicFile} from '../types';
 
 // TODO: should we able to move files accross buckets and environments
-export interface INewFileInput {
-  name: string;
+export interface IUpdateFileDetailsInput {
+  // TODO: allow moving of files accross directories
+  name?: string;
   description?: string;
-  environmentId: string;
-  bucketId: string;
-  folderId?: string;
-  folderPath?: string;
-  mimetype: string;
-  encoding: string;
-  // meta?: Record<string, string | number | boolean | null>;
+  mimetype?: string;
 }
 
-export interface IUploadFileParams {
-  file: INewFileInput;
+export interface IUpdateFileDetailsEndpointParams {
+  fileId: string;
+  data: IUpdateFileDetailsInput;
 }
 
-export interface IUploadFileResult {
+export interface IUpdateFileDetailsEndpointResult {
   file: IPublicFile;
 }
 
-export type UploadFileEndpoint = Endpoint<
+export type UpdateFileDetailsEndpoint = Endpoint<
   IBaseContext,
-  IUploadFileParams,
-  IUploadFileResult
+  IUpdateFileDetailsEndpointParams,
+  IUpdateFileDetailsEndpointResult
 >;

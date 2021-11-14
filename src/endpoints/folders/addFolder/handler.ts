@@ -19,7 +19,7 @@ async function internalCreateFolder(
   input: INewFolderInput
 ) {
   const existingFolder = await context.data.folder.getItem(
-    FolderQueries.folderExists(input.bucketId, input.parentId, input.name)
+    FolderQueries.folderExists(input.bucketId, input.parentId, input.path)
   );
 
   if (existingFolder) {
@@ -29,7 +29,7 @@ async function internalCreateFolder(
   const newFolderId = getNewId();
   const newFolder: IFolder = {
     parentId: input.parentId,
-    name: input.name,
+    name: input.path,
     createdAt: getDateString(),
     createdBy: {
       agentId: user.userId,
@@ -54,9 +54,10 @@ export async function createFolderList(
   // TODO: add a max slash (folder separator count) for folder names and
   // if we're going to have arbitrarily deep folders, then we should rethink the
   // creation process for performance
-  const folderNames = input.name.split(folderConstants.nameSeparator);
+  const folderNames = input.path.split(folderConstants.nameSeparator);
   let previousFolder: IFolder | null = null;
 
+  // TODO: create folders in a transaction and revert if there's an error
   for (let i = 0; i < folderNames.length; i++) {
     const nextInputName = folderNames[i];
     const isInputFile = i === folderNames.length - 1;
@@ -64,7 +65,7 @@ export async function createFolderList(
       organizationId: input.organizationId,
       environmentId: input.environmentId,
       bucketId: input.bucketId,
-      name: nextInputName,
+      path: nextInputName,
       parentId: previousFolder ? previousFolder.folderId : undefined,
       description: isInputFile ? input.description : undefined,
       maxFileSize: isInputFile ? input.maxFileSize : undefined,

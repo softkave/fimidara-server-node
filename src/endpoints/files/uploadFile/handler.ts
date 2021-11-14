@@ -1,10 +1,10 @@
 import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
 import {SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import {createFolderList} from '../../folders/addFolder/handler';
+import FolderQueries from '../../folders/queries';
+import FileQueries from '../queries';
 import {FileUtils} from '../utils';
 import {UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
@@ -12,39 +12,57 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const user = await context.session.getUser(context, instData);
-  let parentFolder: IFolder | null = null;
+  const parentFolder = data.folderId
+    ? await context.data.folder.assertGetItem(
+        FolderQueries.getById(data.folderId)
+      )
+    : null;
 
-  if (data.file.folderPath) {
-    parentFolder = await createFolderList(context, user, {
-      bucketId: data.file.bucketId,
-      environmentId: data.file.environmentId,
-      name: data.file.folderPath,
-      organizationId: data.file.organizationId,
-    });
+  let file = data.folderId
+    ? await context.data.file.getItem(
+        FileQueries.getByNameAndFolderId(data.file.name, data.folderId)
+      )
+    : data.bucketId
+    ? await context.data.file.getItem(
+        FileQueries.getByNameAndBucketId(data.file.name, data.bucketId)
+      )
+    : null;
+
+  if (!file) {
+    const newFile: IFile = {
+      fileId: getNewId(),
+      organizationId: data.organizationId,
+      environmentId: data.environmentId,
+      bucketId: data.bucketId,
+      folderId: parentFolder?.folderId,
+      mimetype: data.file.mimetype,
+      size: data.file.data.byteLength,
+      createdBy: {
+        agentId: user.userId,
+        agentType: SessionAgentType.User,
+      },
+      createdAt: getDateString(),
+      name: data.file.name,
+      description: data.file.description,
+      encoding: data.file.encoding,
+    };
+
+    file = await context.data.file.saveItem(newFile);
   }
 
-  const newFile: IFile = {
-    fileId: getNewId(),
-    organizationId: data.file.organizationId,
-    environmentId: data.file.environmentId,
-    bucketId: data.file.bucketId,
-    folderId: parentFolder?.folderId,
-    mimetype: data.file.mimetype,
-    encoding: data.file.encoding,
-    size: data.file.file.byteLength,
-    createdBy: {
-      agentId: user.userId,
-      agentType: SessionAgentType.User,
-    },
-    createdAt: getDateString(),
-    name: data.file.name,
-    description: data.file.description,
-  };
-
-  const savedFile = await context.data.file.saveItem(newFile);
+  await context.s3
+    .putObject({
+      Bucket: context.appVariables.S3Bucket,
+      Key: file.fileId,
+      Body: data.file.data,
+      ContentType: data.file.mimetype,
+      ContentEncoding: data.file.encoding,
+      ContentLength: data.file.data.byteLength,
+    })
+    .promise();
 
   return {
-    file: FileUtils.getPublicFile(savedFile),
+    file: FileUtils.getPublicFile(file),
   };
 };
 

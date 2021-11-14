@@ -4,7 +4,7 @@ import {getUserModel, IUserModel} from '../../db/user';
 import {IAppVariables, appVariables} from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
 import {getOrganizationModel, IOrganizationModel} from '../../db/organization';
-import {SES} from 'aws-sdk';
+import {SES, S3} from 'aws-sdk';
 import aws from '../../resources/aws';
 import twilioClient from '../../resources/twilio';
 import {getFileModel, IFileModel} from '../../db/file';
@@ -71,6 +71,7 @@ export interface IBaseContextDataProviders {
 
 export interface IBaseContext {
   ses: SES;
+  s3: S3;
   twilio: Twilio;
   dbConnection: Connection;
   db: IBaseContextDatabaseModels;

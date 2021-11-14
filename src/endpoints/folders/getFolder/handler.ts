@@ -3,6 +3,7 @@ import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {InvalidRequestError} from '../../errors';
 import {folderConstants} from '../constants';
+import {FolderNotFoundError} from '../errors';
 import FolderQueries from '../queries';
 import {folderExtractor} from '../utils';
 import {GetFolderEndpoint} from './types';
@@ -26,7 +27,9 @@ export async function getFolderByName(
     folders.push(folder);
   }
 
-  // TODO: throw error if folders length is 0, or make an assertGetFolderByName that does
+  if (folders.length === 0) {
+    throw new FolderNotFoundError();
+  }
 
   return folders;
 }

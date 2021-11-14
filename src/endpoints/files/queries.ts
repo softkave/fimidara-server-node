@@ -56,6 +56,6 @@ export default abstract class FileQueries {
   static folderExists = folderExists;
   static getFilesByParentId = getFilesByParentId;
   static getFilesByBucketId = getFilesByBucketId;
-  static getByNameAndBUcketId = getByNameAndBUcketId;
+  static getByNameAndBucketId = getByNameAndBUcketId;
   static getByNameAndFolderId = getByNameAndFolderId;
 }

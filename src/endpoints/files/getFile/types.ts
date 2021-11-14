@@ -6,7 +6,7 @@ export interface IGetFileEndpointParams {
 }
 
 export interface IGetFileEndpointResult {
-  file: Buffer;
+  file?: Buffer;
 }
 
 export type GetFileEndpoint = Endpoint<
