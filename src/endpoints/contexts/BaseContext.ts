@@ -53,6 +53,7 @@ import {throwFolderNotFound} from '../folders/utils';
 import {IFile} from '../../definitions/file';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
+import {IBucket} from '../../definitions/bucket';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -71,6 +72,7 @@ export interface IBaseContextDataProviders {
   file: IDataProvider<IFile>;
   clientAssignedToken: IDataProvider<IClientAssignedToken>;
   programAccessToken: IDataProvider<IProgramAccessToken>;
+  bucket: IDataProvider<IBucket>;
 }
 
 export interface IBaseContext {
