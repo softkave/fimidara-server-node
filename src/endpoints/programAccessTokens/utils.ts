@@ -1,24 +1,25 @@
-import {IOrganization} from '../../definitions/organization';
-import {IUser} from '../../definitions/user';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {IPublicOrganization} from './types';
+import {IPublicProgramAccessToken} from './types';
 
-const organizationFields = getFields<IPublicOrganization>({
-  organizationId: true,
-  createdBy: true,
+const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
+  tokenId: true,
+  hash: true,
   createdAt: getDateString,
-  lastUpdatedBy: true,
-  lastUpdatedAt: getDateString,
-  name: true,
-  description: true,
+  createdBy: true,
+  organizationId: true,
+  environmentId: true,
 });
 
-export const organizationExtractor = makeExtract(organizationFields);
-export const organizationListExtractor = makeListExtract(organizationFields);
+export const programAccessTokenExtractor = makeExtract(
+  programAccessTokenFields
+);
 
-export function canReadOrganization(user: IUser, organization: IOrganization) {
-  return user.organizations.find(
-    organization => organization.organizationId === organization.organizationId
-  );
+export const programAccessTokenListExtractor = makeListExtract(
+  programAccessTokenFields
+);
+
+export abstract class ProgramAccessTokenUtils {
+  static extractPublicToken = programAccessTokenExtractor;
+  static extractPublicTokenList = programAccessTokenListExtractor;
 }

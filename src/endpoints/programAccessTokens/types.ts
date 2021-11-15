@@ -1,9 +1,8 @@
-export interface IPublicOrganization {
-  organizationId: string;
-  createdBy: string;
+export interface IPublicProgramAccessToken {
+  tokenId: string;
+  hash: string;
   createdAt: string;
-  lastUpdatedBy?: string;
-  lastUpdatedAt?: string;
-  name: string;
-  description?: string;
+  createdBy: string;
+  organizationId: string;
+  environmentId: string;
 }
