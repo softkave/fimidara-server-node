@@ -1,15 +1,16 @@
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {agentExtractor} from '../utils';
 import {IPublicClientAssignedToken} from './types';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   tokenId: true,
-  createdAt: true,
+  createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
   environmentId: true,
   version: true,
-  issuedAt: true,
+  issuedAt: getDateString,
   expires: true,
 });
 
