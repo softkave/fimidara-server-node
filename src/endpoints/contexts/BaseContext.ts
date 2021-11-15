@@ -51,6 +51,8 @@ import {IFolder} from '../../definitions/folder';
 import MongoDataProvider from './MongoDataProvider';
 import {throwFolderNotFound} from '../folders/utils';
 import {IFile} from '../../definitions/file';
+import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
+import {IProgramAccessToken} from '../../definitions/programAccessToken';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -67,6 +69,8 @@ export interface IBaseContextDatabaseModels {
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
   file: IDataProvider<IFile>;
+  clientAssignedToken: IDataProvider<IClientAssignedToken>;
+  programAccessToken: IDataProvider<IProgramAccessToken>;
 }
 
 export interface IBaseContext {
@@ -77,15 +81,6 @@ export interface IBaseContext {
   db: IBaseContextDatabaseModels;
   appVariables: IAppVariables;
   session: ISessionContext;
-  user: IUserContext;
-  organization: IOrganizationContext;
-  environment: IEnvironmentContext;
-  file: IFileContext;
-  programAccessToken: IProgramAccessTokenContext;
-  clientAssignedToken: IClientAssignedTokenContext;
-  userToken: IUserTokenContext;
-  collaborationRequest: ICollaborationRequestContext;
-  folder: IFolderProvider;
   data: IBaseContextDataProviders;
 }
 
@@ -96,15 +91,6 @@ export default class BaseContext implements IBaseContext {
   public appVariables = appVariables;
   public dbConnection: Connection;
   public db: IBaseContextDatabaseModels;
-  public user = getUserContext();
-  public organization = getOrganizationContext();
-  public file = getFileContext();
-  public environment = getEnvironmentContext();
-  public programAccessToken = getProgramTokenContext();
-  public clientAssignedToken = getClientAssignedTokenContext();
-  public userToken = getUserTokenContext();
-  public collaborationRequest = getCollaborationRequestContext();
-  public folder = getFolderDatabaseProvider();
 
   constructor(connection: Connection) {
     this.dbConnection = connection;
