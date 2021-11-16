@@ -1,14 +1,19 @@
 == Architecture 01
 
 - user accounts
-- organizations
+- organizations OR workspaces
   - collaborators
-  - environments [there is a default environment]
-    - files and folders
-    - program access tokens
-    - client access tokens with optional auth URL
+  - environments [there is a default environment] with auth URL
+    - buckets with auth URL
+      - files and folders
+      - program access tokens
+      - client access tokens
+    - audit logs
 - pipelines (uploads or requests), actions, transformers, matchers, storage
 - CDN
+- clusters and separation
+- client provided backend
+- pricing
 
 user
 - signup

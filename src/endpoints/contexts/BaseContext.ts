@@ -22,30 +22,8 @@ import {
   getCollaborationRequestModel,
   ICollaborationRequestModel,
 } from '../../db/collaborationRequest';
-import {getUserContext, IUserContext} from './UserContext';
-import {
-  getProgramTokenContext,
-  IProgramAccessTokenContext,
-} from './ProgramAccessTokenContext';
-import {getUserTokenContext, IUserTokenContext} from './UserTokenContext';
-import {
-  getClientAssignedTokenContext,
-  IClientAssignedTokenContext,
-} from './ClientAssignedTokenContext';
-import {
-  getCollaborationRequestContext,
-  ICollaborationRequestContext,
-} from './CollaborationRequestContext';
-import {getEnvironmentContext, IEnvironmentContext} from './EnvironmentContext';
-import {getFileContext, IFileContext} from './FileContext';
-import {
-  getOrganizationContext,
-  IOrganizationContext,
-} from './OrganizationContext';
 import {getSessionContext, ISessionContext} from './SessionContext';
 import {getFolderDatabaseModel, IFolderDatabaseModel} from '../../db/folder';
-import {IFolderProvider} from './FolderProvider';
-import {getFolderDatabaseProvider} from './FolderDatabaseProvider';
 import {IDataProvider} from './DataProvider';
 import {IFolder} from '../../definitions/folder';
 import MongoDataProvider from './MongoDataProvider';
@@ -54,6 +32,8 @@ import {IFile} from '../../definitions/file';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IBucket} from '../../definitions/bucket';
+import {IPermissionItem} from '../../definitions/permissionItem';
+import {IPresetPermissionsItem} from '../../definitions/presetPermissionsItem';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -73,6 +53,8 @@ export interface IBaseContextDataProviders {
   clientAssignedToken: IDataProvider<IClientAssignedToken>;
   programAccessToken: IDataProvider<IProgramAccessToken>;
   bucket: IDataProvider<IBucket>;
+  permissionItem: IDataProvider<IPermissionItem>;
+  presetPermissionItem: IDataProvider<IPresetPermissionsItem>;
 }
 
 export interface IBaseContext {

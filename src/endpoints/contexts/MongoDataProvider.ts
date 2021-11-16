@@ -125,22 +125,22 @@ export default class MongoDataProvider<T extends Record<string, unknown>>
     await this.model.insertMany(data);
   });
 
-  bulkDeleteItems = wrapFireAndThrowError(
-    async (
-      items: Array<{
-        filter: IDataProviderFilter<T>;
-        deleteFirstItemOnly?: boolean;
-      }>
-    ) => {
-      await this.model.bulkWrite(
-        items.map(item => ({
-          [item.deleteFirstItemOnly ? 'deleteOne' : 'deleteMany']: {
-            filter: getMongoQueryFromFilter(item.filter),
-          },
-        }))
-      );
-    }
-  );
+  // bulkDeleteItems = wrapFireAndThrowError(
+  //   async (
+  //     items: Array<{
+  //       filter: IDataProviderFilter<T>;
+  //       deleteFirstItemOnly?: boolean;
+  //     }>
+  //   ) => {
+  //     await this.model.bulkWrite(
+  //       items.map(item => ({
+  //         [item.deleteFirstItemOnly ? 'deleteOne' : 'deleteMany']: {
+  //           filter: getMongoQueryFromFilter(item.filter),
+  //         },
+  //       }))
+  //     );
+  //   }
+  // );
 
   bulkUpdateItems = wrapFireAndThrowError(
     async (
