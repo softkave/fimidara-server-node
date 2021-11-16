@@ -54,7 +54,7 @@ export interface IBaseContextDataProviders {
   programAccessToken: IDataProvider<IProgramAccessToken>;
   bucket: IDataProvider<IBucket>;
   permissionItem: IDataProvider<IPermissionItem>;
-  presetPermissionItem: IDataProvider<IPresetPermissionsItem>;
+  presetPermissionsItem: IDataProvider<IPresetPermissionsItem>;
 }
 
 export interface IBaseContext {
