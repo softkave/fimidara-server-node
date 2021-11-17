@@ -4,7 +4,7 @@ import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
-  JWTEndpoint,
+  TokenAudience,
   CURRENT_USER_TOKEN_VERSION,
 } from '../../contexts/UserTokenContext';
 import {InvalidEmailOrPasswordError} from '../errors';
@@ -38,7 +38,7 @@ const login: LoginEndpoint = async (context, instData) => {
     (await context.userToken.saveToken(context, {
       tokenId: getNewId(),
       userId: userData.userId,
-      audience: [JWTEndpoint.Login],
+      audience: [TokenAudience.Login],
       issuedAt: getDateString(),
       version: CURRENT_USER_TOKEN_VERSION,
     }));

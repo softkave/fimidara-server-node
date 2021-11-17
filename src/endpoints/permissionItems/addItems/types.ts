@@ -11,7 +11,9 @@ export interface INewPermissionItemInput {
   permissionOwnerType: AppResourceType;
   permissionEntityId: string;
   permissionEntityType: PermissionEntityType;
+  resourceType: AppResourceType;
   action: BasicCRUDActions;
+  isExclude?: boolean;
 }
 
 export interface IAddPermissionItemsParams {

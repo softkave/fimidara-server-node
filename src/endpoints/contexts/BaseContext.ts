@@ -37,6 +37,8 @@ import {IPresetPermissionsItem} from '../../definitions/presetPermissionsItem';
 import {IOrganization} from '../../definitions/organization';
 import {IEnvironment} from '../../definitions/environment';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
+import {IUser} from '../../definitions/user';
+import {IUserToken} from '../../definitions/userToken';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -61,6 +63,8 @@ export interface IBaseContextDataProviders {
   organization: IDataProvider<IOrganization>;
   environment: IDataProvider<IEnvironment>;
   collaborationRequest: IDataProvider<ICollaborationRequest>;
+  user: IDataProvider<IUser>;
+  userToken: IDataProvider<IUserToken>;
 }
 
 export interface IBaseContext {

@@ -1,5 +1,5 @@
 export interface IPresetPermissionsItem {
-  itemId: string;
+  presetId: string;
   organizationId: string;
   createdAt: string;
   createdBy: string;
@@ -7,4 +7,11 @@ export interface IPresetPermissionsItem {
   lastUpdatedBy?: string;
   name: string;
   description?: string;
+}
+
+export interface IAssignedPresetItem {
+  presetId: string;
+  assignedAt: string;
+  assignedBy: string;
+  order: number;
 }

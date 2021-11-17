@@ -2,7 +2,7 @@ import {UserDoesNotExistError, EmailAddressVerifiedError} from '../errors';
 import {ConfirmEmailAddressEndpoint} from './types';
 import {getDateString} from '../../../utilities/dateFns';
 import {userExtractor} from '../utils';
-import {JWTEndpoint} from '../../contexts/UserTokenContext';
+import {TokenAudience} from '../../contexts/UserTokenContext';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
@@ -10,7 +10,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   instData
 ) => {
   const user = await context.session.getUser(context, instData, [
-    JWTEndpoint.ConfirmEmailAddress,
+    TokenAudience.ConfirmEmailAddress,
   ]);
 
   if (user.isEmailVerified) {
@@ -30,7 +30,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   const verifyToken = await context.session.getUserTokenData(
     context,
     instData,
-    [JWTEndpoint.ConfirmEmailAddress]
+    [TokenAudience.ConfirmEmailAddress]
   );
 
   fireAndForgetPromise(

@@ -7,7 +7,7 @@ import {forgotPasswordJoiSchema} from './validation';
 import * as querystring from 'querystring';
 import {
   CURRENT_USER_TOKEN_VERSION,
-  JWTEndpoint,
+  TokenAudience,
 } from '../../contexts/UserTokenContext';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
@@ -25,7 +25,7 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   });
 
   const forgotToken = await context.userToken.saveToken(context, {
-    audience: [JWTEndpoint.ChangePassword],
+    audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
     tokenId: getNewId(),
     userId: user.userId,

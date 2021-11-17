@@ -1,5 +1,5 @@
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {JWTEndpoint} from '../../contexts/UserTokenContext';
+import {TokenAudience} from '../../contexts/UserTokenContext';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
@@ -10,14 +10,14 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   const tokenData = await context.session.getUserTokenData(
     context,
     instData,
-    JWTEndpoint.ChangePassword
+    TokenAudience.ChangePassword
   );
 
   if (
     !context.userToken.containsAudience(
       context,
       tokenData,
-      JWTEndpoint.ChangePassword
+      TokenAudience.ChangePassword
     )
   ) {
     throw new InvalidCredentialsError();
