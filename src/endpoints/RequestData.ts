@@ -21,11 +21,10 @@ export interface IRequestContructorParams<T = any> {
 }
 
 export default class RequestData<T = any> {
-  public static async fromExpressRequest<DataType>(
-    ctx: IBaseContext,
+  public static fromExpressRequest<DataType>(
     req: IServerRequest,
     data?: DataType
-  ): Promise<RequestData> {
+  ): RequestData {
     const requestData = new RequestData({
       req,
       data,
@@ -36,6 +35,10 @@ export default class RequestData<T = any> {
 
     return requestData;
   }
+
+  public static clone(from: RequestData): RequestData {}
+
+  public static merge(from: RequestData, to: RequestData): RequestData {}
 
   public req?: IServerRequest | null;
   public data?: T;

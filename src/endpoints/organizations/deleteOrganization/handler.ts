@@ -1,4 +1,5 @@
 import {validate} from '../../../utilities/validate';
+import OrganizationQueries from '../queries';
 import {DeleteOrganizationEndpoint} from './types';
 import {deleteOrganizationJoiSchema} from './validation';
 
@@ -7,8 +8,10 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, deleteOrganizationJoiSchema);
-  await context.session.assertUser(context, instData);
-  await context.organization.deleteOrganization(context, data.organizationId);
+  await context.session.getUser(context, instData);
+  await context.data.organization.deleteItem(
+    OrganizationQueries.getById(data.organizationId)
+  );
 
   // TODO:
   // delete environments

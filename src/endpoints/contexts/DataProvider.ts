@@ -7,7 +7,7 @@ export enum DataProviderFilterValueOperator {
   LessThanOrEqual,
   NotEqual,
   NotIn,
-  Regex,
+  Regex, // TODO: when using regex for checking existence, how should that work?
   Object,
   None,
 }
@@ -87,6 +87,10 @@ export interface IDataProvider<T extends Record<string, unknown>> {
   ) => Promise<Array<T>>;
   deleteItem: (filter: IDataProviderFilter<T>) => Promise<void>;
   updateItem: (
+    filter: IDataProviderFilter<T>,
+    data: Partial<T>
+  ) => Promise<T | null>;
+  updateManyItems: (
     filter: IDataProviderFilter<T>,
     data: Partial<T>
   ) => Promise<T | null>;

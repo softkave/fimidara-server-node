@@ -15,3 +15,9 @@ const environmentFields = getFields<IPublicEnvironment>({
 
 export const environmentExtractor = makeExtract(environmentFields);
 export const environmentListExtractor = makeListExtract(environmentFields);
+
+export abstract class EnvironmentUtils {
+  static getPublicEnvironment = environmentExtractor;
+  static getPublicEnvironmentList = environmentListExtractor;
+  static throwEnvironmentNotFound = throwEnvironmentNotFound;
+}
