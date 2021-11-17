@@ -8,7 +8,7 @@ import * as querystring from 'querystring';
 import getNewId from '../../../utilities/getNewId';
 import {
   CURRENT_USER_TOKEN_VERSION,
-  JWTEndpoint,
+  TokenAudience,
 } from '../../contexts/UserTokenContext';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
@@ -36,7 +36,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   }
 
   const token = await context.userToken.saveToken(context, {
-    audience: [JWTEndpoint.ConfirmEmailAddress],
+    audience: [TokenAudience.ConfirmEmailAddress],
     issuedAt: getDateString(),
     tokenId: getNewId(),
     userId: user.userId,

@@ -1,6 +1,5 @@
+import {IAssignedPresetItem} from './presetPermissionsItem';
 import {IAgent} from './system';
-
-export const CLIENT_ASSIGNED_TOKEN_VERSION = 1;
 
 export interface IClientAssignedToken {
   tokenId: string;
@@ -8,8 +7,8 @@ export interface IClientAssignedToken {
   createdBy: IAgent;
   organizationId: string;
   environmentId: string;
-  // bucketId: string;
   version: number;
+  presets: IAssignedPresetItem[];
 
   // TODO: implement limitation to certain folders and files
 

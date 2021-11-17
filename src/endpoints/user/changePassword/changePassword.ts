@@ -5,7 +5,7 @@ import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {
   CURRENT_USER_TOKEN_VERSION,
-  JWTEndpoint,
+  TokenAudience,
 } from '../../contexts/UserTokenContext';
 import {userExtractor} from '../utils';
 import {ChangePasswordEndpoint} from './types';
@@ -31,7 +31,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
 
   const tokenData = await context.userToken.saveToken(context, {
     tokenId: getNewId(),
-    audience: [JWTEndpoint.Login],
+    audience: [TokenAudience.Login],
     issuedAt: getDateString(),
     userId: user.userId,
     version: CURRENT_USER_TOKEN_VERSION,

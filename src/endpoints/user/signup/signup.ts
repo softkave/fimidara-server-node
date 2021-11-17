@@ -9,7 +9,7 @@ import {IUser} from '../../../definitions/user';
 import {userExtractor} from '../utils';
 import {
   CURRENT_USER_TOKEN_VERSION,
-  JWTEndpoint,
+  TokenAudience,
 } from '../../contexts/UserTokenContext';
 
 const signup: SignupEndpoint = async (context, instData) => {
@@ -38,7 +38,7 @@ const signup: SignupEndpoint = async (context, instData) => {
   const token = await context.userToken.saveToken(context, {
     tokenId: getNewId(),
     userId: user.userId,
-    audience: [JWTEndpoint.Login],
+    audience: [TokenAudience.Login],
     issuedAt: getDateString(),
     version: CURRENT_USER_TOKEN_VERSION,
   });

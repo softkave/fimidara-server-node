@@ -13,7 +13,7 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
   const user = await context.session.getUser(context, instData);
   const item = await context.data.presetPermissionsItem.saveItem({
     ...data.item,
-    itemId: getNewId(),
+    presetId: getNewId(),
     createdAt: getDateString(),
     createdBy: user.userId,
   });

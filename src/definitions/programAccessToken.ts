@@ -1,3 +1,5 @@
+import {IAssignedPresetItem} from './presetPermissionsItem';
+
 export interface IProgramAccessToken {
   tokenId: string;
   hash: string;
@@ -5,4 +7,5 @@ export interface IProgramAccessToken {
   createdBy: string;
   organizationId: string;
   environmentId: string;
+  presets: IAssignedPresetItem[];
 }

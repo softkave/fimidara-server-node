@@ -1,28 +1,88 @@
+import * as jwt from 'jsonwebtoken';
 import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
-import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {IUserToken} from '../../definitions/userToken';
+import cast from '../../utilities/fns';
+import {
+  wrapFireAndThrowError,
+  wrapFireAndThrowErrorNoAsync,
+} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
+import ClientAssignedTokenQueries from '../clientAssignedTokens/queries';
+import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import RequestData from '../RequestData';
-import {InvalidCredentialsError, PermissionDeniedError} from '../user/errors';
+import {
+  CredentialsExpiredError,
+  InvalidCredentialsError,
+  PermissionDeniedError,
+} from '../user/errors';
+import UserQueries from '../user/UserQueries';
+import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
-import {TokenType} from './ProgramAccessTokenContext';
-import {JWTEndpoint} from './UserTokenContext';
 
 // TODO: when retrieving cached tokens, check that the token contains
 // the input JWTEndpoints
+
+export const CURRENT_TOKEN_VERSION = 1;
+
+export enum TokenType {
+  UserToken = 'user',
+  ProgramAccessToken = 'program',
+  ClientAssignedToken = 'client',
+}
+
+export enum TokenAudience {
+  Login = 'login',
+  ChangePassword = 'change-password',
+  ConfirmEmailAddress = 'confirm-email-address',
+}
+
+export interface IGeneralTokenSubject {
+  id: string;
+  type: TokenType;
+}
+
+export interface IBaseTokenData<
+  Sub extends IGeneralTokenSubject = IGeneralTokenSubject
+> {
+  version: number;
+  sub: Sub;
+  iat: number;
+  // aud: string[];
+  exp?: number;
+}
+
+export interface IAgentPersistedToken {
+  audience: TokenAudience[];
+}
 
 export interface ISessionContext {
   getAgent: (
     ctx: IBaseContext,
     data: RequestData,
     permittedAgentTypes?: SessionAgentType[],
-    audience?: JWTEndpoint | JWTEndpoint[]
+    audience?: TokenAudience | TokenAudience[]
   ) => Promise<ISessionAgent>;
   getUser: (
     ctx: IBaseContext,
     data: RequestData,
-    audience?: JWTEndpoint | JWTEndpoint[]
+    audience?: TokenAudience | TokenAudience[]
   ) => Promise<IUser>;
+  decodeToken: (
+    ctx: IBaseContext,
+    token: string
+  ) => IBaseTokenData<IGeneralTokenSubject>;
+  tokenContainsAudience: (
+    ctx: IBaseContext,
+    tokenData: IUserToken,
+    expectedAudience: TokenAudience | TokenAudience[]
+  ) => boolean;
+  encodeToken: (
+    ctx: IBaseContext,
+    tokenId: string,
+    tokenType: TokenType,
+    expires?: number
+  ) => string;
 }
 
 export default class SessionContext implements ISessionContext {
@@ -31,7 +91,7 @@ export default class SessionContext implements ISessionContext {
       ctx: IBaseContext,
       data: RequestData,
       permittedAgentTypes?: SessionAgentType[],
-      audience?: JWTEndpoint | JWTEndpoint[]
+      audience?: TokenAudience | TokenAudience[]
     ) => {
       if (data.agent) {
         return data.agent;
@@ -41,42 +101,42 @@ export default class SessionContext implements ISessionContext {
       let clientAssignedToken = data.clientAssignedToken;
       let programAccessToken = data.programAccessToken;
       const incomingTokenData = data.incomingTokenData;
+      const noProcessedToken =
+        !userToken && !clientAssignedToken && !programAccessToken;
 
-      if (!userToken && !clientAssignedToken && !programAccessToken) {
+      if (noProcessedToken) {
         if (!incomingTokenData) {
           throw new PermissionDeniedError();
         }
 
         switch (incomingTokenData.sub.type) {
           case TokenType.UserToken: {
-            userToken = await ctx.userToken.assertGetTokenById(
-              ctx,
-              incomingTokenData.sub.id
+            userToken = await ctx.data.userToken.assertGetItem(
+              UserTokenQueries.getById(incomingTokenData.sub.id)
             );
             data.userToken = userToken;
 
             if (audience) {
-              ctx.userToken.containsAudience(ctx, userToken, audience);
+              ctx.session.tokenContainsAudience(ctx, userToken, audience);
             }
 
             break;
           }
 
           case TokenType.ProgramAccessToken: {
-            programAccessToken = await ctx.programAccessToken.assertGetTokenById(
-              ctx,
-              incomingTokenData.sub.id
+            programAccessToken = await ctx.data.programAccessToken.assertGetItem(
+              ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
             );
             data.programAccessToken = programAccessToken;
             break;
           }
 
           case TokenType.ClientAssignedToken: {
-            clientAssignedToken = await ctx.clientAssignedToken.assertGetTokenById(
-              ctx,
-              incomingTokenData.sub.id
+            clientAssignedToken = await ctx.data.clientAssignedToken.assertGetItem(
+              ClientAssignedTokenQueries.getById(incomingTokenData.sub.id)
             );
             data.clientAssignedToken = clientAssignedToken;
+            break;
           }
         }
       }
@@ -137,7 +197,7 @@ export default class SessionContext implements ISessionContext {
         return agent;
       }
 
-      // Control should not get here
+      // Throw error, control should not get here
       throw new InvalidCredentialsError();
     }
   );
@@ -146,7 +206,7 @@ export default class SessionContext implements ISessionContext {
     async (
       ctx: IBaseContext,
       data: RequestData,
-      audience?: JWTEndpoint | JWTEndpoint[]
+      audience?: TokenAudience | TokenAudience[]
     ) => {
       const agent = await ctx.session.getAgent(
         ctx,
@@ -155,8 +215,64 @@ export default class SessionContext implements ISessionContext {
         audience
       );
 
-      const user = await ctx.user.assertGetUserById(ctx, agent.agentId);
+      const user = await ctx.data.user.assertGetItem(
+        UserQueries.getById(agent.agentId)
+      );
+
       return user;
+    }
+  );
+
+  public decodeToken = wrapFireAndThrowErrorNoAsync(
+    (ctx: IBaseContext, token: string) => {
+      const tokenData = jwt.verify(
+        token,
+        ctx.appVariables.jwtSecret
+      ) as IBaseTokenData<IGeneralTokenSubject>;
+
+      if (tokenData.version < CURRENT_TOKEN_VERSION) {
+        throw new CredentialsExpiredError();
+      }
+
+      return tokenData;
+    }
+  );
+
+  public tokenContainsAudience = wrapFireAndThrowErrorNoAsync(
+    (
+      ctx: IBaseContext,
+      tokenData: IUserToken,
+      expectedAudience: TokenAudience | TokenAudience[]
+    ) => {
+      const audience = cast<TokenAudience[]>(tokenData.audience);
+      const hasAudience = !!audience.find(nextAud =>
+        expectedAudience.includes(nextAud)
+      );
+
+      return hasAudience;
+    }
+  );
+
+  public encodeToken = wrapFireAndThrowErrorNoAsync(
+    (
+      ctx: IBaseContext,
+      tokenId: string,
+      tokenType: TokenType,
+      expires?: number
+    ) => {
+      const payload: Omit<IBaseTokenData, 'iat'> = {
+        version: CURRENT_TOKEN_VERSION,
+        sub: {
+          id: tokenId,
+          type: tokenType,
+        },
+      };
+
+      if (expires) {
+        payload.exp = expires / 1000; // exp is in seconds
+      }
+
+      return jwt.sign(payload, ctx.appVariables.jwtSecret);
     }
   );
 }
