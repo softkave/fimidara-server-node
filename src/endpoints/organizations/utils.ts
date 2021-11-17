@@ -22,3 +22,9 @@ export function canReadOrganization(user: IUser, organization: IOrganization) {
     organization => organization.organizationId === organization.organizationId
   );
 }
+
+export abstract class OrganizationUtils {
+  static getPublicOrganization = organizationExtractor;
+  static getPublicOrganizationList = organizationListExtractor;
+  static throwOrganizationNotFound = throwOrganizationNotFound;
+}

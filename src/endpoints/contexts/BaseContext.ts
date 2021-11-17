@@ -34,6 +34,9 @@ import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IBucket} from '../../definitions/bucket';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IPresetPermissionsItem} from '../../definitions/presetPermissionsItem';
+import {IOrganization} from '../../definitions/organization';
+import {IEnvironment} from '../../definitions/environment';
+import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -55,6 +58,9 @@ export interface IBaseContextDataProviders {
   bucket: IDataProvider<IBucket>;
   permissionItem: IDataProvider<IPermissionItem>;
   presetPermissionsItem: IDataProvider<IPresetPermissionsItem>;
+  organization: IDataProvider<IOrganization>;
+  environment: IDataProvider<IEnvironment>;
+  collaborationRequest: IDataProvider<ICollaborationRequest>;
 }
 
 export interface IBaseContext {

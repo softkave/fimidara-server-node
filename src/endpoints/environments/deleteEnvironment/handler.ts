@@ -1,4 +1,5 @@
 import {validate} from '../../../utilities/validate';
+import EnvironmentQueries from '../queries';
 import {DeleteEnvironmentEndpoint} from './types';
 import {deleteEnvironmentJoiSchema} from './validation';
 
@@ -7,8 +8,10 @@ const deleteEnvironment: DeleteEnvironmentEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, deleteEnvironmentJoiSchema);
-  await context.session.assertUser(context, instData);
-  await context.environment.deleteEnvironment(context, data.environmentId);
+  await context.session.getUser(context, instData);
+  await context.data.environment.deleteItem(
+    EnvironmentQueries.getById(data.environmentId)
+  );
 
   // TODO:
   // delete environments
