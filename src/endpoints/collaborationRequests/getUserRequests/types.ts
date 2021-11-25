@@ -1,22 +1,14 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicOrganization} from '../types';
+import {IPublicCollaborationRequest} from '../types';
 
-export interface INewOrganizationInput {
-  name: string;
-  description?: string;
+export interface IGetUserRequestsResult {
+  requests: IPublicCollaborationRequest[];
 }
 
-export interface IAddOrganizationParams {
-  organization: INewOrganizationInput;
-}
-
-export interface IAddOrganizationResult {
-  organization: IPublicOrganization;
-}
-
-export type AddOrganizationEndpoint = Endpoint<
+export type GetUserRequestsEndpoint = Endpoint<
   IBaseContext,
-  IAddOrganizationParams,
-  IAddOrganizationResult
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  IGetUserRequestsResult
 >;

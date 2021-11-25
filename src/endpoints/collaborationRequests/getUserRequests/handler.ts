@@ -1,36 +1,16 @@
-import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
-import {validate} from '../../../utilities/validate';
-import {OrganizationExistsError} from '../errors';
-import {organizationExtractor} from '../utils';
-import {AddOrganizationEndpoint} from './types';
-import {addOrganizationJoiSchema} from './validation';
+import CollaborationRequestQueries from '../queries';
+import {collabRequestListExtractor} from '../utils';
+import {GetUserRequestsEndpoint} from './types';
 
-const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
-  const data = validate(instData.data, addOrganizationJoiSchema);
+const getUserRequests: GetUserRequestsEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
+  const requests = await context.data.collaborationRequest.getManyItems(
+    CollaborationRequestQueries.getByUserEmail(user.email)
+  );
 
-  if (
-    await context.organization.organizationExists(
-      context,
-      data.organization.name
-    )
-  ) {
-    throw new OrganizationExistsError();
-  }
-
-  const organization = await context.organization.saveOrganization(context, {
-    createdAt: getDateString(),
-    createdBy: user.userId,
-    name: data.organization.name,
-    organizationId: getNewId(),
-    description: data.organization.description,
-  });
-
-  const publicData = organizationExtractor(organization);
   return {
-    organization: publicData,
+    requests: collabRequestListExtractor(requests),
   };
 };
 
-export default addOrganization;
+export default getUserRequests;

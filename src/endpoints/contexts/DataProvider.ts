@@ -78,6 +78,25 @@ export interface IGetManyItemsOptions {
   limit?: number;
 }
 
+/**
+ * TODO: Work on new query approach where we use objects reducing the verbosity
+ * of having to write little queries. With it, we'd be able to query like so"
+ * {
+ *    userId: data.userId,
+ *    organizations: matchInArray({
+ *        organizationId: data.organizationId
+ *    }),
+ *    createdAt: matchInObject({
+ *        agentId: data.agentId
+ *    }),
+ *    email: matchRegex(new RegEx("^" + data.email + "$"))
+ * }
+ *
+ * We'd have query helpers like match... functions. They'll produce a
+ * DataProviderQueryMatch object and the overall query will be converted into
+ * the query language of the underlying data provider.
+ */
+
 export interface IDataProvider<T extends Record<string, unknown>> {
   checkItemExists: (filter: IDataProviderFilter<T>) => Promise<boolean>;
   getItem: (filter: IDataProviderFilter<T>) => Promise<T | null>;

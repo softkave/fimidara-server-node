@@ -4,19 +4,20 @@ import {
 } from '../../definitions/collaborationRequest';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {agentExtractor} from '../utils';
 import {IPublicCollaborationRequest} from './types';
 
 const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   requestId: true,
   recipientEmail: true,
   message: true,
-  createdBy: true,
+  createdBy: agentExtractor,
   createdAt: getDateString,
   expiresAt: getDateString,
   organizationId: true,
   organizationName: true,
   lastUpdatedAt: getDateString,
-  lastUpdatedBy: true,
+  lastUpdatedBy: agentExtractor,
   readAt: getDateString,
   statusHistory: makeListExtract(
     getFields<ICollaborationRequestStatus>({

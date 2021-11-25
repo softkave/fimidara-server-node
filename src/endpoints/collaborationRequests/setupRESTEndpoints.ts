@@ -2,45 +2,45 @@ import {Connection} from 'mongoose';
 import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
-import sendRequests from './sendRequests/handler';
-import deleteOrganization from './deleteOrganization/handler';
-import getOrganization from './getOrganization/handler';
-import getUserOrganizations from './getUserOrganizations/handler';
-import organizationExists from './organizationExists/handler';
-import updateOrganization from './updateOrganization/handler';
+import sendRequest from './sendRequest/handler';
+import deleteRequest from './deleteRequest/handler';
+import getOrganizationRequests from './getOrganizationRequests/handler';
+import getUserRequests from './getUserRequests/handler';
+import respondToRequest from './respondToRequest/handler';
+import revokeRequest from './revokeRequest/handler';
+import updateRequest from './updateRequest/handler';
 
 export default function setupOrganizationRESTEndpoints(
   connection: Connection,
   app: Express
 ) {
   const endpoints = {
-    addOrganization: wrapEndpointREST(sendRequests, getBaseContext(connection)),
-    deleteOrganization: wrapEndpointREST(
-      deleteOrganization,
+    sendRequest: wrapEndpointREST(sendRequest, getBaseContext(connection)),
+    deleteRequest: wrapEndpointREST(deleteRequest, getBaseContext(connection)),
+    getOrganizationRequests: wrapEndpointREST(
+      getOrganizationRequests,
       getBaseContext(connection)
     ),
-    getUserOrganizations: wrapEndpointREST(
-      getUserOrganizations,
+    getUserRequests: wrapEndpointREST(
+      getUserRequests,
       getBaseContext(connection)
     ),
-    organizationExists: wrapEndpointREST(
-      organizationExists,
+    respondToRequest: wrapEndpointREST(
+      respondToRequest,
       getBaseContext(connection)
     ),
-    updateOrganization: wrapEndpointREST(
-      updateOrganization,
-      getBaseContext(connection)
-    ),
-    getOrganization: wrapEndpointREST(
-      getOrganization,
-      getBaseContext(connection)
-    ),
+    revokeRequest: wrapEndpointREST(revokeRequest, getBaseContext(connection)),
+    updateRequest: wrapEndpointREST(updateRequest, getBaseContext(connection)),
   };
 
-  app.post('/organizations/addOrganization', endpoints.addOrganization);
-  app.post('/organizations/deleteOrganization', endpoints.deleteOrganization);
-  app.post('/organizations/getOrganizations', endpoints.getUserOrganizations);
-  app.post('/organizations/organizationExists', endpoints.organizationExists);
-  app.post('/organizations/updateOrganization', endpoints.updateOrganization);
-  app.post('/organizations/getOrganization', endpoints.getOrganization);
+  app.post('/requests/sendRequest', endpoints.sendRequest);
+  app.post('/requests/deleteRequest', endpoints.deleteRequest);
+  app.post(
+    '/requests/getOrganizationRequests',
+    endpoints.getOrganizationRequests
+  );
+  app.post('/requests/getUserRequests', endpoints.getUserRequests);
+  app.post('/requests/respondToRequest', endpoints.respondToRequest);
+  app.post('/requests/revokeRequest', endpoints.revokeRequest);
+  app.post('/requests/updateRequest', endpoints.updateRequest);
 }

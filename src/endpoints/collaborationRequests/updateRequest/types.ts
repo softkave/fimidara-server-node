@@ -1,22 +1,23 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicOrganization} from '../types';
+import {IPublicCollaborationRequest} from '../types';
 
-export interface INewOrganizationInput {
-  name: string;
-  description?: string;
+export interface IUpdateCollaborationRequestInput {
+  message?: string;
+  expiresAtInSecsFromToday?: number;
 }
 
-export interface IAddOrganizationParams {
-  organization: INewOrganizationInput;
+export interface IUpdateRequestParams {
+  requestId: string;
+  data: IUpdateCollaborationRequestInput;
 }
 
-export interface IAddOrganizationResult {
-  organization: IPublicOrganization;
+export interface IUpdateRequestResult {
+  request: IPublicCollaborationRequest;
 }
 
-export type AddOrganizationEndpoint = Endpoint<
+export type UpdateRequestEndpoint = Endpoint<
   IBaseContext,
-  IAddOrganizationParams,
-  IAddOrganizationResult
+  IUpdateRequestParams,
+  IUpdateRequestResult
 >;
