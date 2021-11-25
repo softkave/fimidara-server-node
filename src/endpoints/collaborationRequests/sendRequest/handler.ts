@@ -5,20 +5,26 @@ import {
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import {ISendRequestContext, SendRequestEndpoint} from './types';
+import {SendRequestEndpoint} from './types';
 import {sendRequestJoiSchema} from './validation';
 import {add} from 'date-fns';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {collabRequestExtractor} from '../utils';
 import {IUser} from '../../../definitions/user';
 import {checkOrganizationExists} from '../../organizations/utils';
-import CollaboratorQueries from '../../collaborator/queries';
+import CollaboratorQueries from '../../collaborators/queries';
 import {ResourceExistsError} from '../../errors';
 import CollaborationRequestQueries from '../queries';
-import {getCollaboratorOrganization} from '../../collaborator/utils';
+import {getCollaboratorOrganization} from '../../collaborators/utils';
+import {IBaseContext} from '../../contexts/BaseContext';
+import {
+  checkAuthorizaton,
+  getPermissionOwnerListWithOrganizationId,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 
 async function sendEmail(
-  context: ISendRequestContext,
+  context: IBaseContext,
   request: ICollaborationRequest,
   toUser: IUser | null,
   organizationName: string
@@ -30,6 +36,16 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const organization = await checkOrganizationExists(
     context,
     data.organizationId
+  );
+
+  await checkAuthorizaton(
+    context,
+    agent,
+    organization.organizationId,
+    null,
+    AppResourceType.CollaborationRequest,
+    getPermissionOwnerListWithOrganizationId(organization.organizationId),
+    BasicCRUDActions.Create
   );
 
   const existingUser = await context.data.user.getItem(

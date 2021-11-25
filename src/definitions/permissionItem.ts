@@ -1,11 +1,11 @@
-import {AppResourceType, BasicCRUDActions} from './system';
+import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 
 export interface IPermissionItem {
   itemId: string;
   organizationId: string;
   // environmentId?: string;
   createdAt: string;
-  createdBy: string;
+  createdBy: IAgent;
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
   permissionEntityId: string;

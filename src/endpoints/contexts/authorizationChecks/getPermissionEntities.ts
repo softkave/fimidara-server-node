@@ -5,7 +5,7 @@ import {
   ISessionAgent,
   SessionAgentType,
 } from '../../../definitions/system';
-import {getCollaboratorOrganization} from '../../collaborator/utils';
+import {getCollaboratorOrganization} from '../../collaborators/utils';
 
 export interface IPermissionEntity {
   permissionEntityId: string;

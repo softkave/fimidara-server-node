@@ -1,12 +1,12 @@
 import {IBaseContext} from '../../contexts/BaseContext';
+import {IPresetInput} from '../../presetPermissionItems/types';
 import {Endpoint} from '../../types';
 import {IPublicCollaborator} from '../types';
 
 export interface IUpdateCollaboratorPresetsParams {
   organizationId: string;
   collaboratorId: string;
-  addPresets: string[];
-  removePresets: string[];
+  presets: IPresetInput[];
 }
 
 export interface IUpdateCollaboratorPresetsResult {

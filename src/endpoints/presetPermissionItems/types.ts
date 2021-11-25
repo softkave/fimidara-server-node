@@ -6,3 +6,8 @@ export interface IPublicPresetPermissionsItem {
   lastUpdatedAt?: string;
   lastUpdatedBy?: string;
 }
+
+export interface IPresetInput {
+  presetId: string;
+  order: number;
+}

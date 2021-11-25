@@ -1,10 +1,12 @@
+import {IAgent} from './system';
+
 export interface IPresetPermissionsItem {
   presetId: string;
   organizationId: string;
   createdAt: string;
-  createdBy: string;
+  createdBy: IAgent;
   lastUpdatedAt?: string;
-  lastUpdatedBy?: string;
+  lastUpdatedBy?: IAgent;
   name: string;
   description?: string;
   // TODO: presets should contain other presets
@@ -13,6 +15,6 @@ export interface IPresetPermissionsItem {
 export interface IAssignedPresetPermissionsGroup {
   presetId: string;
   assignedAt: string;
-  assignedBy: string;
+  assignedBy: IAgent;
   order: number;
 }

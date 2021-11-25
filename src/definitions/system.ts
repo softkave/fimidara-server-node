@@ -32,6 +32,7 @@ export interface IAgent {
 export enum AppResourceType {
   Organization = 'organization',
   Collaborator = 'collaborator',
+  CollaborationRequest = 'collaboration-request',
   // UserRole = 'user-role',
   // Environment = 'environment',
   ProgramAccessToken = 'program-access-token',
