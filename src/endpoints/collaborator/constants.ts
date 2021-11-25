@@ -1,3 +1,1 @@
-export const collabRequestConstants = {
-  maxNewRequests: 20,
-};
+export const collaboratorConstants = {};
