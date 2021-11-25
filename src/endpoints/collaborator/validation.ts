@@ -1,3 +1,3 @@
-const collabRequestsValidationSchemas = {};
+const collaboratorsValidationSchemas = {};
 
-export default collabRequestsValidationSchemas;
+export default collaboratorsValidationSchemas;
