@@ -1,7 +1,4 @@
-import {
-  IPermissionItem,
-  PermissionEntityType,
-} from '../../definitions/permissionItem';
+import {IPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
@@ -31,10 +28,7 @@ function getByResource(ownerId: string, ownerType: AppResourceType) {
     .build();
 }
 
-function getByPermissionEntity(
-  entityId: string,
-  entityType: PermissionEntityType
-) {
+function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
   return newFilter()
     .addItem(
       'permissionEntityId',
@@ -55,16 +49,9 @@ function getByIds(ids: string[]) {
     .build();
 }
 
-function getByEnvironmentId(id: string) {
-  return newFilter()
-    .addItem('environmentId', id, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
 export default abstract class PermissionItemQueries {
   static getById = getById;
   static getByIds = getByIds;
   static getByResource = getByResource;
   static getByPermissionEntity = getByPermissionEntity;
-  static getByEnvironmentId = getByEnvironmentId;
 }

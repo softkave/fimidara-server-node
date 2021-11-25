@@ -31,7 +31,7 @@ export async function checkAuthorizaton(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
-  id: string,
+  id: string | null,
   type: AppResourceType,
   permissionOwners: IPermissionOwner[],
   action: BasicCRUDActions,
@@ -78,7 +78,7 @@ export async function checkAuthorizaton(
     !!permissionOwnersMap[getPermissionOwnerKey(item)];
 
   const items = flatten(itemsList).filter(item => {
-    if (item.resourceId && item.resourceId !== id) {
+    if (id && item.resourceId && item.resourceId !== id) {
       return false;
     }
 
@@ -91,7 +91,7 @@ export async function checkAuthorizaton(
 
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,
-    [AppResourceType.UserRole]: 2,
+    // [AppResourceType.UserRole]: 2,
     [AppResourceType.ClientAssignedToken]: 3,
     [AppResourceType.ProgramAccessToken]: 4,
     [AppResourceType.PresetPermissionsGroup]: 5,
@@ -111,7 +111,7 @@ export async function checkAuthorizaton(
     entityTypeWeight[item.permissionEntityType] ?? 99;
 
   const isForOwner = (item: IPermissionItem) =>
-    item.isForPermissionOwnerOnly && item.permissionOwnerId === id;
+    id && item.isForPermissionOwnerOnly && item.permissionOwnerId === id;
 
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
@@ -173,6 +173,18 @@ export async function checkAuthorizatonForOrganization(
   );
 }
 
+export function getPermissionOwnerListWithOrganizationId(
+  organizationId: string
+) {
+  return [
+    {
+      permissionOwnerId: organizationId,
+      permissionOwnerType: AppResourceType.Organization,
+      order: 1,
+    },
+  ];
+}
+
 export async function checkAuthorizatonForCollaborator(
   ctx: IBaseContext,
   agent: ISessionAgent,
@@ -187,15 +199,22 @@ export async function checkAuthorizatonForCollaborator(
     organizationId,
     collaborator.userId,
     AppResourceType.Collaborator,
-    [
-      {
-        permissionOwnerId: organizationId,
-        permissionOwnerType: AppResourceType.Organization,
-        order: 1,
-      },
-    ],
+    getPermissionOwnerListWithOrganizationId(organizationId),
     action,
     noThrow
+  );
+}
+
+export function getFilePermissionOwners(
+  organizationId: string,
+  file: {idPath: string[]}
+) {
+  return getPermissionOwnerListWithOrganizationId(organizationId).concat(
+    file.idPath.map((id, i) => ({
+      permissionOwnerId: id,
+      permissionOwnerType: AppResourceType.Folder,
+      order: i + 2, // +2 cause organizationId is already 1 and i is zero-based index
+    }))
   );
 }
 
@@ -213,19 +232,7 @@ export async function checkAuthorizatonForFile(
     organizationId,
     file.fileId,
     AppResourceType.File,
-    [
-      {
-        permissionOwnerId: organizationId,
-        permissionOwnerType: AppResourceType.Organization,
-        order: 1,
-      },
-    ].concat(
-      file.idPath.map((id, i) => ({
-        permissionOwnerId: id,
-        permissionOwnerType: AppResourceType.Folder,
-        order: i + 2, // +2 cause organizationId is already 1 and i is zero-based index
-      }))
-    ),
+    getFilePermissionOwners(organizationId, file),
     action,
     noThrow
   );
@@ -245,19 +252,7 @@ export async function checkAuthorizatonForFolder(
     organizationId,
     folder.folderId,
     AppResourceType.Folder,
-    [
-      {
-        permissionOwnerId: organizationId,
-        permissionOwnerType: AppResourceType.Organization,
-        order: 1,
-      },
-    ].concat(
-      folder.idPath.map((id, i) => ({
-        permissionOwnerId: id,
-        permissionOwnerType: AppResourceType.Folder,
-        order: i + 2, // +2 cause organizationId is already 1 and i is zero-based index
-      }))
-    ),
+    getFilePermissionOwners(organizationId, folder),
     action,
     noThrow
   );
@@ -277,13 +272,7 @@ export async function checkAuthorizatonForClientAssignedToken(
     organizationId,
     token.tokenId,
     AppResourceType.ClientAssignedToken,
-    [
-      {
-        permissionOwnerId: organizationId,
-        permissionOwnerType: AppResourceType.Organization,
-        order: 1,
-      },
-    ],
+    getPermissionOwnerListWithOrganizationId(organizationId),
     action,
     noThrow
   );
@@ -303,13 +292,7 @@ export async function checkAuthorizatonForProgramAccessToken(
     organizationId,
     token.tokenId,
     AppResourceType.ClientAssignedToken,
-    [
-      {
-        permissionOwnerId: organizationId,
-        permissionOwnerType: AppResourceType.Organization,
-        order: 1,
-      },
-    ],
+    getPermissionOwnerListWithOrganizationId(organizationId),
     action,
     noThrow
   );

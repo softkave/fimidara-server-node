@@ -6,6 +6,6 @@ export interface IProgramAccessToken {
   createdAt: string;
   createdBy: string;
   organizationId: string;
-  environmentId: string;
+  // environmentId: string;
   presets: IAssignedPresetPermissionsGroup[];
 }

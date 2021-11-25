@@ -32,14 +32,14 @@ export interface IAgent {
 export enum AppResourceType {
   Organization = 'organization',
   Collaborator = 'collaborator',
-  UserRole = 'user-role',
-  Environment = 'environment',
+  // UserRole = 'user-role',
+  // Environment = 'environment',
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
   UserToken = 'user-token',
   PresetPermissionsGroup = 'preset-permissions-group',
   PermissionItem = 'permission-item',
-  Bucket = 'bucket',
+  // Bucket = 'bucket',
   Folder = 'folder',
   File = 'file',
   User = 'user',
@@ -58,46 +58,60 @@ type AppResourceToOthersMap = Record<AppResourceType, AppResourceType[]>;
 export const appResourceChildrenMap: AppResourceToOthersMap = {
   [AppResourceType.Organization]: [
     AppResourceType.Collaborator,
-    AppResourceType.Environment,
-    AppResourceType.UserRole,
+    AppResourceType.ClientAssignedToken,
+    AppResourceType.PresetPermissionsGroup,
+    AppResourceType.ProgramAccessToken,
+    AppResourceType.Folder,
+    AppResourceType.File,
   ],
   [AppResourceType.Collaborator]: [],
-  [AppResourceType.UserRole]: [],
-  [AppResourceType.Environment]: [
-    AppResourceType.ProgramAccessToken,
-    AppResourceType.ClientAssignedToken,
-    AppResourceType.Bucket,
-  ],
   [AppResourceType.ProgramAccessToken]: [],
   [AppResourceType.ClientAssignedToken]: [],
-  [AppResourceType.Bucket]: [AppResourceType.Folder, AppResourceType.File],
   [AppResourceType.Folder]: [AppResourceType.File],
   [AppResourceType.File]: [],
+  [AppResourceType.UserToken]: [],
+  [AppResourceType.PresetPermissionsGroup]: [],
+  [AppResourceType.PermissionItem]: [],
+  [AppResourceType.User]: [],
 };
 
+/** For organizations, users, and user tokens */
+const orderLevel01 = 1;
+
+/**
+ * For resources contained in organizations mainly, like
+ * program access tokens, client assigned tokens, collaborators, folders, etc.
+ */
+const orderLevel02 = 2;
+
+/** For resources contained in level 02 resources, like files, etc. */
+const orderLevel03 = 3;
+
 const appResourceTypesOrder: Record<AppResourceType, number> = {
-  [AppResourceType.Organization]: 0,
-  [AppResourceType.Collaborator]: 1,
-  [AppResourceType.UserRole]: 2,
-  [AppResourceType.Environment]: 3,
-  [AppResourceType.ProgramAccessToken]: 4,
-  [AppResourceType.ClientAssignedToken]: 5,
-  [AppResourceType.Bucket]: 6,
-  [AppResourceType.Folder]: 7,
-  [AppResourceType.File]: 8,
+  [AppResourceType.Organization]: orderLevel01,
+  [AppResourceType.Collaborator]: orderLevel02,
+  [AppResourceType.ProgramAccessToken]: orderLevel02,
+  [AppResourceType.ClientAssignedToken]: orderLevel02,
+  [AppResourceType.Folder]: orderLevel02,
+  [AppResourceType.File]: orderLevel03,
+  [AppResourceType.UserToken]: orderLevel01,
+  [AppResourceType.PresetPermissionsGroup]: orderLevel02,
+  [AppResourceType.PermissionItem]: orderLevel02,
+  [AppResourceType.User]: orderLevel01,
 };
 
 function reverseResourceToChildrenMap() {
   const reverseMap: AppResourceToOthersMap = {
     [AppResourceType.Organization]: [],
     [AppResourceType.Collaborator]: [],
-    [AppResourceType.UserRole]: [],
-    [AppResourceType.Environment]: [],
     [AppResourceType.ProgramAccessToken]: [],
     [AppResourceType.ClientAssignedToken]: [],
-    [AppResourceType.Bucket]: [],
     [AppResourceType.Folder]: [],
     [AppResourceType.File]: [],
+    [AppResourceType.UserToken]: [],
+    [AppResourceType.PresetPermissionsGroup]: [],
+    [AppResourceType.PermissionItem]: [],
+    [AppResourceType.User]: [],
   };
 
   Object.keys(appResourceChildrenMap).forEach(parent => {

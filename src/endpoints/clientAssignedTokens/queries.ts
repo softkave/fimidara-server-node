@@ -12,13 +12,13 @@ function getById(id: string) {
     .build();
 }
 
-function getByEnvironmentId(id: string) {
+function getByOrganizationId(id: string) {
   return newFilter()
-    .addItem('environmentId', id, DataProviderFilterValueOperator.Equal)
+    .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class ClientAssignedTokenQueries {
   static getById = getById;
-  static getByEnvironmentId = getByEnvironmentId;
+  static getByOrganizationId = getByOrganizationId;
 }

@@ -1,14 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import {
-  IPermissionItem,
-  PermissionEntityType,
-} from '../../definitions/permissionItem';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-  SessionAgentType,
-} from '../../definitions/system';
+import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import cast from '../../utilities/fns';
@@ -28,11 +19,6 @@ import {
 import UserQueries from '../user/UserQueries';
 import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
-import {
-  DataProviderFilterValueOperator,
-  IDataProviderFilter,
-} from './DataProvider';
-import DataProviderFilterBuilder from './DataProviderFilterBuilder';
 
 // TODO: when retrieving cached tokens, check that the token contains
 // the input JWTEndpoints
@@ -82,14 +68,6 @@ export interface ISessionContext {
     data: RequestData,
     audience?: TokenAudience | TokenAudience[]
   ) => Promise<IUser>;
-  isAgentAuthorized: (
-    ctx: IBaseContext,
-    agent: ISessionAgent,
-    resourceId: string,
-    resourceType: AppResourceType,
-    action: BasicCRUDActions,
-    noThrow?: boolean
-  ) => Promise<boolean>;
   decodeToken: (
     ctx: IBaseContext,
     token: string
@@ -242,112 +220,6 @@ export default class SessionContext implements ISessionContext {
       );
 
       return user;
-    }
-  );
-
-  isAgentAuthorized = wrapFireAndThrowError(
-    async (
-      ctx: IBaseContext,
-      agent: ISessionAgent,
-      resourceId: string,
-      resourceType: AppResourceType,
-      action: BasicCRUDActions,
-      noThrow?: boolean
-    ) => {
-      function newFilter() {
-        return new DataProviderFilterBuilder<IPermissionItem>();
-      }
-
-      async function performQueryAndCheck(
-        query: IDataProviderFilter<IPermissionItem>
-      ) {
-        const items = await ctx.data.permissionItem.getManyItems(query);
-
-        for (const item of items) {
-          if (item.isExclusion) {
-            return false;
-          }
-        }
-
-        return items.length > 0;
-      }
-
-      async function checkByOwner(
-        permissionEntityId: string,
-        permissionEntityType: PermissionEntityType
-      ) {
-        const query = newFilter()
-          .addItem(
-            'permissionOwnerId',
-            resourceId,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'permissionOwnerType',
-            resourceType,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'permissionEntityId',
-            permissionEntityId,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'permissionEntityType',
-            permissionEntityType,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'action',
-            [action, BasicCRUDActions.All],
-            DataProviderFilterValueOperator.In
-          )
-          .addItem(
-            'isForPermissionOwnerOnly',
-            true,
-            DataProviderFilterValueOperator.Equal
-          )
-          .build();
-
-        return performQueryAndCheck(query);
-      }
-
-      async function checkByEntity(
-        permissionEntityId: string,
-        permissionEntityType: PermissionEntityType
-      ) {
-        const query = newFilter()
-          .addItem(
-            'permissionEntityId',
-            permissionEntityId,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'permissionEntityType',
-            permissionEntityType,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'resourceType',
-            resourceType,
-            DataProviderFilterValueOperator.Equal
-          )
-          .addItem(
-            'action',
-            [action, BasicCRUDActions.All],
-            DataProviderFilterValueOperator.In
-          )
-          .build();
-
-        const items = await ctx.data.permissionItem.getManyItems(query);
-      }
-
-      function mergeResults(results: boolean[]) {
-        return results.reduce(
-          (accumulator, next) => accumulator || next,
-          false
-        );
-      }
     }
   );
 
