@@ -6,6 +6,8 @@ export interface IFile {
   environmentId: string;
   bucketId: string;
   folderId?: string;
+  idPath: string[];
+  namePath: string[];
   mimetype?: string;
   encoding?: string;
   size: number;

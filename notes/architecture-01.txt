@@ -3,8 +3,8 @@
 - user accounts
 - organizations OR workspaces
   - collaborators
-  - environments [there is a default environment] with auth URL
-    - buckets with auth URL
+  - #environments [there is a default environment] with auth URL
+    - #buckets with auth URL
       - files and folders
       - program access tokens
       - client access tokens

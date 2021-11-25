@@ -3,8 +3,7 @@ import {IProgramAccessToken} from '../definitions/programAccessToken';
 import {ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
 import {IUserToken} from '../definitions/userToken';
-import {IBaseContext} from './contexts/BaseContext';
-import {IBaseTokenData} from './contexts/ProgramAccessTokenContext';
+import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
 
 export interface IRequestContructorParams<T = any> {
@@ -14,10 +13,8 @@ export interface IRequestContructorParams<T = any> {
   userToken?: IUserToken | null;
   programAccessToken?: IProgramAccessToken | null;
   clientAssignedToken?: IClientAssignedToken | null;
-  userAgent?: string;
-  ips?: string[];
+  agent?: ISessionAgent | null;
   user?: IUser | null;
-  metaCache?: Record<string, any> | null;
 }
 
 export default class RequestData<T = any> {
@@ -28,8 +25,6 @@ export default class RequestData<T = any> {
     const requestData = new RequestData({
       req,
       data,
-      ips: Array.isArray(req.ips) && req.ips.length > 0 ? req.ips : [req.ip],
-      userAgent: req.headers['user-agent'],
       incomingTokenData: req.user,
     });
 
@@ -38,7 +33,7 @@ export default class RequestData<T = any> {
 
   public static clone(from: RequestData): RequestData {}
 
-  public static merge(from: RequestData, to: RequestData): RequestData {}
+  public static merge(from: RequestData, to: RequestData) {}
 
   public req?: IServerRequest | null;
   public data?: T;
@@ -46,10 +41,7 @@ export default class RequestData<T = any> {
   public userToken?: IUserToken | null;
   public programAccessToken?: IProgramAccessToken | null;
   public clientAssignedToken?: IClientAssignedToken | null;
-  public userAgent?: string;
-  public ips: string[] = [];
   public user?: IUser | null;
-  public metaCache?: Record<string, any> | null;
   public agent?: ISessionAgent | null;
 
   public constructor(arg?: IRequestContructorParams<T>) {
@@ -63,13 +55,25 @@ export default class RequestData<T = any> {
     this.programAccessToken = arg.programAccessToken;
     this.clientAssignedToken = arg.clientAssignedToken;
     this.incomingTokenData = arg.incomingTokenData;
-    this.userAgent = arg.userAgent;
+    this.agent = arg.agent;
+    this.user = arg.user;
+  }
 
-    if (arg.ips) {
-      this.ips = arg.ips;
+  getIp() {
+    if (this.req) {
+      return Array.isArray(this.req.ips) && this.req.ips.length > 0
+        ? this.req.ips
+        : [this.req.ip];
     }
 
-    this.user = arg.user;
-    this.metaCache = arg.metaCache;
+    return [];
+  }
+
+  getUserAgent() {
+    if (this.req) {
+      return this.req.headers['user-agent'];
+    }
+
+    return null;
   }
 }
