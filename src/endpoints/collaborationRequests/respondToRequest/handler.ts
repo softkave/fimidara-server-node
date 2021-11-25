@@ -1,36 +1,51 @@
-import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {OrganizationExistsError} from '../errors';
-import {organizationExtractor} from '../utils';
-import {AddOrganizationEndpoint} from './types';
-import {addOrganizationJoiSchema} from './validation';
+import {ExpiredError} from '../../errors';
+import {PermissionDeniedError} from '../../user/errors';
+import CollaborationRequestQueries from '../queries';
+import {collabRequestExtractor} from '../utils';
+import {RespondToRequestEndpoint} from './types';
+import {respondToRequestJoiSchema} from './validation';
 
-const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
-  const data = validate(instData.data, addOrganizationJoiSchema);
+const respondToRequest: RespondToRequestEndpoint = async (
+  context,
+  instData
+) => {
+  const data = validate(instData.data, respondToRequestJoiSchema);
   const user = await context.session.getUser(context, instData);
+  let request = await context.data.collaborationRequest.assertGetItem(
+    CollaborationRequestQueries.getById(data.requestId)
+  );
 
-  if (
-    await context.organization.organizationExists(
-      context,
-      data.organization.name
-    )
-  ) {
-    throw new OrganizationExistsError();
+  if (user.email !== request.recipientEmail) {
+    throw new PermissionDeniedError(
+      'User is not the collaboration request recipient'
+    );
   }
 
-  const organization = await context.organization.saveOrganization(context, {
-    createdAt: getDateString(),
-    createdBy: user.userId,
-    name: data.organization.name,
-    organizationId: getNewId(),
-    description: data.organization.description,
-  });
+  const isExpired =
+    request.expiresAt && new Date(request.expiresAt).valueOf() > Date.now();
 
-  const publicData = organizationExtractor(organization);
+  if (isExpired) {
+    throw new ExpiredError(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      `Collaboration request expired on ${formatDate(request.expiresAt!)}`
+    );
+  }
+
+  request = await context.data.collaborationRequest.assertUpdateItem(
+    CollaborationRequestQueries.getById(data.requestId),
+    {
+      statusHistory: request.statusHistory.concat({
+        date: getDateString(),
+        status: data.response,
+      }),
+    }
+  );
+
   return {
-    organization: publicData,
+    request: collabRequestExtractor(request),
   };
 };
 
-export default addOrganization;
+export default respondToRequest;

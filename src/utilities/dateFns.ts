@@ -1,3 +1,5 @@
+import format from 'date-fns/format';
+
 export function getDate(initial?: any) {
   if (initial) {
     const date = new Date(initial);
@@ -14,4 +16,8 @@ export function getDateString(initial?: any) {
   }
 
   return new Date().toISOString();
+}
+
+export function formatDate(date: number | string | Date) {
+  return format(new Date(date), 'MMM d YYY');
 }

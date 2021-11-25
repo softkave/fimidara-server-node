@@ -1,22 +1,19 @@
+import {CollaborationRequestResponse} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicOrganization} from '../types';
+import {IPublicCollaborationRequest} from '../types';
 
-export interface INewOrganizationInput {
-  name: string;
-  description?: string;
+export interface IRespondToRequestParams {
+  requestId: string;
+  response: CollaborationRequestResponse;
 }
 
-export interface IAddOrganizationParams {
-  organization: INewOrganizationInput;
+export interface IRespondToRequestResult {
+  request: IPublicCollaborationRequest;
 }
 
-export interface IAddOrganizationResult {
-  organization: IPublicOrganization;
-}
-
-export type AddOrganizationEndpoint = Endpoint<
+export type RespondToRequestEndpoint = Endpoint<
   IBaseContext,
-  IAddOrganizationParams,
-  IAddOrganizationResult
+  IRespondToRequestParams,
+  IRespondToRequestResult
 >;

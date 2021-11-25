@@ -1,3 +1,5 @@
+import {IAgent} from './system';
+
 export enum CollaborationRequestStatusType {
   Accepted = 'accepted',
   Declined = 'declined',
@@ -28,14 +30,17 @@ export interface ICollaborationRequestSentEmailHistoryItem {
 export interface ICollaborationRequest {
   requestId: string;
   recipientEmail: string;
+
+  // TODO: should we keep messages sent back and forth
+  // should also allow for replacements messages?
   message: string;
-  createdBy: string;
+  createdBy: IAgent;
   createdAt: string;
   expiresAt?: string;
   organizationId: string;
   lastUpdatedAt?: string;
-  lastUpdatedBy?: string;
+  lastUpdatedBy?: IAgent;
   readAt?: string;
-  statusHistory?: ICollaborationRequestStatus[];
-  sentEmailHistory?: ICollaborationRequestSentEmailHistoryItem[];
+  statusHistory: ICollaborationRequestStatus[];
+  sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
 }

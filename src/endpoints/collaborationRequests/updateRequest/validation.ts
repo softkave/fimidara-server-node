@@ -1,13 +1,12 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
 
-export const newOrganizationJoiSchema = Joi.object().keys({
-  name: validationSchemas.name.required(),
-  description: validationSchemas.description,
+export const updateRequestInputJoiSchema = Joi.object().keys({
+  //TODO
 });
 
-export const addOrganizationJoiSchema = Joi.object()
+export const updateRequestJoiSchema = Joi.object()
   .keys({
-    organization: newOrganizationJoiSchema.required(),
+    organization: updateRequestInputJoiSchema.required(),
   })
   .required();

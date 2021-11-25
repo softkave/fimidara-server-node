@@ -1,5 +1,6 @@
 import {flatten} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
+import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
@@ -198,6 +199,26 @@ export async function checkAuthorizatonForCollaborator(
     agent,
     organizationId,
     collaborator.userId,
+    AppResourceType.Collaborator,
+    getPermissionOwnerListWithOrganizationId(organizationId),
+    action,
+    noThrow
+  );
+}
+
+export async function checkAuthorizatonForCollaborationRequest(
+  ctx: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  request: ICollaborationRequest,
+  action: BasicCRUDActions,
+  noThrow?: boolean
+) {
+  return checkAuthorizaton(
+    ctx,
+    agent,
+    organizationId,
+    request.requestId,
     AppResourceType.Collaborator,
     getPermissionOwnerListWithOrganizationId(organizationId),
     action,
