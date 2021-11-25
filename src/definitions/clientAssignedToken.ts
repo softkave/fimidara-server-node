@@ -6,11 +6,9 @@ export interface IClientAssignedToken {
   createdAt: string;
   createdBy: IAgent;
   organizationId: string;
-  environmentId: string;
+  // environmentId: string;
   version: number;
   presets: IAssignedPresetPermissionsGroup[];
-
-  // TODO: implement limitation to certain folders and files
 
   // not same as iat in token, may be a litte bit behind or after
   // and is a ISO string, where iat is time in seconds

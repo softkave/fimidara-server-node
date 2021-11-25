@@ -3,7 +3,7 @@ import {AppResourceType, BasicCRUDActions} from './system';
 export interface IPermissionItem {
   itemId: string;
   organizationId: string;
-  environmentId?: string;
+  // environmentId?: string;
   createdAt: string;
   createdBy: string;
   permissionOwnerId: string;

@@ -3,8 +3,8 @@ import {IAgent} from './system';
 export interface IFolder {
   folderId: string;
   organizationId: string;
-  bucketId: string;
-  environmentId: string;
+  // bucketId: string;
+  // environmentId: string;
   idPath: string[];
   namePath: string[];
   parentId?: string;

@@ -3,8 +3,8 @@ import {IAgent} from './system';
 export interface IFile {
   fileId: string;
   organizationId: string;
-  environmentId: string;
-  bucketId: string;
+  // environmentId: string;
+  // bucketId: string;
   folderId?: string;
   idPath: string[];
   namePath: string[];

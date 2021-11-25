@@ -1,7 +1,8 @@
-import {IOrganization} from '../../definitions/organization';
-import {IUser} from '../../definitions/user';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {IBaseContext} from '../contexts/BaseContext';
+import {OrganizationDoesNotExistError} from './errors';
+import OrganizationQueries from './queries';
 import {IPublicOrganization} from './types';
 
 const organizationFields = getFields<IPublicOrganization>({
@@ -17,9 +18,16 @@ const organizationFields = getFields<IPublicOrganization>({
 export const organizationExtractor = makeExtract(organizationFields);
 export const organizationListExtractor = makeListExtract(organizationFields);
 
-export function canReadOrganization(user: IUser, organization: IOrganization) {
-  return user.organizations.find(
-    organization => organization.organizationId === organization.organizationId
+export function throwOrganizationNotFound() {
+  throw new OrganizationDoesNotExistError();
+}
+
+export async function checkOrganizationExists(
+  ctx: IBaseContext,
+  organizationId: string
+) {
+  return await ctx.data.organization.assertGetItem(
+    OrganizationQueries.getById(organizationId)
   );
 }
 
