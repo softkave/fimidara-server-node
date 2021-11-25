@@ -1,4 +1,4 @@
-import {IAssignedPresetItem} from './presetPermissionsItem';
+import {IAssignedPresetPermissionsGroup} from './presetPermissionsItem';
 import {IAgent} from './system';
 
 export interface IClientAssignedToken {
@@ -8,7 +8,7 @@ export interface IClientAssignedToken {
   organizationId: string;
   environmentId: string;
   version: number;
-  presets: IAssignedPresetItem[];
+  presets: IAssignedPresetPermissionsGroup[];
 
   // TODO: implement limitation to certain folders and files
 

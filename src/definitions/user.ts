@@ -1,7 +1,9 @@
+import {IAssignedPresetPermissionsGroup} from './presetPermissionsItem';
+
 export interface IUserOrganization {
   organizationId: string;
   joinedAt: string;
-  roles: string[];
+  presets: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IUser {

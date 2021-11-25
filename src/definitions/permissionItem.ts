@@ -1,11 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from './system';
 
-export type PermissionEntityType =
-  | AppResourceType.ClientAssignedToken
-  | AppResourceType.ProgramAccessToken
-  | AppResourceType.Role
-  | AppResourceType.Collaborator;
-
 export interface IPermissionItem {
   itemId: string;
   organizationId: string;
@@ -15,8 +9,10 @@ export interface IPermissionItem {
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
   permissionEntityId: string;
-  permissionEntityType: PermissionEntityType;
+  permissionEntityType: AppResourceType;
+  resourceId?: string;
   resourceType: AppResourceType;
   action: BasicCRUDActions;
-  isExclude?: boolean;
+  isExclusion?: boolean; // That is this permission item denies permission to the resource
+  isForPermissionOwnerOnly?: boolean;
 }

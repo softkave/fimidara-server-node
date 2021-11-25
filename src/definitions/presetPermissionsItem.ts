@@ -7,9 +7,10 @@ export interface IPresetPermissionsItem {
   lastUpdatedBy?: string;
   name: string;
   description?: string;
+  // TODO: presets should contain other presets
 }
 
-export interface IAssignedPresetItem {
+export interface IAssignedPresetPermissionsGroup {
   presetId: string;
   assignedAt: string;
   assignedBy: string;

@@ -66,7 +66,7 @@ export interface IDataProviderFilterBuilder<T extends Record<string, unknown>> {
   ) => IDataProviderFilterBuilder<T>;
   addItemValue: <K extends keyof T>(
     key: K,
-    valueBuilder: IDataProviderFilterValue<T[K]>
+    value: IDataProviderFilterValue<T[K]>
   ) => IDataProviderFilterBuilder<T>;
   addCombineOp: (
     combineOp?: DataProviderFilterCombineOperator

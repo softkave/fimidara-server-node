@@ -5,6 +5,8 @@ export interface IFolder {
   organizationId: string;
   bucketId: string;
   environmentId: string;
+  idPath: string[];
+  namePath: string[];
   parentId?: string;
   createdBy: IAgent;
   createdAt: string;
