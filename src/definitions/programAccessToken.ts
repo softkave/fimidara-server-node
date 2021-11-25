@@ -1,10 +1,11 @@
 import {IAssignedPresetPermissionsGroup} from './presetPermissionsItem';
+import {IAgent} from './system';
 
 export interface IProgramAccessToken {
   tokenId: string;
   hash: string;
   createdAt: string;
-  createdBy: string;
+  createdBy: IAgent;
   organizationId: string;
   // environmentId: string;
   presets: IAssignedPresetPermissionsGroup[];

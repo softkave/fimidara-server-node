@@ -5,6 +5,8 @@ export interface IClientAssignedToken {
   tokenId: string;
   createdAt: string;
   createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: string;
   organizationId: string;
   // environmentId: string;
   version: number;
