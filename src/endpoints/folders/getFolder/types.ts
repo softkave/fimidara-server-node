@@ -3,9 +3,9 @@ import {IPublicFolder} from '../types';
 import {Endpoint} from '../../types';
 
 export interface IGetFolderEndpointParams {
-  bucketId: string;
-  folderId?: string;
-  path?: string;
+  // folderId?: string;
+  organizationId?: string;
+  path: string;
 }
 
 export interface IGetFolderEndpointResult {

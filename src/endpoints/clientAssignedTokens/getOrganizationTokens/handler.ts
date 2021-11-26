@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ClientAssignedTokenQueries from '../queries';
 import {ClientAssignedTokenUtils} from '../utils';
@@ -29,7 +29,7 @@ const getOrganizationTokens: GetOrganizationClientAssignedTokenEndpoint = async 
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
     tokens.map(item =>
-      checkAuthorizatonForClientAssignedToken(
+      checkAuthorizationForClientAssignedToken(
         context,
         agent,
         organization.organizationId,

@@ -1,9 +1,9 @@
 import {isArray} from 'lodash';
 import {IFile} from '../../definitions/file';
-import {BasicCRUDActions} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizatonForFile} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForFile} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {splitFolderPath} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
@@ -34,17 +34,16 @@ export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
   file: IFile,
   action: BasicCRUDActions
 ) {
-  const agent = await context.session.getAgent(context, instData);
   const organization = await checkOrganizationExists(
     context,
     file.organizationId
   );
 
-  await checkAuthorizatonForFile(
+  await checkAuthorizationForFile(
     context,
     agent,
     organization.organizationId,
@@ -57,25 +56,26 @@ export async function checkFileAuthorization(
 
 export async function checkFileAuthorizationWithFileId(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
   id: string,
   action: BasicCRUDActions
 ) {
   const file = await context.data.file.assertGetItem(FileQueries.getById(id));
-  return checkFileAuthorization(context, instData, file, action);
+  return checkFileAuthorization(context, agent, file, action);
 }
 
 export async function checkFileAuthorizationWithPath(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
+  organizationId: string,
   path: string | string[],
   action: BasicCRUDActions
 ) {
   const splitPath = isArray(path) ? path : splitFolderPath(path);
   const file = await context.data.file.assertGetItem(
-    FileQueries.getByNamePath(splitPath)
+    FileQueries.getByNamePath(organizationId, splitPath)
   );
-  return checkFileAuthorization(context, instData, file, action);
+  return checkFileAuthorization(context, agent, file, action);
 }
 
 export abstract class FileUtils {

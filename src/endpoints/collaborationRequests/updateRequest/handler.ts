@@ -2,7 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {isObjectEmpty} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForCollaborationRequest} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForCollaborationRequest} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaborationRequestQueries from '../queries';
 import {collabRequestExtractor} from '../utils';
@@ -21,7 +21,7 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
     request.organizationId
   );
 
-  await checkAuthorizatonForCollaborationRequest(
+  await checkAuthorizationForCollaborationRequest(
     context,
     agent,
     organization.organizationId,

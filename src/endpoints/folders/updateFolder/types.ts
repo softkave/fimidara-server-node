@@ -6,7 +6,9 @@ import {IPublicFolder} from '../types';
 export type IUpdateFolderInput = Partial<INewFolderInput>;
 
 export interface IUpdateFolderParams {
-  folderId: string;
+  // folderId: string;
+  organizationId?: string;
+  path: string;
   data: IUpdateFolderInput;
 }
 

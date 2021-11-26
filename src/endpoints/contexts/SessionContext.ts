@@ -9,6 +9,7 @@ import {
 } from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
 import ClientAssignedTokenQueries from '../clientAssignedTokens/queries';
+import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import RequestData from '../RequestData';
 import {
@@ -278,3 +279,20 @@ export default class SessionContext implements ISessionContext {
 }
 
 export const getSessionContext = singletonFunc(() => new SessionContext());
+
+export function getOrganizationId(
+  agent: ISessionAgent,
+  providedOrganizationId?: string | null
+) {
+  const organizationId = agent.clientAssignedToken
+    ? agent.clientAssignedToken.organizationId
+    : agent.programAccessToken
+    ? agent.programAccessToken.organizationId
+    : providedOrganizationId;
+
+  if (!organizationId) {
+    throw new InvalidRequestError('Organization ID not provided');
+  }
+
+  return organizationId;
+}

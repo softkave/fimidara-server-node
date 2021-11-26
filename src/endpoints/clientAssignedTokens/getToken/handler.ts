@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ClientAssignedTokenQueries from '../queries';
 import {ClientAssignedTokenUtils} from '../utils';
@@ -22,7 +22,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
     token.organizationId
   );
 
-  await checkAuthorizatonForClientAssignedToken(
+  await checkAuthorizationForClientAssignedToken(
     context,
     agent,
     organization.organizationId,

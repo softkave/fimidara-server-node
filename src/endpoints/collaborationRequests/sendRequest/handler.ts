@@ -18,8 +18,8 @@ import CollaborationRequestQueries from '../queries';
 import {getCollaboratorOrganization} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
-  checkAuthorizaton,
-  getPermissionOwnerListWithOrganizationId,
+  checkAuthorization,
+  makeBasePermissionOwnerList,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 
@@ -28,7 +28,9 @@ async function sendEmail(
   request: ICollaborationRequest,
   toUser: IUser | null,
   organizationName: string
-) {}
+) {
+  TODO;
+}
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
@@ -38,13 +40,13 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     data.organizationId
   );
 
-  await checkAuthorizaton(
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
     null,
     AppResourceType.CollaborationRequest,
-    getPermissionOwnerListWithOrganizationId(organization.organizationId),
+    makeBasePermissionOwnerList(organization.organizationId),
     BasicCRUDActions.Create
   );
 

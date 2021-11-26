@@ -3,16 +3,13 @@ import {Endpoint} from '../../types';
 import {IPublicFolder} from '../types';
 
 export interface INewFolderInput {
-  organizationId: string;
-  environmentId: string;
-  bucketId: string;
   path: string;
-  parentId?: string;
   description?: string;
   maxFileSize?: number;
 }
 
 export interface IAddFolderParams {
+  organizationId?: string;
   folder: INewFolderInput;
 }
 

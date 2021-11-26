@@ -1,10 +1,11 @@
 import {isArray} from 'lodash';
 import {IFolder} from '../../definitions/folder';
-import {BasicCRUDActions} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizatonForFolder} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForFolder} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {InvalidRequestError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import RequestData from '../RequestData';
 import {agentExtractor} from '../utils';
@@ -38,6 +39,16 @@ export function splitFolderPath(path: string) {
   return path.split(folderConstants.nameSeparator).filter(item => !!item);
 }
 
+export function assertSplitFolderPath(path: string) {
+  const splitPath = splitFolderPath(path);
+
+  if (splitPath.length === 0) {
+    throw new InvalidRequestError('Path is empty');
+  }
+
+  return splitPath;
+}
+
 export interface IFolderPathWithDetails {
   path: string;
   name: string;
@@ -65,19 +76,30 @@ export function splitFolderPathWithDetails(
   };
 }
 
+export function assertSplitFolderPathWithDetails(
+  path: string
+): IFolderPathWithDetails {
+  const result = splitFolderPathWithDetails(path);
+
+  if (result.splitPath.length === 0) {
+    throw new InvalidRequestError('Path is empty');
+  }
+
+  return result;
+}
+
 export async function checkFolderAuthorization(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
   folder: IFolder,
   action: BasicCRUDActions
 ) {
-  const agent = await context.session.getAgent(context, instData);
   const organization = await checkOrganizationExists(
     context,
     folder.organizationId
   );
 
-  await checkAuthorizatonForFolder(
+  await checkAuthorizationForFolder(
     context,
     agent,
     organization.organizationId,
@@ -90,27 +112,28 @@ export async function checkFolderAuthorization(
 
 export async function checkFolderAuthorizationWithFolderId(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
   id: string,
   action: BasicCRUDActions
 ) {
   const folder = await context.data.folder.assertGetItem(
     FolderQueries.getById(id)
   );
-  return checkFolderAuthorization(context, instData, folder, action);
+  return checkFolderAuthorization(context, agent, folder, action);
 }
 
 export async function checkFolderAuthorizationWithPath(
   context: IBaseContext,
-  instData: RequestData,
+  agent: ISessionAgent,
+  organizationId: string,
   path: string | string[],
   action: BasicCRUDActions
 ) {
   const splitPath = isArray(path) ? path : splitFolderPath(path);
   const folder = await context.data.folder.assertGetItem(
-    FolderQueries.getByNamePath(splitPath)
+    FolderQueries.getByNamePath(organizationId, splitPath)
   );
-  return checkFolderAuthorization(context, instData, folder, action);
+  return checkFolderAuthorization(context, agent, folder, action);
 }
 
 export abstract class FolderUtils {
