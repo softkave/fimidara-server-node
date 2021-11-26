@@ -3,9 +3,8 @@ import {Endpoint} from '../../types';
 import {IPublicFile} from '../types';
 
 export interface IGetFileDetailsEndpointParams {
-  fileId?: string;
-  path?: string;
-  bucketId?: string;
+  // fileId?: string;
+  path: string;
 }
 
 export interface IGetFileDetailsEndpointResult {

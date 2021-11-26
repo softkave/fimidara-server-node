@@ -57,10 +57,17 @@ function getFoldersByBucketId(bucketId: string) {
     .build();
 }
 
+function getByNamePath(namePath: string[]) {
+  return newFilter()
+    .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 export default abstract class FolderQueries {
   static getById = getById;
   static getByName = getByName;
   static folderExists = folderExists;
   static getFoldersByParentId = getFoldersByParentId;
   static getFoldersByBucketId = getFoldersByBucketId;
+  static getByNamePath = getByNamePath;
 }

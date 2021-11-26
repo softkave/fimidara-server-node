@@ -11,7 +11,8 @@ export interface IUpdateFileDetailsInput {
 }
 
 export interface IUpdateFileDetailsEndpointParams {
-  fileId: string;
+  // TODO: support path or id
+  path: string;
   data: IUpdateFileDetailsInput;
 }
 

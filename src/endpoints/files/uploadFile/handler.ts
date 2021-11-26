@@ -1,9 +1,14 @@
 import {IFile} from '../../../definitions/file';
-import {SessionAgentType} from '../../../definitions/system';
+import {IFolder} from '../../../definitions/folder';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import FolderQueries from '../../folders/queries';
+import {InvalidRequestError} from '../../errors';
+import {
+  checkFolderAuthorizationWithPath,
+  splitFolderPathWithDetails,
+} from '../../folders/utils';
 import FileQueries from '../queries';
 import {FileUtils} from '../utils';
 import {UploadFileEndpoint} from './types';
@@ -11,38 +16,54 @@ import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const user = await context.session.getUser(context, instData);
-  const parentFolder = data.folderId
-    ? await context.data.folder.assertGetItem(
-        FolderQueries.getById(data.folderId)
-      )
-    : null;
+  const agent = await context.session.getAgent(context, instData);
+  const {name, parentPath, hasParent, splitPath} = splitFolderPathWithDetails(
+    data.path
+  );
 
-  let file = data.folderId
-    ? await context.data.file.getItem(
-        FileQueries.getByNameAndFolderId(data.file.name, data.folderId)
-      )
-    : data.bucketId
-    ? await context.data.file.getItem(
-        FileQueries.getByNameAndBucketId(data.file.name, data.bucketId)
-      )
-    : null;
+  let file = await context.data.file.getItem(
+    FileQueries.getByNamePath(splitPath)
+  );
 
   if (!file) {
+    let parentFolder: IFolder | null = null;
+
+    if (hasParent) {
+      const checkResult = await checkFolderAuthorizationWithPath(
+        context,
+        instData,
+        parentPath,
+        BasicCRUDActions.Read
+      );
+
+      parentFolder = checkResult.folder;
+    }
+
+    const organizationId = agent.clientAssignedToken
+      ? agent.clientAssignedToken.organizationId
+      : agent.programAccessToken
+      ? agent.programAccessToken.organizationId
+      : data.organizationId;
+
+    if (!organizationId) {
+      throw new InvalidRequestError('Organization ID not provided');
+    }
+
+    const fileId = getNewId();
     const newFile: IFile = {
-      fileId: getNewId(),
-      organizationId: data.organizationId,
-      environmentId: data.environmentId,
-      bucketId: data.bucketId,
+      organizationId,
+      name,
+      fileId,
+      idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+      namePath: parentFolder ? parentFolder.namePath.concat(name) : [name],
       folderId: parentFolder?.folderId,
       mimetype: data.file.mimetype,
       size: data.file.data.byteLength,
       createdBy: {
-        agentId: user.userId,
-        agentType: SessionAgentType.User,
+        agentId: agent.agentId,
+        agentType: agent.agentType,
       },
       createdAt: getDateString(),
-      name: data.file.name,
       description: data.file.description,
       encoding: data.file.encoding,
     };
