@@ -3,7 +3,6 @@ import {Endpoint} from '../../types';
 import {IPublicFile} from '../types';
 
 export interface INewFileInput {
-  name: string;
   description?: string;
   mimetype: string; // TODO: define mimetypes
   encoding?: string;
@@ -11,10 +10,8 @@ export interface INewFileInput {
 }
 
 export interface IUploadFileParams {
-  organizationId: string;
-  environmentId: string;
-  bucketId: string;
-  folderId?: string;
+  organizationId?: string;
+  path: string;
   file: INewFileInput;
 }
 

@@ -1,19 +1,22 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import FileQueries from '../queries';
+import {checkFileAuthorizationWithFileId} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
-  await context.session.getUser(context, instData);
-  const file = await context.data.file.assertGetItem(
-    FileQueries.getById(data.fileId)
+  const {file} = await checkFileAuthorizationWithFileId(
+    context,
+    instData,
+    data.fileId,
+    BasicCRUDActions.Read
   );
 
   // TODO: implement accept ranges, cache control, etags, etc.
   // see aws s3 sdk getObject function
 
-  const fileObject = await context.s3
+  const s3File = await context.s3
     .getObject({
       Bucket: context.appVariables.S3Bucket,
       Key: file.fileId,
@@ -21,7 +24,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     .promise();
 
   return {
-    file: fileObject.Body as Buffer | undefined,
+    file: s3File.Body as Buffer | undefined,
   };
 };
 

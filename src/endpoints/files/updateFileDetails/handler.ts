@@ -1,8 +1,8 @@
-import {SessionAgentType} from '../../../definitions/system';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import FileQueries from '../queries';
-import {FileUtils} from '../utils';
+import {checkFileAuthorizationWithPath, FileUtils} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -11,9 +11,11 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
-  const user = await context.session.getUser(context, instData);
-  const file = await context.data.file.assertGetItem(
-    FileQueries.getById(data.fileId)
+  const {file, agent} = await checkFileAuthorizationWithPath(
+    context,
+    instData,
+    data.path,
+    BasicCRUDActions.Update
   );
 
   const updatedFile = await context.data.file.assertUpdateItem(
@@ -22,8 +24,8 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
       ...data.data,
       lastUpdatedAt: getDateString(),
       lastUpdatedBy: {
-        agentId: user.userId,
-        agentType: SessionAgentType.User,
+        agentId: agent.agentId,
+        agentType: agent.agentType,
       },
     }
   );
