@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor} from '../utils';
@@ -25,7 +25,7 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint = async
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
     collaborators.map(item =>
-      checkAuthorizatonForCollaborator(
+      checkAuthorizationForCollaborator(
         context,
         agent,
         organization.organizationId,

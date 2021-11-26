@@ -4,10 +4,9 @@ import {Endpoint} from '../../types';
 import {IPublicFolder} from '../types';
 
 export interface IListFolderContentEndpointParams {
-  // TODO: add organization ID to the endpoints
-  bucketId?: string; // TODO: use bucket ID instead of bucket name
-  parentFolderId?: string;
-  parentFolderPath?: string;
+  // parentFolderId?: string;
+  organizationId?: string;
+  path: string;
 }
 
 export interface IListFolderContentEndpointResult {

@@ -1,20 +1,25 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import FolderQueries from '../queries';
+import {checkFolderAuthorizationWithFolderId} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFolderJoiSchema);
-  await context.session.assertUser(context, instData);
-  await context.folder.deleteFolder(context, data.folderId);
+  const agent = await context.session.getAgent(context, instData);
+  await checkFolderAuthorizationWithFolderId(
+    context,
+    agent,
+    data.folderId,
+    BasicCRUDActions.Delete
+  );
+
+  await context.data.file.deleteItem(FolderQueries.getById(data.folderId));
 
   // TODO:
-  // delete folders
-  // delete spaces
-  // delete buckets
-  // delete program access keys
-  // delete client assigned keys
-  // remove folders in users
-  // delete files
+  // delete children folders and files
+  // delete permission items
 };
 
 export default deleteFolder;

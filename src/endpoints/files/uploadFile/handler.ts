@@ -1,14 +1,10 @@
-import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import {InvalidRequestError} from '../../errors';
-import {
-  checkFolderAuthorizationWithPath,
-  splitFolderPathWithDetails,
-} from '../../folders/utils';
+import {getOrganizationId} from '../../contexts/SessionContext';
+import {createFolderList} from '../../folders/addFolder/handler';
+import {splitFolderPathWithDetails} from '../../folders/utils';
 import FileQueries from '../queries';
 import {FileUtils} from '../utils';
 import {UploadFileEndpoint} from './types';
@@ -21,36 +17,22 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     data.path
   );
 
+  const organizationId = getOrganizationId(agent, data.organizationId);
   let file = await context.data.file.getItem(
-    FileQueries.getByNamePath(splitPath)
+    FileQueries.getByNamePath(organizationId, splitPath)
   );
 
   if (!file) {
     let parentFolder: IFolder | null = null;
 
     if (hasParent) {
-      const checkResult = await checkFolderAuthorizationWithPath(
-        context,
-        instData,
-        parentPath,
-        BasicCRUDActions.Read
-      );
-
-      parentFolder = checkResult.folder;
-    }
-
-    const organizationId = agent.clientAssignedToken
-      ? agent.clientAssignedToken.organizationId
-      : agent.programAccessToken
-      ? agent.programAccessToken.organizationId
-      : data.organizationId;
-
-    if (!organizationId) {
-      throw new InvalidRequestError('Organization ID not provided');
+      parentFolder = await createFolderList(context, agent, organizationId, {
+        path: parentPath,
+      });
     }
 
     const fileId = getNewId();
-    const newFile: IFile = {
+    file = await context.data.file.saveItem({
       organizationId,
       name,
       fileId,
@@ -66,9 +48,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       createdAt: getDateString(),
       description: data.file.description,
       encoding: data.file.encoding,
-    };
-
-    file = await context.data.file.saveItem(newFile);
+    });
   }
 
   await context.s3

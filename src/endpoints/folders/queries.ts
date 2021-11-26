@@ -44,6 +44,17 @@ function folderExists(
     .build();
 }
 
+function folderExistsByNamePath(organizationId: string, namePath: string[]) {
+  return newFilter()
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 function getFoldersByParentId(parentId: string) {
   return newFilter()
     .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
@@ -57,8 +68,13 @@ function getFoldersByBucketId(bucketId: string) {
     .build();
 }
 
-function getByNamePath(namePath: string[]) {
+function getByNamePath(organizationId: string, namePath: string[]) {
   return newFilter()
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
     .build();
 }
@@ -70,4 +86,5 @@ export default abstract class FolderQueries {
   static getFoldersByParentId = getFoldersByParentId;
   static getFoldersByBucketId = getFoldersByBucketId;
   static getByNamePath = getByNamePath;
+  static folderExistsByNamePath = folderExistsByNamePath;
 }

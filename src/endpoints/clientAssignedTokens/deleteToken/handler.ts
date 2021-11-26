@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
 import ClientAssignedTokenQueries from '../queries';
@@ -22,7 +22,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     token.organizationId
   );
 
-  await checkAuthorizatonForClientAssignedToken(
+  await checkAuthorizationForClientAssignedToken(
     context,
     agent,
     organization.organizationId,

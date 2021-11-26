@@ -1,65 +1,70 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {InvalidRequestError} from '../../errors';
+import {
+  checkAuthorizationForFile,
+  checkAuthorizationForFolder,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {FileUtils} from '../../files/utils';
-import {getFolderByName} from '../getFolder/handler';
 import FolderQueries from '../queries';
-import {FolderUtils} from '../utils';
+import {checkFolderAuthorizationWithPath, FolderUtils} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
-
-export async function getFoldersByBucketIdParentIdOrPath(
-  context: IBaseContext,
-  bucketId: string | null | undefined,
-  parentId: string | null | undefined,
-  parentPath: string | null | undefined
-) {
-  if (bucketId) {
-    return await Promise.all([
-      context.data.folder.getManyItems(
-        FolderQueries.getFoldersByBucketId(bucketId)
-      ),
-      context.data.file.getManyItems(FileQueries.getFilesByBucketId(bucketId)),
-    ]);
-  }
-
-  if (parentPath) {
-    const folders = await getFolderByName(context, parentPath);
-    const parentFolder = folders[folders.length - 1];
-    parentId = parentFolder.folderId;
-  }
-
-  if (parentId) {
-    return await Promise.all([
-      context.data.folder.getManyItems(
-        FolderQueries.getFoldersByParentId(parentId)
-      ),
-      context.data.file.getManyItems(FileQueries.getFilesByParentId(parentId)),
-    ]);
-  }
-
-  throw new InvalidRequestError(
-    'Missing bucket ID or parent ID or parent path'
-  );
-}
 
 const listFolderContent: ListFolderContentEndpoint = async (
   context,
   instData
 ) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  await context.session.getUser(context, instData);
-  const [folders, files] = await getFoldersByBucketIdParentIdOrPath(
+  const agent = await context.session.getAgent(context, instData);
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {folder} = await checkFolderAuthorizationWithPath(
     context,
-    data.bucketId,
-    data.parentFolderId,
-    data.parentFolderPath
+    agent,
+    organizationId,
+    data.path,
+    BasicCRUDActions.Read
   );
 
+  const [folders, files] = await Promise.all([
+    context.data.folder.getManyItems(
+      FolderQueries.getFoldersByParentId(folder.folderId)
+    ),
+    context.data.file.getManyItems(
+      FileQueries.getFilesByParentId(folder.folderId)
+    ),
+  ]);
+
+  // TODO: can we do this together, so that we don't waste compute
+  const folderPreparedChecks = folders.map(item =>
+    checkAuthorizationForFolder(
+      context,
+      agent,
+      organizationId,
+      item,
+      BasicCRUDActions.Read
+    )
+  );
+
+  const filePreparedChecks = files.map(item =>
+    checkAuthorizationForFile(
+      context,
+      agent,
+      organizationId,
+      item,
+      BasicCRUDActions.Read
+    )
+  );
+
+  const folderPermittedReads = await Promise.all(folderPreparedChecks);
+  const filePermittedReads = await Promise.all(filePreparedChecks);
+  const allowedFolders = folders.filter((item, i) => !!folderPermittedReads[i]);
+  const allowedFiles = files.filter((item, i) => !!filePermittedReads[i]);
+
   return {
-    folders: FolderUtils.getPublicFolderList(folders),
-    files: FileUtils.getPublicFileList(files),
+    folders: FolderUtils.getPublicFolderList(allowedFolders),
+    files: FileUtils.getPublicFileList(allowedFiles),
   };
 };
 

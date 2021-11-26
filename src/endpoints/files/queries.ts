@@ -25,9 +25,14 @@ function getFilesByParentId(parentId: string) {
     .build();
 }
 
-function getByNamePath(namePath: string[]) {
+function getByNamePath(organizationId: string, namePath: string[]) {
   return newFilter()
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
     .build();
 }
 

@@ -4,8 +4,8 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
-  checkAuthorizaton,
-  getPermissionOwnerListWithOrganizationId,
+  checkAuthorization,
+  makeBasePermissionOwnerList,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {CURRENT_TOKEN_VERSION} from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
@@ -24,13 +24,13 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     data.token.organizationId
   );
 
-  await checkAuthorizaton(
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
     null,
     AppResourceType.ClientAssignedToken,
-    getPermissionOwnerListWithOrganizationId(organization.organizationId),
+    makeBasePermissionOwnerList(organization.organizationId),
     BasicCRUDActions.Create
   );
 

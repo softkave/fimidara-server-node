@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaboratorQueries from '../queries';
 import {collaboratorExtractor} from '../utils';
@@ -22,7 +22,7 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
     data.organizationId
   );
 
-  await checkAuthorizatonForCollaborator(
+  await checkAuthorizationForCollaborator(
     context,
     agent,
     organization.organizationId,

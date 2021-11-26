@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizatonForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaboratorQueries from '../queries';
 import {RemoveCollaboratorEndpoint} from './types';
@@ -24,7 +24,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     data.organizationId
   );
 
-  await checkAuthorizatonForCollaborator(
+  await checkAuthorizationForCollaborator(
     context,
     agent,
     organization.organizationId,

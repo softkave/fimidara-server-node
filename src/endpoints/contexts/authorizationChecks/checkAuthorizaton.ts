@@ -28,7 +28,7 @@ export interface IPermissionOwner {
   order?: number;
 }
 
-export async function checkAuthorizaton(
+export async function checkAuthorization(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -155,14 +155,14 @@ export async function checkAuthorizaton(
   return true;
 }
 
-export async function checkAuthorizatonForOrganization(
+export async function checkAuthorizationForOrganization(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organization.organizationId,
@@ -174,9 +174,7 @@ export async function checkAuthorizatonForOrganization(
   );
 }
 
-export function getPermissionOwnerListWithOrganizationId(
-  organizationId: string
-) {
+export function makeBasePermissionOwnerList(organizationId: string) {
   return [
     {
       permissionOwnerId: organizationId,
@@ -186,7 +184,7 @@ export function getPermissionOwnerListWithOrganizationId(
   ];
 }
 
-export async function checkAuthorizatonForCollaborator(
+export async function checkAuthorizationForCollaborator(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -194,19 +192,19 @@ export async function checkAuthorizatonForCollaborator(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
     collaborator.userId,
     AppResourceType.Collaborator,
-    getPermissionOwnerListWithOrganizationId(organizationId),
+    makeBasePermissionOwnerList(organizationId),
     action,
     noThrow
   );
 }
 
-export async function checkAuthorizatonForCollaborationRequest(
+export async function checkAuthorizationForCollaborationRequest(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -214,13 +212,13 @@ export async function checkAuthorizatonForCollaborationRequest(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
     request.requestId,
     AppResourceType.Collaborator,
-    getPermissionOwnerListWithOrganizationId(organizationId),
+    makeBasePermissionOwnerList(organizationId),
     action,
     noThrow
   );
@@ -230,7 +228,7 @@ export function getFilePermissionOwners(
   organizationId: string,
   file: {idPath: string[]}
 ) {
-  return getPermissionOwnerListWithOrganizationId(organizationId).concat(
+  return makeBasePermissionOwnerList(organizationId).concat(
     file.idPath.map((id, i) => ({
       permissionOwnerId: id,
       permissionOwnerType: AppResourceType.Folder,
@@ -239,7 +237,7 @@ export function getFilePermissionOwners(
   );
 }
 
-export async function checkAuthorizatonForFile(
+export async function checkAuthorizationForFile(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -247,7 +245,7 @@ export async function checkAuthorizatonForFile(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
@@ -259,7 +257,7 @@ export async function checkAuthorizatonForFile(
   );
 }
 
-export async function checkAuthorizatonForFolder(
+export async function checkAuthorizationForFolder(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -267,7 +265,7 @@ export async function checkAuthorizatonForFolder(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
@@ -279,7 +277,7 @@ export async function checkAuthorizatonForFolder(
   );
 }
 
-export async function checkAuthorizatonForClientAssignedToken(
+export async function checkAuthorizationForClientAssignedToken(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -287,19 +285,19 @@ export async function checkAuthorizatonForClientAssignedToken(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
     token.tokenId,
     AppResourceType.ClientAssignedToken,
-    getPermissionOwnerListWithOrganizationId(organizationId),
+    makeBasePermissionOwnerList(organizationId),
     action,
     noThrow
   );
 }
 
-export async function checkAuthorizatonForProgramAccessToken(
+export async function checkAuthorizationForProgramAccessToken(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
@@ -307,13 +305,13 @@ export async function checkAuthorizatonForProgramAccessToken(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
-  return checkAuthorizaton(
+  return checkAuthorization(
     ctx,
     agent,
     organizationId,
     token.tokenId,
     AppResourceType.ClientAssignedToken,
-    getPermissionOwnerListWithOrganizationId(organizationId),
+    makeBasePermissionOwnerList(organizationId),
     action,
     noThrow
   );

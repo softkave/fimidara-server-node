@@ -7,9 +7,10 @@ import {deleteFileJoiSchema} from './validation';
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
+  const agent = await context.session.getAgent(context, instData);
   await checkFileAuthorizationWithFileId(
     context,
-    instData,
+    agent,
     data.fileId,
     BasicCRUDActions.Delete
   );
