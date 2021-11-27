@@ -47,22 +47,17 @@ export async function checkProgramAccessTokenAuthorization(
   return {agent, token, organization};
 }
 
-export async function checkProgramAccessTokenAuthorizationWithTokenId(
+export async function checkProgramAccessTokenAuthorizationWithId(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
   action: BasicCRUDActions
 ) {
-  const programaccesstoken = await context.data.programAccessToken.assertGetItem(
+  const token = await context.data.programAccessToken.assertGetItem(
     ProgramAccessTokenQueries.getById(id)
   );
 
-  return checkProgramAccessTokenAuthorization(
-    context,
-    agent,
-    programaccesstoken,
-    action
-  );
+  return checkProgramAccessTokenAuthorization(context, agent, token, action);
 }
 
 export abstract class ProgramAccessTokenUtils {

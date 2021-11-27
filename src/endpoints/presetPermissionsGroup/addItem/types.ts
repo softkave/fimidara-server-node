@@ -3,12 +3,12 @@ import {Endpoint} from '../../types';
 import {IPublicPresetPermissionsItem} from '../types';
 
 export interface INewPresetPermissionsItemInput {
-  organizationId: string;
   name: string;
   description?: string;
 }
 
 export interface IAddPresetPermissionsItemParams {
+  organizationId: string;
   item: INewPresetPermissionsItemInput;
 }
 

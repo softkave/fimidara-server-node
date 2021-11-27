@@ -1,10 +1,12 @@
+import {IAgent} from '../../definitions/system';
+
 export interface IPublicPresetPermissionsItem {
   itemId: string;
   organizationId: string;
   createdAt: string;
-  createdBy: string;
+  createdBy: IAgent;
   lastUpdatedAt?: string;
-  lastUpdatedBy?: string;
+  lastUpdatedBy?: IAgent;
 }
 
 export interface IPresetInput {

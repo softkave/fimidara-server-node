@@ -5,6 +5,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorizationForPresetPermissionsGroup} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkOrganizationExists} from '../organizations/utils';
+import {agentExtractor} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
 import {IPublicPresetPermissionsItem} from './types';
 
@@ -12,9 +13,9 @@ const presetPermissionsItemFields = getFields<IPublicPresetPermissionsItem>({
   itemId: true,
   organizationId: true,
   createdAt: getDateString,
-  createdBy: true,
+  createdBy: agentExtractor,
   lastUpdatedAt: getDateString,
-  lastUpdatedBy: true,
+  lastUpdatedBy: agentExtractor,
 });
 
 export const presetPermissionsItemExtractor = makeExtract(

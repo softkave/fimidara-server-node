@@ -1,6 +1,9 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import PresetPermissionsItemQueries from '../queries';
-import {PresetPermissionsItemUtils} from '../utils';
+import {
+  checkPresetPermissionsGroupAuthorizationWithId,
+  PresetPermissionsItemUtils,
+} from '../utils';
 import {GetPresetPermissionsItemEndpoint} from './types';
 import {getPresetPermissionsItemJoiSchema} from './validation';
 
@@ -9,13 +12,16 @@ const getPresetPermissionsItem: GetPresetPermissionsItemEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, getPresetPermissionsItemJoiSchema);
-  await context.session.getUser(context, instData);
-  const item = await context.data.presetPermissionsGroup.assertGetItem(
-    PresetPermissionsItemQueries.getById(data.itemId)
+  const agent = await context.session.getAgent(context, instData);
+  const {preset} = await checkPresetPermissionsGroupAuthorizationWithId(
+    context,
+    agent,
+    data.itemId,
+    BasicCRUDActions.Read
   );
 
   return {
-    item: PresetPermissionsItemUtils.extractPublicPresetPermissionsItem(item),
+    item: PresetPermissionsItemUtils.extractPublicPresetPermissionsItem(preset),
   };
 };
 

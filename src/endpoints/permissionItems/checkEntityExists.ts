@@ -8,7 +8,7 @@ import {checkCollaboratorAuthorizationWithCollaboratorId} from '../collaborators
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {checkPresetPermissionsGroupAuthorizationWithId} from '../presetPermissionsGroup/utils';
-import {checkProgramAccessTokenAuthorizationWithTokenId} from '../programAccessTokens/utils';
+import {checkProgramAccessTokenAuthorizationWithId} from '../programAccessTokens/utils';
 
 export default async function checkEntityExists(
   context: IBaseContext,
@@ -29,7 +29,7 @@ export default async function checkEntityExists(
     }
 
     case AppResourceType.ProgramAccessToken: {
-      await checkProgramAccessTokenAuthorizationWithTokenId(
+      await checkProgramAccessTokenAuthorizationWithId(
         context,
         agent,
         permissionEntityId,
