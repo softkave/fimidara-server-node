@@ -1,4 +1,7 @@
-import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
+import {
+  IAssignedPresetPermissionsGroup,
+  IPresetPermissionsGroup,
+} from '../../definitions/presetPermissionsGroup';
 import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
@@ -24,6 +27,18 @@ export const presetPermissionsItemExtractor = makeExtract(
 
 export const presetPermissionsItemListExtractor = makeListExtract(
   presetPermissionsItemFields
+);
+
+const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
+  presetId: true,
+  assignedAt: getDateString,
+  assignedBy: agentExtractor,
+  order: true,
+});
+
+export const assignedPresetsExtractor = makeExtract(assignedPresetsFields);
+export const assignedPresetsListExtractor = makeListExtract(
+  assignedPresetsFields
 );
 
 export async function checkPresetPermissionsGroupAuthorization(

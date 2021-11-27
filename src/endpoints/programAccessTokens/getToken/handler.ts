@@ -1,6 +1,9 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import ProgramAccessTokenQueries from '../queries';
-import {ProgramAccessTokenUtils} from '../utils';
+import {
+  checkProgramAccessTokenAuthorizationWithId,
+  ProgramAccessTokenUtils,
+} from '../utils';
 import {GetProgramAccessTokenEndpoint} from './types';
 import {getProgramAccessTokenJoiSchema} from './validation';
 
@@ -9,9 +12,12 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, getProgramAccessTokenJoiSchema);
-  const user = await context.session.getUser(context, instData);
-  const token = await context.data.programAccessToken.assertGetItem(
-    ProgramAccessTokenQueries.getById(data.tokenId)
+  const agent = await context.session.getAgent(context, instData);
+  const {token} = await checkProgramAccessTokenAuthorizationWithId(
+    context,
+    agent,
+    data.tokenId,
+    BasicCRUDActions.Read
   );
 
   return {
