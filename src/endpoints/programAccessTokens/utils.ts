@@ -5,6 +5,8 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorizationForProgramAccessToken} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkOrganizationExists} from '../organizations/utils';
+import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
+import {agentExtractor} from '../utils';
 import ProgramAccessTokenQueries from './queries';
 import {IPublicProgramAccessToken} from './types';
 
@@ -12,9 +14,10 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   tokenId: true,
   hash: true,
   createdAt: getDateString,
-  createdBy: true,
+  createdBy: agentExtractor,
   organizationId: true,
-  environmentId: true,
+  description: true,
+  presets: assignedPresetsListExtractor,
 });
 
 export const programAccessTokenExtractor = makeExtract(

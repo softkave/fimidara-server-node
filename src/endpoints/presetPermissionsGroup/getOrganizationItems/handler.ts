@@ -15,6 +15,7 @@ const getOrganizationPresetPermissionsItem: GetOrganizationPresetPermissionsItem
     instData.data,
     getOrganizationPresetPermissionsItemJoiSchema
   );
+
   const agent = await context.session.getAgent(context, instData);
   const organization = await checkOrganizationExists(
     context,
