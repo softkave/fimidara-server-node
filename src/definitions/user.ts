@@ -1,4 +1,4 @@
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsItem';
+import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 
 export interface IUserOrganization {
   organizationId: string;

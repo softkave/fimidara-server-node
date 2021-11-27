@@ -1,6 +1,6 @@
 import {IAgent} from './system';
 
-export interface IPresetPermissionsItem {
+export interface IPresetPermissionsGroup {
   presetId: string;
   organizationId: string;
   createdAt: string;

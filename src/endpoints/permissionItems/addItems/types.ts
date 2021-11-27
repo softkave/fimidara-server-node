@@ -1,22 +1,22 @@
-import {PermissionEntityType} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {IPublicPermissionItem} from '../types';
 
 export interface INewPermissionItemInput {
-  organizationId: string;
-  environmentId?: string;
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
-  permissionEntityId: string;
-  permissionEntityType: PermissionEntityType;
+  resourceId?: string;
   resourceType: AppResourceType;
   action: BasicCRUDActions;
-  isExclude?: boolean;
+  isExclusion?: boolean;
+  isForPermissionOwnerOnly?: boolean;
 }
 
 export interface IAddPermissionItemsParams {
+  organizationId: string;
+  permissionEntityId: string;
+  permissionEntityType: AppResourceType;
   items: INewPermissionItemInput[];
 }
 

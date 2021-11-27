@@ -33,7 +33,7 @@ import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IBucket} from '../../definitions/bucket';
 import {IPermissionItem} from '../../definitions/permissionItem';
-import {IPresetPermissionsItem} from '../../definitions/presetPermissionsItem';
+import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
 import {IOrganization} from '../../definitions/organization';
 import {IEnvironment} from '../../definitions/environment';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
@@ -59,7 +59,7 @@ export interface IBaseContextDataProviders {
   programAccessToken: IDataProvider<IProgramAccessToken>;
   bucket: IDataProvider<IBucket>;
   permissionItem: IDataProvider<IPermissionItem>;
-  presetPermissionsItem: IDataProvider<IPresetPermissionsItem>;
+  presetPermissionsGroup: IDataProvider<IPresetPermissionsGroup>;
   organization: IDataProvider<IOrganization>;
   environment: IDataProvider<IEnvironment>;
   collaborationRequest: IDataProvider<ICollaborationRequest>;

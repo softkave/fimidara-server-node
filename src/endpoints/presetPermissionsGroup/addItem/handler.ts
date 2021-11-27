@@ -11,7 +11,7 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, addPresetPermissionsItemJoiSchema);
   const user = await context.session.getUser(context, instData);
-  const item = await context.data.presetPermissionsItem.saveItem({
+  const item = await context.data.presetPermissionsGroup.saveItem({
     ...data.item,
     presetId: getNewId(),
     createdAt: getDateString(),

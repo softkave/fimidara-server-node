@@ -11,7 +11,7 @@ const updatePresetPermissionsItem: UpdatePresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, updatePresetPermissionsItemJoiSchema);
   const user = await context.session.getUser(context, instData);
-  const item = await context.data.presetPermissionsItem.assertUpdateItem(
+  const item = await context.data.presetPermissionsGroup.assertUpdateItem(
     PresetPermissionsItemQueries.getById(data.itemId),
     {
       ...data.data,

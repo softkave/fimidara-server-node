@@ -1,9 +1,9 @@
-import {IPresetPermissionsItem} from '../../definitions/presetPermissionsItem';
+import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<IPresetPermissionsItem>();
+  return new DataProviderFilterBuilder<IPresetPermissionsGroup>();
 }
 
 function getById(id: string) {
@@ -18,7 +18,7 @@ function getByOrganizationId(id: string) {
     .build();
 }
 
-export default abstract class PresetPermissionItemQueries {
+export default abstract class PresetPermissionsGroupQueries {
   static getById = getById;
   static getByOrganizationId = getByOrganizationId;
 }

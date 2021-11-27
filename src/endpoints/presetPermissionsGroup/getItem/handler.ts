@@ -10,7 +10,7 @@ const getPresetPermissionsItem: GetPresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, getPresetPermissionsItemJoiSchema);
   await context.session.getUser(context, instData);
-  const item = await context.data.presetPermissionsItem.assertGetItem(
+  const item = await context.data.presetPermissionsGroup.assertGetItem(
     PresetPermissionsItemQueries.getById(data.itemId)
   );
 
