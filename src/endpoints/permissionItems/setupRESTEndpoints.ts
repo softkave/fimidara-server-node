@@ -3,6 +3,7 @@ import {Express} from 'express';
 import addPermissionItems from './addItems/handler';
 import deletePermissionItems from './deleteItems/handler';
 import getPermissionEntityItems from './getPermissionEntityItems/handler';
+import {wrapEndpointREST} from '../utils';
 
 export default function setupPermissionItemRESTEndpoints(
   connection: Connection,
