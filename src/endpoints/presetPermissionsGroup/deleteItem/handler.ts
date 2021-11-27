@@ -9,7 +9,7 @@ const deletePresetPermissionsItem: DeletePresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, deletePresetPermissionsItemJoiSchema);
   await context.session.getUser(context, instData);
-  await context.data.presetPermissionsItem.deleteItem(
+  await context.data.presetPermissionsGroup.deleteItem(
     PresetPermissionsItemQueries.getById(data.itemId)
   );
 };

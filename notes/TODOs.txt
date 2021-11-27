@@ -3,3 +3,4 @@
 mirror OS file APIs as much as possible, maybe searching and indexing the files and it's content
 3. Look into using mdb groups-like system for users and tokens
 4. Public read for files and folders
+5. Look into using names for program access tokens and preset permissions groups

@@ -6,9 +6,10 @@ import {getFileJoiSchema} from './validation';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
+  const agent = await context.session.getAgent(context, instData);
   const {file} = await checkFileAuthorizationWithFileId(
     context,
-    instData,
+    agent,
     data.fileId,
     BasicCRUDActions.Read
   );

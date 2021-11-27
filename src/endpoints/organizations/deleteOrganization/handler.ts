@@ -1,5 +1,7 @@
+import {BasicCRUDActions, SessionAgentType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import OrganizationQueries from '../queries';
+import {checkOrganizationAuthorizationWithId} from '../utils';
 import {DeleteOrganizationEndpoint} from './types';
 import {deleteOrganizationJoiSchema} from './validation';
 
@@ -8,9 +10,19 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, deleteOrganizationJoiSchema);
-  await context.session.getUser(context, instData);
+  const agent = await context.session.getAgent(context, instData, [
+    SessionAgentType.User,
+  ]);
+
+  const {organization} = await checkOrganizationAuthorizationWithId(
+    context,
+    agent,
+    data.organizationId,
+    BasicCRUDActions.Delete
+  );
+
   await context.data.organization.deleteItem(
-    OrganizationQueries.getById(data.organizationId)
+    OrganizationQueries.getById(organization.organizationId)
   );
 
   // TODO:

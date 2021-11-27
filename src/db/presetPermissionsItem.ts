@@ -1,12 +1,12 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IPresetPermissionsItem} from '../definitions/presetPermissionsItem';
+import {IPresetPermissionsGroup} from '../definitions/presetPermissionsGroup';
 import {ensureTypeFields} from './utils';
 
-const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsItem>({});
+const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({});
 
 export interface IPresetPermissionsItemDocument
   extends Document,
-    IPresetPermissionsItem {}
+    IPresetPermissionsGroup {}
 
 const schema = new Schema<IPresetPermissionsItemDocument>(
   presetPermissionsSchema

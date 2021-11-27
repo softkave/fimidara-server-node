@@ -1,7 +1,11 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import OrganizationQueries from '../queries';
-import {organizationExtractor} from '../utils';
+import {
+  checkOrganizationAuthorizationWithId,
+  organizationExtractor,
+} from '../utils';
 import {UpdateOrganizationEndpoint} from './types';
 import {updateOrganizationJoiSchema} from './validation';
 
@@ -10,13 +14,23 @@ const updateOrganization: UpdateOrganizationEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, updateOrganizationJoiSchema);
-  const user = await context.session.getUser(context, instData);
+  const agent = await context.session.getAgent(context, instData);
+  const {organization} = await checkOrganizationAuthorizationWithId(
+    context,
+    agent,
+    data.organizationId,
+    BasicCRUDActions.Update
+  );
+
   const updatedOrganization = await context.data.organization.assertUpdateItem(
-    OrganizationQueries.getById(data.organizationId),
+    OrganizationQueries.getById(organization.organizationId),
     {
       ...data.data,
       lastUpdatedAt: getDateString(),
-      lastUpdatedBy: user.userId,
+      lastUpdatedBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
     }
   );
 

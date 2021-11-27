@@ -13,7 +13,7 @@ const getOrganizationPresetPermissionsItem: GetOrganizationPresetPermissionsItem
     getOrganizationPresetPermissionsItemJoiSchema
   );
   const user = await context.session.getUser(context, instData);
-  const items = await context.data.presetPermissionsItem.getManyItems(
+  const items = await context.data.presetPermissionsGroup.getManyItems(
     PresetPermissionsItemQueries.getByOrganizationId(data.organizationId)
   );
 

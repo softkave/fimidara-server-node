@@ -1,4 +1,4 @@
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsItem';
+import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {IAgent} from './system';
 
 export interface IClientAssignedToken {

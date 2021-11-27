@@ -1,11 +1,12 @@
-import {PermissionEntityType} from '../../../definitions/permissionItem';
+import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {IPublicPermissionItem} from '../types';
 
 export interface IGetPermissionEntityPermissionItemsParams {
+  organizationId: string;
   permissionEntityId: string;
-  permissionEntityType: PermissionEntityType;
+  permissionEntityType: AppResourceType;
 }
 
 export interface IGetPermissionEntityPermissionItemsResult {

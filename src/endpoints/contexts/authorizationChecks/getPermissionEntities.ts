@@ -1,4 +1,4 @@
-import {IAssignedPresetPermissionsGroup} from '../../../definitions/presetPermissionsItem';
+import {IAssignedPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 // import {IAssignedUserRole} from '../../../definitions/role';
 import {
   AppResourceType,

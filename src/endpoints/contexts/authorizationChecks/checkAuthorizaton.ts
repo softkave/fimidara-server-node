@@ -5,6 +5,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
 import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {
   AppResourceType,
@@ -311,6 +312,26 @@ export async function checkAuthorizationForProgramAccessToken(
     organizationId,
     token.tokenId,
     AppResourceType.ClientAssignedToken,
+    makeBasePermissionOwnerList(organizationId),
+    action,
+    noThrow
+  );
+}
+
+export async function checkAuthorizationForPresetPermissionsGroup(
+  ctx: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  preset: IPresetPermissionsGroup,
+  action: BasicCRUDActions,
+  noThrow?: boolean
+) {
+  return checkAuthorization(
+    ctx,
+    agent,
+    organizationId,
+    preset.presetId,
+    AppResourceType.PresetPermissionsGroup,
     makeBasePermissionOwnerList(organizationId),
     action,
     noThrow

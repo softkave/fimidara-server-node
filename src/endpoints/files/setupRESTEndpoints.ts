@@ -14,6 +14,9 @@ export default function setupOrganizationRESTEndpoints(
 ) {
   const endpoints = {
     deleteFile: wrapEndpointREST(deleteFile, getBaseContext(connection)),
+
+    // TODO: send file
+    // TODO: look into using Content-Disposition header
     getFile: wrapEndpointREST(getFile, getBaseContext(connection)),
     getFileDetails: wrapEndpointREST(
       getFileDetails,
