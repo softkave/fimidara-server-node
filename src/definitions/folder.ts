@@ -15,4 +15,7 @@ export interface IFolder {
   lastUpdatedAt?: string;
   name: string;
   description?: string;
+  isPublic: boolean;
+  markedPublicAt: string; // ISO date string
+  markedPublicBy: IAgent;
 }

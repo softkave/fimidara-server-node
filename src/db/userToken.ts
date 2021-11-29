@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUserToken} from '../definitions/userToken';
 import {ensureTypeFields} from './utils';
 
@@ -9,7 +9,7 @@ const userTokenMongoSchema = ensureTypeFields<IUserToken>({
   issuedAt: {type: Date},
   audience: {type: [String]},
   expires: {type: Number},
-  meta: {type: SchemaTypes.Mixed},
+  // meta: {type: SchemaTypes.Mixed},
 });
 
 export interface IUserTokenDocument extends IUserToken, Document {}

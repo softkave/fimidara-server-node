@@ -9,12 +9,16 @@ const folderSchema = ensureTypeFields<IFolder>({
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   maxFileSize: {type: Number},
-  environmentId: {type: String},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
   parentId: {type: String},
   name: {type: String, index: true},
   description: {type: String},
+  idPath: {type: [String]},
+  isPublic: {type: Boolean},
+  markedPublicAt: {type: Date},
+  markedPublicBy: agentSchema,
+  namePath: {type: [String]},
 });
 
 export type IFolderDocument = Document<IFolder>;

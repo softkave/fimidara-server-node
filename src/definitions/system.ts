@@ -74,6 +74,7 @@ export const appResourceChildrenMap: AppResourceToOthersMap = {
   [AppResourceType.PresetPermissionsGroup]: [],
   [AppResourceType.PermissionItem]: [],
   [AppResourceType.User]: [],
+  [AppResourceType.CollaborationRequest]: [],
 };
 
 /** For organizations, users, and user tokens */
@@ -99,6 +100,7 @@ const appResourceTypesOrder: Record<AppResourceType, number> = {
   [AppResourceType.PresetPermissionsGroup]: orderLevel02,
   [AppResourceType.PermissionItem]: orderLevel02,
   [AppResourceType.User]: orderLevel01,
+  [AppResourceType.CollaborationRequest]: orderLevel02,
 };
 
 function reverseResourceToChildrenMap() {
@@ -113,6 +115,7 @@ function reverseResourceToChildrenMap() {
     [AppResourceType.PresetPermissionsGroup]: [],
     [AppResourceType.PermissionItem]: [],
     [AppResourceType.User]: [],
+    [AppResourceType.CollaborationRequest]: [],
   };
 
   Object.keys(appResourceChildrenMap).forEach(parent => {

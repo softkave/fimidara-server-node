@@ -17,6 +17,10 @@ export interface IFile {
   lastUpdatedAt?: string;
   name: string;
   description?: string;
+  isPublic: boolean;
+  markedPublicAt: string; // ISO date string
+  markedPublicBy: IAgent;
+
   // meta?: Record<string, string | number | boolean | null>;
 
   // TODO: look through other file platforms providers for features to implement

@@ -1,8 +1,15 @@
 import {Document, Model} from 'mongoose';
-import {IUser} from '../definitions/user';
+import {IUser, IUserOrganization} from '../definitions/user';
 import {Schema, Connection} from 'mongoose';
 import {getDate} from '../utilities/dateFns';
 import {ensureTypeFields} from './utils';
+import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
+
+export const userOrganizationSchema = ensureTypeFields<IUserOrganization>({
+  organizationId: {type: String},
+  joinedAt: {type: String},
+  presets: assignedPermissionsGroupSchema,
+});
 
 const userSchema = ensureTypeFields<IUser>({
   userId: {type: String, unique: true, index: true},
@@ -17,12 +24,7 @@ const userSchema = ensureTypeFields<IUser>({
   emailVerifiedAt: {type: Date},
   emailVerificationEmailSentAt: {type: Date},
   organizations: {
-    type: [
-      {
-        organizationId: String,
-        joinedAt: String,
-      },
-    ],
+    type: [userOrganizationSchema],
   },
 });
 
