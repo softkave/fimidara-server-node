@@ -1,7 +1,6 @@
 import {Connection} from 'mongoose';
 import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
-import {getForgotPasswordContext} from './forgotPassword/context';
 import forgotPassword from './forgotPassword/forgotPassword';
 import getUserData from './getUserData/getUserData';
 import login from './login/login';
@@ -9,39 +8,31 @@ import signup from './signup/signup';
 import updateUser from './updateUser/handler';
 import userExists from './userExists/handler';
 import {Express} from 'express';
-import {getSignupContext} from './signup/context';
 import confirmEmailAddress from './confirmEmailAddress/handler';
 import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
-import {getSendEmailVerificationCodeContext} from './sendEmailVerificationCode/context';
-import {getChangePasswordWithCurrentPasswordContext} from './changePasswordWithCurrentPassword/context';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
 import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
-import {getChangePasswordWithTokenContext} from './changePasswordWithToken/context';
-import {getUpdateUserEndpointContext} from './updateUser/context';
 
 export default function setupAccountRESTEndpoints(
   connection: Connection,
   app: Express
 ) {
   const account = {
-    signup: wrapEndpointREST(signup, getSignupContext(connection)),
+    signup: wrapEndpointREST(signup, getBaseContext(connection)),
     login: wrapEndpointREST(login, getBaseContext(connection)),
     forgotPassword: wrapEndpointREST(
       forgotPassword,
-      getForgotPasswordContext(connection)
+      getBaseContext(connection)
     ),
     changePasswordWithCurrentPassword: wrapEndpointREST(
       changePasswordWithCurrentPassword,
-      getChangePasswordWithCurrentPasswordContext(connection)
+      getBaseContext(connection)
     ),
     changePasswordWithToken: wrapEndpointREST(
       changePasswordWithToken,
-      getChangePasswordWithTokenContext(connection)
+      getBaseContext(connection)
     ),
-    updateUser: wrapEndpointREST(
-      updateUser,
-      getUpdateUserEndpointContext(connection)
-    ),
+    updateUser: wrapEndpointREST(updateUser, getBaseContext(connection)),
     getUserData: wrapEndpointREST(getUserData, getBaseContext(connection)),
     userExists: wrapEndpointREST(userExists, getBaseContext(connection)),
     confirmEmailAddress: wrapEndpointREST(
@@ -50,7 +41,7 @@ export default function setupAccountRESTEndpoints(
     ),
     sendEmailVerificationCode: wrapEndpointREST(
       sendEmailVerificationCode,
-      getSendEmailVerificationCodeContext(connection)
+      getBaseContext(connection)
     ),
   };
 

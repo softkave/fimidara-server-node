@@ -100,6 +100,8 @@ export default class BaseContext implements IBaseContext {
       folder: getFolderDatabaseModel(connection),
     };
 
+    // TODO: can we initialize db models separately? So that BaseContext doesn't
+    // depend on Mongo DB connection?
     this.data = {
       folder: new MongoDataProvider(this.db.folder, throwFolderNotFound),
     };

@@ -5,16 +5,32 @@ import {SignupEndpoint} from './types';
 import {signupJoiSchema} from './validation';
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
-import {IUser} from '../../../definitions/user';
 import {userExtractor} from '../utils';
+import UserQueries from '../UserQueries';
 import {
-  CURRENT_USER_TOKEN_VERSION,
+  CURRENT_TOKEN_VERSION,
   TokenAudience,
-} from '../../contexts/UserTokenContext';
+  TokenType,
+} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/BaseContext';
+import RequestData from '../../RequestData';
+import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+
+async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
+  const sendEmailReqData = RequestData.clone(reqData);
+  const result = await sendEmailVerificationCode(context, sendEmailReqData);
+  return {
+    result,
+    reqData: RequestData.merge(reqData, sendEmailReqData),
+  };
+}
 
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
-  const userExists = await context.user.userExists(context, data.email);
+  const userExists = await context.data.user.checkItemExists(
+    UserQueries.getByEmail(data.email)
+  );
 
   if (userExists) {
     throw new EmailAddressNotAvailableError();
@@ -22,7 +38,7 @@ const signup: SignupEndpoint = async (context, instData) => {
 
   const hash = await argon2.hash(data.password);
   const now = getDateString();
-  const value: IUser = {
+  const user = await context.data.user.saveItem({
     hash,
     userId: getNewId(),
     email: data.email,
@@ -32,23 +48,26 @@ const signup: SignupEndpoint = async (context, instData) => {
     passwordLastChangedAt: now,
     isEmailVerified: false,
     organizations: [],
-  };
+  });
 
-  const user = await context.user.saveUser(context, value);
-  const token = await context.userToken.saveToken(context, {
+  const token = await context.data.userToken.saveItem({
     tokenId: getNewId(),
     userId: user.userId,
     audience: [TokenAudience.Login],
     issuedAt: getDateString(),
-    version: CURRENT_USER_TOKEN_VERSION,
+    version: CURRENT_TOKEN_VERSION,
   });
 
+  // Make the user token available to other requests made with this request data
   instData.userToken = token;
-  await context.sendEmailVerificationCode(instData);
-
+  fireAndForgetPromise(callComfirmEmail(context, instData));
   return {
     user: userExtractor(user),
-    token: context.userToken.encodeToken(context, token.tokenId),
+    token: context.session.encodeToken(
+      context,
+      token.tokenId,
+      TokenType.UserToken
+    ),
   };
 };
 

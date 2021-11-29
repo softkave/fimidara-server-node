@@ -1,15 +1,22 @@
-import {UserDoesNotExistError, EmailAddressVerifiedError} from '../errors';
+import {EmailAddressVerifiedError} from '../errors';
 import {ConfirmEmailAddressEndpoint} from './types';
 import {getDateString} from '../../../utilities/dateFns';
 import {userExtractor} from '../utils';
-import {TokenAudience} from '../../contexts/UserTokenContext';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+  TokenType,
+} from '../../contexts/SessionContext';
+import UserQueries from '../UserQueries';
+import UserTokenQueries from '../UserTokenQueries';
+import getNewId from '../../../utilities/getNewId';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   context,
   instData
 ) => {
-  const user = await context.session.getUser(context, instData, [
+  let user = await context.session.getUser(context, instData, [
     TokenAudience.ConfirmEmailAddress,
   ]);
 
@@ -17,39 +24,48 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
     throw new EmailAddressVerifiedError();
   }
 
-  const updatedUser = await context.user.updateUserById(context, user.userId, {
-    isEmailVerified: true,
-    emailVerifiedAt: getDateString(),
-    emailVerificationEmailSentAt: null,
-  });
+  user = await context.data.user.assertUpdateItem(
+    UserQueries.getById(user.userId),
+    {
+      isEmailVerified: true,
+      emailVerifiedAt: getDateString(),
+    }
+  );
 
-  if (!updatedUser) {
-    throw new UserDoesNotExistError();
+  // Delete the token used for this request cause it's no longer needed
+  // Fire and forget cause it's not needed that the call succeeds
+  fireAndForgetPromise(
+    context.data.userToken.deleteItem(
+      // It's okay to disable this check because incomingTokenData
+      // exists cause it's checked already in session.getUser
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      UserTokenQueries.getById(instData.incomingTokenData!.sub.id)
+    )
+  );
+
+  let userToken = await context.data.userToken.getItem(
+    UserTokenQueries.getByUserIdAndAudience(user.userId, TokenAudience.Login)
+  );
+
+  if (!userToken) {
+    userToken = await context.data.userToken.saveItem({
+      tokenId: getNewId(),
+      userId: user.userId,
+      version: CURRENT_TOKEN_VERSION,
+      issuedAt: getDateString(),
+      audience: [TokenAudience.Login],
+    });
   }
 
-  const verifyToken = await context.session.getUserTokenData(
-    context,
-    instData,
-    [TokenAudience.ConfirmEmailAddress]
-  );
-
-  fireAndForgetPromise(
-    context.userToken.deleteTokenById(context, verifyToken.tokenId)
-  );
-
-  const userToken = await context.userToken.assertGetTokenByUserId(
-    context,
-    user.userId
-  );
-
-  const encodedToken = context.userToken.encodeToken(
+  const encodedToken = context.session.encodeToken(
     context,
     userToken.tokenId,
+    TokenType.UserToken,
     userToken.expires
   );
 
   return {
-    user: userExtractor(updatedUser),
+    user: userExtractor(user),
     token: encodedToken,
   };
 };

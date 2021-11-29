@@ -4,26 +4,31 @@ import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
+  CURRENT_TOKEN_VERSION,
   TokenAudience,
-  CURRENT_USER_TOKEN_VERSION,
-} from '../../contexts/UserTokenContext';
+  TokenType,
+} from '../../contexts/SessionContext';
 import {InvalidEmailOrPasswordError} from '../errors';
+import UserQueries from '../UserQueries';
+import UserTokenQueries from '../UserTokenQueries';
 import {userExtractor} from '../utils';
 import {LoginEndpoint} from './types';
 import {loginJoiSchema} from './validation';
 
 const login: LoginEndpoint = async (context, instData) => {
   const data = validate(instData.data, loginJoiSchema);
-  const userData = await context.user.getUserByEmail(context, data.email);
+  const user = await context.data.user.getItem(
+    UserQueries.getByEmail(data.email)
+  );
 
-  if (!userData) {
+  if (!user) {
     throw new InvalidEmailOrPasswordError();
   }
 
   let passwordMatch = false;
 
   try {
-    passwordMatch = await argon2.verify(userData.hash, data.password);
+    passwordMatch = await argon2.verify(user.hash, data.password);
   } catch (error) {
     console.error(error);
     throw new ServerError();
@@ -33,20 +38,29 @@ const login: LoginEndpoint = async (context, instData) => {
     throw new InvalidEmailOrPasswordError();
   }
 
-  const token =
-    (await context.userToken.getTokenByUserId(context, userData.userId)) ||
-    (await context.userToken.saveToken(context, {
+  let token = await context.data.userToken.getItem(
+    UserTokenQueries.getByUserIdAndAudience(user.userId, TokenAudience.Login)
+  );
+
+  if (!token) {
+    token = await context.data.userToken.saveItem({
       tokenId: getNewId(),
-      userId: userData.userId,
+      userId: user.userId,
       audience: [TokenAudience.Login],
       issuedAt: getDateString(),
-      version: CURRENT_USER_TOKEN_VERSION,
-    }));
+      version: CURRENT_TOKEN_VERSION,
+    });
+  }
 
-  instData.ususerToken token;
+  // Make the user token available to other requests made with this request data
+  instData.userToken = token;
   return {
-    user: userExtractor(userData),
-    token: context.userToken.encodeToken(context, token.tokenId),
+    user: userExtractor(user),
+    token: context.session.encodeToken(
+      context,
+      token.tokenId,
+      TokenType.UserToken
+    ),
   };
 };
 
