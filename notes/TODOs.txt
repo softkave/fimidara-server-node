@@ -1,8 +1,9 @@
-1. Do we really need buckets?
-2. Listening on files, compressing files, version, integrity, etags, 
+- Do we really need buckets?
+- Listening on files, compressing files, version, integrity, etags, 
 mirror OS file APIs as much as possible, maybe searching and indexing the files and it's content
-3. Look into using mdb groups-like system for users and tokens
-4. Public read for files and folders
-5. Look into using names for program access tokens and preset permissions groups
-6. Remember to check for the existence of certain resources that conflict
-7. Improve the API parameters of the endpoints
+- Look into using mdb groups-like system for users and tokens
+- Remember to check for the existence of certain resources that conflict
+- Improve the API parameters of the endpoints
+- Presets containing other presets
+- Look into the TODOs in the project
+- What fields should be indexed in MongoDB?

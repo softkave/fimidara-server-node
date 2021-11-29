@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Document, Model, Schema} from 'mongoose';
 import {IFile} from '../definitions/file';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
@@ -10,13 +10,17 @@ const fileSchema = ensureTypeFields<IFile>({
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   size: {type: Number},
-  environmentId: {type: String},
   folderId: {type: String},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
   description: {type: String},
-  meta: {type: SchemaTypes.Map},
   name: {type: String},
+  encoding: {type: String},
+  idPath: {type: [String]},
+  isPublic: {type: Boolean},
+  markedPublicAt: {type: Date},
+  markedPublicBy: agentSchema,
+  namePath: {type: [String]},
 });
 
 export interface IFileDocument extends Document, IFile {}

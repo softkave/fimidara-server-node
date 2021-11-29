@@ -246,6 +246,10 @@ export async function checkAuthorizationForFile(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
+  if (file.isPublic) {
+    return true;
+  }
+
   return checkAuthorization(
     ctx,
     agent,
@@ -266,6 +270,10 @@ export async function checkAuthorizationForFolder(
   action: BasicCRUDActions,
   noThrow?: boolean
 ) {
+  if (folder.isPublic) {
+    return true;
+  }
+
   return checkAuthorization(
     ctx,
     agent,

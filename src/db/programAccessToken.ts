@@ -1,6 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IProgramAccessToken} from '../definitions/programAccessToken';
 import {getDate} from '../utilities/dateFns';
+import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
 import {ensureTypeFields} from './utils';
 
 const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
@@ -9,7 +10,8 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   createdBy: {type: String},
   createdAt: {type: Date, default: getDate},
   organizationId: {type: String},
-  environmentId: {type: String},
+  description: {type: String},
+  presets: {type: [assignedPermissionsGroupSchema]},
 });
 
 export interface IProgramAccessTokenDocument
