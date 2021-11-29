@@ -12,6 +12,12 @@ function getById(id: string) {
     .build();
 }
 
+function getByEmail(email: string) {
+  return newFilter()
+    .addItem('email', email, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 function getByIds(ids: string[]) {
   return newFilter()
     .addItem('userId', ids, DataProviderFilterValueOperator.In)
@@ -28,4 +34,5 @@ export default abstract class UserQueries {
   static getById = getById;
   static getByIds = getByIds;
   static userExists = userExists;
+  static getByEmail = getByEmail;
 }

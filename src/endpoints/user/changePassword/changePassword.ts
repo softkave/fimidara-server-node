@@ -1,12 +1,14 @@
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {
-  CURRENT_USER_TOKEN_VERSION,
+  CURRENT_TOKEN_VERSION,
   TokenAudience,
-} from '../../contexts/UserTokenContext';
+  TokenType,
+} from '../../contexts/SessionContext';
+import UserQueries from '../UserQueries';
+import UserTokenQueries from '../UserTokenQueries';
 import {userExtractor} from '../utils';
 import {ChangePasswordEndpoint} from './types';
 import {changePasswordJoiSchema} from './validation';
@@ -16,32 +18,41 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const newPassword = result.password;
   let user = await context.session.getUser(context, instData);
   const hash = await argon2.hash(newPassword);
-  user = await context.user.assertUpdateUserById(context, user.userId, {
-    hash,
-    passwordLastChangedAt: getDateString(),
-  });
+  user = await context.data.user.assertUpdateItem(
+    UserQueries.getById(user.userId),
+    {
+      hash,
+      passwordLastChangedAt: getDateString(),
+    }
+  );
 
+  // Allow other endpoints called with this request to use the updated user data
   instData.user = user;
+
+  // Delete user token and incomingTokenData since they are no longer valid
   delete instData.userToken;
   delete instData.incomingTokenData;
 
-  fireAndForgetPromise(
-    context.userToken.deleteTokensByUserId(context, user.userId)
+  // Delete existing user tokens cause they're no longer valid
+  await context.data.userToken.deleteManyItems(
+    UserTokenQueries.getByUserId(user.userId)
   );
 
-  const tokenData = await context.userToken.saveToken(context, {
+  const newToken = await context.data.userToken.saveItem({
     tokenId: getNewId(),
     audience: [TokenAudience.Login],
     issuedAt: getDateString(),
     userId: user.userId,
-    version: CURRENT_USER_TOKEN_VERSION,
+    version: CURRENT_TOKEN_VERSION,
   });
 
-  instData.userToken = tokenData;
-  const encodedToken = context.userToken.encodeToken(
+  // Allow other endpoints called with this request to use the updated user token
+  instData.userToken = newToken;
+  const encodedToken = context.session.encodeToken(
     context,
-    tokenData.tokenId,
-    tokenData.expires
+    newToken.tokenId,
+    TokenType.UserToken,
+    newToken.expires
   );
 
   return {

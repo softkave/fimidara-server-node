@@ -1,15 +1,19 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {EmailAddressVerifiedError} from '../errors';
 import {SendEmailVerificationCodeEndpoint} from './types';
-import {getDateString} from '../../../utilities/dateFns';
+import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import * as querystring from 'querystring';
 import getNewId from '../../../utilities/getNewId';
 import {
-  CURRENT_USER_TOKEN_VERSION,
+  CURRENT_TOKEN_VERSION,
   TokenAudience,
-} from '../../contexts/UserTokenContext';
+  TokenType,
+} from '../../contexts/SessionContext';
+import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
+import UserQueries from '../UserQueries';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   context,
@@ -22,30 +26,35 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   }
 
   if (user.emailVerificationEmailSentAt) {
-    const rateLimit = isBefore(
-      new Date(),
-      addMinutes(
-        new Date(user.emailVerificationEmailSentAt),
-        userConstants.verificationCodeRateLimitInMins
-      )
+    // Throw an error if the last time an email verification was sent is less than the rate limit
+    const nextDate = addMinutes(
+      new Date(user.emailVerificationEmailSentAt),
+      userConstants.verificationCodeRateLimitInMins
     );
 
-    if (rateLimit) {
-      throw new RateLimitError();
+    const shouldLimitRate = isBefore(new Date(), nextDate);
+
+    if (shouldLimitRate) {
+      throw new RateLimitError(
+        `We sent an email verification email to ${user.email} on ${formatDate(
+          user.emailVerificationEmailSentAt
+        )}. Please try again later from ${formatDate(nextDate)}.`
+      );
     }
   }
 
-  const token = await context.userToken.saveToken(context, {
+  const token = await context.data.userToken.saveItem({
     audience: [TokenAudience.ConfirmEmailAddress],
     issuedAt: getDateString(),
     tokenId: getNewId(),
     userId: user.userId,
-    version: CURRENT_USER_TOKEN_VERSION,
+    version: CURRENT_TOKEN_VERSION,
   });
 
-  const encodedToken = context.userToken.encodeToken(
+  const encodedToken = context.session.encodeToken(
     context,
     token.tokenId,
+    TokenType.UserToken,
     token.expires
   );
 
@@ -55,10 +64,17 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 
-  await context.sendEmail(context, user.email, user.firstName, link);
-  await context.user.updateUserById(context, user.userId, {
-    emailVerificationEmailSentAt: getDateString(),
+  await sendConfirmEmailAddressEmail(context, {
+    link,
+    emailAddress: user.email,
+    firstName: user.firstName,
   });
+
+  fireAndForgetPromise(
+    context.data.user.updateItem(UserQueries.getById(user.userId), {
+      emailVerificationEmailSentAt: getDateString(),
+    })
+  );
 };
 
 export default sendEmailVerificationCode;

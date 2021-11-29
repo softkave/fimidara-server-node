@@ -1,43 +1,44 @@
 import {add} from 'date-fns';
+import * as querystring from 'querystring';
 import {validate} from '../../../utilities/validate';
 import {userConstants} from '../constants';
-import {UserDoesNotExistError} from '../errors';
 import {ForgotPasswordEndpoint} from './types';
 import {forgotPasswordJoiSchema} from './validation';
-import * as querystring from 'querystring';
-import {
-  CURRENT_USER_TOKEN_VERSION,
-  TokenAudience,
-} from '../../contexts/UserTokenContext';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
+import UserQueries from '../UserQueries';
+import {
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+  TokenType,
+} from '../../contexts/SessionContext';
+import sendChangePasswordEmail from './sendChangePasswordEmail';
 
 const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
-  const user = await context.user.getUserByEmail(context, data.email);
-
-  if (!user) {
-    throw new UserDoesNotExistError({field: 'email'});
-  }
+  const user = await context.data.user.assertGetItem(
+    UserQueries.getByEmail(data.email)
+  );
 
   const expiration = add(new Date(), {
     days: userConstants.changePasswordTokenExpDurationInDays,
   });
 
-  const forgotToken = await context.userToken.saveToken(context, {
+  const forgotToken = await context.data.userToken.saveItem({
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
     tokenId: getNewId(),
     userId: user.userId,
-    version: CURRENT_USER_TOKEN_VERSION,
+    version: CURRENT_TOKEN_VERSION,
     expires: add(new Date(), {
       days: userConstants.changePasswordTokenExpDurationInDays,
     }).valueOf(),
   });
 
-  const encodedToken = context.userToken.encodeToken(
+  const encodedToken = context.session.encodeToken(
     context,
     forgotToken.tokenId,
+    TokenType.UserToken,
     forgotToken.expires
   );
 
@@ -47,7 +48,7 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 
-  await context.sendChangePasswordEmail(context, {
+  await sendChangePasswordEmail(context, {
     expiration,
     link,
     emailAddress: user.email,

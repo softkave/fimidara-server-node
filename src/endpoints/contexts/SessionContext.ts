@@ -296,3 +296,18 @@ export function getOrganizationId(
 
   return organizationId;
 }
+
+export function assertIncomingToken(
+  incomingTokenData: IBaseTokenData | undefined | null,
+  type: TokenType
+): incomingTokenData is IBaseTokenData {
+  if (!incomingTokenData) {
+    throw new PermissionDeniedError();
+  }
+
+  if (incomingTokenData.sub.type !== type) {
+    throw new PermissionDeniedError();
+  }
+
+  return true;
+}

@@ -1,42 +1,57 @@
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {TokenAudience} from '../../contexts/UserTokenContext';
+import {validate} from '../../../utilities/validate';
+import {
+  assertIncomingToken,
+  TokenAudience,
+  TokenType,
+} from '../../contexts/SessionContext';
+import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
+import {changePasswordWithPasswordJoiSchema} from '../changePasswordWithCurrentPassword/validation';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
+import UserQueries from '../UserQueries';
+import UserTokenQueries from '../UserTokenQueries';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   context,
   instData
 ) => {
-  const tokenData = await context.session.getUserTokenData(
-    context,
-    instData,
-    TokenAudience.ChangePassword
+  const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+  assertIncomingToken(instData.incomingTokenData, TokenType.UserToken);
+  const userToken = await context.data.userToken.assertGetItem(
+    // It's okay to disable this check because incomingTokenData
+    // exists cause of the assertIncomingToken check
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    UserTokenQueries.getById(instData.incomingTokenData!.sub.id)
   );
 
   if (
-    !context.userToken.containsAudience(
+    !context.session.tokenContainsAudience(
       context,
-      tokenData,
+      userToken,
       TokenAudience.ChangePassword
     )
   ) {
     throw new InvalidCredentialsError();
   }
 
-  if (!tokenData.expires) {
+  if (!userToken.expires) {
     throw new InvalidCredentialsError();
   }
 
-  if (Date.now() > tokenData.expires) {
+  if (Date.now() > userToken.expires) {
     throw new CredentialsExpiredError();
   }
 
-  const user = await context.user.assertGetUserById(context, tokenData.userId);
+  const user = await context.data.user.assertGetItem(
+    UserQueries.getById(userToken.userId)
+  );
 
+  // Allow other endpoints called with this request to use the fetched user data
   instData.user = user;
-  const result = await context.changePassword(context, instData);
-  fireAndForgetPromise(
-    context.userToken.deleteTokenById(context, tokenData.tokenId)
+  const {result} = await completeChangePassword(
+    context,
+    instData,
+    data.password
   );
 
   return result;
