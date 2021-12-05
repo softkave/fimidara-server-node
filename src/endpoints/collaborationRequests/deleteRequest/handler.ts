@@ -1,33 +1,22 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborationRequest} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
 import CollaborationRequestQueries from '../queries';
+import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteRequestEndpoint} from './types';
 import {deleteRequestJoiSchema} from './validation';
 
 const deleteRequest: DeleteRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const request = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(data.requestId)
-  );
-
-  const organization = await checkOrganizationExists(
-    context,
-    request.organizationId
-  );
-
-  await checkAuthorizationForCollaborationRequest(
+  const {request} = await checkCollaborationRequestAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    request,
+    data.requestId,
     BasicCRUDActions.Delete
   );
 
   await context.data.collaborationRequest.deleteItem(
-    CollaborationRequestQueries.getById(data.requestId)
+    CollaborationRequestQueries.getById(request.requestId)
   );
 };
 

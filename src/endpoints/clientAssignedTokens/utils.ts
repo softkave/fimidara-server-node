@@ -1,10 +1,19 @@
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
+import {
+  ISessionAgent,
+  BasicCRUDActions,
+  AppResourceType,
+} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForClientAssignedToken} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {getClientAssignedTokenId} from '../contexts/SessionContext';
 import {checkOrganizationExists} from '../organizations/utils';
+import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
 import {agentExtractor} from '../utils';
 import ClientAssignedTokenQueries from './queries';
 import {IPublicClientAssignedToken} from './types';
@@ -14,10 +23,12 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
-  environmentId: true,
   version: true,
   issuedAt: getDateString,
   expires: true,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
+  presets: assignedPresetsListExtractor,
 });
 
 export const clientAssignedTokenExtractor = makeExtract(
@@ -32,39 +43,45 @@ export async function checkClientAssignedTokenAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   token: IClientAssignedToken,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await checkOrganizationExists(
     context,
     token.organizationId
   );
 
-  await checkAuthorizationForClientAssignedToken(
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
-    token,
-    action
+    token.tokenId,
+    AppResourceType.ClientAssignedToken,
+    makeBasePermissionOwnerList(organization.organizationId),
+    action,
+    nothrow
   );
 
   return {agent, token, organization};
 }
 
-export async function checkClientAssignedTokenAuthorizationWithTokenId(
+export async function checkClientAssignedTokenAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
-  id: string,
-  action: BasicCRUDActions
+  tokenId: string,
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
-  const clientassignedtoken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(id)
+  const token = await context.data.clientAssignedToken.assertGetItem(
+    ClientAssignedTokenQueries.getById(tokenId)
   );
 
   return checkClientAssignedTokenAuthorization(
     context,
     agent,
-    clientassignedtoken,
-    action
+    token,
+    action,
+    nothrow
   );
 }
 

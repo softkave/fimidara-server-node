@@ -1,7 +1,7 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkFolderAuthorizationWithPath, folderExtractor} from '../utils';
+import {checkFolderAuthorization03, folderExtractor} from '../utils';
 import {GetFolderEndpoint} from './types';
 import {getFolderJoiSchema} from './validation';
 
@@ -49,14 +49,9 @@ import {getFolderJoiSchema} from './validation';
 
 const getFolder: GetFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFolderJoiSchema);
-
-  // if (!data.folderId || !data.path) {
-  //   throw new InvalidRequestError('Missing folder ID or path');
-  // }
-
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
-  const {folder} = await checkFolderAuthorizationWithPath(
+  const {folder} = await checkFolderAuthorization03(
     context,
     agent,
     organizationId,

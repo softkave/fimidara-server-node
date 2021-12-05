@@ -3,7 +3,8 @@ import {Endpoint} from '../../types';
 import {IPublicProgramAccessToken} from '../types';
 
 export interface IGetProgramAccessTokenParams {
-  tokenId: string;
+  tokenId?: string;
+  onReferenced?: boolean;
 }
 
 export interface IGetProgramAccessTokenResult {

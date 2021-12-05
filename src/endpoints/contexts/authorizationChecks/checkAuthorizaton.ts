@@ -1,6 +1,4 @@
 import {flatten} from 'lodash';
-import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
@@ -12,7 +10,6 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
 import {indexArray} from '../../../utilities/indexArray';
 import {PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
@@ -156,25 +153,6 @@ export async function checkAuthorization(
   return true;
 }
 
-export async function checkAuthorizationForOrganization(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organization: IOrganization,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organization.organizationId,
-    organization.organizationId,
-    AppResourceType.Organization,
-    [],
-    action,
-    noThrow
-  );
-}
-
 export function makeBasePermissionOwnerList(organizationId: string) {
   return [
     {
@@ -183,46 +161,6 @@ export function makeBasePermissionOwnerList(organizationId: string) {
       order: 1,
     },
   ];
-}
-
-export async function checkAuthorizationForCollaborator(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  collaborator: IUser,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    collaborator.userId,
-    AppResourceType.Collaborator,
-    makeBasePermissionOwnerList(organizationId),
-    action,
-    noThrow
-  );
-}
-
-export async function checkAuthorizationForCollaborationRequest(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  request: ICollaborationRequest,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    request.requestId,
-    AppResourceType.Collaborator,
-    makeBasePermissionOwnerList(organizationId),
-    action,
-    noThrow
-  );
 }
 
 export function getFilePermissionOwners(
@@ -235,113 +173,5 @@ export function getFilePermissionOwners(
       permissionOwnerType: AppResourceType.Folder,
       order: i + 2, // +2 cause organizationId is already 1 and i is zero-based index
     }))
-  );
-}
-
-export async function checkAuthorizationForFile(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  file: IFile,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  if (file.isPublic) {
-    return true;
-  }
-
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    file.fileId,
-    AppResourceType.File,
-    getFilePermissionOwners(organizationId, file),
-    action,
-    noThrow
-  );
-}
-
-export async function checkAuthorizationForFolder(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  folder: IFolder,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  if (folder.isPublic) {
-    return true;
-  }
-
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    folder.folderId,
-    AppResourceType.Folder,
-    getFilePermissionOwners(organizationId, folder),
-    action,
-    noThrow
-  );
-}
-
-export async function checkAuthorizationForClientAssignedToken(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  token: IClientAssignedToken,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    token.tokenId,
-    AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organizationId),
-    action,
-    noThrow
-  );
-}
-
-export async function checkAuthorizationForProgramAccessToken(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  token: IProgramAccessToken,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    token.tokenId,
-    AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organizationId),
-    action,
-    noThrow
-  );
-}
-
-export async function checkAuthorizationForPresetPermissionsGroup(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  preset: IPresetPermissionsGroup,
-  action: BasicCRUDActions,
-  noThrow?: boolean
-) {
-  return checkAuthorization(
-    ctx,
-    agent,
-    organizationId,
-    preset.presetId,
-    AppResourceType.PresetPermissionsGroup,
-    makeBasePermissionOwnerList(organizationId),
-    action,
-    noThrow
   );
 }

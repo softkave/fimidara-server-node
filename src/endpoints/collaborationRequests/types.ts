@@ -12,10 +12,9 @@ export interface IPublicCollaborationRequest {
   createdAt: string;
   expiresAt?: string;
   organizationId: string;
-  organizationName: string;
-  lastUpdatedAt: string;
-  lastUpdatedBy: IAgent;
+  lastUpdatedAt?: string;
+  lastUpdatedBy?: IAgent;
   readAt?: string;
-  statusHistory?: ICollaborationRequestStatus[];
-  sentEmailHistory?: ICollaborationRequestSentEmailHistoryItem[];
+  statusHistory: ICollaborationRequestStatus[];
+  sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
 }

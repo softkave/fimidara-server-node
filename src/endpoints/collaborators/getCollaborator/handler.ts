@@ -1,32 +1,22 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
-import CollaboratorQueries from '../queries';
-import {collaboratorExtractor} from '../utils';
+import {getOrganizationId} from '../../contexts/SessionContext';
+import {
+  checkCollaboratorAuthorization02,
+  collaboratorExtractor,
+} from '../utils';
 import {GetCollaboratorEndpoint} from './types';
 import {getCollaboratorJoiSchema} from './validation';
 
 const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
   const data = validate(instData.data, getCollaboratorJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const collaborator = await context.data.user.assertGetItem(
-    CollaboratorQueries.getByOrganizationIdAndUserId(
-      data.organizationId,
-      data.collaboratorId
-    )
-  );
-
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
-
-  await checkAuthorizationForCollaborator(
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {collaborator} = await checkCollaboratorAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    collaborator,
+    organizationId,
+    data.collaboratorId,
     BasicCRUDActions.Read
   );
 

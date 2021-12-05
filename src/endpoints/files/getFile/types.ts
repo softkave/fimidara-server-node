@@ -1,8 +1,16 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
+export interface IImageTransformationParams {
+  width?: number;
+  height?: number;
+}
+
 export interface IGetFileEndpointParams {
-  fileId: string;
+  // fileId: string;
+  path: string;
+  organizationId?: string;
+  imageTranformation?: IImageTransformationParams;
 }
 
 export interface IGetFileEndpointResult {

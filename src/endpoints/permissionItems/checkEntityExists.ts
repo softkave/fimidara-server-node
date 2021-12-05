@@ -3,12 +3,12 @@ import {
   AppResourceType,
   BasicCRUDActions,
 } from '../../definitions/system';
-import {checkClientAssignedTokenAuthorizationWithTokenId} from '../clientAssignedTokens/utils';
-import {checkCollaboratorAuthorizationWithCollaboratorId} from '../collaborators/utils';
+import {checkClientAssignedTokenAuthorization02} from '../clientAssignedTokens/utils';
+import {checkCollaboratorAuthorization02} from '../collaborators/utils';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
-import {checkPresetPermissionsGroupAuthorizationWithId} from '../presetPermissionsGroup/utils';
-import {checkProgramAccessTokenAuthorizationWithId} from '../programAccessTokens/utils';
+import {checkPresetPermissionsGroupAuthorization02} from '../presetPermissionsGroup/utils';
+import {checkProgramAccessTokenAuthorization02} from '../programAccessTokens/utils';
 
 export default async function checkEntityExists(
   context: IBaseContext,
@@ -19,7 +19,7 @@ export default async function checkEntityExists(
 ) {
   switch (permissionEntityType) {
     case AppResourceType.ClientAssignedToken: {
-      await checkClientAssignedTokenAuthorizationWithTokenId(
+      await checkClientAssignedTokenAuthorization02(
         context,
         agent,
         permissionEntityId,
@@ -29,7 +29,7 @@ export default async function checkEntityExists(
     }
 
     case AppResourceType.ProgramAccessToken: {
-      await checkProgramAccessTokenAuthorizationWithId(
+      await checkProgramAccessTokenAuthorization02(
         context,
         agent,
         permissionEntityId,
@@ -39,7 +39,7 @@ export default async function checkEntityExists(
     }
 
     case AppResourceType.PresetPermissionsGroup: {
-      await checkPresetPermissionsGroupAuthorizationWithId(
+      await checkPresetPermissionsGroupAuthorization02(
         context,
         agent,
         permissionEntityId,
@@ -49,7 +49,7 @@ export default async function checkEntityExists(
     }
 
     case AppResourceType.Collaborator: {
-      await checkCollaboratorAuthorizationWithCollaboratorId(
+      await checkCollaboratorAuthorization02(
         context,
         agent,
         organizationId,

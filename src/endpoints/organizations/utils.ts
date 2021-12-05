@@ -1,8 +1,12 @@
 import {IOrganization} from '../../definitions/organization';
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
+import {
+  ISessionAgent,
+  BasicCRUDActions,
+  AppResourceType,
+} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForOrganization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {agentExtractor} from '../utils';
 import {OrganizationDoesNotExistError} from './errors';
@@ -39,22 +43,40 @@ export async function checkOrganizationAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
-  await checkAuthorizationForOrganization(context, agent, organization, action);
+  await checkAuthorization(
+    context,
+    agent,
+    organization.organizationId,
+    organization.organizationId,
+    AppResourceType.Organization,
+    [],
+    action,
+    nothrow
+  );
+
   return {agent, organization};
 }
 
-export async function checkOrganizationAuthorizationWithId(
+export async function checkOrganizationAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(id)
   );
-  return checkOrganizationAuthorization(context, agent, organization, action);
+  return checkOrganizationAuthorization(
+    context,
+    agent,
+    organization,
+    action,
+    nothrow
+  );
 }
 
 export abstract class OrganizationUtils {

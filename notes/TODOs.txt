@@ -7,3 +7,14 @@ mirror OS file APIs as much as possible, maybe searching and indexing the files 
 - Presets containing other presets
 - Look into the TODOs in the project
 - What fields should be indexed in MongoDB?
+- Complete email templates
+- Short links for files
+- Resizing files
+- Skip filenames and generate new ones or appending random strings to filenames
+- Pothen name
+- Perform existing file check using the file binary / checking that mime is correct using file binary
+- Uploading files using parent
+- Consider use cases like uploading folders
+- Does the user want to override a file or throw an exception if the file exists
+- Confirm the places that should be assert split path
+- Delete artifacts on resources on delete

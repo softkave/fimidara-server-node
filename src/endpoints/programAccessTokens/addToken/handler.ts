@@ -1,6 +1,5 @@
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -8,6 +7,7 @@ import {
   checkAuthorization,
   makeBasePermissionOwnerList,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {TokenType} from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {ProgramAccessTokenUtils} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
@@ -57,6 +57,11 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 
   return {
     token: ProgramAccessTokenUtils.extractPublicToken(token),
+    tokenStr: context.session.encodeToken(
+      context,
+      token.tokenId,
+      TokenType.ProgramAccessToken
+    ),
   };
 };
 

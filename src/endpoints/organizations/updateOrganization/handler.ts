@@ -3,7 +3,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import OrganizationQueries from '../queries';
 import {
-  checkOrganizationAuthorizationWithId,
+  checkOrganizationAuthorization02,
   organizationExtractor,
 } from '../utils';
 import {UpdateOrganizationEndpoint} from './types';
@@ -15,7 +15,7 @@ const updateOrganization: UpdateOrganizationEndpoint = async (
 ) => {
   const data = validate(instData.data, updateOrganizationJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {organization} = await checkOrganizationAuthorizationWithId(
+  const {organization} = await checkOrganizationAuthorization02(
     context,
     agent,
     data.organizationId,

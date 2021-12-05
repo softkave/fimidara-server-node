@@ -3,7 +3,8 @@ import {Endpoint} from '../../types';
 import {IPublicClientAssignedToken} from '../types';
 
 export interface IGetClientAssignedTokenParams {
-  tokenId: string;
+  tokenId?: string;
+  onReferenced?: boolean;
 }
 
 export interface IGetClientAssignedTokenResult {

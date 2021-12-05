@@ -2,30 +2,21 @@ import {CollaborationRequestStatusType} from '../../../definitions/collaboration
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborationRequest} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
 import CollaborationRequestQueries from '../queries';
-import {collabRequestExtractor} from '../utils';
+import {
+  checkCollaborationRequestAuthorization02,
+  collabRequestExtractor,
+} from '../utils';
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
 
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let request = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(data.requestId)
-  );
-
-  const organization = await checkOrganizationExists(
-    context,
-    request.organizationId
-  );
-
-  await checkAuthorizationForCollaborationRequest(
+  let {request} = await checkCollaborationRequestAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    request,
+    data.requestId,
     BasicCRUDActions.Update
   );
 

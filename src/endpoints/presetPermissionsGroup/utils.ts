@@ -2,10 +2,18 @@ import {
   IAssignedPresetPermissionsGroup,
   IPresetPermissionsGroup,
 } from '../../definitions/presetPermissionsGroup';
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
+import {
+  ISessionAgent,
+  BasicCRUDActions,
+  AppResourceType,
+} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForPresetPermissionsGroup} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  checkAuthorizationForPresetPermissionsGroup,
+  makeBasePermissionOwnerList,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
@@ -45,29 +53,34 @@ export async function checkPresetPermissionsGroupAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   preset: IPresetPermissionsGroup,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await checkOrganizationExists(
     context,
     preset.organizationId
   );
 
-  await checkAuthorizationForPresetPermissionsGroup(
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
-    preset,
-    action
+    preset.presetId,
+    AppResourceType.PresetPermissionsGroup,
+    makeBasePermissionOwnerList(organization.organizationId),
+    action,
+    nothrow
   );
 
   return {agent, preset, organization};
 }
 
-export async function checkPresetPermissionsGroupAuthorizationWithId(
+export async function checkPresetPermissionsGroupAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const presetpermissionsgroup = await context.data.presetPermissionsGroup.assertGetItem(
     PresetPermissionsGroupQueries.getById(id)
@@ -76,7 +89,8 @@ export async function checkPresetPermissionsGroupAuthorizationWithId(
     context,
     agent,
     presetpermissionsgroup,
-    action
+    action,
+    nothrow
   );
 }
 

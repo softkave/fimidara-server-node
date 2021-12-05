@@ -7,7 +7,11 @@ import {
   checkAuthorization,
   makeBasePermissionOwnerList,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {CURRENT_TOKEN_VERSION} from '../../contexts/SessionContext';
+import {
+  CURRENT_TOKEN_VERSION,
+  getOrganizationId,
+  TokenType,
+} from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {ClientAssignedTokenUtils} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
@@ -19,11 +23,8 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, addClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.token.organizationId
-  );
-
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const organization = await checkOrganizationExists(context, organizationId);
   await checkAuthorization(
     context,
     agent,
@@ -36,7 +37,8 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   const token: IClientAssignedToken = await context.data.clientAssignedToken.saveItem(
     {
-      ...data.token,
+      expires: data.token.expires,
+      organizationId: organization.organizationId,
       tokenId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
@@ -51,6 +53,12 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   return {
     token: ClientAssignedTokenUtils.extractPublicToken(token),
+    tokenStr: context.session.encodeToken(
+      context,
+      token.tokenId,
+      TokenType.ClientAssignedToken,
+      token.expires
+    ),
   };
 };
 
