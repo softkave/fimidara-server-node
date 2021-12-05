@@ -1,8 +1,15 @@
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
+import {
+  ISessionAgent,
+  BasicCRUDActions,
+  AppResourceType,
+} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForProgramAccessToken} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
@@ -32,35 +39,46 @@ export async function checkProgramAccessTokenAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   token: IProgramAccessToken,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await checkOrganizationExists(
     context,
     token.organizationId
   );
 
-  await checkAuthorizationForProgramAccessToken(
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
-    token,
-    action
+    token.tokenId,
+    AppResourceType.ProgramAccessToken,
+    makeBasePermissionOwnerList(organization.organizationId),
+    action,
+    nothrow
   );
 
   return {agent, token, organization};
 }
 
-export async function checkProgramAccessTokenAuthorizationWithId(
+export async function checkProgramAccessTokenAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const token = await context.data.programAccessToken.assertGetItem(
     ProgramAccessTokenQueries.getById(id)
   );
 
-  return checkProgramAccessTokenAuthorization(context, agent, token, action);
+  return checkProgramAccessTokenAuthorization(
+    context,
+    agent,
+    token,
+    action,
+    nothrow
+  );
 }
 
 export abstract class ProgramAccessTokenUtils {

@@ -3,7 +3,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import PresetPermissionsItemQueries from '../queries';
 import {
-  checkPresetPermissionsGroupAuthorizationWithId,
+  checkPresetPermissionsGroupAuthorization02,
   PresetPermissionsItemUtils,
 } from '../utils';
 import {UpdatePresetPermissionsItemEndpoint} from './types';
@@ -15,7 +15,7 @@ const updatePresetPermissionsItem: UpdatePresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, updatePresetPermissionsItemJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {preset} = await checkPresetPermissionsGroupAuthorizationWithId(
+  const {preset} = await checkPresetPermissionsGroupAuthorization02(
     context,
     agent,
     data.itemId,

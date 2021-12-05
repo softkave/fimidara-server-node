@@ -1,14 +1,11 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {
-  checkAuthorizationForFile,
-  checkAuthorizationForFolder,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForFolder} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
-import {FileUtils} from '../../files/utils';
+import {checkFileAuthorization, FileUtils} from '../../files/utils';
 import FolderQueries from '../queries';
-import {checkFolderAuthorizationWithPath, FolderUtils} from '../utils';
+import {checkFolderAuthorization03, FolderUtils} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
 
@@ -19,7 +16,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
-  const {folder} = await checkFolderAuthorizationWithPath(
+  const {folder} = await checkFolderAuthorization03(
     context,
     agent,
     organizationId,
@@ -48,13 +45,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
   );
 
   const filePreparedChecks = files.map(item =>
-    checkAuthorizationForFile(
-      context,
-      agent,
-      organizationId,
-      item,
-      BasicCRUDActions.Read
-    )
+    checkFileAuthorization(context, agent, item, BasicCRUDActions.Read)
   );
 
   const folderPermittedReads = await Promise.all(folderPreparedChecks);

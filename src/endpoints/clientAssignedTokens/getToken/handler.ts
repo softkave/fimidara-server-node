@@ -1,9 +1,10 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
-import ClientAssignedTokenQueries from '../queries';
-import {ClientAssignedTokenUtils} from '../utils';
+import {getClientAssignedTokenId} from '../../contexts/SessionContext';
+import {
+  checkClientAssignedTokenAuthorization02,
+  ClientAssignedTokenUtils,
+} from '../utils';
 import {GetClientAssignedTokenEndpoint} from './types';
 import {getClientAssignedTokenJoiSchema} from './validation';
 
@@ -13,20 +14,15 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, getClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const token = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(data.tokenId)
+  const tokenId = getClientAssignedTokenId(
+    agent,
+    data.onReferenced && data.tokenId
   );
 
-  const organization = await checkOrganizationExists(
-    context,
-    token.organizationId
-  );
-
-  await checkAuthorizationForClientAssignedToken(
+  const {token} = await checkClientAssignedTokenAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    token,
+    tokenId,
     BasicCRUDActions.Read
   );
 

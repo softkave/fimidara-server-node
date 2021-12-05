@@ -1,18 +1,22 @@
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
+import {
+  ISessionAgent,
+  BasicCRUDActions,
+  AppResourceType,
+} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
-import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForCollaborator} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkOrganizationExists} from '../organizations/utils';
 import CollaboratorQueries from './queries';
 import {IPublicCollaborator} from './types';
 
 const collaboratorFields = getFields<IPublicCollaborator>({});
-
 export const collaboratorExtractor = makeExtract(collaboratorFields);
 export const collaboratorListExtractor = makeListExtract(collaboratorFields);
-
 export function getCollaboratorOrganization(
   user: IUser,
   organizationId: string
@@ -27,29 +31,37 @@ export async function checkCollaboratorAuthorization(
   agent: ISessionAgent,
   organizationId: string,
   collaborator: IUser,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await checkOrganizationExists(context, organizationId);
-  await checkAuthorizationForCollaborator(
+  await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    collaborator,
-    action
+    organizationId,
+    collaborator.userId,
+    AppResourceType.Collaborator,
+    makeBasePermissionOwnerList(organizationId),
+    action,
+    nothrow
   );
 
   return {agent, collaborator, organization};
 }
 
-export async function checkCollaboratorAuthorizationWithCollaboratorId(
+export async function checkCollaboratorAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
-  id: string,
-  action: BasicCRUDActions
+  collaboratorId: string,
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const collaborator = await context.data.user.assertGetItem(
-    CollaboratorQueries.getById(id)
+    CollaboratorQueries.getByOrganizationIdAndUserId(
+      organizationId,
+      collaboratorId
+    )
   );
 
   return checkCollaboratorAuthorization(
@@ -57,6 +69,7 @@ export async function checkCollaboratorAuthorizationWithCollaboratorId(
     agent,
     organizationId,
     collaborator,
-    action
+    action,
+    nothrow
   );
 }

@@ -6,9 +6,7 @@ import {
   IDataProvider,
   DataProviderFilterValueOperator,
   DataProviderFilterValueLogicalOperator,
-  DataProviderFilterCombineOperator,
   IDataProviderFilter,
-  IGetManyItemsOptions,
 } from './DataProvider';
 
 export default class MongoDataProvider<T extends Record<string, unknown>>
@@ -33,7 +31,7 @@ export default class MongoDataProvider<T extends Record<string, unknown>>
 
   // TODO: use options with a sortBy field
   getManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, options?: IGetManyItemsOptions) => {
+    async (filter: IDataProviderFilter<T>) => {
       const mongoQuery = getMongoQueryFromFilter(filter);
       const items = await this.model.find(mongoQuery).lean().exec();
       return cast<T[]>(items);
@@ -60,6 +58,13 @@ export default class MongoDataProvider<T extends Record<string, unknown>>
         .lean()
         .exec();
       return cast<T | null>(item);
+    }
+  );
+
+  updateManyItems = wrapFireAndThrowError(
+    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
+      const mongoQuery = getMongoQueryFromFilter(filter);
+      await this.model.updateMany(mongoQuery, data, {new: true}).lean().exec();
     }
   );
 
@@ -125,23 +130,6 @@ export default class MongoDataProvider<T extends Record<string, unknown>>
     await this.model.insertMany(data);
   });
 
-  // bulkDeleteItems = wrapFireAndThrowError(
-  //   async (
-  //     items: Array<{
-  //       filter: IDataProviderFilter<T>;
-  //       deleteFirstItemOnly?: boolean;
-  //     }>
-  //   ) => {
-  //     await this.model.bulkWrite(
-  //       items.map(item => ({
-  //         [item.deleteFirstItemOnly ? 'deleteOne' : 'deleteMany']: {
-  //           filter: getMongoQueryFromFilter(item.filter),
-  //         },
-  //       }))
-  //     );
-  //   }
-  // );
-
   bulkUpdateItems = wrapFireAndThrowError(
     async (
       items: Array<{
@@ -162,84 +150,143 @@ export default class MongoDataProvider<T extends Record<string, unknown>>
   );
 }
 
+// export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
+//   const queries: Array<FilterQuery<any>> = filter.items.map(item => {
+//     const itemMongoQuery: FilterQuery<any> = {};
+
+//     forEach(item, (value, key) => {
+//       if (!value) {
+//         return;
+//       }
+
+//       let valueMongoQuery: FilterQuery<any> = {};
+
+//       switch (value.queryOp) {
+//         case DataProviderFilterValueOperator.GreaterThan:
+//           valueMongoQuery = {$gt: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.GreaterThanOrEqual:
+//           valueMongoQuery = {$gte: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.In:
+//           valueMongoQuery = {$in: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.LessThan:
+//           valueMongoQuery = {$lt: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.LessThanOrEqual:
+//           valueMongoQuery = {$lte: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.NotEqual:
+//           valueMongoQuery = {$ne: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.NotIn:
+//           valueMongoQuery = {$nin: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.Regex:
+//           valueMongoQuery = {$regex: value.value, $options: 'i'};
+//           break;
+//         case DataProviderFilterValueOperator.Object:
+//           valueMongoQuery = {$elemMatch: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.Equal:
+//           valueMongoQuery = {$eq: value.value};
+//           break;
+//         case DataProviderFilterValueOperator.None:
+//         default:
+//           valueMongoQuery = value.value;
+//       }
+
+//       if (
+//         value.logicalOp &&
+//         value.logicalOp === DataProviderFilterValueLogicalOperator.Not
+//       ) {
+//         valueMongoQuery = {$not: valueMongoQuery};
+//       }
+
+//       itemMongoQuery[key] = valueMongoQuery;
+//     });
+
+//     return itemMongoQuery;
+//   });
+
+//   let query: FilterQuery<any> = {};
+
+//   if (queries.length === 1) {
+//     query = queries[0];
+//   } else {
+//     switch (filter.combineOp) {
+//       case DataProviderFilterCombineOperator.And:
+//         query.$and = queries;
+//         break;
+//       case DataProviderFilterCombineOperator.Nor:
+//         query.$nor = queries;
+//         break;
+//       case DataProviderFilterCombineOperator.Or:
+//       default:
+//         query.$or = queries;
+//         break;
+//     }
+//   }
+
+//   return query;
+// }
+
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
-  const queries: Array<FilterQuery<any>> = filter.items.map(item => {
-    const itemMongoQuery: FilterQuery<any> = {};
+  const query: FilterQuery<any> = {};
 
-    forEach(item, (value, key) => {
-      if (!value) {
-        return;
-      }
-
-      let valueMongoQuery: FilterQuery<any> = {};
-
-      switch (value.queryOp) {
-        case DataProviderFilterValueOperator.GreaterThan:
-          valueMongoQuery = {$gt: value.value};
-          break;
-        case DataProviderFilterValueOperator.GreaterThanOrEqual:
-          valueMongoQuery = {$gte: value.value};
-          break;
-        case DataProviderFilterValueOperator.In:
-          valueMongoQuery = {$in: value.value};
-          break;
-        case DataProviderFilterValueOperator.LessThan:
-          valueMongoQuery = {$lt: value.value};
-          break;
-        case DataProviderFilterValueOperator.LessThanOrEqual:
-          valueMongoQuery = {$lte: value.value};
-          break;
-        case DataProviderFilterValueOperator.NotEqual:
-          valueMongoQuery = {$ne: value.value};
-          break;
-        case DataProviderFilterValueOperator.NotIn:
-          valueMongoQuery = {$nin: value.value};
-          break;
-        case DataProviderFilterValueOperator.Regex:
-          valueMongoQuery = {$regex: value.value, $options: 'i'};
-          break;
-        case DataProviderFilterValueOperator.Object:
-          valueMongoQuery = {$elemMatch: value.value};
-          break;
-        case DataProviderFilterValueOperator.Equal:
-          valueMongoQuery = {$eq: value.value};
-          break;
-        case DataProviderFilterValueOperator.None:
-        default:
-          valueMongoQuery = value.value;
-      }
-
-      if (
-        value.logicalOp &&
-        value.logicalOp === DataProviderFilterValueLogicalOperator.Not
-      ) {
-        valueMongoQuery = {$not: valueMongoQuery};
-      }
-
-      itemMongoQuery[key] = valueMongoQuery;
-    });
-
-    return itemMongoQuery;
-  });
-
-  let query: FilterQuery<any> = {};
-
-  if (queries.length === 1) {
-    query = queries[0];
-  } else {
-    switch (filter.combineOp) {
-      case DataProviderFilterCombineOperator.And:
-        query.$and = queries;
-        break;
-      case DataProviderFilterCombineOperator.Nor:
-        query.$nor = queries;
-        break;
-      case DataProviderFilterCombineOperator.Or:
-      default:
-        query.$or = queries;
-        break;
+  forEach(filter.items, (value, key) => {
+    if (!value) {
+      return;
     }
-  }
+
+    let valueMongoQuery: FilterQuery<any> = {};
+
+    switch (value.queryOp) {
+      case DataProviderFilterValueOperator.GreaterThan:
+        valueMongoQuery = {$gt: value.value};
+        break;
+      case DataProviderFilterValueOperator.GreaterThanOrEqual:
+        valueMongoQuery = {$gte: value.value};
+        break;
+      case DataProviderFilterValueOperator.In:
+        valueMongoQuery = {$in: value.value};
+        break;
+      case DataProviderFilterValueOperator.LessThan:
+        valueMongoQuery = {$lt: value.value};
+        break;
+      case DataProviderFilterValueOperator.LessThanOrEqual:
+        valueMongoQuery = {$lte: value.value};
+        break;
+      case DataProviderFilterValueOperator.NotEqual:
+        valueMongoQuery = {$ne: value.value};
+        break;
+      case DataProviderFilterValueOperator.NotIn:
+        valueMongoQuery = {$nin: value.value};
+        break;
+      case DataProviderFilterValueOperator.Regex:
+        valueMongoQuery = {$regex: value.value, $options: 'i'};
+        break;
+      case DataProviderFilterValueOperator.Object:
+        valueMongoQuery = {$elemMatch: value.value};
+        break;
+      case DataProviderFilterValueOperator.Equal:
+        valueMongoQuery = {$eq: value.value};
+        break;
+      // case DataProviderFilterValueOperator.None:
+      default:
+        valueMongoQuery = value.value;
+    }
+
+    if (
+      value.logicalOp &&
+      value.logicalOp === DataProviderFilterValueLogicalOperator.Not
+    ) {
+      valueMongoQuery = {$not: valueMongoQuery};
+    }
+
+    query[key] = valueMongoQuery;
+  });
 
   return query;
 }

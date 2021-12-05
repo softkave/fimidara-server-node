@@ -1,9 +1,9 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import ClientAssignedTokenQueries from '../queries';
+import {checkClientAssignedTokenAuthorization02} from '../utils';
 import {DeleteClientAssignedTokenEndpoint} from './types';
 import {deleteClientAssignedTokenJoiSchema} from './validation';
 
@@ -13,25 +13,20 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, deleteClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const token = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(data.tokenId)
+  const tokenId = getClientAssignedTokenId(
+    agent,
+    data.onReferenced && data.tokenId
   );
 
-  const organization = await checkOrganizationExists(
-    context,
-    token.organizationId
-  );
-
-  await checkAuthorizationForClientAssignedToken(
+  const {token} = await checkClientAssignedTokenAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    token,
+    tokenId,
     BasicCRUDActions.Delete
   );
 
   await context.data.clientAssignedToken.deleteItem(
-    ClientAssignedTokenQueries.getById(data.tokenId)
+    ClientAssignedTokenQueries.getById(token.tokenId)
   );
 
   await context.data.permissionItem.deleteManyItems(
@@ -40,6 +35,8 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
       AppResourceType.ClientAssignedToken
     )
   );
+
+  // TODO: delete permissionItems by resourceId and type
 };
 
 export default deleteClientAssignedToken;

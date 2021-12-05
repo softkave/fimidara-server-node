@@ -1,10 +1,12 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getOrganizationId} from '../../contexts/SessionContext';
 import CollaboratorQueries from '../queries';
-import {collaboratorExtractor} from '../utils';
+import {
+  checkCollaboratorAuthorization02,
+  collaboratorExtractor,
+} from '../utils';
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
 
@@ -14,24 +16,13 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
 ) => {
   const data = validate(instData.data, updateCollaboratorPresetsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const collaborator = await context.data.user.assertGetItem(
-    CollaboratorQueries.getByOrganizationIdAndUserId(
-      data.organizationId,
-      data.collaboratorId
-    )
-  );
-
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
-
-  await checkAuthorizationForCollaborator(
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {collaborator} = await checkCollaboratorAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    collaborator,
-    BasicCRUDActions.Update
+    organizationId,
+    data.collaboratorId,
+    BasicCRUDActions.Read
   );
 
   const organizationIndex = collaborator.organizations.findIndex(

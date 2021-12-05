@@ -18,21 +18,21 @@ import {fileConstants} from '../../files/constants';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
-  assertSplitFolderPathWithDetails,
+  assertSplitPathWithDetails,
   FolderUtils,
-  splitFolderPathWithDetails,
+  splitPathWithDetails,
 } from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
-async function internalCreateFolder(
+async function createNextFolder(
   context: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
   parent: IFolder | null,
   input: INewFolderInput
 ) {
-  const {splitPath, name} = splitFolderPathWithDetails(input.path);
+  const {splitPath, name} = splitPathWithDetails(input.path);
   const existingFolder = await context.data.folder.getItem(
     FolderQueries.folderExistsByNamePath(organizationId, splitPath)
   );
@@ -65,6 +65,7 @@ export async function checkIfAgentCanCreateFolder(
   organizationId: string,
   splitParentPath: string[]
 ) {
+  // Make a list of folder paths
   const parentPaths: Array<string[]> = [];
   splitParentPath.forEach((item, i) => {
     i === 0
@@ -72,6 +73,8 @@ export async function checkIfAgentCanCreateFolder(
       : parentPaths.push(parentPaths[i - 1].concat(item));
   });
 
+  // Find closest existing folder
+  let closestExistingFolder: IFolder | null = null;
   const existingFolders = await Promise.all(
     parentPaths.map(item =>
       context.data.folder.getItem(
@@ -80,9 +83,8 @@ export async function checkIfAgentCanCreateFolder(
     )
   );
 
-  let closestExistingFolder: IFolder | null = null;
-
-  for (const item of existingFolders) {
+  for (let i = 0; i < existingFolders.length; i++) {
+    const item = existingFolders[i];
     if (item === null) {
       break;
     }
@@ -91,6 +93,7 @@ export async function checkIfAgentCanCreateFolder(
   }
 
   if (closestExistingFolder) {
+    // Check if the agent can perform operation
     await checkAuthorization(
       context,
       agent,
@@ -101,6 +104,9 @@ export async function checkIfAgentCanCreateFolder(
       BasicCRUDActions.Create
     );
   }
+
+  // Return existing folders to skip ahead when creating parent folders for the main folder
+  return {existingFolders};
 }
 
 export async function createFolderList(
@@ -112,30 +118,34 @@ export async function createFolderList(
   // TODO: add a max slash (folder separator count) for folder names and
   // if we're going to have arbitrarily deep folders, then we should rethink the
   // creation process for performance
-  const {splitPath, splitParentPath} = assertSplitFolderPathWithDetails(
-    input.path
-  );
-
-  await checkIfAgentCanCreateFolder(
+  const pathWithDetails = assertSplitPathWithDetails(input.path);
+  const {existingFolders} = await checkIfAgentCanCreateFolder(
     context,
     agent,
     organizationId,
-    splitParentPath
+    pathWithDetails.splitParentPath
   );
 
   let previousFolder: IFolder | null = null;
 
   // TODO: create folders in a transaction and revert if there's an error
-  for (let i = 0; i < splitPath.length; i++) {
-    const nextInputPath = splitPath.slice(0, i + 1);
-    const isMainFolder = i === splitPath.length - 1;
+  for (let i = 0; i < pathWithDetails.splitPath.length; i++) {
+    const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
+    previousFolder = existingFolders[i];
+
+    if (previousFolder) {
+      continue;
+    }
+
+    // The real folder we want to create
+    const isMainFolder = i === pathWithDetails.splitPath.length - 1;
     const nextInput: INewFolderInput = {
       path: nextInputPath.join(folderConstants.nameSeparator),
       description: isMainFolder ? input.description : undefined,
       maxFileSize: isMainFolder ? input.maxFileSize : undefined,
     };
 
-    previousFolder = await internalCreateFolder(
+    previousFolder = await createNextFolder(
       context,
       agent,
       organizationId,
@@ -145,6 +155,7 @@ export async function createFolderList(
   }
 
   if (!previousFolder) {
+    // TODO: better error message
     throw new ServerError('Error creating folder');
   }
 

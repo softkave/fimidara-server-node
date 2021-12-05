@@ -1,8 +1,8 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborator} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getOrganizationId} from '../../contexts/SessionContext';
 import CollaboratorQueries from '../queries';
+import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
 
@@ -12,24 +12,13 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
 ) => {
   const data = validate(instData.data, removeCollaboratorJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const collaborator = await context.data.user.assertGetItem(
-    CollaboratorQueries.getByOrganizationIdAndUserId(
-      data.organizationId,
-      data.collaboratorId
-    )
-  );
-
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
-
-  await checkAuthorizationForCollaborator(
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {collaborator} = await checkCollaboratorAuthorization02(
     context,
     agent,
-    organization.organizationId,
-    collaborator,
-    BasicCRUDActions.Delete
+    organizationId,
+    data.collaboratorId,
+    BasicCRUDActions.Read
   );
 
   collaborator.organizations = collaborator.organizations.filter(

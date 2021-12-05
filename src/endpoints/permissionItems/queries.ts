@@ -13,7 +13,7 @@ function getById(id: string) {
     .build();
 }
 
-function getByResource(ownerId: string, ownerType: AppResourceType) {
+function getByOwner(ownerId: string, ownerType: AppResourceType) {
   return newFilter()
     .addItem(
       'permissionOwnerId',
@@ -23,6 +23,17 @@ function getByResource(ownerId: string, ownerType: AppResourceType) {
     .addItem(
       'permissionOwnerType',
       ownerType,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
+function getByResource(resourceId: string, resourceType: AppResourceType) {
+  return newFilter()
+    .addItem('resourceId', resourceId, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'resourceType',
+      resourceType,
       DataProviderFilterValueOperator.Equal
     )
     .build();
@@ -52,6 +63,7 @@ function getByIds(ids: string[]) {
 export default abstract class PermissionItemQueries {
   static getById = getById;
   static getByIds = getByIds;
-  static getByResource = getByResource;
+  static getByOwner = getByOwner;
   static getByPermissionEntity = getByPermissionEntity;
+  static getByResource = getByResource;
 }

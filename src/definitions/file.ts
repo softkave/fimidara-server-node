@@ -16,10 +16,11 @@ export interface IFile {
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
   name: string;
+  extension: string;
   description?: string;
-  isPublic: boolean;
-  markedPublicAt: string; // ISO date string
-  markedPublicBy: IAgent;
+  isPublic?: boolean;
+  markedPublicAt?: string; // ISO date string
+  markedPublicBy?: IAgent;
 
   // meta?: Record<string, string | number | boolean | null>;
 

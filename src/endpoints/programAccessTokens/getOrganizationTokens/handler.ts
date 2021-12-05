@@ -1,6 +1,9 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForProgramAccessToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ProgramAccessTokenQueries from '../queries';
 import {ProgramAccessTokenUtils} from '../utils';
@@ -29,11 +32,13 @@ const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpo
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
     tokens.map(item =>
-      checkAuthorizationForProgramAccessToken(
+      checkAuthorization(
         context,
         agent,
         organization.organizationId,
-        item,
+        item.tokenId,
+        AppResourceType.ProgramAccessToken,
+        makeBasePermissionOwnerList(organization.organizationId),
         BasicCRUDActions.Read
       )
     )

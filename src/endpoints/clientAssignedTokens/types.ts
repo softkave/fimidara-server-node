@@ -1,12 +1,15 @@
+import {IAssignedPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicClientAssignedToken {
   tokenId: string;
   createdAt: string;
   createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: string;
   organizationId: string;
-  environmentId: string;
   version: number;
+  presets: IAssignedPresetPermissionsGroup[];
   issuedAt: string;
   expires?: number;
 }

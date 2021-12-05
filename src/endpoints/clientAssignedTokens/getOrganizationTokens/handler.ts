@@ -1,6 +1,9 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForClientAssignedToken} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ClientAssignedTokenQueries from '../queries';
 import {ClientAssignedTokenUtils} from '../utils';
@@ -29,18 +32,19 @@ const getOrganizationTokens: GetOrganizationClientAssignedTokenEndpoint = async 
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
     tokens.map(item =>
-      checkAuthorizationForClientAssignedToken(
+      checkAuthorization(
         context,
         agent,
         organization.organizationId,
-        item,
+        item.tokenId,
+        AppResourceType.ClientAssignedToken,
+        makeBasePermissionOwnerList(organization.organizationId),
         BasicCRUDActions.Read
       )
     )
   );
 
   const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
-
   return {
     tokens: ClientAssignedTokenUtils.extractPublicTokenList(allowedTokens),
   };

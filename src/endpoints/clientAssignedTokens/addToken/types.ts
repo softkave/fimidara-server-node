@@ -3,18 +3,17 @@ import {Endpoint} from '../../types';
 import {IPublicClientAssignedToken} from '../types';
 
 export interface INewClientAssignedTokenInput {
-  organizationId: string;
-  environmentId: string;
-  // bucketId: string;
   expires?: number;
 }
 
 export interface IAddClientAssignedTokenParams {
+  organizationId?: string;
   token: INewClientAssignedTokenInput;
 }
 
 export interface IAddClientAssignedTokenResult {
   token: IPublicClientAssignedToken;
+  tokenStr: string;
 }
 
 export type AddClientAssignedTokenEndpoint = Endpoint<

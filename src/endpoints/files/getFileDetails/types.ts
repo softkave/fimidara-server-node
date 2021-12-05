@@ -5,6 +5,7 @@ import {IPublicFile} from '../types';
 export interface IGetFileDetailsEndpointParams {
   // fileId?: string;
   path: string;
+  organizationId?: string;
 }
 
 export interface IGetFileDetailsEndpointResult {

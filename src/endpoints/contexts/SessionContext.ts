@@ -297,6 +297,36 @@ export function getOrganizationId(
   return organizationId;
 }
 
+export function getClientAssignedTokenId(
+  agent: ISessionAgent,
+  providedTokenId?: string | null | false
+) {
+  const tokenId = agent.clientAssignedToken
+    ? agent.clientAssignedToken.organizationId
+    : providedTokenId;
+
+  if (!tokenId) {
+    throw new InvalidRequestError('Client assigned token ID not provided');
+  }
+
+  return tokenId;
+}
+
+export function getProgramAccessTokenId(
+  agent: ISessionAgent,
+  providedTokenId?: string | null | false
+) {
+  const tokenId = agent.programAccessToken
+    ? agent.programAccessToken.organizationId
+    : providedTokenId;
+
+  if (!tokenId) {
+    throw new InvalidRequestError('Program access token ID not provided');
+  }
+
+  return tokenId;
+}
+
 export function assertIncomingToken(
   incomingTokenData: IBaseTokenData | undefined | null,
   type: TokenType

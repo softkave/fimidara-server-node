@@ -13,7 +13,7 @@ function getById(id: string) {
 }
 
 function getByName(name: string, parent?: IFolder) {
-  const filter: DataProviderFilterBuilder<IFolder> = newFilter().addItem(
+  const filter = newFilter().addItem(
     'name',
     name,
     DataProviderFilterValueOperator.Equal
@@ -30,18 +30,6 @@ function getByName(name: string, parent?: IFolder) {
   }
 
   return filter.build();
-}
-
-function folderExists(
-  bucketId: string,
-  parentId: string | null | undefined,
-  name: string
-) {
-  return newFilter()
-    .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
-    .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
-    .addItem('name', name, DataProviderFilterValueOperator.Equal)
-    .build();
 }
 
 function folderExistsByNamePath(organizationId: string, namePath: string[]) {
@@ -61,13 +49,26 @@ function getFoldersByParentId(parentId: string) {
     .build();
 }
 
-function getFoldersByBucketId(bucketId: string) {
-  return newFilter()
-    .addItem('bucketId', bucketId, DataProviderFilterValueOperator.Equal)
-    .addItem('parentId', null, DataProviderFilterValueOperator.Equal)
-    .build();
+// This returns all the folders that have the name path and possibly more
+function getFoldersWithNamePath(organizationId: string, path: string[]) {
+  const filter = newFilter().addItem(
+    'organizationId',
+    organizationId,
+    DataProviderFilterValueOperator.Equal
+  );
+
+  path.forEach((item, index) =>
+    filter.addItem(
+      `namePath.${index}`,
+      item,
+      DataProviderFilterValueOperator.Equal
+    )
+  );
+
+  return filter.build();
 }
 
+// This returns folders with the exact name path
 function getByNamePath(organizationId: string, namePath: string[]) {
   return newFilter()
     .addItem(
@@ -82,9 +83,8 @@ function getByNamePath(organizationId: string, namePath: string[]) {
 export default abstract class FolderQueries {
   static getById = getById;
   static getByName = getByName;
-  static folderExists = folderExists;
   static getFoldersByParentId = getFoldersByParentId;
-  static getFoldersByBucketId = getFoldersByBucketId;
   static getByNamePath = getByNamePath;
   static folderExistsByNamePath = folderExistsByNamePath;
+  static getFoldersWithNamePath = getFoldersWithNamePath;
 }

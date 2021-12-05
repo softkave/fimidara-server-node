@@ -1,7 +1,8 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {
-  checkProgramAccessTokenAuthorizationWithId,
+  checkProgramAccessTokenAuthorization02,
   ProgramAccessTokenUtils,
 } from '../utils';
 import {GetProgramAccessTokenEndpoint} from './types';
@@ -13,10 +14,15 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, getProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {token} = await checkProgramAccessTokenAuthorizationWithId(
+  const tokenId = getProgramAccessTokenId(
+    agent,
+    data.onReferenced && data.tokenId
+  );
+
+  const {token} = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
-    data.tokenId,
+    tokenId,
     BasicCRUDActions.Read
   );
 

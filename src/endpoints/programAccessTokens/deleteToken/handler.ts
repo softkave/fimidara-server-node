@@ -1,7 +1,8 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import ProgramAccessTokenQueries from '../queries';
-import {checkProgramAccessTokenAuthorizationWithId} from '../utils';
+import {checkProgramAccessTokenAuthorization02} from '../utils';
 import {DeleteProgramAccessTokenEndpoint} from './types';
 import {deleteProgramAccessTokenJoiSchema} from './validation';
 
@@ -11,10 +12,15 @@ const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, deleteProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {token} = await checkProgramAccessTokenAuthorizationWithId(
+  const tokenId = getProgramAccessTokenId(
+    agent,
+    data.onReferenced && data.tokenId
+  );
+
+  const {token} = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
-    data.tokenId,
+    tokenId,
     BasicCRUDActions.Delete
   );
 

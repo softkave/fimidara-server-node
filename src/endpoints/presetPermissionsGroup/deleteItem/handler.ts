@@ -1,7 +1,7 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import PresetPermissionsItemQueries from '../queries';
-import {checkPresetPermissionsGroupAuthorizationWithId} from '../utils';
+import {checkPresetPermissionsGroupAuthorization02} from '../utils';
 import {DeletePresetPermissionsItemEndpoint} from './types';
 import {deletePresetPermissionsItemJoiSchema} from './validation';
 
@@ -11,7 +11,7 @@ const deletePresetPermissionsItem: DeletePresetPermissionsItemEndpoint = async (
 ) => {
   const data = validate(instData.data, deletePresetPermissionsItemJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {preset} = await checkPresetPermissionsGroupAuthorizationWithId(
+  const {preset} = await checkPresetPermissionsGroupAuthorization02(
     context,
     agent,
     data.itemId,

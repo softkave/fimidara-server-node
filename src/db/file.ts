@@ -15,6 +15,7 @@ const fileSchema = ensureTypeFields<IFile>({
   lastUpdatedBy: {type: agentSchema},
   description: {type: String},
   name: {type: String},
+  extension: {type: String},
   encoding: {type: String},
   idPath: {type: [String]},
   isPublic: {type: Boolean},

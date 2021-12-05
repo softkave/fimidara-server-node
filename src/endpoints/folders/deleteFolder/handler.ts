@@ -1,24 +1,37 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {getOrganizationId} from '../../contexts/SessionContext';
+import FileQueries from '../../files/queries';
 import FolderQueries from '../queries';
-import {checkFolderAuthorizationWithFolderId} from '../utils';
+import {
+  assertSplitFolderPath,
+  checkFolderAuthorization02,
+  checkFolderAuthorization03,
+} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  await checkFolderAuthorizationWithFolderId(
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const splitPath = assertSplitFolderPath(data.path);
+  const {folder} = await checkFolderAuthorization03(
     context,
     agent,
-    data.folderId,
+    organizationId,
+    splitPath,
     BasicCRUDActions.Delete
   );
 
-  await context.data.file.deleteItem(FolderQueries.getById(data.folderId));
+  await context.data.folder.deleteManyItems(
+    FolderQueries.getFoldersWithNamePath(organizationId, splitPath)
+  );
+  await context.data.file.deleteManyItems(
+    FileQueries.getFilesByParentId(folder.folderId)
+  );
 
   // TODO:
-  // delete children folders and files
   // delete permission items
 };
 

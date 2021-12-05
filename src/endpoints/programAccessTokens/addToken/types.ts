@@ -11,6 +11,7 @@ export interface IAddProgramAccessTokenParams {
 
 export interface IAddProgramAccessTokenResult {
   token: IPublicProgramAccessToken;
+  tokenStr: string;
 }
 
 export type AddProgramAccessTokenEndpoint = Endpoint<

@@ -1,8 +1,9 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../queries';
-import {checkFileAuthorizationWithPath, FileUtils} from '../utils';
+import {checkFileAuthorization03, FileUtils} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -11,9 +12,12 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
-  const {file, agent} = await checkFileAuthorizationWithPath(
+  const agent = await context.session.getAgent(context, instData);
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {file} = await checkFileAuthorization03(
     context,
-    instData,
+    agent,
+    organizationId,
     data.path,
     BasicCRUDActions.Update
   );

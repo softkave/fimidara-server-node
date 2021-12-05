@@ -1,16 +1,20 @@
+import * as sharp from 'sharp';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkFileAuthorizationWithFileId} from '../utils';
+import {getOrganizationId} from '../../contexts/SessionContext';
+import {checkFileAuthorization03} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {file} = await checkFileAuthorizationWithFileId(
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  const {file} = await checkFileAuthorization03(
     context,
     agent,
-    data.fileId,
+    organizationId,
+    data.path,
     BasicCRUDActions.Read
   );
 
@@ -24,8 +28,16 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     })
     .promise();
 
+  let buffer = s3File.Body as Buffer | undefined;
+
+  if (buffer && data.imageTranformation) {
+    buffer = await sharp(buffer)
+      .resize(data.imageTranformation.width, data.imageTranformation.height)
+      .toBuffer();
+  }
+
   return {
-    file: s3File.Body as Buffer | undefined,
+    file: buffer,
   };
 };
 

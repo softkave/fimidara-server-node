@@ -1,14 +1,21 @@
 import {isArray} from 'lodash';
 import {IFile} from '../../definitions/file';
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
+} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorizationForFile} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  getFilePermissionOwners,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {splitFolderPath} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
-import RequestData from '../RequestData';
 import {agentExtractor} from '../utils';
+import {fileConstants} from './constants';
 import FileQueries from './queries';
 import {IPublicFile} from './types';
 
@@ -36,46 +43,81 @@ export async function checkFileAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   file: IFile,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const organization = await checkOrganizationExists(
     context,
     file.organizationId
   );
 
-  await checkAuthorizationForFile(
+  if (file.isPublic) {
+    return {agent, file, organization};
+  }
+
+  await checkAuthorization(
     context,
     agent,
     organization.organizationId,
-    file,
-    action
+    file.fileId,
+    AppResourceType.File,
+    getFilePermissionOwners(organization.organizationId, file),
+    action,
+    nothrow
   );
 
   return {agent, file, organization};
 }
 
-export async function checkFileAuthorizationWithFileId(
+// With file ID
+export async function checkFileAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const file = await context.data.file.assertGetItem(FileQueries.getById(id));
-  return checkFileAuthorization(context, agent, file, action);
+  return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 
-export async function checkFileAuthorizationWithPath(
+// With file path
+export async function checkFileAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
   path: string | string[],
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  nothrow = false
 ) {
   const splitPath = isArray(path) ? path : splitFolderPath(path);
   const file = await context.data.file.assertGetItem(
     FileQueries.getByNamePath(organizationId, splitPath)
   );
-  return checkFileAuthorization(context, agent, file, action);
+  return checkFileAuthorization(context, agent, file, action, nothrow);
+}
+
+export interface ISplitFilenameWithDetails {
+  name: string;
+  extension: string;
+  providedName: string;
+}
+
+export function splitFilenameWithDetails(
+  providedName: string
+): ISplitFilenameWithDetails {
+  const splitStr = providedName.split(
+    fileConstants.fileNameAndExtensionSeparator
+  );
+  const name = splitStr[0];
+  const extension = splitStr
+    .slice(1)
+    .join(fileConstants.fileNameAndExtensionSeparator);
+  return {
+    providedName,
+    name,
+    extension,
+  };
 }
 
 export abstract class FileUtils {

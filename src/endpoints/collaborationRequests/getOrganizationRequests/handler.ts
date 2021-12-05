@@ -1,6 +1,9 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForCollaborationRequest} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeBasePermissionOwnerList,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaborationRequestQueries from '../queries';
 import {collabRequestListExtractor} from '../utils';
@@ -25,18 +28,19 @@ const getOrganizationRequests: GetOrganizationRequestsEndpoint = async (
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
     requests.map(item =>
-      checkAuthorizationForCollaborationRequest(
+      checkAuthorization(
         context,
         agent,
         organization.organizationId,
-        item,
+        item.requestId,
+        AppResourceType.CollaborationRequest,
+        makeBasePermissionOwnerList(organization.organizationId),
         BasicCRUDActions.Read
       )
     )
   );
 
   const allowedRequests = requests.filter((item, i) => !!permittedReads[i]);
-
   return {
     requests: collabRequestListExtractor(allowedRequests),
   };
