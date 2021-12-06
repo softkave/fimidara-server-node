@@ -29,9 +29,7 @@ const collaborationRequestSchema = {
   organizationName: {type: String},
 };
 
-export interface ICollaborationRequestDocument
-  extends Document,
-    ICollaborationRequest {}
+export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
 
 const schema = new Schema<ICollaborationRequestDocument>(
   collaborationRequestSchema

@@ -1,4 +1,3 @@
-import {Connection} from 'mongoose';
 import {Express} from 'express';
 import addPresetPermissionsItems from './addItem/handler';
 import deletePresetPermissionsItem from './deleteItem/handler';
@@ -6,31 +5,26 @@ import getPresetPermissionsItem from './getItem/handler';
 import getOrganizationPresetPermissionsItem from './getOrganizationItems/handler';
 import updatePresetPermissionsItem from './updateItem/handler';
 import {wrapEndpointREST} from '../utils';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupPresetPermissionsItemRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    addPresetPermissionsItems: wrapEndpointREST(
-      addPresetPermissionsItems,
-      getBaseContext(connection)
-    ),
+    addPresetPermissionsItems: wrapEndpointREST(addPresetPermissionsItems, ctx),
     deletePresetPermissionsItem: wrapEndpointREST(
       deletePresetPermissionsItem,
-      getBaseContext(connection)
+      ctx
     ),
-    getPresetPermissionsItem: wrapEndpointREST(
-      getPresetPermissionsItem,
-      getBaseContext(connection)
-    ),
+    getPresetPermissionsItem: wrapEndpointREST(getPresetPermissionsItem, ctx),
     getOrganizationPresetPermissionsItem: wrapEndpointREST(
       getOrganizationPresetPermissionsItem,
-      getBaseContext(connection)
+      ctx
     ),
     updatePresetPermissionsItem: wrapEndpointREST(
       updatePresetPermissionsItem,
-      getBaseContext(connection)
+      ctx
     ),
   };
 

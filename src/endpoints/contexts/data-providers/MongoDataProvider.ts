@@ -9,7 +9,7 @@ import {
   IDataProviderFilter,
 } from './DataProvider';
 
-export default class MongoDataProvider<T extends Record<string, unknown>>
+export default class MongoDataProvider<T extends {[key: string]: any}>
   implements IDataProvider<T> {
   constructor(
     private model: Model<Document<T>>,

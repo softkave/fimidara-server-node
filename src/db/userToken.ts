@@ -12,7 +12,7 @@ const userTokenMongoSchema = ensureTypeFields<IUserToken>({
   // meta: {type: SchemaTypes.Mixed},
 });
 
-export interface IUserTokenDocument extends IUserToken, Document {}
+export type IUserTokenDocument = Document<IUserToken>;
 
 const schema = new Schema<IUserTokenDocument>(userTokenMongoSchema);
 const modelName = 'user-token';

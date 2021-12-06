@@ -1,5 +1,6 @@
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract} from '../../utilities/extract';
+import {NotFoundError} from '../errors';
 import {IPublicUserData} from './types';
 
 const publicUserFields = getFields<IPublicUserData>({
@@ -15,3 +16,11 @@ const publicUserFields = getFields<IPublicUserData>({
 });
 
 export const userExtractor = makeExtract(publicUserFields);
+
+export function throwUserNotFound() {
+  throw new NotFoundError('User not found');
+}
+
+export function throwUserTokenNotFound() {
+  throw new NotFoundError('User token not found');
+}

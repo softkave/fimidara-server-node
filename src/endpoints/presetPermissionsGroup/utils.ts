@@ -11,10 +11,10 @@ import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  checkAuthorizationForPresetPermissionsGroup,
   makeBasePermissionOwnerList,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
@@ -92,6 +92,10 @@ export async function checkPresetPermissionsGroupAuthorization02(
     action,
     nothrow
   );
+}
+
+export function throwPresetPermissionsGroupNotFound() {
+  throw new NotFoundError('Preset permissions group not found');
 }
 
 export abstract class PresetPermissionsItemUtils {

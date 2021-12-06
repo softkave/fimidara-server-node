@@ -6,7 +6,7 @@ import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
   CURRENT_TOKEN_VERSION,
   getOrganizationId,

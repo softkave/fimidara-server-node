@@ -17,9 +17,7 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   presets: {type: [assignedPermissionsGroupSchema]},
 });
 
-export interface IClientAssignedTokenDocument
-  extends Document,
-    IClientAssignedToken {}
+export type IClientAssignedTokenDocument = Document<IClientAssignedToken>;
 
 const schema = new Schema<IClientAssignedTokenDocument>(
   clientAssignedTokenSchema

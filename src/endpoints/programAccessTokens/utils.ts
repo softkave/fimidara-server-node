@@ -9,8 +9,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
 import {agentExtractor} from '../utils';
@@ -79,6 +80,10 @@ export async function checkProgramAccessTokenAuthorization02(
     action,
     nothrow
   );
+}
+
+export function throwProgramAccessTokenNotFound() {
+  throw new NotFoundError('Program access token not found');
 }
 
 export abstract class ProgramAccessTokenUtils {

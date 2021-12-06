@@ -1,33 +1,23 @@
-import {Connection} from 'mongoose';
-import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
 import getCollaborator from './getCollaborator/handler';
 import getOrganizationCollaborators from './getOrganizationCollaborators/handler';
 import removeCollaborator from './removeCollaborator/handler';
 import updateCollaboratorPresets from './updateCollaboratorPresets/handler';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupOrganizationRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    getCollaborator: wrapEndpointREST(
-      getCollaborator,
-      getBaseContext(connection)
-    ),
+    getCollaborator: wrapEndpointREST(getCollaborator, ctx),
     getOrganizationCollaborators: wrapEndpointREST(
       getOrganizationCollaborators,
-      getBaseContext(connection)
+      ctx
     ),
-    removeCollaborator: wrapEndpointREST(
-      removeCollaborator,
-      getBaseContext(connection)
-    ),
-    updateCollaboratorPresets: wrapEndpointREST(
-      updateCollaboratorPresets,
-      getBaseContext(connection)
-    ),
+    removeCollaborator: wrapEndpointREST(removeCollaborator, ctx),
+    updateCollaboratorPresets: wrapEndpointREST(updateCollaboratorPresets, ctx),
   };
 
   app.post('/collaborators/getCollaborator', endpoints.getCollaborator);

@@ -8,8 +8,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import CollaboratorQueries from './queries';
 import {IPublicCollaborator} from './types';
@@ -72,4 +73,8 @@ export async function checkCollaboratorAuthorization02(
     action,
     nothrow
   );
+}
+
+export function throwCollaboratorNotFound() {
+  throw new NotFoundError('Collaborator not found');
 }

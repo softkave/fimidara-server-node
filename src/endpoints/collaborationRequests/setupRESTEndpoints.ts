@@ -1,5 +1,3 @@
-import {Connection} from 'mongoose';
-import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
 import sendRequest from './sendRequest/handler';
@@ -9,28 +7,20 @@ import getUserRequests from './getUserRequests/handler';
 import respondToRequest from './respondToRequest/handler';
 import revokeRequest from './revokeRequest/handler';
 import updateRequest from './updateRequest/handler';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupOrganizationRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    sendRequest: wrapEndpointREST(sendRequest, getBaseContext(connection)),
-    deleteRequest: wrapEndpointREST(deleteRequest, getBaseContext(connection)),
-    getOrganizationRequests: wrapEndpointREST(
-      getOrganizationRequests,
-      getBaseContext(connection)
-    ),
-    getUserRequests: wrapEndpointREST(
-      getUserRequests,
-      getBaseContext(connection)
-    ),
-    respondToRequest: wrapEndpointREST(
-      respondToRequest,
-      getBaseContext(connection)
-    ),
-    revokeRequest: wrapEndpointREST(revokeRequest, getBaseContext(connection)),
-    updateRequest: wrapEndpointREST(updateRequest, getBaseContext(connection)),
+    sendRequest: wrapEndpointREST(sendRequest, ctx),
+    deleteRequest: wrapEndpointREST(deleteRequest, ctx),
+    getOrganizationRequests: wrapEndpointREST(getOrganizationRequests, ctx),
+    getUserRequests: wrapEndpointREST(getUserRequests, ctx),
+    respondToRequest: wrapEndpointREST(respondToRequest, ctx),
+    revokeRequest: wrapEndpointREST(revokeRequest, ctx),
+    updateRequest: wrapEndpointREST(updateRequest, ctx),
   };
 
   app.post('/requests/sendRequest', endpoints.sendRequest);

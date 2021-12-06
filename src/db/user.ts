@@ -28,7 +28,7 @@ const userSchema = ensureTypeFields<IUser>({
   },
 });
 
-export interface IUserDocument extends Document, IUser {}
+export type IUserDocument = Document<IUser>;
 
 const schema = new Schema<IUserDocument>(userSchema);
 const modelName = 'user';

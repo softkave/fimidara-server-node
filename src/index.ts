@@ -5,20 +5,18 @@ import * as http from 'http';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {getMongoConnection} from './db/connection';
-import {getBaseContext, IBaseContext} from './endpoints/contexts/BaseContext';
+import BaseContext, {IBaseContext} from './endpoints/contexts/BaseContext';
 import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
-import setupShopRESTEndpoints from './endpoints/shops/setupRESTEndpoints';
-import setupAppointmentRESTEndpoints from './endpoints/appointments/setupRESTEndpoints';
 import {appVariables} from './resources/appVariables';
+import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 
 console.log('server initialization');
 
 const app = express();
 const httpServer = http.createServer(app);
 
-// TODO: Define better white-listed CORS origins. Maybe from a DB.
-// TODO: this will have to accept all requests
-const whiteListedCorsOrigins = [/^https?:\/\/www.softkave.com$/];
+// Match all origins
+const whiteListedCorsOrigins = [/[\s\S]*/];
 
 if (process.env.NODE_ENV !== 'production') {
   whiteListedCorsOrigins.push(/localhost/);
@@ -59,7 +57,8 @@ async function setupConnection() {
 
 async function setup() {
   const connection = await setupConnection();
-  const ctx = getBaseContext(connection);
+  const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
+  const ctx = new BaseContext(mongoDBDataProvider);
 
   setupJWT(ctx);
   setupAccountRESTEndpoints(connection, app);
@@ -70,7 +69,7 @@ async function setup() {
     app.use(handleErrors);
 
     console.log(ctx.appVariables.appName);
-    console.log(`Server listening on port ${ctx.appVariables.port}`);
+    console.log(`server listening on port ${ctx.appVariables.port}`);
   });
 }
 

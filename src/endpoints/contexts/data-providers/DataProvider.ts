@@ -19,12 +19,15 @@ export enum DataProviderFilterValueLogicalOperator {
 export type DataProviderValueExpander<T> = Array<T> | T | null;
 export type DataProviderGetValueType<Value> = Value extends any[]
   ? Value[0]
-  : Value extends Record<string, unknown>
+  : Value extends {[key: string]: any}
   ? Partial<Value>
   : Value;
 
 export interface IDataProviderFilterValue<Value> {
-  value: DataProviderValueExpander<DataProviderGetValueType<Value>> | null;
+  value:
+    | DataProviderValueExpander<DataProviderGetValueType<Value>>
+    | RegExp
+    | null;
   queryOp?: DataProviderFilterValueOperator;
   logicalOp?: DataProviderFilterValueLogicalOperator;
 }
@@ -35,11 +38,11 @@ export enum DataProviderFilterCombineOperator {
   Nor,
 }
 
-export type IDataProviderFilter<T extends Record<string, unknown>> = {
+export type IDataProviderFilter<T extends {[key: string]: any}> = {
   items: {[K in keyof T]?: IDataProviderFilterValue<T[K]>};
 };
 
-export interface IDataProviderFilterBuilder<T extends Record<string, unknown>> {
+export interface IDataProviderFilterBuilder<T extends {[key: string]: any}> {
   addItem: <K extends keyof T>(
     key: K,
     value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
@@ -80,7 +83,7 @@ export interface IGetManyItemsOptions {
 
 // TODO: How to handle combining queries with and, or, nor, etc.
 
-export interface IDataProvider<T extends Record<string, unknown>> {
+export interface IDataProvider<T extends {[key: string]: any}> {
   checkItemExists: (filter: IDataProviderFilter<T>) => Promise<boolean>;
   getItem: (filter: IDataProviderFilter<T>) => Promise<T | null>;
   getManyItems: (

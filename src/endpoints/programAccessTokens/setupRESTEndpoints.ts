@@ -1,33 +1,23 @@
-import {Connection} from 'mongoose';
-import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
 import addProgramAccessToken from './addToken/handler';
 import deleteProgramAccessToken from './deleteToken/handler';
 import getOrganizationProgramAccessTokens from './getOrganizationTokens/handler';
 import getProgramAccessToken from './getToken/handler';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupOrganizationRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    addProgramAccessToken: wrapEndpointREST(
-      addProgramAccessToken,
-      getBaseContext(connection)
-    ),
-    deleteProgramAccessToken: wrapEndpointREST(
-      deleteProgramAccessToken,
-      getBaseContext(connection)
-    ),
+    addProgramAccessToken: wrapEndpointREST(addProgramAccessToken, ctx),
+    deleteProgramAccessToken: wrapEndpointREST(deleteProgramAccessToken, ctx),
     getOrganizationProgramAccessTokens: wrapEndpointREST(
       getOrganizationProgramAccessTokens,
-      getBaseContext(connection)
+      ctx
     ),
-    getProgramAccessToken: wrapEndpointREST(
-      getProgramAccessToken,
-      getBaseContext(connection)
-    ),
+    getProgramAccessToken: wrapEndpointREST(getProgramAccessToken, ctx),
   };
 
   app.post('/programAccessTokens/addToken', endpoints.addProgramAccessToken);

@@ -6,10 +6,10 @@ import {
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import {OrganizationDoesNotExistError} from './errors';
 import OrganizationQueries from './queries';
 import {IPublicOrganization} from './types';
 
@@ -27,7 +27,7 @@ export const organizationExtractor = makeExtract(organizationFields);
 export const organizationListExtractor = makeListExtract(organizationFields);
 
 export function throwOrganizationNotFound() {
-  throw new OrganizationDoesNotExistError();
+  throw new NotFoundError('Organization not found');
 }
 
 export async function checkOrganizationExists(

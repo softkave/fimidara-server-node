@@ -10,8 +10,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   getFilePermissionOwners,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {splitFolderPath} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
@@ -118,6 +119,10 @@ export function splitFilenameWithDetails(
     name,
     extension,
   };
+}
+
+export function throwFileNotFound() {
+  throw new NotFoundError('File not found');
 }
 
 export abstract class FileUtils {
