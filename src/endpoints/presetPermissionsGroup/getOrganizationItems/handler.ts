@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForPresetPermissionsGroup} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForPresetPermissionsGroup} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import PresetPermissionsItemQueries from '../queries';
 import {PresetPermissionsItemUtils} from '../utils';

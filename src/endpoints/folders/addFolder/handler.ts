@@ -11,7 +11,7 @@ import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';

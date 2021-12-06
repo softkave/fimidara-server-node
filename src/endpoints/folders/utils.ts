@@ -9,13 +9,11 @@ import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  checkAuthorizationForFolder,
   getFilePermissionOwners,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import RequestData from '../RequestData';
 import {agentExtractor} from '../utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';

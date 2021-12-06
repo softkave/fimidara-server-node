@@ -13,8 +13,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
 import CollaborationRequestQueries from './queries';
@@ -95,3 +96,7 @@ export const collabRequestExtractor = makeExtract(collaborationRequestFields);
 export const collabRequestListExtractor = makeListExtract(
   collaborationRequestFields
 );
+
+export function throwCollaborationRequestNotFound() {
+  throw new NotFoundError('Collaboration request not found');
+}

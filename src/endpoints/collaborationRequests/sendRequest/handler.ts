@@ -20,7 +20,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 
 async function sendEmail(

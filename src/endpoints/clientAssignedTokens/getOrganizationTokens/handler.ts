@@ -3,7 +3,7 @@ import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ClientAssignedTokenQueries from '../queries';
 import {ClientAssignedTokenUtils} from '../utils';

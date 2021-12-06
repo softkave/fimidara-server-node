@@ -1,6 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkAuthorizationForFolder} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationForFolder} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {checkFileAuthorization, FileUtils} from '../../files/utils';

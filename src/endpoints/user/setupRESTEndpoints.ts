@@ -1,5 +1,3 @@
-import {Connection} from 'mongoose';
-import {getBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
 import forgotPassword from './forgotPassword/forgotPassword';
 import getUserData from './getUserData/getUserData';
@@ -12,37 +10,26 @@ import confirmEmailAddress from './confirmEmailAddress/handler';
 import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
 import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupAccountRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const account = {
-    signup: wrapEndpointREST(signup, getBaseContext(connection)),
-    login: wrapEndpointREST(login, getBaseContext(connection)),
-    forgotPassword: wrapEndpointREST(
-      forgotPassword,
-      getBaseContext(connection)
-    ),
+    signup: wrapEndpointREST(signup, ctx),
+    login: wrapEndpointREST(login, ctx),
+    forgotPassword: wrapEndpointREST(forgotPassword, ctx),
     changePasswordWithCurrentPassword: wrapEndpointREST(
       changePasswordWithCurrentPassword,
-      getBaseContext(connection)
+      ctx
     ),
-    changePasswordWithToken: wrapEndpointREST(
-      changePasswordWithToken,
-      getBaseContext(connection)
-    ),
-    updateUser: wrapEndpointREST(updateUser, getBaseContext(connection)),
-    getUserData: wrapEndpointREST(getUserData, getBaseContext(connection)),
-    userExists: wrapEndpointREST(userExists, getBaseContext(connection)),
-    confirmEmailAddress: wrapEndpointREST(
-      confirmEmailAddress,
-      getBaseContext(connection)
-    ),
-    sendEmailVerificationCode: wrapEndpointREST(
-      sendEmailVerificationCode,
-      getBaseContext(connection)
-    ),
+    changePasswordWithToken: wrapEndpointREST(changePasswordWithToken, ctx),
+    updateUser: wrapEndpointREST(updateUser, ctx),
+    getUserData: wrapEndpointREST(getUserData, ctx),
+    userExists: wrapEndpointREST(userExists, ctx),
+    confirmEmailAddress: wrapEndpointREST(confirmEmailAddress, ctx),
+    sendEmailVerificationCode: wrapEndpointREST(sendEmailVerificationCode, ctx),
   };
 
   app.post('/user/signup', account.signup);

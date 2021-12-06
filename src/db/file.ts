@@ -24,7 +24,7 @@ const fileSchema = ensureTypeFields<IFile>({
   namePath: {type: [String]},
 });
 
-export interface IFileDocument extends Document, IFile {}
+export type IFileDocument = Document<IFile>;
 
 const schema = new Schema<IFileDocument>(fileSchema);
 const modelName = 'file';

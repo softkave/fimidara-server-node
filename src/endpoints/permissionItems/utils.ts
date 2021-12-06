@@ -1,11 +1,7 @@
-import {IPermissionItem} from '../../definitions/permissionItem';
-import {ISessionAgent, BasicCRUDActions} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {IBaseContext} from '../contexts/BaseContext';
-import {checkOrganizationExists} from '../organizations/utils';
+import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import PermissionItemQueries from './queries';
 import {IPublicPermissionItem} from './types';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
@@ -29,6 +25,10 @@ export const permissionItemExtractor = makeExtract(permissionItemFields);
 export const permissionItemListExtractor = makeListExtract(
   permissionItemFields
 );
+
+export function throwPermissionItemNotFound() {
+  throw new NotFoundError('Permission item not found');
+}
 
 export abstract class PermissionItemUtils {
   static extractPublicPermissionItem = permissionItemExtractor;

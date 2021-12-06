@@ -14,9 +14,7 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   presets: {type: [assignedPermissionsGroupSchema]},
 });
 
-export interface IProgramAccessTokenDocument
-  extends Document,
-    IProgramAccessToken {}
+export type IProgramAccessTokenDocument = Document<IProgramAccessToken>;
 
 const schema = new Schema<IProgramAccessTokenDocument>(
   programAccessTokenSchema

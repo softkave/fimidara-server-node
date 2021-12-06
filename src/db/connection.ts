@@ -10,7 +10,7 @@ export function getMongoConnection(): Promise<Connection> {
     }
 
     if (!appVariables.mongoDbURI) {
-      reject(new Error('Mongodb URI not provided'));
+      reject(new Error('MongoDB URI not provided'));
       return;
     }
 
@@ -21,6 +21,7 @@ export function getMongoConnection(): Promise<Connection> {
     });
 
     connection.once('open', () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resolve(connection!);
     });
 
@@ -29,7 +30,7 @@ export function getMongoConnection(): Promise<Connection> {
         console.error(error);
       }
 
-      reject(new Error("Couldn't connect to Mongodb"));
+      reject(new Error('Could not connect to MongoDB'));
     });
   });
 }

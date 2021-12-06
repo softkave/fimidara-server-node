@@ -19,7 +19,7 @@ const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   isForPermissionOwnerOnly: {type: Boolean},
 });
 
-export interface IPermissionItemDocument extends Document, IPermissionItem {}
+export type IPermissionItemDocument = Document<IPermissionItem>;
 
 const schema = new Schema<IPermissionItemDocument>(permissionItemSchema);
 const modelName = 'permission-item';

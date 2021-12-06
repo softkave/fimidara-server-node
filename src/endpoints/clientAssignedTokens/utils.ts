@@ -9,9 +9,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   makeBasePermissionOwnerList,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getClientAssignedTokenId} from '../contexts/SessionContext';
+import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
 import {agentExtractor} from '../utils';
@@ -83,6 +83,10 @@ export async function checkClientAssignedTokenAuthorization02(
     action,
     nothrow
   );
+}
+
+export function throwClientAssignedTokenNotFound() {
+  throw new NotFoundError('Client assigned token not found');
 }
 
 export abstract class ClientAssignedTokenUtils {

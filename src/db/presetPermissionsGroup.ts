@@ -17,9 +17,7 @@ const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
   description: {type: String},
 });
 
-export interface IPresetPermissionsItemDocument
-  extends Document,
-    IPresetPermissionsGroup {}
+export type IPresetPermissionsItemDocument = Document<IPresetPermissionsGroup>;
 
 const schema = new Schema<IPresetPermissionsItemDocument>(
   presetPermissionsSchema

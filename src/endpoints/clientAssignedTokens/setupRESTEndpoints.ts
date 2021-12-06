@@ -1,33 +1,20 @@
-import {Connection} from 'mongoose';
 import {Express} from 'express';
 import addClientAssignedToken from './addToken/handler';
 import deleteClientAssignedToken from './deleteToken/handler';
 import getOrganizationTokens from './getOrganizationTokens/handler';
 import getClientAssignedToken from './getToken/handler';
 import {wrapEndpointREST} from '../utils';
-import {getBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupClientAssignedTokenRESTEndpoints(
-  connection: Connection,
+  ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    addToken: wrapEndpointREST(
-      addClientAssignedToken,
-      getBaseContext(connection)
-    ),
-    deleteToken: wrapEndpointREST(
-      deleteClientAssignedToken,
-      getBaseContext(connection)
-    ),
-    getOrganizationTokens: wrapEndpointREST(
-      getOrganizationTokens,
-      getBaseContext(connection)
-    ),
-    getToken: wrapEndpointREST(
-      getClientAssignedToken,
-      getBaseContext(connection)
-    ),
+    addToken: wrapEndpointREST(addClientAssignedToken, ctx),
+    deleteToken: wrapEndpointREST(deleteClientAssignedToken, ctx),
+    getOrganizationTokens: wrapEndpointREST(getOrganizationTokens, ctx),
+    getToken: wrapEndpointREST(getClientAssignedToken, ctx),
   };
 
   app.post('/clientAssignedTokens/addToken', endpoints.addToken);

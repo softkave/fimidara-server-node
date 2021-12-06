@@ -13,7 +13,7 @@ const organizationSchema = ensureTypeFields<IOrganization>({
   description: {type: String},
 });
 
-export interface IOrganizationDocument extends Document, IOrganization {}
+export type IOrganizationDocument = Document<IOrganization>;
 
 const schema = new Schema<IOrganizationDocument>(organizationSchema);
 const modelName = 'organization';

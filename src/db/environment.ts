@@ -14,7 +14,7 @@ const environmentSchema = ensureTypeFields<IEnvironment>({
   organizationId: {type: String, index: true},
 });
 
-export interface IEnvironmentDocument extends Document, IEnvironment {}
+export type IEnvironmentDocument = Document<IEnvironment>;
 
 const schema = new Schema<IEnvironmentDocument>(environmentSchema);
 const modelName = 'environment';
