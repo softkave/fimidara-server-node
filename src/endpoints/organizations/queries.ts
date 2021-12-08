@@ -1,5 +1,5 @@
 import {IOrganization} from '../../definitions/organization';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 
 function newFilter() {
@@ -18,14 +18,18 @@ function getByIds(ids: string[]) {
     .build();
 }
 
-function organizationExists(name: string) {
+function getByName(name: string) {
   return newFilter()
-    .addItem('name', name, DataProviderFilterValueOperator.Regex)
+    .addItem(
+      'name',
+      new RegExp(`^${name}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
     .build();
 }
 
 export default abstract class OrganizationQueries {
   static getById = getById;
   static getByIds = getByIds;
-  static organizationExists = organizationExists;
+  static getByName = getByName;
 }

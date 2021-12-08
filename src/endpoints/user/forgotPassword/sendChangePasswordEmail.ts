@@ -2,7 +2,7 @@ import {appVariables} from '../../../resources/appVariables';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailTitle,
-} from '../../../email-templates/forgotPasswordEmail';
+} from '../../../email-templates/forgotPassword';
 import {IBaseContext} from '../../contexts/BaseContext';
 
 export interface ISendChangePasswordEmailParams {

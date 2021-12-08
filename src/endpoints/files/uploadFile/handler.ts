@@ -76,16 +76,14 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
   }
 
-  await context.s3
-    .putObject({
-      Bucket: context.appVariables.S3Bucket,
-      Key: file.fileId,
-      Body: data.file.data,
-      ContentType: data.file.mimetype,
-      ContentEncoding: data.file.encoding,
-      ContentLength: data.file.data.byteLength,
-    })
-    .promise();
+  await context.fileBackend.uploadFile({
+    bucket: context.appVariables.S3Bucket,
+    key: file.fileId,
+    body: data.file.data,
+    contentType: data.file.mimetype,
+    contentEncoding: data.file.encoding,
+    contentLength: data.file.data.byteLength,
+  });
 
   return {
     file: FileUtils.getPublicFile(file),

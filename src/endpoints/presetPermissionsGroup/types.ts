@@ -1,3 +1,4 @@
+import {IAssignedPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicPresetPermissionsItem {
@@ -7,6 +8,7 @@ export interface IPublicPresetPermissionsItem {
   createdBy: IAgent;
   lastUpdatedAt?: string;
   lastUpdatedBy?: IAgent;
+  presets: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IPresetInput {

@@ -2,7 +2,7 @@ import {
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
-  getTemplateCSS,
+  getEmailTemplateStyles,
 } from './helpers';
 import {appVariables} from '../resources/appVariables';
 
@@ -27,7 +27,7 @@ export function confirmEmailAddressEmailHTML(
         <meta charset="utf-8" />
         <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
         <style>
-        ${getTemplateCSS()}
+        ${getEmailTemplateStyles()}
 
         .app-verify-code {
             text-align: center;

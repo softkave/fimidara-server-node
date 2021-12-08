@@ -9,7 +9,7 @@ export interface IPresetPermissionsGroup {
   lastUpdatedBy?: IAgent;
   name: string;
   description?: string;
-  // TODO: presets should contain other presets
+  presets: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IAssignedPresetPermissionsGroup {
