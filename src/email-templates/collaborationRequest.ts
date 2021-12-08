@@ -1,4 +1,9 @@
-import {getFooterHTML, getHeaderHTML, getHeaderText} from './helpers';
+import {
+  emailTemplateStyles,
+  getFooterHTML,
+  getHeaderHTML,
+  getHeaderText,
+} from './helpers';
 
 export interface ICollaborationRequestEmailProps {
   signupLink: string;
@@ -17,8 +22,7 @@ export function collaborationRequestEmailHTML(
     <head>
         <meta charset="utf-8" />
         <title>${getHeaderText(props.title)}</title>
-        <style>
-        </style>
+        <style>${emailTemplateStyles}</style>
     </head>
     <body>
         ${getHeaderHTML(props.title)}
@@ -37,7 +41,6 @@ export function collaborationRequestEmailHTML(
         </p>
         ${getFooterHTML()}
     </body>
-
     </html>
     `;
 }
@@ -45,25 +48,27 @@ export function collaborationRequestEmailHTML(
 export function collaborationRequestEmailText(
   props: ICollaborationRequestEmailProps
 ) {
-  function getLink() {
-    return props.isRecipientAUser
-      ? `
-            Login to your account here - 
-            ${props.loginLink}
-            `
-      : `
-            Create an account here - 
-            ${props.signupLink}
-            `;
+  let linkText = '';
+
+  if (props.isRecipientAUser) {
+    linkText = `
+      Login to your account here - 
+      ${props.loginLink}
+    `;
+  } else {
+    linkText = `
+      Create an account here - 
+      ${props.signupLink}
+    `;
   }
 
   const txt = `
     ${getHeaderText(props.title)}
-
+    -
     You have a new collaboration request from ${props.organizationName}
-
-    To respond to this request, ${getLink()}
-    `;
+    -
+    To respond to this request, ${linkText}
+  `;
 
   return txt;
 }

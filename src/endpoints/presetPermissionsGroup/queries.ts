@@ -1,5 +1,5 @@
 import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 
 function newFilter() {
@@ -8,7 +8,7 @@ function newFilter() {
 
 function getById(id: string) {
   return newFilter()
-    .addItem('itemId', id, DataProviderFilterValueOperator.Equal)
+    .addItem('presetId', id, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -18,7 +18,23 @@ function getByOrganizationId(id: string) {
     .build();
 }
 
+function getByOrganizationAndName(organizationId: string, name: string) {
+  return newFilter()
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'name',
+      new RegExp(`^${name}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
+    .build();
+}
+
 export default abstract class PresetPermissionsGroupQueries {
   static getById = getById;
   static getByOrganizationId = getByOrganizationId;
+  static getByOrganizationAndName = getByOrganizationAndName;
 }

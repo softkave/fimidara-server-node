@@ -2,7 +2,7 @@ import {
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
-  getTemplateCSS,
+  getEmailTemplateStyles,
 } from './helpers';
 import {format, formatDistance} from 'date-fns';
 
@@ -23,7 +23,7 @@ export function forgotPasswordEmailHTML(
         <meta charset="utf-8" />
         <title>${getHeaderText(forgotPasswordEmailTitle)}</title>
         <style>
-        ${getTemplateCSS()}
+        ${getEmailTemplateStyles()}
         </style>
     </head>
     <body>

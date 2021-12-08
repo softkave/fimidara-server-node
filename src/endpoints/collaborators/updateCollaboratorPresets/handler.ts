@@ -31,7 +31,6 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
 
   const collaboratorOrganization =
     collaborator.organizations[organizationIndex];
-
   collaboratorOrganization.presets = data.presets.map(item => ({
     ...item,
     assignedAt: getDateString(),

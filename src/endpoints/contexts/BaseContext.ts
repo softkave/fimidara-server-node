@@ -11,6 +11,14 @@ import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IDataProvider} from './data-providers/DataProvider';
+import {
+  getEmailProviderContext,
+  IEmailProviderContext,
+} from './EmailProviderContext';
+import {
+  getFilePersistenceProviderContext,
+  IFilePersistenceProviderContext,
+} from './FilePersistenceProviderContext';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -29,12 +37,17 @@ export interface IBaseContext {
   appVariables: IAppVariables;
   session: ISessionContext;
   data: IBaseContextDataProviders;
+  email: IEmailProviderContext;
+  fileBackend: IFilePersistenceProviderContext;
 }
 
 export default class BaseContext implements IBaseContext {
-  public session: ISessionContext = getSessionContext();
-  public appVariables = appVariables;
   public data: IBaseContextDataProviders;
+
+  public appVariables = appVariables;
+  public session: ISessionContext = getSessionContext();
+  public email: IEmailProviderContext = getEmailProviderContext();
+  public fileBackend: IFilePersistenceProviderContext = getFilePersistenceProviderContext();
 
   constructor(data: IBaseContextDataProviders) {
     this.data = data;

@@ -7,9 +7,11 @@ import {
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
+import PresetPermissionsGroupQueries from '../queries';
 import {PresetPermissionsItemUtils} from '../utils';
 import {AddPresetPermissionsItemEndpoint} from './types';
 import {addPresetPermissionsItemJoiSchema} from './validation';
+import {ResourceExistsError} from '../../errors';
 
 const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
   context,
@@ -32,6 +34,17 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
     BasicCRUDActions.Create
   );
 
+  const itemExists = await context.data.presetPermissionsGroup.checkItemExists(
+    PresetPermissionsGroupQueries.getByOrganizationAndName(
+      organization.organizationId,
+      data.item.name
+    )
+  );
+
+  if (itemExists) {
+    throw new ResourceExistsError('Permission group exists');
+  }
+
   const item = await context.data.presetPermissionsGroup.saveItem({
     ...data.item,
     presetId: getNewId(),
@@ -41,6 +54,14 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
       agentType: agent.agentType,
     },
     organizationId: organization.organizationId,
+    presets: (data.item.presets || []).map(preset => ({
+      ...preset,
+      assignedAt: getDateString(),
+      assignedBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+    })),
   });
 
   return {

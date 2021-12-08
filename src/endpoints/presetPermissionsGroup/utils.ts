@@ -20,23 +20,6 @@ import {agentExtractor} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
 import {IPublicPresetPermissionsItem} from './types';
 
-const presetPermissionsItemFields = getFields<IPublicPresetPermissionsItem>({
-  itemId: true,
-  organizationId: true,
-  createdAt: getDateString,
-  createdBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-});
-
-export const presetPermissionsItemExtractor = makeExtract(
-  presetPermissionsItemFields
-);
-
-export const presetPermissionsItemListExtractor = makeListExtract(
-  presetPermissionsItemFields
-);
-
 const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
   presetId: true,
   assignedAt: getDateString,
@@ -47,6 +30,24 @@ const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
 export const assignedPresetsExtractor = makeExtract(assignedPresetsFields);
 export const assignedPresetsListExtractor = makeListExtract(
   assignedPresetsFields
+);
+
+const presetPermissionsItemFields = getFields<IPublicPresetPermissionsItem>({
+  itemId: true,
+  organizationId: true,
+  createdAt: getDateString,
+  createdBy: agentExtractor,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
+  presets: assignedPresetsListExtractor,
+});
+
+export const presetPermissionsItemExtractor = makeExtract(
+  presetPermissionsItemFields
+);
+
+export const presetPermissionsItemListExtractor = makeListExtract(
+  presetPermissionsItemFields
 );
 
 export async function checkPresetPermissionsGroupAuthorization(

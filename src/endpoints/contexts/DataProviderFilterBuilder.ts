@@ -2,14 +2,13 @@ import {
   DataProviderFilterValueLogicalOperator,
   DataProviderFilterValueOperator,
   DataProviderGetValueType,
+  DataProviderValueExpander,
   IDataProviderFilterBuilder,
   IDataProviderFilterValue,
-  DataProviderValueExpander,
-} from './DataProvider';
+} from './data-providers/DataProvider';
 
-export default class DataProviderFilterBuilder<
-  T extends Record<string, unknown>
-> implements IDataProviderFilterBuilder<T> {
+export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
+  implements IDataProviderFilterBuilder<T> {
   private data: {[K in keyof T]?: IDataProviderFilterValue<T[K]>} = {};
 
   public addItem<K extends keyof T>(

@@ -137,7 +137,7 @@ export async function createFolderList(
       continue;
     }
 
-    // The real folder we want to create
+    // The main folder we want to create
     const isMainFolder = i === pathWithDetails.splitPath.length - 1;
     const nextInput: INewFolderInput = {
       path: nextInputPath.join(folderConstants.nameSeparator),
@@ -162,6 +162,7 @@ export async function createFolderList(
   return previousFolder;
 }
 
+// TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData);

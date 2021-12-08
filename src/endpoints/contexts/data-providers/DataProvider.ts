@@ -7,6 +7,8 @@ export enum DataProviderFilterValueOperator {
   LessThanOrEqual,
   NotEqual,
   NotIn,
+
+  // MongoDB doesn't support the 'g' (global) flag that Javascript Regex supports
   Regex, // TODO: when using regex for checking existence, how should that work?
   Object,
   // None,
@@ -16,7 +18,7 @@ export enum DataProviderFilterValueLogicalOperator {
   Not,
 }
 
-export type DataProviderValueExpander<T> = Array<T> | T | null;
+export type DataProviderValueExpander<T> = Array<T> | T | RegExp | null;
 export type DataProviderGetValueType<Value> = Value extends any[]
   ? Value[0]
   : Value extends {[key: string]: any}
@@ -24,10 +26,7 @@ export type DataProviderGetValueType<Value> = Value extends any[]
   : Value;
 
 export interface IDataProviderFilterValue<Value> {
-  value:
-    | DataProviderValueExpander<DataProviderGetValueType<Value>>
-    | RegExp
-    | null;
+  value: DataProviderValueExpander<DataProviderGetValueType<Value>>;
   queryOp?: DataProviderFilterValueOperator;
   logicalOp?: DataProviderFilterValueLogicalOperator;
 }

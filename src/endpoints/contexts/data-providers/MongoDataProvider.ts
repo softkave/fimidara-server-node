@@ -1,7 +1,7 @@
 import {forEach} from 'lodash';
 import {Document, FilterQuery, Model} from 'mongoose';
-import cast from '../../utilities/fns';
-import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import cast from '../../../utilities/fns';
+import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
 import {
   IDataProvider,
   DataProviderFilterValueOperator,
@@ -150,90 +150,8 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
   );
 }
 
-// export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
-//   const queries: Array<FilterQuery<any>> = filter.items.map(item => {
-//     const itemMongoQuery: FilterQuery<any> = {};
-
-//     forEach(item, (value, key) => {
-//       if (!value) {
-//         return;
-//       }
-
-//       let valueMongoQuery: FilterQuery<any> = {};
-
-//       switch (value.queryOp) {
-//         case DataProviderFilterValueOperator.GreaterThan:
-//           valueMongoQuery = {$gt: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.GreaterThanOrEqual:
-//           valueMongoQuery = {$gte: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.In:
-//           valueMongoQuery = {$in: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.LessThan:
-//           valueMongoQuery = {$lt: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.LessThanOrEqual:
-//           valueMongoQuery = {$lte: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.NotEqual:
-//           valueMongoQuery = {$ne: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.NotIn:
-//           valueMongoQuery = {$nin: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.Regex:
-//           valueMongoQuery = {$regex: value.value, $options: 'i'};
-//           break;
-//         case DataProviderFilterValueOperator.Object:
-//           valueMongoQuery = {$elemMatch: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.Equal:
-//           valueMongoQuery = {$eq: value.value};
-//           break;
-//         case DataProviderFilterValueOperator.None:
-//         default:
-//           valueMongoQuery = value.value;
-//       }
-
-//       if (
-//         value.logicalOp &&
-//         value.logicalOp === DataProviderFilterValueLogicalOperator.Not
-//       ) {
-//         valueMongoQuery = {$not: valueMongoQuery};
-//       }
-
-//       itemMongoQuery[key] = valueMongoQuery;
-//     });
-
-//     return itemMongoQuery;
-//   });
-
-//   let query: FilterQuery<any> = {};
-
-//   if (queries.length === 1) {
-//     query = queries[0];
-//   } else {
-//     switch (filter.combineOp) {
-//       case DataProviderFilterCombineOperator.And:
-//         query.$and = queries;
-//         break;
-//       case DataProviderFilterCombineOperator.Nor:
-//         query.$nor = queries;
-//         break;
-//       case DataProviderFilterCombineOperator.Or:
-//       default:
-//         query.$or = queries;
-//         break;
-//     }
-//   }
-
-//   return query;
-// }
-
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
-  const query: FilterQuery<any> = {};
+  const query: FilterQuery<Document<any, any, any>> = {};
 
   forEach(filter.items, (value, key) => {
     if (!value) {
@@ -265,7 +183,14 @@ export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
         valueMongoQuery = {$nin: value.value};
         break;
       case DataProviderFilterValueOperator.Regex:
-        valueMongoQuery = {$regex: value.value, $options: 'i'};
+        if (value.value instanceof RegExp) {
+          valueMongoQuery = {
+            $regex: value.value.source,
+            $options: value.value.flags,
+          };
+        } else {
+          valueMongoQuery = {$regex: value.value};
+        }
         break;
       case DataProviderFilterValueOperator.Object:
         valueMongoQuery = {$elemMatch: value.value};

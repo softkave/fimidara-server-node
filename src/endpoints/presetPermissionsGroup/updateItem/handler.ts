@@ -1,3 +1,5 @@
+import {omit} from 'lodash';
+import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
@@ -22,13 +24,26 @@ const updatePresetPermissionsItem: UpdatePresetPermissionsItemEndpoint = async (
     BasicCRUDActions.Update
   );
 
+  const update: Partial<IPresetPermissionsGroup> = {
+    ...omit(data.data, 'presets'),
+    lastUpdatedAt: getDateString(),
+    lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
+  };
+
+  if (data.data.presets) {
+    update.presets = data.data.presets.map(preset => ({
+      ...preset,
+      assignedAt: getDateString(),
+      assignedBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+    }));
+  }
+
   const item = await context.data.presetPermissionsGroup.assertUpdateItem(
     PresetPermissionsItemQueries.getById(preset.presetId),
-    {
-      ...data.data,
-      lastUpdatedAt: getDateString(),
-      lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
-    }
+    update
   );
 
   return {
