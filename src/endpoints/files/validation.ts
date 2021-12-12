@@ -1,16 +1,20 @@
 import * as Joi from 'joi';
 import {fileConstants} from '../files/constants';
 
-const fileSize = Joi.number()
+const fileSizeInBytes = Joi.number()
   .integer()
-  .max(fileConstants.maxFileSize)
-  .default(fileConstants.maxFileSize);
+  .max(fileConstants.maxFileSizeInBytes)
+  .default(fileConstants.maxFileSizeInBytes);
 
-const mime = Joi.string();
-const encoding = Joi.string();
-const file = Joi.binary();
-const meta = Joi.object();
+const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);
+const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
+const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
 
-const fileValidationSchemas = {fileSize, mime, encoding, file, meta};
+const fileValidationSchemas = {
+  fileSizeInBytes,
+  mimetype,
+  encoding,
+  buffer,
+};
 
 export default fileValidationSchemas;

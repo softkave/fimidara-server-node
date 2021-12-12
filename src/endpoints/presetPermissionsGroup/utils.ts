@@ -18,7 +18,7 @@ import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
-import {IPublicPresetPermissionsItem} from './types';
+import {IPublicPresetPermissionsGroup} from './types';
 
 const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
   presetId: true,
@@ -32,22 +32,24 @@ export const assignedPresetsListExtractor = makeListExtract(
   assignedPresetsFields
 );
 
-const presetPermissionsItemFields = getFields<IPublicPresetPermissionsItem>({
-  itemId: true,
+const presetPermissionsGroupFields = getFields<IPublicPresetPermissionsGroup>({
+  presetId: true,
   organizationId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   lastUpdatedAt: getDateString,
   lastUpdatedBy: agentExtractor,
+  name: true,
+  description: true,
   presets: assignedPresetsListExtractor,
 });
 
-export const presetPermissionsItemExtractor = makeExtract(
-  presetPermissionsItemFields
+export const presetPermissionsGroupExtractor = makeExtract(
+  presetPermissionsGroupFields
 );
 
-export const presetPermissionsItemListExtractor = makeListExtract(
-  presetPermissionsItemFields
+export const presetPermissionsGroupListExtractor = makeListExtract(
+  presetPermissionsGroupFields
 );
 
 export async function checkPresetPermissionsGroupAuthorization(
@@ -99,7 +101,7 @@ export function throwPresetPermissionsGroupNotFound() {
   throw new NotFoundError('Preset permissions group not found');
 }
 
-export abstract class PresetPermissionsItemUtils {
-  static extractPublicPresetPermissionsItem = presetPermissionsItemExtractor;
-  static extractPublicPresetPermissionsItemList = presetPermissionsItemListExtractor;
+export abstract class PresetPermissionsGroupUtils {
+  static extractPublicPresetPermissionsGroup = presetPermissionsGroupExtractor;
+  static extractPublicPresetPermissionsGroupList = presetPermissionsGroupListExtractor;
 }

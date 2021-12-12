@@ -1,5 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
+import fileValidationSchemas from '../../files/validation';
+import folderValidationSchemas from '../validation';
 
 export const folderInputJoiSchema = Joi.object().keys({
   name: validationSchemas.name,
@@ -8,7 +10,13 @@ export const folderInputJoiSchema = Joi.object().keys({
 
 export const updateFolderJoiSchema = Joi.object()
   .keys({
-    folderId: validationSchemas.nanoid.required(),
-    data: folderInputJoiSchema.required(),
+    organizationId: validationSchemas.nanoid.allow([null]),
+    path: folderValidationSchemas.path.required(),
+    folder: Joi.object()
+      .keys({
+        description: validationSchemas.description.allow([null]),
+        maxFileSize: fileValidationSchemas.fileSizeInBytes.allow([null]),
+      })
+      .required(),
   })
   .required();

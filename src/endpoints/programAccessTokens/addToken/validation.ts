@@ -1,9 +1,13 @@
 import * as Joi from 'joi';
-
-export const newProgramAccessTokenJoiSchema = Joi.object().keys({});
+import {validationSchemas} from '../../../utilities/validationUtils';
+import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGroup/validation';
 
 export const addProgramAccessTokenJoiSchema = Joi.object()
   .keys({
-    token: newProgramAccessTokenJoiSchema.required(),
+    organizationId: validationSchemas.nanoid.required(),
+    description: validationSchemas.description.allow([null]),
+    presets: presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
+      [null]
+    ),
   })
   .required();

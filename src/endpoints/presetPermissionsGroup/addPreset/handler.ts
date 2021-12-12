@@ -8,16 +8,16 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import PresetPermissionsGroupQueries from '../queries';
-import {PresetPermissionsItemUtils} from '../utils';
-import {AddPresetPermissionsItemEndpoint} from './types';
-import {addPresetPermissionsItemJoiSchema} from './validation';
+import {PresetPermissionsGroupUtils} from '../utils';
+import {AddPresetPermissionsGroupEndpoint} from './types';
+import {addPresetPermissionsGroupJoiSchema} from './validation';
 import {ResourceExistsError} from '../../errors';
 
-const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
+const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   context,
   instData
 ) => {
-  const data = validate(instData.data, addPresetPermissionsItemJoiSchema);
+  const data = validate(instData.data, addPresetPermissionsGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organization = await checkOrganizationExists(
     context,
@@ -37,7 +37,7 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
   const itemExists = await context.data.presetPermissionsGroup.checkItemExists(
     PresetPermissionsGroupQueries.getByOrganizationAndName(
       organization.organizationId,
-      data.item.name
+      data.preset.name
     )
   );
 
@@ -45,8 +45,9 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
     throw new ResourceExistsError('Permission group exists');
   }
 
-  const item = await context.data.presetPermissionsGroup.saveItem({
-    ...data.item,
+  // TODO: validate that the presets being assigned exist. Do same for other endpoints.
+  const preset = await context.data.presetPermissionsGroup.saveItem({
+    ...data.preset,
     presetId: getNewId(),
     createdAt: getDateString(),
     createdBy: {
@@ -54,7 +55,7 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
       agentType: agent.agentType,
     },
     organizationId: organization.organizationId,
-    presets: (data.item.presets || []).map(preset => ({
+    presets: (data.preset.presets || []).map(preset => ({
       ...preset,
       assignedAt: getDateString(),
       assignedBy: {
@@ -65,8 +66,10 @@ const addPresetPermissionsItems: AddPresetPermissionsItemEndpoint = async (
   });
 
   return {
-    item: PresetPermissionsItemUtils.extractPublicPresetPermissionsItem(item),
+    preset: PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroup(
+      preset
+    ),
   };
 };
 
-export default addPresetPermissionsItems;
+export default addPresetPermissionsGroup;

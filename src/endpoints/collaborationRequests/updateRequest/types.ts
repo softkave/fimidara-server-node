@@ -9,7 +9,7 @@ export interface IUpdateCollaborationRequestInput {
 
 export interface IUpdateRequestParams {
   requestId: string;
-  data: IUpdateCollaborationRequestInput;
+  request: IUpdateCollaborationRequestInput;
 }
 
 export interface IUpdateRequestResult {

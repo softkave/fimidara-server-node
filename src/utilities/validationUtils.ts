@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import {appResourceTypesList, crudActionsList} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
@@ -47,6 +48,8 @@ const verificationCode = Joi.string()
 const nanoid = Joi.string().trim().length(21);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
+const resourceType = Joi.string().valid(appResourceTypesList);
+const crudActions = Joi.string().valid(crudActionsList);
 
 export const validationSchemas = {
   nanoid,
@@ -62,6 +65,8 @@ export const validationSchemas = {
   fromNowMs,
   fromNowSecs,
   alphanum,
+  resourceType,
+  crudActions,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {

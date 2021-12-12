@@ -54,6 +54,19 @@ export enum BasicCRUDActions {
   Delete = 'delete',
 }
 
+// Making a map of CRUD actions here before getting the keys for the CRUD actions list
+// so that the linter can catch any change to the CRUD actions enum and require that the
+// change be made to the map also. Same for AppResourceType below.
+const crudActionsMap: Record<BasicCRUDActions, true> = {
+  [BasicCRUDActions.All]: true,
+  [BasicCRUDActions.Create]: true,
+  [BasicCRUDActions.Read]: true,
+  [BasicCRUDActions.Update]: true,
+  [BasicCRUDActions.Delete]: true,
+};
+
+export const crudActionsList = Object.keys(crudActionsMap);
+
 type AppResourceToOthersMap = Record<AppResourceType, AppResourceType[]>;
 
 export const appResourceChildrenMap: AppResourceToOthersMap = {
@@ -102,6 +115,10 @@ const appResourceTypesOrder: Record<AppResourceType, number> = {
   [AppResourceType.User]: orderLevel01,
   [AppResourceType.CollaborationRequest]: orderLevel02,
 };
+
+export const appResourceTypesList = Object.keys(
+  appResourceTypesOrder
+) as Array<AppResourceType>;
 
 function reverseResourceToChildrenMap() {
   const reverseMap: AppResourceToOthersMap = {

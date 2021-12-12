@@ -4,8 +4,8 @@ import userValidationSchemas from '../../user/validation';
 
 export const requestJoiSchema = Joi.object().keys({
   recipientEmail: userValidationSchemas.email.required(),
-  message: validationSchemas.description,
-  expiresAtInSecsFromToday: validationSchemas.fromNowSecs,
+  message: validationSchemas.description.allow([null]),
+  expiresAtInSecsFromToday: validationSchemas.fromNowSecs.allow([null]),
 });
 
 export const sendRequestJoiSchema = Joi.object()

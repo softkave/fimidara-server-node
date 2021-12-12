@@ -1,10 +1,5 @@
 import {flatten} from 'lodash';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IOrganization} from '../../../definitions/organization';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
-import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -13,8 +8,9 @@ import {
 import {indexArray} from '../../../utilities/indexArray';
 import {PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
-import {DataProviderFilterValueOperator} from '../DataProvider';
+import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
 import DataProviderFilterBuilder from '../DataProviderFilterBuilder';
+import {fetchAndSortPresets} from './fetchPresets';
 import {
   getPermissionEntities,
   IPermissionEntity,
@@ -40,8 +36,9 @@ export async function checkAuthorization(
     return new DataProviderFilterBuilder<IPermissionItem>();
   }
 
-  const permissionEntities = getPermissionEntities(agent, organizationId);
-  const queries = permissionEntities.map(item => {
+  const agentPermissionEntities = getPermissionEntities(agent, organizationId);
+  const authEntities = await fetchAndSortPresets(ctx, agentPermissionEntities);
+  const queries = authEntities.map(item => {
     return newFilter()
       .addItem(
         'permissionEntityId',
@@ -58,7 +55,7 @@ export async function checkAuthorization(
       .build();
   });
 
-  const itemsList = await Promise.all(
+  const permissionItemsList = await Promise.all(
     queries.map(query => ctx.data.permissionItem.getManyItems(query))
   );
 
@@ -76,7 +73,7 @@ export async function checkAuthorization(
   const permissionOwnerExists = (item: IPermissionItem) =>
     !!permissionOwnersMap[getPermissionOwnerKey(item)];
 
-  const items = flatten(itemsList).filter(item => {
+  const items = flatten(permissionItemsList).filter(item => {
     if (id && item.resourceId && item.resourceId !== id) {
       return false;
     }
@@ -90,7 +87,6 @@ export async function checkAuthorization(
 
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,
-    // [AppResourceType.UserRole]: 2,
     [AppResourceType.ClientAssignedToken]: 3,
     [AppResourceType.ProgramAccessToken]: 4,
     [AppResourceType.PresetPermissionsGroup]: 5,
@@ -99,7 +95,7 @@ export async function checkAuthorization(
   const getEntityKey = (item: IPermissionEntity) =>
     `${item.permissionEntityId}-${item.permissionEntityType}`;
 
-  const entitiesMap = indexArray(permissionEntities, {
+  const entitiesMap = indexArray(authEntities, {
     indexer: getEntityKey,
   });
 
@@ -168,10 +164,10 @@ export function getFilePermissionOwners(
   file: {idPath: string[]}
 ) {
   return makeBasePermissionOwnerList(organizationId).concat(
-    file.idPath.map((id, i) => ({
+    file.idPath.map((id, index) => ({
       permissionOwnerId: id,
       permissionOwnerType: AppResourceType.Folder,
-      order: i + 2, // +2 cause organizationId is already 1 and i is zero-based index
+      order: index + 2, // +2 cause organizationId is already 1 and index is zero-based
     }))
   );
 }

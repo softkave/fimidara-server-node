@@ -1,1 +1,3 @@
-export const permissionItemConstants = {};
+export const permissionItemConstants = {
+  maxPermissionItemsSavedPerRequest: 100,
+};
