@@ -46,7 +46,7 @@ async function createFile(
       : [pathWithDetails.name],
     folderId: parentFolder?.folderId,
     mimetype: data.mimetype,
-    size: data.data.byteLength,
+    size: data.data.length,
     createdBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,

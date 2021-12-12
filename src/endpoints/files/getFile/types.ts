@@ -1,5 +1,6 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
+import {IPublicFile} from '../types';
 
 export interface IImageTransformationParams {
   width?: number;
@@ -14,7 +15,8 @@ export interface IGetFileEndpointParams {
 }
 
 export interface IGetFileEndpointResult {
-  file?: Buffer;
+  buffer: Buffer;
+  file: IPublicFile;
 }
 
 export type GetFileEndpoint = Endpoint<

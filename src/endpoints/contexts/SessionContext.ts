@@ -21,8 +21,8 @@ import UserQueries from '../user/UserQueries';
 import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
 
-// TODO: when retrieving cached tokens, check that the token contains
-// the input JWTEndpoints
+// TODO: when retrieving cached tokens from the session agent,
+// check that the token contains the input JWTEndpoints
 
 export const CURRENT_TOKEN_VERSION = 1;
 

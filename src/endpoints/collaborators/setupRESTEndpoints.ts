@@ -6,7 +6,7 @@ import removeCollaborator from './removeCollaborator/handler';
 import updateCollaboratorPresets from './updateCollaboratorPresets/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupOrganizationRESTEndpoints(
+export default function setupCollaboratorsRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {

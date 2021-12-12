@@ -7,16 +7,25 @@ import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupOrganizationRESTEndpoints(
+export default function setupFilesRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
     deleteFile: wrapEndpointREST(deleteFile, ctx),
 
-    // TODO: send file
     // TODO: look into using Content-Disposition header
-    getFile: wrapEndpointREST(getFile, ctx),
+    // TODO: look into using ETags
+    getFile: wrapEndpointREST(getFile, ctx, (res, result) => {
+      res
+        .set({
+          'Content-Length': result.buffer.length,
+          'Content-Type': result.file.mimetype,
+        })
+        .status(200)
+        .send(result.buffer);
+    }),
+
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
     updateFileDetails: wrapEndpointREST(updateFileDetails, ctx),
     uploadFile: wrapEndpointREST(uploadFile, ctx),

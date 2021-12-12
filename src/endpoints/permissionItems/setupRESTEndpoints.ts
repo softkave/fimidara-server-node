@@ -5,7 +5,7 @@ import getPermissionEntityItems from './getPermissionEntityItems/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupPermissionItemRESTEndpoints(
+export default function setupPermissionItemsRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {

@@ -1,5 +1,5 @@
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 
 function newFilter() {
@@ -32,34 +32,28 @@ function getByOrganizationIdAndUserEmail(
   organizationId: string,
   userEmail: string
 ) {
-  return (
-    newFilter()
-      .addItem(
-        'organizationId',
-        organizationId,
-        DataProviderFilterValueOperator.Equal
-      )
-      // TODO: use regex
-      .addItem(
-        'recipientEmail',
-        userEmail,
-        DataProviderFilterValueOperator.Equal
-      )
-      .build()
-  );
+  return newFilter()
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'recipientEmail',
+      new RegExp(`^${userEmail}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
+    .build();
 }
 
 function getByUserEmail(userEmail: string) {
-  return (
-    newFilter()
-      // TODO: do email regex, and reuse it across other queries
-      .addItem(
-        'recipientEmail',
-        userEmail,
-        DataProviderFilterValueOperator.Equal
-      )
-      .build()
-  );
+  return newFilter()
+    .addItem(
+      'recipientEmail',
+      new RegExp(`^${userEmail}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
+    .build();
 }
 
 export default abstract class CollaborationRequestQueries {

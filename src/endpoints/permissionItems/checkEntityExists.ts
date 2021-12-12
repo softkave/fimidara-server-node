@@ -7,7 +7,7 @@ import {checkClientAssignedTokenAuthorization02} from '../clientAssignedTokens/u
 import {checkCollaboratorAuthorization02} from '../collaborators/utils';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
-import {checkPresetPermissionsGroupAuthorization02} from '../presetPermissionsGroup/utils';
+import {checkPresetPermissionsGroupAuthorization02} from '../presetPermissionsGroups/utils';
 import {checkProgramAccessTokenAuthorization02} from '../programAccessTokens/utils';
 
 export default async function checkEntityExists(

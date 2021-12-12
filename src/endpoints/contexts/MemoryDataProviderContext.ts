@@ -3,7 +3,7 @@ import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils'
 import {throwFileNotFound} from '../files/utils';
 import {throwOrganizationNotFound} from '../organizations/utils';
 import {throwPermissionItemNotFound} from '../permissionItems/utils';
-import {throwPresetPermissionsGroupNotFound} from '../presetPermissionsGroup/utils';
+import {throwPresetPermissionsGroupNotFound} from '../presetPermissionsGroups/utils';
 import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
 import {throwProgramAccessTokenNotFound} from '../programAccessTokens/utils';
 import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';

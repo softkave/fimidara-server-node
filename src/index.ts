@@ -9,6 +9,15 @@ import BaseContext, {IBaseContext} from './endpoints/contexts/BaseContext';
 import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
 import {appVariables} from './resources/appVariables';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
+import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
+import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
+import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
+import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
+import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
+import setupOrganizationsRESTEndpoints from './endpoints/organizations/setupRESTEndpoints';
+import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
+import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
+import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
 
 console.log('server initialization');
 
@@ -41,11 +50,11 @@ app.use(
 
 function setupJWT(ctx: IBaseContext) {
   app.use(
-    // TODO: do further research on options
+    // TODO: do further research on JWT options and best practices
     expressJwt({
       secret: ctx.appVariables.jwtSecret,
       credentialsRequired: false,
-      algorithms: ['HS256'], // TODO: do further research
+      algorithms: ['HS256'], // TODO: do further research JWT algorithms
     })
   );
 }
@@ -61,9 +70,16 @@ async function setup() {
   const ctx = new BaseContext(mongoDBDataProvider);
 
   setupJWT(ctx);
-  setupAccountRESTEndpoints(connection, app);
-  setupShopRESTEndpoints(connection, app);
-  setupAppointmentRESTEndpoints(connection, app);
+  setupClientAssignedTokensRESTEndpoints(ctx, app);
+  setupCollaborationRequestsRESTEndpoints(ctx, app);
+  setupCollaboratorsRESTEndpoints(ctx, app);
+  setupFilesRESTEndpoints(ctx, app);
+  setupFoldersRESTEndpoints(ctx, app);
+  setupOrganizationsRESTEndpoints(ctx, app);
+  setupPermissionItemsRESTEndpoints(ctx, app);
+  setupPresetPermissionsGroupsRESTEndpoints(ctx, app);
+  setupProgramAccessTokensRESTEndpoints(ctx, app);
+  setupAccountRESTEndpoints(ctx, app);
 
   httpServer.listen(appVariables.port, async () => {
     app.use(handleErrors);

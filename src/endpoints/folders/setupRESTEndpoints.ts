@@ -7,7 +7,7 @@ import listFolderContent from './listFolderContent/handler';
 import updateFolder from './updateFolder/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupFolderRESTEndpoints(
+export default function setupFoldersRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {

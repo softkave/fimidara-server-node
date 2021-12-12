@@ -9,9 +9,9 @@ const deleteEnvironment: DeleteEnvironmentEndpoint = async (
 ) => {
   const data = validate(instData.data, deleteEnvironmentJoiSchema);
   await context.session.getUser(context, instData);
-  await context.data.environment.deleteItem(
-    EnvironmentQueries.getById(data.environmentId)
-  );
+  // await context.data.environment.deleteItem(
+  //   EnvironmentQueries.getById(data.environmentId)
+  // );
 
   // TODO:
   // delete environments

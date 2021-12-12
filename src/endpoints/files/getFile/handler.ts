@@ -2,9 +2,10 @@ import * as sharp from 'sharp';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkFileAuthorization03} from '../utils';
+import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
+import {NotFoundError} from '../../errors';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
@@ -21,23 +22,26 @@ const getFile: GetFileEndpoint = async (context, instData) => {
   // TODO: implement accept ranges, cache control, etags, etc.
   // see aws s3 sdk getObject function
 
-  const s3File = await context.s3
-    .getObject({
-      Bucket: context.appVariables.S3Bucket,
-      Key: file.fileId,
-    })
-    .promise();
+  const persistedFile = await context.fileBackend.getFile({
+    bucket: context.appVariables.S3Bucket,
+    key: file.fileId,
+  });
 
-  let buffer = s3File.Body as Buffer | undefined;
+  let buffer = persistedFile.body as Buffer | undefined;
 
-  if (buffer && data.imageTranformation) {
+  if (!buffer) {
+    throw new NotFoundError('File does not exist');
+  }
+
+  if (data.imageTranformation) {
     buffer = await sharp(buffer)
       .resize(data.imageTranformation.width, data.imageTranformation.height)
       .toBuffer();
   }
 
   return {
-    file: buffer,
+    buffer,
+    file: fileExtractor(file),
   };
 };
 
