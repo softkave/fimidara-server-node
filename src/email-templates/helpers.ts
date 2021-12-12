@@ -1,7 +1,7 @@
 import {appVariables} from '../resources/appVariables';
 
 const maxWidth = '500px';
-const classNamePrefix = 'fn';
+const classNamePrefix = 'fbs'; // files by softkave
 export const emailTemplateConstants = {
   maxWidth,
   classNamePrefix,

@@ -1,7 +1,18 @@
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {
+  CollaborationRequestStatusType,
+  ICollaborationRequest,
+} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
+import {
+  collaborationRequestRevokedEmailHTML,
+  collaborationRequestRevokedEmailText,
+  collaborationRequestRevokedEmailTitle,
+} from '../../../email-templates/collaborationRequestRevoked';
 import {getDateString} from '../../../utilities/dateFns';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
+import {IBaseContext} from '../../contexts/BaseContext';
+import OrganizationQueries from '../../organizations/queries';
 import CollaborationRequestQueries from '../queries';
 import {
   checkCollaborationRequestAuthorization02,
@@ -9,6 +20,27 @@ import {
 } from '../utils';
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
+
+async function sendEmail(
+  context: IBaseContext,
+  request: ICollaborationRequest,
+  organizationName: string
+) {
+  const html = collaborationRequestRevokedEmailHTML({
+    organizationName,
+  });
+
+  const text = collaborationRequestRevokedEmailText({
+    organizationName,
+  });
+
+  await context.email.sendEmail(context, {
+    subject: collaborationRequestRevokedEmailTitle(organizationName),
+    body: {html, text},
+    destination: [request.recipientEmail],
+    source: context.appVariables.appDefaultEmailAddressFrom,
+  });
+}
 
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
@@ -33,6 +65,14 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
         }),
       }
     );
+
+    const organization = await context.data.organization.getItem(
+      OrganizationQueries.getById(request.organizationId)
+    );
+
+    if (organization) {
+      fireAndForgetPromise(sendEmail(context, request, organization.name));
+    }
   }
 
   return {

@@ -1,59 +1,53 @@
 import aws from '../../resources/aws';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
+import {IBaseContext} from './BaseContext';
 
 export interface ISendEmailParams {
   destination: string[];
   source: string;
-  subject: {
-    charset: string;
-    data: string;
-  };
+  subject: string;
   body: {
-    html: {
-      charset: string;
-      data: string;
-    };
-    text: {
-      charset: string;
-      data: string;
-    };
+    html: string;
+    text: string;
   };
 }
 
 export interface IEmailProviderContext {
-  sendEmail: (params: ISendEmailParams) => Promise<void>;
+  sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
 }
 
 class EmailProviderContext implements IEmailProviderContext {
   private ses = new aws.SES();
 
-  public sendEmail = wrapFireAndThrowError(async (params: ISendEmailParams) => {
-    await this.ses
-      .sendEmail({
-        Destination: {
-          ToAddresses: params.destination,
-        },
-        Source: params.source,
-        Message: {
-          Subject: {
-            Charset: params.subject.charset,
-            Data: params.subject.data,
+  public sendEmail = wrapFireAndThrowError(
+    async (context: IBaseContext, params: ISendEmailParams) => {
+      await this.ses
+        .sendEmail({
+          Destination: {
+            ToAddresses: params.destination,
           },
-          Body: {
-            Html: {
-              Charset: params.body.html.charset,
-              Data: params.body.html.data,
+          Source: params.source,
+          Message: {
+            Subject: {
+              Charset: context.appVariables.awsEmailEncoding,
+              Data: params.subject,
             },
-            Text: {
-              Charset: params.body.text.charset,
-              Data: params.body.text.data,
+            Body: {
+              Html: {
+                Charset: context.appVariables.awsEmailEncoding,
+                Data: params.body.html,
+              },
+              Text: {
+                Charset: context.appVariables.awsEmailEncoding,
+                Data: params.body.text,
+              },
             },
           },
-        },
-      })
-      .promise();
-  });
+        })
+        .promise();
+    }
+  );
 }
 
 export const getEmailProviderContext = singletonFunc(

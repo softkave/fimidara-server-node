@@ -1,6 +1,6 @@
-import {appVariables} from '../../../resources/appVariables';
 import {
   forgotPasswordEmailHTML,
+  forgotPasswordEmailText,
   forgotPasswordEmailTitle,
 } from '../../../email-templates/forgotPassword';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -15,37 +15,14 @@ async function sendChangePasswordEmail(
   ctx: IBaseContext,
   props: ISendChangePasswordEmailParams
 ) {
-  TODO;
-  const {emailAddress} = props;
-  const htmlContent = forgotPasswordEmailHTML(props);
-  const textContent = forgotPasswordEmailHTML(props);
-
-  const result = await ctx.ses
-    .sendEmail({
-      Destination: {
-        ToAddresses: [emailAddress],
-      },
-      Source: appVariables.emailSenderId,
-      Message: {
-        Subject: {
-          Charset: appVariables.awsEmailEncoding,
-          Data: forgotPasswordEmailTitle,
-        },
-        Body: {
-          Html: {
-            Charset: appVariables.awsEmailEncoding,
-            Data: htmlContent,
-          },
-          Text: {
-            Charset: appVariables.awsEmailEncoding,
-            Data: textContent,
-          },
-        },
-      },
-    })
-    .promise();
-
-  return result;
+  const html = forgotPasswordEmailHTML(props);
+  const text = forgotPasswordEmailText(props);
+  await ctx.email.sendEmail(ctx, {
+    subject: forgotPasswordEmailTitle,
+    body: {html, text},
+    destination: [props.emailAddress],
+    source: ctx.appVariables.appDefaultEmailAddressFrom,
+  });
 }
 
 export default sendChangePasswordEmail;
