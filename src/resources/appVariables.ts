@@ -12,7 +12,7 @@ interface IEnvVariables {
 
 export interface IAppVariables extends IEnvVariables {
   appName: string;
-  emailSenderId: string;
+  appDefaultEmailAddressFrom: string;
   awsEmailEncoding: string;
   dateFormat: string;
   clientLoginLink: string;
@@ -95,8 +95,8 @@ export function extractEnvVariables(): IAppVariables {
 
   const appVariables: IAppVariables = {
     ...envVariables,
-    appName: 'Shops by Softkave',
-    emailSenderId: 'hello@shops.softkave.com',
+    appName: 'Files by Softkave',
+    appDefaultEmailAddressFrom: 'hello@files.softkave.com',
     awsEmailEncoding: 'UTF-8',
     dateFormat: 'MMM DD, YYYY',
     clientLoginLink: `${envVariables.clientDomain}/login`,

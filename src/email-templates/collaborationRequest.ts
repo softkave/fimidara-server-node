@@ -10,22 +10,26 @@ export interface ICollaborationRequestEmailProps {
   loginLink: string;
   organizationName: string;
   isRecipientAUser: boolean;
-  title: string;
+}
+
+export function collaborationRequestEmailTitle(organizationName: string) {
+  return `Collaboration Request from ${organizationName}`;
 }
 
 export function collaborationRequestEmailHTML(
   props: ICollaborationRequestEmailProps
 ) {
+  const title = collaborationRequestEmailTitle(props.organizationName);
   return `
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8" />
-        <title>${getHeaderText(props.title)}</title>
+        <title>${getHeaderText(title)}</title>
         <style>${emailTemplateStyles}</style>
     </head>
     <body>
-        ${getHeaderHTML(props.title)}
+        ${getHeaderHTML(title)}
         <p>
             You have a new collaboration request from <b>${
               props.organizationName
@@ -49,6 +53,7 @@ export function collaborationRequestEmailText(
   props: ICollaborationRequestEmailProps
 ) {
   let linkText = '';
+  const title = collaborationRequestEmailTitle(props.organizationName);
 
   if (props.isRecipientAUser) {
     linkText = `
@@ -63,7 +68,7 @@ export function collaborationRequestEmailText(
   }
 
   const txt = `
-    ${getHeaderText(props.title)}
+    ${getHeaderText(title)}
     -
     You have a new collaboration request from ${props.organizationName}
     -

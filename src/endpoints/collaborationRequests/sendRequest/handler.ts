@@ -22,6 +22,11 @@ import {
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  collaborationRequestEmailHTML,
+  collaborationRequestEmailText,
+  collaborationRequestEmailTitle,
+} from '../../../email-templates/collaborationRequest';
 
 async function sendEmail(
   context: IBaseContext,
@@ -29,7 +34,26 @@ async function sendEmail(
   toUser: IUser | null,
   organizationName: string
 ) {
-  TODO;
+  const html = collaborationRequestEmailHTML({
+    organizationName,
+    isRecipientAUser: !!toUser,
+    loginLink: context.appVariables.clientLoginLink,
+    signupLink: context.appVariables.clientSignupLink,
+  });
+
+  const text = collaborationRequestEmailText({
+    organizationName,
+    isRecipientAUser: !!toUser,
+    loginLink: context.appVariables.clientLoginLink,
+    signupLink: context.appVariables.clientSignupLink,
+  });
+
+  await context.email.sendEmail(context, {
+    subject: collaborationRequestEmailTitle(organizationName),
+    body: {html, text},
+    destination: [request.recipientEmail],
+    source: context.appVariables.appDefaultEmailAddressFrom,
+  });
 }
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
