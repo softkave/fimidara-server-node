@@ -8,7 +8,7 @@ import getUserOrganizations from './getUserOrganizations/handler';
 import updateOrganization from './updateOrganization/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupOrganizationRESTEndpoints(
+export default function setupOrganizationsRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {

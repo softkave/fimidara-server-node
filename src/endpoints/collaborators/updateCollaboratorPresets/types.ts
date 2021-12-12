@@ -1,5 +1,5 @@
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPresetInput} from '../../presetPermissionsGroup/types';
+import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 import {IPublicCollaborator} from '../types';
 

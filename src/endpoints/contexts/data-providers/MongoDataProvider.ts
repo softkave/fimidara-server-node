@@ -29,7 +29,6 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
     return cast<T | null>(item);
   });
 
-  // TODO: use options with a sortBy field
   getManyItems = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>) => {
       const mongoQuery = getMongoQueryFromFilter(filter);

@@ -5,8 +5,9 @@ import deleteProgramAccessToken from './deleteToken/handler';
 import getOrganizationProgramAccessTokens from './getOrganizationTokens/handler';
 import getProgramAccessToken from './getToken/handler';
 import {IBaseContext} from '../contexts/BaseContext';
+import updateProgramAccessTokenPresets from './updatePresets/handler';
 
-export default function setupOrganizationRESTEndpoints(
+export default function setupProgramAccessTokensRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {
@@ -18,6 +19,7 @@ export default function setupOrganizationRESTEndpoints(
       ctx
     ),
     getProgramAccessToken: wrapEndpointREST(getProgramAccessToken, ctx),
+    updatePresets: wrapEndpointREST(updateProgramAccessTokenPresets, ctx),
   };
 
   app.post('/programAccessTokens/addToken', endpoints.addProgramAccessToken);
@@ -30,4 +32,5 @@ export default function setupOrganizationRESTEndpoints(
     endpoints.getOrganizationProgramAccessTokens
   );
   app.post('/programAccessTokens/getToken', endpoints.getProgramAccessToken);
+  app.post('/programAccessTokens/updatePresets', endpoints.updatePresets);
 }

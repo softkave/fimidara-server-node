@@ -1,5 +1,5 @@
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 
 function newFilter() {

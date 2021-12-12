@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
-import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGroup/validation';
+import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGroups/validation';
 
 export const updateCollaboratorPresetsJoiSchema = Joi.object()
   .keys({

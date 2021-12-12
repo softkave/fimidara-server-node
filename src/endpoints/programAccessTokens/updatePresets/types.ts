@@ -1,6 +1,6 @@
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPresetInput} from '../../presetPermissionsGroup/types';
+import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 
 export interface IUpdateProgramAccessTokenPresetsParams {

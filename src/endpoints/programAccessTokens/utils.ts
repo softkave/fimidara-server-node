@@ -13,7 +13,7 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {assignedPresetsListExtractor} from '../presetPermissionsGroup/utils';
+import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import {agentExtractor} from '../utils';
 import ProgramAccessTokenQueries from './queries';
 import {IPublicProgramAccessToken} from './types';

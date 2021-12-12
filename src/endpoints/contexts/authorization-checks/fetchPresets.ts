@@ -2,7 +2,7 @@ import {uniqBy} from 'lodash';
 import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
-import PresetPermissionsGroupQueries from '../../presetPermissionsGroup/queries';
+import PresetPermissionsGroupQueries from '../../presetPermissionsGroups/queries';
 import {IBaseContext} from '../BaseContext';
 import {IPermissionEntity} from './getPermissionEntities';
 

@@ -11,6 +11,7 @@ import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
 import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
 import {IBaseContext} from '../contexts/BaseContext';
+import changePassword from './changePassword/changePassword';
 
 export default function setupAccountRESTEndpoints(
   ctx: IBaseContext,
@@ -25,6 +26,7 @@ export default function setupAccountRESTEndpoints(
       ctx
     ),
     changePasswordWithToken: wrapEndpointREST(changePasswordWithToken, ctx),
+    changePassword: wrapEndpointREST(changePassword, ctx),
     updateUser: wrapEndpointREST(updateUser, ctx),
     getUserData: wrapEndpointREST(getUserData, ctx),
     userExists: wrapEndpointREST(userExists, ctx),
@@ -40,6 +42,7 @@ export default function setupAccountRESTEndpoints(
     account.changePasswordWithCurrentPassword
   );
   app.post('/user/changePasswordWithToken', account.changePasswordWithToken);
+  app.post('/user/changePassword', account.changePassword);
   app.post('/user/updateUser', account.updateUser);
   app.post('/user/getUserData', account.getUserData);
   app.post('/user/userExists', account.userExists);

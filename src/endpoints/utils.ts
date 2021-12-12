@@ -4,21 +4,32 @@ import {IBaseContext} from './contexts/BaseContext';
 import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IServerRequest} from './types';
 
-export const wrapEndpointREST = <Context extends IBaseContext>(
-  endpoint: Endpoint<Context>,
-  context: Context
+export const wrapEndpointREST = <
+  Context extends IBaseContext,
+  EndpointType extends Endpoint<Context>
+>(
+  endpoint: EndpointType,
+  context: Context,
+  handleResponse?: (
+    res: Response,
+    result: Awaited<ReturnType<EndpointType>>
+  ) => void
 ): ((req: Request, res: Response) => any) => {
   return async (req: Request, res: Response) => {
     try {
       const data = req.body;
-      const instData = await RequestData.fromExpressRequest(
-        context,
+      const instData = RequestData.fromExpressRequest(
         (req as unknown) as IServerRequest,
         data
       );
 
       const result = await endpoint(context, instData);
-      res.status(200).json(result || {});
+
+      if (handleResponse) {
+        handleResponse(res, result);
+      } else {
+        res.status(200).json(result || {});
+      }
     } catch (error) {
       const errors = Array.isArray(error) ? error : [error];
 
@@ -26,7 +37,7 @@ export const wrapEndpointREST = <Context extends IBaseContext>(
       console.error(error);
       console.log(); // for spacing
 
-      // We are mapping it cause some values don't show if we don't
+      // We are mapping errors cause some values don't show if we don't
       // or was it errors, not sure anymore, this is old code.
       // TODO: Feel free to look into it, cause it could help performance.
       const result = {

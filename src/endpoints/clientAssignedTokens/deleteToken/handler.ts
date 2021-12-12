@@ -29,14 +29,24 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     ClientAssignedTokenQueries.getById(token.tokenId)
   );
 
-  await context.data.permissionItem.deleteManyItems(
-    PermissionItemQueries.getByPermissionEntity(
-      token.tokenId,
-      AppResourceType.ClientAssignedToken
-    )
-  );
+  await Promise.all([
+    // Delete permission items that belong to the token
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        token.tokenId,
+        AppResourceType.ClientAssignedToken
+      )
+    ),
 
-  // TODO: delete permissionItems by resourceId and type
+    // Delete permission items that explicitly give access to the token but belong to other
+    // permission carrying resources, e.g a progam access token
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByResource(
+        token.tokenId,
+        AppResourceType.ClientAssignedToken
+      )
+    ),
+  ]);
 };
 
 export default deleteClientAssignedToken;

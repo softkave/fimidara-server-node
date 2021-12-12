@@ -31,8 +31,8 @@ export interface ICollaborationRequest {
   requestId: string;
   recipientEmail: string;
 
-  // TODO: should we keep messages sent back and forth
-  // should also allow for replacements messages?
+  // TODO: should we keep messages sent back and forth?
+  // TODO: should we allow users to send new messages?
   message: string;
   createdBy: IAgent;
   createdAt: string;

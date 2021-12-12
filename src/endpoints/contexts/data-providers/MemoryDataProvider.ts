@@ -142,7 +142,6 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
     return <T | null>matchFirst(this.items, filter).item;
   });
 
-  // TODO: use options with a sortBy field
   getManyItems = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>) => {
       return <T[]>matchMany(this.items, filter).matchedItems;

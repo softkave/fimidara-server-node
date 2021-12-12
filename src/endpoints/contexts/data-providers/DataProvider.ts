@@ -9,7 +9,7 @@ export enum DataProviderFilterValueOperator {
   NotIn,
 
   // MongoDB doesn't support the 'g' (global) flag that Javascript Regex supports
-  Regex, // TODO: when using regex for checking existence, how should that work?
+  Regex,
   Object,
   // None,
 }
@@ -85,6 +85,8 @@ export interface IGetManyItemsOptions {
 export interface IDataProvider<T extends {[key: string]: any}> {
   checkItemExists: (filter: IDataProviderFilter<T>) => Promise<boolean>;
   getItem: (filter: IDataProviderFilter<T>) => Promise<T | null>;
+
+  // TODO: use options with a sortBy field
   getManyItems: (
     filter: IDataProviderFilter<T>,
     options?: IGetManyItemsOptions

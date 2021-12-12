@@ -9,7 +9,7 @@ import revokeRequest from './revokeRequest/handler';
 import updateRequest from './updateRequest/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 
-export default function setupOrganizationRESTEndpoints(
+export default function setupCollaborationRequestsRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {
