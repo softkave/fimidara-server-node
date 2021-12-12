@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import * as Joi from 'joi';
 import userValidationSchemas from '../validation';
 
 export const changePasswordWithPasswordJoiSchema = Joi.object().keys({

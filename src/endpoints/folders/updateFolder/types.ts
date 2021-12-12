@@ -1,15 +1,17 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {INewFolderInput} from '../addFolder/types';
 import {IPublicFolder} from '../types';
 
-export type IUpdateFolderInput = Partial<INewFolderInput>;
+export interface IUpdateFolderInput {
+  description?: string;
+  maxFileSize?: number;
+}
 
 export interface IUpdateFolderParams {
   // folderId: string;
   organizationId?: string;
   path: string;
-  data: IUpdateFolderInput;
+  folder: IUpdateFolderInput;
 }
 
 export interface IUpdateFolderResult {

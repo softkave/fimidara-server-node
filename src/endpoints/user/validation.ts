@@ -3,7 +3,6 @@ import {regExPatterns} from '../../utilities/validationUtils';
 import {userConstants} from './constants';
 
 const email = Joi.string().trim().lowercase().email();
-
 const password = Joi.string()
   .trim()
   .min(userConstants.minPasswordLength)

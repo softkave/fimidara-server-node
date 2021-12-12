@@ -1,9 +1,9 @@
 import {Express} from 'express';
-import addPresetPermissionsItems from './addItem/handler';
-import deletePresetPermissionsItem from './deleteItem/handler';
-import getPresetPermissionsItem from './getItem/handler';
-import getOrganizationPresetPermissionsItem from './getOrganizationItems/handler';
-import updatePresetPermissionsItem from './updateItem/handler';
+import addPresetPermissionsGroup from './addPreset/handler';
+import deletePresetPermissionsItem from './deletePreset/handler';
+import getPresetPermissionsItem from './getPreset/handler';
+import getOrganizationPresetPermissionsItem from './getOrganizationPresets/handler';
+import updatePresetPermissionsItem from './updatePreset/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
 
@@ -12,7 +12,7 @@ export default function setupPresetPermissionsItemRESTEndpoints(
   app: Express
 ) {
   const endpoints = {
-    addPresetPermissionsItems: wrapEndpointREST(addPresetPermissionsItems, ctx),
+    addPresetPermissionsItems: wrapEndpointREST(addPresetPermissionsGroup, ctx),
     deletePresetPermissionsItem: wrapEndpointREST(
       deletePresetPermissionsItem,
       ctx

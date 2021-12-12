@@ -20,11 +20,11 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
     BasicCRUDActions.Update
   );
 
-  if (!isObjectEmpty(data.data)) {
+  if (!isObjectEmpty(data.request)) {
     request = await context.data.collaborationRequest.assertUpdateItem(
       CollaborationRequestQueries.getById(data.requestId),
       {
-        ...data.data,
+        ...data.request,
         lastUpdatedAt: getDateString(),
         lastUpdatedBy: {
           agentId: agent.agentId,

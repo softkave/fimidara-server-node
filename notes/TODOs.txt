@@ -3,7 +3,6 @@
 mirror OS file APIs as much as possible, maybe searching and indexing the files and it's content
 - Look into using mdb groups-like system for users and tokens
 - Improve the API parameters of the endpoints
-- Presets containing other presets
 - Look into the TODOs in the project
 - What fields should be indexed in MongoDB?
 - Complete email templates
@@ -20,3 +19,9 @@ mirror OS file APIs as much as possible, maybe searching and indexing the files 
 - A public page for sharing files and folders
 - Error message descriptions
 - Complete Joi schemas
+- How do you prevent cyclic preset dependencies among preset permissions?
+- Remove unique from schemas and make data unique in handlers
+- Make sure that when permission items are being saved, the type matches the resource id,
+and other such checks
+- Check that update data has data before saving to db
+- Validate that endpoints that define their own name char length should use it in their schemas

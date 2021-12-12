@@ -1,1 +1,3 @@
-export const presetPresetPermissionsItemConstants = {};
+export const presetPermissionsGroupConstants = {
+  maxAssignedPresets: 100,
+};

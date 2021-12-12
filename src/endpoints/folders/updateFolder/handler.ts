@@ -22,7 +22,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   const updatedFolder = await context.data.folder.assertUpdateItem(
     FolderQueries.getById(folder.folderId),
     {
-      ...data.data,
+      ...data.folder,
       lastUpdatedAt: getDateString(),
       lastUpdatedBy: {
         agentId: agent.agentId,

@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
 
-export const getOrganizationPresetPermissionsItemJoiSchema = Joi.object()
+export const getOrganizationPresetPermissionsGroupsJoiSchema = Joi.object()
   .keys({
     organizationId: validationSchemas.nanoid.required(),
   })

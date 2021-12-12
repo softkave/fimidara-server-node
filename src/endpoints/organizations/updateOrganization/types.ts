@@ -7,7 +7,7 @@ export type IUpdateOrganizationInput = Partial<INewOrganizationInput>;
 
 export interface IUpdateOrganizationParams {
   organizationId: string;
-  data: IUpdateOrganizationInput;
+  organization: IUpdateOrganizationInput;
 }
 
 export interface IUpdateOrganizationResult {

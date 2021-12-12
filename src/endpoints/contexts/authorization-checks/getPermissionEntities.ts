@@ -20,14 +20,6 @@ function extractPresetsData(presets: IAssignedPresetPermissionsGroup[]) {
   }));
 }
 
-// function extractRolesData(roles: IAssignedUserRole[]) {
-//   return roles.map(item => ({
-//     permissionEntityId: item.roleId,
-//     permissionEntityType: AppResourceType.UserRole,
-//     order: item.order,
-//   }));
-// }
-
 export function getPermissionEntities(
   agent: ISessionAgent,
   organizationId: string
@@ -46,7 +38,6 @@ export function getPermissionEntities(
             getCollaboratorOrganization(agent.user, organizationId)?.presets ||
               []
           )
-          // extractRolesData(agent.user.roles)
         );
       }
       break;
