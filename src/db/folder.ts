@@ -8,7 +8,7 @@ const folderSchema = ensureTypeFields<IFolder>({
   organizationId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  maxFileSize: {type: Number},
+  maxFileSizeInBytes: {type: Number},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
   parentId: {type: String},

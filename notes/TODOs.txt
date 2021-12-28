@@ -28,3 +28,7 @@ and other such checks
 - Add 404 to NotFoundErrors and appropriate status codes for other error types
 - Render error messages if the request requests for it, rather thank just json
 - Implement payment, rate limiting, etc.
+- Implement moving files and folders accross directories
+- Implement logging
+- Improved image fetch transformers
+- Transactions

@@ -55,7 +55,8 @@ async function createNextFolder(
       agentType: agent.agentType,
     },
     description: input.description,
-    maxFileSize: input.maxFileSize || fileConstants.maxFileSize,
+    maxFileSizeInBytes:
+      input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 }
 
@@ -115,9 +116,6 @@ export async function createFolderList(
   organizationId: string,
   input: INewFolderInput
 ) {
-  // TODO: add a max slash (folder separator count) for folder names and
-  // if we're going to have arbitrarily deep folders, then we should rethink the
-  // creation process for performance
   const pathWithDetails = assertSplitPathWithDetails(input.path);
   const {existingFolders} = await checkIfAgentCanCreateFolder(
     context,
@@ -142,7 +140,7 @@ export async function createFolderList(
     const nextInput: INewFolderInput = {
       path: nextInputPath.join(folderConstants.nameSeparator),
       description: isMainFolder ? input.description : undefined,
-      maxFileSize: isMainFolder ? input.maxFileSize : undefined,
+      maxFileSizeInBytes: isMainFolder ? input.maxFileSizeInBytes : undefined,
     };
 
     previousFolder = await createNextFolder(

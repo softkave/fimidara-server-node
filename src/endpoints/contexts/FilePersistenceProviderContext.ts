@@ -16,6 +16,11 @@ export interface IGetFileParams {
   key: string;
 }
 
+export interface IDeleteFilesParams {
+  bucket: string;
+  keys: string[];
+}
+
 export interface IPersistedFile {
   body?: Buffer;
 }
@@ -23,6 +28,7 @@ export interface IPersistedFile {
 export interface IFilePersistenceProviderContext {
   uploadFile: (params: IUploadFileParams) => Promise<void>;
   getFile: (params: IGetFileParams) => Promise<IPersistedFile>;
+  deleteFiles: (params: IDeleteFilesParams) => Promise<void>;
 }
 
 class FilePersistenceProviderContext
@@ -54,6 +60,20 @@ class FilePersistenceProviderContext
 
     return {body: <Buffer>s3File.Body};
   });
+
+  public deleteFiles = wrapFireAndThrowError(
+    async (params: IDeleteFilesParams) => {
+      await this.s3
+        .deleteObjects({
+          Bucket: params.bucket,
+          Delete: {
+            Objects: params.keys.map(key => ({Key: key})),
+            Quiet: false,
+          },
+        })
+        .promise();
+    }
+  );
 }
 
 export const getFilePersistenceProviderContext = singletonFunc(
