@@ -25,14 +25,18 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
     OrganizationQueries.getById(organization.organizationId)
   );
 
+  
+
   // TODO:
-  // delete environments
-  // delete spaces
-  // delete buckets
   // delete program access keys
   // delete client assigned keys
   // remove organizations in users
   // delete files
+  // delete folders
+  // delete collaborators
+  // delete collaboration requests
+  // delete presets
+  // delete permission items
 };
 
 export default deleteOrganization;

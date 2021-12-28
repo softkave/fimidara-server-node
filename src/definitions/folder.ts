@@ -10,7 +10,7 @@ export interface IFolder {
   parentId?: string;
   createdBy: IAgent;
   createdAt: string;
-  maxFileSize: number;
+  maxFileSizeInBytes: number;
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
   name: string;

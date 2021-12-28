@@ -1,5 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import ClientAssignedTokenQueries from '../queries';
@@ -29,7 +30,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     ClientAssignedTokenQueries.getById(token.tokenId)
   );
 
-  await Promise.all([
+  await waitOnPromises([
     // Delete permission items that belong to the token
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(

@@ -42,7 +42,13 @@ export function throwFolderNotFound() {
 }
 
 export function splitFolderPath(path: string) {
-  return path.split(folderConstants.nameSeparator).filter(item => !!item);
+  const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
+
+  if (p.length > folderConstants.maxFolderDepth) {
+    throw new Error('Path depth exceeds max path depth (10)');
+  }
+
+  return p;
 }
 
 export function assertSplitFolderPath(path: string) {

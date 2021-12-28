@@ -5,7 +5,7 @@ import {IPublicFolder} from '../types';
 export interface INewFolderInput {
   path: string;
   description?: string;
-  maxFileSize?: number;
+  maxFileSizeInBytes?: number;
 }
 
 export interface IAddFolderParams {
