@@ -5,7 +5,7 @@ import {
   DataProviderValueExpander,
   IDataProviderFilterBuilder,
   IDataProviderFilterValue,
-} from './data-providers/DataProvider';
+} from './DataProvider';
 
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   implements IDataProviderFilterBuilder<T> {

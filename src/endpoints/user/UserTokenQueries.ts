@@ -1,6 +1,6 @@
 import {IUserToken} from '../../definitions/userToken';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 import {TokenAudience} from '../contexts/SessionContext';
 
 function newFilter() {
