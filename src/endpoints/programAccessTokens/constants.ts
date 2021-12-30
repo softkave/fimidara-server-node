@@ -1,1 +1,3 @@
-export const organizationConstants = {};
+export const programAccessTokenConstants = {
+  tokenSecretKeyLength: 48,
+};

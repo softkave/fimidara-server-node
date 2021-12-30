@@ -26,10 +26,6 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     BasicCRUDActions.Delete
   );
 
-  await context.data.clientAssignedToken.deleteItem(
-    ClientAssignedTokenQueries.getById(token.tokenId)
-  );
-
   await waitOnPromises([
     // Delete permission items that belong to the token
     context.data.permissionItem.deleteManyItems(
@@ -46,6 +42,10 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
         token.tokenId,
         AppResourceType.ClientAssignedToken
       )
+    ),
+
+    context.data.clientAssignedToken.deleteItem(
+      ClientAssignedTokenQueries.getById(token.tokenId)
     ),
   ]);
 };

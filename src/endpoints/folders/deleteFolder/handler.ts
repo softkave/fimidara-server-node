@@ -1,3 +1,4 @@
+import {IFolder} from '../../../definitions/folder';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
@@ -10,8 +11,13 @@ import {assertSplitFolderPath, checkFolderAuthorization03} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
-async function deleteFiles(context: IBaseContext, folderId: string) {
+async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
+  // TODO: should we get files by name path, paginated
   const files = await context.data.file.getManyItems(
+    FileQueries.getFilesByParentId(folderId)
+  );
+
+  await context.data.file.deleteManyItems(
     FileQueries.getFilesByParentId(folderId)
   );
 
@@ -19,6 +25,38 @@ async function deleteFiles(context: IBaseContext, folderId: string) {
     bucket: context.appVariables.S3Bucket,
     keys: files.map(file => file.fileId),
   });
+}
+
+async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
+  // TODO: log jobs that fail so that we can retry them
+  await waitOnPromises([
+    deleteFilesByFolderId(context, folder.folderId),
+    internalDeleteFolderList(
+      context,
+      await context.data.folder.getManyItems(
+        FolderQueries.getFoldersByParentId(folder.folderId)
+      )
+    ),
+  ]);
+
+  await waitOnPromises([
+    context.data.folder.deleteManyItems(
+      FolderQueries.getFoldersByParentId(folder.folderId)
+    ),
+    context.data.folder.deleteItem(FolderQueries.getById(folder.folderId)),
+  ]);
+}
+
+export async function internalDeleteFolderList(
+  context: IBaseContext,
+  folders: IFolder[]
+) {
+  // TODO: log jobs that fail so that we can retry them
+  await waitOnPromises(
+    folders.map(async folder => {
+      return internalDeleteFolder(context, folder);
+    })
+  );
 }
 
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
@@ -34,14 +72,10 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
     BasicCRUDActions.Delete
   );
 
-  await context.data.folder.deleteManyItems(
-    FolderQueries.getFoldersWithNamePath(organizationId, splitPath)
-  );
-
   // TODO: this be fire and forget with retry OR move it to a job
   await waitOnPromises([
     // Delete files that exist inside the folder and it's children
-    deleteFiles(context, folder.folderId),
+    internalDeleteFolder(context, folder),
 
     // Delete permission items that are owned by the folder
     context.data.permissionItem.deleteManyItems(
@@ -56,6 +90,10 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
       )
     ),
   ]);
+
+  // await context.data.folder.deleteManyItems(
+  //   FolderQueries.getFoldersWithNamePath(organizationId, splitPath)
+  // );
 };
 
 export default deleteFolder;
