@@ -1,5 +1,7 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import PermissionItemQueries from '../../permissionItems/queries';
 import PresetPermissionsGroupQueries from '../queries';
 import {checkPresetPermissionsGroupAuthorization02} from '../utils';
 import {DeletePresetPermissionsGroupEndpoint} from './types';
@@ -18,9 +20,26 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint = async
     BasicCRUDActions.Delete
   );
 
-  await context.data.presetPermissionsGroup.deleteItem(
-    PresetPermissionsGroupQueries.getById(preset.presetId)
-  );
+  await waitOnPromises([
+    // Delete permission items that explicitly give access to this resource
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByResource(
+        preset.presetId,
+        AppResourceType.PresetPermissionsGroup
+      )
+    ),
+
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        preset.presetId,
+        AppResourceType.PresetPermissionsGroup
+      )
+    ),
+
+    context.data.presetPermissionsGroup.deleteItem(
+      PresetPermissionsGroupQueries.getById(preset.presetId)
+    ),
+  ]);
 };
 
 export default deletePresetPermissionsGroup;

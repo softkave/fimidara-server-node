@@ -60,10 +60,17 @@ function getByIds(ids: string[]) {
     .build();
 }
 
+function getByOrganizationId(id: string) {
+  return newFilter()
+    .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 export default abstract class PermissionItemQueries {
   static getById = getById;
   static getByIds = getByIds;
   static getByOwner = getByOwner;
   static getByPermissionEntity = getByPermissionEntity;
   static getByResource = getByResource;
+  static getByOrganizationId = getByOrganizationId;
 }

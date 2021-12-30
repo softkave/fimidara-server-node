@@ -6,7 +6,6 @@ mirror OS file APIs as much as possible, maybe searching and indexing the files 
 - Look into the TODOs in the project
 - What fields should be indexed in MongoDB?
 - Short links for files
-- Resizing files
 - Skip filenames and generate new ones or appending random strings to filenames
 - Pothen name
 - Perform existing file check using the file binary / checking that mime is correct using file binary
@@ -24,11 +23,10 @@ and other such checks
 - Check that update data has data before saving to db
 - Validate that endpoints that define their own name char length should use it in their schemas
 - Add nice design to email templates
-- Setup multer
 - Add 404 to NotFoundErrors and appropriate status codes for other error types
 - Render error messages if the request requests for it, rather thank just json
 - Implement payment, rate limiting, etc.
 - Implement moving files and folders accross directories
-- Implement logging
+- Logging and what to log
 - Improved image fetch transformers
 - Transactions

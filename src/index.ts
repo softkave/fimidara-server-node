@@ -2,6 +2,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as expressJwt from 'express-jwt';
 import * as http from 'http';
+import * as multer from 'multer';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {getMongoConnection} from './db/connection';
@@ -22,6 +23,9 @@ import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessToke
 console.log('server initialization');
 
 const app = express();
+
+// TODO(abayomi): set limits and file filter
+const upload = multer();
 const httpServer = http.createServer(app);
 
 // Match all origins
@@ -73,7 +77,7 @@ async function setup() {
   setupClientAssignedTokensRESTEndpoints(ctx, app);
   setupCollaborationRequestsRESTEndpoints(ctx, app);
   setupCollaboratorsRESTEndpoints(ctx, app);
-  setupFilesRESTEndpoints(ctx, app);
+  setupFilesRESTEndpoints(ctx, app, upload);
   setupFoldersRESTEndpoints(ctx, app);
   setupOrganizationsRESTEndpoints(ctx, app);
   setupPermissionItemsRESTEndpoints(ctx, app);

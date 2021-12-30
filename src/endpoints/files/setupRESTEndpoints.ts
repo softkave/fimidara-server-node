@@ -1,15 +1,18 @@
-import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
+import * as multer from 'multer';
+import {wrapEndpointREST} from '../utils';
 import deleteFile from './deleteFile/handler';
 import getFile from './getFile/handler';
 import getFileDetails from './getFileDetails/handler';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {IBaseContext} from '../contexts/BaseContext';
+import {fileConstants} from './constants';
 
 export default function setupFilesRESTEndpoints(
   ctx: IBaseContext,
-  app: Express
+  app: Express,
+  upload: multer.Multer
 ) {
   const endpoints = {
     deleteFile: wrapEndpointREST(deleteFile, ctx),
@@ -35,5 +38,9 @@ export default function setupFilesRESTEndpoints(
   app.post('/files/getFile', endpoints.getFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
   app.post('/files/updateFileDetails', endpoints.updateFileDetails);
-  app.post('/files/uploadFile', endpoints.uploadFile);
+  app.post(
+    '/files/uploadFile',
+    upload.single(fileConstants.uploadedFileFieldName),
+    endpoints.uploadFile
+  );
 }
