@@ -1,6 +1,6 @@
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 
 function newFilter() {
   return new DataProviderFilterBuilder<ICollaborationRequest>();

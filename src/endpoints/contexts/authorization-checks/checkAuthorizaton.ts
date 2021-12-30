@@ -9,7 +9,7 @@ import {indexArray} from '../../../utilities/indexArray';
 import {PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
 import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
-import DataProviderFilterBuilder from '../DataProviderFilterBuilder';
+import DataProviderFilterBuilder from '../data-providers/DataProviderFilterBuilder';
 import {fetchAndSortPresets} from './fetchPresets';
 import {
   getPermissionEntities,
