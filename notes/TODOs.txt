@@ -30,3 +30,4 @@ and other such checks
 - Logging and what to log
 - Improved image fetch transformers
 - Transactions
+- Write tests for invalid cases and validations

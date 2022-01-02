@@ -15,6 +15,14 @@ import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import UserQueries from '../UserQueries';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 
+/**
+ * sendEmailVerificationCode. Ensure that:
+ * - Email is not already verified
+ * - Create email verification token
+ * - Send email verification email
+ * - Update user email verification email sent date
+ */
+
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   context,
   instData

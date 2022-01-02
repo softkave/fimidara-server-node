@@ -13,6 +13,14 @@ import {userExtractor} from '../utils';
 import {ChangePasswordEndpoint} from './types';
 import {changePasswordJoiSchema} from './validation';
 
+/**
+ * changePassword. Ensure that:
+ * - Update user data
+ * - Clear token data in request data
+ * - Delete existing tokens
+ * - Create new user login token
+ */
+
 const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const result = validate(instData.data, changePasswordJoiSchema);
   const newPassword = result.password;

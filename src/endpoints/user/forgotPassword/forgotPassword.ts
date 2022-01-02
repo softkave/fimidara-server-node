@@ -13,6 +13,35 @@ import {
   TokenType,
 } from '../../contexts/SessionContext';
 import sendChangePasswordEmail from './sendChangePasswordEmail';
+import {IBaseContext} from '../../contexts/BaseContext';
+import {IUserToken} from '../../../definitions/userToken';
+
+/**
+ * Requirements. Ensure that:
+ * - Check that user exists
+ * - Forgot password token is created
+ * - Email is sent with a change password link
+ */
+
+export function getForgotPasswordLinkFromToken(
+  context: IBaseContext,
+  forgotToken: IUserToken
+) {
+  const encodedToken = context.session.encodeToken(
+    context,
+    forgotToken.tokenId,
+    TokenType.UserToken,
+    forgotToken.expires
+  );
+
+  const link = `${context.appVariables.clientDomain}${
+    context.appVariables.changePasswordPath
+  }?${querystring.stringify({
+    [userConstants.defaultTokenQueryParam]: encodedToken,
+  })}`;
+
+  return link;
+}
 
 const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
@@ -30,24 +59,10 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
     tokenId: getNewId(),
     userId: user.userId,
     version: CURRENT_TOKEN_VERSION,
-    expires: add(new Date(), {
-      days: userConstants.changePasswordTokenExpDurationInDays,
-    }).valueOf(),
+    expires: expiration.valueOf(),
   });
 
-  const encodedToken = context.session.encodeToken(
-    context,
-    forgotToken.tokenId,
-    TokenType.UserToken,
-    forgotToken.expires
-  );
-
-  const link = `${context.appVariables.clientDomain}${
-    context.appVariables.changePasswordPath
-  }?${querystring.stringify({
-    [userConstants.defaultTokenQueryParam]: encodedToken,
-  })}`;
-
+  const link = getForgotPasswordLinkFromToken(context, forgotToken);
   await sendChangePasswordEmail(context, {
     expiration,
     link,

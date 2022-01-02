@@ -1,4 +1,5 @@
 import aws from '../../resources/aws';
+import {indexArray} from '../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
 
@@ -58,7 +59,7 @@ class FilePersistenceProviderContext
       })
       .promise();
 
-    return {body: <Buffer>s3File.Body};
+    return {body: <Buffer | undefined>s3File.Body};
   });
 
   public deleteFiles = wrapFireAndThrowError(
@@ -72,6 +73,34 @@ class FilePersistenceProviderContext
           },
         })
         .promise();
+    }
+  );
+}
+
+export class TestFilePersistenceProviderContext
+  implements IFilePersistenceProviderContext {
+  public files: IUploadFileParams[] = [];
+
+  public uploadFile = wrapFireAndThrowError(
+    async (params: IUploadFileParams) => {
+      this.files.push(params);
+    }
+  );
+
+  public getFile = wrapFireAndThrowError(async (params: IGetFileParams) => {
+    const file = this.files.find(file => {
+      return file.bucket === params.bucket && file.key === params.key;
+    });
+
+    return {body: file?.body};
+  });
+
+  public deleteFiles = wrapFireAndThrowError(
+    async (params: IDeleteFilesParams) => {
+      const keysMap = indexArray(params.keys);
+      this.files = this.files.filter(file => {
+        return !(file.bucket === params.bucket && keysMap[file.key]);
+      });
     }
   );
 }

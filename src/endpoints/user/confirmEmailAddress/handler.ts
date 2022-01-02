@@ -12,6 +12,15 @@ import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 import getNewId from '../../../utilities/getNewId';
 
+/**
+ * confirmEmailAddress. Ensure that:
+ * - User exists and is not already verified
+ * - Update user data with verification details
+ * - Delete token used to verify user
+ * - Reuse login token if one exists or create a new one
+ * - Return user data and encoded token
+ */
+
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   context,
   instData

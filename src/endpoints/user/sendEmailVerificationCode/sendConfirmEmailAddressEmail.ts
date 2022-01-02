@@ -1,4 +1,3 @@
-import {appVariables} from '../../../resources/appVariables';
 import {
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,

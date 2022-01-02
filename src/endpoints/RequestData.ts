@@ -18,10 +18,10 @@ export interface IRequestContructorParams<T = any> {
 }
 
 export default class RequestData<T = any> {
-  public static fromExpressRequest<DataType>(
+  public static fromExpressRequest<DataType = any>(
     req: IServerRequest,
     data?: DataType
-  ): RequestData {
+  ): RequestData<DataType> {
     const requestData = new RequestData({
       req,
       data,
@@ -31,9 +31,34 @@ export default class RequestData<T = any> {
     return requestData;
   }
 
-  public static clone(from: RequestData): RequestData {}
+  public static clone<T = undefined>(
+    from: RequestData,
+    data: T
+  ): RequestData<T> {
+    return new RequestData({
+      data,
+      req: from.req,
+      incomingTokenData: from.incomingTokenData,
+      userToken: from.userToken,
+      programAccessToken: from.programAccessToken,
+      clientAssignedToken: from.clientAssignedToken,
+      agent: from.agent,
+      user: from.user,
+    });
+  }
 
-  public static merge(from: RequestData, to: RequestData) {}
+  public static merge<T>(from: RequestData, to: RequestData<T>) {
+    return new RequestData<T>({
+      req: from.req,
+      data: to.data,
+      incomingTokenData: from.incomingTokenData,
+      userToken: from.userToken,
+      programAccessToken: from.programAccessToken,
+      clientAssignedToken: from.clientAssignedToken,
+      agent: from.agent,
+      user: from.user,
+    });
+  }
 
   public req?: IServerRequest | null;
   public data?: T;

@@ -17,12 +17,19 @@ import RequestData from '../../RequestData';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 
+/**
+ * Requirements. Ensure that:
+ * - Email address is not taken
+ * - User account is created
+ * - User token is created
+ */
+
 async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
-  const sendEmailReqData = RequestData.clone(reqData);
+  const sendEmailReqData = RequestData.clone(reqData, reqData.data);
   const result = await sendEmailVerificationCode(context, sendEmailReqData);
   return {
     result,
-    reqData: RequestData.merge(reqData, sendEmailReqData),
+    updatedReqData: RequestData.merge(sendEmailReqData, reqData),
   };
 }
 

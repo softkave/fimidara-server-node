@@ -1,5 +1,6 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
+import {IPublicUserData} from '../types';
 
 export interface IUpdateUserParams {
   firstName?: string;
@@ -7,4 +8,12 @@ export interface IUpdateUserParams {
   email?: string;
 }
 
-export type UpdateUserEndpoint = Endpoint<IBaseContext, IUpdateUserParams>;
+export interface IUpdateUserResult {
+  user: IPublicUserData;
+}
+
+export type UpdateUserEndpoint = Endpoint<
+  IBaseContext,
+  IUpdateUserParams,
+  IUpdateUserResult
+>;
