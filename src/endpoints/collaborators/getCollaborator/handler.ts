@@ -8,6 +8,12 @@ import {
 import {GetCollaboratorEndpoint} from './types';
 import {getCollaboratorJoiSchema} from './validation';
 
+/**
+ * getCollaborator. Ensure that:
+ * - Check auth
+ * - Return collaborator if exists
+ */
+
 const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
   const data = validate(instData.data, getCollaboratorJoiSchema);
   const agent = await context.session.getAgent(context, instData);

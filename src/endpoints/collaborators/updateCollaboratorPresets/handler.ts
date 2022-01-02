@@ -2,6 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
+import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import CollaboratorQueries from '../queries';
 import {
   checkCollaboratorAuthorization02,
@@ -9,6 +10,14 @@ import {
 } from '../utils';
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
+
+/**
+ * updateCollaboratorPresets. Ensure that:
+ * - Check auth on agent
+ * - Check that user is a part of organization
+ * - Check that presets exist and agent can assign them
+ * - Update collaborator presets
+ */
 
 const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   context,
@@ -22,9 +31,10 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     agent,
     organizationId,
     data.collaboratorId,
-    BasicCRUDActions.Read
+    BasicCRUDActions.Update // TODO: should there be a separate update presets action?
   );
 
+  await checkPresetsExist(context, agent, organizationId, data.presets);
   const organizationIndex = collaborator.organizations.findIndex(
     item => item.organizationId === data.organizationId
   );

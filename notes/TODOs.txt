@@ -33,3 +33,4 @@ and other such checks
 - Write tests for invalid cases and validations
 - Write tests that confirm that agents that shouldn't have access to a resource or 
 an operation on a resource shouldn't access it
+- Do stress test and check speed and perf

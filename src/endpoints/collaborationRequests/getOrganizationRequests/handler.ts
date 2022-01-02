@@ -35,7 +35,8 @@ const getOrganizationRequests: GetOrganizationRequestsEndpoint = async (
         item.requestId,
         AppResourceType.CollaborationRequest,
         makeBasePermissionOwnerList(organization.organizationId),
-        BasicCRUDActions.Read
+        BasicCRUDActions.Read,
+        true
       )
     )
   );

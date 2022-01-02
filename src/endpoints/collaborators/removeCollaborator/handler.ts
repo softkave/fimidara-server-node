@@ -8,6 +8,14 @@ import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
 
+/**
+ * removeCollaborator. Ensure that:
+ * - Check auth on agent
+ * - Check that user is a part of organization
+ * - Remove organization from collaborator
+ * - Delete artifacts
+ */
+
 const removeCollaborator: RemoveCollaboratorEndpoint = async (
   context,
   instData
