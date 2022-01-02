@@ -15,6 +15,63 @@ import {checkOrganizationAuthorization02} from '../utils';
 import {DeleteOrganizationEndpoint} from './types';
 import {deleteOrganizationJoiSchema} from './validation';
 
+/**
+ * deleteOrganization. Ensure that:
+ * - Get agent and make sure it's a user
+ * - Check that org exists and the agent can perform the operation
+ * - Delete org and artifacts
+ */
+
+const deleteOrganization: DeleteOrganizationEndpoint = async (
+  context,
+  instData
+) => {
+  const data = validate(instData.data, deleteOrganizationJoiSchema);
+  const agent = await context.session.getAgent(context, instData, [
+    SessionAgentType.User,
+  ]);
+
+  const {organization} = await checkOrganizationAuthorization02(
+    context,
+    agent,
+    data.organizationId,
+    BasicCRUDActions.Delete
+  );
+
+  await waitOnPromises([
+    context.data.collaborationRequest.deleteManyItems(
+      CollaboratorQueries.getByOrganizationId(organization.organizationId)
+    ),
+
+    context.data.programAccessToken.deleteManyItems(
+      ProgramAccessTokenQueries.getByOrganizationId(organization.organizationId)
+    ),
+
+    context.data.clientAssignedToken.deleteManyItems(
+      ClientAssignedTokenQueries.getByOrganizationId(
+        organization.organizationId
+      )
+    ),
+
+    context.data.presetPermissionsGroup.deleteManyItems(
+      PresetPermissionsGroupQueries.getByOrganizationId(
+        organization.organizationId
+      )
+    ),
+
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByOrganizationId(organization.organizationId)
+    ),
+
+    internalDeleteFoldersByOrganizationId(context, organization.organizationId),
+    internalDeleteFilesByOrganizationId(context, organization.organizationId),
+    updateCollaborators(context, organization.organizationId),
+    context.data.organization.deleteItem(
+      OrganizationQueries.getById(organization.organizationId)
+    ),
+  ]);
+};
+
 async function internalDeleteFilesByOrganizationId(
   context: IBaseContext,
   organizationId: string
@@ -68,55 +125,5 @@ async function updateCollaborators(
     })
   );
 }
-
-const deleteOrganization: DeleteOrganizationEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, deleteOrganizationJoiSchema);
-  const agent = await context.session.getAgent(context, instData, [
-    SessionAgentType.User,
-  ]);
-
-  const {organization} = await checkOrganizationAuthorization02(
-    context,
-    agent,
-    data.organizationId,
-    BasicCRUDActions.Delete
-  );
-
-  await waitOnPromises([
-    context.data.collaborationRequest.deleteManyItems(
-      CollaboratorQueries.getByOrganizationId(organization.organizationId)
-    ),
-
-    context.data.programAccessToken.deleteManyItems(
-      ProgramAccessTokenQueries.getByOrganizationId(organization.organizationId)
-    ),
-
-    context.data.clientAssignedToken.deleteManyItems(
-      ClientAssignedTokenQueries.getByOrganizationId(
-        organization.organizationId
-      )
-    ),
-
-    context.data.presetPermissionsGroup.deleteManyItems(
-      PresetPermissionsGroupQueries.getByOrganizationId(
-        organization.organizationId
-      )
-    ),
-
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByOrganizationId(organization.organizationId)
-    ),
-
-    internalDeleteFoldersByOrganizationId(context, organization.organizationId),
-    internalDeleteFilesByOrganizationId(context, organization.organizationId),
-    updateCollaborators(context, organization.organizationId),
-    context.data.organization.deleteItem(
-      OrganizationQueries.getById(organization.organizationId)
-    ),
-  ]);
-};
 
 export default deleteOrganization;

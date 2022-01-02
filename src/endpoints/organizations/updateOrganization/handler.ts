@@ -9,6 +9,12 @@ import {
 import {UpdateOrganizationEndpoint} from './types';
 import {updateOrganizationJoiSchema} from './validation';
 
+/**
+ * updateOrganization. Ensure that:
+ * - Auth check
+ * - Update and return organization data
+ */
+
 const updateOrganization: UpdateOrganizationEndpoint = async (
   context,
   instData

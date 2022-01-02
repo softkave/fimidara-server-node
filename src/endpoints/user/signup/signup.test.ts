@@ -1,14 +1,6 @@
 import * as faker from 'faker';
-import RequestData from '../../RequestData';
-import {
-  assertEndpointResultHasNoErrors,
-  getTestBaseContext,
-  mockExpressRequest,
-} from '../../test-utils';
+import {getTestBaseContext, insertUserForTest} from '../../test-utils';
 import UserQueries from '../UserQueries';
-import UserTokenQueries from '../UserTokenQueries';
-import signup from './signup';
-import {ISignupParams} from './types';
 
 /**
  * TODO:
@@ -18,26 +10,18 @@ import {ISignupParams} from './types';
 
 test('user signup successful with token creation', async () => {
   const context = getTestBaseContext();
-  const instData = RequestData.fromExpressRequest<ISignupParams>(
-    mockExpressRequest(),
-    {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    }
-  );
-
-  const result = await signup(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  const userInput = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+  };
+  const result = await insertUserForTest(context, userInput);
   const savedUser = await context.data.user.assertGetItem(
     UserQueries.getById(result.user.userId)
   );
 
   expect(result.user).toEqual(savedUser);
-
-  const tokenData = context.session.decodeToken(context, result.token);
-  await context.data.userToken.assertGetItem(
-    UserTokenQueries.getById(tokenData.sub.id)
-  );
+  expect(result.userToken).toBeTruthy();
+  expect(result.userTokenStr).toBeGreaterThan(0);
 });
