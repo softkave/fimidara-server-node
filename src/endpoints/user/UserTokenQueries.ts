@@ -1,5 +1,5 @@
 import {IUserToken} from '../../definitions/userToken';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 import {TokenAudience} from '../contexts/SessionContext';
 

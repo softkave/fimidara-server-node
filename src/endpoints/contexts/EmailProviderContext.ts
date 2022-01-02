@@ -1,3 +1,5 @@
+import {isEqual} from 'lodash';
+import {format} from 'util';
 import aws from '../../resources/aws';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
@@ -48,6 +50,52 @@ class EmailProviderContext implements IEmailProviderContext {
         .promise();
     }
   );
+}
+
+type EmailProviderContextMethods = 'sendEmail';
+interface IEmailProviderContextSavedParam {
+  method: EmailProviderContextMethods;
+  params: any;
+}
+
+export class TestEmailProviderContext implements IEmailProviderContext {
+  public savedParams: IEmailProviderContextSavedParam[] = [];
+
+  public sendEmail = wrapFireAndThrowError(
+    async (context: IBaseContext, params: ISendEmailParams) => {
+      this.savedParams.push({params, method: 'sendEmail'});
+    }
+  );
+
+  public getMethodCallWithParamsIndex(
+    method: EmailProviderContextMethods,
+    params: any
+  ) {
+    return this.savedParams.findIndex(p => isEqual(p, {method, params}));
+  }
+
+  public getMethodCallIndex(method: EmailProviderContextMethods) {
+    return this.savedParams.findIndex(p => p.method === method);
+  }
+
+  public assertMethodCalledWith(
+    method: EmailProviderContextMethods,
+    params: any
+  ) {
+    const index = this.getMethodCallWithParamsIndex(method, params);
+
+    if (index === -1) {
+      throw new Error(format('sendEmail was not called with param %o', params));
+    }
+  }
+
+  public assertMethodCalled(method: EmailProviderContextMethods) {
+    const index = this.getMethodCallIndex(method);
+
+    if (index === -1) {
+      throw new Error(format('sendEmail was not called'));
+    }
+  }
 }
 
 export const getEmailProviderContext = singletonFunc(

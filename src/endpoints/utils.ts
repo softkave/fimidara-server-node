@@ -1,8 +1,9 @@
 import {Response, Request} from 'express';
 import {getFields, makeExtract, makeListExtract} from '../utilities/extract';
 import {IBaseContext} from './contexts/BaseContext';
+import {IServerRequest} from './contexts/types';
 import RequestData from './RequestData';
-import {Endpoint, IPublicAgent, IServerRequest} from './types';
+import {Endpoint, IPublicAgent} from './types';
 
 export const wrapEndpointREST = <
   Context extends IBaseContext,

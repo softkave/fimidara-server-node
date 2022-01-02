@@ -130,7 +130,13 @@ function matchMany(
 
 export default class MemoryDataProvider<T extends {[key: string]: any}>
   implements IDataProvider<T> {
-  constructor(private items: T[], private throwNotFound?: () => void) {}
+  public items: T[];
+  private throwNotFound: () => void;
+
+  constructor(items: T[], throwNotFound: () => void) {
+    this.items = items;
+    this.throwNotFound = throwNotFound;
+  }
 
   checkItemExists = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>) => {

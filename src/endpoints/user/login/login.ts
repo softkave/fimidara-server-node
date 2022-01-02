@@ -15,6 +15,12 @@ import {userExtractor} from '../utils';
 import {LoginEndpoint} from './types';
 import {loginJoiSchema} from './validation';
 
+/**
+ * login. Ensure that:
+ * - Password is checked
+ * - User token is reused if one exists or a new one is created otherwise
+ */
+
 const login: LoginEndpoint = async (context, instData) => {
   const data = validate(instData.data, loginJoiSchema);
   const user = await context.data.user.getItem(
