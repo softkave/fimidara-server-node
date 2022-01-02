@@ -39,7 +39,8 @@ const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpo
         item.tokenId,
         AppResourceType.ProgramAccessToken,
         makeBasePermissionOwnerList(organization.organizationId),
-        BasicCRUDActions.Read
+        BasicCRUDActions.Read,
+        true
       )
     )
   );

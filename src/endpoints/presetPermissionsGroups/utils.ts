@@ -18,7 +18,7 @@ import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
-import {IPublicPresetPermissionsGroup} from './types';
+import {IPresetInput, IPublicPresetPermissionsGroup} from './types';
 
 const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
   presetId: true,
@@ -95,6 +95,37 @@ export async function checkPresetPermissionsGroupAuthorization02(
     action,
     nothrow
   );
+}
+
+export async function checkPresetsExist(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  presetInputs: IPresetInput[]
+) {
+  const presets = await Promise.all(
+    presetInputs.map(item =>
+      context.data.presetPermissionsGroup.assertGetItem(
+        PresetPermissionsGroupQueries.getById(item.presetId)
+      )
+    )
+  );
+
+  await Promise.all(
+    presets.map(item =>
+      checkAuthorization(
+        context,
+        agent,
+        organizationId,
+        item.presetId,
+        AppResourceType.PresetPermissionsGroup,
+        makeBasePermissionOwnerList(organizationId),
+        BasicCRUDActions.Read
+      )
+    )
+  );
+
+  return presets;
 }
 
 export function throwPresetPermissionsGroupNotFound() {

@@ -2,6 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
+import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import ProgramAccessTokenQueries from '../queries';
 import {
   checkProgramAccessTokenAuthorization02,
@@ -18,6 +19,7 @@ const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint =
     instData.data,
     updateProgramAccessTokenPresetsJoiSchema
   );
+
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(
     agent,
@@ -29,6 +31,13 @@ const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint =
     agent,
     tokenId,
     BasicCRUDActions.Read
+  );
+
+  await checkPresetsExist(
+    context,
+    agent,
+    checkResult.organization.organizationId,
+    data.presets
   );
 
   let token = checkResult.token;

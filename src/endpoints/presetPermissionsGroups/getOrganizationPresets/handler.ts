@@ -39,7 +39,8 @@ const getOrganizationPresetPermissionsItem: GetOrganizationPresetPermissionsGrou
         item.presetId,
         AppResourceType.PresetPermissionsGroup,
         makeBasePermissionOwnerList(organization.organizationId),
-        BasicCRUDActions.Read
+        BasicCRUDActions.Read,
+        true
       )
     )
   );

@@ -26,7 +26,7 @@ export async function checkAuthorization(
   ctx: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
-  id: string | null,
+  id: string | null, // doesn't fetch resource
   type: AppResourceType,
   permissionOwners: IPermissionOwner[],
   action: BasicCRUDActions,

@@ -71,8 +71,8 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   promises: ProvidedPromise
 ): Promise<
   ISettledPromise<
-    ReturnType<ProvidedPromise[number]['then']>,
-    ReturnType<ProvidedPromise[number]['catch']>
+    Parameters<NonNullable<Parameters<ProvidedPromise[number]['then']>[0]>>[0],
+    Parameters<NonNullable<Parameters<ProvidedPromise[number]['catch']>[0]>>[0]
   >[]
 > => {
   const mappedPromises = promises.map(wrapPromise);

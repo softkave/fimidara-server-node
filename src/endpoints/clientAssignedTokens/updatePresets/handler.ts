@@ -2,6 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getClientAssignedTokenId} from '../../contexts/SessionContext';
+import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import ClientAssignedTokenQueries from '../queries';
 import {
   checkClientAssignedTokenAuthorization02,
@@ -18,6 +19,7 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
     instData.data,
     updateClientAssignedTokenPresetsJoiSchema
   );
+
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getClientAssignedTokenId(
     agent,
@@ -29,6 +31,13 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
     agent,
     tokenId,
     BasicCRUDActions.Read
+  );
+
+  await checkPresetsExist(
+    context,
+    agent,
+    checkResult.organization.organizationId,
+    data.presets
   );
 
   let token = checkResult.token;

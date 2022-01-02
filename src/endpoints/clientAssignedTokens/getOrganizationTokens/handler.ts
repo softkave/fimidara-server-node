@@ -39,7 +39,8 @@ const getOrganizationTokens: GetOrganizationClientAssignedTokenEndpoint = async 
         item.tokenId,
         AppResourceType.ClientAssignedToken,
         makeBasePermissionOwnerList(organization.organizationId),
-        BasicCRUDActions.Read
+        BasicCRUDActions.Read,
+        true
       )
     )
   );
