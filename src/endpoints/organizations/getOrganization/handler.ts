@@ -7,6 +7,12 @@ import {
 import {GetOrganizationEndpoint} from './types';
 import {getOrganizationJoiSchema} from './validation';
 
+/**
+ * getOrganization. Ensure that:
+ * - Agent has access to the org
+ * - Return organization
+ */
+
 const getOrganization: GetOrganizationEndpoint = async (context, instData) => {
   const data = validate(instData.data, getOrganizationJoiSchema);
   const agent = await context.session.getAgent(context, instData);

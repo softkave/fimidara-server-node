@@ -10,6 +10,8 @@ import {
   TokenType,
 } from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
+import addOrganization from './organizations/addOrganization/handler';
+import {IAddOrganizationParams} from './organizations/addOrganization/types';
 import RequestData from './RequestData';
 import {IBaseEndpointResult} from './types';
 import signup from './user/signup/signup';
@@ -85,5 +87,26 @@ export async function insertUserForTest(
     userToken,
     user: result.user,
     userTokenStr: result.token,
+  };
+}
+
+export async function insertOrganizationForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  orgInput: Partial<IAddOrganizationParams> = {}
+) {
+  const instData = RequestData.fromExpressRequest<IAddOrganizationParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      name: faker.company.companyName(),
+      description: faker.company.catchPhraseDescriptor(),
+      ...orgInput,
+    }
+  );
+
+  const result = await addOrganization(context, instData);
+  assertEndpointResultHasNoErrors(result);
+  return {
+    organization: result.organization,
   };
 }

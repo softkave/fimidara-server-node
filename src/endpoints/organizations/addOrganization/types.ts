@@ -7,9 +7,7 @@ export interface INewOrganizationInput {
   description?: string;
 }
 
-export interface IAddOrganizationParams {
-  organization: INewOrganizationInput;
-}
+export type IAddOrganizationParams = INewOrganizationInput;
 
 export interface IAddOrganizationResult {
   organization: IPublicOrganization;

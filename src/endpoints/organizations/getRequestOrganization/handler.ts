@@ -7,6 +7,11 @@ import {
 } from './types';
 import {getRequestOrganizationJoiSchema} from './validation';
 
+/**
+ * getRequestOrganization. Ensure that:
+ * - Ensure that only the bare minimum data is returned
+ */
+
 const requestOrganizationFields = getFields<IPublicRequestOrganization>({
   organizationId: true,
   name: true,
