@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+import {String} from 'aws-sdk/clients/acm';
 import {pick, isFunction} from 'lodash';
 import cast from './fns';
 
@@ -5,7 +7,7 @@ export type ExtractFieldTransformer<
   T,
   Result = any,
   ExtraArgs = any,
-  T1 = object
+  T1 = any
 > = (val: T, extraArgs: ExtraArgs, data: T1) => Result;
 
 export type ExtractFieldsDefaultScalarTypes =
@@ -20,31 +22,19 @@ export type ExtractFieldsDefaultScalarTypes =
 
 export type ExtractFieldsFrom<
   T extends object,
-  Result extends Partial<Record<keyof T, any>> = T,
+  Result extends Record<keyof T, any> = T,
   ExtraArgs = undefined,
   ScalarTypes = ExtractFieldsDefaultScalarTypes
 > = {
   [Key in keyof Required<T>]: T[Key] extends ScalarTypes | ScalarTypes[]
-    ?
-        | boolean
-        | ExtractFieldTransformer<
-            NonNullable<Required<T>[Key]>,
-            Required<Result>[Key],
-            ExtraArgs,
-            T
-          >
-    : ExtractFieldTransformer<
-        NonNullable<Required<T>[Key]>,
-        Required<Result>[Key],
-        ExtraArgs,
-        T
-      >;
+    ? boolean | ExtractFieldTransformer<T[Key], Result[Key], ExtraArgs, T>
+    : ExtractFieldTransformer<T[Key], Result[Key], ExtraArgs, T>;
 };
 
 // partial and required
 export interface IObjectPaths<
   T extends object,
-  Result extends Partial<Record<keyof T, any>> = T,
+  Result extends Record<keyof T, any> = T,
   ExtraArgs = any
 > {
   object: T;
@@ -60,27 +50,26 @@ export interface IObjectPaths<
 
 export function getFields<
   T extends object,
-  Result extends Partial<Record<keyof T, any>> = T,
+  Result extends Record<keyof T, any> = T,
   ExtraArgs = any,
   ScalarTypes = ExtractFieldsDefaultScalarTypes
 >(
   data: ExtractFieldsFrom<T, Result, ExtraArgs, ScalarTypes>,
   finalizeFn?: (data: T, currentResult: Result, extraArgs: ExtraArgs) => Result
 ): IObjectPaths<T, Result, ExtraArgs> {
-  const keys = Object.keys(data);
+  const keys = Object.keys(data) as Array<keyof typeof data>;
 
   return keys.reduce(
     (paths, key) => {
-      // @ts-ignore
       const value = data[key];
 
       if (isFunction(value)) {
         paths.scalarFieldsWithTransformers.push({
-          property: key,
+          property: key as string,
           transformer: value,
         });
       } else {
-        paths.scalarFields.push(key);
+        paths.scalarFields.push(key as String);
       }
 
       return paths;
@@ -129,6 +118,14 @@ export function extractFields<
 export function makeExtract<T extends IObjectPaths<any>>(fields: T) {
   const fn = <T1 extends T['object']>(data: Partial<T1>) => {
     return extractFields(data, fields);
+  };
+
+  return fn;
+}
+
+export function makeExtractIfPresent<T extends IObjectPaths<any>>(fields: T) {
+  const fn = <T1 extends T['object']>(data?: Partial<T1>) => {
+    return data && extractFields(data, fields);
   };
 
   return fn;

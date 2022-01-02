@@ -1,6 +1,6 @@
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {IPublicBucket} from './types';
 
 const bucketFields = getFields<IPublicBucket>({
@@ -10,8 +10,8 @@ const bucketFields = getFields<IPublicBucket>({
   createdBy: agentExtractor,
   createdAt: getDateString,
   maxFileSize: true,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateStringIfPresent,
   name: true,
   description: true,
 });

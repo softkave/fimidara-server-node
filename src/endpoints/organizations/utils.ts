@@ -4,12 +4,12 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {agentExtractor} from '../utils';
+import {agentExtractorIfPresent} from '../utils';
 import OrganizationQueries from './queries';
 import {IPublicOrganization} from './types';
 
@@ -17,8 +17,8 @@ const organizationFields = getFields<IPublicOrganization>({
   organizationId: true,
   createdBy: true,
   createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateStringIfPresent,
   name: true,
   description: true,
 });

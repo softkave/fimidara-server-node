@@ -18,6 +18,15 @@ export function getDateString(initial?: any) {
   return new Date().toISOString();
 }
 
+export function getDateStringIfPresent(initial?: any) {
+  if (initial) {
+    const date = new Date(initial);
+    return date.toISOString();
+  }
+
+  return undefined;
+}
+
 export function formatDate(date: number | string | Date) {
   return format(new Date(date), 'MMM d YYY');
 }

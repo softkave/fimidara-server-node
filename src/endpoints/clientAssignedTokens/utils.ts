@@ -4,7 +4,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -14,7 +14,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import ClientAssignedTokenQueries from './queries';
 import {IPublicClientAssignedToken} from './types';
 
@@ -26,8 +26,8 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   version: true,
   issuedAt: getDateString,
   expires: true,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractorIfPresent,
   presets: assignedPresetsListExtractor,
 });
 

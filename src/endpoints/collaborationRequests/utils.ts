@@ -8,7 +8,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -17,7 +17,7 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import CollaborationRequestQueries from './queries';
 import {IPublicCollaborationRequest} from './types';
 
@@ -27,20 +27,20 @@ const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   message: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
-  expiresAt: getDateString,
+  expiresAt: getDateStringIfPresent,
   organizationId: true,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  readAt: getDateString,
+  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractorIfPresent,
+  readAt: getDateStringIfPresent,
   statusHistory: makeListExtract(
     getFields<ICollaborationRequestStatus>({
       status: true,
-      date: true,
+      date: getDateString,
     })
   ),
   sentEmailHistory: makeListExtract(
     getFields<ICollaborationRequestSentEmailHistoryItem>({
-      date: true,
+      date: getDateString,
       reason: true,
     })
   ),

@@ -12,6 +12,11 @@ import {
 import {IServerRequest} from './contexts/types';
 import addOrganization from './organizations/addOrganization/handler';
 import {IAddOrganizationParams} from './organizations/addOrganization/types';
+import addPresetPermissionsGroup from './presetPermissionsGroups/addPreset/handler';
+import {
+  IAddPresetPermissionsGroupParams,
+  INewPresetPermissionsGroupInput,
+} from './presetPermissionsGroups/addPreset/types';
 import RequestData from './RequestData';
 import {IBaseEndpointResult} from './types';
 import signup from './user/signup/signup';
@@ -109,4 +114,28 @@ export async function insertOrganizationForTest(
   return {
     organization: result.organization,
   };
+}
+
+export async function insertPresetForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  presetInput: Partial<INewPresetPermissionsGroupInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<IAddPresetPermissionsGroupParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      preset: {
+        name: faker.lorem.sentence(20),
+        description: faker.lorem.sentence(50),
+        presets: [],
+        ...presetInput,
+      },
+    }
+  );
+
+  const result = await addPresetPermissionsGroup(context, instData);
+  assertEndpointResultHasNoErrors(result);
+  return result;
 }
