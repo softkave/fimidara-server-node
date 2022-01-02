@@ -28,33 +28,17 @@ import {
   collaborationRequestEmailTitle,
 } from '../../../email-templates/collaborationRequest';
 
-async function sendEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
-  toUser: IUser | null,
-  organizationName: string
-) {
-  const html = collaborationRequestEmailHTML({
-    organizationName,
-    isRecipientAUser: !!toUser,
-    loginLink: context.appVariables.clientLoginLink,
-    signupLink: context.appVariables.clientSignupLink,
-  });
-
-  const text = collaborationRequestEmailText({
-    organizationName,
-    isRecipientAUser: !!toUser,
-    loginLink: context.appVariables.clientLoginLink,
-    signupLink: context.appVariables.clientSignupLink,
-  });
-
-  await context.email.sendEmail(context, {
-    subject: collaborationRequestEmailTitle(organizationName),
-    body: {html, text},
-    destination: [request.recipientEmail],
-    source: context.appVariables.appDefaultEmailAddressFrom,
-  });
-}
+/**
+ * sendRequest.
+ * Revoke a collaboration request, meaning it's no longer available.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Check that collaborator does not exist
+ * - Check that an open collaboration request does not exist
+ * - Create request
+ * - Send email
+ */
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
@@ -96,11 +80,16 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   );
 
   if (existingRequest) {
-    throw new ResourceExistsError(
-      `An existing collaboration request to this user was sent on ${formatDate(
-        existingRequest.createdAt
-      )}`
-    );
+    const status =
+      existingRequest.statusHistory[existingRequest.statusHistory.length - 1];
+
+    if (status.status === CollaborationRequestStatusType.Pending) {
+      throw new ResourceExistsError(
+        `An existing collaboration request to this user was sent on ${formatDate(
+          existingRequest.createdAt
+        )}`
+      );
+    }
   }
 
   const request = await context.data.collaborationRequest.saveItem({
@@ -135,5 +124,33 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     request: collabRequestExtractor(request),
   };
 };
+
+async function sendEmail(
+  context: IBaseContext,
+  request: ICollaborationRequest,
+  toUser: IUser | null,
+  organizationName: string
+) {
+  const html = collaborationRequestEmailHTML({
+    organizationName,
+    isRecipientAUser: !!toUser,
+    loginLink: context.appVariables.clientLoginLink,
+    signupLink: context.appVariables.clientSignupLink,
+  });
+
+  const text = collaborationRequestEmailText({
+    organizationName,
+    isRecipientAUser: !!toUser,
+    loginLink: context.appVariables.clientLoginLink,
+    signupLink: context.appVariables.clientSignupLink,
+  });
+
+  await context.email.sendEmail(context, {
+    subject: collaborationRequestEmailTitle(organizationName),
+    body: {html, text},
+    destination: [request.recipientEmail],
+    source: context.appVariables.appDefaultEmailAddressFrom,
+  });
+}
 
 export default sendRequest;
