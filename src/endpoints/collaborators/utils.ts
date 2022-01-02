@@ -12,10 +12,18 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
+import {userOrgListExtractor} from '../user/utils';
 import CollaboratorQueries from './queries';
 import {IPublicCollaborator} from './types';
 
-const collaboratorFields = getFields<IPublicCollaborator>({});
+const collaboratorFields = getFields<IPublicCollaborator>({
+  userId: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  organizations: userOrgListExtractor,
+});
+
 export const collaboratorExtractor = makeExtract(collaboratorFields);
 export const collaboratorListExtractor = makeListExtract(collaboratorFields);
 export function getCollaboratorOrganization(

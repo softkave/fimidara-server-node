@@ -5,7 +5,7 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -15,7 +15,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {splitFolderPath} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
 import FileQueries from './queries';
 import {IPublicFile} from './types';
@@ -24,17 +24,21 @@ const fileFields = getFields<IPublicFile>({
   fileId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateStringIfPresent,
   name: true,
   description: true,
-  environmentId: true,
   folderId: true,
   mimetype: true,
   organizationId: true,
   size: true,
   encoding: true,
-  meta: meta => meta,
+  extension: true,
+  idPath: true,
+  isPublic: true,
+  markedPublicAt: getDateStringIfPresent,
+  markedPublicBy: agentExtractorIfPresent,
+  namePath: true,
 });
 
 export const fileExtractor = makeExtract(fileFields);

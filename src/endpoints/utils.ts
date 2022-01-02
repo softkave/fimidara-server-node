@@ -1,5 +1,10 @@
 import {Response, Request} from 'express';
-import {getFields, makeExtract, makeListExtract} from '../utilities/extract';
+import {
+  getFields,
+  makeExtract,
+  makeExtractIfPresent,
+  makeListExtract,
+} from '../utilities/extract';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import RequestData from './RequestData';
@@ -61,4 +66,5 @@ const agentPublicFields = getFields<IPublicAgent>({
 });
 
 export const agentExtractor = makeExtract(agentPublicFields);
+export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);

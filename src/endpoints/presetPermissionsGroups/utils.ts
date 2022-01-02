@@ -7,7 +7,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -16,7 +16,7 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import PresetPermissionsGroupQueries from './queries';
 import {IPresetInput, IPublicPresetPermissionsGroup} from './types';
 
@@ -37,8 +37,8 @@ const presetPermissionsGroupFields = getFields<IPublicPresetPermissionsGroup>({
   organizationId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractorIfPresent,
   name: true,
   description: true,
   presets: assignedPresetsListExtractor,

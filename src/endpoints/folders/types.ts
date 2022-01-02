@@ -3,13 +3,17 @@ import {IAgent} from '../../definitions/system';
 export interface IPublicFolder {
   folderId: string;
   organizationId: string;
-  environmentId: string;
+  idPath: string[];
+  namePath: string[];
   parentId?: string;
   createdBy: IAgent;
   createdAt: string;
-  maxFileSize: number;
+  maxFileSizeInBytes: number;
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
   name: string;
   description?: string;
+  isPublic?: boolean;
+  markedPublicAt?: string; // ISO date string
+  markedPublicBy?: IAgent;
 }
