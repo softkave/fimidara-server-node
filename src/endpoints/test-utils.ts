@@ -1,5 +1,11 @@
+import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import {IUserToken} from '../definitions/userToken';
+import sendRequest from './collaborationRequests/sendRequest/handler';
+import {
+  ICollaborationRequestInput,
+  ISendRequestParams,
+} from './collaborationRequests/sendRequest/types';
 import BaseContext, {IBaseContext} from './contexts/BaseContext';
 import {TestEmailProviderContext} from './contexts/EmailProviderContext';
 import {TestFilePersistenceProviderContext} from './contexts/FilePersistenceProviderContext';
@@ -136,6 +142,33 @@ export async function insertPresetForTest(
   );
 
   const result = await addPresetPermissionsGroup(context, instData);
+  assertEndpointResultHasNoErrors(result);
+  return result;
+}
+
+export async function insertRequestForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  requestInput: Partial<ICollaborationRequestInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<ISendRequestParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      request: {
+        recipientEmail: faker.internet.email(),
+        message: faker.lorem.paragraph(),
+        expiresAtInSecsFromToday: differenceInSeconds(
+          add(Date.now(), {days: 1}),
+          Date.now()
+        ),
+        ...requestInput,
+      },
+    }
+  );
+
+  const result = await sendRequest(context, instData);
   assertEndpointResultHasNoErrors(result);
   return result;
 }

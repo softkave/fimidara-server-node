@@ -21,26 +21,15 @@ import {
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
 
-async function sendEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
-  organizationName: string
-) {
-  const html = collaborationRequestRevokedEmailHTML({
-    organizationName,
-  });
-
-  const text = collaborationRequestRevokedEmailText({
-    organizationName,
-  });
-
-  await context.email.sendEmail(context, {
-    subject: collaborationRequestRevokedEmailTitle(organizationName),
-    body: {html, text},
-    destination: [request.recipientEmail],
-    source: context.appVariables.appDefaultEmailAddressFrom,
-  });
-}
+/**
+ * revokeRequest.
+ * Revoke a collaboration request, meaning it's no longer available.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Check that request exists, is open, and is not revoked
+ * - Update request and send email to request recipient
+ */
 
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
@@ -79,5 +68,26 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
     request: collabRequestExtractor(request),
   };
 };
+
+async function sendEmail(
+  context: IBaseContext,
+  request: ICollaborationRequest,
+  organizationName: string
+) {
+  const html = collaborationRequestRevokedEmailHTML({
+    organizationName,
+  });
+
+  const text = collaborationRequestRevokedEmailText({
+    organizationName,
+  });
+
+  await context.email.sendEmail(context, {
+    subject: collaborationRequestRevokedEmailTitle(organizationName),
+    body: {html, text},
+    destination: [request.recipientEmail],
+    source: context.appVariables.appDefaultEmailAddressFrom,
+  });
+}
 
 export default revokeRequest;
