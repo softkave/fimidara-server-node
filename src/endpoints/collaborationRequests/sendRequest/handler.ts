@@ -104,7 +104,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     recipientEmail: data.request.recipientEmail,
     expiresAt: getDateString(
       add(new Date(), {
-        seconds: data.request.expiresAtInSecsFromToday,
+        seconds: data.request.expires,
       })
     ),
     sentEmailHistory: [],

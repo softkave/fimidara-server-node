@@ -10,7 +10,17 @@ import {ClientAssignedTokenUtils} from '../utils';
 import {GetOrganizationClientAssignedTokenEndpoint} from './types';
 import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
 
-const getOrganizationTokens: GetOrganizationClientAssignedTokenEndpoint = async (
+/**
+ * getOrganizationTokens.
+ * Returns a list of read-permissible client assigned tokens the agent
+ * has access to.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Return a list of tokens the agent has access to.
+ */
+
+const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEndpoint = async (
   context,
   instData
 ) => {
@@ -51,4 +61,4 @@ const getOrganizationTokens: GetOrganizationClientAssignedTokenEndpoint = async 
   };
 };
 
-export default getOrganizationTokens;
+export default getOrganizationClientAssignedTokens;

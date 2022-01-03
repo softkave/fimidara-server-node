@@ -8,6 +8,15 @@ import {checkClientAssignedTokenAuthorization02} from '../utils';
 import {DeleteClientAssignedTokenEndpoint} from './types';
 import {deleteClientAssignedTokenJoiSchema} from './validation';
 
+/**
+ * deleteClientAssignedToken.
+ * Deletes a client assigned token and it's artifacts.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Delete token and artifacts
+ */
+
 const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
   context,
   instData

@@ -1,7 +1,7 @@
 import {Express} from 'express';
 import addClientAssignedToken from './addToken/handler';
 import deleteClientAssignedToken from './deleteToken/handler';
-import getOrganizationTokens from './getOrganizationTokens/handler';
+import getOrganizationClientAssignedTokens from './getOrganizationTokens/handler';
 import getClientAssignedToken from './getToken/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -14,7 +14,10 @@ export default function setupClientAssignedTokensRESTEndpoints(
   const endpoints = {
     addToken: wrapEndpointREST(addClientAssignedToken, ctx),
     deleteToken: wrapEndpointREST(deleteClientAssignedToken, ctx),
-    getOrganizationTokens: wrapEndpointREST(getOrganizationTokens, ctx),
+    getOrganizationTokens: wrapEndpointREST(
+      getOrganizationClientAssignedTokens,
+      ctx
+    ),
     getToken: wrapEndpointREST(getClientAssignedToken, ctx),
     updatePresets: wrapEndpointREST(updateClientAssignedTokenPresets, ctx),
   };

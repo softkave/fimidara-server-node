@@ -5,7 +5,7 @@ import {IPublicCollaborationRequest} from '../types';
 export interface ICollaborationRequestInput {
   recipientEmail: string;
   message: string;
-  expiresAtInSecsFromToday?: number;
+  expires?: number;
 }
 
 export interface ISendRequestParams {
