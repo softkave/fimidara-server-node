@@ -13,11 +13,11 @@ import {updateProgramAccessTokenPresetsJoiSchema} from './validation';
 
 /**
  * updateProgramAccessTokenPresets.
- * Returns the referenced program access token's presets.
+ * Updates the referenced program access token's presets.
  *
  * Ensure that:
  * - Auth check and permission check
- * - Check preset exists and access check
+ * - Check presets exists and access check
  * - Update token presets
  */
 

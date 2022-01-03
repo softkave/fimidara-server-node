@@ -10,7 +10,17 @@ import {PresetPermissionsGroupUtils} from '../utils';
 import {GetOrganizationPresetPermissionsGroupsEndpoint} from './types';
 import {getOrganizationPresetPermissionsGroupsJoiSchema} from './validation';
 
-const getOrganizationPresetPermissionsItem: GetOrganizationPresetPermissionsGroupsEndpoint = async (
+/**
+ * getOrganizationPresetPermissionsItem.
+ * Returns the referenced organization's presets
+ * the calling agent has read access to.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Return presets
+ */
+
+const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGroupsEndpoint = async (
   context,
   instData
 ) => {
@@ -53,4 +63,4 @@ const getOrganizationPresetPermissionsItem: GetOrganizationPresetPermissionsGrou
   };
 };
 
-export default getOrganizationPresetPermissionsItem;
+export default getOrganizationPresetPermissionsGroups;

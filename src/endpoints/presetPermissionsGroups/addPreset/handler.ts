@@ -13,6 +13,16 @@ import {AddPresetPermissionsGroupEndpoint} from './types';
 import {addPresetPermissionsGroupJoiSchema} from './validation';
 import {ResourceExistsError} from '../../errors';
 
+/**
+ * addPresetPermissionsGroup.
+ * Creates a preset permission group.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Check that preset doesn't exist
+ * - Save preset
+ */
+
 const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   context,
   instData

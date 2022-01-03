@@ -6,6 +6,11 @@ import {
 } from '../../test-utils';
 import ProgramAccessTokenQueries from '../queries';
 
+/**
+ * TODO:
+ * [Low] - Test that hanlder fails if token exists
+ */
+
 test('program access token added', async () => {
   const context = getTestBaseContext();
   const {userToken} = await insertUserForTest(context);

@@ -11,6 +11,16 @@ import {
 import {UpdatePresetPermissionsGroupEndpoint} from './types';
 import {updatePresetPermissionsGroupJoiSchema} from './validation';
 
+/**
+ * updatePresetPermissionsGroup.
+ * Updates the referenced preset.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Check assigned presets exist and access check
+ * - Update preset
+ */
+
 const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint = async (
   context,
   instData

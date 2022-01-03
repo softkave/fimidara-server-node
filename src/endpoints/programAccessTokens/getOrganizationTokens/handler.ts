@@ -12,7 +12,8 @@ import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
 
 /**
  * getOrganizationProgramAccessTokens.
- * Returns the program access tokens the calling agent has read access to.
+ * Returns the referenced organization's program access tokens
+ * the calling agent has read access to.
  *
  * Ensure that:
  * - Auth check and permission check

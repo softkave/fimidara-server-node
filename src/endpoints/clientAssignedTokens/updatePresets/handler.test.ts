@@ -60,7 +60,7 @@ test('client assigned token presets updated', async () => {
   assertEndpointResultHasNoErrors(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(user.userId)
+    ClientAssignedTokenQueries.getById(token01.tokenId)
   );
 
   expect(updatedToken).toEqual(result.token);

@@ -14,7 +14,7 @@ import {IUpdateProgramAccessTokenPresetsParams} from './types';
 
 /**
  * TODO:
- * - [Low] Test that hanlder fails if preset doesn't exist
+ * - [Low] Test that hanlder fails if presets doesn't exist
  * - [Low] Test that onReferenced feature works
  */
 
@@ -61,7 +61,7 @@ test('program access token presets updated', async () => {
   assertEndpointResultHasNoErrors(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(user.userId)
+    ClientAssignedTokenQueries.getById(token01.tokenId)
   );
 
   expect(updatedToken).toEqual(result.token);
