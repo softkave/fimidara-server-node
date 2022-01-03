@@ -8,6 +8,15 @@ import {checkProgramAccessTokenAuthorization02} from '../utils';
 import {DeleteProgramAccessTokenEndpoint} from './types';
 import {deleteProgramAccessTokenJoiSchema} from './validation';
 
+/**
+ * deleteProgramAccessToken.
+ * Deletes a program access token and related artifacts.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Delet token and artifacts
+ */
+
 const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
   context,
   instData

@@ -24,6 +24,7 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
+  name: true,
   description: true,
   presets: assignedPresetsListExtractor,
 });

@@ -3,6 +3,7 @@ import {IAgent} from '../../definitions/system';
 
 export interface IPublicProgramAccessToken {
   tokenId: string;
+  name: string;
   description?: string;
   hash: string;
   createdAt: string;

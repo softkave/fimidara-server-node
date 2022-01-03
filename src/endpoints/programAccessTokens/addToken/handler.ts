@@ -17,17 +17,15 @@ import {ProgramAccessTokenUtils} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
 
-function generateSecretKey() {
-  try {
-    const key = crypto
-      .randomBytes(programAccessTokenConstants.tokenSecretKeyLength)
-      .toString('hex');
-    return key;
-  } catch (error) {
-    console.error(error);
-    throw new ServerError();
-  }
-}
+/**
+ * addProgramAccessToken.
+ * Creates a program access token.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Token and secret key is generated
+ * - Return token and encoded token string
+ */
 
 const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   context,
@@ -54,15 +52,16 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   const hash = await argon2.hash(secretKey);
   const token: IProgramAccessToken = await context.data.programAccessToken.saveItem(
     {
-      ...data,
+      ...data.token,
       hash,
+      organizationId: data.organizationId,
       tokenId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      presets: data.presets.map(item => ({
+      presets: data.token.presets.map(item => ({
         ...item,
         assignedAt: getDateString(),
         assignedBy: {
@@ -82,5 +81,17 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     ),
   };
 };
+
+function generateSecretKey() {
+  try {
+    const key = crypto
+      .randomBytes(programAccessTokenConstants.tokenSecretKeyLength)
+      .toString('hex');
+    return key;
+  } catch (error) {
+    console.error(error);
+    throw new ServerError();
+  }
+}
 
 export default addProgramAccessToken;

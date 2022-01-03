@@ -28,6 +28,11 @@ import {
   IAddPresetPermissionsGroupParams,
   INewPresetPermissionsGroupInput,
 } from './presetPermissionsGroups/addPreset/types';
+import addProgramAccessToken from './programAccessTokens/addToken/handler';
+import {
+  IAddProgramAccessTokenParams,
+  INewProgramAccessTokenInput,
+} from './programAccessTokens/addToken/types';
 import RequestData from './RequestData';
 import {IBaseEndpointResult} from './types';
 import signup from './user/signup/signup';
@@ -193,6 +198,30 @@ export async function insertClientAssignedTokenForTest(
   );
 
   const result = await addClientAssignedToken(context, instData);
+  assertEndpointResultHasNoErrors(result);
+  return result;
+}
+
+export async function insertProgramAccessTokenForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  tokenInput: Partial<INewProgramAccessTokenInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<IAddProgramAccessTokenParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      token: {
+        name: faker.lorem.sentence(20),
+        description: faker.lorem.sentence(50),
+        presets: [],
+        ...tokenInput,
+      },
+    }
+  );
+
+  const result = await addProgramAccessToken(context, instData);
   assertEndpointResultHasNoErrors(result);
   return result;
 }

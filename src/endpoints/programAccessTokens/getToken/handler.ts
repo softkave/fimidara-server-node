@@ -8,6 +8,15 @@ import {
 import {GetProgramAccessTokenEndpoint} from './types';
 import {getProgramAccessTokenJoiSchema} from './validation';
 
+/**
+ * getProgramAccessToken.
+ * Returns the referenced program access token if the calling agent has read access to it.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Return referenced token
+ */
+
 const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
   context,
   instData

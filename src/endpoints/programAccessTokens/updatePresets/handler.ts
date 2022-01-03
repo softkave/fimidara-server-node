@@ -11,6 +11,16 @@ import {
 import {UpdateProgramAccessTokenPresetsEndpoint} from './types';
 import {updateProgramAccessTokenPresetsJoiSchema} from './validation';
 
+/**
+ * updateProgramAccessTokenPresets.
+ * Returns the referenced program access token's presets.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Check preset exists and access check
+ * - Update token presets
+ */
+
 const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint = async (
   context,
   instData
