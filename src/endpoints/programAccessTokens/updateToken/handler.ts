@@ -1,3 +1,4 @@
+import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
@@ -8,8 +9,8 @@ import {
   checkProgramAccessTokenAuthorization02,
   programAccessTokenExtractor,
 } from '../utils';
-import {UpdateProgramAccessTokenPresetsEndpoint} from './types';
-import {updateProgramAccessTokenPresetsJoiSchema} from './validation';
+import {UpdateProgramAccessTokenEndpoint} from './types';
+import {updateProgramAccessTokenJoiSchema} from './validation';
 
 /**
  * updateProgramAccessTokenPresets.
@@ -21,15 +22,11 @@ import {updateProgramAccessTokenPresetsJoiSchema} from './validation';
  * - Update token presets
  */
 
-const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint = async (
+const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   context,
   instData
 ) => {
-  const data = validate(
-    instData.data,
-    updateProgramAccessTokenPresetsJoiSchema
-  );
-
+  const data = validate(instData.data, updateProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(
     agent,
@@ -43,26 +40,33 @@ const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint =
     BasicCRUDActions.Read
   );
 
-  await checkPresetsExist(
-    context,
-    agent,
-    checkResult.organization.organizationId,
-    data.presets
-  );
-
   let token = checkResult.token;
+  const tokenUpdate: Partial<IProgramAccessToken> = {
+    name: data.token.name,
+    description: data.token.description,
+  };
+
+  if (data.token.presets) {
+    await checkPresetsExist(
+      context,
+      agent,
+      checkResult.organization.organizationId,
+      data.token.presets
+    );
+
+    tokenUpdate.presets = data.token.presets?.map(preset => ({
+      ...preset,
+      assignedAt: getDateString(),
+      assignedBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+    }));
+  }
+
   token = await context.data.programAccessToken.assertUpdateItem(
     ProgramAccessTokenQueries.getById(tokenId),
-    {
-      presets: data.presets.map(preset => ({
-        ...preset,
-        assignedAt: getDateString(),
-        assignedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-      })),
-    }
+    tokenUpdate
   );
 
   return {
@@ -70,4 +74,4 @@ const updateProgramAccessTokenPresets: UpdateProgramAccessTokenPresetsEndpoint =
   };
 };
 
-export default updateProgramAccessTokenPresets;
+export default updateProgramAccessToken;

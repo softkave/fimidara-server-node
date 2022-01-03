@@ -1,3 +1,4 @@
+import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultHasNoErrors,
@@ -9,8 +10,8 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils';
 import ClientAssignedTokenQueries from '../queries';
-import updateProgramAccessTokenPresets from './handler';
-import {IUpdateProgramAccessTokenPresetsParams} from './types';
+import updateProgramAccessToken from './handler';
+import {IUpdateProgramAccessTokenParams} from './types';
 
 /**
  * TODO:
@@ -18,7 +19,7 @@ import {IUpdateProgramAccessTokenPresetsParams} from './types';
  * - [Low] Test that onReferenced feature works
  */
 
-test('program access token presets updated', async () => {
+test('program access token updated', async () => {
   const context = getTestBaseContext();
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
@@ -40,31 +41,39 @@ test('program access token presets updated', async () => {
     organization.organizationId
   );
 
-  const instData = RequestData.fromExpressRequest<IUpdateProgramAccessTokenPresetsParams>(
+  const tokenUpdateInput = {
+    name: faker.lorem.sentence(20),
+    description: faker.lorem.sentence(50),
+    presets: [
+      {
+        presetId: preset01.presetId,
+        order: 1,
+      },
+      {
+        presetId: preset02.presetId,
+        order: 2,
+      },
+    ],
+  };
+
+  const instData = RequestData.fromExpressRequest<IUpdateProgramAccessTokenParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       tokenId: token01.tokenId,
-      presets: [
-        {
-          presetId: preset01.presetId,
-          order: 1,
-        },
-        {
-          presetId: preset02.presetId,
-          order: 2,
-        },
-      ],
+      token: tokenUpdateInput,
     }
   );
 
-  const result = await updateProgramAccessTokenPresets(context, instData);
+  const result = await updateProgramAccessToken(context, instData);
   assertEndpointResultHasNoErrors(result);
 
-  const updatedToken = await context.data.clientAssignedToken.assertGetItem(
+  const updatedToken = await context.data.programAccessToken.assertGetItem(
     ClientAssignedTokenQueries.getById(token01.tokenId)
   );
 
   expect(updatedToken).toEqual(result.token);
+  expect(updatedToken.name).toEqual(tokenUpdateInput.name);
+  expect(updatedToken.description).toEqual(tokenUpdateInput.description);
   expect(updatedToken.presets.length).toBe(2);
   expect(updatedToken.presets[0]).toEqual({
     presetId: preset01.presetId,

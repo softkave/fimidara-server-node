@@ -18,6 +18,7 @@ import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
 import EndpointReusableQueries from '../../queries';
 import {ResourceExistsError} from '../../errors';
+import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 
 /**
  * addProgramAccessToken.
@@ -25,6 +26,7 @@ import {ResourceExistsError} from '../../errors';
  *
  * Ensure that:
  * - Auth check
+ * - Check that presets exist
  * - Token and secret key is generated
  * - Return token and encoded token string
  */
@@ -60,6 +62,13 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   if (itemExists) {
     throw new ResourceExistsError('Program access token exists');
   }
+
+  await checkPresetsExist(
+    context,
+    agent,
+    organization.organizationId,
+    data.token.presets
+  );
 
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);

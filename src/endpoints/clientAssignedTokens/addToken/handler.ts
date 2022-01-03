@@ -13,6 +13,7 @@ import {
   TokenType,
 } from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
+import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import {ClientAssignedTokenUtils} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
@@ -23,6 +24,7 @@ import {addClientAssignedTokenJoiSchema} from './validation';
  *
  * Ensure that:
  * - Auth check
+ * - Check that presets exist
  * - Create token and return token and encoded token
  */
 
@@ -42,6 +44,13 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     AppResourceType.ClientAssignedToken,
     makeBasePermissionOwnerList(organization.organizationId),
     BasicCRUDActions.Create
+  );
+
+  await checkPresetsExist(
+    context,
+    agent,
+    organization.organizationId,
+    data.token.presets
   );
 
   const token: IClientAssignedToken = await context.data.clientAssignedToken.saveItem(
