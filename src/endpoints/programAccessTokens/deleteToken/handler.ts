@@ -14,7 +14,7 @@ import {deleteProgramAccessTokenJoiSchema} from './validation';
  *
  * Ensure that:
  * - Auth check
- * - Delet token and artifacts
+ * - Delete token and artifacts
  */
 
 const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (

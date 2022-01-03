@@ -7,6 +7,15 @@ import {
 import {GetPresetPermissionsGroupEndpoint} from './types';
 import {getPresetPermissionsGroupJoiSchema} from './validation';
 
+/**
+ * getPresetPermissionsGroup.
+ * Returns the referenced preset if the calling agent has read access to it.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Return referenced preset
+ */
+
 const getPresetPermissionsGroup: GetPresetPermissionsGroupEndpoint = async (
   context,
   instData

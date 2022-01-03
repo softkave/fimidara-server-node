@@ -2,7 +2,7 @@ import {Express} from 'express';
 import addPresetPermissionsGroup from './addPreset/handler';
 import deletePresetPermissionsItem from './deletePreset/handler';
 import getPresetPermissionsItem from './getPreset/handler';
-import getOrganizationPresetPermissionsItem from './getOrganizationPresets/handler';
+import getOrganizationPresetPermissionsGroups from './getOrganizationPresets/handler';
 import updatePresetPermissionsItem from './updatePreset/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -16,7 +16,7 @@ export default function setupPresetPermissionsGroupsRESTEndpoints(
     deletePreset: wrapEndpointREST(deletePresetPermissionsItem, ctx),
     getPreset: wrapEndpointREST(getPresetPermissionsItem, ctx),
     getOrganizationPresets: wrapEndpointREST(
-      getOrganizationPresetPermissionsItem,
+      getOrganizationPresetPermissionsGroups,
       ctx
     ),
     updatePreset: wrapEndpointREST(updatePresetPermissionsItem, ctx),

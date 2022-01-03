@@ -16,6 +16,8 @@ import {programAccessTokenConstants} from '../constants';
 import {ProgramAccessTokenUtils} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
+import EndpointReusableQueries from '../../queries';
+import {ResourceExistsError} from '../../errors';
 
 /**
  * addProgramAccessToken.
@@ -47,6 +49,17 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     makeBasePermissionOwnerList(organization.organizationId),
     BasicCRUDActions.Create
   );
+
+  const itemExists = await context.data.programAccessToken.checkItemExists(
+    EndpointReusableQueries.getByOrganizationAndName(
+      organization.organizationId,
+      data.token.name
+    )
+  );
+
+  if (itemExists) {
+    throw new ResourceExistsError('Program access token exists');
+  }
 
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);

@@ -7,6 +7,15 @@ import {checkPresetPermissionsGroupAuthorization02} from '../utils';
 import {DeletePresetPermissionsGroupEndpoint} from './types';
 import {deletePresetPermissionsGroupJoiSchema} from './validation';
 
+/**
+ * deletePresetPermissionsGroup.
+ * Deletes a preset and related artifacts.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Delete preset and artifacts
+ */
+
 const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint = async (
   context,
   instData
