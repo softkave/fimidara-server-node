@@ -37,3 +37,4 @@ an operation on a resource shouldn't access it
 - Use upload preflight call to get an id attached to upload calls for quick check and
 fail upload early. Don't wait until everything is uploaded. See if multer can do this.
 - Have a separate upload and download instance
+- Add description field for client assigned token

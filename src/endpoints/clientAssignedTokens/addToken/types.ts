@@ -1,9 +1,11 @@
 import {IBaseContext} from '../../contexts/BaseContext';
+import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 import {IPublicClientAssignedToken} from '../types';
 
 export interface INewClientAssignedTokenInput {
   expires?: number;
+  presets: IPresetInput[];
 }
 
 export interface IAddClientAssignedTokenParams {
