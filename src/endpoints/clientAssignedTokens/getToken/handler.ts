@@ -8,6 +8,15 @@ import {
 import {GetClientAssignedTokenEndpoint} from './types';
 import {getClientAssignedTokenJoiSchema} from './validation';
 
+/**
+ * getClientAssignedToken.
+ * Returns a the client assigned token referenced by the provided ID.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Return the client assigned token
+ */
+
 const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
   context,
   instData

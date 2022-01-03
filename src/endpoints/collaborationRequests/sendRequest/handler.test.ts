@@ -19,10 +19,7 @@ test('collaboration request sent', async () => {
   const requestInput: ICollaborationRequestInput = {
     recipientEmail: user02.email,
     message: faker.lorem.paragraph(),
-    expiresAtInSecsFromToday: differenceInSeconds(
-      add(Date.now(), {days: 1}),
-      Date.now()
-    ),
+    expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
   };
 
   const {request: request01} = await insertRequestForTest(

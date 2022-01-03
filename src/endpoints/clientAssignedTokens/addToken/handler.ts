@@ -17,6 +17,15 @@ import {ClientAssignedTokenUtils} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
 
+/**
+ * addClientAssignedToken.
+ * Updates a collaboration request.
+ *
+ * Ensure that:
+ * - Auth check
+ * - Create token and return token and encoded token
+ */
+
 const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   context,
   instData

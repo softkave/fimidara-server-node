@@ -1,6 +1,11 @@
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import {IUserToken} from '../definitions/userToken';
+import addClientAssignedToken from './clientAssignedTokens/addToken/handler';
+import {
+  IAddClientAssignedTokenParams,
+  INewClientAssignedTokenInput,
+} from './clientAssignedTokens/addToken/types';
 import sendRequest from './collaborationRequests/sendRequest/handler';
 import {
   ICollaborationRequestInput,
@@ -159,16 +164,35 @@ export async function insertRequestForTest(
       request: {
         recipientEmail: faker.internet.email(),
         message: faker.lorem.paragraph(),
-        expiresAtInSecsFromToday: differenceInSeconds(
-          add(Date.now(), {days: 1}),
-          Date.now()
-        ),
+        expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
         ...requestInput,
       },
     }
   );
 
   const result = await sendRequest(context, instData);
+  assertEndpointResultHasNoErrors(result);
+  return result;
+}
+
+export async function insertClientAssignedTokenForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  requestInput: Partial<INewClientAssignedTokenInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<IAddClientAssignedTokenParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      token: {
+        expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+        ...requestInput,
+      },
+    }
+  );
+
+  const result = await addClientAssignedToken(context, instData);
   assertEndpointResultHasNoErrors(result);
   return result;
 }
