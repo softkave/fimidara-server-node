@@ -10,6 +10,15 @@ import {ProgramAccessTokenUtils} from '../utils';
 import {GetOrganizationProgramAccessTokenEndpoint} from './types';
 import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
 
+/**
+ * getOrganizationProgramAccessTokens.
+ * Returns the program access tokens the calling agent has read access to.
+ *
+ * Ensure that:
+ * - Auth check and permission check
+ * - Return tokens
+ */
+
 const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpoint = async (
   context,
   instData

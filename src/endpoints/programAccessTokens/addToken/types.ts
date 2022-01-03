@@ -3,10 +3,15 @@ import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 import {IPublicProgramAccessToken} from '../types';
 
-export interface IAddProgramAccessTokenParams {
-  organizationId: string;
+export interface INewProgramAccessTokenInput {
+  name: string;
   description?: string;
   presets: IPresetInput[];
+}
+
+export interface IAddProgramAccessTokenParams {
+  organizationId: string;
+  token: INewProgramAccessTokenInput;
 }
 
 export interface IAddProgramAccessTokenResult {

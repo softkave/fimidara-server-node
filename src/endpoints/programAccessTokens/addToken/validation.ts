@@ -5,9 +5,13 @@ import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGro
 export const addProgramAccessTokenJoiSchema = Joi.object()
   .keys({
     organizationId: validationSchemas.nanoid.required(),
-    description: validationSchemas.description.allow([null]),
-    presets: presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
-      [null]
-    ),
+    token: Joi.object()
+      .keys({
+        description: validationSchemas.description.allow([null]),
+        presets: presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
+          [null]
+        ),
+      })
+      .required(),
   })
   .required();
