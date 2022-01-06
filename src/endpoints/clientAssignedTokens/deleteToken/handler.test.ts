@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
   insertOrganizationForTest,
@@ -34,7 +34,7 @@ test('client assigned token deleted', async () => {
   );
 
   const result = await deleteClientAssignedToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const deletedTokenExists = await context.data.clientAssignedToken.checkItemExists(
     ClientAssignedTokenQueries.getById(token.tokenId)

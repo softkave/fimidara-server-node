@@ -28,7 +28,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     agent,
     organizationId,
     data.collaboratorId,
-    BasicCRUDActions.Read
+    BasicCRUDActions.Delete
   );
 
   collaborator.organizations = collaborator.organizations.filter(

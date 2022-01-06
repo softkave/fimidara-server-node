@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -65,7 +65,7 @@ test('program access token updated', async () => {
   );
 
   const result = await updateProgramAccessToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const updatedToken = await context.data.programAccessToken.assertGetItem(
     ClientAssignedTokenQueries.getById(token01.tokenId)

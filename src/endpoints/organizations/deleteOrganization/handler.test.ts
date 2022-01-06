@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertUserForTest,
@@ -27,7 +27,7 @@ test('organization deleted', async () => {
   );
 
   const result = await deleteOrganization(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   const org = await context.data.organization.getItem(
     OrganizationQueries.getById(organization.organizationId)
   );

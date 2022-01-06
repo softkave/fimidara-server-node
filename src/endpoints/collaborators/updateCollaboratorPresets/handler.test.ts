@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -52,7 +52,7 @@ test('collaborator presets updated', async () => {
   );
 
   const result = await updateCollaboratorPresets(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const updatedUser = await context.data.user.assertGetItem(
     UserQueries.getById(user.userId)

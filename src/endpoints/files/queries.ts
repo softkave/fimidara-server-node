@@ -47,10 +47,22 @@ function getRootFiles(organizationId: string) {
     .build();
 }
 
+function getByMultipleIds(ids: string[], organizationId: string) {
+  return newFilter()
+    .addItem('fileId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class FileQueries {
   static getById = getById;
   static getFilesByParentId = getFilesByParentId;
   static getByNameAndFolderId = getByNameAndFolderId;
   static getByNamePath = getByNamePath;
   static getRootFiles = getRootFiles;
+  static getByMultipleIds = getByMultipleIds;
 }

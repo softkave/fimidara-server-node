@@ -1,7 +1,7 @@
 import {TokenAudience} from '../../contexts/SessionContext';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -27,7 +27,7 @@ test('forgot password with email sent', async () => {
   );
 
   const result = await forgotPassword(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   await context.data.userToken.assertGetItem(
     UserTokenQueries.getByUserIdAndAudience(
       user.userId,

@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -29,7 +29,7 @@ test('preset permission group deleted', async () => {
   );
 
   const result = await deletePresetPermissionsGroup(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const deletedPresetExists = await context.data.programAccessToken.checkItemExists(
     ProgramAccessTokenQueries.getById(preset.presetId)

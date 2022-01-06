@@ -12,12 +12,6 @@ function getById(id: string) {
     .build();
 }
 
-function getByIds(ids: string[]) {
-  return newFilter()
-    .addItem('requestId', ids, DataProviderFilterValueOperator.In)
-    .build();
-}
-
 function getByOrganizationId(organizationId: string) {
   return newFilter()
     .addItem(
@@ -52,6 +46,17 @@ function getByUserEmail(userEmail: string) {
       'recipientEmail',
       new RegExp(`^${userEmail}$`, 'i'),
       DataProviderFilterValueOperator.Regex
+    )
+    .build();
+}
+
+function getByIds(ids: string[], organizationId: string) {
+  return newFilter()
+    .addItem('requestId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
     )
     .build();
 }

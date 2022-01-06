@@ -33,8 +33,20 @@ function getByOrganizationAndName(organizationId: string, name: string) {
     .build();
 }
 
+function getByIds(ids: string[], organizationId: string) {
+  return newFilter()
+    .addItem('presetId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class PresetPermissionsGroupQueries {
   static getById = getById;
   static getByOrganizationId = getByOrganizationId;
   static getByOrganizationAndName = getByOrganizationAndName;
+  static getByIds = getByIds;
 }

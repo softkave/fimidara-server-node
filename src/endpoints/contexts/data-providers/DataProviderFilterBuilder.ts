@@ -1,11 +1,17 @@
 import {
-  DataProviderFilterValueLogicalOperator,
   DataProviderFilterValueOperator,
   DataProviderGetValueType,
   DataProviderValueExpander,
   IDataProviderFilterBuilder,
   IDataProviderFilterValue,
 } from './DataProvider';
+
+/**
+ * TODO:
+ * - [Medium] Provide better type definitions for the key and matching to values.
+ *   Keys can be arbitrarily deep properties with number for array fields, and the
+ *   keys should be able to match to their values for type checking also.
+ */
 
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   implements IDataProviderFilterBuilder<T> {
@@ -14,10 +20,18 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   public addItem<K extends keyof T>(
     key: K,
     value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
-    queryOp?: DataProviderFilterValueOperator,
-    logicalOp?: DataProviderFilterValueLogicalOperator
+    queryOp?: DataProviderFilterValueOperator
   ) {
-    this.data[key] = {value, queryOp, logicalOp};
+    this.data[key] = {value, queryOp};
+    return this;
+  }
+
+  public addItemWithStringKey<K extends keyof T | string>(
+    key: K,
+    value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
+    queryOp?: DataProviderFilterValueOperator
+  ) {
+    this.data[key] = {value, queryOp};
     return this;
   }
 

@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertProgramAccessTokenForTest,
@@ -34,7 +34,7 @@ test('program access token deleted', async () => {
   );
 
   const result = await deleteProgramAccessToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const deletedTokenExists = await context.data.programAccessToken.checkItemExists(
     ProgramAccessTokenQueries.getById(token.tokenId)

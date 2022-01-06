@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertUserForTest,
@@ -29,7 +29,7 @@ test('user organizations are returned', async () => {
   );
 
   const result = await getUserOrganizations(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   expect(result.organizations.length).toHaveLength(3);
   expect(result.organizations).toContain(org01);

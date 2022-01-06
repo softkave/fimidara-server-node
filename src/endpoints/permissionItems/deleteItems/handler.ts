@@ -19,6 +19,10 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (
     data.organizationId
   );
 
+  /**
+   * Entity auth check is enough for permission items cause permission items are
+   * basically extensions of the entites and are considered to belong to the entities.
+   */
   await checkEntityExists(
     context,
     agent,
@@ -36,7 +40,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (
     }),
 
     context.data.permissionItem.deleteManyItems(
-      PermissionItemsQueries.getByIds(data.itemIds)
+      PermissionItemsQueries.getByIds(data.itemIds, organization.organizationId)
     ),
   ]);
 };

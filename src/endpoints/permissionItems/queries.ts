@@ -54,15 +54,25 @@ function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
     .build();
 }
 
-function getByIds(ids: string[]) {
+function getByIds(ids: string[], organizationId: string) {
   return newFilter()
     .addItem('itemId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
     .build();
 }
 
-function getByOrganizationId(id: string) {
+function getByOrganizationId(id: string, organizationId: string) {
   return newFilter()
     .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
     .build();
 }
 

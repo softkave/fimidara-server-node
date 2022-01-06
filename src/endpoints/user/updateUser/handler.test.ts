@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -28,7 +28,7 @@ test('user data updated', async () => {
   );
 
   const result = await updateUser(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const savedUser = await context.data.user.assertGetItem(
     UserQueries.getById(result.user.userId)

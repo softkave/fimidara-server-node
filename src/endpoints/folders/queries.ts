@@ -12,6 +12,17 @@ function getById(id: string) {
     .build();
 }
 
+function getByMultipleIds(ids: string[], organizationId: string) {
+  return newFilter()
+    .addItem('folderId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 function getByName(name: string, parent?: IFolder) {
   const filter = newFilter().addItem(
     'name',
@@ -58,7 +69,7 @@ function getFoldersWithNamePath(organizationId: string, path: string[]) {
   );
 
   path.forEach((item, index) =>
-    filter.addItem(
+    filter.addItemWithStringKey(
       `namePath.${index}`,
       item,
       DataProviderFilterValueOperator.Equal
@@ -93,6 +104,7 @@ function getRootFolders(organizationId: string) {
 
 export default abstract class FolderQueries {
   static getById = getById;
+  static getByMultipleIds = getByMultipleIds;
   static getByName = getByName;
   static getFoldersByParentId = getFoldersByParentId;
   static getByNamePath = getByNamePath;

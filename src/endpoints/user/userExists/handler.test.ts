@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -20,7 +20,7 @@ test('returns true if user exists', async () => {
   );
 
   const result = await userExists(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.exists).toBe(true);
 });
 
@@ -34,6 +34,6 @@ test('returns false if user does not exists', async () => {
   );
 
   const result = await userExists(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.exists).toBe(false);
 });

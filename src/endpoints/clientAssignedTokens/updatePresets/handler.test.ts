@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
   insertOrganizationForTest,
@@ -57,7 +57,7 @@ test('client assigned token presets updated', async () => {
   );
 
   const result = await updateClientAssignedTokenPresets(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(
     ClientAssignedTokenQueries.getById(token01.tokenId)
