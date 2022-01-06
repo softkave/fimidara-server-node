@@ -329,11 +329,18 @@ export async function insertFolderForTest(
   return result;
 }
 
-export async function generateTestImage() {
+export interface IGenerateImageProps {
+  width: number;
+  height: number;
+}
+
+export async function generateTestImage(
+  props: IGenerateImageProps = {width: 300, height: 200}
+) {
   return await sharp({
     create: {
-      width: 300,
-      height: 200,
+      width: props.width,
+      height: props.height,
       channels: 4,
       background: {r: 255, g: 0, b: 0, alpha: 0.5},
     },
@@ -352,12 +359,11 @@ export async function insertFileForTest(
   userToken: IUserToken,
   organizationId: string,
   fileInput: Partial<INewFileInput> = {},
-  type: 'image' | 'text' = 'image'
+  type: 'image' | 'text' = 'image',
+  imageProps?: IGenerateImageProps
 ) {
   const input: INewFileInput = {
-    path: [faker.lorem.word(), faker.lorem.word()].join(
-      folderConstants.nameSeparator
-    ),
+    path: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
     data: Buffer.from(faker.lorem.word()),
     mimetype: 'application/octet-stream',
@@ -366,7 +372,7 @@ export async function insertFileForTest(
 
   if (!input.data) {
     if (type === 'image') {
-      input.data = await generateTestImage();
+      input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
     } else {
       input.data = generateTestTextFile();
@@ -385,5 +391,5 @@ export async function insertFileForTest(
 
   const result = await uploadFile(context, instData);
   assertEndpointResultOk(result);
-  return result;
+  return {...result, buffer: input.data};
 }

@@ -9,7 +9,7 @@ export const updateFileDetailsJoiSchema = Joi.object()
     path: folderValidationSchemas.path.required(),
     file: Joi.object()
       .keys({
-        name: folderValidationSchemas.name.allow([null]),
+        // name: folderValidationSchemas.name.allow([null]),
         description: validationSchemas.description.allow([null]),
         mimetype: fileValidationSchemas.mimetype.allow([null]),
       })

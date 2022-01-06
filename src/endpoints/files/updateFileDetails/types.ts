@@ -3,7 +3,7 @@ import {Endpoint} from '../../types';
 import {IPublicFile} from '../types';
 
 export interface IUpdateFileDetailsInput {
-  name?: string;
+  // name?: string;
   description?: string;
   mimetype?: string;
 }
