@@ -32,7 +32,7 @@ test('password changed', async () => {
 
   const result = await changePassword(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toEqual(user);
+  expect(result.user).toMatchObject(user);
 
   const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
     mockExpressRequest(),
@@ -44,5 +44,5 @@ test('password changed', async () => {
 
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
-  expect(loginResult.user).toEqual(user);
+  expect(loginResult.user).toMatchObject(user);
 });

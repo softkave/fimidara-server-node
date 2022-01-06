@@ -71,16 +71,16 @@ test('program access token updated', async () => {
     ClientAssignedTokenQueries.getById(token01.tokenId)
   );
 
-  expect(updatedToken).toEqual(result.token);
-  expect(updatedToken.name).toEqual(tokenUpdateInput.name);
-  expect(updatedToken.description).toEqual(tokenUpdateInput.description);
+  expect(updatedToken).toMatchObject(result.token);
+  expect(updatedToken.name).toMatchObject(tokenUpdateInput.name);
+  expect(updatedToken.description).toMatchObject(tokenUpdateInput.description);
   expect(updatedToken.presets.length).toBe(2);
-  expect(updatedToken.presets[0]).toEqual({
+  expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.presetId,
     assignedBy: user.userId,
     order: 0,
   });
-  expect(updatedToken.presets[0]).toEqual({
+  expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset02.presetId,
     assignedBy: user.userId,
     order: 1,

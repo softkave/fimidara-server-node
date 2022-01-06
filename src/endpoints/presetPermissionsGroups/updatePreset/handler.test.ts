@@ -72,16 +72,18 @@ test('preset updated', async () => {
     PresetPermissionsGroupQueries.getById(preset00.presetId)
   );
 
-  expect(updatedPreset).toEqual(result.preset);
-  expect(updatedPreset.name).toEqual(updatePresetInput.name);
-  expect(updatedPreset.description).toEqual(updatePresetInput.description);
+  expect(updatedPreset).toMatchObject(result.preset);
+  expect(updatedPreset.name).toMatchObject(updatePresetInput.name);
+  expect(updatedPreset.description).toMatchObject(
+    updatePresetInput.description
+  );
   expect(updatedPreset.presets.length).toBe(2);
-  expect(updatedPreset.presets[0]).toEqual({
+  expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset01.presetId,
     assignedBy: user.userId,
     order: 0,
   });
-  expect(updatedPreset.presets[0]).toEqual({
+  expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset02.presetId,
     assignedBy: user.userId,
     order: 1,
