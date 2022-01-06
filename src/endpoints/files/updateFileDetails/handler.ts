@@ -7,6 +7,11 @@ import {checkFileAuthorization03, FileUtils} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
+/**
+ * TODO:
+ * - [Medium] Implement name and path update
+ */
+
 const updateFileDetails: UpdateFileDetailsEndpoint = async (
   context,
   instData
