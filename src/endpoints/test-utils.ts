@@ -1,5 +1,6 @@
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
+import sharp = require('sharp');
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -27,6 +28,11 @@ import {
   TokenType,
 } from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
+import uploadFile from './files/uploadFile/handler';
+import {INewFileInput, IUploadFileParams} from './files/uploadFile/types';
+import addFolder from './folders/addFolder/handler';
+import {IAddFolderParams, INewFolderInput} from './folders/addFolder/types';
+import {folderConstants} from './folders/constants';
 import addOrganization from './organizations/addOrganization/handler';
 import {IAddOrganizationParams} from './organizations/addOrganization/types';
 import addPermissionItems from './permissionItems/addItems/handler';
@@ -296,5 +302,88 @@ export async function insertPermissionItemsForTest02(
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
   expect(result.items.length).toBe(items.length);
+  return result;
+}
+
+export async function insertFolderForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  folderInput: Partial<INewFolderInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<IAddFolderParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      folder: {
+        path: [faker.lorem.word()].join(folderConstants.nameSeparator),
+        description: faker.lorem.paragraph(),
+        maxFileSizeInBytes: 1_000_000_000,
+        ...folderInput,
+      },
+    }
+  );
+
+  const result = await addFolder(context, instData);
+  assertEndpointResultOk(result);
+  return result;
+}
+
+export async function generateTestImage() {
+  return await sharp({
+    create: {
+      width: 300,
+      height: 200,
+      channels: 4,
+      background: {r: 255, g: 0, b: 0, alpha: 0.5},
+    },
+  })
+    .png()
+    .toBuffer();
+}
+
+export function generateTestTextFile() {
+  const text = faker.lorem.paragraphs(10);
+  return Buffer.from(text, 'utf-8');
+}
+
+export async function insertFileForTest(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  fileInput: Partial<INewFileInput> = {},
+  type: 'image' | 'text' = 'image'
+) {
+  const input: INewFileInput = {
+    path: [faker.lorem.word(), faker.lorem.word()].join(
+      folderConstants.nameSeparator
+    ),
+    description: faker.lorem.paragraph(),
+    data: Buffer.from(faker.lorem.word()),
+    mimetype: 'application/octet-stream',
+    ...fileInput,
+  };
+
+  if (!input.data) {
+    if (type === 'image') {
+      input.data = await generateTestImage();
+      input.mimetype = 'image/png';
+    } else {
+      input.data = generateTestTextFile();
+      input.mimetype = 'text/plain';
+      input.encoding = 'utf-8';
+    }
+  }
+
+  const instData = RequestData.fromExpressRequest<IUploadFileParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      organizationId,
+      file: input,
+    }
+  );
+
+  const result = await uploadFile(context, instData);
+  assertEndpointResultOk(result);
   return result;
 }

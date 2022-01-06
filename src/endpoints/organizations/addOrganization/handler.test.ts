@@ -7,10 +7,6 @@ import {
 import OrganizationQueries from '../queries';
 import {IAddOrganizationParams} from './types';
 
-/**
- * TODO:
- */
-
 test('organization created', async () => {
   const context = getTestBaseContext();
   const {userToken} = await insertUserForTest(context);
