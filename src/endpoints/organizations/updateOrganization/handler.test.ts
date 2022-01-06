@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertUserForTest,
@@ -28,7 +28,7 @@ test('organization updated', async () => {
   );
 
   const result = await updateOrganization(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.organization).toEqual(orgUpdateInput);
 
   const updatedOrganization = await context.data.organization.assertGetItem(

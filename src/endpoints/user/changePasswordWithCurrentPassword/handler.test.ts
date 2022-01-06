@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -32,7 +32,7 @@ test('password changed with current password', async () => {
   );
 
   const result = await changePasswordWithCurrentPassword(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.user).toEqual(user);
 
   const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
@@ -44,6 +44,6 @@ test('password changed with current password', async () => {
   );
 
   const loginResult = await login(context, loginReqData);
-  assertEndpointResultHasNoErrors(loginResult);
+  assertEndpointResultOk(loginResult);
   expect(loginResult.user).toEqual(user);
 });

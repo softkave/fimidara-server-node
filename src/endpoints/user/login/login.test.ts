@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -31,7 +31,7 @@ test('user login successful with token reuse', async () => {
   );
 
   const result = await login(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.user).toEqual(user);
   expect(result.token).toEqual(userTokenStr);
 });

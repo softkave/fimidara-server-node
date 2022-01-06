@@ -1,5 +1,10 @@
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  crudActionsList,
+} from '../definitions/system';
 import {IUserToken} from '../definitions/userToken';
 import addClientAssignedToken from './clientAssignedTokens/addToken/handler';
 import {
@@ -11,6 +16,7 @@ import {
   ICollaborationRequestInput,
   ISendRequestParams,
 } from './collaborationRequests/sendRequest/types';
+import {IPermissionEntity} from './contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from './contexts/BaseContext';
 import {TestEmailProviderContext} from './contexts/EmailProviderContext';
 import {TestFilePersistenceProviderContext} from './contexts/FilePersistenceProviderContext';
@@ -23,6 +29,11 @@ import {
 import {IServerRequest} from './contexts/types';
 import addOrganization from './organizations/addOrganization/handler';
 import {IAddOrganizationParams} from './organizations/addOrganization/types';
+import addPermissionItems from './permissionItems/addItems/handler';
+import {
+  IAddPermissionItemsParams,
+  INewPermissionItemInput,
+} from './permissionItems/addItems/types';
 import addPresetPermissionsGroup from './presetPermissionsGroups/addPreset/handler';
 import {
   IAddPresetPermissionsGroupParams,
@@ -47,7 +58,7 @@ export function getTestBaseContext() {
   );
 }
 
-export function assertEndpointResultHasNoErrors(result: IBaseEndpointResult) {
+export function assertEndpointResultOk(result: IBaseEndpointResult) {
   if (result.errors?.length) {
     throw result.errors;
   }
@@ -97,7 +108,7 @@ export async function insertUserForTest(
   );
 
   const result = await signup(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const tokenData = context.session.decodeToken(context, result.token);
   const userToken = await context.data.userToken.assertGetItem(
@@ -126,7 +137,7 @@ export async function insertOrganizationForTest(
   );
 
   const result = await addOrganization(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   return {
     organization: result.organization,
   };
@@ -152,7 +163,7 @@ export async function insertPresetForTest(
   );
 
   const result = await addPresetPermissionsGroup(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   return result;
 }
 
@@ -176,7 +187,7 @@ export async function insertRequestForTest(
   );
 
   const result = await sendRequest(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   return result;
 }
 
@@ -191,6 +202,7 @@ export async function insertClientAssignedTokenForTest(
     {
       organizationId,
       token: {
+        presets: [],
         expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
         ...requestInput,
       },
@@ -198,7 +210,7 @@ export async function insertClientAssignedTokenForTest(
   );
 
   const result = await addClientAssignedToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   return result;
 }
 
@@ -222,6 +234,67 @@ export async function insertProgramAccessTokenForTest(
   );
 
   const result = await addProgramAccessToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
+  return result;
+}
+
+function makePermissionItemInputs(
+  owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
+  base: Partial<INewPermissionItemInput> & {resourceType: AppResourceType}
+) {
+  const items: INewPermissionItemInput[] = crudActionsList.map(action => ({
+    ...base,
+    ...owner,
+    action: action as BasicCRUDActions,
+    isExclusion: faker.datatype.boolean(),
+    isForPermissionOwnerOnly: faker.datatype.boolean(),
+  }));
+
+  return items;
+}
+
+export async function insertPermissionItemsForTest01(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  entity: IPermissionEntity,
+  owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
+  base: Partial<INewPermissionItemInput> & {resourceType: AppResourceType}
+) {
+  const itemsInput = makePermissionItemInputs(owner, base);
+  const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      ...entity,
+      organizationId: organizationId,
+      items: itemsInput,
+    }
+  );
+
+  const result = await addPermissionItems(context, instData);
+  assertEndpointResultOk(result);
+  expect(result.items.length).toBe(itemsInput.length);
+  return result;
+}
+
+export async function insertPermissionItemsForTest02(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  entity: IPermissionEntity,
+  items: INewPermissionItemInput[]
+) {
+  const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      ...entity,
+      items,
+      organizationId: organizationId,
+    }
+  );
+
+  const result = await addPermissionItems(context, instData);
+  assertEndpointResultOk(result);
+  expect(result.items.length).toBe(items.length);
   return result;
 }

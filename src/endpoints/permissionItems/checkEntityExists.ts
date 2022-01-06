@@ -10,6 +10,10 @@ import {InvalidRequestError} from '../errors';
 import {checkPresetPermissionsGroupAuthorization02} from '../presetPermissionsGroups/utils';
 import {checkProgramAccessTokenAuthorization02} from '../programAccessTokens/utils';
 
+/**
+ * Entity auth check is enough for permission items cause permission items are
+ * basically extensions of the entites and are considered to belong to the entities.
+ */
 export default async function checkEntityExists(
   context: IBaseContext,
   agent: ISessionAgent,

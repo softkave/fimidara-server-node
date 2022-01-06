@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -25,6 +25,6 @@ test('user data is returned', async () => {
   const instData = RequestData.fromExpressRequest(mockExpressRequest());
 
   const result = await getUserData(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.user).toEqual(user);
 });

@@ -1,7 +1,7 @@
 import {TokenAudience} from '../../contexts/SessionContext';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
@@ -21,7 +21,7 @@ test('email verification code sent', async () => {
   const instData = RequestData.fromExpressRequest(mockExpressRequest());
   const result = await sendEmailVerificationCode(context, instData);
 
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   await context.data.userToken.assertGetItem(
     UserTokenQueries.getByUserIdAndAudience(
       user.userId,

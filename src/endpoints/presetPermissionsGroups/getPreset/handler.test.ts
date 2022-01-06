@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -28,6 +28,6 @@ test('referenced preset returned', async () => {
   );
 
   const result = await getProgramAccessToken(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.preset).toBe(preset);
 });

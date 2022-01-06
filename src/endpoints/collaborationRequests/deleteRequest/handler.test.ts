@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertRequestForTest,
@@ -29,7 +29,7 @@ test('collaboration request deleted', async () => {
   );
 
   const result = await deleteRequest(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   const deletedRequestExists = await context.data.collaborationRequest.checkItemExists(
     CollaborationRequestQueries.getById(request.requestId)
   );

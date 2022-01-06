@@ -18,7 +18,19 @@ function getByOrganizationId(id: string) {
     .build();
 }
 
+function getByIds(ids: string[], organizationId: string) {
+  return newFilter()
+    .addItem('tokenId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class ClientAssignedTokenQueries {
   static getById = getById;
   static getByOrganizationId = getByOrganizationId;
+  static getByIds = getByIds;
 }

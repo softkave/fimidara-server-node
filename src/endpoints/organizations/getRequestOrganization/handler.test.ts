@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertUserForTest,
@@ -22,7 +22,7 @@ test('request organization returned', async () => {
   );
 
   const result = await getRequestOrganization(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const requestOrganization = requestOrganizationExtractor(organization);
   expect(result.organization).toBe(requestOrganization);

@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertRequestForTest,
@@ -39,7 +39,7 @@ test("user's collaboration request returned", async () => {
   );
 
   const result = await getUserRequests(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.requests.length).toBe(1);
   expect(result.requests).toContain(request01);
 });

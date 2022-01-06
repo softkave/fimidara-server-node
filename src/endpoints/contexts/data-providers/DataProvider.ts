@@ -49,6 +49,14 @@ export interface IDataProviderFilterBuilder<T extends {[key: string]: any}> {
     // logicalOp?: DataProviderFilterValueLogicalOperator
   ) => IDataProviderFilterBuilder<T>;
 
+  // TODO: deprecate function when deep field type is implemented
+  addItemWithStringKey: <K extends keyof T | string>(
+    key: K,
+    value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
+    queryOp?: DataProviderFilterValueOperator
+    // logicalOp?: DataProviderFilterValueLogicalOperator
+  ) => IDataProviderFilterBuilder<T>;
+
   addItemValue: <K extends keyof T>(
     key: K,
     value: IDataProviderFilterValue<T[K]>

@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -66,7 +66,7 @@ test('preset updated', async () => {
   );
 
   const result = await updatePresetPermissionsGroup(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
 
   const updatedPreset = await context.data.presetPermissionsGroup.assertGetItem(
     PresetPermissionsGroupQueries.getById(preset00.presetId)

@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
   insertOrganizationForTest,
@@ -34,7 +34,7 @@ test("organization's client assigned tokens returned", async () => {
   );
 
   const result = await getOrganizationClientAssignedTokens(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.tokens).toContain(token01);
   expect(result.tokens).toContain(token02);
 });

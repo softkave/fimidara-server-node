@@ -3,18 +3,18 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {IPublicPermissionItem} from '../types';
 
-export interface IGetPermissionEntityPermissionItemsParams {
+export interface IGetEntityPermissionItemsParams {
   organizationId: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
 }
 
-export interface IGetPermissionEntityPermissionItemsResult {
+export interface IGetEntityPermissionItemsResult {
   items: IPublicPermissionItem[];
 }
 
-export type GetPermissionEntityPermissionItemsEndpoint = Endpoint<
+export type GetEntityPermissionItemsEndpoint = Endpoint<
   IBaseContext,
-  IGetPermissionEntityPermissionItemsParams,
-  IGetPermissionEntityPermissionItemsResult
+  IGetEntityPermissionItemsParams,
+  IGetEntityPermissionItemsResult
 >;

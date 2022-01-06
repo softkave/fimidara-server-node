@@ -3,7 +3,7 @@ import differenceInSeconds from 'date-fns/differenceInSeconds';
 import * as faker from 'faker';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertRequestForTest,
@@ -41,7 +41,7 @@ test('collaboration request updated', async () => {
   );
 
   const result = await updateRequest(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
     CollaborationRequestQueries.getById(request01.requestId)
   );

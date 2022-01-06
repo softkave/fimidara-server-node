@@ -1,7 +1,7 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertRequestForTest,
@@ -43,7 +43,7 @@ test('collaboration request declined', async () => {
   );
 
   const result = await respondToRequest(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
     CollaborationRequestQueries.getById(request01.requestId)
   );

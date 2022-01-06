@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -37,7 +37,7 @@ test("organization's presets returned", async () => {
     context,
     instData
   );
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.presets).toContain(preset01);
   expect(result.presets).toContain(preset02);
 });

@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {
-  assertEndpointResultHasNoErrors,
+  assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
   insertProgramAccessTokenForTest,
@@ -34,7 +34,7 @@ test("organization's program access token returned", async () => {
   );
 
   const result = await getOrganizationProgramAccessTokens(context, instData);
-  assertEndpointResultHasNoErrors(result);
+  assertEndpointResultOk(result);
   expect(result.tokens).toContain(token01);
   expect(result.tokens).toContain(token02);
 });
