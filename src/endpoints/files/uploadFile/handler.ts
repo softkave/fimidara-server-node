@@ -60,7 +60,7 @@ async function createFile(
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const pathWithDetails = splitPathWithDetails(data.path);
+  const pathWithDetails = splitPathWithDetails(data.file.path);
   const organizationId = getOrganizationId(agent, data.organizationId);
   let file = await context.data.file.getItem(
     FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)

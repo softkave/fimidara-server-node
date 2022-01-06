@@ -7,11 +7,11 @@ export interface INewFileInput {
   mimetype: string; // TODO: define mimetypes
   encoding?: string;
   data: Buffer;
+  path: string;
 }
 
 export interface IUploadFileParams {
   organizationId?: string;
-  path: string;
   file: INewFileInput;
 }
 

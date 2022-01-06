@@ -3,7 +3,7 @@ import {indexArray} from '../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
 
-export interface IUploadFileParams {
+export interface IFilePersistenceUploadFileParams {
   bucket: string;
   key: string;
   body: Buffer;
@@ -12,12 +12,12 @@ export interface IUploadFileParams {
   contentLength?: number;
 }
 
-export interface IGetFileParams {
+export interface IFilePersistenceGetFileParams {
   bucket: string;
   key: string;
 }
 
-export interface IDeleteFilesParams {
+export interface IFilePersistenceDeleteFilesParams {
   bucket: string;
   keys: string[];
 }
@@ -27,9 +27,9 @@ export interface IPersistedFile {
 }
 
 export interface IFilePersistenceProviderContext {
-  uploadFile: (params: IUploadFileParams) => Promise<void>;
-  getFile: (params: IGetFileParams) => Promise<IPersistedFile>;
-  deleteFiles: (params: IDeleteFilesParams) => Promise<void>;
+  uploadFile: (params: IFilePersistenceUploadFileParams) => Promise<void>;
+  getFile: (params: IFilePersistenceGetFileParams) => Promise<IPersistedFile>;
+  deleteFiles: (params: IFilePersistenceDeleteFilesParams) => Promise<void>;
 }
 
 class FilePersistenceProviderContext
@@ -37,7 +37,7 @@ class FilePersistenceProviderContext
   public s3 = new aws.S3();
 
   public uploadFile = wrapFireAndThrowError(
-    async (params: IUploadFileParams) => {
+    async (params: IFilePersistenceUploadFileParams) => {
       await this.s3
         .putObject({
           Bucket: params.bucket,
@@ -51,19 +51,21 @@ class FilePersistenceProviderContext
     }
   );
 
-  public getFile = wrapFireAndThrowError(async (params: IGetFileParams) => {
-    const s3File = await this.s3
-      .getObject({
-        Bucket: params.bucket,
-        Key: params.key,
-      })
-      .promise();
+  public getFile = wrapFireAndThrowError(
+    async (params: IFilePersistenceGetFileParams) => {
+      const s3File = await this.s3
+        .getObject({
+          Bucket: params.bucket,
+          Key: params.key,
+        })
+        .promise();
 
-    return {body: <Buffer | undefined>s3File.Body};
-  });
+      return {body: <Buffer | undefined>s3File.Body};
+    }
+  );
 
   public deleteFiles = wrapFireAndThrowError(
-    async (params: IDeleteFilesParams) => {
+    async (params: IFilePersistenceDeleteFilesParams) => {
       await this.s3
         .deleteObjects({
           Bucket: params.bucket,
@@ -79,24 +81,26 @@ class FilePersistenceProviderContext
 
 export class TestFilePersistenceProviderContext
   implements IFilePersistenceProviderContext {
-  public files: IUploadFileParams[] = [];
+  public files: IFilePersistenceUploadFileParams[] = [];
 
   public uploadFile = wrapFireAndThrowError(
-    async (params: IUploadFileParams) => {
+    async (params: IFilePersistenceUploadFileParams) => {
       this.files.push(params);
     }
   );
 
-  public getFile = wrapFireAndThrowError(async (params: IGetFileParams) => {
-    const file = this.files.find(file => {
-      return file.bucket === params.bucket && file.key === params.key;
-    });
+  public getFile = wrapFireAndThrowError(
+    async (params: IFilePersistenceGetFileParams) => {
+      const file = this.files.find(file => {
+        return file.bucket === params.bucket && file.key === params.key;
+      });
 
-    return {body: file?.body};
-  });
+      return {body: file?.body};
+    }
+  );
 
   public deleteFiles = wrapFireAndThrowError(
-    async (params: IDeleteFilesParams) => {
+    async (params: IFilePersistenceDeleteFilesParams) => {
       const keysMap = indexArray(params.keys);
       this.files = this.files.filter(file => {
         return !(file.bucket === params.bucket && keysMap[file.key]);

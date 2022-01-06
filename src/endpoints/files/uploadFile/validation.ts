@@ -6,9 +6,9 @@ import fileValidationSchemas from '../validation';
 export const uploadFileJoiSchema = Joi.object()
   .keys({
     organizationId: validationSchemas.nanoid.allow([null]),
-    path: folderValidationSchemas.path.required(),
     file: Joi.object()
       .keys({
+        path: folderValidationSchemas.path.required(),
         description: validationSchemas.description.allow([null]),
         mimetype: fileValidationSchemas.mimetype.allow([null]),
         encoding: fileValidationSchemas.encoding.allow([null]),
