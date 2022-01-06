@@ -32,6 +32,6 @@ test('user login successful with token reuse', async () => {
 
   const result = await login(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toEqual(user);
-  expect(result.token).toEqual(userTokenStr);
+  expect(result.user).toMatchObject(user);
+  expect(result.token).toMatchObject(userTokenStr);
 });

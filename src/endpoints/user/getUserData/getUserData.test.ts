@@ -26,5 +26,5 @@ test('user data is returned', async () => {
 
   const result = await getUserData(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toEqual(user);
+  expect(result.user).toMatchObject(user);
 });

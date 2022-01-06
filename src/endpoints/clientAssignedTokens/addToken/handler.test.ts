@@ -47,12 +47,12 @@ test('client assigned token added', async () => {
 
   expect(savedToken).toBe(token);
   expect(savedToken.presets.length).toBe(2);
-  expect(savedToken.presets[0]).toEqual({
+  expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.presetId,
     assignedBy: user.userId,
     order: 0,
   });
-  expect(savedToken.presets[0]).toEqual({
+  expect(savedToken.presets[0]).toMatchObject({
     presetId: preset02.presetId,
     assignedBy: user.userId,
     order: 1,

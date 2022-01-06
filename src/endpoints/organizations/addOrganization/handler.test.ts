@@ -19,10 +19,10 @@ test('organization created', async () => {
     userToken,
     companyInput
   );
-  expect(result.organization).toEqual(companyInput);
+  expect(result.organization).toMatchObject(companyInput);
 
   const savedCompany = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(result.organization.organizationId)
   );
-  expect(result.organization).toEqual(savedCompany);
+  expect(result.organization).toMatchObject(savedCompany);
 });

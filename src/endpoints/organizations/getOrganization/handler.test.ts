@@ -22,5 +22,5 @@ test('organization returned', async () => {
 
   const result = await getOrganization(context, instData);
   assertEndpointResultOk(result);
-  expect(result.organization).toEqual(organization);
+  expect(result.organization).toMatchObject(organization);
 });

@@ -38,5 +38,5 @@ test('folder returned', async () => {
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
   expect(result.folder.folderId).toBe(folder01.folderId);
-  expect(result.folder).toEqual(updateInput);
+  expect(result.folder).toMatchObject(updateInput);
 });

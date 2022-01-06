@@ -29,10 +29,10 @@ test('organization updated', async () => {
 
   const result = await updateOrganization(context, instData);
   assertEndpointResultOk(result);
-  expect(result.organization).toEqual(orgUpdateInput);
+  expect(result.organization).toMatchObject(orgUpdateInput);
 
   const updatedOrganization = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(organization.organizationId)
   );
-  expect(updatedOrganization).toEqual(orgUpdateInput);
+  expect(updatedOrganization).toMatchObject(orgUpdateInput);
 });

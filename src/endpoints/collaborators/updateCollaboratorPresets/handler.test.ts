@@ -58,7 +58,7 @@ test('collaborator presets updated', async () => {
     UserQueries.getById(user.userId)
   );
 
-  expect(updatedUser).toEqual(result.collaborator);
+  expect(updatedUser).toMatchObject(result.collaborator);
   const userOrgData = getCollaboratorOrganization(
     updatedUser,
     organization.organizationId
@@ -66,12 +66,12 @@ test('collaborator presets updated', async () => {
 
   expect(userOrgData?.presets).toBeTruthy();
   expect(userOrgData?.presets.length).toBeGreaterThan(0);
-  expect(userOrgData?.presets[0]).toEqual({
+  expect(userOrgData?.presets[0]).toMatchObject({
     presetId: preset01.presetId,
     assignedBy: user.userId,
     order: 0,
   });
-  expect(userOrgData?.presets[0]).toEqual({
+  expect(userOrgData?.presets[0]).toMatchObject({
     presetId: preset02.presetId,
     assignedBy: user.userId,
     order: 1,

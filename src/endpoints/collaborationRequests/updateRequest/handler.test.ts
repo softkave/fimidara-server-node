@@ -47,6 +47,6 @@ test('collaboration request updated', async () => {
   );
 
   expect(result.request.requestId).toBe(request01.requestId);
-  expect(result.request).toEqual(updateRequestInput);
-  expect(updatedRequest).toEqual(updateRequestInput);
+  expect(result.request).toMatchObject(updateRequestInput);
+  expect(updatedRequest).toMatchObject(updateRequestInput);
 });

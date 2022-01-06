@@ -18,6 +18,6 @@ test('email address is confirmed', async () => {
   const instData = RequestData.fromExpressRequest(mockExpressRequest());
   const result = await confirmEmailAddress(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toEqual(user);
-  expect(result.token).toEqual(userTokenStr);
+  expect(result.user).toMatchObject(user);
+  expect(result.token).toMatchObject(userTokenStr);
 });

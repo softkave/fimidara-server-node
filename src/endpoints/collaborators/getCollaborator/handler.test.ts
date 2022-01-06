@@ -23,5 +23,5 @@ test('collaborator returned', async () => {
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);
-  expect(result.collaborator).toEqual(user);
+  expect(result.collaborator).toMatchObject(user);
 });
