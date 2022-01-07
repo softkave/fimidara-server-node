@@ -1,3 +1,4 @@
+import {SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -15,7 +16,10 @@ const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
   const organization = await context.data.organization.saveItem({
     createdAt: getDateString(),
-    createdBy: user.userId,
+    createdBy: {
+      agentId: user.userId,
+      agentType: SessionAgentType.User,
+    },
     name: data.name,
     organizationId: getNewId(),
     description: data.description,

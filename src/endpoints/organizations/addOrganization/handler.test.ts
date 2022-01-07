@@ -14,15 +14,17 @@ test('organization created', async () => {
     name: faker.company.companyName(),
     description: faker.company.catchPhraseDescriptor(),
   };
+
   const result = await insertOrganizationForTest(
     context,
     userToken,
     companyInput
   );
-  expect(result.organization).toMatchObject(companyInput);
 
+  expect(result.organization).toMatchObject(companyInput);
   const savedCompany = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(result.organization.organizationId)
   );
+
   expect(result.organization).toMatchObject(savedCompany);
 });

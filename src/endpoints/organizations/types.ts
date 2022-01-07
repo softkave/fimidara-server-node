@@ -2,7 +2,7 @@ import {IAgent} from '../../definitions/system';
 
 export interface IPublicOrganization {
   organizationId: string;
-  createdBy: string;
+  createdBy: IAgent;
   createdAt: string;
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
