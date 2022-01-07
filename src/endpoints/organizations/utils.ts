@@ -9,13 +9,13 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {agentExtractorIfPresent} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import OrganizationQueries from './queries';
 import {IPublicOrganization} from './types';
 
 const organizationFields = getFields<IPublicOrganization>({
   organizationId: true,
-  createdBy: true,
+  createdBy: agentExtractor,
   createdAt: getDateString,
   lastUpdatedBy: agentExtractorIfPresent,
   lastUpdatedAt: getDateStringIfPresent,

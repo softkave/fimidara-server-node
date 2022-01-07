@@ -129,24 +129,24 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
     await this.model.insertMany(data);
   });
 
-  bulkUpdateItems = wrapFireAndThrowError(
-    async (
-      items: Array<{
-        filter: IDataProviderFilter<T>;
-        data: Partial<T>;
-        updateFirstItemOnly?: boolean;
-      }>
-    ) => {
-      await this.model.bulkWrite(
-        items.map(item => ({
-          [item.updateFirstItemOnly ? 'updateOne' : 'updateMany']: {
-            filter: getMongoQueryFromFilter(item.filter),
-            update: item.data,
-          },
-        }))
-      );
-    }
-  );
+  // bulkUpdateItems = wrapFireAndThrowError(
+  //   async (
+  //     items: Array<{
+  //       filter: IDataProviderFilter<T>;
+  //       data: Partial<T>;
+  //       updateFirstItemOnly?: boolean;
+  //     }>
+  //   ) => {
+  //     await this.model.bulkWrite(
+  //       items.map(item => ({
+  //         [item.updateFirstItemOnly ? 'updateOne' : 'updateMany']: {
+  //           filter: getMongoQueryFromFilter(item.filter),
+  //           update: item.data,
+  //         },
+  //       }))
+  //     );
+  //   }
+  // );
 }
 
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {

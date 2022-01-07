@@ -73,10 +73,8 @@ test('preset updated', async () => {
   );
 
   expect(updatedPreset).toMatchObject(result.preset);
-  expect(updatedPreset.name).toMatchObject(updatePresetInput.name);
-  expect(updatedPreset.description).toMatchObject(
-    updatePresetInput.description
-  );
+  expect(updatedPreset.name).toBe(updatePresetInput.name);
+  expect(updatedPreset.description).toBe(updatePresetInput.description);
   expect(updatedPreset.presets.length).toBe(2);
   expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset01.presetId,
