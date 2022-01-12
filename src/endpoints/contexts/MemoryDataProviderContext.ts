@@ -39,7 +39,7 @@ export default class MemoryDataProviderContext
     throwPermissionItemNotFound
   );
 
-  public presetPermissionsGroup = new MemoryDataProvider<IPresetPermissionsGroup>(
+  public preset = new MemoryDataProvider<IPresetPermissionsGroup>(
     [],
     throwPresetPermissionsGroupNotFound
   );

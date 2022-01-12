@@ -22,11 +22,11 @@ test('file returned', async () => {
   });
 
   expect(persistedFile).toBeTruthy();
-  expect(persistedFile.body).toBe(buffer);
+  expect(persistedFile.body).toEqual(buffer);
 
   const savedFile = await context.data.file.assertGetItem(
     FileQueries.getById(file.resourceId)
   );
 
-  expect(savedFile).toBe(file);
+  expect(savedFile).toEqual(file);
 });

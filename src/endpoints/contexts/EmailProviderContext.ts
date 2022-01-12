@@ -19,7 +19,7 @@ export interface IEmailProviderContext {
   sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
 }
 
-class EmailProviderContext implements IEmailProviderContext {
+class SESEmailProviderContext implements IEmailProviderContext {
   private ses = new aws.SES();
 
   public sendEmail = wrapFireAndThrowError(
@@ -98,6 +98,6 @@ export class TestEmailProviderContext implements IEmailProviderContext {
   }
 }
 
-export const getEmailProviderContext = singletonFunc(
-  () => new EmailProviderContext()
+export const getSESEmailProviderContext = singletonFunc(
+  () => new SESEmailProviderContext()
 );

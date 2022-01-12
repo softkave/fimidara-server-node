@@ -45,7 +45,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint = async
       )
     ),
 
-    context.data.presetPermissionsGroup.deleteItem(
+    context.data.preset.deleteItem(
       PresetPermissionsGroupQueries.getById(preset.resourceId)
     ),
   ]);

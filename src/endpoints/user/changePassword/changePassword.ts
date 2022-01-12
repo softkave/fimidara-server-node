@@ -38,7 +38,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   instData.user = user;
 
   // Delete user token and incomingTokenData since they are no longer valid
-  delete instData.userToken;
+  delete instData.agent?.userToken;
   delete instData.incomingTokenData;
 
   // Delete existing user tokens cause they're no longer valid
@@ -55,7 +55,10 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   });
 
   // Allow other endpoints called with this request to use the updated user token
-  instData.userToken = newToken;
+  if (instData.agent) {
+    instData.agent.userToken = newToken;
+  }
+
   const encodedToken = context.session.encodeToken(
     context,
     newToken.resourceId,

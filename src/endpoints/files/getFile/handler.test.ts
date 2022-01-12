@@ -31,7 +31,7 @@ test('file returned', async () => {
 
   const result = await getFile(context, instData);
   assertEndpointResultOk(result);
-  expect(result.file).toBe(file);
+  expect(result.file).toEqual(file);
 
   const savedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,
@@ -39,7 +39,7 @@ test('file returned', async () => {
   });
 
   expect(savedFile).toBeTruthy();
-  expect(savedFile.body).toBe(result.buffer);
+  expect(savedFile.body).toEqual(result.buffer);
 });
 
 test('file resized', async () => {
@@ -73,9 +73,9 @@ test('file resized', async () => {
 
   const result = await getFile(context, instData);
   assertEndpointResultOk(result);
-  expect(result.file).toBe(file);
+  expect(result.file).toEqual(file);
 
   const fileMetadata = await sharp(result.buffer).metadata();
-  expect(fileMetadata.width).toBe(expectedWidth);
-  expect(fileMetadata.height).toBe(expectedHeight);
+  expect(fileMetadata.width).toEqual(expectedWidth);
+  expect(fileMetadata.height).toEqual(expectedHeight);
 });

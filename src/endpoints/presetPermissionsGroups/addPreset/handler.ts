@@ -44,7 +44,7 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
     BasicCRUDActions.Create
   );
 
-  const itemExists = await context.data.presetPermissionsGroup.checkItemExists(
+  const itemExists = await context.data.preset.checkItemExists(
     PresetPermissionsGroupQueries.getByOrganizationAndName(
       organization.resourceId,
       data.preset.name
@@ -56,7 +56,7 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   }
 
   // TODO: validate that the presets being assigned exist. Do same for other endpoints.
-  const preset = await context.data.presetPermissionsGroup.saveItem({
+  const preset = await context.data.preset.saveItem({
     ...data.preset,
     resourceId: getNewId(),
     createdAt: getDateString(),

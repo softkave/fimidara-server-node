@@ -3,7 +3,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
-import ClientAssignedTokenQueries from '../queries';
+import EndpointReusableQueries from '../../queries';
 import {
   checkClientAssignedTokenAuthorization02,
   clientAssignedTokenExtractor,
@@ -52,7 +52,7 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
 
   let token = checkResult.token;
   token = await context.data.clientAssignedToken.assertUpdateItem(
-    ClientAssignedTokenQueries.getById(tokenId),
+    EndpointReusableQueries.getById(tokenId),
     {
       presets: data.presets.map(preset => ({
         ...preset,

@@ -39,7 +39,7 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint = async
         agent,
         organization.resourceId,
         item.resourceId,
-        AppResourceType.Collaborator,
+        AppResourceType.User,
         makeBasePermissionOwnerList(organization.resourceId),
         BasicCRUDActions.Read,
         true

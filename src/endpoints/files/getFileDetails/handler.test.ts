@@ -30,5 +30,5 @@ test('file details returned', async () => {
 
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);
-  expect(result.file).toBe(file);
+  expect(result.file).toEqual(file);
 });

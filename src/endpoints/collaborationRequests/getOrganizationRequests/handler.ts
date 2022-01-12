@@ -5,6 +5,7 @@ import {
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
+import EndpointReusableQueries from '../../queries';
 import CollaborationRequestQueries from '../queries';
 import {collabRequestListExtractor} from '../utils';
 import {GetOrganizationRequestsEndpoint} from './types';
@@ -32,7 +33,7 @@ const getOrganizationRequests: GetOrganizationRequestsEndpoint = async (
   );
 
   const requests = await context.data.collaborationRequest.getManyItems(
-    CollaborationRequestQueries.getByOrganizationId(data.organizationId)
+    EndpointReusableQueries.getByOrganizationId(data.organizationId)
   );
 
   // TODO: can we do this together, so that we don't waste compute

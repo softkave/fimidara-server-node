@@ -51,8 +51,8 @@ test('program access token added', async () => {
     ProgramAccessTokenQueries.getById(token.resourceId)
   );
 
-  expect(savedToken).toBe(token);
-  expect(savedToken.presets.length).toBe(2);
+  expect(savedToken).toEqual(token);
+  expect(savedToken.presets.length).toEqual(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: user.resourceId,

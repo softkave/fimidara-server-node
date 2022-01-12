@@ -1,21 +1,10 @@
 import {IOrganization} from '../../definitions/organization';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IOrganization>();
-}
-
-function getById(id: string) {
-  return newFilter()
-    .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getByIds(ids: string[]) {
-  return newFilter()
-    .addItem('organizationId', ids, DataProviderFilterValueOperator.In)
-    .build();
 }
 
 function getByName(name: string) {
@@ -29,7 +18,7 @@ function getByName(name: string) {
 }
 
 export default abstract class OrganizationQueries {
-  static getById = getById;
-  static getByIds = getByIds;
+  static getById = EndpointReusableQueries.getById;
+  static getByIds = EndpointReusableQueries.getByIds;
   static getByName = getByName;
 }

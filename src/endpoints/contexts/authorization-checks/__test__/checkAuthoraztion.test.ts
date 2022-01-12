@@ -38,13 +38,13 @@ test('auth is granted when it should be', async () => {
     organization.resourceId,
     {
       permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.Collaborator,
+      permissionEntityType: AppResourceType.User,
     },
     {
       permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
-    {resourceType: AppResourceType.File}
+    {itemResourceType: AppResourceType.File}
   );
 
   const agent = await context.session.getAgent(

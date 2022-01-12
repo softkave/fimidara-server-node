@@ -1,4 +1,5 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -36,11 +37,11 @@ test('collaboration request revoked', async () => {
   const result = await revokeRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.resourceId)
+    EndpointReusableQueries.getById(request01.resourceId)
   );
 
-  expect(result.request.resourceId).toBe(request01.resourceId);
-  expect(result.request).toBe(updatedRequest);
+  expect(result.request.resourceId).toEqual(request01.resourceId);
+  expect(result.request).toEqual(updatedRequest);
   expect(updatedRequest.statusHistory).toContain({
     status: CollaborationRequestStatusType.Revoked,
   });

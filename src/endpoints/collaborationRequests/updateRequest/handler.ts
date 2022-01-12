@@ -2,6 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {isObjectEmpty} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
+import EndpointReusableQueries from '../../queries';
 import CollaborationRequestQueries from '../queries';
 import {
   checkCollaborationRequestAuthorization02,
@@ -34,7 +35,7 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
 
   if (!isObjectEmpty(data.request)) {
     request = await context.data.collaborationRequest.assertUpdateItem(
-      CollaborationRequestQueries.getById(data.requestId),
+      EndpointReusableQueries.getById(data.requestId),
       {
         ...data.request,
         lastUpdatedAt: getDateString(),

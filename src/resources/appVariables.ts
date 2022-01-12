@@ -7,9 +7,6 @@ interface ISuppliedVariables {
   jwtSecret: string;
   nodeEnv: string;
   port: string;
-  twilioAccountSID: string;
-  twilioAuthToken: string;
-  twilioVerificationServiceSID: string;
   S3Bucket: string;
 }
 
@@ -56,18 +53,6 @@ const extractSchema: Record<
   port: {
     required: true,
     name: 'PORT',
-  },
-  twilioAccountSID: {
-    required: true,
-    name: 'TWILIO_ACCOUNT_SID',
-  },
-  twilioAuthToken: {
-    required: true,
-    name: 'TWILIO_AUTH_TOKEN',
-  },
-  twilioVerificationServiceSID: {
-    required: true,
-    name: 'TWILIO_VERIFY_SERVICE_SID',
   },
   S3Bucket: {
     required: true,
@@ -144,7 +129,7 @@ export function extractEnvVariables(
   return vars;
 }
 
-export function replaceAppVariables(base: Partial<IAppVariables>) {
+export function setAppVariables(base: Partial<IAppVariables>) {
   appVariables = merge({}, appVariables, base);
 }
 

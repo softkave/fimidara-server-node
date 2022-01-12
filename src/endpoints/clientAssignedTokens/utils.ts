@@ -14,8 +14,8 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
+import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
-import ClientAssignedTokenQueries from './queries';
 import {IPublicClientAssignedToken} from './types';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
@@ -73,7 +73,7 @@ export async function checkClientAssignedTokenAuthorization02(
   nothrow = false
 ) {
   const token = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(tokenId)
+    EndpointReusableQueries.getById(tokenId)
   );
 
   return checkClientAssignedTokenAuthorization(

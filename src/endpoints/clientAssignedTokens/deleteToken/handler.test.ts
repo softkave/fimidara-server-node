@@ -1,3 +1,4 @@
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -7,7 +8,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import ClientAssignedTokenQueries from '../queries';
 import deleteClientAssignedToken from './handler';
 import {IDeleteClientAssignedTokenParams} from './types';
 
@@ -37,7 +37,7 @@ test('client assigned token deleted', async () => {
   assertEndpointResultOk(result);
 
   const deletedTokenExists = await context.data.clientAssignedToken.checkItemExists(
-    ClientAssignedTokenQueries.getById(token.resourceId)
+    EndpointReusableQueries.getById(token.resourceId)
   );
 
   expect(deletedTokenExists).toBeFalsy();

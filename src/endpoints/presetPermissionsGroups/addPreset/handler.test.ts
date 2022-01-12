@@ -21,9 +21,9 @@ test('preset permissions group added', async () => {
     organization.resourceId
   );
 
-  const savedPreset = await context.data.presetPermissionsGroup.assertGetItem(
+  const savedPreset = await context.data.preset.assertGetItem(
     PresetPermissionsGroupQueries.getById(preset.resourceId)
   );
 
-  expect(savedPreset).toBe(preset);
+  expect(savedPreset).toEqual(preset);
 });

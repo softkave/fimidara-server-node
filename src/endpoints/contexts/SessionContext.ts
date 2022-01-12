@@ -1,16 +1,18 @@
 import * as jwt from 'jsonwebtoken';
+import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
+import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
-import cast from '../../utilities/fns';
+import cast, {denull} from '../../utilities/fns';
 import {
   wrapFireAndThrowError,
   wrapFireAndThrowErrorNoAsync,
 } from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
-import ClientAssignedTokenQueries from '../clientAssignedTokens/queries';
 import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
+import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {
   CredentialsExpiredError,
@@ -98,9 +100,10 @@ export default class SessionContext implements ISessionContext {
         return data.agent;
       }
 
-      let userToken = data.userToken;
-      let clientAssignedToken = data.clientAssignedToken;
-      let programAccessToken = data.programAccessToken;
+      let userToken: IUserToken | null = null;
+      let user: IUser | null = null;
+      let clientAssignedToken: IClientAssignedToken | null = null;
+      let programAccessToken: IProgramAccessToken | null = null;
       const incomingTokenData = data.incomingTokenData;
       const noProcessedToken =
         !userToken && !clientAssignedToken && !programAccessToken;
@@ -115,12 +118,14 @@ export default class SessionContext implements ISessionContext {
             userToken = await ctx.data.userToken.assertGetItem(
               UserTokenQueries.getById(incomingTokenData.sub.id)
             );
-            data.userToken = userToken;
 
             if (audience) {
               ctx.session.tokenContainsAudience(ctx, userToken, audience);
             }
 
+            user = await ctx.data.user.assertGetItem(
+              EndpointReusableQueries.getById(userToken.userId)
+            );
             break;
           }
 
@@ -128,15 +133,13 @@ export default class SessionContext implements ISessionContext {
             programAccessToken = await ctx.data.programAccessToken.assertGetItem(
               ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
             );
-            data.programAccessToken = programAccessToken;
             break;
           }
 
           case TokenType.ClientAssignedToken: {
             clientAssignedToken = await ctx.data.clientAssignedToken.assertGetItem(
-              ClientAssignedTokenQueries.getById(incomingTokenData.sub.id)
+              EndpointReusableQueries.getById(incomingTokenData.sub.id)
             );
-            data.clientAssignedToken = clientAssignedToken;
             break;
           }
         }
@@ -162,6 +165,8 @@ export default class SessionContext implements ISessionContext {
       if (userToken) {
         const agent: ISessionAgent = {
           incomingTokenData,
+          userToken,
+          user: denull(user),
           agentId: userToken.userId,
           agentType: SessionAgentType.User,
           tokenId: userToken.resourceId,
@@ -175,6 +180,7 @@ export default class SessionContext implements ISessionContext {
       if (programAccessToken) {
         const agent: ISessionAgent = {
           incomingTokenData,
+          programAccessToken,
           agentId: programAccessToken.resourceId,
           agentType: SessionAgentType.ProgramAccessToken,
           tokenId: programAccessToken.resourceId,
@@ -188,6 +194,7 @@ export default class SessionContext implements ISessionContext {
       if (clientAssignedToken) {
         const agent: ISessionAgent = {
           incomingTokenData,
+          clientAssignedToken,
           agentId: clientAssignedToken.resourceId,
           agentType: SessionAgentType.ClientAssignedToken,
           tokenId: clientAssignedToken.resourceId,
@@ -340,4 +347,13 @@ export function assertIncomingToken(
   }
 
   return true;
+}
+
+export function updateReqAgent(
+  reqData: RequestData,
+  fn: (agent?: ISessionAgent) => ISessionAgent | undefined
+) {
+  if (reqData.agent) {
+    reqData.agent = fn(reqData.agent);
+  }
 }

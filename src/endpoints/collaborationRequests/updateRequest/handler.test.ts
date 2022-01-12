@@ -1,6 +1,7 @@
 import add from 'date-fns/add';
 import differenceInSeconds from 'date-fns/differenceInSeconds';
 import * as faker from 'faker';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -43,10 +44,10 @@ test('collaboration request updated', async () => {
   const result = await updateRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.resourceId)
+    EndpointReusableQueries.getById(request01.resourceId)
   );
 
-  expect(result.request.resourceId).toBe(request01.resourceId);
+  expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toMatchObject(updateRequestInput);
   expect(updatedRequest).toMatchObject(updateRequestInput);
 });

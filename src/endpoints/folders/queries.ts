@@ -1,26 +1,10 @@
 import {IFolder} from '../../definitions/folder';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IFolder>();
-}
-
-function getById(id: string) {
-  return newFilter()
-    .addItem('folderId', id, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getByMultipleIds(ids: string[], organizationId: string) {
-  return newFilter()
-    .addItem('folderId', ids, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
 }
 
 function getByName(name: string, parent?: IFolder) {
@@ -103,8 +87,8 @@ function getRootFolders(organizationId: string) {
 }
 
 export default abstract class FolderQueries {
-  static getById = getById;
-  static getByMultipleIds = getByMultipleIds;
+  static getById = EndpointReusableQueries.getById;
+  static getByMultipleIds = EndpointReusableQueries.getByIdsAndOrgId;
   static getByName = getByName;
   static getFoldersByParentId = getFoldersByParentId;
   static getByNamePath = getByNamePath;

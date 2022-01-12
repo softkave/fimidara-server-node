@@ -1,4 +1,5 @@
-import {isEqual, isArray, merge} from 'lodash';
+import {isEqual, isArray, merge, get} from 'lodash';
+import {ServerError} from '../../../utilities/errors';
 import cast from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
@@ -21,6 +22,7 @@ function applyGreaterThanOrEqual(queryValue: any, value: any): boolean {
 }
 
 function applyIn(queryValue: any, value: any): boolean {
+  console.log({queryValue, value});
   return isArray(queryValue) && queryValue.includes(value);
 }
 
@@ -62,36 +64,59 @@ function matches(
       continue;
     }
 
+    const fields = key.split('.');
+    const base = get(item, fields[0]);
+    const baseIsDotList = fields.length > 1 && Array.isArray(base);
+    const runFn = (fn: (...args: any[]) => boolean) => {
+      if (baseIsDotList) {
+        const i = base.findIndex(o1 => {
+          const do1 = get(o1, fields[1]);
+          return fn(v.value, do1);
+        });
+
+        return i !== -1;
+      } else {
+        return fn(v.value, base);
+      }
+    };
+
+    // console.log({v, key});
+
+    if (fields.length > 2) {
+      console.error('Max depth for dot separated fields is 2');
+      throw new ServerError();
+    }
+
     switch (v.queryOp) {
       case DataProviderFilterValueOperator.Equal:
-        passesIteration = applyEqual(v.value, item[key]);
+        passesIteration = runFn(applyEqual);
         break;
       case DataProviderFilterValueOperator.GreaterThan:
-        passesIteration = applyGreaterThan(v.value, item[key]);
+        passesIteration = runFn(applyGreaterThan);
         break;
       case DataProviderFilterValueOperator.GreaterThanOrEqual:
-        passesIteration = applyGreaterThanOrEqual(v.value, item[key]);
+        passesIteration = runFn(applyGreaterThanOrEqual);
         break;
       case DataProviderFilterValueOperator.In:
-        passesIteration = applyIn(v.value, item[key]);
+        passesIteration = runFn(applyIn);
         break;
       case DataProviderFilterValueOperator.LessThan:
-        passesIteration = applyLessThan(v.value, item[key]);
+        passesIteration = runFn(applyLessThan);
         break;
       case DataProviderFilterValueOperator.LessThanOrEqual:
-        passesIteration = applyLessThanOrEqual(v.value, item[key]);
+        passesIteration = runFn(applyLessThanOrEqual);
         break;
       case DataProviderFilterValueOperator.NotEqual:
-        passesIteration = applyNotEqual(v.value, item[key]);
+        passesIteration = runFn(applyNotEqual);
         break;
       case DataProviderFilterValueOperator.NotIn:
-        passesIteration = applyNotIn(v.value, item[key]);
+        passesIteration = runFn(applyNotIn);
         break;
       case DataProviderFilterValueOperator.Regex:
-        passesIteration = applyRegex(v.value, item[key]);
+        passesIteration = runFn(applyRegex);
         break;
       case DataProviderFilterValueOperator.Object:
-        passesIteration = applyObject(v.value, item[key]);
+        passesIteration = runFn(applyObject);
         break;
       default:
         passesIteration = false;

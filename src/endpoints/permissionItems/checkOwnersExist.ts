@@ -67,9 +67,11 @@ export default async function checkOwnersExist(
 
   const [folders, files] = await Promise.all([
     context.data.folder.getManyItems(
-      FolderQueries.getByMultipleIds(ownerFolders)
+      FolderQueries.getByMultipleIds(ownerFolders, organizationId)
     ),
-    context.data.file.getManyItems(FileQueries.getByMultipleIds(ownerFiles)),
+    context.data.file.getManyItems(
+      FileQueries.getByMultipleIds(ownerFiles, organizationId)
+    ),
   ]);
 
   const checkFoldersPermissionQueue = folders.map(item =>

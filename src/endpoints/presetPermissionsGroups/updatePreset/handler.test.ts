@@ -68,14 +68,14 @@ test('preset updated', async () => {
   const result = await updatePresetPermissionsGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedPreset = await context.data.presetPermissionsGroup.assertGetItem(
+  const updatedPreset = await context.data.preset.assertGetItem(
     PresetPermissionsGroupQueries.getById(preset00.resourceId)
   );
 
   expect(updatedPreset).toMatchObject(result.preset);
-  expect(updatedPreset.name).toBe(updatePresetInput.name);
-  expect(updatedPreset.description).toBe(updatePresetInput.description);
-  expect(updatedPreset.presets.length).toBe(2);
+  expect(updatedPreset.name).toEqual(updatePresetInput.name);
+  expect(updatedPreset.description).toEqual(updatePresetInput.description);
+  expect(updatedPreset.presets.length).toEqual(2);
   expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: user.resourceId,

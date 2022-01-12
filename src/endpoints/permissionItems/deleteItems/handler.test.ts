@@ -35,7 +35,7 @@ test('permission items deleted', async () => {
       permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
-    {resourceType: AppResourceType.File}
+    {itemResourceType: AppResourceType.File}
   );
 
   const itemIds = items.map(item => item.resourceId);
@@ -55,5 +55,5 @@ test('permission items deleted', async () => {
     PermissionItemQueries.getByIds(itemIds, organization.resourceId)
   );
 
-  expect(deletedItems.length).toBe(0);
+  expect(deletedItems.length).toEqual(0);
 });

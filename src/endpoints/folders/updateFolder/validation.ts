@@ -10,12 +10,12 @@ export const folderInputJoiSchema = Joi.object().keys({
 
 export const updateFolderJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow([null]),
+    organizationId: validationSchemas.nanoid.allow(null),
     path: folderValidationSchemas.path.required(),
     folder: Joi.object()
       .keys({
-        description: validationSchemas.description.allow([null]),
-        maxFileSize: fileValidationSchemas.fileSizeInBytes.allow([null]),
+        description: validationSchemas.description.allow(null),
+        maxFileSize: fileValidationSchemas.fileSizeInBytes.allow(null),
       })
       .required(),
   })

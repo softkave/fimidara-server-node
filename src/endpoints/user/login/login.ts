@@ -62,7 +62,10 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   // Make the user token available to other requests made with this request data
-  instData.userToken = token;
+  if (instData.agent) {
+    instData.agent.userToken = token;
+  }
+
   return {
     user: userExtractor(user),
     token: context.session.encodeToken(

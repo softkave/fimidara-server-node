@@ -93,9 +93,7 @@ async function fetchPresets(
         id =>
           // Reuse preset if we've fetched it already, otherwise fetch if we don't have it
           presetsMap[id] ||
-          context.data.presetPermissionsGroup.getItem(
-            PresetPermissionsGroupQueries.getById(id)
-          )
+          context.data.preset.getItem(PresetPermissionsGroupQueries.getById(id))
       )
     );
 

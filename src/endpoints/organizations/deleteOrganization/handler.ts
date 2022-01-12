@@ -1,7 +1,6 @@
 import {BasicCRUDActions, SessionAgentType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import ClientAssignedTokenQueries from '../../clientAssignedTokens/queries';
 import CollaboratorQueries from '../../collaborators/queries';
 import {IBaseContext} from '../../contexts/BaseContext';
 import FileQueries from '../../files/queries';
@@ -10,6 +9,7 @@ import FolderQueries from '../../folders/queries';
 import PermissionItemQueries from '../../permissionItems/queries';
 import PresetPermissionsGroupQueries from '../../presetPermissionsGroups/queries';
 import ProgramAccessTokenQueries from '../../programAccessTokens/queries';
+import EndpointReusableQueries from '../../queries';
 import OrganizationQueries from '../queries';
 import {checkOrganizationAuthorization02} from '../utils';
 import {DeleteOrganizationEndpoint} from './types';
@@ -48,10 +48,10 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
     ),
 
     context.data.clientAssignedToken.deleteManyItems(
-      ClientAssignedTokenQueries.getByOrganizationId(organization.resourceId)
+      EndpointReusableQueries.getByOrganizationId(organization.resourceId)
     ),
 
-    context.data.presetPermissionsGroup.deleteManyItems(
+    context.data.preset.deleteManyItems(
       PresetPermissionsGroupQueries.getByOrganizationId(organization.resourceId)
     ),
 
@@ -115,7 +115,7 @@ async function updateCollaborators(
       );
 
       await context.data.user.updateItem(
-        CollaboratorQueries.getById(collaborator.resourceId),
+        EndpointReusableQueries.getById(collaborator.resourceId),
         {organizations: collaborator.organizations}
       );
     })

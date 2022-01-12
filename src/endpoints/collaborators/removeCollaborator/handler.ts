@@ -4,6 +4,7 @@ import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import CollaborationRequestQueries from '../../collaborationRequests/queries';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
+import EndpointReusableQueries from '../../queries';
 import CollaboratorQueries from '../queries';
 import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
@@ -37,7 +38,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
   );
 
   await context.data.user.updateItem(
-    CollaboratorQueries.getById(data.collaboratorId),
+    EndpointReusableQueries.getById(data.collaboratorId),
     {organizations: collaborator.organizations}
   );
 
@@ -46,7 +47,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(
         collaborator.resourceId,
-        AppResourceType.Collaborator
+        AppResourceType.User
       )
     ),
 
@@ -54,7 +55,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
         collaborator.resourceId,
-        AppResourceType.Collaborator
+        AppResourceType.User
       )
     ),
 

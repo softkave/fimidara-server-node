@@ -25,5 +25,5 @@ test('request organization returned', async () => {
   assertEndpointResultOk(result);
 
   const requestOrganization = requestOrganizationExtractor(organization);
-  expect(result.organization).toBe(requestOrganization);
+  expect(result.organization).toEqual(requestOrganization);
 });

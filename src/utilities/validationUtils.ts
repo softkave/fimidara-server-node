@@ -48,8 +48,8 @@ const verificationCode = Joi.string()
 const nanoid = Joi.string().trim().length(21);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
-const resourceType = Joi.string().valid(appResourceTypesList);
-const crudActions = Joi.string().valid(crudActionsList);
+const resourceType = Joi.string().valid(...appResourceTypesList);
+const crudActions = Joi.string().valid(...crudActionsList);
 
 export const validationSchemas = {
   nanoid,

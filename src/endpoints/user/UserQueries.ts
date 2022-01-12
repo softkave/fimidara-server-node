@@ -1,38 +1,35 @@
 import {IUser} from '../../definitions/user';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IUser>();
 }
 
-function getById(id: string) {
-  return newFilter()
-    .addItem('userId', id, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
 function getByEmail(email: string) {
   return newFilter()
-    .addItem('email', email, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getByIds(ids: string[]) {
-  return newFilter()
-    .addItem('userId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'email',
+      new RegExp(`^${email}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
     .build();
 }
 
 function userExists(email: string) {
   return newFilter()
-    .addItem('email', email, DataProviderFilterValueOperator.Regex)
+    .addItem(
+      'email',
+      new RegExp(`^${email}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
     .build();
 }
 
 export default abstract class UserQueries {
-  static getById = getById;
-  static getByIds = getByIds;
+  static getById = EndpointReusableQueries.getById;
+  static getByIds = EndpointReusableQueries.getByIds;
   static userExists = userExists;
   static getByEmail = getByEmail;
 }

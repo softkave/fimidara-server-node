@@ -34,5 +34,5 @@ test('referenced program access token returned', async () => {
 
   const result = await getProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
-  expect(result.token).toBe(token01);
+  expect(result.token).toEqual(token01);
 });

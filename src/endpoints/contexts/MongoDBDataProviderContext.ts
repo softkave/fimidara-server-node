@@ -70,7 +70,7 @@ export default class MongoDBDataProviderContext
   public clientAssignedToken: IDataProvider<IClientAssignedToken>;
   public programAccessToken: IDataProvider<IProgramAccessToken>;
   public permissionItem: IDataProvider<IPermissionItem>;
-  public presetPermissionsGroup: IDataProvider<IPresetPermissionsGroup>;
+  public preset: IDataProvider<IPresetPermissionsGroup>;
   public organization: IDataProvider<IOrganization>;
   public collaborationRequest: IDataProvider<ICollaborationRequest>;
   public user: IDataProvider<IUser>;
@@ -105,7 +105,7 @@ export default class MongoDBDataProviderContext
       this.db.permissionItem,
       throwPermissionItemNotFound
     );
-    this.presetPermissionsGroup = new MongoDataProvider(
+    this.preset = new MongoDataProvider(
       this.db.presetPermissionsGroup,
       throwPresetPermissionsGroupNotFound
     );

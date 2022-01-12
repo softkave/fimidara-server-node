@@ -52,7 +52,7 @@ export default async function checkEntityExists(
       break;
     }
 
-    case AppResourceType.Collaborator: {
+    case AppResourceType.User: {
       await checkCollaboratorAuthorization02(
         context,
         agent,

@@ -31,16 +31,12 @@ export interface IAgent {
 
 export enum AppResourceType {
   Organization = 'organization',
-  Collaborator = 'collaborator',
   CollaborationRequest = 'collaboration-request',
-  // UserRole = 'user-role',
-  // Environment = 'environment',
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
   UserToken = 'user-token',
   PresetPermissionsGroup = 'preset-permissions-group',
   PermissionItem = 'permission-item',
-  // Bucket = 'bucket',
   Folder = 'folder',
   File = 'file',
   User = 'user',
@@ -67,28 +63,16 @@ const crudActionsMap: Record<BasicCRUDActions, true> = {
 
 export const crudActionsList = Object.keys(crudActionsMap);
 
-type AppResourceToOthersMap = Record<AppResourceType, AppResourceType[]>;
-
-export const appResourceChildrenMap: AppResourceToOthersMap = {
-  [AppResourceType.Organization]: [
-    AppResourceType.Collaborator,
-    AppResourceType.ClientAssignedToken,
-    AppResourceType.PresetPermissionsGroup,
-    AppResourceType.ProgramAccessToken,
-    AppResourceType.Folder,
-    AppResourceType.File,
-  ],
-  [AppResourceType.Collaborator]: [],
-  [AppResourceType.ProgramAccessToken]: [],
-  [AppResourceType.ClientAssignedToken]: [],
-  [AppResourceType.Folder]: [AppResourceType.File],
-  [AppResourceType.File]: [],
-  [AppResourceType.UserToken]: [],
-  [AppResourceType.PresetPermissionsGroup]: [],
-  [AppResourceType.PermissionItem]: [],
-  [AppResourceType.User]: [],
-  [AppResourceType.CollaborationRequest]: [],
-};
+export const orgResourceTypes = [
+  AppResourceType.ClientAssignedToken,
+  AppResourceType.PresetPermissionsGroup,
+  AppResourceType.ProgramAccessToken,
+  AppResourceType.Folder,
+  AppResourceType.File,
+  AppResourceType.CollaborationRequest,
+  AppResourceType.PermissionItem,
+  AppResourceType.User,
+];
 
 /** For organizations, users, and user tokens */
 const orderLevel01 = 1;
@@ -99,16 +83,12 @@ const orderLevel01 = 1;
  */
 const orderLevel02 = 2;
 
-/** For resources contained in level 02 resources, like files, etc. */
-const orderLevel03 = 3;
-
 const appResourceTypesOrder: Record<AppResourceType, number> = {
   [AppResourceType.Organization]: orderLevel01,
-  [AppResourceType.Collaborator]: orderLevel02,
   [AppResourceType.ProgramAccessToken]: orderLevel02,
   [AppResourceType.ClientAssignedToken]: orderLevel02,
   [AppResourceType.Folder]: orderLevel02,
-  [AppResourceType.File]: orderLevel03,
+  [AppResourceType.File]: orderLevel02,
   [AppResourceType.UserToken]: orderLevel01,
   [AppResourceType.PresetPermissionsGroup]: orderLevel02,
   [AppResourceType.PermissionItem]: orderLevel02,
@@ -119,58 +99,3 @@ const appResourceTypesOrder: Record<AppResourceType, number> = {
 export const appResourceTypesList = Object.keys(
   appResourceTypesOrder
 ) as Array<AppResourceType>;
-
-function reverseResourceToChildrenMap() {
-  const reverseMap: AppResourceToOthersMap = {
-    [AppResourceType.Organization]: [],
-    [AppResourceType.Collaborator]: [],
-    [AppResourceType.ProgramAccessToken]: [],
-    [AppResourceType.ClientAssignedToken]: [],
-    [AppResourceType.Folder]: [],
-    [AppResourceType.File]: [],
-    [AppResourceType.UserToken]: [],
-    [AppResourceType.PresetPermissionsGroup]: [],
-    [AppResourceType.PermissionItem]: [],
-    [AppResourceType.User]: [],
-    [AppResourceType.CollaborationRequest]: [],
-  };
-
-  Object.keys(appResourceChildrenMap).forEach(parent => {
-    const types = appResourceChildrenMap[parent as AppResourceType];
-    types.forEach(type => {
-      const parents = reverseMap[type] || [];
-
-      if (!parents.includes(parent as AppResourceType)) {
-        parents.push(parent as AppResourceType);
-      }
-    });
-  });
-
-  // Sort parents from the closest to the farthest (i.e closest to the root).
-  // This is useful when authenticating and we have to work our way up until we find
-  // an ancestor that carries the right permissions for the resource type.
-  Object.keys(reverseMap).forEach(type => {
-    reverseMap[type as AppResourceType].sort((type1, type2) => {
-      return appResourceTypesOrder[type1] - appResourceTypesOrder[type2];
-    });
-  });
-
-  return reverseMap;
-}
-
-export const appResourceChildrenReverseMap = reverseResourceToChildrenMap();
-
-export function getTypeImmediateParents(type: AppResourceType) {
-  return appResourceChildrenReverseMap[type];
-}
-
-export function canResourceHaveChild(
-  resourceType: AppResourceType,
-  childType: AppResourceType
-): boolean {
-  const children = appResourceChildrenMap[resourceType] || [];
-  return (
-    children.includes(childType) ||
-    !!children.find(type => canResourceHaveChild(type, childType))
-  );
-}

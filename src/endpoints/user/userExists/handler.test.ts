@@ -21,7 +21,7 @@ test('returns true if user exists', async () => {
 
   const result = await userExists(context, instData);
   assertEndpointResultOk(result);
-  expect(result.exists).toBe(true);
+  expect(result.exists).toEqual(true);
 });
 
 test('returns false if user does not exists', async () => {
@@ -35,5 +35,5 @@ test('returns false if user does not exists', async () => {
 
   const result = await userExists(context, instData);
   assertEndpointResultOk(result);
-  expect(result.exists).toBe(false);
+  expect(result.exists).toEqual(false);
 });

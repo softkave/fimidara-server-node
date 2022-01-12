@@ -29,5 +29,5 @@ test('referenced preset returned', async () => {
 
   const result = await getProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
-  expect(result.preset).toBe(preset);
+  expect(result.preset).toEqual(preset);
 });

@@ -5,13 +5,13 @@ import {fileConstants} from '../constants';
 
 export const getFileJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow([null]),
+    organizationId: validationSchemas.nanoid.allow(null),
     path: folderValidationSchemas.path.required(),
     imageTranformation: Joi.object()
       .keys({
-        width: Joi.number().max(fileConstants.maxFileWidth).allow([null]),
-        height: Joi.number().max(fileConstants.maxFileHeight).allow([null]),
+        width: Joi.number().max(fileConstants.maxFileWidth).allow(null),
+        height: Joi.number().max(fileConstants.maxFileHeight).allow(null),
       })
-      .allow([null]),
+      .allow(null),
   })
   .required();

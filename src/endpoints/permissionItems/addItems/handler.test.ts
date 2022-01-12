@@ -38,6 +38,6 @@ test('permission items added', async () => {
       permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
-    {resourceType: AppResourceType.File}
+    {itemResourceType: AppResourceType.File}
   );
 });

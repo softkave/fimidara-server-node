@@ -1,8 +1,5 @@
-import {IClientAssignedToken} from '../definitions/clientAssignedToken';
-import {IProgramAccessToken} from '../definitions/programAccessToken';
 import {ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import {IUserToken} from '../definitions/userToken';
 import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
 
@@ -10,9 +7,6 @@ export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
   data?: T;
   incomingTokenData?: IBaseTokenData | null;
-  userToken?: IUserToken | null;
-  programAccessToken?: IProgramAccessToken | null;
-  clientAssignedToken?: IClientAssignedToken | null;
   agent?: ISessionAgent | null;
   user?: IUser | null;
 }
@@ -39,9 +33,6 @@ export default class RequestData<T = any> {
       data,
       req: from.req,
       incomingTokenData: from.incomingTokenData,
-      userToken: from.userToken,
-      programAccessToken: from.programAccessToken,
-      clientAssignedToken: from.clientAssignedToken,
       agent: from.agent,
       user: from.user,
     });
@@ -52,9 +43,6 @@ export default class RequestData<T = any> {
       req: from.req,
       data: to.data,
       incomingTokenData: from.incomingTokenData,
-      userToken: from.userToken,
-      programAccessToken: from.programAccessToken,
-      clientAssignedToken: from.clientAssignedToken,
       agent: from.agent,
       user: from.user,
     });
@@ -63,9 +51,6 @@ export default class RequestData<T = any> {
   public req?: IServerRequest | null;
   public data?: T;
   public incomingTokenData?: IBaseTokenData | null;
-  public userToken?: IUserToken | null;
-  public programAccessToken?: IProgramAccessToken | null;
-  public clientAssignedToken?: IClientAssignedToken | null;
   public user?: IUser | null;
   public agent?: ISessionAgent | null;
 
@@ -76,9 +61,6 @@ export default class RequestData<T = any> {
 
     this.req = arg.req;
     this.data = arg.data;
-    this.userToken = arg.userToken;
-    this.programAccessToken = arg.programAccessToken;
-    this.clientAssignedToken = arg.clientAssignedToken;
     this.incomingTokenData = arg.incomingTokenData;
     this.agent = arg.agent;
     this.user = arg.user;
