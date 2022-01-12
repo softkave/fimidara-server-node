@@ -1,3 +1,4 @@
+import EndpointReusableQueries from '../../queries';
 import {
   getTestBaseContext,
   insertClientAssignedTokenForTest,
@@ -5,7 +6,6 @@ import {
   insertPresetForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
-import ClientAssignedTokenQueries from '../queries';
 
 test('client assigned token added', async () => {
   const context = getTestBaseContext();
@@ -42,11 +42,11 @@ test('client assigned token added', async () => {
   );
 
   const savedToken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(token.resourceId)
+    EndpointReusableQueries.getById(token.resourceId)
   );
 
-  expect(savedToken).toBe(token);
-  expect(savedToken.presets.length).toBe(2);
+  expect(savedToken).toEqual(token);
+  expect(savedToken.presets.length).toEqual(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: user.resourceId,

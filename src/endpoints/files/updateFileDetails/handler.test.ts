@@ -41,13 +41,13 @@ test('file updated', async () => {
 
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);
-  expect(result.file.resourceId).toBe(file.resourceId);
+  expect(result.file.resourceId).toEqual(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
   const updatedFile = await context.data.file.assertGetItem(
     FileQueries.getById(file.resourceId)
   );
 
-  expect(updatedFile).toBe(result.file);
+  expect(updatedFile).toEqual(result.file);
   expect(updatedFile).toMatchObject(updateInput);
 });

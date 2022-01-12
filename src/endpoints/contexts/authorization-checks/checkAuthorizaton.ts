@@ -1,4 +1,5 @@
 import {flatten} from 'lodash';
+import {formatWithOptions} from 'util';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -50,8 +51,12 @@ export async function checkAuthorization(
         item.permissionEntityType,
         DataProviderFilterValueOperator.Equal
       )
-      .addItem('resourceType', type, DataProviderFilterValueOperator.Equal)
-      .addItem('action', action, DataProviderFilterValueOperator.Equal)
+      .addItem('itemResourceType', type, DataProviderFilterValueOperator.Equal)
+      .addItem(
+        'action',
+        [BasicCRUDActions.All, action],
+        DataProviderFilterValueOperator.In
+      )
       .build();
   });
 
@@ -84,6 +89,18 @@ export async function checkAuthorization(
 
     return true;
   });
+
+  console.log(
+    formatWithOptions({depth: 5}, '%o', {
+      // pp: ctx.data.permissionItem?.items,
+      items,
+      queries,
+      permissionItemsList,
+      agentPermissionEntities,
+      authEntities,
+      agent,
+    })
+  );
 
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,

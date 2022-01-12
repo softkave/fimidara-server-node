@@ -6,8 +6,8 @@ import {IPublicPermissionItem} from '../types';
 export interface INewPermissionItemInput {
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
-  resourceId?: string;
-  resourceType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
   isForPermissionOwnerOnly?: boolean;

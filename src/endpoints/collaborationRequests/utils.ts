@@ -17,6 +17,7 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
+import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import CollaborationRequestQueries from './queries';
 import {IPublicCollaborationRequest} from './types';
@@ -80,7 +81,7 @@ export async function checkCollaborationRequestAuthorization02(
   nothrow = false
 ) {
   const request = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(requestId)
+    EndpointReusableQueries.getById(requestId)
   );
 
   return checkCollaborationRequestAuthorization(

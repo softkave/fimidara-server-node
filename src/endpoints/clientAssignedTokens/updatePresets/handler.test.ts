@@ -1,3 +1,4 @@
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -8,7 +9,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import ClientAssignedTokenQueries from '../queries';
 import updateClientAssignedTokenPresets from './handler';
 import {IUpdateClientAssignedTokenPresetsParams} from './types';
 
@@ -60,11 +60,11 @@ test('client assigned token presets updated', async () => {
   assertEndpointResultOk(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(token01.resourceId)
+    EndpointReusableQueries.getById(token01.resourceId)
   );
 
   expect(updatedToken).toMatchObject(result.token);
-  expect(updatedToken.presets.length).toBe(2);
+  expect(updatedToken.presets.length).toEqual(2);
   expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: user.resourceId,

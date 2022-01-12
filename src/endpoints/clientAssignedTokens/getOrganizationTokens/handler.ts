@@ -5,7 +5,7 @@ import {
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
-import ClientAssignedTokenQueries from '../queries';
+import EndpointReusableQueries from '../../queries';
 import {ClientAssignedTokenUtils} from '../utils';
 import {GetOrganizationClientAssignedTokenEndpoint} from './types';
 import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
@@ -36,7 +36,7 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
   );
 
   const tokens = await context.data.clientAssignedToken.getManyItems(
-    ClientAssignedTokenQueries.getByOrganizationId(data.organizationId)
+    EndpointReusableQueries.getByOrganizationId(data.organizationId)
   );
 
   // TODO: can we do this together, so that we don't waste compute

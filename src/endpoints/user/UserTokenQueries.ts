@@ -2,15 +2,10 @@ import {IUserToken} from '../../definitions/userToken';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 import {TokenAudience} from '../contexts/SessionContext';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IUserToken>();
-}
-
-function getById(id: string) {
-  return newFilter()
-    .addItem('tokenId', id, DataProviderFilterValueOperator.Equal)
-    .build();
 }
 
 function getByUserId(userId: string) {
@@ -27,7 +22,7 @@ function getByUserIdAndAudience(userId: string, audience: TokenAudience) {
 }
 
 export default abstract class UserTokenQueries {
-  static getById = getById;
+  static getById = EndpointReusableQueries.getById;
   static getByUserId = getByUserId;
   static getByUserIdAndAudience = getByUserIdAndAudience;
 }

@@ -40,6 +40,6 @@ test("user's collaboration request returned", async () => {
 
   const result = await getUserRequests(context, instData);
   assertEndpointResultOk(result);
-  expect(result.requests.length).toBe(1);
+  expect(result.requests.length).toEqual(1);
   expect(result.requests).toContain(request01);
 });

@@ -1,15 +1,10 @@
 import {IFile} from '../../definitions/file';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IFile>();
-}
-
-function getById(id: string) {
-  return newFilter()
-    .addItem('fileId', id, DataProviderFilterValueOperator.Equal)
-    .build();
 }
 
 function getByNameAndFolderId(name: string, folderId: string) {
@@ -47,22 +42,11 @@ function getRootFiles(organizationId: string) {
     .build();
 }
 
-function getByMultipleIds(ids: string[], organizationId: string) {
-  return newFilter()
-    .addItem('fileId', ids, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
-}
-
 export default abstract class FileQueries {
-  static getById = getById;
+  static getById = EndpointReusableQueries.getById;
   static getFilesByParentId = getFilesByParentId;
   static getByNameAndFolderId = getByNameAndFolderId;
   static getByNamePath = getByNamePath;
   static getRootFiles = getRootFiles;
-  static getByMultipleIds = getByMultipleIds;
+  static getByMultipleIds = EndpointReusableQueries.getByIdsAndOrgId;
 }

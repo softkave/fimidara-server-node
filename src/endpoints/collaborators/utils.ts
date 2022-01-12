@@ -3,7 +3,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {IUser, IUserOrganization} from '../../definitions/user';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -26,14 +26,6 @@ const collaboratorFields = getFields<IPublicCollaborator>({
 
 export const collaboratorExtractor = makeExtract(collaboratorFields);
 export const collaboratorListExtractor = makeListExtract(collaboratorFields);
-export function getCollaboratorOrganization(
-  user: IUser,
-  organizationId: string
-) {
-  return user.organizations.find(
-    item => item.organizationId === organizationId
-  );
-}
 
 export async function checkCollaboratorAuthorization(
   context: IBaseContext,
@@ -49,7 +41,7 @@ export async function checkCollaboratorAuthorization(
     agent,
     organizationId,
     collaborator.resourceId,
-    AppResourceType.Collaborator,
+    AppResourceType.User,
     makeBasePermissionOwnerList(organizationId),
     action,
     nothrow
@@ -85,4 +77,41 @@ export async function checkCollaboratorAuthorization02(
 
 export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
+}
+
+export function getCollaboratorOrganization(
+  user: IUser,
+  organizationId: string
+) {
+  return user.organizations.find(
+    item => item.organizationId === organizationId
+  );
+}
+
+export function getCollaboratorOrganizationIndex(
+  user: IUser,
+  organizationId: string
+) {
+  return user.organizations.findIndex(
+    item => item.organizationId === organizationId
+  );
+}
+
+export function updateCollaboratorOrganization(
+  user: IUser,
+  organizationId: string,
+  fn: (data?: IUserOrganization) => IUserOrganization | undefined
+) {
+  const index = getCollaboratorOrganizationIndex(user, organizationId);
+  const data = index === -1 ? undefined : user.organizations[index];
+  const update = fn(data);
+
+  if (update) {
+    index === -1
+      ? user.organizations.push(update)
+      : (user.organizations[index] = update);
+    return true;
+  }
+
+  return false;
 }

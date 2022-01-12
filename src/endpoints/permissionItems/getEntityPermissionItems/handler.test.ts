@@ -34,7 +34,7 @@ test('entity permission items returned', async () => {
       permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
-    {resourceType: AppResourceType.File}
+    {itemResourceType: AppResourceType.File}
   );
 
   const instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
@@ -48,5 +48,5 @@ test('entity permission items returned', async () => {
 
   const result = await getEntityPermissionItems(context, instData);
   assertEndpointResultOk(result);
-  expect(result.items).toBe(items);
+  expect(result.items).toEqual(items);
 });

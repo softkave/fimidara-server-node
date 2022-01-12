@@ -1,6 +1,7 @@
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {ExpiredError} from '../../errors';
+import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import CollaborationRequestQueries from '../queries';
 import {collabRequestExtractor} from '../utils';
@@ -27,7 +28,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
   const data = validate(instData.data, respondToRequestJoiSchema);
   const user = await context.session.getUser(context, instData);
   let request = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(data.requestId)
+    EndpointReusableQueries.getById(data.requestId)
   );
 
   if (user.email !== request.recipientEmail) {
@@ -47,7 +48,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
   }
 
   request = await context.data.collaborationRequest.assertUpdateItem(
-    CollaborationRequestQueries.getById(data.requestId),
+    EndpointReusableQueries.getById(data.requestId),
     {
       statusHistory: request.statusHistory.concat({
         date: getDateString(),

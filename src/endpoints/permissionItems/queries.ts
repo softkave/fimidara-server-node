@@ -2,15 +2,10 @@ import {IPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IPermissionItem>();
-}
-
-function getById(id: string) {
-  return newFilter()
-    .addItem('itemId', id, DataProviderFilterValueOperator.Equal)
-    .build();
 }
 
 function getByOwner(ownerId: string, ownerType: AppResourceType) {
@@ -30,9 +25,13 @@ function getByOwner(ownerId: string, ownerType: AppResourceType) {
 
 function getByResource(resourceId: string, resourceType: AppResourceType) {
   return newFilter()
-    .addItem('resourceId', resourceId, DataProviderFilterValueOperator.Equal)
     .addItem(
-      'resourceType',
+      'itemResourceId',
+      resourceId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'itemResourceType',
       resourceType,
       DataProviderFilterValueOperator.Equal
     )
@@ -54,33 +53,11 @@ function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
     .build();
 }
 
-function getByIds(ids: string[], organizationId: string) {
-  return newFilter()
-    .addItem('itemId', ids, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
-}
-
-function getByOrganizationId(id: string, organizationId: string) {
-  return newFilter()
-    .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
-}
-
 export default abstract class PermissionItemQueries {
-  static getById = getById;
-  static getByIds = getByIds;
+  static getById = EndpointReusableQueries.getById;
+  static getByIds = EndpointReusableQueries.getByIdsAndOrgId;
   static getByOwner = getByOwner;
   static getByPermissionEntity = getByPermissionEntity;
   static getByResource = getByResource;
-  static getByOrganizationId = getByOrganizationId;
+  static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
 }

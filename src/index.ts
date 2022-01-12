@@ -18,6 +18,9 @@ import setupOrganizationsRESTEndpoints from './endpoints/organizations/setupREST
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
+import {getSESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
+import {getS3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
+import {getAppVariables} from './resources/appVariables';
 
 console.log('server initialization');
 
@@ -62,15 +65,16 @@ function setupJWT(ctx: IBaseContext) {
   );
 }
 
-async function setupConnection() {
-  const connection = await getMongoConnection();
-  return connection;
-}
-
 async function setup() {
-  const connection = await setupConnection();
+  const appVariables = getAppVariables();
+  const connection = await getMongoConnection(appVariables.mongoDbURI);
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
-  const ctx = new BaseContext(mongoDBDataProvider);
+  const ctx = new BaseContext(
+    mongoDBDataProvider,
+    getSESEmailProviderContext(),
+    getS3FilePersistenceProviderContext(),
+    appVariables
+  );
 
   setupJWT(ctx);
   setupClientAssignedTokensRESTEndpoints(ctx, app);

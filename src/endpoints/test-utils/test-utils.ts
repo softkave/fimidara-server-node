@@ -7,6 +7,8 @@ import {
   crudActionsList,
 } from '../../definitions/system';
 import {IUserToken} from '../../definitions/userToken';
+import {getAppVariables, setAppVariables} from '../../resources/appVariables';
+import singletonFunc from '../../utilities/singletonFunc';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
   IAddClientAssignedTokenParams,
@@ -56,13 +58,25 @@ import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 
-export function getTestBaseContext() {
+export const getTestBaseContext = singletonFunc(() => {
+  setAppVariables({
+    clientDomain: 'localhost:3000',
+    mongoDbURI:
+      'mongodb+srv://softkave:LMOGkLHjho8L2ahx@softkave.ocsur.mongodb.net/files-unit-test?authSource=admin&replicaSet=atlas-hflb2m-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true',
+    jwtSecret: 'test-jwt-secret-5768394',
+    nodeEnv: 'test',
+    port: '5000',
+    S3Bucket: 'files-unit-test',
+  });
+
+  const appVariables = getAppVariables();
   return new BaseContext(
     new MemoryDataProviderContext(),
     new TestEmailProviderContext(),
-    new TestFilePersistenceProviderContext()
+    new TestFilePersistenceProviderContext(),
+    appVariables
   );
-}
+});
 
 export function assertEndpointResultOk(result: IBaseEndpointResult) {
   if (result.errors?.length) {
@@ -246,7 +260,7 @@ export async function insertProgramAccessTokenForTest(
 
 function makePermissionItemInputs(
   owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
-  base: Partial<INewPermissionItemInput> & {resourceType: AppResourceType}
+  base: Partial<INewPermissionItemInput> & {itemResourceType: AppResourceType}
 ) {
   const items: INewPermissionItemInput[] = crudActionsList.map(action => ({
     ...base,
@@ -265,7 +279,7 @@ export async function insertPermissionItemsForTest01(
   organizationId: string,
   entity: IPermissionEntity,
   owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
-  base: Partial<INewPermissionItemInput> & {resourceType: AppResourceType}
+  base: Partial<INewPermissionItemInput> & {itemResourceType: AppResourceType}
 ) {
   const itemsInput = makePermissionItemInputs(owner, base);
   const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
@@ -279,7 +293,7 @@ export async function insertPermissionItemsForTest01(
 
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
-  expect(result.items.length).toBe(itemsInput.length);
+  expect(result.items.length).toEqual(itemsInput.length);
   return result;
 }
 
@@ -301,7 +315,7 @@ export async function insertPermissionItemsForTest02(
 
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
-  expect(result.items.length).toBe(items.length);
+  expect(result.items.length).toEqual(items.length);
   return result;
 }
 

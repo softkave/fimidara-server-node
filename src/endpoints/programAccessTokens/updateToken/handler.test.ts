@@ -74,7 +74,7 @@ test('program access token updated', async () => {
   expect(updatedToken).toMatchObject(result.token);
   expect(updatedToken.name).toMatchObject(tokenUpdateInput.name);
   expect(updatedToken.description).toMatchObject(tokenUpdateInput.description);
-  expect(updatedToken.presets.length).toBe(2);
+  expect(updatedToken.presets.length).toEqual(2);
   expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: user.resourceId,

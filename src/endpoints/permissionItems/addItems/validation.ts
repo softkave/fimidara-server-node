@@ -12,11 +12,11 @@ export const addPermissionItemsJoiSchema = Joi.object()
         Joi.object().keys({
           permissionOwnerId: validationSchemas.nanoid.required(),
           permissionOwnerType: validationSchemas.resourceType.required(),
-          resourceId: validationSchemas.nanoid.allow([null]),
-          resourceType: validationSchemas.resourceType.required(),
+          itemResourceId: validationSchemas.nanoid.allow(null),
+          itemResourceType: validationSchemas.resourceType.required(),
           action: validationSchemas.crudActions.required(),
-          isExclusion: Joi.boolean().allow([null]),
-          isForPermissionOwnerOnly: Joi.boolean().allow([null]),
+          isExclusion: Joi.boolean().allow(null),
+          isForPermissionOwnerOnly: Joi.boolean().allow(null),
         })
       )
       .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)

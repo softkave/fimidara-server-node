@@ -13,6 +13,7 @@ import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
 import OrganizationQueries from '../../organizations/queries';
+import EndpointReusableQueries from '../../queries';
 import CollaborationRequestQueries from '../queries';
 import {
   checkCollaborationRequestAuthorization02,
@@ -46,7 +47,7 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
 
   if (!isRevoked) {
     request = await context.data.collaborationRequest.assertUpdateItem(
-      CollaborationRequestQueries.getById(data.requestId),
+      EndpointReusableQueries.getById(data.requestId),
       {
         statusHistory: request.statusHistory.concat({
           date: getDateString(),

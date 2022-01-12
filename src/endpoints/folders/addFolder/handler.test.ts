@@ -26,5 +26,5 @@ test('folder created', async () => {
     FolderQueries.getById(folder.resourceId)
   );
 
-  expect(folder).toBe(savedFolder);
+  expect(folder).toEqual(savedFolder);
 });

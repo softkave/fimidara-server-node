@@ -85,7 +85,7 @@ export async function checkPresetPermissionsGroupAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const presetpermissionsgroup = await context.data.presetPermissionsGroup.assertGetItem(
+  const presetpermissionsgroup = await context.data.preset.assertGetItem(
     PresetPermissionsGroupQueries.getById(id)
   );
   return checkPresetPermissionsGroupAuthorization(
@@ -105,7 +105,7 @@ export async function checkPresetsExist(
 ) {
   const presets = await Promise.all(
     presetInputs.map(item =>
-      context.data.presetPermissionsGroup.assertGetItem(
+      context.data.preset.assertGetItem(
         PresetPermissionsGroupQueries.getById(item.presetId)
       )
     )

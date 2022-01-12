@@ -3,7 +3,6 @@ import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 export interface IPermissionItem {
   resourceId: string;
   organizationId: string;
-  // environmentId?: string;
   createdAt: string;
   createdBy: IAgent;
 

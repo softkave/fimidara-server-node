@@ -32,7 +32,7 @@ export interface IFilePersistenceProviderContext {
   deleteFiles: (params: IFilePersistenceDeleteFilesParams) => Promise<void>;
 }
 
-class FilePersistenceProviderContext
+class S3FilePersistenceProviderContext
   implements IFilePersistenceProviderContext {
   public s3 = new aws.S3();
 
@@ -109,6 +109,6 @@ export class TestFilePersistenceProviderContext
   );
 }
 
-export const getFilePersistenceProviderContext = singletonFunc(
-  () => new FilePersistenceProviderContext()
+export const getS3FilePersistenceProviderContext = singletonFunc(
+  () => new S3FilePersistenceProviderContext()
 );

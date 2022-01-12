@@ -20,7 +20,7 @@ export interface IBaseContextDataProviders {
   clientAssignedToken: IDataProvider<IClientAssignedToken>;
   programAccessToken: IDataProvider<IProgramAccessToken>;
   permissionItem: IDataProvider<IPermissionItem>;
-  presetPermissionsGroup: IDataProvider<IPresetPermissionsGroup>;
+  preset: IDataProvider<IPresetPermissionsGroup>;
   organization: IDataProvider<IOrganization>;
   collaborationRequest: IDataProvider<ICollaborationRequest>;
   user: IDataProvider<IUser>;
@@ -42,18 +42,20 @@ export interface IBaseContext<
 export default class BaseContext<
   T extends IBaseContextDataProviders,
   E extends IEmailProviderContext,
-  F extends IFilePersistenceProviderContext
+  F extends IFilePersistenceProviderContext,
+  V extends IAppVariables
 > implements IBaseContext<T> {
   public data: T;
   public email: E;
   public fileBackend: F;
+  public appVariables: V;
 
-  public appVariables = getAppVariables();
   public session: ISessionContext = getSessionContext();
 
-  constructor(data: T, emailProvider: E, fileBackend: F) {
+  constructor(data: T, emailProvider: E, fileBackend: F, appVariables: V) {
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
+    this.appVariables = appVariables;
   }
 }

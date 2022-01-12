@@ -74,7 +74,7 @@ export function forgotPasswordEmailText(
     1. Immediately after you change your password -OR-
     2. In ${formatDistance(props.expiration, new Date())}, on ${format(
     props.expiration,
-    'MM/DD/YYYY hh:mmA'
+    'MM/dd/YYYY hh:mmA'
   )}.
     -
     If you did not request a change of password, please ignore this mail.

@@ -42,9 +42,18 @@ function getByIdsAndOrgId(ids: string[], organizationId: string) {
     .build();
 }
 
+function getByIds(ids: string[]) {
+  return new DataProviderFilterBuilder<{
+    resourceId: string;
+  }>()
+    .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
+    .build();
+}
+
 export default abstract class EndpointReusableQueries {
   static getByOrganizationId = getByOrganizationId;
   static getByOrganizationAndName = getByOrganizationAndName;
   static getById = getById;
   static getByIdsAndOrgId = getByIdsAndOrgId;
+  static getByIds = getByIds;
 }

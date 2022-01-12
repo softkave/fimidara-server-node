@@ -51,7 +51,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint = async
     }));
   }
 
-  const item = await context.data.presetPermissionsGroup.assertUpdateItem(
+  const item = await context.data.preset.assertUpdateItem(
     PresetPermissionsGroupQueries.getById(preset.resourceId),
     update
   );

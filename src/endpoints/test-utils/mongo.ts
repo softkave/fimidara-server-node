@@ -1,7 +1,7 @@
 import {getMongoConnection} from '../../db/connection';
+import {getTestVars} from './vars';
 
 export async function getTestMongoConnection() {
-  throw new Error('Mongo URI not set');
-  const connection = await getMongoConnection('mongo uri');
+  const connection = await getMongoConnection(getTestVars().mongoDbURI);
   return connection;
 }

@@ -9,8 +9,8 @@ export const addFolderJoiSchema = Joi.object()
     folder: Joi.object()
       .keys({
         path: folderValidationSchemas.path.required(),
-        description: validationSchemas.description.allow([null]),
-        maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow([null]),
+        description: validationSchemas.description.allow(null),
+        maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
       })
       .required(),
   })

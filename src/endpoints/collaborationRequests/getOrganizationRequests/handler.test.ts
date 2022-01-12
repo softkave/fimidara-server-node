@@ -40,7 +40,7 @@ test('organization collaboration requests returned', async () => {
 
   const result = await getOrganizationRequests(context, instData);
   assertEndpointResultOk(result);
-  expect(result.requests.length).toBe(2);
+  expect(result.requests.length).toEqual(2);
   expect(result.requests).toContain(request01);
   expect(result.requests).toContain(request02);
 });

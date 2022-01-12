@@ -1,3 +1,4 @@
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -31,7 +32,7 @@ test('collaboration request deleted', async () => {
   const result = await deleteRequest(context, instData);
   assertEndpointResultOk(result);
   const deletedRequestExists = await context.data.collaborationRequest.checkItemExists(
-    CollaborationRequestQueries.getById(request.resourceId)
+    EndpointReusableQueries.getById(request.resourceId)
   );
 
   expect(deletedRequestExists).toBeFalsy();

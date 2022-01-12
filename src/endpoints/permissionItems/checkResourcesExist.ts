@@ -4,8 +4,8 @@ import {IBaseContext} from '../contexts/BaseContext';
 interface IPermissionResource {
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
-  resourceId?: string;
-  resourceType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
 }
 
 export default async function checkResourcesExist(
@@ -22,4 +22,6 @@ export default async function checkResourcesExist(
    */
 }
 
-async function getResources(context: IBaseContext) {}
+async function getResources(context: IBaseContext) {
+  return false;
+}

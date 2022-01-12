@@ -8,9 +8,9 @@ export const addPresetPermissionsGroupJoiSchema = Joi.object()
     preset: Joi.object()
       .keys({
         name: validationSchemas.name.required(),
-        description: validationSchemas.description.allow([null]),
+        description: validationSchemas.description.allow(null),
         presets: presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
-          [null]
+          null
         ),
       })
       .required(),

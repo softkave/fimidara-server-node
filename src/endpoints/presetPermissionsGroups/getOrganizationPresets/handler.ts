@@ -35,7 +35,7 @@ const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGr
     data.organizationId
   );
 
-  const items = await context.data.presetPermissionsGroup.getManyItems(
+  const items = await context.data.preset.getManyItems(
     PresetPermissionsGroupQueries.getByOrganizationId(data.organizationId)
   );
 

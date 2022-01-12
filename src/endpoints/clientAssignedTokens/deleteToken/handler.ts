@@ -3,7 +3,7 @@ import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
-import ClientAssignedTokenQueries from '../queries';
+import EndpointReusableQueries from '../../queries';
 import {checkClientAssignedTokenAuthorization02} from '../utils';
 import {DeleteClientAssignedTokenEndpoint} from './types';
 import {deleteClientAssignedTokenJoiSchema} from './validation';
@@ -54,7 +54,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     ),
 
     context.data.clientAssignedToken.deleteItem(
-      ClientAssignedTokenQueries.getById(token.resourceId)
+      EndpointReusableQueries.getById(token.resourceId)
     ),
   ]);
 };

@@ -78,7 +78,7 @@ test('getItem when item exists', async () => {
     OrganizationQueries.getById(org.resourceId)
   );
 
-  expect(result).toBe(org);
+  expect(result).toEqual(org);
 });
 
 test('getItem when does not item exists', async () => {
@@ -170,7 +170,7 @@ test('updateItem correct item', async () => {
     OrganizationQueries.getById(org01.resourceId)
   );
 
-  expect(result).toBe(updatedOrg);
+  expect(result).toEqual(updatedOrg);
   expect(updatedOrg).toMatchObject(orgUpdate);
 });
 

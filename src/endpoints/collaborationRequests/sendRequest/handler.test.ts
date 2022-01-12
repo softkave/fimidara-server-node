@@ -2,6 +2,7 @@ import add from 'date-fns/add';
 import differenceInSeconds from 'date-fns/differenceInSeconds';
 import * as faker from 'faker';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import EndpointReusableQueries from '../../queries';
 import {
   getTestBaseContext,
   insertOrganizationForTest,
@@ -30,10 +31,10 @@ test('collaboration request sent', async () => {
   );
 
   const savedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.resourceId)
+    EndpointReusableQueries.getById(request01.resourceId)
   );
 
-  expect(request01).toBe(savedRequest);
+  expect(request01).toEqual(savedRequest);
   expect(savedRequest.statusHistory).toContain({
     status: CollaborationRequestStatusType.Pending,
   });

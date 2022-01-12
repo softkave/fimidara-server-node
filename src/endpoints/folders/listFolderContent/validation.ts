@@ -4,7 +4,7 @@ import folderValidationSchemas from '../validation';
 
 export const listFolderContentJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow([null]),
+    organizationId: validationSchemas.nanoid.allow(null),
     path: folderValidationSchemas.path.required(),
   })
   .required();
