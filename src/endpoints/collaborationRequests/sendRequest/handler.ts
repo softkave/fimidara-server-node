@@ -51,10 +51,10 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     null,
     AppResourceType.CollaborationRequest,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     BasicCRUDActions.Create
   );
 
@@ -93,14 +93,14 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   }
 
   const request = await context.data.collaborationRequest.saveItem({
-    requestId: getNewId(),
+    resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
     },
     message: data.request.message,
-    organizationId: organization.organizationId,
+    organizationId: organization.resourceId,
     recipientEmail: data.request.recipientEmail,
     expiresAt: getDateString(
       add(new Date(), {

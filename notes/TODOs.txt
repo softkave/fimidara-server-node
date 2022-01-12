@@ -38,3 +38,7 @@ an operation on a resource shouldn't access it
 fail upload early. Don't wait until everything is uploaded. See if multer can do this.
 - Have a separate upload and download instance
 - Add description field for client assigned token
+- Recent directories and files feature and bookmarks
+- Separate data provider calls to separate functions that you test both mongo and memory
+providers with for pin point testing accuracy
+- Add control data to your tests to make sure only intended action happens

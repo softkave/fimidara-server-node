@@ -5,7 +5,7 @@ import {
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import changePasswordWithCurrentPassword from './handler';

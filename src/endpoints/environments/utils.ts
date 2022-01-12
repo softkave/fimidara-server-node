@@ -3,7 +3,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {IPublicEnvironment} from './types';
 
 const environmentFields = getFields<IPublicEnvironment>({
-  environmentId: true,
+  resourceId: true,
   createdBy: true,
   createdAt: getDateString,
   lastUpdatedBy: true,

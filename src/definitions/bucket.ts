@@ -1,7 +1,7 @@
 import {IAgent} from './system';
 
 export interface IBucket {
-  bucketId: string;
+  resourceId: string;
   organizationId: string;
   environmentId: string;
   createdBy: IAgent;

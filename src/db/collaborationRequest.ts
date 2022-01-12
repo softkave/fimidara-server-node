@@ -1,6 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {ICollaborationRequest} from '../definitions/collaborationRequest';
 import {getDate} from '../utilities/dateFns';
+import {agentSchema, ensureTypeFields} from './utils';
 
 const collaborationRequestStatusHistorySchema = {
   status: {type: String},
@@ -12,11 +13,11 @@ const notificationSentEmailHistorySchema = {
   reason: {type: String},
 };
 
-const collaborationRequestSchema = {
-  requestId: {type: String, unique: true, index: true},
+const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
+  resourceId: {type: String, unique: true, index: true},
   recipientEmail: {type: String, index: true},
   message: {type: String},
-  createdBy: {type: String},
+  createdBy: {type: agentSchema},
   createdAt: {type: Date, default: () => getDate()},
   expiresAt: {type: Date},
   readAt: {type: Date},
@@ -26,8 +27,9 @@ const collaborationRequestSchema = {
   },
   sentEmailHistory: {type: [notificationSentEmailHistorySchema], default: []},
   organizationId: {type: String, index: true},
-  organizationName: {type: String},
-};
+  lastUpdatedBy: {type: agentSchema},
+  lastUpdatedAt: {type: Date, default: () => getDate()},
+});
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
 

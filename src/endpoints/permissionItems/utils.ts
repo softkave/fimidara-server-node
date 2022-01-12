@@ -5,7 +5,7 @@ import {agentExtractor} from '../utils';
 import {IPublicPermissionItem} from './types';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
-  itemId: true,
+  resourceId: true,
   organizationId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
@@ -13,8 +13,8 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   permissionOwnerType: true,
   permissionEntityId: true,
   permissionEntityType: true,
-  resourceId: true,
-  resourceType: true,
+  itemResourceId: true,
+  itemResourceType: true,
   action: true,
   isExclusion: true,
   isForPermissionOwnerOnly: true,

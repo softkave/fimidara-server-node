@@ -1,7 +1,7 @@
 import {IAgent} from './system';
 
 export interface IEnvironment {
-  environmentId: string;
+  resourceId: string;
   organizationId: string;
   createdBy: IAgent;
   createdAt: string;

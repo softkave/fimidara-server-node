@@ -27,7 +27,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
   }
 
   user = await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.userId),
+    UserQueries.getById(user.resourceId),
     update
   );
 

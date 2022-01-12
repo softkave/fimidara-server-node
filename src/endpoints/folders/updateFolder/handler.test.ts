@@ -7,7 +7,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import deleteFolder from './handler';
 import {IUpdateFolderParams} from './types';
 
@@ -18,7 +18,7 @@ test('folder returned', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const updateInput = {
@@ -29,7 +29,7 @@ test('folder returned', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateFolderParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: folder01.name,
       folder: updateInput,
     }
@@ -37,6 +37,6 @@ test('folder returned', async () => {
 
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
-  expect(result.folder.folderId).toBe(folder01.folderId);
+  expect(result.folder.resourceId).toBe(folder01.resourceId);
   expect(result.folder).toMatchObject(updateInput);
 });

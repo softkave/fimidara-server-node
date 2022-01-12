@@ -3,7 +3,7 @@ import {
   insertOrganizationForTest,
   insertPresetForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import PresetPermissionsGroupQueries from '../queries';
 
 /**
@@ -18,11 +18,11 @@ test('preset permissions group added', async () => {
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const savedPreset = await context.data.presetPermissionsGroup.assertGetItem(
-    PresetPermissionsGroupQueries.getById(preset.presetId)
+    PresetPermissionsGroupQueries.getById(preset.resourceId)
   );
 
   expect(savedPreset).toBe(preset);

@@ -16,7 +16,7 @@ export const assignedPermissionsGroupSchema = ensureTypeFields<IAssignedPresetPe
 );
 
 const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
-  presetId: {type: String},
+  resourceId: {type: String},
   organizationId: {type: String},
   createdAt: {type: Date, default: getDate},
   createdBy: agentSchema,

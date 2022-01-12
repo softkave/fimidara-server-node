@@ -39,7 +39,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     // Delete permission items that belong to the token
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        token.tokenId,
+        token.resourceId,
         AppResourceType.ClientAssignedToken
       )
     ),
@@ -48,13 +48,13 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     // permission carrying resources, e.g a progam access token
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        token.tokenId,
+        token.resourceId,
         AppResourceType.ClientAssignedToken
       )
     ),
 
     context.data.clientAssignedToken.deleteItem(
-      ClientAssignedTokenQueries.getById(token.tokenId)
+      ClientAssignedTokenQueries.getById(token.resourceId)
     ),
   ]);
 };

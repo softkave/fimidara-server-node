@@ -3,7 +3,7 @@ import {IUserToken} from '../definitions/userToken';
 import {ensureTypeFields} from './utils';
 
 const userTokenMongoSchema = ensureTypeFields<IUserToken>({
-  tokenId: {type: String, unique: true},
+  resourceId: {type: String, unique: true},
   userId: {type: String},
   version: {type: Number},
   issuedAt: {type: Date},

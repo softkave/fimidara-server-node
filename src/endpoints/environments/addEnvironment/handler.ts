@@ -10,7 +10,7 @@ const addEnvironment: AddEnvironmentEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
   const environment = await context.data.environment.saveItem({
     createdAt: getDateString(),
-    createdBy: user.userId,
+    createdBy: user.resourceId,
     name: data.environment.name,
     environmentId: getNewId(),
     description: data.environment.description,

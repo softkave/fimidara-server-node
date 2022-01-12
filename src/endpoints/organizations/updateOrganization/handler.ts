@@ -29,7 +29,7 @@ const updateOrganization: UpdateOrganizationEndpoint = async (
   );
 
   const updatedOrganization = await context.data.organization.assertUpdateItem(
-    OrganizationQueries.getById(organization.organizationId),
+    OrganizationQueries.getById(organization.resourceId),
     {
       ...data.organization,
       lastUpdatedAt: getDateString(),

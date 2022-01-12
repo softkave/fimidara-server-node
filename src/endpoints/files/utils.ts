@@ -21,7 +21,7 @@ import FileQueries from './queries';
 import {IPublicFile} from './types';
 
 const fileFields = getFields<IPublicFile>({
-  fileId: true,
+  resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
   lastUpdatedBy: agentExtractorIfPresent,
@@ -63,10 +63,10 @@ export async function checkFileAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    file.fileId,
+    organization.resourceId,
+    file.resourceId,
     AppResourceType.File,
-    getFilePermissionOwners(organization.organizationId, file),
+    getFilePermissionOwners(organization.resourceId, file),
     action,
     nothrow
   );

@@ -7,7 +7,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ClientAssignedTokenQueries from '../queries';
 import updateClientAssignedTokenPresets from './handler';
 import {IUpdateClientAssignedTokenPresetsParams} from './types';
@@ -24,32 +24,32 @@ test('client assigned token presets updated', async () => {
   const {token: token01} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IUpdateClientAssignedTokenPresetsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      tokenId: token01.tokenId,
+      tokenId: token01.resourceId,
       presets: [
         {
-          presetId: preset01.presetId,
+          presetId: preset01.resourceId,
           order: 1,
         },
         {
-          presetId: preset02.presetId,
+          presetId: preset02.resourceId,
           order: 2,
         },
       ],
@@ -60,19 +60,19 @@ test('client assigned token presets updated', async () => {
   assertEndpointResultOk(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(token01.tokenId)
+    ClientAssignedTokenQueries.getById(token01.resourceId)
   );
 
   expect(updatedToken).toMatchObject(result.token);
   expect(updatedToken.presets.length).toBe(2);
   expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset01.presetId,
-    assignedBy: user.userId,
+    presetId: preset01.resourceId,
+    assignedBy: user.resourceId,
     order: 0,
   });
   expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset02.presetId,
-    assignedBy: user.userId,
+    presetId: preset02.resourceId,
+    assignedBy: user.resourceId,
     order: 1,
   });
 });

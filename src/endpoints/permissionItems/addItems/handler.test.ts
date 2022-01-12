@@ -5,7 +5,7 @@ import {
   insertPermissionItemsForTest01,
   insertPresetForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 
 /**
  * TODO:
@@ -23,19 +23,19 @@ test('permission items added', async () => {
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   await insertPermissionItemsForTest01(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
-      permissionEntityId: preset.presetId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     },
     {
-      permissionOwnerId: organization.organizationId,
+      permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
     {resourceType: AppResourceType.File}

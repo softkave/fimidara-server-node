@@ -9,7 +9,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import CollaborationRequestQueries from '../queries';
 import updateRequest from './handler';
 import {IUpdateCollaborationRequestInput, IUpdateRequestParams} from './types';
@@ -21,7 +21,7 @@ test('collaboration request updated', async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const updateRequestInput: IUpdateCollaborationRequestInput = {
@@ -35,7 +35,7 @@ test('collaboration request updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateRequestParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      requestId: request01.requestId,
+      requestId: request01.resourceId,
       request: updateRequestInput,
     }
   );
@@ -43,10 +43,10 @@ test('collaboration request updated', async () => {
   const result = await updateRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.requestId)
+    CollaborationRequestQueries.getById(request01.resourceId)
   );
 
-  expect(result.request.requestId).toBe(request01.requestId);
+  expect(result.request.resourceId).toBe(request01.resourceId);
   expect(result.request).toMatchObject(updateRequestInput);
   expect(updatedRequest).toMatchObject(updateRequestInput);
 });

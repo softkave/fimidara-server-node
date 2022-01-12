@@ -22,7 +22,7 @@ function getByName(name: string, parent?: IEnvironment) {
   if (parent) {
     filter.addItem(
       'parentId',
-      parent.environmentId,
+      parent.resourceId,
       DataProviderFilterValueOperator.Equal
     );
   } else {

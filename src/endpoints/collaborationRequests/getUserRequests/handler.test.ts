@@ -6,7 +6,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getUserRequests from './handler';
 
 /**
@@ -25,7 +25,7 @@ test("user's collaboration request returned", async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       recipientEmail: user02.email,
     }
@@ -34,7 +34,7 @@ test("user's collaboration request returned", async () => {
   const instData = RequestData.fromExpressRequest(
     mockExpressRequestWithUserToken(user02Token),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 

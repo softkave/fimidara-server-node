@@ -1,20 +1,26 @@
+import EventEmitter = require('events');
 import {createConnection, Connection} from 'mongoose';
-import {appVariables} from '../resources/appVariables';
 
 let connection: Connection | null = null;
+const emittersMap: Record<string, EventEmitter> = {};
+const connectingMap: Record<string, true> = {};
+const openEventName = 'open';
+const errorEventName = 'error';
 
-export function getMongoConnection(): Promise<Connection> {
+export function getMongoConnection(uri: string): Promise<Connection> {
   return new Promise((resolve, reject) => {
     if (connection) {
       resolve(connection);
     }
 
-    if (!appVariables.mongoDbURI) {
-      reject(new Error('MongoDB URI not provided'));
+    if (connectingMap[uri]) {
+      emittersMap[uri]?.addListener(openEventName, resolve);
+      emittersMap[uri]?.addListener(errorEventName, reject);
       return;
     }
 
-    connection = createConnection(appVariables.mongoDbURI, {
+    connectingMap[uri] = true;
+    connection = createConnection(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useFindAndModify: false,
@@ -22,7 +28,8 @@ export function getMongoConnection(): Promise<Connection> {
 
     connection.once('open', () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      resolve(connection!);
+      emittersMap[uri]?.emit(openEventName, connection);
+      delete emittersMap[uri];
     });
 
     connection.once('error', error => {
@@ -30,7 +37,11 @@ export function getMongoConnection(): Promise<Connection> {
         console.error(error);
       }
 
-      reject(new Error('Could not connect to MongoDB'));
+      emittersMap[uri]?.emit(
+        errorEventName,
+        new Error('Could not connect to MongoDB')
+      );
+      delete emittersMap[uri];
     });
   });
 }

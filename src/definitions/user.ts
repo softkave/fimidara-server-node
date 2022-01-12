@@ -7,7 +7,7 @@ export interface IUserOrganization {
 }
 
 export interface IUser {
-  userId: string;
+  resourceId: string;
   firstName: string;
   lastName: string;
   email: string;

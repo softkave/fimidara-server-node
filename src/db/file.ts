@@ -4,7 +4,7 @@ import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const fileSchema = ensureTypeFields<IFile>({
-  fileId: {type: String, unique: true, index: true},
+  resourceId: {type: String, unique: true, index: true},
   mimetype: {type: String},
   organizationId: {type: String},
   createdBy: {type: agentSchema},

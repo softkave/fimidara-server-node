@@ -1,7 +1,7 @@
 import {IUserOrganization} from '../../definitions/user';
 
 export interface IPublicUserData {
-  userId: string;
+  resourceId: string;
   firstName: string;
   lastName: string;
   email: string;

@@ -164,7 +164,7 @@ export default class SessionContext implements ISessionContext {
           incomingTokenData,
           agentId: userToken.userId,
           agentType: SessionAgentType.User,
-          tokenId: userToken.tokenId,
+          tokenId: userToken.resourceId,
           tokenType: TokenType.UserToken,
         };
 
@@ -175,9 +175,9 @@ export default class SessionContext implements ISessionContext {
       if (programAccessToken) {
         const agent: ISessionAgent = {
           incomingTokenData,
-          agentId: programAccessToken.tokenId,
+          agentId: programAccessToken.resourceId,
           agentType: SessionAgentType.ProgramAccessToken,
-          tokenId: programAccessToken.tokenId,
+          tokenId: programAccessToken.resourceId,
           tokenType: TokenType.ProgramAccessToken,
         };
 
@@ -188,9 +188,9 @@ export default class SessionContext implements ISessionContext {
       if (clientAssignedToken) {
         const agent: ISessionAgent = {
           incomingTokenData,
-          agentId: clientAssignedToken.tokenId,
+          agentId: clientAssignedToken.resourceId,
           agentType: SessionAgentType.ClientAssignedToken,
-          tokenId: clientAssignedToken.tokenId,
+          tokenId: clientAssignedToken.resourceId,
           tokenType: TokenType.ClientAssignedToken,
         };
 

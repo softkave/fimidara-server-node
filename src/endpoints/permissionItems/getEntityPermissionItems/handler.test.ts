@@ -8,7 +8,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getEntityPermissionItems from './handler';
 import {IGetEntityPermissionItemsParams} from './types';
 
@@ -19,19 +19,19 @@ test('entity permission items returned', async () => {
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {items} = await insertPermissionItemsForTest01(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
-      permissionEntityId: preset.presetId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     },
     {
-      permissionOwnerId: organization.organizationId,
+      permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
     {resourceType: AppResourceType.File}
@@ -40,8 +40,8 @@ test('entity permission items returned', async () => {
   const instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
-      permissionEntityId: preset.presetId,
+      organizationId: organization.resourceId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     }
   );

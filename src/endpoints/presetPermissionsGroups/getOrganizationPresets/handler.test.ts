@@ -6,7 +6,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getOrganizationPresetPermissionsGroups from './handler';
 import {IGetOrganizationPresetPermissionsGroupsEndpointParams} from './types';
 
@@ -17,19 +17,19 @@ test("organization's presets returned", async () => {
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetOrganizationPresetPermissionsGroupsEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 

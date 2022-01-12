@@ -6,7 +6,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getOrganizationRequests from './handler';
 import {IGetOrganizationRequestsParams} from './types';
 
@@ -22,19 +22,19 @@ test('organization collaboration requests returned', async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {request: request02} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetOrganizationRequestsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 

@@ -37,10 +37,10 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint = async
       checkAuthorization(
         context,
         agent,
-        organization.organizationId,
-        item.userId,
+        organization.resourceId,
+        item.resourceId,
         AppResourceType.Collaborator,
-        makeBasePermissionOwnerList(organization.organizationId),
+        makeBasePermissionOwnerList(organization.resourceId),
         BasicCRUDActions.Read,
         true
       )

@@ -2,7 +2,7 @@ import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {IAgent} from './system';
 
 export interface IClientAssignedToken {
-  tokenId: string;
+  resourceId: string;
   createdAt: string;
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;

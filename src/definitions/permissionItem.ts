@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 
 export interface IPermissionItem {
-  itemId: string;
+  resourceId: string;
   organizationId: string;
   // environmentId?: string;
   createdAt: string;
@@ -17,8 +17,8 @@ export interface IPermissionItem {
   permissionEntityType: AppResourceType;
 
   // All application resources except users which are replaced by collaborators
-  resourceId?: string;
-  resourceType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean; // That is this permission item denies permission to the resource
   isForPermissionOwnerOnly?: boolean;

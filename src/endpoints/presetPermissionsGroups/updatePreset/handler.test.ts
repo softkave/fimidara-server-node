@@ -7,7 +7,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import PresetPermissionsGroupQueries from '../queries';
 import updatePresetPermissionsGroup from './handler';
 import {
@@ -27,19 +27,19 @@ test('preset updated', async () => {
   const {preset: preset00} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const updatePresetInput: IUpdatePresetPermissionsGroupInput = {
@@ -47,11 +47,11 @@ test('preset updated', async () => {
     description: faker.lorem.sentence(50),
     presets: [
       {
-        presetId: preset01.presetId,
+        presetId: preset01.resourceId,
         order: 1,
       },
       {
-        presetId: preset02.presetId,
+        presetId: preset02.resourceId,
         order: 2,
       },
     ],
@@ -60,7 +60,7 @@ test('preset updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdatePresetPermissionsGroupParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      presetId: preset00.presetId,
+      presetId: preset00.resourceId,
       preset: updatePresetInput,
     }
   );
@@ -69,7 +69,7 @@ test('preset updated', async () => {
   assertEndpointResultOk(result);
 
   const updatedPreset = await context.data.presetPermissionsGroup.assertGetItem(
-    PresetPermissionsGroupQueries.getById(preset00.presetId)
+    PresetPermissionsGroupQueries.getById(preset00.resourceId)
   );
 
   expect(updatedPreset).toMatchObject(result.preset);
@@ -77,13 +77,13 @@ test('preset updated', async () => {
   expect(updatedPreset.description).toBe(updatePresetInput.description);
   expect(updatedPreset.presets.length).toBe(2);
   expect(updatedPreset.presets[0]).toMatchObject({
-    presetId: preset01.presetId,
-    assignedBy: user.userId,
+    presetId: preset01.resourceId,
+    assignedBy: user.resourceId,
     order: 0,
   });
   expect(updatedPreset.presets[0]).toMatchObject({
-    presetId: preset02.presetId,
-    assignedBy: user.userId,
+    presetId: preset02.resourceId,
+    assignedBy: user.resourceId,
     order: 1,
   });
 });

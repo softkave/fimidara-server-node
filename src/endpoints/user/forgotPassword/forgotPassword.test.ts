@@ -5,7 +5,7 @@ import {
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import UserTokenQueries from '../UserTokenQueries';
 import forgotPassword from './forgotPassword';
 import {IForgotPasswordParams} from './types';
@@ -30,7 +30,7 @@ test('forgot password with email sent', async () => {
   assertEndpointResultOk(result);
   await context.data.userToken.assertGetItem(
     UserTokenQueries.getByUserIdAndAudience(
-      user.userId,
+      user.resourceId,
       TokenAudience.ChangePassword
     )
   );

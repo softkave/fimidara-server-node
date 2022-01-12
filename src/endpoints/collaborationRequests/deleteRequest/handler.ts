@@ -24,20 +24,20 @@ const deleteRequest: DeleteRequestEndpoint = async (context, instData) => {
   );
 
   await context.data.collaborationRequest.deleteItem(
-    CollaborationRequestQueries.getById(request.requestId)
+    CollaborationRequestQueries.getById(request.resourceId)
   );
 
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        request.requestId,
+        request.resourceId,
         AppResourceType.CollaborationRequest
       )
     ),
 
     context.data.collaborationRequest.deleteItem(
-      CollaborationRequestQueries.getById(request.requestId)
+      CollaborationRequestQueries.getById(request.resourceId)
     ),
   ]);
 };

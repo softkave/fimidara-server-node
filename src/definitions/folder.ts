@@ -1,7 +1,7 @@
 import {IAgent} from './system';
 
 export interface IFolder {
-  folderId: string;
+  resourceId: string;
   organizationId: string;
   // bucketId: string;
   // environmentId: string;

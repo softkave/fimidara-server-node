@@ -6,7 +6,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getFileDetails from './handler';
 import {IGetFileDetailsEndpointParams} from './types';
 
@@ -17,13 +17,13 @@ test('file details returned', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: file.name,
     }
   );

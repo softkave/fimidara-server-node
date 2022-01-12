@@ -39,25 +39,25 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     null,
     AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     BasicCRUDActions.Create
   );
 
   await checkPresetsExist(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.token.presets
   );
 
   const token: IClientAssignedToken = await context.data.clientAssignedToken.saveItem(
     {
       expires: data.token.expires,
-      organizationId: organization.organizationId,
-      tokenId: getNewId(),
+      organizationId: organization.resourceId,
+      resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
@@ -73,7 +73,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     token: ClientAssignedTokenUtils.extractPublicToken(token),
     tokenStr: context.session.encodeToken(
       context,
-      token.tokenId,
+      token.resourceId,
       TokenType.ClientAssignedToken,
       token.expires
     ),

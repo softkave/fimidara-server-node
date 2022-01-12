@@ -20,7 +20,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   );
 
   const updatedFolder = await context.data.folder.assertUpdateItem(
-    FolderQueries.getById(folder.folderId),
+    FolderQueries.getById(folder.resourceId),
     {
       ...data.folder,
       lastUpdatedAt: getDateString(),

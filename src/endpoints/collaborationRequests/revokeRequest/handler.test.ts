@@ -7,7 +7,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import CollaborationRequestQueries from '../queries';
 import revokeRequest from './handler';
 import {IRevokeRequestParams} from './types';
@@ -20,7 +20,7 @@ test('collaboration request revoked', async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       recipientEmail: user02.email,
     }
@@ -29,17 +29,17 @@ test('collaboration request revoked', async () => {
   const instData = RequestData.fromExpressRequest<IRevokeRequestParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      requestId: request01.requestId,
+      requestId: request01.resourceId,
     }
   );
 
   const result = await revokeRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.requestId)
+    CollaborationRequestQueries.getById(request01.resourceId)
   );
 
-  expect(result.request.requestId).toBe(request01.requestId);
+  expect(result.request.resourceId).toBe(request01.resourceId);
   expect(result.request).toBe(updatedRequest);
   expect(updatedRequest.statusHistory).toContain({
     status: CollaborationRequestStatusType.Revoked,

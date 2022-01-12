@@ -4,7 +4,7 @@ import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const folderSchema = ensureTypeFields<IFolder>({
-  folderId: {type: String, unique: true, index: true},
+  resourceId: {type: String, unique: true, index: true},
   organizationId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},

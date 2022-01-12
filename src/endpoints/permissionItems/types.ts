@@ -5,7 +5,7 @@ import {
 } from '../../definitions/system';
 
 export interface IPublicPermissionItem {
-  itemId: string;
+  resourceId: string;
   organizationId: string;
   createdAt: string;
   createdBy: IAgent;
@@ -13,8 +13,8 @@ export interface IPublicPermissionItem {
   permissionOwnerType: AppResourceType;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
-  resourceId?: string;
-  resourceType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
   isForPermissionOwnerOnly?: boolean;

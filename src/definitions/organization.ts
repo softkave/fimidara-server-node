@@ -1,7 +1,7 @@
 import {IAgent} from './system';
 
 export interface IOrganization {
-  organizationId: string;
+  resourceId: string;
   createdBy: IAgent;
   createdAt: string;
   lastUpdatedBy?: IAgent;

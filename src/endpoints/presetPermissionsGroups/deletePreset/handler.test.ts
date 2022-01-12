@@ -6,7 +6,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
 import deletePresetPermissionsGroup from './handler';
 import {IDeletePresetPermissionsGroupParams} from './types';
@@ -18,13 +18,13 @@ test('preset permission group deleted', async () => {
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeletePresetPermissionsGroupParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      presetId: preset.presetId,
+      presetId: preset.resourceId,
     }
   );
 
@@ -32,7 +32,7 @@ test('preset permission group deleted', async () => {
   assertEndpointResultOk(result);
 
   const deletedPresetExists = await context.data.programAccessToken.checkItemExists(
-    ProgramAccessTokenQueries.getById(preset.presetId)
+    ProgramAccessTokenQueries.getById(preset.resourceId)
   );
 
   expect(deletedPresetExists).toBeFalsy();

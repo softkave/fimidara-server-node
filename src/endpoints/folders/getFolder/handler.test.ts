@@ -6,7 +6,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import deleteFolder from './handler';
 import {IGetFolderEndpointParams} from './types';
 
@@ -17,13 +17,13 @@ test('folder returned', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: folder01.name,
     }
   );

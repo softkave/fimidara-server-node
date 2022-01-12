@@ -24,7 +24,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
 
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,
-    key: file.fileId,
+    key: file.resourceId,
   });
 
   let buffer = persistedFile.body as Buffer | undefined;

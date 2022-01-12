@@ -37,14 +37,14 @@ async function createFile(
   );
   return await context.data.file.saveItem({
     organizationId,
-    fileId,
+    resourceId: fileId,
     extension,
     name: filename,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder
       ? parentFolder.namePath.concat(pathWithDetails.name)
       : [pathWithDetails.name],
-    folderId: parentFolder?.folderId,
+    folderId: parentFolder?.resourceId,
     mimetype: data.mimetype,
     size: data.data.length,
     createdBy: {
@@ -78,7 +78,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
   await context.fileBackend.uploadFile({
     bucket: context.appVariables.S3Bucket,
-    key: file.fileId,
+    key: file.resourceId,
     body: data.file.data,
     contentType: data.file.mimetype,
     contentEncoding: data.file.encoding,

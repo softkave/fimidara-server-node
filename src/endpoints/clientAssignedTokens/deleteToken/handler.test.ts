@@ -6,7 +6,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ClientAssignedTokenQueries from '../queries';
 import deleteClientAssignedToken from './handler';
 import {IDeleteClientAssignedTokenParams} from './types';
@@ -23,13 +23,13 @@ test('client assigned token deleted', async () => {
   const {token} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteClientAssignedTokenParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      tokenId: token.tokenId,
+      tokenId: token.resourceId,
     }
   );
 
@@ -37,7 +37,7 @@ test('client assigned token deleted', async () => {
   assertEndpointResultOk(result);
 
   const deletedTokenExists = await context.data.clientAssignedToken.checkItemExists(
-    ClientAssignedTokenQueries.getById(token.tokenId)
+    ClientAssignedTokenQueries.getById(token.resourceId)
   );
 
   expect(deletedTokenExists).toBeFalsy();

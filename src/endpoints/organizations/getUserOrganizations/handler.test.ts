@@ -5,7 +5,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getUserOrganizations from './handler';
 
 test('user organizations are returned', async () => {

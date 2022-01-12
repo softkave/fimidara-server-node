@@ -19,7 +19,7 @@ import ClientAssignedTokenQueries from './queries';
 import {IPublicClientAssignedToken} from './types';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
-  tokenId: true,
+  resourceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
@@ -54,10 +54,10 @@ export async function checkClientAssignedTokenAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    token.tokenId,
+    organization.resourceId,
+    token.resourceId,
     AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     action,
     nothrow
   );

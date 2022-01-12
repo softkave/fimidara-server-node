@@ -5,7 +5,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getCollaborator from './handler';
 import {IGetCollaboratorParams} from './types';
 
@@ -16,8 +16,8 @@ test('collaborator returned', async () => {
   const instData = RequestData.fromExpressRequest<IGetCollaboratorParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
-      collaboratorId: user.userId,
+      organizationId: organization.resourceId,
+      collaboratorId: user.resourceId,
     }
   );
 

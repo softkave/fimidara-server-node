@@ -15,7 +15,7 @@ import {
   insertFileForTest,
   insertPermissionItemsForTest01,
   mockExpressRequestWithUserToken,
-} from '../../../test-utils';
+} from '../../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../../user/errors';
 import {
   checkAuthorization,
@@ -29,19 +29,19 @@ test('auth is granted when it should be', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   await insertPermissionItemsForTest01(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
-      permissionEntityId: user.userId,
+      permissionEntityId: user.resourceId,
       permissionEntityType: AppResourceType.Collaborator,
     },
     {
-      permissionOwnerId: organization.organizationId,
+      permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
     {resourceType: AppResourceType.File}
@@ -55,10 +55,10 @@ test('auth is granted when it should be', async () => {
   const permitted = await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    file.fileId,
+    organization.resourceId,
+    file.resourceId,
     AppResourceType.File,
-    getFilePermissionOwners(organization.organizationId, file),
+    getFilePermissionOwners(organization.resourceId, file),
     BasicCRUDActions.Read
   );
 
@@ -72,7 +72,7 @@ test('auth is granted when it should fail', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const agent = await context.session.getAgent(
@@ -83,10 +83,10 @@ test('auth is granted when it should fail', async () => {
   const permitted = await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    file.fileId,
+    organization.resourceId,
+    file.resourceId,
     AppResourceType.File,
-    getFilePermissionOwners(organization.organizationId, file),
+    getFilePermissionOwners(organization.resourceId, file),
     BasicCRUDActions.Read,
     true
   );
@@ -101,7 +101,7 @@ test('should throw when noThrow is turned off', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const agent = await context.session.getAgent(
@@ -113,10 +113,10 @@ test('should throw when noThrow is turned off', async () => {
     await checkAuthorization(
       context,
       agent,
-      organization.organizationId,
-      file.fileId,
+      organization.resourceId,
+      file.resourceId,
       AppResourceType.File,
-      getFilePermissionOwners(organization.organizationId, file),
+      getFilePermissionOwners(organization.resourceId, file),
       BasicCRUDActions.Read,
       false
     );

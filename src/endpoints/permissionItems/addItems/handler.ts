@@ -38,7 +38,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   await checkEntityExists(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.permissionEntityId,
     data.permissionEntityType
   );
@@ -46,7 +46,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   await checkOwnersExist(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.items,
     true
   );
@@ -54,13 +54,13 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   const items: IPermissionItem[] = data.items.map(input => {
     const item: IPermissionItem = {
       ...input,
-      itemId: getNewId(),
+      resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       permissionEntityId: data.permissionEntityId,
       permissionEntityType: data.permissionEntityType,
     };

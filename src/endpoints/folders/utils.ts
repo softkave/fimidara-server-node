@@ -21,7 +21,7 @@ import FolderQueries from './queries';
 import {IPublicFolder} from './types';
 
 const folderFields = getFields<IPublicFolder>({
-  folderId: true,
+  resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
   lastUpdatedBy: agentExtractorIfPresent,
@@ -121,10 +121,10 @@ export async function checkFolderAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    folder.folderId,
+    organization.resourceId,
+    folder.resourceId,
     AppResourceType.Folder,
-    getFilePermissionOwners(organization.organizationId, folder),
+    getFilePermissionOwners(organization.resourceId, folder),
     action,
     nothrow
   );

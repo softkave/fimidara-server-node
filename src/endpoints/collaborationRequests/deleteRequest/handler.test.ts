@@ -6,7 +6,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import CollaborationRequestQueries from '../queries';
 import deleteRequest from './handler';
 import {IDeleteRequestParams} from './types';
@@ -18,20 +18,20 @@ test('collaboration request deleted', async () => {
   const {request} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteRequestParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      requestId: request.requestId,
+      requestId: request.resourceId,
     }
   );
 
   const result = await deleteRequest(context, instData);
   assertEndpointResultOk(result);
   const deletedRequestExists = await context.data.collaborationRequest.checkItemExists(
-    CollaborationRequestQueries.getById(request.requestId)
+    CollaborationRequestQueries.getById(request.resourceId)
   );
 
   expect(deletedRequestExists).toBeFalsy();

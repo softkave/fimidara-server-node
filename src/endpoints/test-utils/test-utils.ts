@@ -5,56 +5,56 @@ import {
   AppResourceType,
   BasicCRUDActions,
   crudActionsList,
-} from '../definitions/system';
-import {IUserToken} from '../definitions/userToken';
-import addClientAssignedToken from './clientAssignedTokens/addToken/handler';
+} from '../../definitions/system';
+import {IUserToken} from '../../definitions/userToken';
+import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
   IAddClientAssignedTokenParams,
   INewClientAssignedTokenInput,
-} from './clientAssignedTokens/addToken/types';
-import sendRequest from './collaborationRequests/sendRequest/handler';
+} from '../clientAssignedTokens/addToken/types';
+import sendRequest from '../collaborationRequests/sendRequest/handler';
 import {
   ICollaborationRequestInput,
   ISendRequestParams,
-} from './collaborationRequests/sendRequest/types';
-import {IPermissionEntity} from './contexts/authorization-checks/getPermissionEntities';
-import BaseContext, {IBaseContext} from './contexts/BaseContext';
-import {TestEmailProviderContext} from './contexts/EmailProviderContext';
-import {TestFilePersistenceProviderContext} from './contexts/FilePersistenceProviderContext';
-import MemoryDataProviderContext from './contexts/MemoryDataProviderContext';
+} from '../collaborationRequests/sendRequest/types';
+import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
+import BaseContext, {IBaseContext} from '../contexts/BaseContext';
+import {TestEmailProviderContext} from '../contexts/EmailProviderContext';
+import {TestFilePersistenceProviderContext} from '../contexts/FilePersistenceProviderContext';
+import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
 import {
   CURRENT_TOKEN_VERSION,
   IBaseTokenData,
   TokenType,
-} from './contexts/SessionContext';
-import {IServerRequest} from './contexts/types';
-import uploadFile from './files/uploadFile/handler';
-import {INewFileInput, IUploadFileParams} from './files/uploadFile/types';
-import addFolder from './folders/addFolder/handler';
-import {IAddFolderParams, INewFolderInput} from './folders/addFolder/types';
-import {folderConstants} from './folders/constants';
-import addOrganization from './organizations/addOrganization/handler';
-import {IAddOrganizationParams} from './organizations/addOrganization/types';
-import addPermissionItems from './permissionItems/addItems/handler';
+} from '../contexts/SessionContext';
+import {IServerRequest} from '../contexts/types';
+import uploadFile from '../files/uploadFile/handler';
+import {INewFileInput, IUploadFileParams} from '../files/uploadFile/types';
+import addFolder from '../folders/addFolder/handler';
+import {IAddFolderParams, INewFolderInput} from '../folders/addFolder/types';
+import {folderConstants} from '../folders/constants';
+import addOrganization from '../organizations/addOrganization/handler';
+import {IAddOrganizationParams} from '../organizations/addOrganization/types';
+import addPermissionItems from '../permissionItems/addItems/handler';
 import {
   IAddPermissionItemsParams,
   INewPermissionItemInput,
-} from './permissionItems/addItems/types';
-import addPresetPermissionsGroup from './presetPermissionsGroups/addPreset/handler';
+} from '../permissionItems/addItems/types';
+import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
   IAddPresetPermissionsGroupParams,
   INewPresetPermissionsGroupInput,
-} from './presetPermissionsGroups/addPreset/types';
-import addProgramAccessToken from './programAccessTokens/addToken/handler';
+} from '../presetPermissionsGroups/addPreset/types';
+import addProgramAccessToken from '../programAccessTokens/addToken/handler';
 import {
   IAddProgramAccessTokenParams,
   INewProgramAccessTokenInput,
-} from './programAccessTokens/addToken/types';
-import RequestData from './RequestData';
-import {IBaseEndpointResult} from './types';
-import signup from './user/signup/signup';
-import {ISignupParams} from './user/signup/types';
-import UserTokenQueries from './user/UserTokenQueries';
+} from '../programAccessTokens/addToken/types';
+import RequestData from '../RequestData';
+import {IBaseEndpointResult} from '../types';
+import signup from '../user/signup/signup';
+import {ISignupParams} from '../user/signup/types';
+import UserTokenQueries from '../user/UserTokenQueries';
 
 export function getTestBaseContext() {
   return new BaseContext(
@@ -87,7 +87,7 @@ export function mockExpressRequestWithUserToken(token: IUserToken) {
     user: {
       version: CURRENT_TOKEN_VERSION,
       sub: {
-        id: token.tokenId,
+        id: token.resourceId,
         type: TokenType.UserToken,
       },
       iat: new Date(token.issuedAt).getTime(),

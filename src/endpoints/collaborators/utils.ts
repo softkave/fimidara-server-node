@@ -17,7 +17,7 @@ import CollaboratorQueries from './queries';
 import {IPublicCollaborator} from './types';
 
 const collaboratorFields = getFields<IPublicCollaborator>({
-  userId: true,
+  resourceId: true,
   firstName: true,
   lastName: true,
   email: true,
@@ -48,7 +48,7 @@ export async function checkCollaboratorAuthorization(
     context,
     agent,
     organizationId,
-    collaborator.userId,
+    collaborator.resourceId,
     AppResourceType.Collaborator,
     makeBasePermissionOwnerList(organizationId),
     action,

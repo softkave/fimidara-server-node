@@ -3,7 +3,7 @@ import {
   getTestBaseContext,
   insertOrganizationForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import OrganizationQueries from '../queries';
 import {IAddOrganizationParams} from './types';
 
@@ -23,7 +23,7 @@ test('organization created', async () => {
 
   expect(result.organization).toMatchObject(companyInput);
   const savedCompany = await context.data.organization.assertGetItem(
-    OrganizationQueries.getById(result.organization.organizationId)
+    OrganizationQueries.getById(result.organization.resourceId)
   );
 
   expect(result.organization).toMatchObject(savedCompany);

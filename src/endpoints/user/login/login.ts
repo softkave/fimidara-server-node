@@ -45,13 +45,16 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   let token = await context.data.userToken.getItem(
-    UserTokenQueries.getByUserIdAndAudience(user.userId, TokenAudience.Login)
+    UserTokenQueries.getByUserIdAndAudience(
+      user.resourceId,
+      TokenAudience.Login
+    )
   );
 
   if (!token) {
     token = await context.data.userToken.saveItem({
-      tokenId: getNewId(),
-      userId: user.userId,
+      resourceId: getNewId(),
+      userId: user.resourceId,
       audience: [TokenAudience.Login],
       issuedAt: getDateString(),
       version: CURRENT_TOKEN_VERSION,
@@ -64,7 +67,7 @@ const login: LoginEndpoint = async (context, instData) => {
     user: userExtractor(user),
     token: context.session.encodeToken(
       context,
-      token.tokenId,
+      token.resourceId,
       TokenType.UserToken
     ),
   };

@@ -4,7 +4,7 @@ import {
   insertPresetForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
 
 /**
@@ -20,27 +20,27 @@ test('program access token added', async () => {
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {token} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       presets: [
         {
-          presetId: preset01.presetId,
+          presetId: preset01.resourceId,
           order: 1,
         },
         {
-          presetId: preset02.presetId,
+          presetId: preset02.resourceId,
           order: 2,
         },
       ],
@@ -48,19 +48,19 @@ test('program access token added', async () => {
   );
 
   const savedToken = await context.data.programAccessToken.assertGetItem(
-    ProgramAccessTokenQueries.getById(token.tokenId)
+    ProgramAccessTokenQueries.getById(token.resourceId)
   );
 
   expect(savedToken).toBe(token);
   expect(savedToken.presets.length).toBe(2);
   expect(savedToken.presets[0]).toMatchObject({
-    presetId: preset01.presetId,
-    assignedBy: user.userId,
+    presetId: preset01.resourceId,
+    assignedBy: user.resourceId,
     order: 0,
   });
   expect(savedToken.presets[0]).toMatchObject({
-    presetId: preset02.presetId,
-    assignedBy: user.userId,
+    presetId: preset02.resourceId,
+    assignedBy: user.resourceId,
     order: 1,
   });
 });

@@ -40,34 +40,30 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
 
   await waitOnPromises([
     context.data.collaborationRequest.deleteManyItems(
-      CollaboratorQueries.getByOrganizationId(organization.organizationId)
+      CollaboratorQueries.getByOrganizationId(organization.resourceId)
     ),
 
     context.data.programAccessToken.deleteManyItems(
-      ProgramAccessTokenQueries.getByOrganizationId(organization.organizationId)
+      ProgramAccessTokenQueries.getByOrganizationId(organization.resourceId)
     ),
 
     context.data.clientAssignedToken.deleteManyItems(
-      ClientAssignedTokenQueries.getByOrganizationId(
-        organization.organizationId
-      )
+      ClientAssignedTokenQueries.getByOrganizationId(organization.resourceId)
     ),
 
     context.data.presetPermissionsGroup.deleteManyItems(
-      PresetPermissionsGroupQueries.getByOrganizationId(
-        organization.organizationId
-      )
+      PresetPermissionsGroupQueries.getByOrganizationId(organization.resourceId)
     ),
 
     context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByOrganizationId(organization.organizationId)
+      PermissionItemQueries.getByOrganizationId(organization.resourceId)
     ),
 
-    internalDeleteFoldersByOrganizationId(context, organization.organizationId),
-    internalDeleteFilesByOrganizationId(context, organization.organizationId),
-    updateCollaborators(context, organization.organizationId),
+    internalDeleteFoldersByOrganizationId(context, organization.resourceId),
+    internalDeleteFilesByOrganizationId(context, organization.resourceId),
+    updateCollaborators(context, organization.resourceId),
     context.data.organization.deleteItem(
-      OrganizationQueries.getById(organization.organizationId)
+      OrganizationQueries.getById(organization.resourceId)
     ),
   ]);
 };
@@ -87,7 +83,7 @@ async function internalDeleteFilesByOrganizationId(
 
   await context.fileBackend.deleteFiles({
     bucket: context.appVariables.S3Bucket,
-    keys: files.map(file => file.fileId),
+    keys: files.map(file => file.resourceId),
   });
 }
 
@@ -119,7 +115,7 @@ async function updateCollaborators(
       );
 
       await context.data.user.updateItem(
-        CollaboratorQueries.getById(collaborator.userId),
+        CollaboratorQueries.getById(collaborator.resourceId),
         {organizations: collaborator.organizations}
       );
     })

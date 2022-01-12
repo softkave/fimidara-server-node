@@ -8,7 +8,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
 import deletePermissionItems from './handler';
 import {IDeletePermissionItemsParams} from './types';
@@ -20,30 +20,30 @@ test('permission items deleted', async () => {
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {items} = await insertPermissionItemsForTest01(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
-      permissionEntityId: preset.presetId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     },
     {
-      permissionOwnerId: organization.organizationId,
+      permissionOwnerId: organization.resourceId,
       permissionOwnerType: AppResourceType.Organization,
     },
     {resourceType: AppResourceType.File}
   );
 
-  const itemIds = items.map(item => item.itemId);
+  const itemIds = items.map(item => item.resourceId);
   const instData = RequestData.fromExpressRequest<IDeletePermissionItemsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
-      permissionEntityId: preset.presetId,
+      organizationId: organization.resourceId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
       itemIds: itemIds,
     }
@@ -52,7 +52,7 @@ test('permission items deleted', async () => {
   const result = await deletePermissionItems(context, instData);
   assertEndpointResultOk(result);
   const deletedItems = await context.data.permissionItem.getManyItems(
-    PermissionItemQueries.getByIds(itemIds, organization.organizationId)
+    PermissionItemQueries.getByIds(itemIds, organization.resourceId)
   );
 
   expect(deletedItems.length).toBe(0);

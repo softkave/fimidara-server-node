@@ -28,7 +28,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
   );
 
   const updatedFile = await context.data.file.assertUpdateItem(
-    FileQueries.getById(file.fileId),
+    FileQueries.getById(file.resourceId),
     {
       ...data.file,
       lastUpdatedAt: getDateString(),

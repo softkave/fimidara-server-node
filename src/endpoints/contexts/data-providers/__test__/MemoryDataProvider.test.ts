@@ -7,41 +7,27 @@ import getNewId from '../../../../utilities/getNewId';
 import {NotFoundError} from '../../../errors';
 import OrganizationQueries from '../../../organizations/queries';
 import {throwOrganizationNotFound} from '../../../organizations/utils';
+import {
+  generateOrganization,
+  generateOrganizations,
+} from '../../../test-utils/generate-data/organization';
 import MemoryDataProvider from '../MemoryDataProvider';
 
 // Using organization for the tests
-function generateOrganization() {
-  const org: IOrganization = {
-    organizationId: getNewId(),
-    createdBy: {
-      agentId: getNewId(),
-      agentType: SessionAgentType.User,
-    },
-    createdAt: getDateString(),
-    name: faker.lorem.word(),
-  };
-
-  return org;
-}
-
-function generateOrganizations(count = 20) {
-  const orgs: IOrganization[] = [];
-  for (let i = 0; i < count; i++) {
-    orgs.push(generateOrganization());
-  }
-  return orgs;
-}
-
-function insertOrganization(data: IOrganization[]) {
-  const org = generateOrganization();
+function insertOrganizationMemory(data: IOrganization[], org?: IOrganization) {
+  org = org || generateOrganization();
   data.push(org);
   return org;
 }
 
-function insertOrganizations(data: IOrganization[], count = 20) {
+function insertOrganizationsMemory(
+  data: IOrganization[],
+  count = 20,
+  orgs: IOrganization[] = []
+) {
   const startIndex = data.length;
   for (let i = 0; i < count; i++) {
-    insertOrganization(data);
+    insertOrganizationMemory(data, orgs[i]);
   }
   return data.slice(startIndex);
 }
@@ -54,10 +40,10 @@ function assertListEqual(list01: IOrganization[], list02: IOrganization[]) {
 
 test('checkItemExists is true when item exists', async () => {
   const data: IOrganization[] = [];
-  const org = insertOrganization(data);
+  const org = insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const exists = await provider.checkItemExists(
-    OrganizationQueries.getById(org.organizationId)
+    OrganizationQueries.getById(org.resourceId)
   );
 
   expect(exists).toBeTruthy();
@@ -69,7 +55,7 @@ test('checkItemExists is false when item does not exist', async () => {
   // Inserting data for blank tests so that we can know
   // definitely that it's returning blank because the filter matches nothing
   // and not because there's no data
-  await insertOrganization(data);
+  await insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const exists = await provider.checkItemExists(
     OrganizationQueries.getById(getNewId())
@@ -80,10 +66,10 @@ test('checkItemExists is false when item does not exist', async () => {
 
 test('getItem when item exists', async () => {
   const data: IOrganization[] = [];
-  const org = insertOrganization(data);
+  const org = insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.getItem(
-    OrganizationQueries.getById(org.organizationId)
+    OrganizationQueries.getById(org.resourceId)
   );
 
   expect(result).toBe(org);
@@ -91,7 +77,7 @@ test('getItem when item exists', async () => {
 
 test('getItem when does not item exists', async () => {
   const data: IOrganization[] = [];
-  await insertOrganization(data);
+  await insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.getItem(
     OrganizationQueries.getById(getNewId())
@@ -102,19 +88,19 @@ test('getItem when does not item exists', async () => {
 
 test('getManyItems returns items', async () => {
   const data: IOrganization[] = [];
-  const org01 = insertOrganization(data);
-  const org02 = insertOrganization(data);
-  const org03 = insertOrganization(data);
-  const org04 = insertOrganization(data);
-  const org05 = insertOrganization(data);
+  const org01 = insertOrganizationMemory(data);
+  const org02 = insertOrganizationMemory(data);
+  const org03 = insertOrganizationMemory(data);
+  const org04 = insertOrganizationMemory(data);
+  const org05 = insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.getItem(
     OrganizationQueries.getByIds([
-      org01.organizationId,
-      org02.organizationId,
-      org03.organizationId,
-      org04.organizationId,
-      org05.organizationId,
+      org01.resourceId,
+      org02.resourceId,
+      org03.resourceId,
+      org04.resourceId,
+      org05.resourceId,
     ])
   );
 
@@ -127,7 +113,7 @@ test('getManyItems returns items', async () => {
 
 test('getManyItems returns nothing', async () => {
   const data: IOrganization[] = [];
-  insertOrganizations(data);
+  insertOrganizationsMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.getItem(
     OrganizationQueries.getByIds([getNewId(), getNewId()])
@@ -138,21 +124,21 @@ test('getManyItems returns nothing', async () => {
 
 test('deleteItem deleted correct items', async () => {
   const data: IOrganization[] = [];
-  const [org01] = insertOrganizations(data, 10);
+  const [org01] = insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
-  await provider.deleteItem(OrganizationQueries.getById(org01.organizationId));
+  await provider.deleteItem(OrganizationQueries.getById(org01.resourceId));
 
   expect(data).toHaveLength(9);
   expect(
     await provider.checkItemExists(
-      OrganizationQueries.getById(org01.organizationId)
+      OrganizationQueries.getById(org01.resourceId)
     )
   ).toBeFalsy();
 });
 
 test('deleteItem deleted nothing', async () => {
   const data: IOrganization[] = [];
-  insertOrganizations(data, 10);
+  insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   await provider.deleteItem(
     OrganizationQueries.getByIds([getNewId(), getNewId()])
@@ -163,7 +149,7 @@ test('deleteItem deleted nothing', async () => {
 
 test('updateItem correct item', async () => {
   const data: IOrganization[] = [];
-  const [org01] = insertOrganizations(data, 10);
+  const [org01] = insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const orgUpdate: Partial<IOrganization> = {
     lastUpdatedBy: {
@@ -176,12 +162,12 @@ test('updateItem correct item', async () => {
   };
 
   const result = await provider.updateItem(
-    OrganizationQueries.getById(org01.organizationId),
+    OrganizationQueries.getById(org01.resourceId),
     orgUpdate
   );
 
   const updatedOrg = await provider.assertGetItem(
-    OrganizationQueries.getById(org01.organizationId)
+    OrganizationQueries.getById(org01.resourceId)
   );
 
   expect(result).toBe(updatedOrg);
@@ -190,10 +176,10 @@ test('updateItem correct item', async () => {
 
 test('updateItem update nothing', async () => {
   const data: IOrganization[] = [];
-  const [org01] = insertOrganizations(data, 10);
+  const [org01] = insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.updateItem(
-    OrganizationQueries.getById(org01.organizationId),
+    OrganizationQueries.getById(org01.resourceId),
     {}
   );
 
@@ -202,7 +188,7 @@ test('updateItem update nothing', async () => {
 
 test('updateManyItems updated correct items', async () => {
   const data: IOrganization[] = [];
-  const [org01, org02] = insertOrganizations(data, 10);
+  const [org01, org02] = insertOrganizationsMemory(data, 10);
   const data02 = merge([], data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const orgUpdate: Partial<IOrganization> = {
@@ -216,12 +202,12 @@ test('updateManyItems updated correct items', async () => {
   };
 
   const result = await provider.updateItem(
-    OrganizationQueries.getByIds([org01.organizationId, org02.organizationId]),
+    OrganizationQueries.getByIds([org01.resourceId, org02.resourceId]),
     orgUpdate
   );
 
   const updatedOrgs = await provider.getManyItems(
-    OrganizationQueries.getByIds([org01.organizationId, org02.organizationId])
+    OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
   expect(result).toEqual(updatedOrgs);
@@ -232,7 +218,7 @@ test('updateManyItems updated correct items', async () => {
 
 test('assertUpdateItem throws when item not found', async () => {
   const data: IOrganization[] = [];
-  insertOrganizations(data, 10);
+  insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
   try {
@@ -244,11 +230,11 @@ test('assertUpdateItem throws when item not found', async () => {
 
 test('deleteManyItems', async () => {
   const data: IOrganization[] = [];
-  const [org01, org02] = insertOrganizations(data, 10);
+  const [org01, org02] = insertOrganizationsMemory(data, 10);
   const data02 = merge([], data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   await provider.deleteManyItems(
-    OrganizationQueries.getByIds([org01.organizationId, org02.organizationId])
+    OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
   expect(data.length).toEqual(8);
@@ -257,7 +243,7 @@ test('deleteManyItems', async () => {
 
 test('assertItemExists', async () => {
   const data: IOrganization[] = [];
-  insertOrganizations(data, 10);
+  insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
   try {
@@ -269,7 +255,7 @@ test('assertItemExists', async () => {
 
 test('assertGetItem', async () => {
   const data: IOrganization[] = [];
-  insertOrganizations(data, 10);
+  insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
   try {

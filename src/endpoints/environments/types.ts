@@ -1,5 +1,5 @@
 export interface IPublicEnvironment {
-  environmentId: string;
+  resourceId: string;
   organizationId: string;
   createdBy: string;
   createdAt: string;

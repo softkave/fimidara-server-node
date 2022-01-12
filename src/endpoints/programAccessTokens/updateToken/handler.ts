@@ -44,13 +44,18 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   const tokenUpdate: Partial<IProgramAccessToken> = {
     name: data.token.name,
     description: data.token.description,
+    lastUpdatedAt: getDateString(),
+    lastUpdatedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
   };
 
   if (data.token.presets) {
     await checkPresetsExist(
       context,
       agent,
-      checkResult.organization.organizationId,
+      checkResult.organization.resourceId,
       data.token.presets
     );
 

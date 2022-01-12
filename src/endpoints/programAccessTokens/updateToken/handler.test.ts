@@ -8,7 +8,7 @@ import {
   insertProgramAccessTokenForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ClientAssignedTokenQueries from '../queries';
 import updateProgramAccessToken from './handler';
 import {IUpdateProgramAccessTokenParams} from './types';
@@ -26,19 +26,19 @@ test('program access token updated', async () => {
   const {token: token01} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const tokenUpdateInput = {
@@ -46,11 +46,11 @@ test('program access token updated', async () => {
     description: faker.lorem.sentence(50),
     presets: [
       {
-        presetId: preset01.presetId,
+        presetId: preset01.resourceId,
         order: 1,
       },
       {
-        presetId: preset02.presetId,
+        presetId: preset02.resourceId,
         order: 2,
       },
     ],
@@ -59,7 +59,7 @@ test('program access token updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateProgramAccessTokenParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      tokenId: token01.tokenId,
+      tokenId: token01.resourceId,
       token: tokenUpdateInput,
     }
   );
@@ -68,7 +68,7 @@ test('program access token updated', async () => {
   assertEndpointResultOk(result);
 
   const updatedToken = await context.data.programAccessToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(token01.tokenId)
+    ClientAssignedTokenQueries.getById(token01.resourceId)
   );
 
   expect(updatedToken).toMatchObject(result.token);
@@ -76,13 +76,13 @@ test('program access token updated', async () => {
   expect(updatedToken.description).toMatchObject(tokenUpdateInput.description);
   expect(updatedToken.presets.length).toBe(2);
   expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset01.presetId,
-    assignedBy: user.userId,
+    presetId: preset01.resourceId,
+    assignedBy: user.resourceId,
     order: 0,
   });
   expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset02.presetId,
-    assignedBy: user.userId,
+    presetId: preset02.resourceId,
+    assignedBy: user.resourceId,
     order: 1,
   });
 });

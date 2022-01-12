@@ -6,7 +6,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import UserQueries from '../../user/UserQueries';
 import {getCollaboratorOrganization} from '../utils';
 import updateCollaboratorPresets from './handler';
@@ -24,27 +24,27 @@ test('collaborator presets updated', async () => {
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IUpdateCollaboratorPresetsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
-      collaboratorId: user.userId,
+      organizationId: organization.resourceId,
+      collaboratorId: user.resourceId,
       presets: [
         {
-          presetId: preset01.presetId,
+          presetId: preset01.resourceId,
           order: 1,
         },
         {
-          presetId: preset02.presetId,
+          presetId: preset02.resourceId,
           order: 2,
         },
       ],
@@ -55,25 +55,25 @@ test('collaborator presets updated', async () => {
   assertEndpointResultOk(result);
 
   const updatedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(user.userId)
+    UserQueries.getById(user.resourceId)
   );
 
   expect(updatedUser).toMatchObject(result.collaborator);
   const userOrgData = getCollaboratorOrganization(
     updatedUser,
-    organization.organizationId
+    organization.resourceId
   );
 
   expect(userOrgData?.presets).toBeTruthy();
   expect(userOrgData?.presets.length).toBeGreaterThan(0);
   expect(userOrgData?.presets[0]).toMatchObject({
-    presetId: preset01.presetId,
-    assignedBy: user.userId,
+    presetId: preset01.resourceId,
+    assignedBy: user.resourceId,
     order: 0,
   });
   expect(userOrgData?.presets[0]).toMatchObject({
-    presetId: preset02.presetId,
-    assignedBy: user.userId,
+    presetId: preset02.resourceId,
+    assignedBy: user.resourceId,
     order: 1,
   });
 });

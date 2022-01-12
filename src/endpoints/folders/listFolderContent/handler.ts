@@ -64,7 +64,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
       context,
       agent,
       organizationId,
-      item.folderId,
+      item.resourceId,
       AppResourceType.Folder,
       makeBasePermissionOwnerList(organizationId),
       BasicCRUDActions.Read,
@@ -77,7 +77,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
       context,
       agent,
       organizationId,
-      item.fileId,
+      item.resourceId,
       AppResourceType.File,
       makeBasePermissionOwnerList(organizationId),
       BasicCRUDActions.Read,
@@ -132,10 +132,10 @@ async function fetchFolderContent(
 
   const [folders, files] = await Promise.all([
     context.data.folder.getManyItems(
-      FolderQueries.getFoldersByParentId(folder.folderId)
+      FolderQueries.getFoldersByParentId(folder.resourceId)
     ),
     context.data.file.getManyItems(
-      FileQueries.getFilesByParentId(folder.folderId)
+      FileQueries.getFilesByParentId(folder.resourceId)
     ),
   ]);
 
