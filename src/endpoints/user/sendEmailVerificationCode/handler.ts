@@ -54,14 +54,14 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   const token = await context.data.userToken.saveItem({
     audience: [TokenAudience.ConfirmEmailAddress],
     issuedAt: getDateString(),
-    tokenId: getNewId(),
-    userId: user.userId,
+    resourceId: getNewId(),
+    userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
   });
 
   const encodedToken = context.session.encodeToken(
     context,
-    token.tokenId,
+    token.resourceId,
     TokenType.UserToken,
     token.expires
   );
@@ -79,7 +79,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   });
 
   fireAndForgetPromise(
-    context.data.user.updateItem(UserQueries.getById(user.userId), {
+    context.data.user.updateItem(UserQueries.getById(user.resourceId), {
       emailVerificationEmailSentAt: getDateString(),
     })
   );

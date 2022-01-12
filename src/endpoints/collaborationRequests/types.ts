@@ -5,7 +5,7 @@ import {
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicCollaborationRequest {
-  requestId: string;
+  resourceId: string;
   recipientEmail: string;
   message: string;
   createdBy: IAgent;

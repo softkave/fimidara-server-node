@@ -12,10 +12,10 @@ const addBucket: AddBucketEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
   const bucket: IBucket = await context.data.bucket.saveItem({
     ...data.bucket,
-    bucketId: getNewId(),
+    resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: {
-      agentId: user.userId,
+      agentId: user.resourceId,
       agentType: SessionAgentType.User,
     },
   });

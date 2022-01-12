@@ -1,7 +1,7 @@
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicFolder {
-  folderId: string;
+  resourceId: string;
   organizationId: string;
   idPath: string[];
   namePath: string[];

@@ -29,7 +29,7 @@ export function getPermissionEntities(
       if (agent.user) {
         return [
           {
-            permissionEntityId: agent.user.userId,
+            permissionEntityId: agent.user.resourceId,
             permissionEntityType: AppResourceType.User,
             order: 1,
           },
@@ -47,7 +47,7 @@ export function getPermissionEntities(
       if (agent.clientAssignedToken) {
         return [
           {
-            permissionEntityId: agent.clientAssignedToken.tokenId,
+            permissionEntityId: agent.clientAssignedToken.resourceId,
             permissionEntityType: AppResourceType.ClientAssignedToken,
             order: 1,
           },
@@ -60,7 +60,7 @@ export function getPermissionEntities(
       if (agent.programAccessToken) {
         return [
           {
-            permissionEntityId: agent.programAccessToken.tokenId,
+            permissionEntityId: agent.programAccessToken.resourceId,
             permissionEntityType: AppResourceType.ProgramAccessToken,
             order: 1,
           },

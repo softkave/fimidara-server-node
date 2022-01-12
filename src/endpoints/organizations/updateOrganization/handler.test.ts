@@ -6,7 +6,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import OrganizationQueries from '../queries';
 import updateOrganization from './handler';
 import {IUpdateOrganizationInput, IUpdateOrganizationParams} from './types';
@@ -22,7 +22,7 @@ test('organization updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateOrganizationParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       organization: orgUpdateInput,
     }
   );
@@ -32,7 +32,7 @@ test('organization updated', async () => {
   expect(result.organization).toMatchObject(orgUpdateInput);
 
   const updatedOrganization = await context.data.organization.assertGetItem(
-    OrganizationQueries.getById(organization.organizationId)
+    OrganizationQueries.getById(organization.resourceId)
   );
   expect(updatedOrganization).toMatchObject(orgUpdateInput);
 });

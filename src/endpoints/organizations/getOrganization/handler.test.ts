@@ -5,7 +5,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getOrganization from './handler';
 import {IGetOrganizationEndpointParams} from './types';
 
@@ -16,7 +16,7 @@ test('organization returned', async () => {
   const instData = RequestData.fromExpressRequest<IGetOrganizationEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 

@@ -16,7 +16,7 @@ const updateBucket: UpdateBucketEndpoint = async (context, instData) => {
       ...data.bucket,
       lastUpdatedAt: getDateString(),
       lastUpdatedBy: {
-        agentId: user.userId,
+        agentId: user.resourceId,
         agentType: SessionAgentType.User,
       },
     }

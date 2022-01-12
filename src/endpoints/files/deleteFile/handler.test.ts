@@ -8,7 +8,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import deleteFile from './handler';
 import {IDeleteFileParams} from './types';
 
@@ -27,18 +27,18 @@ test('file deleted', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteFileParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: file.name,
     }
   );
 
   const result = await deleteFile(context, instData);
   assertEndpointResultOk(result);
-  assertFileDeleted(context, file.fileId);
+  assertFileDeleted(context, file.resourceId);
 });

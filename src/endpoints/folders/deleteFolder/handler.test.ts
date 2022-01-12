@@ -10,7 +10,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import deleteFolder from './handler';
@@ -45,13 +45,13 @@ test('folder deleted', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       path: folder01.namePath
         .concat(faker.lorem.word())
@@ -62,7 +62,7 @@ test('folder deleted', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       path: folder01.namePath
         .concat(faker.lorem.word())
@@ -73,14 +73,14 @@ test('folder deleted', async () => {
   const instData = RequestData.fromExpressRequest<IDeleteFolderParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: folder01.name,
     }
   );
 
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
-  assertFolderDeleted(context, folder01.folderId);
-  assertFolderDeleted(context, folder02.folderId);
-  assertFileDeleted(context, file.fileId);
+  assertFolderDeleted(context, folder01.resourceId);
+  assertFolderDeleted(context, folder02.resourceId);
+  assertFileDeleted(context, file.resourceId);
 });

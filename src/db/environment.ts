@@ -1,13 +1,13 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IEnvironment} from '../definitions/environment';
 import {getDate} from '../utilities/dateFns';
-import {ensureTypeFields} from './utils';
+import {agentSchema, ensureTypeFields} from './utils';
 
 const environmentSchema = ensureTypeFields<IEnvironment>({
-  environmentId: {type: String, unique: true, index: true},
-  createdBy: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  lastUpdatedBy: {type: String},
+  lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   name: {type: String, unique: true, index: true},
   description: {type: String},

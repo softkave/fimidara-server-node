@@ -7,7 +7,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
 
@@ -18,13 +18,13 @@ test('file returned', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: file.name,
     }
   );
@@ -35,7 +35,7 @@ test('file returned', async () => {
 
   const savedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,
-    key: file.fileId,
+    key: file.resourceId,
   });
 
   expect(savedFile).toBeTruthy();
@@ -51,7 +51,7 @@ test('file resized', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {},
     'image',
     {width: startWidth, height: startHeight}
@@ -62,7 +62,7 @@ test('file resized', async () => {
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: file.name,
       imageTranformation: {
         width: expectedWidth,

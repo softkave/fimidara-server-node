@@ -3,7 +3,7 @@ import {IAgent} from '../../definitions/system';
 
 // TODO: make sure public data use latest versions of their data
 export interface IPublicPresetPermissionsGroup {
-  presetId: string;
+  resourceId: string;
   organizationId: string;
   createdAt: string;
   createdBy: IAgent;

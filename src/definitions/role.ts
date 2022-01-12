@@ -1,9 +1,11 @@
+import {IAgent} from './system';
+
 export interface IUserRole {
-  roleId: string;
+  resourceId: string;
   organizationId: string;
-  createdBy: string;
+  createdBy: IAgent;
   createdAt: string;
-  lastUpdatedBy?: string;
+  lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
   name: string;
   description?: string;
@@ -12,6 +14,6 @@ export interface IUserRole {
 export interface IAssignedUserRole {
   roleId: string;
   assignedAt: string;
-  assignedBy: string;
+  assignedBy: IAgent;
   order: number;
 }

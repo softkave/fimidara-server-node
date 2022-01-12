@@ -28,7 +28,7 @@ export interface ICollaborationRequestSentEmailHistoryItem {
 }
 
 export interface ICollaborationRequest {
-  requestId: string;
+  resourceId: string;
   recipientEmail: string;
 
   // TODO: should we keep messages sent back and forth?

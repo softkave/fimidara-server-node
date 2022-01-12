@@ -1,5 +1,8 @@
 import * as faker from 'faker';
-import {getTestBaseContext, insertUserForTest} from '../../test-utils';
+import {
+  getTestBaseContext,
+  insertUserForTest,
+} from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
 
 /**
@@ -18,7 +21,7 @@ test('user signup successful with token creation', async () => {
   };
   const result = await insertUserForTest(context, userInput);
   const savedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(result.user.userId)
+    UserQueries.getById(result.user.resourceId)
   );
 
   expect(result.user).toMatchObject(savedUser);

@@ -1,6 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import CollaborationRequestQueries from '../../collaborationRequests/queries';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import CollaboratorQueries from '../queries';
@@ -44,7 +45,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     // Delete permission items that belong to the resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        collaborator.userId,
+        collaborator.resourceId,
         AppResourceType.Collaborator
       )
     ),
@@ -52,15 +53,15 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     // Delete permission items that explicitly give access to the resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        collaborator.userId,
+        collaborator.resourceId,
         AppResourceType.Collaborator
       )
     ),
 
     context.data.collaborationRequest.deleteManyItems(
-      CollaboratorQueries.getByOrganizationIdAndUserEmail(
+      CollaborationRequestQueries.getByOrganizationIdAndUserEmail(
         organizationId,
-        collaborator.userId
+        collaborator.email
       )
     ),
   ]);

@@ -44,9 +44,9 @@ async function createNextFolder(
   const folderId = getNewId();
   return await context.data.folder.saveItem({
     organizationId,
-    folderId,
+    resourceId: folderId,
     name,
-    parentId: parent?.folderId,
+    parentId: parent?.resourceId,
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
     namePath: parent ? parent.namePath.concat(name) : [name],
     createdAt: getDateString(),

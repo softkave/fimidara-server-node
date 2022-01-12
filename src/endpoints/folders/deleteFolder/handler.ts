@@ -23,27 +23,27 @@ async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
 
   await context.fileBackend.deleteFiles({
     bucket: context.appVariables.S3Bucket,
-    keys: files.map(file => file.fileId),
+    keys: files.map(file => file.resourceId),
   });
 }
 
 async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
   // TODO: log jobs that fail so that we can retry them
   await waitOnPromises([
-    deleteFilesByFolderId(context, folder.folderId),
+    deleteFilesByFolderId(context, folder.resourceId),
     internalDeleteFolderList(
       context,
       await context.data.folder.getManyItems(
-        FolderQueries.getFoldersByParentId(folder.folderId)
+        FolderQueries.getFoldersByParentId(folder.resourceId)
       )
     ),
   ]);
 
   await waitOnPromises([
     context.data.folder.deleteManyItems(
-      FolderQueries.getFoldersByParentId(folder.folderId)
+      FolderQueries.getFoldersByParentId(folder.resourceId)
     ),
-    context.data.folder.deleteItem(FolderQueries.getById(folder.folderId)),
+    context.data.folder.deleteItem(FolderQueries.getById(folder.resourceId)),
   ]);
 }
 
@@ -79,13 +79,16 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
 
     // Delete permission items that are owned by the folder
     context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByOwner(folder.folderId, AppResourceType.Folder)
+      PermissionItemQueries.getByOwner(
+        folder.resourceId,
+        AppResourceType.Folder
+      )
     ),
 
     // Delete permission items that explicitly give access to the folder
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        folder.folderId,
+        folder.resourceId,
         AppResourceType.Folder
       )
     ),

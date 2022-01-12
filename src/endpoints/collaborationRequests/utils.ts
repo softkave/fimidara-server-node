@@ -22,7 +22,7 @@ import CollaborationRequestQueries from './queries';
 import {IPublicCollaborationRequest} from './types';
 
 const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
-  requestId: true,
+  resourceId: true,
   recipientEmail: true,
   message: true,
   createdBy: agentExtractor,
@@ -61,10 +61,10 @@ export async function checkCollaborationRequestAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    request.requestId,
+    organization.resourceId,
+    request.resourceId,
     AppResourceType.CollaborationRequest,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     action,
     nothrow
   );

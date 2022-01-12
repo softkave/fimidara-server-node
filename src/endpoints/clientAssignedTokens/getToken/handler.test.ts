@@ -6,7 +6,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getOrganizationClientAssignedTokens from './handler';
 import {IGetClientAssignedTokenParams} from './types';
 
@@ -22,13 +22,13 @@ test('client assigned token returned', async () => {
   const {token: token01} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetClientAssignedTokenParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      tokenId: token01.tokenId,
+      tokenId: token01.resourceId,
     }
   );
 

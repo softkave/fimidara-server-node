@@ -4,7 +4,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -14,12 +14,12 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import ProgramAccessTokenQueries from './queries';
 import {IPublicProgramAccessToken} from './types';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
-  tokenId: true,
+  resourceId: true,
   hash: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
@@ -27,6 +27,8 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   name: true,
   description: true,
   presets: assignedPresetsListExtractor,
+  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractorIfPresent,
 });
 
 export const programAccessTokenExtractor = makeExtract(
@@ -52,10 +54,10 @@ export async function checkProgramAccessTokenAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    token.tokenId,
+    organization.resourceId,
+    token.resourceId,
     AppResourceType.ProgramAccessToken,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     action,
     nothrow
   );

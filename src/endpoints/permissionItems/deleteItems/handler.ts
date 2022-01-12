@@ -26,7 +26,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (
   await checkEntityExists(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.permissionEntityId,
     data.permissionEntityType
   );
@@ -40,7 +40,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (
     }),
 
     context.data.permissionItem.deleteManyItems(
-      PermissionItemsQueries.getByIds(data.itemIds, organization.organizationId)
+      PermissionItemsQueries.getByIds(data.itemIds, organization.resourceId)
     ),
   ]);
 };

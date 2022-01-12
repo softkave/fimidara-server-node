@@ -5,15 +5,15 @@ import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
-  tokenId: {type: String, unique: true, index: true},
-  createdBy: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   organizationId: {type: String},
   version: {type: Number},
   issuedAt: {type: String},
   expires: {type: Number},
   lastUpdatedAt: {type: Date, default: getDate},
-  lastUpdatedBy: agentSchema,
+  lastUpdatedBy: {type: agentSchema},
   presets: {type: [assignedPermissionsGroupSchema]},
 });
 

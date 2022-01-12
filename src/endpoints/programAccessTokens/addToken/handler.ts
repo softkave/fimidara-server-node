@@ -45,16 +45,16 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     null,
     AppResourceType.ProgramAccessToken,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     BasicCRUDActions.Create
   );
 
   const itemExists = await context.data.programAccessToken.checkItemExists(
     EndpointReusableQueries.getByOrganizationAndName(
-      organization.organizationId,
+      organization.resourceId,
       data.token.name
     )
   );
@@ -66,7 +66,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   await checkPresetsExist(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.token.presets
   );
 
@@ -77,7 +77,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
       ...data.token,
       hash,
       organizationId: data.organizationId,
-      tokenId: getNewId(),
+      resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
@@ -98,7 +98,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     token: ProgramAccessTokenUtils.extractPublicToken(token),
     tokenStr: context.session.encodeToken(
       context,
-      token.tokenId,
+      token.resourceId,
       TokenType.ProgramAccessToken
     ),
   };

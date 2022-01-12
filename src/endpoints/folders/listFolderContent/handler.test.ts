@@ -8,7 +8,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import deleteFolder from './handler';
 import {IListFolderContentEndpointParams} from './types';
@@ -25,13 +25,13 @@ test('folder content returned', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       path: folder01.namePath
         .concat(faker.lorem.word())
@@ -42,7 +42,7 @@ test('folder content returned', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     {
       path: folder01.namePath
         .concat(faker.lorem.word())
@@ -53,7 +53,7 @@ test('folder content returned', async () => {
   const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: folder01.name,
     }
   );

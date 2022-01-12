@@ -5,7 +5,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import UserQueries from '../../user/UserQueries';
 import removeCollaborator from './handler';
 import {IRemoveCollaboratorParams} from './types';
@@ -22,8 +22,8 @@ test('collaborator removed', async () => {
   const instData = RequestData.fromExpressRequest<IRemoveCollaboratorParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
-      collaboratorId: user.userId,
+      organizationId: organization.resourceId,
+      collaboratorId: user.resourceId,
     }
   );
 
@@ -31,7 +31,7 @@ test('collaborator removed', async () => {
   assertEndpointResultOk(result);
 
   const updatedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(user.userId)
+    UserQueries.getById(user.resourceId)
   );
   expect(updatedUser.organizations).toHaveLength(0);
 });

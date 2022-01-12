@@ -34,7 +34,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   }
 
   user = await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.userId),
+    UserQueries.getById(user.resourceId),
     {
       isEmailVerified: true,
       emailVerifiedAt: getDateString(),
@@ -53,13 +53,16 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   );
 
   let userToken = await context.data.userToken.getItem(
-    UserTokenQueries.getByUserIdAndAudience(user.userId, TokenAudience.Login)
+    UserTokenQueries.getByUserIdAndAudience(
+      user.resourceId,
+      TokenAudience.Login
+    )
   );
 
   if (!userToken) {
     userToken = await context.data.userToken.saveItem({
-      tokenId: getNewId(),
-      userId: user.userId,
+      resourceId: getNewId(),
+      userId: user.resourceId,
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
       audience: [TokenAudience.Login],
@@ -68,7 +71,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
 
   const encodedToken = context.session.encodeToken(
     context,
-    userToken.tokenId,
+    userToken.resourceId,
     TokenType.UserToken,
     userToken.expires
   );

@@ -12,7 +12,7 @@ export const userOrganizationSchema = ensureTypeFields<IUserOrganization>({
 });
 
 const userSchema = ensureTypeFields<IUser>({
-  userId: {type: String, unique: true, index: true},
+  resourceId: {type: String, unique: true, index: true},
   firstName: {type: String},
   lastName: {type: String},
   email: {type: String, unique: true, index: true, lowercase: true},

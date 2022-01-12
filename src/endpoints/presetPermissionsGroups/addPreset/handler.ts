@@ -37,16 +37,16 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     null,
     AppResourceType.PresetPermissionsGroup,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     BasicCRUDActions.Create
   );
 
   const itemExists = await context.data.presetPermissionsGroup.checkItemExists(
     PresetPermissionsGroupQueries.getByOrganizationAndName(
-      organization.organizationId,
+      organization.resourceId,
       data.preset.name
     )
   );
@@ -58,13 +58,13 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   // TODO: validate that the presets being assigned exist. Do same for other endpoints.
   const preset = await context.data.presetPermissionsGroup.saveItem({
     ...data.preset,
-    presetId: getNewId(),
+    resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
     },
-    organizationId: organization.organizationId,
+    organizationId: organization.resourceId,
     presets: (data.preset.presets || []).map(preset => ({
       ...preset,
       assignedAt: getDateString(),

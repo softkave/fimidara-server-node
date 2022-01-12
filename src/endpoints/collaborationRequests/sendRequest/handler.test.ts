@@ -7,7 +7,7 @@ import {
   insertOrganizationForTest,
   insertRequestForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import CollaborationRequestQueries from '../queries';
 import {ICollaborationRequestInput} from './types';
 
@@ -25,12 +25,12 @@ test('collaboration request sent', async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.organizationId,
+    organization.resourceId,
     requestInput
   );
 
   const savedRequest = await context.data.collaborationRequest.assertGetItem(
-    CollaborationRequestQueries.getById(request01.requestId)
+    CollaborationRequestQueries.getById(request01.resourceId)
   );
 
   expect(request01).toBe(savedRequest);

@@ -1,7 +1,7 @@
 import {IAgent} from './system';
 
 export interface IFile {
-  fileId: string;
+  resourceId: string;
   organizationId: string;
   // environmentId: string;
   // bucketId: string;

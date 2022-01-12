@@ -14,7 +14,7 @@ import OrganizationQueries from './queries';
 import {IPublicOrganization} from './types';
 
 const organizationFields = getFields<IPublicOrganization>({
-  organizationId: true,
+  resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
   lastUpdatedBy: agentExtractorIfPresent,
@@ -49,8 +49,8 @@ export async function checkOrganizationAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    organization.organizationId,
+    organization.resourceId,
+    organization.resourceId,
     AppResourceType.Organization,
     [],
     action,

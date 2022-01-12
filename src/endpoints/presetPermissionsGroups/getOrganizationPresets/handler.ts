@@ -45,10 +45,10 @@ const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGr
       checkAuthorization(
         context,
         agent,
-        organization.organizationId,
-        item.presetId,
+        organization.resourceId,
+        item.resourceId,
         AppResourceType.PresetPermissionsGroup,
-        makeBasePermissionOwnerList(organization.organizationId),
+        makeBasePermissionOwnerList(organization.resourceId),
         BasicCRUDActions.Read,
         true
       )

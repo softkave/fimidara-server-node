@@ -41,7 +41,7 @@ const commitEntities = (
     }
 
     addEntity(container, processedEntities, {
-      permissionEntityId: preset.presetId,
+      permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     });
 
@@ -106,7 +106,7 @@ async function fetchPresets(
     // mark the presets fetched, so that they can be reused
     presets.forEach(preset => {
       if (preset) {
-        presetsMap[preset.presetId] = preset;
+        presetsMap[preset.resourceId] = preset;
         preset.presets.forEach(item => iterationIds.push(item.presetId));
       }
     });

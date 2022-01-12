@@ -5,7 +5,7 @@ import {
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import UserTokenQueries from '../UserTokenQueries';
 import sendEmailVerificationCode from './handler';
 
@@ -24,7 +24,7 @@ test('email verification code sent', async () => {
   assertEndpointResultOk(result);
   await context.data.userToken.assertGetItem(
     UserTokenQueries.getByUserIdAndAudience(
-      user.userId,
+      user.resourceId,
       TokenAudience.ConfirmEmailAddress
     )
   );

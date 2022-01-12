@@ -33,7 +33,7 @@ export const assignedPresetsListExtractor = makeListExtract(
 );
 
 const presetPermissionsGroupFields = getFields<IPublicPresetPermissionsGroup>({
-  presetId: true,
+  resourceId: true,
   organizationId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
@@ -67,10 +67,10 @@ export async function checkPresetPermissionsGroupAuthorization(
   await checkAuthorization(
     context,
     agent,
-    organization.organizationId,
-    preset.presetId,
+    organization.resourceId,
+    preset.resourceId,
     AppResourceType.PresetPermissionsGroup,
-    makeBasePermissionOwnerList(organization.organizationId),
+    makeBasePermissionOwnerList(organization.resourceId),
     action,
     nothrow
   );
@@ -117,7 +117,7 @@ export async function checkPresetsExist(
         context,
         agent,
         organizationId,
-        item.presetId,
+        item.resourceId,
         AppResourceType.PresetPermissionsGroup,
         makeBasePermissionOwnerList(organizationId),
         BasicCRUDActions.Read

@@ -7,7 +7,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import FileQueries from '../queries';
 import updateFileDetails from './handler';
 import {
@@ -22,7 +22,7 @@ test('file updated', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const updateInput: IUpdateFileDetailsInput = {
@@ -33,7 +33,7 @@ test('file updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
       path: file.name,
       file: updateInput,
     }
@@ -41,11 +41,11 @@ test('file updated', async () => {
 
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);
-  expect(result.file.fileId).toBe(file.fileId);
+  expect(result.file.resourceId).toBe(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
   const updatedFile = await context.data.file.assertGetItem(
-    FileQueries.getById(file.fileId)
+    FileQueries.getById(file.resourceId)
   );
 
   expect(updatedFile).toBe(result.file);

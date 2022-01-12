@@ -3,7 +3,7 @@ import {
   insertFolderForTest,
   insertOrganizationForTest,
   insertUserForTest,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import FolderQueries from '../queries';
 
 /**
@@ -19,11 +19,11 @@ test('folder created', async () => {
   const {folder} = await insertFolderForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const savedFolder = await context.data.folder.assertGetItem(
-    FolderQueries.getById(folder.folderId)
+    FolderQueries.getById(folder.resourceId)
   );
 
   expect(folder).toBe(savedFolder);

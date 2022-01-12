@@ -33,20 +33,20 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint = async
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        preset.presetId,
+        preset.resourceId,
         AppResourceType.PresetPermissionsGroup
       )
     ),
 
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        preset.presetId,
+        preset.resourceId,
         AppResourceType.PresetPermissionsGroup
       )
     ),
 
     context.data.presetPermissionsGroup.deleteItem(
-      PresetPermissionsGroupQueries.getById(preset.presetId)
+      PresetPermissionsGroupQueries.getById(preset.resourceId)
     ),
   ]);
 };

@@ -33,7 +33,7 @@ function getByName(name: string, parent?: IFolder) {
   if (parent) {
     filter.addItem(
       'parentId',
-      parent.folderId,
+      parent.resourceId,
       DataProviderFilterValueOperator.Equal
     );
   } else {

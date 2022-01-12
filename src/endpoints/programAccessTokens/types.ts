@@ -2,7 +2,7 @@ import {IAssignedPresetPermissionsGroup} from '../../definitions/presetPermissio
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicProgramAccessToken {
-  tokenId: string;
+  resourceId: string;
   name: string;
   description?: string;
   hash: string;
@@ -10,4 +10,6 @@ export interface IPublicProgramAccessToken {
   createdBy: IAgent;
   organizationId: string;
   presets: IAssignedPresetPermissionsGroup[];
+  lastUpdatedAt?: string;
+  lastUpdatedBy?: IAgent;
 }

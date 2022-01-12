@@ -1,4 +1,4 @@
-import {IAppVariables, appVariables} from '../../resources/appVariables';
+import {IAppVariables, getAppVariables} from '../../resources/appVariables';
 import {getSessionContext, ISessionContext} from './SessionContext';
 import {IFolder} from '../../definitions/folder';
 import {IFile} from '../../definitions/file';
@@ -48,7 +48,7 @@ export default class BaseContext<
   public email: E;
   public fileBackend: F;
 
-  public appVariables = appVariables;
+  public appVariables = getAppVariables();
   public session: ISessionContext = getSessionContext();
 
   constructor(data: T, emailProvider: E, fileBackend: F) {

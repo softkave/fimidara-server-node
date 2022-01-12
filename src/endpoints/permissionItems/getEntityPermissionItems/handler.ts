@@ -20,7 +20,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
   await checkEntityExists(
     context,
     agent,
-    organization.organizationId,
+    organization.resourceId,
     data.permissionEntityId,
     data.permissionEntityType
   );

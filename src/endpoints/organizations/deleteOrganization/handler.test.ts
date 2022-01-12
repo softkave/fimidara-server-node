@@ -5,7 +5,7 @@ import {
   insertOrganizationForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import OrganizationQueries from '../queries';
 import deleteOrganization from './handler';
 import {IDeleteOrganizationParams} from './types';
@@ -22,14 +22,14 @@ test('organization deleted', async () => {
   const instData = RequestData.fromExpressRequest<IDeleteOrganizationParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 
   const result = await deleteOrganization(context, instData);
   assertEndpointResultOk(result);
   const org = await context.data.organization.getItem(
-    OrganizationQueries.getById(organization.organizationId)
+    OrganizationQueries.getById(organization.resourceId)
   );
 
   expect(org).toBeFalsy();

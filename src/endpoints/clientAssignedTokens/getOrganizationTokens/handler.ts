@@ -45,10 +45,10 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
       checkAuthorization(
         context,
         agent,
-        organization.organizationId,
-        item.tokenId,
+        organization.resourceId,
+        item.resourceId,
         AppResourceType.ClientAssignedToken,
-        makeBasePermissionOwnerList(organization.organizationId),
+        makeBasePermissionOwnerList(organization.resourceId),
         BasicCRUDActions.Read,
         true
       )

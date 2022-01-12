@@ -17,11 +17,11 @@ const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
   const organization = await context.data.organization.saveItem({
     createdAt: getDateString(),
     createdBy: {
-      agentId: user.userId,
+      agentId: user.resourceId,
       agentType: SessionAgentType.User,
     },
     name: data.name,
-    organizationId: getNewId(),
+    resourceId: getNewId(),
     description: data.description,
   });
 

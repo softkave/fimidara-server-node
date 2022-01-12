@@ -22,7 +22,29 @@ function getByOrganizationAndName(organizationId: string, name: string) {
     .build();
 }
 
+function getById(id: string) {
+  return new DataProviderFilterBuilder<{resourceId: string}>()
+    .addItem('resourceId', id, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
+function getByIdsAndOrgId(ids: string[], organizationId: string) {
+  return new DataProviderFilterBuilder<{
+    resourceId: string;
+    organizationId: string;
+  }>()
+    .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class EndpointReusableQueries {
   static getByOrganizationId = getByOrganizationId;
   static getByOrganizationAndName = getByOrganizationAndName;
+  static getById = getById;
+  static getByIdsAndOrgId = getByIdsAndOrgId;
 }

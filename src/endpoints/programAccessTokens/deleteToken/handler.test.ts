@@ -6,7 +6,7 @@ import {
   insertProgramAccessTokenForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
 import deleteProgramAccessToken from './handler';
 import {IDeleteProgramAccessTokenParams} from './types';
@@ -23,13 +23,13 @@ test('program access token deleted', async () => {
   const {token} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteProgramAccessTokenParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      tokenId: token.tokenId,
+      tokenId: token.resourceId,
     }
   );
 
@@ -37,7 +37,7 @@ test('program access token deleted', async () => {
   assertEndpointResultOk(result);
 
   const deletedTokenExists = await context.data.programAccessToken.checkItemExists(
-    ProgramAccessTokenQueries.getById(token.tokenId)
+    ProgramAccessTokenQueries.getById(token.resourceId)
   );
 
   expect(deletedTokenExists).toBeFalsy();

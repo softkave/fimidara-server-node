@@ -1,7 +1,7 @@
 import {IAgent} from '../../definitions/system';
 
 export interface IPublicFile {
-  fileId: string;
+  resourceId: string;
   organizationId: string;
   folderId?: string;
   idPath: string[];

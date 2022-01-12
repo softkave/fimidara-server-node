@@ -1,13 +1,13 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IOrganization} from '../definitions/organization';
 import {getDate} from '../utilities/dateFns';
-import {ensureTypeFields} from './utils';
+import {agentSchema, ensureTypeFields} from './utils';
 
 const organizationSchema = ensureTypeFields<IOrganization>({
-  organizationId: {type: String, unique: true, index: true},
-  createdBy: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  lastUpdatedBy: {type: String},
+  lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   name: {type: String},
   description: {type: String},

@@ -74,7 +74,7 @@ export async function checkAuthorization(
     !!permissionOwnersMap[getPermissionOwnerKey(item)];
 
   const items = flatten(permissionItemsList).filter(item => {
-    if (id && item.resourceId && item.resourceId !== id) {
+    if (id && item.itemResourceId && item.itemResourceId !== id) {
       return false;
     }
 

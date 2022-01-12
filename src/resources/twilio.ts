@@ -1,9 +1,10 @@
-import {appVariables} from './appVariables';
+import twilio = require('twilio');
+import {getAppVariables} from './appVariables';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const twilioClient = require('twilio')(
-  appVariables.twilioAccountSID,
-  appVariables.twilioAuthToken
-);
-
-export default twilioClient;
+export function getTwilioClient() {
+  return twilio(
+    getAppVariables().twilioAccountSID,
+    getAppVariables().twilioAuthToken
+  );
+}

@@ -8,7 +8,6 @@ import httpToHttps from './middlewares/httpToHttps';
 import {getMongoConnection} from './db/connection';
 import BaseContext, {IBaseContext} from './endpoints/contexts/BaseContext';
 import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
-import {appVariables} from './resources/appVariables';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
@@ -85,7 +84,7 @@ async function setup() {
   setupProgramAccessTokensRESTEndpoints(ctx, app);
   setupAccountRESTEndpoints(ctx, app);
 
-  httpServer.listen(appVariables.port, async () => {
+  httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
 
     console.log(ctx.appVariables.appName);

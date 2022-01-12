@@ -1,4 +1,4 @@
-import {appVariables} from '../resources/appVariables';
+import {getAppVariables} from '../resources/appVariables';
 
 const maxWidth = '500px';
 const classNamePrefix = 'fbs'; // files by softkave
@@ -39,7 +39,7 @@ export const emailTemplateStyles = `
 export function getFooterHTML() {
   return `
     <footer class="email-footer">
-        &copy; ${appVariables.appName} ${new Date().getFullYear()}
+        &copy; ${getAppVariables().appName} ${new Date().getFullYear()}
     </footer>
     `;
 }
@@ -47,11 +47,11 @@ export function getFooterHTML() {
 export function getHeaderHTML(title: string) {
   return `
     <header class="email-header email-content-center">
-        <h1>${appVariables.appName} | ${title}</h1>
+        <h1>${getAppVariables().appName} | ${title}</h1>
     </header>
     `;
 }
 
 export function getHeaderText(title: string) {
-  return `${appVariables.appName} | ${title}`;
+  return `${getAppVariables().appName} | ${title}`;
 }

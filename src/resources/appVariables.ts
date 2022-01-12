@@ -1,4 +1,7 @@
-interface IEnvVariables {
+import {merge} from 'lodash';
+import cast from '../utilities/fns';
+
+interface ISuppliedVariables {
   clientDomain: string;
   mongoDbURI: string;
   jwtSecret: string;
@@ -10,7 +13,7 @@ interface IEnvVariables {
   S3Bucket: string;
 }
 
-export interface IAppVariables extends IEnvVariables {
+interface IStaticVariables {
   appName: string;
   appDefaultEmailAddressFrom: string;
   awsEmailEncoding: string;
@@ -21,8 +24,10 @@ export interface IAppVariables extends IEnvVariables {
   verifyEmailPath: string;
 }
 
+export type IAppVariables = ISuppliedVariables & IStaticVariables;
+
 const extractSchema: Record<
-  keyof IEnvVariables,
+  keyof ISuppliedVariables,
   {
     required: boolean;
     name: string;
@@ -70,42 +75,84 @@ const extractSchema: Record<
   },
 };
 
-export function extractEnvVariables(): IAppVariables {
-  const missingVariables: string[] = [];
+const defaultStaticVars = {
+  appName: 'Files by Softkave',
+  appDefaultEmailAddressFrom: 'hello@files.softkave.com',
+  awsEmailEncoding: 'UTF-8',
+  dateFormat: 'MMM DD, YYYY',
+  changePasswordPath: '/change-password',
+  verifyEmailPath: '/verify-email',
+};
 
-  const envVariables = Object.keys(extractSchema).reduce((accumulator, key) => {
-    const meta = extractSchema[key as keyof IEnvVariables];
-    const variable = process.env[meta.name] || meta.defaultValue;
+// Cast here is safe as long as nobody uses appVariables directly but through
+// getAppVariables where the required variables are checked
+let appVariables: IAppVariables = cast({
+  ...defaultStaticVars,
+});
 
-    if (meta.required && !variable) {
-      missingVariables.push(meta.name);
-      return accumulator;
+let varsChecked = false;
+
+export function checkRequiredSuppliedVariables(base: IAppVariables) {
+  // [Env name, key name]
+  const missingVariables: Array<[string, string]> = [];
+  Object.keys(extractSchema).forEach(key => {
+    const meta = extractSchema[key as keyof ISuppliedVariables];
+
+    if (meta.required && !base[key as keyof ISuppliedVariables]) {
+      missingVariables.push([meta.name, key]);
     }
+  });
+
+  if (missingVariables.length > 0) {
+    throw new Error(
+      ['Missing variables:']
+        .concat(
+          missingVariables.map(
+            ([name, key]) => `Env name: ${name}, Key: ${key}`
+          )
+        )
+        .join('\n')
+    );
+  }
+}
+
+export function extractEnvVariables(
+  base: Partial<IAppVariables>
+): IAppVariables {
+  const envVariables = Object.keys(extractSchema).reduce((accumulator, key) => {
+    const meta = extractSchema[key as keyof ISuppliedVariables];
+    const variable =
+      process.env[meta.name] ||
+      base[key as keyof ISuppliedVariables] ||
+      meta.defaultValue;
 
     // TODO: validate the type or write/find a library for
     // extracting and validating env variables
-    accumulator[key as keyof IEnvVariables] = variable as string;
+    accumulator[key as keyof ISuppliedVariables] = variable as string;
     return accumulator;
-  }, {} as IEnvVariables);
+  }, {} as ISuppliedVariables);
 
-  if (missingVariables.length > 0) {
-    missingVariables.forEach(name => console.log(`${name} is required`));
-    throw new Error('Missing env variables');
-  }
-
-  const appVariables: IAppVariables = {
-    ...envVariables,
-    appName: 'Files by Softkave',
-    appDefaultEmailAddressFrom: 'hello@files.softkave.com',
-    awsEmailEncoding: 'UTF-8',
-    dateFormat: 'MMM DD, YYYY',
+  const vars: IAppVariables = {
+    ...defaultStaticVars,
     clientLoginLink: `${envVariables.clientDomain}/login`,
     clientSignupLink: `${envVariables.clientDomain}/signup`,
-    changePasswordPath: '/change-password',
-    verifyEmailPath: '/verify-email',
+    ...base,
+    ...envVariables,
   };
+
+  checkRequiredSuppliedVariables(vars);
+  return vars;
+}
+
+export function replaceAppVariables(base: Partial<IAppVariables>) {
+  appVariables = merge({}, appVariables, base);
+}
+
+export function getAppVariables() {
+  if (!varsChecked) {
+    checkRequiredSuppliedVariables(appVariables);
+    varsChecked = true;
+  }
 
   return appVariables;
 }
-
-export const appVariables = extractEnvVariables();

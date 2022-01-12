@@ -1,5 +1,5 @@
 export interface IUserToken {
-  tokenId: string;
+  resourceId: string;
   userId: string;
   version: number;
 

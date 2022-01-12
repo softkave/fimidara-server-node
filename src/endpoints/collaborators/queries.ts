@@ -16,12 +16,6 @@ function getByOrganizationId(organizationId: string) {
     .build();
 }
 
-function getById(id: string) {
-  return newFilter()
-    .addItem('userId', id, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
 function getByOrganizationIdAndUserEmail(
   organizationId: string,
   userEmail: string
@@ -47,7 +41,7 @@ function getByOrganizationIdAndUserId(organizationId: string, userId: string) {
       organizationId,
       DataProviderFilterValueOperator.Equal
     )
-    .addItem('userId', userId, DataProviderFilterValueOperator.Equal)
+    .addItem('resourceId', userId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -63,7 +57,7 @@ function getByUserEmail(userEmail: string) {
 
 function getByIds(ids: string[], organizationId: string) {
   return newFilter()
-    .addItem('userId', ids, DataProviderFilterValueOperator.In)
+    .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
     .addItemWithStringKey(
       'organizations.organizationId',
       organizationId,
@@ -76,7 +70,6 @@ export default abstract class CollaboratorQueries {
   static getByOrganizationId = getByOrganizationId;
   static getByOrganizationIdAndUserEmail = getByOrganizationIdAndUserEmail;
   static getByUserEmail = getByUserEmail;
-  static getById = getById;
   static getByOrganizationIdAndUserId = getByOrganizationIdAndUserId;
   static getByIds = getByIds;
 }

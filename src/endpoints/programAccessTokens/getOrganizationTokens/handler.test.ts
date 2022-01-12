@@ -6,7 +6,7 @@ import {
   insertProgramAccessTokenForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import getOrganizationProgramAccessTokens from './handler';
 import {IGetOrganizationProgramAccessTokensParams} from './types';
 
@@ -17,19 +17,19 @@ test("organization's program access token returned", async () => {
   const {token: token01} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const {token: token02} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.organizationId
+    organization.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetOrganizationProgramAccessTokensParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.organizationId,
+      organizationId: organization.resourceId,
     }
   );
 

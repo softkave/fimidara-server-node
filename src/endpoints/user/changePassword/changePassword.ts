@@ -27,7 +27,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   let user = await context.session.getUser(context, instData);
   const hash = await argon2.hash(newPassword);
   user = await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.userId),
+    UserQueries.getById(user.resourceId),
     {
       hash,
       passwordLastChangedAt: getDateString(),
@@ -43,14 +43,14 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
 
   // Delete existing user tokens cause they're no longer valid
   await context.data.userToken.deleteManyItems(
-    UserTokenQueries.getByUserId(user.userId)
+    UserTokenQueries.getByUserId(user.resourceId)
   );
 
   const newToken = await context.data.userToken.saveItem({
-    tokenId: getNewId(),
+    resourceId: getNewId(),
     audience: [TokenAudience.Login],
     issuedAt: getDateString(),
-    userId: user.userId,
+    userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
   });
 
@@ -58,7 +58,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   instData.userToken = newToken;
   const encodedToken = context.session.encodeToken(
     context,
-    newToken.tokenId,
+    newToken.resourceId,
     TokenType.UserToken,
     newToken.expires
   );

@@ -5,7 +5,7 @@ import {
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithUserToken,
-} from '../../test-utils';
+} from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
 import updateUser from './handler';
 import {IUpdateUserParams} from './types';
@@ -31,7 +31,7 @@ test('user data updated', async () => {
   assertEndpointResultOk(result);
 
   const savedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(result.user.userId)
+    UserQueries.getById(result.user.resourceId)
   );
 
   expect(result.user).toMatchObject(savedUser);

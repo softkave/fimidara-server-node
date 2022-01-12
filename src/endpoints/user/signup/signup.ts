@@ -47,7 +47,7 @@ const signup: SignupEndpoint = async (context, instData) => {
   const now = getDateString();
   const user = await context.data.user.saveItem({
     hash,
-    userId: getNewId(),
+    resourceId: getNewId(),
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,
@@ -58,8 +58,8 @@ const signup: SignupEndpoint = async (context, instData) => {
   });
 
   const token = await context.data.userToken.saveItem({
-    tokenId: getNewId(),
-    userId: user.userId,
+    resourceId: getNewId(),
+    userId: user.resourceId,
     audience: [TokenAudience.Login],
     issuedAt: getDateString(),
     version: CURRENT_TOKEN_VERSION,
@@ -72,7 +72,7 @@ const signup: SignupEndpoint = async (context, instData) => {
     user: userExtractor(user),
     token: context.session.encodeToken(
       context,
-      token.tokenId,
+      token.resourceId,
       TokenType.UserToken
     ),
   };

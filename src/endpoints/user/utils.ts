@@ -15,7 +15,7 @@ export const userOrgExtractor = makeExtract(publicUserOrgFields);
 export const userOrgListExtractor = makeListExtract(publicUserOrgFields);
 
 const publicUserFields = getFields<IPublicUserData>({
-  userId: true,
+  resourceId: true,
   firstName: true,
   lastName: true,
   email: true,

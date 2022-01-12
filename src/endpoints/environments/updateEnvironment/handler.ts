@@ -16,7 +16,7 @@ const updateEnvironment: UpdateEnvironmentEndpoint = async (
     {
       ...data.data,
       lastUpdatedAt: getDateString(),
-      lastUpdatedBy: user.userId,
+      lastUpdatedBy: user.resourceId,
     }
   );
 

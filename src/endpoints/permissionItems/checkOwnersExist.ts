@@ -77,7 +77,7 @@ export default async function checkOwnersExist(
       context,
       agent,
       organizationId,
-      item.folderId,
+      item.resourceId,
       AppResourceType.Folder,
       makeBasePermissionOwnerList(organizationId),
       BasicCRUDActions.Read
@@ -89,7 +89,7 @@ export default async function checkOwnersExist(
       context,
       agent,
       organizationId,
-      item.fileId,
+      item.resourceId,
       AppResourceType.File,
       makeBasePermissionOwnerList(organizationId),
       BasicCRUDActions.Read

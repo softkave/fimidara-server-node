@@ -4,7 +4,7 @@ import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {IPublicBucket} from './types';
 
 const bucketFields = getFields<IPublicBucket>({
-  bucketId: true,
+  resourceId: true,
   organizationId: true,
   environmentId: true,
   createdBy: agentExtractor,

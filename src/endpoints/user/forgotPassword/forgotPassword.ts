@@ -29,7 +29,7 @@ export function getForgotPasswordLinkFromToken(
 ) {
   const encodedToken = context.session.encodeToken(
     context,
-    forgotToken.tokenId,
+    forgotToken.resourceId,
     TokenType.UserToken,
     forgotToken.expires
   );
@@ -56,8 +56,8 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const forgotToken = await context.data.userToken.saveItem({
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
-    tokenId: getNewId(),
-    userId: user.userId,
+    resourceId: getNewId(),
+    userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
   });
