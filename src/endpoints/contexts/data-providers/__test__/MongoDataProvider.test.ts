@@ -1,5 +1,6 @@
 import assert = require('assert');
 import * as faker from 'faker';
+import {sortBy} from 'lodash';
 import {Model} from 'mongoose';
 import {
   getOrganizationModel,
@@ -11,7 +12,11 @@ import {getDateString} from '../../../../utilities/dateFns';
 import getNewId from '../../../../utilities/getNewId';
 import {NotFoundError} from '../../../errors';
 import OrganizationQueries from '../../../organizations/queries';
-import {throwOrganizationNotFound} from '../../../organizations/utils';
+import {
+  organizationExtractor,
+  organizationListExtractor,
+  throwOrganizationNotFound,
+} from '../../../organizations/utils';
 import {
   generateOrganization,
   generateOrganizations,
@@ -48,6 +53,17 @@ export async function getOrgMongoProviderForTest() {
   return {provider, orgModel};
 }
 
+async function countOrgs(
+  orgModel: Model<IOrganizationDocument>,
+  orgs: IOrganization[]
+) {
+  return await orgModel
+    .countDocuments({
+      resourceId: {$in: orgs.map(item => item.resourceId)},
+    })
+    .exec();
+}
+
 test('checkItemExists is true when item exists', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   const org = await insertOrganizationMongo(orgModel);
@@ -80,7 +96,7 @@ test('getItem when item exists', async () => {
   );
 
   assert(result);
-  expect(org).toMatchObject(result);
+  expect(org).toMatchObject(organizationExtractor(result));
 });
 
 test('getItem when does not item exists', async () => {
@@ -110,12 +126,14 @@ test('getManyItems returns items', async () => {
     ])
   );
 
+  const s1 = sortBy(organizationListExtractor(result), ['resourceId']);
+  const s2 = sortBy([org01, org02, org03, org04, org05], ['resourceId']);
   expect(result).toHaveLength(5);
-  expect(org01).toMatchObject(result[0]);
-  expect(org02).toMatchObject(result[1]);
-  expect(org03).toMatchObject(result[2]);
-  expect(org04).toMatchObject(result[3]);
-  expect(org05).toMatchObject(result[4]);
+  expect(s1[0]).toMatchObject(s2[0]);
+  expect(s1[1]).toMatchObject(s2[1]);
+  expect(s1[2]).toMatchObject(s2[2]);
+  expect(s1[3]).toMatchObject(s2[3]);
+  expect(s1[4]).toMatchObject(s2[4]);
 });
 
 test('getManyItems returns nothing', async () => {
@@ -130,10 +148,10 @@ test('getManyItems returns nothing', async () => {
 
 test('deleteItem deleted correct items', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
-  const [org01] = await insertOrganizationsMongo(orgModel, 10);
+  const [org01, ...orgs] = await insertOrganizationsMongo(orgModel, 10);
   await provider.deleteItem(OrganizationQueries.getById(org01.resourceId));
 
-  expect(await orgModel.estimatedDocumentCount()).toHaveLength(9);
+  expect(await countOrgs(orgModel, orgs)).toBe(9);
   expect(
     await provider.checkItemExists(
       OrganizationQueries.getById(org01.resourceId)
@@ -143,12 +161,12 @@ test('deleteItem deleted correct items', async () => {
 
 test('deleteItem deleted nothing', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
-  await insertOrganizationsMongo(orgModel, 10);
+  const orgs = await insertOrganizationsMongo(orgModel, 10);
   await provider.deleteItem(
     OrganizationQueries.getByIds([getNewId(), getNewId()])
   );
 
-  expect(await orgModel.estimatedDocumentCount()).toHaveLength(10);
+  expect(await countOrgs(orgModel, orgs)).toBe(10);
 });
 
 test('updateItem correct item', async () => {
@@ -174,7 +192,7 @@ test('updateItem correct item', async () => {
   );
 
   expect(result).toEqual(updatedOrg);
-  expect(orgUpdate).toMatchObject(updatedOrg);
+  expect(organizationExtractor(updatedOrg)).toMatchObject(orgUpdate);
 });
 
 test('updateItem update nothing', async () => {
@@ -210,8 +228,8 @@ test('updateManyItems updated correct items', async () => {
     OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
-  expect(updatedOrgs[0]).toMatchObject(orgUpdate);
-  expect(updatedOrgs[1]).toMatchObject(orgUpdate);
+  expect(organizationExtractor(updatedOrgs[0])).toMatchObject(orgUpdate);
+  expect(organizationExtractor(updatedOrgs[1])).toMatchObject(orgUpdate);
 });
 
 test('assertUpdateItem throws when item not found', async () => {
@@ -227,12 +245,12 @@ test('assertUpdateItem throws when item not found', async () => {
 
 test('deleteManyItems', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
-  const [org01, org02] = await insertOrganizationsMongo(orgModel, 10);
+  const [org01, org02, ...orgs] = await insertOrganizationsMongo(orgModel, 10);
   await provider.deleteManyItems(
     OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
-  expect(await orgModel.estimatedDocumentCount()).toHaveLength(8);
+  expect(await countOrgs(orgModel, orgs)).toBe(8);
 });
 
 test('assertItemExists', async () => {
@@ -252,23 +270,25 @@ test('assertGetItem', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   await insertOrganizationsMongo(orgModel, 10);
 
-  try {
-    await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
-  } catch (error) {
-    expect(error instanceof NotFoundError).toBeTruthy();
-  }
+  // try {
+  //   await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+  // } catch (error) {
+  //   expect(error instanceof NotFoundError).toBeTruthy();
+  // }
+
+  await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
 });
 
 test('saveItem', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   const org = generateOrganization();
   await provider.saveItem(org);
-  expect(await orgModel.estimatedDocumentCount()).toHaveLength(1);
+  expect(await countOrgs(orgModel, [org])).toBe(1);
 });
 
 test('bulkSaveItems', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   const orgs = generateOrganizations(10);
   await provider.bulkSaveItems(orgs);
-  expect(await orgModel.estimatedDocumentCount()).toHaveLength(10);
+  expect(await countOrgs(orgModel, orgs)).toBe(10);
 });

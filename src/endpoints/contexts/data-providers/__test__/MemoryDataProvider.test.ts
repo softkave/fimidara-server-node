@@ -234,7 +234,7 @@ test('deleteManyItems', async () => {
     OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
-  expect(data.length).toEqual(8);
+  expect(provider.items.length).toEqual(8);
   assertListEqual(data, data02.slice(2));
 });
 
@@ -257,11 +257,13 @@ test('assertGetItem', async () => {
   insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
-  try {
-    await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
-  } catch (error) {
-    expect(error instanceof NotFoundError).toBeTruthy();
-  }
+  // try {
+  //
+  // } catch (error) {
+  //   expect(error instanceof NotFoundError).toBeTruthy();
+  // }
+
+  await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
 });
 
 test('saveItem', async () => {

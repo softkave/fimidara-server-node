@@ -4,6 +4,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   CURRENT_TOKEN_VERSION,
+  makeUserSessionAgent,
   TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
@@ -55,10 +56,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   });
 
   // Allow other endpoints called with this request to use the updated user token
-  if (instData.agent) {
-    instData.agent.userToken = newToken;
-  }
-
+  instData.agent = makeUserSessionAgent(newToken, user);
   const encodedToken = context.session.encodeToken(
     context,
     newToken.resourceId,

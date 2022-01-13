@@ -43,6 +43,8 @@ test('collaboration request updated', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(updateRequestInput);
-  expect(updatedRequest).toMatchObject(updateRequestInput);
+  expect(result.request.message).toBe(updateRequestInput.message);
+  expect(result.request.expiresAt).not.toBe(request01.expiresAt);
+  expect(updatedRequest.message).toBe(updateRequestInput.message);
+  expect(updatedRequest.expiresAt).not.toBe(request01.expiresAt);
 });

@@ -174,8 +174,8 @@ export async function insertPresetForTest(
     {
       organizationId,
       preset: {
-        name: faker.lorem.sentence(20),
-        description: faker.lorem.sentence(50),
+        name: faker.lorem.words(3),
+        description: faker.lorem.words(10),
         presets: [],
         ...presetInput,
       },
@@ -245,8 +245,8 @@ export async function insertProgramAccessTokenForTest(
     {
       organizationId,
       token: {
-        name: faker.lorem.sentence(20),
-        description: faker.lorem.sentence(50),
+        name: faker.lorem.words(2),
+        description: faker.lorem.words(10),
         presets: [],
         ...tokenInput,
       },

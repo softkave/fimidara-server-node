@@ -5,6 +5,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   CURRENT_TOKEN_VERSION,
+  makeUserSessionAgent,
   TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
@@ -62,10 +63,7 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   // Make the user token available to other requests made with this request data
-  if (instData.agent) {
-    instData.agent.userToken = token;
-  }
-
+  instData.agent = makeUserSessionAgent(token, user);
   return {
     user: userExtractor(user),
     token: context.session.encodeToken(

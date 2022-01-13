@@ -1,3 +1,4 @@
+import {SessionAgentType} from '../../../definitions/system';
 import EndpointReusableQueries from '../../queries';
 import {
   getTestBaseContext,
@@ -46,15 +47,16 @@ test('client assigned token added', async () => {
   );
 
   expect(savedToken).toEqual(token);
-  expect(savedToken.presets.length).toEqual(2);
+  expect(savedToken.presets).toHaveLength(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
+
   expect(savedToken.presets[1]).toMatchObject({
     presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,
   });
 });

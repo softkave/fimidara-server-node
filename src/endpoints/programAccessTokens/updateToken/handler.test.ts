@@ -43,8 +43,8 @@ test('program access token updated', async () => {
   );
 
   const tokenUpdateInput = {
-    name: faker.lorem.sentence(20),
-    description: faker.lorem.sentence(50),
+    name: faker.lorem.words(3),
+    description: faker.lorem.words(10),
     presets: [
       {
         presetId: preset01.resourceId,

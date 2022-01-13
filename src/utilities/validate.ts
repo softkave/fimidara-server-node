@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import {formatWithOptions} from 'util';
 import {ValidationError} from './errors';
 import OperationError from './OperationError';
 
@@ -14,6 +15,7 @@ export function validate<DataType>(
   });
 
   if (error) {
+    console.log(formatWithOptions({depth: 4}, '%o', error));
     const errorArray = error.details.map(err => {
       return new ValidationError({
         field: err.path.join('.'),

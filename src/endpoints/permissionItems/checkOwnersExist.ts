@@ -1,3 +1,4 @@
+import {uniq} from 'lodash';
 import {
   ISessionAgent,
   AppResourceType,
@@ -26,9 +27,9 @@ export default async function checkOwnersExist(
   items: Array<IPermissionOwner>,
   organizationChecked = false
 ) {
-  const ownerFiles: Array<string> = [];
-  const ownerFolders: Array<string> = [];
-  const ownerOrganizations: Array<string> = [];
+  let ownerFiles: Array<string> = [];
+  let ownerFolders: Array<string> = [];
+  let ownerOrganizations: Array<string> = [];
 
   items.forEach(item => {
     switch (item.permissionOwnerType) {
@@ -47,6 +48,10 @@ export default async function checkOwnersExist(
         );
     }
   });
+
+  ownerFiles = uniq(ownerFiles);
+  ownerFolders = uniq(ownerFolders);
+  ownerOrganizations = uniq(ownerOrganizations);
 
   if (ownerOrganizations.length > 1) {
     throw new InvalidRequestError(
