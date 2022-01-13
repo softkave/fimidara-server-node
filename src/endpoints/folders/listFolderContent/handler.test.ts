@@ -60,6 +60,6 @@ test('folder content returned', async () => {
 
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
-  expect(result.folders).toContain(folder02);
-  expect(result.files).toContain(file);
+  expect(result.folders).toContainEqual(folder02);
+  expect(result.files).toContainEqual(file);
 });

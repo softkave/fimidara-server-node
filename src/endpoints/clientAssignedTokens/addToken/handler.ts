@@ -1,3 +1,4 @@
+import {add} from 'date-fns';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
@@ -55,7 +56,9 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   const token: IClientAssignedToken = await context.data.clientAssignedToken.saveItem(
     {
-      expires: data.token.expires,
+      expires:
+        data.token.expires &&
+        add(Date.now(), {seconds: data.token.expires}).valueOf(),
       organizationId: organization.resourceId,
       resourceId: getNewId(),
       createdAt: getDateString(),
@@ -65,7 +68,15 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       },
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
-      presets: [],
+      presets: data.token.presets.map(item => ({
+        assignedAt: getDateString(),
+        assignedBy: {
+          agentId: agent.agentId,
+          agentType: agent.agentType,
+        },
+        order: item.order,
+        presetId: item.presetId,
+      })),
     }
   );
 

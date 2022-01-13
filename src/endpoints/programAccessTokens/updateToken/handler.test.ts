@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import {SessionAgentType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -72,17 +73,18 @@ test('program access token updated', async () => {
   );
 
   expect(updatedToken).toMatchObject(result.token);
-  expect(updatedToken.name).toMatchObject(tokenUpdateInput.name);
-  expect(updatedToken.description).toMatchObject(tokenUpdateInput.description);
+  expect(updatedToken.name).toBe(tokenUpdateInput.name);
+  expect(updatedToken.description).toBe(tokenUpdateInput.description);
   expect(updatedToken.presets.length).toEqual(2);
   expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
-    order: 0,
-  });
-  expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
+  });
+
+  expect(updatedToken.presets[1]).toMatchObject({
+    presetId: preset02.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
+    order: 2,
   });
 });

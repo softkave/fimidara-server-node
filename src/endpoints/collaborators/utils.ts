@@ -24,8 +24,31 @@ const collaboratorFields = getFields<IPublicCollaborator>({
   organizations: userOrgListExtractor,
 });
 
-export const collaboratorExtractor = makeExtract(collaboratorFields);
-export const collaboratorListExtractor = makeListExtract(collaboratorFields);
+export const collaboratorBaseExtractor = makeExtract(collaboratorFields);
+export const collaboratorListBaseExtractor = makeListExtract(
+  collaboratorFields
+);
+
+export const collaboratorExtractor = (item: IUser, organizationId: string) => {
+  const p = collaboratorBaseExtractor(item);
+  p.organizations = p.organizations.filter(
+    io1 => io1.organizationId === organizationId
+  );
+  return p;
+};
+
+export const collaboratorListExtractor = (
+  items: IUser[],
+  organizationId: string
+) => {
+  const ps = collaboratorListBaseExtractor(items);
+  ps.forEach(p => {
+    p.organizations = p.organizations.filter(
+      io1 => io1.organizationId === organizationId
+    );
+  });
+  return ps;
+};
 
 export async function checkCollaboratorAuthorization(
   context: IBaseContext,

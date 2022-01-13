@@ -79,7 +79,7 @@ export const getTestBaseContext = singletonFunc(() => {
 });
 
 export function assertEndpointResultOk(result: IBaseEndpointResult) {
-  if (result.errors?.length) {
+  if (result?.errors?.length) {
     throw result.errors;
   }
 }
@@ -200,7 +200,7 @@ export async function insertRequestForTest(
       request: {
         recipientEmail: faker.internet.email(),
         message: faker.lorem.paragraph(),
-        expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+        expires: differenceInSeconds(add(Date.now(), {days: 10}), Date.now()),
         ...requestInput,
       },
     }

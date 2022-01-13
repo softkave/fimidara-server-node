@@ -34,5 +34,5 @@ test('client assigned token returned', async () => {
 
   const result = await getOrganizationClientAssignedTokens(context, instData);
   assertEndpointResultOk(result);
-  expect(result.token).toContain(token01);
+  expect(result.token).toEqual(token01);
 });

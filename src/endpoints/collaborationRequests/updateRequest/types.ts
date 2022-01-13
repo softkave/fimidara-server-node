@@ -4,7 +4,7 @@ import {IPublicCollaborationRequest} from '../types';
 
 export interface IUpdateCollaborationRequestInput {
   message?: string;
-  expiresAtInSecsFromToday?: number;
+  expiresAt?: number;
 }
 
 export interface IUpdateRequestParams {

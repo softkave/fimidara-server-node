@@ -4,6 +4,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
+import {userExtractor} from '../utils';
 
 /**
  * TODO:
@@ -24,7 +25,7 @@ test('user signup successful with token creation', async () => {
     UserQueries.getById(result.user.resourceId)
   );
 
-  expect(result.user).toMatchObject(savedUser);
+  expect(userExtractor(result.user)).toMatchObject(savedUser);
   expect(result.userToken).toBeTruthy();
   expect(result.userTokenStr).toBeGreaterThan(0);
 });

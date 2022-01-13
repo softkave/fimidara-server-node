@@ -19,6 +19,9 @@ import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
  * - Auth check
  * - Check that presets exist
  * - Update token presets
+ *
+ * TODO:
+ * - [Medium] Change to update token for expires
  */
 
 const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint = async (
@@ -33,7 +36,8 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getClientAssignedTokenId(
     agent,
-    data.onReferenced && data.tokenId
+    data.tokenId,
+    data.onReferenced
   );
 
   const checkResult = await checkClientAssignedTokenAuthorization02(

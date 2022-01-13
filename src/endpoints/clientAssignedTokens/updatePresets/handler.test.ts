@@ -1,3 +1,4 @@
+import {SessionAgentType} from '../../../definitions/system';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -67,12 +68,13 @@ test('client assigned token presets updated', async () => {
   expect(updatedToken.presets.length).toEqual(2);
   expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
-    order: 0,
-  });
-  expect(updatedToken.presets[0]).toMatchObject({
-    presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
+  });
+
+  expect(updatedToken.presets[1]).toMatchObject({
+    presetId: preset02.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
+    order: 2,
   });
 });

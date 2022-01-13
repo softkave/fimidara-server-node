@@ -22,7 +22,6 @@ function applyGreaterThanOrEqual(queryValue: any, value: any): boolean {
 }
 
 function applyIn(queryValue: any, value: any): boolean {
-  console.log({queryValue, value});
   return isArray(queryValue) && queryValue.includes(value);
 }
 
@@ -79,8 +78,6 @@ function matches(
         return fn(v.value, base);
       }
     };
-
-    // console.log({v, key});
 
     if (fields.length > 2) {
       console.error('Max depth for dot separated fields is 2');
@@ -181,7 +178,9 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
 
   deleteItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
     const {index} = matchFirst(this.items, filter);
-    this.items.splice(index, 1);
+    if (index !== -1) {
+      this.items.splice(index, 1);
+    }
   });
 
   deleteManyItems = wrapFireAndThrowError(
@@ -189,7 +188,7 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
       const {indexes} = matchMany(this.items, filter);
       const indexesMap = indexArray(indexes, {reducer: () => true});
       const remainingItems = this.items.filter(
-        (item, index) => indexesMap[index]
+        (item, index) => !indexesMap[index]
       );
       this.items = remainingItems;
     }
@@ -268,7 +267,7 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
   });
 
   bulkSaveItems = wrapFireAndThrowError(async (data: T[]) => {
-    this.items = this.items.concat(data);
+    data.forEach(item => this.items.push(item));
   });
 
   // bulkUpdateItems = wrapFireAndThrowError(

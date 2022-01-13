@@ -42,7 +42,9 @@ test('collaboration request revoked', async () => {
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toEqual(updatedRequest);
-  expect(updatedRequest.statusHistory).toContain({
+  expect(
+    updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
+  ).toMatchObject({
     status: CollaborationRequestStatusType.Revoked,
   });
 });

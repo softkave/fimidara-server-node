@@ -90,18 +90,6 @@ export async function checkAuthorization(
     return true;
   });
 
-  console.log(
-    formatWithOptions({depth: 5}, '%o', {
-      // pp: ctx.data.permissionItem?.items,
-      items,
-      queries,
-      permissionItemsList,
-      agentPermissionEntities,
-      authEntities,
-      agent,
-    })
-  );
-
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,
     [AppResourceType.ClientAssignedToken]: 3,

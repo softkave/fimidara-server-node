@@ -18,7 +18,7 @@ import {ILoginParams} from './types';
 test('user login successful with token reuse', async () => {
   const context = getTestBaseContext();
   const password = faker.internet.password();
-  const {user, userTokenStr} = await insertUserForTest(context, {
+  const {user, userToken} = await insertUserForTest(context, {
     password,
   });
 
@@ -33,5 +33,7 @@ test('user login successful with token reuse', async () => {
   const result = await login(context, instData);
   assertEndpointResultOk(result);
   expect(result.user).toMatchObject(user);
-  expect(result.token).toMatchObject(userTokenStr);
+
+  const jwtToken = context.session.decodeToken(context, result.token);
+  expect(jwtToken.sub.id).toBe(userToken.resourceId);
 });

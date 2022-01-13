@@ -38,6 +38,6 @@ test("organization's presets returned", async () => {
     instData
   );
   assertEndpointResultOk(result);
-  expect(result.presets).toContain(preset01);
-  expect(result.presets).toContain(preset02);
+  expect(result.presets).toContainEqual(preset01);
+  expect(result.presets).toContainEqual(preset02);
 });

@@ -13,7 +13,6 @@ import {
   insertUserForTest,
   insertOrganizationForTest,
   insertFileForTest,
-  insertPermissionItemsForTest01,
   mockExpressRequestWithUserToken,
 } from '../../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../../user/errors';
@@ -24,27 +23,12 @@ import {
 
 test('auth is granted when it should be', async () => {
   const context = getTestBaseContext();
-  const {userToken, user} = await insertUserForTest(context);
+  const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file} = await insertFileForTest(
     context,
     userToken,
     organization.resourceId
-  );
-
-  await insertPermissionItemsForTest01(
-    context,
-    userToken,
-    organization.resourceId,
-    {
-      permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
-    },
-    {
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
-    },
-    {itemResourceType: AppResourceType.File}
   );
 
   const agent = await context.session.getAgent(
@@ -65,9 +49,10 @@ test('auth is granted when it should be', async () => {
   expect(permitted).toBeTruthy();
 });
 
-test('auth is granted when it should fail', async () => {
+test('auth fails when it should fail', async () => {
   const context = getTestBaseContext();
   const {userToken} = await insertUserForTest(context);
+  const {userToken: userToken02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file} = await insertFileForTest(
     context,
@@ -75,14 +60,14 @@ test('auth is granted when it should fail', async () => {
     organization.resourceId
   );
 
-  const agent = await context.session.getAgent(
+  const agent02 = await context.session.getAgent(
     context,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken02))
   );
 
   const permitted = await checkAuthorization(
     context,
-    agent,
+    agent02,
     organization.resourceId,
     file.resourceId,
     AppResourceType.File,
@@ -97,6 +82,7 @@ test('auth is granted when it should fail', async () => {
 test('should throw when noThrow is turned off', async () => {
   const context = getTestBaseContext();
   const {userToken} = await insertUserForTest(context);
+  const {userToken: userToken02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file} = await insertFileForTest(
     context,
@@ -104,15 +90,15 @@ test('should throw when noThrow is turned off', async () => {
     organization.resourceId
   );
 
-  const agent = await context.session.getAgent(
+  const agent02 = await context.session.getAgent(
     context,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken02))
   );
 
   try {
     await checkAuthorization(
       context,
-      agent,
+      agent02,
       organization.resourceId,
       file.resourceId,
       AppResourceType.File,
