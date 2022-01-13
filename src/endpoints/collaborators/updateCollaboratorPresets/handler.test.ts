@@ -1,3 +1,4 @@
+import {SessionAgentType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -68,12 +69,13 @@ test('collaborator presets updated', async () => {
   expect(userOrgData?.presets.length).toBeGreaterThan(0);
   expect(userOrgData?.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
-    order: 0,
-  });
-  expect(userOrgData?.presets[0]).toMatchObject({
-    presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
+  });
+
+  expect(userOrgData?.presets[1]).toMatchObject({
+    presetId: preset02.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
+    order: 2,
   });
 });

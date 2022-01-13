@@ -76,23 +76,25 @@ async function setupAdminPreset(
   };
 
   await context.data.preset.saveItem(adminPreset);
-  const permissionItems: IPermissionItem[] = orgResourceTypes.map(type => {
-    return {
-      resourceId: getNewId(),
-      organizationId: organization.resourceId,
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: user.resourceId,
-        agentType: SessionAgentType.User,
-      },
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
-      permissionEntityId: adminPreset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
-      itemResourceType: type,
-      action: BasicCRUDActions.All,
-    };
-  });
+  const permissionItems: IPermissionItem[] = [AppResourceType.Organization]
+    .concat(orgResourceTypes)
+    .map(type => {
+      return {
+        resourceId: getNewId(),
+        organizationId: organization.resourceId,
+        createdAt: getDateString(),
+        createdBy: {
+          agentId: user.resourceId,
+          agentType: SessionAgentType.User,
+        },
+        permissionOwnerId: organization.resourceId,
+        permissionOwnerType: AppResourceType.Organization,
+        permissionEntityId: adminPreset.resourceId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        itemResourceType: type,
+        action: BasicCRUDActions.All,
+      };
+    });
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
   updateCollaboratorOrganization(user, organization.resourceId, data => {

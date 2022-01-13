@@ -22,6 +22,7 @@ import {addPermissionItemsJoiSchema} from './validation';
  *
  * TODO:
  * - [High] Check that resource exists in the organization
+ * - [High] Check that permission items are not duplicated in DB
  */
 
 const addPermissionItems: AddPermissionItemsEndpoint = async (

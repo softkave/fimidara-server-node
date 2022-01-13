@@ -35,6 +35,6 @@ test("organization's program access token returned", async () => {
 
   const result = await getOrganizationProgramAccessTokens(context, instData);
   assertEndpointResultOk(result);
-  expect(result.tokens).toContain(token01);
-  expect(result.tokens).toContain(token02);
+  expect(result.tokens).toContainEqual(token01);
+  expect(result.tokens).toContainEqual(token02);
 });

@@ -34,5 +34,5 @@ test('user data updated', async () => {
     UserQueries.getById(result.user.resourceId)
   );
 
-  expect(result.user).toMatchObject(savedUser);
+  expect(savedUser).toMatchObject(result.user);
 });

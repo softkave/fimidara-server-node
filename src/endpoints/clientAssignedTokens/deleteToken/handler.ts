@@ -25,7 +25,8 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getClientAssignedTokenId(
     agent,
-    data.onReferenced && data.tokenId
+    data.tokenId,
+    data.onReferenced
   );
 
   const {token} = await checkClientAssignedTokenAuthorization02(

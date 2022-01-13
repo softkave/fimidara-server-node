@@ -94,7 +94,7 @@ test('getManyItems returns items', async () => {
   const org04 = insertOrganizationMemory(data);
   const org05 = insertOrganizationMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
-  const result = await provider.getItem(
+  const result = await provider.getManyItems(
     OrganizationQueries.getByIds([
       org01.resourceId,
       org02.resourceId,
@@ -104,18 +104,18 @@ test('getManyItems returns items', async () => {
     ])
   );
 
-  expect(result).toContain(org01);
-  expect(result).toContain(org02);
-  expect(result).toContain(org03);
-  expect(result).toContain(org04);
-  expect(result).toContain(org05);
+  expect(result).toContainEqual(org01);
+  expect(result).toContainEqual(org02);
+  expect(result).toContainEqual(org03);
+  expect(result).toContainEqual(org04);
+  expect(result).toContainEqual(org05);
 });
 
 test('getManyItems returns nothing', async () => {
   const data: IOrganization[] = [];
   insertOrganizationsMemory(data);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
-  const result = await provider.getItem(
+  const result = await provider.getManyItems(
     OrganizationQueries.getByIds([getNewId(), getNewId()])
   );
 
@@ -140,9 +140,7 @@ test('deleteItem deleted nothing', async () => {
   const data: IOrganization[] = [];
   insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
-  await provider.deleteItem(
-    OrganizationQueries.getByIds([getNewId(), getNewId()])
-  );
+  await provider.deleteItem(OrganizationQueries.getByIds(['001', '002']));
 
   expect(data).toHaveLength(10);
 });
@@ -179,7 +177,7 @@ test('updateItem update nothing', async () => {
   const [org01] = insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.updateItem(
-    OrganizationQueries.getById(org01.resourceId),
+    OrganizationQueries.getById('007'),
     {}
   );
 
@@ -201,7 +199,7 @@ test('updateManyItems updated correct items', async () => {
     description: faker.lorem.paragraph(),
   };
 
-  const result = await provider.updateItem(
+  await provider.updateManyItems(
     OrganizationQueries.getByIds([org01.resourceId, org02.resourceId]),
     orgUpdate
   );
@@ -210,7 +208,6 @@ test('updateManyItems updated correct items', async () => {
     OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
   );
 
-  expect(result).toEqual(updatedOrgs);
   expect(updatedOrgs[0]).toMatchObject(orgUpdate);
   expect(updatedOrgs[1]).toMatchObject(orgUpdate);
   assertListEqual(data.slice(2), data02.slice(2));
@@ -246,10 +243,12 @@ test('assertItemExists', async () => {
   insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
+  // eslint-disable-next-line no-useless-catch
   try {
     await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
   } catch (error) {
-    expect(error instanceof NotFoundError).toBeTruthy();
+    throw error;
+    // expect(error instanceof NotFoundError).toBeTruthy();
   }
 });
 
@@ -270,7 +269,7 @@ test('saveItem', async () => {
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const org = generateOrganization();
   await provider.saveItem(org);
-  expect(data.length).toHaveLength(1);
+  expect(data).toHaveLength(1);
 });
 
 test('bulkSaveItems', async () => {
@@ -278,5 +277,5 @@ test('bulkSaveItems', async () => {
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const orgs = generateOrganizations(10);
   await provider.bulkSaveItems(orgs);
-  expect(data.length).toHaveLength(10);
+  expect(data).toHaveLength(10);
 });

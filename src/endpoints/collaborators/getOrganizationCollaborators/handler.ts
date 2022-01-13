@@ -52,7 +52,10 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint = async
   );
 
   return {
-    collaborators: collaboratorListExtractor(allowedCollaborators),
+    collaborators: collaboratorListExtractor(
+      allowedCollaborators,
+      organization.resourceId
+    ),
   };
 };
 

@@ -42,7 +42,7 @@ export function forgotPasswordEmailHTML(
                         This link expires in ${formatDistance(
                           props.expiration,
                           new Date()
-                        )}, on ${format(props.expiration, 'MM/DD/YYYY hh:mmA')}.
+                        )}, on ${format(props.expiration, 'MM/dd/yyyy hh:mmA')}.
                     </strong>
                 </p>
                 <p>
@@ -74,7 +74,7 @@ export function forgotPasswordEmailText(
     1. Immediately after you change your password -OR-
     2. In ${formatDistance(props.expiration, new Date())}, on ${format(
     props.expiration,
-    'MM/dd/YYYY hh:mmA'
+    'MM/dd/yyyy hh:mmA'
   )}.
     -
     If you did not request a change of password, please ignore this mail.

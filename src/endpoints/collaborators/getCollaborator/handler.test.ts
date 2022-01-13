@@ -1,3 +1,4 @@
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -6,6 +7,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
 import {IGetCollaboratorParams} from './types';
 
@@ -23,5 +25,12 @@ test('collaborator returned', async () => {
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);
-  expect(result.collaborator).toMatchObject(user);
+  expect(result.collaborator).toMatchObject(
+    collaboratorExtractor(
+      await context.data.user.assertGetItem(
+        EndpointReusableQueries.getById(user.resourceId)
+      ),
+      organization.resourceId
+    )
+  );
 });

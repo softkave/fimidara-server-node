@@ -26,7 +26,7 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  const publicData = collaboratorExtractor(collaborator);
+  const publicData = collaboratorExtractor(collaborator, organizationId);
   return {
     collaborator: publicData,
   };

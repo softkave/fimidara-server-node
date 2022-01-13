@@ -66,7 +66,7 @@ function handleErrors(...args: any[]) {
   }
 
   console.error(err);
-  console.log();
+  console.log(); // for spacing
 
   const JWTError = resolveJWTError(err);
 

@@ -1,9 +1,9 @@
+import {add} from 'date-fns';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {isObjectEmpty} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
 import EndpointReusableQueries from '../../queries';
-import CollaborationRequestQueries from '../queries';
 import {
   checkCollaborationRequestAuthorization02,
   collabRequestExtractor,
@@ -37,7 +37,12 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
     request = await context.data.collaborationRequest.assertUpdateItem(
       EndpointReusableQueries.getById(data.requestId),
       {
-        ...data.request,
+        message: data.request.message ? data.request.message : request.message,
+        expiresAt: data.request.expiresAt
+          ? add(data.request.expiresAt, {
+              seconds: data.request.expiresAt,
+            }).toISOString()
+          : request.expiresAt,
         lastUpdatedAt: getDateString(),
         lastUpdatedBy: {
           agentId: agent.agentId,

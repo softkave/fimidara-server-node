@@ -306,11 +306,14 @@ export function getOrganizationId(
 
 export function getClientAssignedTokenId(
   agent: ISessionAgent,
-  providedTokenId?: string | null | false
+  providedTokenId?: string | null,
+  onReferenced?: boolean
 ) {
-  const tokenId = agent.clientAssignedToken
-    ? agent.clientAssignedToken.organizationId
-    : providedTokenId;
+  const tokenId = providedTokenId
+    ? providedTokenId
+    : onReferenced
+    ? agent.clientAssignedToken?.resourceId
+    : null;
 
   if (!tokenId) {
     throw new InvalidRequestError('Client assigned token ID not provided');
@@ -321,11 +324,14 @@ export function getClientAssignedTokenId(
 
 export function getProgramAccessTokenId(
   agent: ISessionAgent,
-  providedTokenId?: string | null | false
+  providedTokenId?: string | null,
+  onReferenced?: boolean
 ) {
-  const tokenId = agent.programAccessToken
-    ? agent.programAccessToken.organizationId
-    : providedTokenId;
+  const tokenId = providedTokenId
+    ? providedTokenId
+    : onReferenced
+    ? agent.programAccessToken?.resourceId
+    : null;
 
   if (!tokenId) {
     throw new InvalidRequestError('Program access token ID not provided');

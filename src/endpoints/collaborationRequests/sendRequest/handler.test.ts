@@ -1,5 +1,4 @@
-import add from 'date-fns/add';
-import differenceInSeconds from 'date-fns/differenceInSeconds';
+import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import EndpointReusableQueries from '../../queries';
@@ -9,7 +8,6 @@ import {
   insertRequestForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
-import CollaborationRequestQueries from '../queries';
 import {ICollaborationRequestInput} from './types';
 
 test('collaboration request sent', async () => {
@@ -35,7 +33,9 @@ test('collaboration request sent', async () => {
   );
 
   expect(request01).toEqual(savedRequest);
-  expect(savedRequest.statusHistory).toContain({
+  expect(
+    savedRequest.statusHistory[savedRequest.statusHistory.length - 1]
+  ).toMatchObject({
     status: CollaborationRequestStatusType.Pending,
   });
 });

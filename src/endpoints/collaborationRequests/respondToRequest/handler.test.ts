@@ -51,7 +51,7 @@ test('collaboration request declined', async () => {
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toEqual(updatedRequest);
-  expect(updatedRequest.statusHistory).toContain({
+  expect(updatedRequest.statusHistory).toContainEqual({
     status: CollaborationRequestStatusType.Accepted,
   });
 });

@@ -30,7 +30,8 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(
     agent,
-    data.onReferenced && data.tokenId
+    data.tokenId,
+    data.onReferenced
   );
 
   const checkResult = await checkProgramAccessTokenAuthorization02(

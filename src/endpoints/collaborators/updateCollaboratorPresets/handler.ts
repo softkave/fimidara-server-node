@@ -60,7 +60,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     }
   );
 
-  const publicData = collaboratorExtractor(collaborator);
+  const publicData = collaboratorExtractor(collaborator, organizationId);
   return {
     collaborator: publicData,
   };

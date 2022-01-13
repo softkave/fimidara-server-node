@@ -1,3 +1,4 @@
+import {SessionAgentType} from '../../../definitions/system';
 import {
   getTestBaseContext,
   insertOrganizationForTest,
@@ -55,12 +56,12 @@ test('program access token added', async () => {
   expect(savedToken.presets.length).toEqual(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 0,
   });
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 });
