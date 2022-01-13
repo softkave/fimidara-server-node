@@ -1,9 +1,11 @@
+import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
+import {ServerError} from '../../utilities/errors';
 import cast, {denull} from '../../utilities/fns';
 import {
   wrapFireAndThrowError,
@@ -105,10 +107,9 @@ export default class SessionContext implements ISessionContext {
       let clientAssignedToken: IClientAssignedToken | null = null;
       let programAccessToken: IProgramAccessToken | null = null;
       const incomingTokenData = data.incomingTokenData;
-      const noProcessedToken =
-        !userToken && !clientAssignedToken && !programAccessToken;
+      const rework = !userToken && !clientAssignedToken && !programAccessToken;
 
-      if (noProcessedToken) {
+      if (rework) {
         if (!incomingTokenData) {
           throw new PermissionDeniedError();
         }
@@ -162,44 +163,27 @@ export default class SessionContext implements ISessionContext {
         }
       }
 
-      if (userToken) {
-        const agent: ISessionAgent = {
-          incomingTokenData,
-          userToken,
-          user: denull(user),
-          agentId: userToken.userId,
-          agentType: SessionAgentType.User,
-          tokenId: userToken.resourceId,
-          tokenType: TokenType.UserToken,
-        };
+      assert(user, new ServerError());
 
+      if (userToken) {
+        const agent: ISessionAgent = makeUserSessionAgent(userToken, user);
         data.agent = agent;
         return agent;
       }
 
       if (programAccessToken) {
-        const agent: ISessionAgent = {
-          incomingTokenData,
-          programAccessToken,
-          agentId: programAccessToken.resourceId,
-          agentType: SessionAgentType.ProgramAccessToken,
-          tokenId: programAccessToken.resourceId,
-          tokenType: TokenType.ProgramAccessToken,
-        };
+        const agent: ISessionAgent = makeProgramAccessTokenAgent(
+          programAccessToken
+        );
 
         data.agent = agent;
         return agent;
       }
 
       if (clientAssignedToken) {
-        const agent: ISessionAgent = {
-          incomingTokenData,
-          clientAssignedToken,
-          agentId: clientAssignedToken.resourceId,
-          agentType: SessionAgentType.ClientAssignedToken,
-          tokenId: clientAssignedToken.resourceId,
-          tokenType: TokenType.ClientAssignedToken,
-        };
+        const agent: ISessionAgent = makeClientAssignedTokenAgent(
+          clientAssignedToken
+        );
 
         data.agent = agent;
         return agent;
@@ -286,6 +270,44 @@ export default class SessionContext implements ISessionContext {
 }
 
 export const getSessionContext = singletonFunc(() => new SessionContext());
+
+export function makeClientAssignedTokenAgent(
+  clientAssignedToken: IClientAssignedToken
+): ISessionAgent {
+  return {
+    clientAssignedToken,
+    agentId: clientAssignedToken.resourceId,
+    agentType: SessionAgentType.ClientAssignedToken,
+    tokenId: clientAssignedToken.resourceId,
+    tokenType: TokenType.ClientAssignedToken,
+  };
+}
+
+export function makeProgramAccessTokenAgent(
+  programAccessToken: IProgramAccessToken
+): ISessionAgent {
+  return {
+    programAccessToken,
+    agentId: programAccessToken.resourceId,
+    agentType: SessionAgentType.ProgramAccessToken,
+    tokenId: programAccessToken.resourceId,
+    tokenType: TokenType.ProgramAccessToken,
+  };
+}
+
+export function makeUserSessionAgent(
+  userToken: IUserToken,
+  user: IUser
+): ISessionAgent {
+  return {
+    userToken,
+    user: denull(user),
+    agentId: userToken.userId,
+    agentType: SessionAgentType.User,
+    tokenId: userToken.resourceId,
+    tokenType: TokenType.UserToken,
+  };
+}
 
 export function getOrganizationId(
   agent: ISessionAgent,

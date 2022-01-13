@@ -9,6 +9,7 @@ import {userExtractor} from '../utils';
 import UserQueries from '../UserQueries';
 import {
   CURRENT_TOKEN_VERSION,
+  makeUserSessionAgent,
   TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
@@ -66,10 +67,7 @@ const signup: SignupEndpoint = async (context, instData) => {
   });
 
   // Make the user token available to other requests made with this request data
-  if (instData.agent) {
-    instData.agent.userToken = token;
-  }
-
+  instData.agent = makeUserSessionAgent(token, user);
   fireAndForgetPromise(callComfirmEmail(context, instData));
   return {
     user: userExtractor(user),

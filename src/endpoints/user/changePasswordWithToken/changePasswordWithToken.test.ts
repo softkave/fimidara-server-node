@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import {regExPatterns} from '../../../utilities/validationUtils';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -7,6 +8,7 @@ import {
   mockExpressRequest,
 } from '../../test-utils/test-utils';
 import {IChangePasswordParameters} from '../changePassword/types';
+import {userConstants} from '../constants';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import changePasswordWithToken from './changePasswordWithToken';
@@ -20,12 +22,12 @@ import changePasswordWithToken from './changePasswordWithToken';
 
 test('password changed with token', async () => {
   const context = getTestBaseContext();
-  const oldPassword = faker.internet.password();
+  const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {
     password: oldPassword,
   });
 
-  const newPassword = faker.internet.password();
+  const newPassword = 'abd784_!new';
   const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
     mockExpressRequest(),
     {

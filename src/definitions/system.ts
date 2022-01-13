@@ -15,7 +15,6 @@ export interface ISessionAgent {
   agentType: SessionAgentType;
   tokenId: string;
   tokenType: TokenType;
-  incomingTokenData?: IBaseTokenData | null;
 
   // One of the following, depending on the agentType
   userToken?: IUserToken;

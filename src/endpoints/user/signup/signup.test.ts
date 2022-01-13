@@ -25,7 +25,7 @@ test('user signup successful with token creation', async () => {
     UserQueries.getById(result.user.resourceId)
   );
 
-  expect(userExtractor(result.user)).toMatchObject(savedUser);
+  expect(userExtractor(result.user)).toMatchObject(userExtractor(savedUser));
   expect(result.userToken).toBeTruthy();
   expect(result.userTokenStr).toBeGreaterThan(0);
 });

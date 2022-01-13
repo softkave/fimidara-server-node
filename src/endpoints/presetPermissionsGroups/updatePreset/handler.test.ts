@@ -43,8 +43,8 @@ test('preset updated', async () => {
   );
 
   const updatePresetInput: IUpdatePresetPermissionsGroupInput = {
-    name: faker.lorem.sentence(20),
-    description: faker.lorem.sentence(50),
+    name: faker.lorem.words(2),
+    description: faker.lorem.words(10),
     presets: [
       {
         presetId: preset01.resourceId,

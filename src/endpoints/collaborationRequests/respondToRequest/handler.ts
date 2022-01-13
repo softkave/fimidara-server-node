@@ -38,7 +38,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
   }
 
   const isExpired =
-    request.expiresAt && new Date(request.expiresAt).valueOf() > Date.now();
+    request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
 
   if (isExpired) {
     throw new ExpiredError(

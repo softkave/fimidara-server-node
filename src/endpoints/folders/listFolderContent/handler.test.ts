@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
-import deleteFolder from './handler';
+import listFolderContent from './handler';
 import {IListFolderContentEndpointParams} from './types';
 
 /**
@@ -58,7 +58,7 @@ test('folder content returned', async () => {
     }
   );
 
-  const result = await deleteFolder(context, instData);
+  const result = await listFolderContent(context, instData);
   assertEndpointResultOk(result);
   expect(result.folders).toContainEqual(folder02);
   expect(result.files).toContainEqual(file);
