@@ -5,6 +5,7 @@ import {
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getUserData from './getUserData';
 
@@ -18,11 +19,13 @@ import getUserData from './getUserData';
 test('user data is returned', async () => {
   const context = getTestBaseContext();
   const password = faker.internet.password();
-  const {user} = await insertUserForTest(context, {
+  const {user, userToken} = await insertUserForTest(context, {
     password,
   });
 
-  const instData = RequestData.fromExpressRequest(mockExpressRequest());
+  const instData = RequestData.fromExpressRequest(
+    mockExpressRequestWithUserToken(userToken)
+  );
 
   const result = await getUserData(context, instData);
   assertEndpointResultOk(result);

@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import {SessionAgentType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -61,7 +62,7 @@ test('preset updated', async () => {
     mockExpressRequestWithUserToken(userToken),
     {
       presetId: preset00.resourceId,
-      preset: updatePresetInput,
+      data: updatePresetInput,
     }
   );
 
@@ -78,12 +79,12 @@ test('preset updated', async () => {
   expect(updatedPreset.presets.length).toEqual(2);
   expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 0,
   });
   expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset02.resourceId,
-    assignedBy: user.resourceId,
+    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 });

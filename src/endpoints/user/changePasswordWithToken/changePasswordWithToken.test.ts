@@ -1,14 +1,18 @@
-import * as faker from 'faker';
-import {regExPatterns} from '../../../utilities/validationUtils';
+import {getDateString} from '../../../utilities/dateFns';
+import getNewId from '../../../utilities/getNewId';
+import {
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+} from '../../contexts/SessionContext';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {IChangePasswordParameters} from '../changePassword/types';
-import {userConstants} from '../constants';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import changePasswordWithToken from './changePasswordWithToken';
@@ -28,8 +32,16 @@ test('password changed with token', async () => {
   });
 
   const newPassword = 'abd784_!new';
+  const token = await context.data.userToken.saveItem({
+    resourceId: getNewId(),
+    userId: user.resourceId,
+    audience: [TokenAudience.ChangePassword],
+    issuedAt: getDateString(),
+    version: CURRENT_TOKEN_VERSION,
+  });
+
   const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
-    mockExpressRequest(),
+    mockExpressRequestWithUserToken(token),
     {
       password: newPassword,
     }

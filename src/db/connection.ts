@@ -1,16 +1,16 @@
 import EventEmitter = require('events');
 import {createConnection, Connection} from 'mongoose';
 
-let connection: Connection | null = null;
 const emittersMap: Record<string, EventEmitter> = {};
 const connectingMap: Record<string, true> = {};
+const connectionsMap: Record<string, Connection> = {};
 const openEventName = 'open';
 const errorEventName = 'error';
 
 export function getMongoConnection(uri: string): Promise<Connection> {
   return new Promise((resolve, reject) => {
-    if (connection) {
-      resolve(connection);
+    if (connectionsMap[uri]) {
+      resolve(connectionsMap[uri]);
     }
 
     if (connectingMap[uri]) {
@@ -20,19 +20,19 @@ export function getMongoConnection(uri: string): Promise<Connection> {
     }
 
     connectingMap[uri] = true;
-    connection = createConnection(uri, {
+    connectionsMap[uri] = createConnection(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useFindAndModify: false,
     });
 
-    connection.once('open', () => {
+    connectionsMap[uri].once('open', () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      emittersMap[uri]?.emit(openEventName, connection);
+      emittersMap[uri]?.emit(openEventName, connectionsMap[uri]);
       delete emittersMap[uri];
     });
 
-    connection.once('error', error => {
+    connectionsMap[uri].once('error', error => {
       if (error) {
         console.error(error);
       }

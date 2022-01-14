@@ -12,6 +12,7 @@ class OperationError extends Error {
   public field?: string;
   public action?: string;
   public value?: string;
+  public isPublic = true;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(isString(props) ? props : props?.message);

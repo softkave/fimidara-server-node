@@ -43,6 +43,10 @@ export const wrapFireAndThrowError = <
     } catch (error) {
       console.error(error);
 
+      if (cast<OperationError>(error)?.isPublic) {
+        throw error;
+      }
+
       if (throwError) {
         if (thrownError) {
           throw new thrownError();

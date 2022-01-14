@@ -36,6 +36,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
   if (data.imageTranformation) {
     buffer = await sharp(buffer)
       .resize(data.imageTranformation.width, data.imageTranformation.height)
+      .png()
       .toBuffer();
   }
 
