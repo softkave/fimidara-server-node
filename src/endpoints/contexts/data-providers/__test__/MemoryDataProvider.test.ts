@@ -243,7 +243,6 @@ test('assertItemExists', async () => {
   insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
-  // eslint-disable-next-line no-useless-catch
   try {
     await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
   } catch (error) {
