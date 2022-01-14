@@ -65,7 +65,8 @@ function matches(
 
     const fields = key.split('.');
     const base = get(item, fields[0]);
-    const baseIsDotList = fields.length > 1 && Array.isArray(base);
+    const baseIsList = Array.isArray(base);
+    const baseIsDotList = fields.length > 1 && baseIsList;
     const runFn = (fn: (...args: any[]) => boolean) => {
       if (baseIsDotList) {
         const i = base.findIndex(o1 => {
@@ -74,9 +75,19 @@ function matches(
         });
 
         return i !== -1;
-      } else {
-        return fn(v.value, base);
       }
+
+      const firstCheck = fn(v.value, base);
+
+      if (firstCheck === false && baseIsList) {
+        const i = base.findIndex(o1 => {
+          return fn(v.value, o1);
+        });
+
+        return i !== -1;
+      }
+
+      return firstCheck;
     };
 
     if (fields.length > 2) {

@@ -257,26 +257,22 @@ test('assertItemExists', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   await insertOrganizationsMongo(orgModel, 10);
 
-  // try {
-  //   await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
-  // } catch (error) {
-  //   expect(error instanceof NotFoundError).toBeTruthy();
-  // }
-
-  await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
+  try {
+    await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
+  } catch (error) {
+    expect(error instanceof NotFoundError).toBeTruthy();
+  }
 });
 
 test('assertGetItem', async () => {
   const {provider, orgModel} = await getOrgMongoProviderForTest();
   await insertOrganizationsMongo(orgModel, 10);
 
-  // try {
-  //   await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
-  // } catch (error) {
-  //   expect(error instanceof NotFoundError).toBeTruthy();
-  // }
-
-  await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+  try {
+    await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+  } catch (error) {
+    expect(error instanceof NotFoundError).toBeTruthy();
+  }
 });
 
 test('saveItem', async () => {

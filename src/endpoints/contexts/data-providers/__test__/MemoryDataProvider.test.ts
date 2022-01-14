@@ -174,7 +174,7 @@ test('updateItem correct item', async () => {
 
 test('updateItem update nothing', async () => {
   const data: IOrganization[] = [];
-  const [org01] = insertOrganizationsMemory(data, 10);
+  insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
   const result = await provider.updateItem(
     OrganizationQueries.getById('007'),
@@ -210,7 +210,7 @@ test('updateManyItems updated correct items', async () => {
 
   expect(updatedOrgs[0]).toMatchObject(orgUpdate);
   expect(updatedOrgs[1]).toMatchObject(orgUpdate);
-  assertListEqual(data.slice(2), data02.slice(2));
+  assertListEqual(provider.items.slice(2), data02.slice(2));
 });
 
 test('assertUpdateItem throws when item not found', async () => {
@@ -235,7 +235,7 @@ test('deleteManyItems', async () => {
   );
 
   expect(provider.items.length).toEqual(8);
-  assertListEqual(data, data02.slice(2));
+  assertListEqual(provider.items, data02.slice(2));
 });
 
 test('assertItemExists', async () => {
@@ -247,8 +247,7 @@ test('assertItemExists', async () => {
   try {
     await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
   } catch (error) {
-    throw error;
-    // expect(error instanceof NotFoundError).toBeTruthy();
+    expect(error instanceof NotFoundError).toBeTruthy();
   }
 });
 
@@ -257,13 +256,11 @@ test('assertGetItem', async () => {
   insertOrganizationsMemory(data, 10);
   const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
 
-  // try {
-  //
-  // } catch (error) {
-  //   expect(error instanceof NotFoundError).toBeTruthy();
-  // }
-
-  await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+  try {
+    await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+  } catch (error) {
+    expect(error instanceof NotFoundError).toBeTruthy();
+  }
 });
 
 test('saveItem', async () => {

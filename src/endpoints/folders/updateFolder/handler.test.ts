@@ -22,7 +22,7 @@ test('folder returned', async () => {
   );
 
   const updateInput = {
-    description: faker.lorem.paragraph(),
+    description: faker.lorem.words(20),
     maxFileSizeInBytes: 9_000_000_000,
   };
 

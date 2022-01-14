@@ -52,6 +52,7 @@ import {
   IAddProgramAccessTokenParams,
   INewProgramAccessTokenInput,
 } from '../programAccessTokens/addToken/types';
+import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
@@ -135,11 +136,11 @@ export async function insertUserForTest(
     UserTokenQueries.getById(tokenData.sub.id)
   );
 
-  return {
-    userToken,
-    user: result.user,
-    userTokenStr: result.token,
-  };
+  const rawUser = await context.data.user.assertGetItem(
+    EndpointReusableQueries.getById(result.user.resourceId)
+  );
+
+  return {rawUser, userToken, user: result.user, userTokenStr: result.token};
 }
 
 export async function insertOrganizationForTest(

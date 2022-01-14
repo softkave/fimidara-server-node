@@ -4,8 +4,8 @@ import {
   TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
+import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
-import {changePasswordWithPasswordJoiSchema} from '../changePasswordWithCurrentPassword/validation';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
@@ -22,7 +22,7 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   context,
   instData
 ) => {
-  const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+  const data = validate(instData.data, changePasswordJoiSchema);
   assertIncomingToken(instData.incomingTokenData, TokenType.UserToken);
   const userToken = await context.data.userToken.assertGetItem(
     // It's okay to disable this check because incomingTokenData
@@ -32,11 +32,10 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   );
 
   if (
-    !context.session.tokenContainsAudience(
-      context,
-      userToken,
-      TokenAudience.ChangePassword
-    )
+    !context.session.tokenContainsAudience(context, userToken, [
+      TokenAudience.ChangePassword,
+      TokenAudience.Login,
+    ])
   ) {
     throw new InvalidCredentialsError();
   }

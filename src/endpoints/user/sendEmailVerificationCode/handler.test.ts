@@ -4,7 +4,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
-  mockExpressRequest,
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import UserTokenQueries from '../UserTokenQueries';
 import sendEmailVerificationCode from './handler';
@@ -17,8 +17,11 @@ import sendEmailVerificationCode from './handler';
 
 test('email verification code sent', async () => {
   const context = getTestBaseContext();
-  const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest(mockExpressRequest());
+  const {user, userToken} = await insertUserForTest(context);
+  const instData = RequestData.fromExpressRequest(
+    mockExpressRequestWithUserToken(userToken)
+  );
+
   const result = await sendEmailVerificationCode(context, instData);
 
   assertEndpointResultOk(result);

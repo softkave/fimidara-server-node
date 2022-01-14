@@ -7,7 +7,7 @@ export type IUpdatePresetPermissionsGroupInput = Partial<INewPresetPermissionsGr
 
 export interface IUpdatePresetPermissionsGroupParams {
   presetId: string;
-  preset: IUpdatePresetPermissionsGroupInput;
+  data: IUpdatePresetPermissionsGroupInput;
 }
 
 export interface IUpdatePresetPermissionsGroupResult {
