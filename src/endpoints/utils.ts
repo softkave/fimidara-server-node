@@ -5,6 +5,8 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../utilities/extract';
+import cast from '../utilities/fns';
+import OperationError from '../utilities/OperationError';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import RequestData from './RequestData';
@@ -46,13 +48,20 @@ export const wrapEndpointREST = <
       // We are mapping errors cause some values don't show if we don't
       // or was it errors, not sure anymore, this is old code.
       // TODO: Feel free to look into it, cause it could help performance.
+      const preppedErrors: Omit<OperationError, 'isPublic'>[] = [];
+      cast<OperationError[]>(errors).forEach(
+        err =>
+          err.isPublic &&
+          preppedErrors.push({
+            name: err.name,
+            message: err.message,
+            action: err.action,
+            field: err.field,
+          })
+      );
+
       const result = {
-        errors: errors.map(err => ({
-          name: err.name,
-          message: err.message,
-          action: err.action,
-          field: err.field,
-        })),
+        errors: preppedErrors,
       };
 
       res.status(500).json(result);
