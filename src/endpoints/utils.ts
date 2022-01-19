@@ -10,7 +10,7 @@ import OperationError from '../utilities/OperationError';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import RequestData from './RequestData';
-import {Endpoint, IPublicAgent} from './types';
+import {Endpoint, IPublicAgent, IRequestDataWork} from './types';
 
 export const wrapEndpointREST = <
   Context extends IBaseContext,
@@ -77,3 +77,11 @@ const agentPublicFields = getFields<IPublicAgent>({
 export const agentExtractor = makeExtract(agentPublicFields);
 export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);
+
+export async function waitForWorks(works: IRequestDataWork[]) {
+  await Promise.all(
+    works.map(item => {
+      return item.promise;
+    })
+  );
+}

@@ -4,7 +4,6 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
-  mockExpressRequest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getUserData from './getUserData';

@@ -1,9 +1,11 @@
+import {add} from 'date-fns';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {
   CURRENT_TOKEN_VERSION,
   TokenAudience,
 } from '../../contexts/SessionContext';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertEndpointResultOk,
@@ -13,8 +15,10 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {IChangePasswordParameters} from '../changePassword/types';
+import {userConstants} from '../constants';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
+import {userExtractor} from '../utils';
 import changePasswordWithToken from './changePasswordWithToken';
 
 /**
@@ -38,6 +42,9 @@ test('password changed with token', async () => {
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
     version: CURRENT_TOKEN_VERSION,
+    expires: add(new Date(), {
+      days: userConstants.changePasswordTokenExpDurationInDays,
+    }).valueOf(),
   });
 
   const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
@@ -49,8 +56,11 @@ test('password changed with token', async () => {
 
   const result = await changePasswordWithToken(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toMatchObject(user);
+  const updatedUser = await context.data.user.assertGetItem(
+    EndpointReusableQueries.getById(result.user.resourceId)
+  );
 
+  expect(result.user).toMatchObject(userExtractor(updatedUser));
   const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
     mockExpressRequest(),
     {
@@ -61,5 +71,5 @@ test('password changed with token', async () => {
 
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
-  expect(loginResult.user).toMatchObject(user);
+  expect(loginResult.user).toMatchObject(userExtractor(updatedUser));
 });

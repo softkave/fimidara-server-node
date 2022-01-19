@@ -208,8 +208,12 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
   updateItem = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
       const {item} = matchFirst(this.items, filter);
-      merge(item, data);
-      return cast<T | null>(item);
+      if (item) {
+        merge(item, data);
+        return cast<T>(item);
+      } else {
+        return null;
+      }
     }
   );
 

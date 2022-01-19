@@ -129,9 +129,9 @@ export async function createFolderList(
   // TODO: create folders in a transaction and revert if there's an error
   for (let i = 0; i < pathWithDetails.splitPath.length; i++) {
     const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
-    previousFolder = existingFolders[i];
 
-    if (previousFolder) {
+    if (existingFolders[i]) {
+      previousFolder = existingFolders[i];
       continue;
     }
 

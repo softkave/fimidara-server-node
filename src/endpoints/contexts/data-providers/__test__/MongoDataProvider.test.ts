@@ -1,7 +1,8 @@
 import assert = require('assert');
 import * as faker from 'faker';
 import {sortBy} from 'lodash';
-import {Model} from 'mongoose';
+import {Connection, Model} from 'mongoose';
+import {getMongoConnection} from '../../../../db/connection';
 import {
   getOrganizationModel,
   IOrganizationDocument,
@@ -21,10 +22,20 @@ import {
   generateOrganization,
   generateOrganizations,
 } from '../../../test-utils/generate-data/organization';
-import {getTestMongoConnection} from '../../../test-utils/mongo';
+import {getTestVars} from '../../../test-utils/vars';
 import MongoDataProvider from '../MongoDataProvider';
 
 // Using organization for the tests
+
+let connection: Connection | null = null;
+
+beforeAll(async () => {
+  connection = await getMongoConnection(getTestVars().mongoDbURI);
+});
+
+afterAll(async () => {
+  await connection?.close();
+});
 
 async function insertOrganizationMongo(
   orgModel: Model<IOrganizationDocument>,
@@ -47,7 +58,10 @@ async function insertOrganizationsMongo(
 }
 
 export async function getOrgMongoProviderForTest() {
-  const connection = await getTestMongoConnection();
+  if (!connection) {
+    throw new Error('Mongo connection not established');
+  }
+
   const orgModel = getOrganizationModel(connection);
   const provider = new MongoDataProvider(orgModel, throwOrganizationNotFound);
   return {provider, orgModel};

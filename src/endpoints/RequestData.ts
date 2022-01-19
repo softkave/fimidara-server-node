@@ -2,6 +2,7 @@ import {ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
 import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
+import {IRequestDataWork} from './types';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
@@ -9,6 +10,7 @@ export interface IRequestContructorParams<T = any> {
   incomingTokenData?: IBaseTokenData | null;
   agent?: ISessionAgent | null;
   user?: IUser | null;
+  works?: IRequestDataWork[];
 }
 
 export default class RequestData<T = any> {
@@ -35,6 +37,7 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
+      works: from.works,
     });
   }
 
@@ -45,6 +48,7 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
+      works: from.works.concat(to.works),
     });
   }
 
@@ -53,6 +57,7 @@ export default class RequestData<T = any> {
   public incomingTokenData?: IBaseTokenData | null;
   public user?: IUser | null;
   public agent?: ISessionAgent | null;
+  public works: IRequestDataWork[] = [];
 
   public constructor(arg?: IRequestContructorParams<T>) {
     if (!arg) {
@@ -64,6 +69,10 @@ export default class RequestData<T = any> {
     this.incomingTokenData = arg.incomingTokenData;
     this.agent = arg.agent;
     this.user = arg.user;
+
+    if (arg.works) {
+      this.works = arg.works;
+    }
   }
 
   getIp() {

@@ -6,6 +6,8 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {waitForWorks} from '../../utils';
+import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 import sendEmailVerificationCode from './handler';
 
@@ -17,13 +19,21 @@ import sendEmailVerificationCode from './handler';
 
 test('email verification code sent', async () => {
   const context = getTestBaseContext();
-  const {user, userToken} = await insertUserForTest(context);
+  const {user, userToken, reqData: insertUserReqData} = await insertUserForTest(
+    context
+  );
+
+  await waitForWorks(insertUserReqData.works);
   const instData = RequestData.fromExpressRequest(
     mockExpressRequestWithUserToken(userToken)
   );
 
-  const result = await sendEmailVerificationCode(context, instData);
+  await context.data.user.assertUpdateItem(
+    UserQueries.getById(user.resourceId),
+    {emailVerificationEmailSentAt: null}
+  );
 
+  const result = await sendEmailVerificationCode(context, instData);
   assertEndpointResultOk(result);
   await context.data.userToken.assertGetItem(
     UserTokenQueries.getByUserIdAndAudience(

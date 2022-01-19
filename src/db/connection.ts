@@ -1,47 +1,14 @@
-import EventEmitter = require('events');
 import {createConnection, Connection} from 'mongoose';
 
-const emittersMap: Record<string, EventEmitter> = {};
-const connectingMap: Record<string, true> = {};
-const connectionsMap: Record<string, Connection> = {};
-const openEventName = 'open';
-const errorEventName = 'error';
-
 export function getMongoConnection(uri: string): Promise<Connection> {
+  const connection = createConnection(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  });
+
   return new Promise((resolve, reject) => {
-    if (connectionsMap[uri]) {
-      resolve(connectionsMap[uri]);
-    }
-
-    if (connectingMap[uri]) {
-      emittersMap[uri]?.addListener(openEventName, resolve);
-      emittersMap[uri]?.addListener(errorEventName, reject);
-      return;
-    }
-
-    connectingMap[uri] = true;
-    connectionsMap[uri] = createConnection(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    });
-
-    connectionsMap[uri].once('open', () => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      emittersMap[uri]?.emit(openEventName, connectionsMap[uri]);
-      delete emittersMap[uri];
-    });
-
-    connectionsMap[uri].once('error', error => {
-      if (error) {
-        console.error(error);
-      }
-
-      emittersMap[uri]?.emit(
-        errorEventName,
-        new Error('Could not connect to MongoDB')
-      );
-      delete emittersMap[uri];
-    });
+    connection?.once('open', () => resolve(connection));
+    connection?.once('error', reject);
   });
 }

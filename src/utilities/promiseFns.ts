@@ -41,8 +41,6 @@ export const wrapFireAndThrowError = <
     try {
       return await fn(...args);
     } catch (error) {
-      console.error(error);
-
       if (cast<OperationError>(error)?.isPublic) {
         throw error;
       }

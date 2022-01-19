@@ -43,39 +43,44 @@ test('file returned', async () => {
 });
 
 test('file resized', async () => {
-  const context = getTestBaseContext();
-  const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
-  const startWidth = 500;
-  const startHeight = 500;
-  const {file} = await insertFileForTest(
-    context,
-    userToken,
-    organization.resourceId,
-    {},
-    'image',
-    {width: startWidth, height: startHeight}
-  );
+  try {
+    const context = getTestBaseContext();
+    const {userToken} = await insertUserForTest(context);
+    const {organization} = await insertOrganizationForTest(context, userToken);
+    const startWidth = 500;
+    const startHeight = 500;
+    const {file} = await insertFileForTest(
+      context,
+      userToken,
+      organization.resourceId,
+      {},
+      'image',
+      {width: startWidth, height: startHeight}
+    );
 
-  const expectedWidth = 300;
-  const expectedHeight = 300;
-  const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      path: file.name,
-      imageTranformation: {
-        width: expectedWidth,
-        height: expectedHeight,
-      },
-    }
-  );
+    const expectedWidth = 300;
+    const expectedHeight = 300;
+    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        path: file.name,
+        imageTranformation: {
+          width: expectedWidth,
+          height: expectedHeight,
+        },
+      }
+    );
 
-  const result = await getFile(context, instData);
-  assertEndpointResultOk(result);
-  expect(result.file).toEqual(file);
+    const result = await getFile(context, instData);
+    assertEndpointResultOk(result);
+    expect(result.file).toEqual(file);
 
-  const fileMetadata = await sharp(result.buffer).metadata();
-  expect(fileMetadata.width).toEqual(expectedWidth);
-  expect(fileMetadata.height).toEqual(expectedHeight);
+    const fileMetadata = await sharp(result.buffer).metadata();
+    expect(fileMetadata.width).toEqual(expectedWidth);
+    expect(fileMetadata.height).toEqual(expectedHeight);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 });
