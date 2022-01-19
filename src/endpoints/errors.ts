@@ -7,7 +7,7 @@ export class InvalidRequestError extends OperationError {
 
 export class RateLimitError extends OperationError {
   public name = 'RateLimitError';
-  public message = 'Rate limit in progress, please try again';
+  public message = 'Rate limit in progress, please try again later';
 }
 
 export class MalformedRequestError extends OperationError {

@@ -68,7 +68,11 @@ const signup: SignupEndpoint = async (context, instData) => {
 
   // Make the user token available to other requests made with this request data
   instData.agent = makeUserSessionAgent(token, user);
-  fireAndForgetPromise(callComfirmEmail(context, instData));
+  instData.works.push({
+    id: callComfirmEmail.name,
+    promise: fireAndForgetPromise(callComfirmEmail(context, instData)),
+  });
+
   return {
     user: userExtractor(user),
     token: context.session.encodeToken(

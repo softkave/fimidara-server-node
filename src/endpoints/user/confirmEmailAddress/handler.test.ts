@@ -6,6 +6,7 @@ import {
   TokenAudience,
 } from '../../contexts/SessionContext';
 import RequestData from '../../RequestData';
+import {assertUserTokenIsSame} from '../../test-utils/helpers/user';
 import {
   assertEndpointResultOk,
   getTestBaseContext,
@@ -35,6 +36,6 @@ test('email address is confirmed', async () => {
 
   const result = await confirmEmailAddress(context, instData);
   assertEndpointResultOk(result);
-  expect(result.user).toMatchObject(user);
-  expect(result.token).toMatchObject(userTokenStr);
+  expect(result.user.isEmailVerified).toBe(true);
+  assertUserTokenIsSame(context, result.token, userTokenStr);
 });

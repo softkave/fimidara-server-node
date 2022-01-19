@@ -140,7 +140,13 @@ export async function insertUserForTest(
     EndpointReusableQueries.getById(result.user.resourceId)
   );
 
-  return {rawUser, userToken, user: result.user, userTokenStr: result.token};
+  return {
+    rawUser,
+    userToken,
+    user: result.user,
+    userTokenStr: result.token,
+    reqData: instData,
+  };
 }
 
 export async function insertOrganizationForTest(

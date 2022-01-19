@@ -15,7 +15,7 @@ export const updateFolderJoiSchema = Joi.object()
     folder: Joi.object()
       .keys({
         description: validationSchemas.description.allow(null),
-        maxFileSize: fileValidationSchemas.fileSizeInBytes.allow(null),
+        maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
       })
       .required(),
   })

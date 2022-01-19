@@ -1,5 +1,5 @@
 export const fileConstants = {
-  maxFileSizeInBytes: 1024 ** 3, // 1Gb
+  maxFileSizeInBytes: 10 * 1024 ** 3, // 10Gb
   fileNameAndExtensionSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,

@@ -9,9 +9,9 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteFolder from './handler';
-import {IUpdateFolderParams} from './types';
+import {IUpdateFolderInput, IUpdateFolderParams} from './types';
 
-test('folder returned', async () => {
+test('folder updated', async () => {
   const context = getTestBaseContext();
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
@@ -21,7 +21,7 @@ test('folder returned', async () => {
     organization.resourceId
   );
 
-  const updateInput = {
+  const updateInput: IUpdateFolderInput = {
     description: faker.lorem.words(20),
     maxFileSizeInBytes: 9_000_000_000,
   };

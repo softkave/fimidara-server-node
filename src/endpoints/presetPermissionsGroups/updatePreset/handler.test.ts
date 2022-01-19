@@ -80,11 +80,12 @@ test('preset updated', async () => {
   expect(updatedPreset.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 0,
+    order: 1,
   });
-  expect(updatedPreset.presets[0]).toMatchObject({
+
+  expect(updatedPreset.presets[1]).toMatchObject({
     presetId: preset02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
+    order: 2,
   });
 });

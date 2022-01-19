@@ -10,6 +10,7 @@ import {
 } from '../../test-utils/test-utils';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
+import {userExtractor} from '../utils';
 import changePasswordWithCurrentPassword from './handler';
 import {IChangePasswordWithCurrentPasswordEndpointParams} from './types';
 
@@ -24,7 +25,7 @@ test('password changed with current password', async () => {
     password: oldPassword,
   });
 
-  const newPassword = faker.internet.password();
+  const newPassword = 'gt5_g3!op0';
   const instData = RequestData.fromExpressRequest<IChangePasswordWithCurrentPasswordEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
@@ -33,13 +34,14 @@ test('password changed with current password', async () => {
     }
   );
 
+  const oldHash = rawUser.hash;
   const result = await changePasswordWithCurrentPassword(context, instData);
   assertEndpointResultOk(result);
   const updatedUser = await context.data.user.assertGetItem(
     EndpointReusableQueries.getById(result.user.resourceId)
   );
 
-  expect(updatedUser.hash).not.toEqual(rawUser.hash);
+  expect(updatedUser.hash).not.toEqual(oldHash);
   expect(updatedUser.resourceId).toEqual(rawUser.resourceId);
   const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
     mockExpressRequest(),
@@ -51,5 +53,5 @@ test('password changed with current password', async () => {
 
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
-  expect(loginResult.user).toMatchObject(user);
+  expect(loginResult.user).toMatchObject(userExtractor(updatedUser));
 });
