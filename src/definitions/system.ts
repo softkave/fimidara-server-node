@@ -1,4 +1,4 @@
-import {IBaseTokenData, TokenType} from '../endpoints/contexts/SessionContext';
+import {TokenType} from '../endpoints/contexts/SessionContext';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {IProgramAccessToken} from './programAccessToken';
 import {IUser} from './user';

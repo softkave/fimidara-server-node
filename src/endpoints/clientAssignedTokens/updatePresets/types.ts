@@ -1,7 +1,7 @@
-import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
+import {IPublicClientAssignedToken} from '../types';
 
 export interface IUpdateClientAssignedTokenPresetsParams {
   tokenId?: string;
@@ -10,7 +10,7 @@ export interface IUpdateClientAssignedTokenPresetsParams {
 }
 
 export interface IUpdateClientAssignedTokenPresetsResult {
-  token: IClientAssignedToken;
+  token: IPublicClientAssignedToken;
 }
 
 export type UpdateClientAssignedTokenPresetsEndpoint = Endpoint<
