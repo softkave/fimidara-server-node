@@ -20,7 +20,6 @@ import {IPublicProgramAccessToken} from './types';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   resourceId: true,
-  hash: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
