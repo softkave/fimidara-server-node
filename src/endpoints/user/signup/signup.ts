@@ -69,7 +69,7 @@ const signup: SignupEndpoint = async (context, instData) => {
   // Make the user token available to other requests made with this request data
   instData.agent = makeUserSessionAgent(token, user);
   instData.works.push({
-    id: callComfirmEmail.name,
+    id: "callComfirmEmail",
     promise: fireAndForgetPromise(callComfirmEmail(context, instData)),
   });
 
