@@ -8,6 +8,9 @@ interface ISuppliedVariables {
   nodeEnv: string;
   port: string;
   S3Bucket: string;
+  awsAccessKeyId: string;
+  awsSecretAccessKey: string;
+  awsRegion: string;
 }
 
 interface IStaticVariables {
@@ -57,6 +60,18 @@ const extractSchema: Record<
   S3Bucket: {
     required: true,
     name: 'S3_BUCKET',
+  },
+  awsAccessKeyId: {
+    required: true,
+    name: 'AWS_ACCESS_KEY_ID',
+  },
+  awsSecretAccessKey: {
+    required: true,
+    name: 'AWS_SECRET_ACCESS_KEY',
+  },
+  awsRegion: {
+    required: true,
+    name: 'AWS_REGION',
   },
 };
 
