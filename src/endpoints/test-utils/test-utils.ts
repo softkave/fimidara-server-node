@@ -7,7 +7,6 @@ import {
   crudActionsList,
 } from '../../definitions/system';
 import {IUserToken} from '../../definitions/userToken';
-import {getAppVariables, setAppVariables} from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
@@ -58,19 +57,10 @@ import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
+import {getTestVars} from './vars';
 
 export const getTestBaseContext = singletonFunc(() => {
-  setAppVariables({
-    clientDomain: 'localhost:3000',
-    mongoDbURI:
-      'mongodb+srv://softkave:LMOGkLHjho8L2ahx@softkave.ocsur.mongodb.net/files-unit-test?authSource=admin&replicaSet=atlas-hflb2m-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true',
-    jwtSecret: 'test-jwt-secret-5768394',
-    nodeEnv: 'test',
-    port: '5000',
-    S3Bucket: 'files-unit-test',
-  });
-
-  const appVariables = getAppVariables();
+  const appVariables = getTestVars();
   return new BaseContext(
     new MemoryDataProviderContext(),
     new TestEmailProviderContext(),
