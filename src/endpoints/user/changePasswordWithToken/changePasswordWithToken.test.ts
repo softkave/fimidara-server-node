@@ -1,6 +1,7 @@
 import {add} from 'date-fns';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
   TokenAudience,
@@ -8,6 +9,7 @@ import {
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -28,8 +30,18 @@ import changePasswordWithToken from './changePasswordWithToken';
  * - test that user cannot login with old password
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('password changed with token', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {
     password: oldPassword,

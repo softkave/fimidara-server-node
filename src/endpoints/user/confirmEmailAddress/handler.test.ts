@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
   TokenAudience,
@@ -8,6 +9,7 @@ import {
 import RequestData from '../../RequestData';
 import {assertUserTokenIsSame} from '../../test-utils/helpers/user';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -15,8 +17,18 @@ import {
 } from '../../test-utils/test-utils';
 import confirmEmailAddress from './handler';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('email address is confirmed', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const password = faker.internet.password();
   const {user, userTokenStr} = await insertUserForTest(context, {
     password,

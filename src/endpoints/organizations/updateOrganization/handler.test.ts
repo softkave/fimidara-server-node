@@ -1,6 +1,8 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -11,8 +13,18 @@ import OrganizationQueries from '../queries';
 import updateOrganization from './handler';
 import {IUpdateOrganizationInput, IUpdateOrganizationParams} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('organization updated', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const orgUpdateInput: Partial<IUpdateOrganizationInput> = {

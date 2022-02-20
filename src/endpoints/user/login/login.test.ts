@@ -1,6 +1,8 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -15,8 +17,18 @@ import {ILoginParams} from './types';
  * - test that login fails on invalid email and password
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('user login successful with token reuse', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const password = faker.internet.password();
   const {user, userToken} = await insertUserForTest(context, {
     password,

@@ -1,7 +1,9 @@
 import * as faker from 'faker';
 import {SessionAgentType} from '../../../definitions/system';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -21,8 +23,18 @@ import {
  * - [Low] Test that hanlder fails if assigned presets doesn't exist
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('preset updated', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {preset: preset00} = await insertPresetForTest(

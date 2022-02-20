@@ -1,6 +1,8 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -15,8 +17,18 @@ import {IUpdateUserParams} from './types';
  * - test that email verification was voided if email was updated
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('user data updated', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const instData = RequestData.fromExpressRequest<IUpdateUserParams>(
     mockExpressRequestWithUserToken(userToken),

@@ -1,7 +1,9 @@
 import * as faker from 'faker';
 import {SessionAgentType} from '../../../definitions/system';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -20,8 +22,18 @@ import {IUpdateProgramAccessTokenParams} from './types';
  * - [Low] Test that onReferenced feature works
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('program access token updated', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {token: token01} = await insertProgramAccessTokenForTest(

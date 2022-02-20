@@ -1,5 +1,7 @@
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -15,8 +17,18 @@ import {IGetOrganizationRequestsParams} from './types';
  * - Confirm that all the requests returned belong to the org
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('organization collaboration requests returned', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(

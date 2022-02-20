@@ -83,33 +83,3 @@ export class S3FilePersistenceProviderContext
     }
   );
 }
-
-export class TestFilePersistenceProviderContext
-  implements IFilePersistenceProviderContext {
-  public files: IFilePersistenceUploadFileParams[] = [];
-
-  public uploadFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceUploadFileParams) => {
-      this.files.push(params);
-    }
-  );
-
-  public getFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceGetFileParams) => {
-      const file = this.files.find(file => {
-        return file.bucket === params.bucket && file.key === params.key;
-      });
-
-      return {body: file?.body};
-    }
-  );
-
-  public deleteFiles = wrapFireAndThrowError(
-    async (params: IFilePersistenceDeleteFilesParams) => {
-      const keysMap = indexArray(params.keys);
-      this.files = this.files.filter(file => {
-        return !(file.bucket === params.bucket && keysMap[file.key]);
-      });
-    }
-  );
-}

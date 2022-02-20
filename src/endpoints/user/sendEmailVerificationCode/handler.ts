@@ -14,6 +14,8 @@ import {
 import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import UserQueries from '../UserQueries';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {IBaseContext} from '../../contexts/BaseContext';
+import {IUserToken} from '../../../definitions/userToken';
 
 /**
  * sendEmailVerificationCode. Ensure that:
@@ -59,19 +61,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     version: CURRENT_TOKEN_VERSION,
   });
 
-  const encodedToken = context.session.encodeToken(
-    context,
-    token.resourceId,
-    TokenType.UserToken,
-    token.expires
-  );
-
-  const link = `${context.appVariables.clientDomain}${
-    context.appVariables.verifyEmailPath
-  }?${querystring.stringify({
-    [userConstants.defaultTokenQueryParam]: encodedToken,
-  })}`;
-
+  const link = getConfirmEmailLink(context, token);
   await sendConfirmEmailAddressEmail(context, {
     link,
     emailAddress: user.email,
@@ -86,3 +76,18 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
 };
 
 export default sendEmailVerificationCode;
+
+export function getConfirmEmailLink(context: IBaseContext, token: IUserToken) {
+  const encodedToken = context.session.encodeToken(
+    context,
+    token.resourceId,
+    TokenType.UserToken,
+    token.expires
+  );
+
+  return `${context.appVariables.clientDomain}${
+    context.appVariables.verifyEmailPath
+  }?${querystring.stringify({
+    [userConstants.defaultTokenQueryParam]: encodedToken,
+  })}`;
+}

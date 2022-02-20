@@ -22,14 +22,6 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from '../contexts/BaseContext';
-import {
-  SESEmailProviderContext,
-  TestEmailProviderContext,
-} from '../contexts/EmailProviderContext';
-import {
-  S3FilePersistenceProviderContext,
-  TestFilePersistenceProviderContext,
-} from '../contexts/FilePersistenceProviderContext';
 import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
@@ -66,6 +58,11 @@ import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
+import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
+import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
+import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
+import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
+import {ITestBaseContext} from './context/types';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
@@ -79,17 +76,17 @@ async function getTestDataProvider(appVariables: ITestVariables) {
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
-    return new SESEmailProviderContext();
+    return new TestSESEmailProviderContext();
   } else {
-    return new TestEmailProviderContext();
+    return new MockTestEmailProviderContext();
   }
 }
 
 function getTestFileProvider(appVariables: ITestVariables) {
   if (appVariables.useS3FileProvider) {
-    return new S3FilePersistenceProviderContext();
+    return new TestS3FilePersistenceProviderContext();
   } else {
-    return new TestFilePersistenceProviderContext();
+    return new TestMemoryFilePersistenceProviderContext();
   }
 }
 
@@ -101,7 +98,7 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
   }
 }
 
-async function initTestBaseContext() {
+async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
   return new BaseContext(
     await getTestDataProvider(appVariables),

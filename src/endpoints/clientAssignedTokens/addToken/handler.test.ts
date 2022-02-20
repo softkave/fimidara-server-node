@@ -1,6 +1,8 @@
 import {SessionAgentType} from '../../../definitions/system';
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
+  assertContext,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
   insertOrganizationForTest,
@@ -8,8 +10,18 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('client assigned token added', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {preset: preset01} = await insertPresetForTest(
