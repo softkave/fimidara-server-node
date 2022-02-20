@@ -35,7 +35,14 @@ export const getTestVars = singletonFunc((): IAppVariables & ITestVariables => {
     S3Bucket: 'files-unit-test',
   });
 
-  const appVariables = getAppVariables();
+  const appVariables = getAppVariables(true, {
+    clientDomain: 'localhost:3000',
+    jwtSecret: 'test-jwt-secret-5768394',
+    nodeEnv: 'test',
+    port: '5000',
+    S3Bucket: 'files-unit-test',
+  });
+
   const testOnlyVars: ITestOnlyVariables = {
     dataProviderType: envFns.getOptional(
       TestOnlyEnvVariables.DATA_PROVIDER_TYPE,
