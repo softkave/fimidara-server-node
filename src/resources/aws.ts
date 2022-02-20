@@ -1,5 +1,22 @@
+import assert = require('assert');
 import * as aws from 'aws-sdk';
 
-aws.config.loadFromPath('./aws-config.json');
+let awsConfigured = false;
 
-export default aws;
+export function configureAWS(
+  accessKeyId: string,
+  secretAccessKey: string,
+  region: string
+) {
+  aws.config.update({
+    accessKeyId,
+    secretAccessKey,
+    region,
+  });
+
+  awsConfigured = true;
+}
+
+export function assertAWSConfigured() {
+  assert(awsConfigured, 'AWS not configured.');
+}

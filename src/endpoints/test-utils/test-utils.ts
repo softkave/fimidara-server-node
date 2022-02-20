@@ -1,6 +1,8 @@
+import assert = require('assert');
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
+import {getMongoConnection} from '../../db/connection';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -20,9 +22,16 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from '../contexts/BaseContext';
-import {TestEmailProviderContext} from '../contexts/EmailProviderContext';
-import {TestFilePersistenceProviderContext} from '../contexts/FilePersistenceProviderContext';
+import {
+  SESEmailProviderContext,
+  TestEmailProviderContext,
+} from '../contexts/EmailProviderContext';
+import {
+  S3FilePersistenceProviderContext,
+  TestFilePersistenceProviderContext,
+} from '../contexts/FilePersistenceProviderContext';
 import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
+import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
   CURRENT_TOKEN_VERSION,
   IBaseTokenData,
@@ -57,17 +66,59 @@ import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
-import {getTestVars} from './vars';
+import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 
-export const getTestBaseContext = singletonFunc(() => {
+async function getTestDataProvider(appVariables: ITestVariables) {
+  if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
+    const connection = await getMongoConnection(appVariables.mongoDbURI);
+    return new MongoDBDataProviderContext(connection);
+  } else {
+    return new MemoryDataProviderContext();
+  }
+}
+
+function getTestEmailProvider(appVariables: ITestVariables) {
+  if (appVariables.useSESEmailProvider) {
+    return new SESEmailProviderContext();
+  } else {
+    return new TestEmailProviderContext();
+  }
+}
+
+function getTestFileProvider(appVariables: ITestVariables) {
+  if (appVariables.useS3FileProvider) {
+    return new S3FilePersistenceProviderContext();
+  } else {
+    return new TestFilePersistenceProviderContext();
+  }
+}
+
+async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
+  const ctx = await ctxPromise;
+
+  if (ctx.data instanceof MongoDBDataProviderContext) {
+    await ctx.data.closeConnection();
+  }
+}
+
+async function initTestBaseContext() {
   const appVariables = getTestVars();
   return new BaseContext(
-    new MemoryDataProviderContext(),
-    new TestEmailProviderContext(),
-    new TestFilePersistenceProviderContext(),
+    await getTestDataProvider(appVariables),
+    getTestEmailProvider(appVariables),
+    getTestFileProvider(appVariables),
     appVariables
   );
-});
+}
+
+export const getTestBaseContext = singletonFunc(
+  initTestBaseContext,
+  disposeTestBaseContext
+);
+
+export function assertContext(ctx: any): asserts ctx is IBaseContext {
+  assert(ctx, 'Context is not yet initialized.');
+}
 
 export function assertEndpointResultOk(result: IBaseEndpointResult) {
   if (result?.errors?.length) {

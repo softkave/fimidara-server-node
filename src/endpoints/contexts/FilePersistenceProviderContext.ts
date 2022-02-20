@@ -1,7 +1,7 @@
-import aws from '../../resources/aws';
+import {S3} from 'aws-sdk';
+import {assertAWSConfigured} from '../../resources/aws';
 import {indexArray} from '../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
-import singletonFunc from '../../utilities/singletonFunc';
 
 export interface IFilePersistenceUploadFileParams {
   bucket: string;
@@ -32,9 +32,14 @@ export interface IFilePersistenceProviderContext {
   deleteFiles: (params: IFilePersistenceDeleteFilesParams) => Promise<void>;
 }
 
-class S3FilePersistenceProviderContext
+export class S3FilePersistenceProviderContext
   implements IFilePersistenceProviderContext {
-  public s3 = new aws.S3();
+  protected s3: S3;
+
+  constructor() {
+    assertAWSConfigured();
+    this.s3 = new S3();
+  }
 
   public uploadFile = wrapFireAndThrowError(
     async (params: IFilePersistenceUploadFileParams) => {
@@ -108,7 +113,3 @@ export class TestFilePersistenceProviderContext
     }
   );
 }
-
-export const getS3FilePersistenceProviderContext = singletonFunc(
-  () => new S3FilePersistenceProviderContext()
-);

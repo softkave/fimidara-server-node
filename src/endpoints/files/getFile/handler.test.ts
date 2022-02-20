@@ -1,6 +1,8 @@
 import sharp = require('sharp');
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
@@ -11,8 +13,18 @@ import {
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('file returned', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file} = await insertFileForTest(
@@ -44,7 +56,7 @@ test('file returned', async () => {
 
 test('file resized', async () => {
   try {
-    const context = getTestBaseContext();
+    assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {organization} = await insertOrganizationForTest(context, userToken);
     const startWidth = 500;

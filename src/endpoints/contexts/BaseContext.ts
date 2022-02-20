@@ -1,4 +1,4 @@
-import {IAppVariables, getAppVariables} from '../../resources/appVariables';
+import {IAppVariables} from '../../resources/appVariables';
 import {getSessionContext, ISessionContext} from './SessionContext';
 import {IFolder} from '../../definitions/folder';
 import {IFile} from '../../definitions/file';
@@ -30,9 +30,10 @@ export interface IBaseContextDataProviders {
 export interface IBaseContext<
   T extends IBaseContextDataProviders = IBaseContextDataProviders,
   E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext
+  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
+  V extends IAppVariables = IAppVariables
 > {
-  appVariables: IAppVariables;
+  appVariables: V;
   session: ISessionContext;
   data: T;
   email: E;
