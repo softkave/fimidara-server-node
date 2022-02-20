@@ -2,5 +2,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFiles: ['.jest/setupEnvVars.integration-test.js'],
+  globalSetup: '/.jest/globalSetup.integration-test.js',
+  globalTeardown: '/.jest/globalTeardown.js',
 };

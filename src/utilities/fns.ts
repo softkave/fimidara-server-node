@@ -14,6 +14,8 @@ export function getFirstArg<T extends any[]>(...args: T): T[0] {
   return args[0];
 }
 
+export async function noopAsync(...args: any) {}
+
 export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
   baseConstructors.forEach(baseConstructor => {
     Object.getOwnPropertyNames(baseConstructor.prototype).forEach(name => {

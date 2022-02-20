@@ -1,7 +1,9 @@
 import {S3} from 'aws-sdk';
+import {IAppVariables} from '../../resources/appVariables';
 import {assertAWSConfigured} from '../../resources/aws';
 import {indexArray} from '../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {IBaseContext} from './BaseContext';
 
 export interface IFilePersistenceUploadFileParams {
   bucket: string;
@@ -30,6 +32,7 @@ export interface IFilePersistenceProviderContext {
   uploadFile: (params: IFilePersistenceUploadFileParams) => Promise<void>;
   getFile: (params: IFilePersistenceGetFileParams) => Promise<IPersistedFile>;
   deleteFiles: (params: IFilePersistenceDeleteFilesParams) => Promise<void>;
+  ensureBucketReady: (name: string, region: string) => Promise<void>;
 }
 
 export class S3FilePersistenceProviderContext
@@ -82,4 +85,43 @@ export class S3FilePersistenceProviderContext
         .promise();
     }
   );
+
+  public ensureBucketReady = wrapFireAndThrowError(
+    async (name: string, region: string) => {
+      const response = await this.s3
+        .headBucket({
+          Bucket: name,
+        })
+        .promise();
+
+      const exists = 200;
+      const notFound = 404;
+
+      if (response.$response.httpResponse.statusCode === exists) {
+        return;
+      } else if (response.$response.httpResponse.statusCode === notFound) {
+        await this.s3
+          .createBucket({
+            Bucket: name,
+            ACL: 'private',
+            CreateBucketConfiguration: {
+              LocationConstraint: region,
+            },
+          })
+          .promise();
+      }
+    }
+  );
+}
+
+export async function ensureAppBucketsReady(
+  fileProvider: IFilePersistenceProviderContext,
+  appVariables: IAppVariables
+) {
+  return Promise.all([
+    fileProvider.ensureBucketReady(
+      appVariables.S3Bucket,
+      appVariables.awsRegion
+    ),
+  ]);
 }

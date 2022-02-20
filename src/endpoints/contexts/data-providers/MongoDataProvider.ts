@@ -9,17 +9,25 @@ import {
   IDataProviderFilter,
 } from './DataProvider';
 
+export interface IMongoDataProvider<T extends object> extends IDataProvider<T> {
+  model: Model<Document<T>>;
+  throwNotFound?: () => void;
+}
+
 export default class MongoDataProvider<T extends {[key: string]: any}>
-  implements IDataProvider<T> {
-  constructor(
-    private model: Model<Document<T>>,
-    private throwNotFound?: () => void
-  ) {}
+  implements IMongoDataProvider<T> {
+  public model: Model<Document<T>>;
+  public throwNotFound?: () => void;
+
+  constructor(model: Model<Document<T>>, throwNotFound?: () => void) {
+    this.model = model;
+    this.throwNotFound = throwNotFound;
+  }
 
   checkItemExists = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>) => {
       const mongoQuery = getMongoQueryFromFilter(filter);
-      return await this.model.exists(mongoQuery);
+      return !!(await this.model.exists(mongoQuery).exec())?._id;
     }
   );
 
@@ -129,24 +137,9 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
     await this.model.insertMany(data);
   });
 
-  // bulkUpdateItems = wrapFireAndThrowError(
-  //   async (
-  //     items: Array<{
-  //       filter: IDataProviderFilter<T>;
-  //       data: Partial<T>;
-  //       updateFirstItemOnly?: boolean;
-  //     }>
-  //   ) => {
-  //     await this.model.bulkWrite(
-  //       items.map(item => ({
-  //         [item.updateFirstItemOnly ? 'updateOne' : 'updateMany']: {
-  //           filter: getMongoQueryFromFilter(item.filter),
-  //           update: item.data,
-  //         },
-  //       }))
-  //     );
-  //   }
-  // );
+  deleteAll = wrapFireAndThrowError(async () => {
+    await this.model.deleteMany({}).exec();
+  });
 }
 
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {

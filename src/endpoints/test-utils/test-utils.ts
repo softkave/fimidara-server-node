@@ -2,6 +2,7 @@ import assert = require('assert');
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
+import allSettled = require('promise.allsettled');
 import {getMongoConnection} from '../../db/connection';
 import {
   AppResourceType,
@@ -22,6 +23,7 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from '../contexts/BaseContext';
+import {ensureAppBucketsReady} from '../contexts/FilePersistenceProviderContext';
 import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
@@ -82,20 +84,38 @@ function getTestEmailProvider(appVariables: ITestVariables) {
   }
 }
 
-function getTestFileProvider(appVariables: ITestVariables) {
+async function getTestFileProvider(appVariables: ITestVariables) {
   if (appVariables.useS3FileProvider) {
-    return new TestS3FilePersistenceProviderContext();
+    const fileProvider = new TestS3FilePersistenceProviderContext();
+    await ensureAppBucketsReady(fileProvider, appVariables);
+    return fileProvider;
   } else {
     return new TestMemoryFilePersistenceProviderContext();
   }
 }
 
+async function waitForCleanup(promises: Promise<any>[]) {
+  const result = await allSettled(promises);
+  result.forEach(item => {
+    if (item.status === 'rejected') {
+      console.error(item.reason);
+    }
+  });
+}
+
 async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
   const ctx = await ctxPromise;
+  const promises: Promise<any>[] = [];
 
   if (ctx.data instanceof MongoDBDataProviderContext) {
-    await ctx.data.closeConnection();
+    promises.push(ctx.data.closeConnection());
   }
+
+  if (ctx.fileBackend instanceof TestS3FilePersistenceProviderContext) {
+    promises.push(ctx.fileBackend.cleanupBucket(ctx.appVariables.S3Bucket));
+  }
+
+  await waitForCleanup(promises);
 }
 
 async function initTestBaseContext(): Promise<ITestBaseContext> {
@@ -103,7 +123,7 @@ async function initTestBaseContext(): Promise<ITestBaseContext> {
   return new BaseContext(
     await getTestDataProvider(appVariables),
     getTestEmailProvider(appVariables),
-    getTestFileProvider(appVariables),
+    await getTestFileProvider(appVariables),
     appVariables
   );
 }
