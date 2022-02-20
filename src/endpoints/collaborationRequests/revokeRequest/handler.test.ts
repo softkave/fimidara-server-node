@@ -1,7 +1,9 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -9,12 +11,21 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import CollaborationRequestQueries from '../queries';
 import revokeRequest from './handler';
 import {IRevokeRequestParams} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('collaboration request revoked', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);

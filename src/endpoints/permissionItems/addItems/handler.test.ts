@@ -1,5 +1,7 @@
 import {AppResourceType} from '../../../definitions/system';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  assertContext,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPermissionItemsForTest01,
@@ -16,8 +18,18 @@ import {
  * [Medium] - Test for different resources and owners
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('permission items added', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {preset} = await insertPresetForTest(

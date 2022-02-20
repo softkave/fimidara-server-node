@@ -1,8 +1,3 @@
-/**
- * TODO
- * - test for different entities, resource types, agents, owners, etc.
- */
-
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -14,15 +9,32 @@ import {
   insertOrganizationForTest,
   insertFileForTest,
   mockExpressRequestWithUserToken,
+  assertContext,
 } from '../../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../../user/errors';
+import {IBaseContext} from '../../BaseContext';
 import {
   checkAuthorization,
   getFilePermissionOwners,
 } from '../checkAuthorizaton';
 
+/**
+ * TODO
+ * - test for different entities, resource types, agents, owners, etc.
+ */
+
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('auth is granted when it should be', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file} = await insertFileForTest(
@@ -50,7 +62,7 @@ test('auth is granted when it should be', async () => {
 });
 
 test('auth fails when it should fail', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {userToken: userToken02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
@@ -80,7 +92,7 @@ test('auth fails when it should fail', async () => {
 });
 
 test('should throw when noThrow is turned off', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {userToken: userToken02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);

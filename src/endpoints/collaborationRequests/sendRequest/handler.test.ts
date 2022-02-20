@@ -1,8 +1,10 @@
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
+  assertContext,
   getTestBaseContext,
   insertOrganizationForTest,
   insertRequestForTest,
@@ -10,8 +12,18 @@ import {
 } from '../../test-utils/test-utils';
 import {ICollaborationRequestInput} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('collaboration request sent', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);

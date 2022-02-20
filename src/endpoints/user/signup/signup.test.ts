@@ -1,5 +1,7 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  assertContext,
   getTestBaseContext,
   insertUserForTest,
 } from '../../test-utils/test-utils';
@@ -12,8 +14,18 @@ import {userExtractor} from '../utils';
  * - test that email verification email is sent
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('user signup successful with token creation', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const userInput = {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),

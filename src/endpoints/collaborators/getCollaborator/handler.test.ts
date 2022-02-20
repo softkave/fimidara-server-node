@@ -1,6 +1,8 @@
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -11,8 +13,18 @@ import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
 import {IGetCollaboratorParams} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('collaborator returned', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const instData = RequestData.fromExpressRequest<IGetCollaboratorParams>(

@@ -1,7 +1,9 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -18,8 +20,18 @@ import {IChangePasswordParameters} from './types';
  * TODO:
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('password changed', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const oldPassword = faker.internet.password();
   const {user, userToken, rawUser} = await insertUserForTest(context, {
     password: oldPassword,

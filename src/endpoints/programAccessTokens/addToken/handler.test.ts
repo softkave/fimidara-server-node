@@ -1,5 +1,7 @@
 import {SessionAgentType} from '../../../definitions/system';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  assertContext,
   getTestBaseContext,
   insertOrganizationForTest,
   insertPresetForTest,
@@ -14,8 +16,18 @@ import ProgramAccessTokenQueries from '../queries';
  * [Low] - Test that hanlder fails if presets don't exist
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('program access token added', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {preset: preset01} = await insertPresetForTest(

@@ -1,7 +1,9 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
@@ -9,7 +11,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import CollaborationRequestQueries from '../queries';
 import respondToRequest from './handler';
 import {IRespondToRequestParams} from './types';
 
@@ -18,8 +19,18 @@ import {IRespondToRequestParams} from './types';
  * - Check if user declined, the update is "declined"
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('collaboration request declined', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02, userToken: user02Token} = await insertUserForTest(
     context

@@ -1,4 +1,6 @@
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  assertContext,
   getTestBaseContext,
   insertFolderForTest,
   insertOrganizationForTest,
@@ -12,8 +14,18 @@ import FolderQueries from '../queries';
  * - Test on root
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('folder created', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {folder} = await insertFolderForTest(

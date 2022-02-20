@@ -3,6 +3,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import FileQueries from '../../files/queries';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
@@ -22,6 +23,16 @@ import {IDeleteFolderParams} from './types';
  * - Test path strings
  */
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 async function assertFolderDeleted(context: IBaseContext, id: string) {
   const exists = await context.data.folder.checkItemExists(
     FolderQueries.getById(id)
@@ -39,7 +50,7 @@ async function assertFileDeleted(context: IBaseContext, id: string) {
 }
 
 test('folder deleted', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {folder: folder01} = await insertFolderForTest(

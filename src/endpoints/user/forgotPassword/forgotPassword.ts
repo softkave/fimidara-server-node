@@ -23,6 +23,38 @@ import {IUserToken} from '../../../definitions/userToken';
  * - Email is sent with a change password link
  */
 
+const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
+  const data = validate(instData.data, forgotPasswordJoiSchema);
+  const user = await context.data.user.assertGetItem(
+    UserQueries.getByEmail(data.email)
+  );
+
+  const expiration = getForgotPasswordExpiration();
+  const forgotToken = await context.data.userToken.saveItem({
+    audience: [TokenAudience.ChangePassword],
+    issuedAt: getDateString(),
+    resourceId: getNewId(),
+    userId: user.resourceId,
+    version: CURRENT_TOKEN_VERSION,
+    expires: expiration.valueOf(),
+  });
+
+  const link = getForgotPasswordLinkFromToken(context, forgotToken);
+  await sendChangePasswordEmail(context, {
+    expiration,
+    link,
+    emailAddress: user.email,
+  });
+};
+
+export default forgotPassword;
+
+export function getForgotPasswordExpiration() {
+  return add(new Date(), {
+    days: userConstants.changePasswordTokenExpDurationInDays,
+  });
+}
+
 export function getForgotPasswordLinkFromToken(
   context: IBaseContext,
   forgotToken: IUserToken
@@ -42,32 +74,3 @@ export function getForgotPasswordLinkFromToken(
 
   return link;
 }
-
-const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
-  const data = validate(instData.data, forgotPasswordJoiSchema);
-  const user = await context.data.user.assertGetItem(
-    UserQueries.getByEmail(data.email)
-  );
-
-  const expiration = add(new Date(), {
-    days: userConstants.changePasswordTokenExpDurationInDays,
-  });
-
-  const forgotToken = await context.data.userToken.saveItem({
-    audience: [TokenAudience.ChangePassword],
-    issuedAt: getDateString(),
-    resourceId: getNewId(),
-    userId: user.resourceId,
-    version: CURRENT_TOKEN_VERSION,
-    expires: expiration.valueOf(),
-  });
-
-  const link = getForgotPasswordLinkFromToken(context, forgotToken);
-  await sendChangePasswordEmail(context, {
-    expiration,
-    link,
-    emailAddress: user.email,
-  });
-};
-
-export default forgotPassword;

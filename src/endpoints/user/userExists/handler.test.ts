@@ -1,6 +1,8 @@
 import * as faker from 'faker';
+import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
+  assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertUserForTest,
@@ -9,8 +11,18 @@ import {
 import userExists from './handler';
 import {IUserExistsParams} from './types';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('returns true if user exists', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {user} = await insertUserForTest(context);
   const instData = RequestData.fromExpressRequest<IUserExistsParams>(
     mockExpressRequest(),
@@ -25,7 +37,7 @@ test('returns true if user exists', async () => {
 });
 
 test('returns false if user does not exists', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const instData = RequestData.fromExpressRequest<IUserExistsParams>(
     mockExpressRequest(),
     {

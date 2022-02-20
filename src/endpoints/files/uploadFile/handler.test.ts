@@ -1,4 +1,6 @@
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  assertContext,
   getTestBaseContext,
   insertFileForTest,
   insertOrganizationForTest,
@@ -6,8 +8,18 @@ import {
 } from '../../test-utils/test-utils';
 import FileQueries from '../queries';
 
+let context: IBaseContext | null = null;
+
+beforeAll(async () => {
+  context = await getTestBaseContext();
+});
+
+afterAll(async () => {
+  await getTestBaseContext.release();
+});
+
 test('file returned', async () => {
-  const context = getTestBaseContext();
+  assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const {file, buffer} = await insertFileForTest(
