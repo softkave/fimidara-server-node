@@ -1,9 +1,9 @@
 import {isEqual} from 'lodash';
 import {format} from 'util';
-import aws from '../../resources/aws';
+import {SES} from 'aws-sdk';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
-import singletonFunc from '../../utilities/singletonFunc';
 import {IBaseContext} from './BaseContext';
+import {assertAWSConfigured} from '../../resources/aws';
 
 export interface ISendEmailParams {
   destination: string[];
@@ -19,8 +19,13 @@ export interface IEmailProviderContext {
   sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
 }
 
-class SESEmailProviderContext implements IEmailProviderContext {
-  private ses = new aws.SES();
+export class SESEmailProviderContext implements IEmailProviderContext {
+  protected ses: SES;
+
+  constructor() {
+    assertAWSConfigured();
+    this.ses = new SES();
+  }
 
   public sendEmail = wrapFireAndThrowError(
     async (context: IBaseContext, params: ISendEmailParams) => {
@@ -97,7 +102,3 @@ export class TestEmailProviderContext implements IEmailProviderContext {
     }
   }
 }
-
-export const getSESEmailProviderContext = singletonFunc(
-  () => new SESEmailProviderContext()
-);

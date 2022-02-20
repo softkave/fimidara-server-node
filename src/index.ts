@@ -18,9 +18,10 @@ import setupOrganizationsRESTEndpoints from './endpoints/organizations/setupREST
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
-import {getSESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {getS3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
 import {getAppVariables} from './resources/appVariables';
+import {configureAWS} from './resources/aws';
+import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
+import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
 
 console.log('server initialization');
 
@@ -67,12 +68,18 @@ function setupJWT(ctx: IBaseContext) {
 
 async function setup() {
   const appVariables = getAppVariables();
+  configureAWS(
+    appVariables.awsAccessKeyId,
+    appVariables.awsSecretAccessKey,
+    appVariables.awsRegion
+  );
+
   const connection = await getMongoConnection(appVariables.mongoDbURI);
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
   const ctx = new BaseContext(
     mongoDBDataProvider,
-    getSESEmailProviderContext(),
-    getS3FilePersistenceProviderContext(),
+    new SESEmailProviderContext(),
+    new S3FilePersistenceProviderContext(),
     appVariables
   );
 

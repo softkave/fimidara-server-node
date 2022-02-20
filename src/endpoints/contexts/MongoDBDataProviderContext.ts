@@ -62,8 +62,8 @@ export interface IBaseContextDatabaseModels {
 
 export default class MongoDBDataProviderContext
   implements IBaseContextDataProviders {
-  private dbConnection: Connection;
-  private db: IBaseContextDatabaseModels;
+  protected connection: Connection;
+  protected db: IBaseContextDatabaseModels;
 
   public folder: IDataProvider<IFolder>;
   public file: IDataProvider<IFile>;
@@ -77,7 +77,7 @@ export default class MongoDBDataProviderContext
   public userToken: IDataProvider<IUserToken>;
 
   constructor(connection: Connection) {
-    this.dbConnection = connection;
+    this.connection = connection;
     this.db = {
       user: getUserModel(connection),
       organization: getOrganizationModel(connection),
@@ -122,5 +122,9 @@ export default class MongoDBDataProviderContext
       this.db.userToken,
       throwUserTokenNotFound
     );
+  }
+
+  async closeConnection() {
+    await this.connection.close();
   }
 }

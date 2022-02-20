@@ -1,21 +1,34 @@
-import {setAppVariables, getAppVariables} from '../../resources/appVariables';
+import {merge} from 'lodash';
+import {
+  setAppVariables,
+  getAppVariables,
+  IAppVariables,
+  envFns,
+} from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
 
-enum TestDataProviderType {
+export enum TestDataProviderType {
   Memory = 'memory',
   Mongo = 'mongo',
 }
 
-export interface ITestVariables {
-  dataProviderType?: TestDataProviderType;
+export interface ITestOnlyVariables {
+  dataProviderType?: TestDataProviderType | typeof TestDataProviderType;
   useSESEmailProvider?: boolean;
   useS3FileProvider?: boolean;
 }
 
-export const getTestVars = singletonFunc(() => {
+export enum TestOnlyEnvVariables {
+  DATA_PROVIDER_TYPE = 'DATA_PROVIDER_TYPE',
+  USE_SES_EMAIL_PROVIDER = 'USE_SES_EMAIL_PROVIDER',
+  USE_S3_FILE_PROVIDER = 'USE_S3_FILE_PROVIDER',
+}
+
+export type ITestVariables = ITestOnlyVariables & IAppVariables;
+
+export const getTestVars = singletonFunc((): IAppVariables & ITestVariables => {
   setAppVariables({
     clientDomain: 'localhost:3000',
-    mongoDbURI: process.env.MONGO_URI,
     jwtSecret: 'test-jwt-secret-5768394',
     nodeEnv: 'test',
     port: '5000',
@@ -23,5 +36,23 @@ export const getTestVars = singletonFunc(() => {
   });
 
   const appVariables = getAppVariables();
-  return appVariables;
+  const testOnlyVars: ITestOnlyVariables = {
+    dataProviderType: envFns.getOptional(
+      TestOnlyEnvVariables.DATA_PROVIDER_TYPE,
+      TestDataProviderType.Memory,
+      (...args) => envFns.getEnum(args[0], args[1], TestDataProviderType)
+    ),
+    useSESEmailProvider: envFns.getOptional(
+      TestOnlyEnvVariables.USE_SES_EMAIL_PROVIDER,
+      false,
+      envFns.getBoolean
+    ),
+    useS3FileProvider: envFns.getOptional(
+      TestOnlyEnvVariables.USE_S3_FILE_PROVIDER,
+      false,
+      envFns.getBoolean
+    ),
+  };
+
+  return merge(appVariables, testOnlyVars);
 });

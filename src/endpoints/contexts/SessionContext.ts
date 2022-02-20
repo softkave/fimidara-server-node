@@ -6,7 +6,7 @@ import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
-import cast, {denull} from '../../utilities/fns';
+import cast, {removeNull} from '../../utilities/fns';
 import {
   wrapFireAndThrowError,
   wrapFireAndThrowErrorNoAsync,
@@ -301,7 +301,7 @@ export function makeUserSessionAgent(
 ): ISessionAgent {
   return {
     userToken,
-    user: denull(user),
+    user: removeNull(user),
     agentId: userToken.userId,
     agentType: SessionAgentType.User,
     tokenId: userToken.resourceId,

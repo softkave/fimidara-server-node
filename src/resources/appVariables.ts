@@ -1,5 +1,77 @@
-import {merge} from 'lodash';
-import cast from '../utilities/fns';
+import assert = require('assert');
+import {isObject, isUndefined, merge} from 'lodash';
+import cast, {getFirstArg} from '../utilities/fns';
+
+type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
+
+function fromEnv(envName: string) {
+  return process.env[envName];
+}
+
+function getRequired<T extends any = any>(
+  envName: string,
+  processFn: EnvProcessFn<T> = getFirstArg
+): ReturnType<typeof processFn> {
+  const value = fromEnv(envName);
+  assert(isUndefined(value), `${envName} is required`);
+  return processFn(value, envName);
+}
+
+function getOptional<T extends any = any>(
+  envName: string,
+  defaultValue: any = undefined,
+  processFn: EnvProcessFn<T> = getFirstArg
+): ReturnType<typeof processFn> | undefined {
+  const value = fromEnv(envName);
+
+  if (isUndefined(value) && isUndefined(defaultValue)) {
+    return undefined;
+  }
+
+  return processFn(value, envName);
+}
+
+function getBoolean(value: string = '') {
+  return value.toLowerCase() === 'true';
+}
+
+function getNumber(value: string = '', envName: string) {
+  const num = Number(value);
+  assert.ok(Number.isNaN(num), `${envName} is not a number`);
+  return num;
+}
+
+function getEnum<E>(value: string, envName: string, enumBase: E): E {
+  assert(isObject(enumBase), `${envName} enum base is not an enum or object`);
+  const enumValues = Object.values(enumBase);
+  assert(
+    enumValues.includes(value),
+    `${envName} value '${value}' must be one of '${enumValues.join("', '")}'`
+  );
+
+  return cast<E>(value);
+}
+
+export const envFns = {
+  getRequired,
+  getOptional,
+  getBoolean,
+  getNumber,
+  getEnum,
+  fromEnv,
+};
+
+export enum AppEnvVariables {
+  CLIENT_DOMAIN = 'CLIENT_DOMAIN',
+  MONGODB_URI = 'MONGODB_URI',
+  JWT_SECRET = 'JWT_SECRET',
+  NODE_ENV = 'NODE_ENV',
+  PORT = 'PORT',
+  S3_BUCKET = 'S3_BUCKET',
+  AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
+  AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
+  AWS_REGION = 'AWS_REGION',
+}
 
 interface ISuppliedVariables {
   clientDomain: string;
@@ -24,58 +96,58 @@ interface IStaticVariables {
   verifyEmailPath: string;
 }
 
-export type IAppVariables = ISuppliedVariables & IStaticVariables;
+export interface IAppVariables extends ISuppliedVariables, IStaticVariables {}
 
 const extractSchema: Record<
   keyof ISuppliedVariables,
   {
     required: boolean;
-    name: string;
+    name: AppEnvVariables;
     defaultValue?: string;
   }
 > = {
   clientDomain: {
     required: false,
-    name: 'CLIENT_DOMAIN',
+    name: AppEnvVariables.CLIENT_DOMAIN,
     // defaultValue: 'https://www.files-by-softkave.com',
     defaultValue: 'https://files.softkave.com',
   },
   mongoDbURI: {
     required: true,
-    name: 'MONGODB_URI',
+    name: AppEnvVariables.MONGODB_URI,
   },
   jwtSecret: {
     required: true,
-    name: 'JWT_SECRET',
+    name: AppEnvVariables.JWT_SECRET,
   },
   nodeEnv: {
     required: false,
-    name: 'NODE_ENV',
+    name: AppEnvVariables.NODE_ENV,
     defaultValue: 'development',
   },
   port: {
     required: true,
-    name: 'PORT',
+    name: AppEnvVariables.PORT,
   },
   S3Bucket: {
     required: true,
-    name: 'S3_BUCKET',
+    name: AppEnvVariables.S3_BUCKET,
   },
   awsAccessKeyId: {
     required: true,
-    name: 'AWS_ACCESS_KEY_ID',
+    name: AppEnvVariables.AWS_ACCESS_KEY_ID,
   },
   awsSecretAccessKey: {
     required: true,
-    name: 'AWS_SECRET_ACCESS_KEY',
+    name: AppEnvVariables.AWS_SECRET_ACCESS_KEY,
   },
   awsRegion: {
     required: true,
-    name: 'AWS_REGION',
+    name: AppEnvVariables.AWS_REGION,
   },
 };
 
-const defaultStaticVars = {
+export const defaultStaticVars = {
   appName: 'Files by Softkave',
   appDefaultEmailAddressFrom: 'hello@files.softkave.com',
   awsEmailEncoding: 'UTF-8',
@@ -89,8 +161,6 @@ const defaultStaticVars = {
 let appVariables: IAppVariables = cast({
   ...defaultStaticVars,
 });
-
-let varsChecked = false;
 
 export function checkRequiredSuppliedVariables(base: IAppVariables) {
   // [Env name, key name]
@@ -117,7 +187,7 @@ export function checkRequiredSuppliedVariables(base: IAppVariables) {
 }
 
 export function extractEnvVariables(
-  base: Partial<IAppVariables>
+  base: Partial<IAppVariables> = {}
 ): IAppVariables {
   const envVariables = Object.keys(extractSchema).reduce((accumulator, key) => {
     const meta = extractSchema[key as keyof ISuppliedVariables];
@@ -140,7 +210,6 @@ export function extractEnvVariables(
     ...envVariables,
   };
 
-  checkRequiredSuppliedVariables(vars);
   return vars;
 }
 
@@ -148,11 +217,11 @@ export function setAppVariables(base: Partial<IAppVariables>) {
   appVariables = merge({}, appVariables, base);
 }
 
-export function getAppVariables() {
-  if (!varsChecked) {
-    checkRequiredSuppliedVariables(appVariables);
-    varsChecked = true;
+export function getAppVariables(extractFromEnv = true) {
+  if (extractFromEnv) {
+    setAppVariables(extractEnvVariables());
   }
 
+  checkRequiredSuppliedVariables(appVariables);
   return appVariables;
 }
