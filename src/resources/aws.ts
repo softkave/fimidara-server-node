@@ -8,9 +8,9 @@ export function configureAWS(
   secretAccessKey: string,
   region: string
 ) {
+  const credentials = new aws.Credentials({accessKeyId, secretAccessKey});
   aws.config.update({
-    accessKeyId,
-    secretAccessKey,
+    credentials,
     region,
   });
 

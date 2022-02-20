@@ -34,7 +34,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await connection?.close();
+  assert(connection);
+  const orgModel = getOrganizationModel(connection);
+  await orgModel.deleteMany({}).exec();
+  await connection.close();
 });
 
 async function insertOrganizationMongo(

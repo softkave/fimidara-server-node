@@ -285,22 +285,7 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
     data.forEach(item => this.items.push(item));
   });
 
-  // bulkUpdateItems = wrapFireAndThrowError(
-  //   async (
-  //     items: Array<{
-  //       filter: IDataProviderFilter<T>;
-  //       data: Partial<T>;
-  //       updateFirstItemOnly?: boolean;
-  //     }>
-  //   ) => {
-  //     const works = items.map(input => {
-  //       if (input.updateFirstItemOnly) {
-  //         return this.updateItem(input.filter, input.data);
-  //       } else {
-  //         return this.updateManyItems(input.filter, input.data);
-  //       }
-  //     });
-  //     Promise.all(works as Array<Promise<void>>);
-  //   }
-  // );
+  deleteAll = wrapFireAndThrowError(async () => {
+    this.items = [];
+  });
 }

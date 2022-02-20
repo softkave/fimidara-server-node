@@ -111,14 +111,6 @@ export interface IDataProvider<T extends {[key: string]: any}> {
     data: Partial<T>
   ) => Promise<void>;
 
-  // bulkUpdateItems: (
-  //   items: Array<{
-  //     filter: IDataProviderFilter<T>;
-  //     data: Partial<T>;
-  //     updateFirstItemOnly?: boolean;
-  //   }>
-  // ) => Promise<void>;
-
   assertUpdateItem: (
     filter: IDataProviderFilter<T>,
     data: Partial<T>,
@@ -138,4 +130,5 @@ export interface IDataProvider<T extends {[key: string]: any}> {
 
   saveItem: (data: T) => Promise<T>;
   bulkSaveItems: (data: T[]) => Promise<void>;
+  deleteAll: () => Promise<void>;
 }

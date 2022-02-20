@@ -21,7 +21,10 @@ import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessToke
 import {getAppVariables} from './resources/appVariables';
 import {configureAWS} from './resources/aws';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
+import {
+  ensureAppBucketsReady,
+  S3FilePersistenceProviderContext,
+} from './endpoints/contexts/FilePersistenceProviderContext';
 
 console.log('server initialization');
 
@@ -76,10 +79,12 @@ async function setup() {
 
   const connection = await getMongoConnection(appVariables.mongoDbURI);
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
+  const fileProvider = new S3FilePersistenceProviderContext();
+  await ensureAppBucketsReady(fileProvider, appVariables);
   const ctx = new BaseContext(
     mongoDBDataProvider,
     new SESEmailProviderContext(),
-    new S3FilePersistenceProviderContext(),
+    fileProvider,
     appVariables
   );
 
