@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {isObject, isUndefined, merge} from 'lodash';
+import {isObject, isUndefined, merge, mergeWith} from 'lodash';
 import cast, {getFirstArg} from '../utilities/fns';
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
@@ -213,13 +213,40 @@ export function extractEnvVariables(
   return vars;
 }
 
-export function setAppVariables(base: Partial<IAppVariables>) {
-  appVariables = merge({}, appVariables, base);
+export function setAppVariables(
+  ...additionalVars: Array<Partial<IAppVariables>>
+) {
+  appVariables = merge({}, appVariables, additionalVars);
 }
 
-export function getAppVariables(extractFromEnv = true) {
+export function setAppVariablesIfUndefined(
+  ...additionalVars: Array<Partial<IAppVariables>>
+) {
+  appVariables = mergeWith({}, appVariables, additionalVars, objValue => {
+    if (objValue) {
+      return objValue;
+    }
+  });
+}
+
+export function getAppVariables(
+  extractFromEnv = true,
+  base?: Partial<IAppVariables>,
+
+  // set to true if you want base (if provided) to
+  // override the app variables, false otherwise
+  mergeBaseIfNotExist = true
+) {
   if (extractFromEnv) {
     setAppVariables(extractEnvVariables());
+  }
+
+  if (base) {
+    if (mergeBaseIfNotExist) {
+      setAppVariablesIfUndefined(base);
+    } else {
+      setAppVariables(base);
+    }
   }
 
   checkRequiredSuppliedVariables(appVariables);
