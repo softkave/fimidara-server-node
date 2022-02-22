@@ -14,7 +14,6 @@ import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
 import OrganizationQueries from '../../organizations/queries';
 import EndpointReusableQueries from '../../queries';
-import CollaborationRequestQueries from '../queries';
 import {
   checkCollaborationRequestAuthorization02,
   collabRequestExtractor,

@@ -46,23 +46,24 @@ test('collaborator presets updated', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IUpdateCollaboratorPresetsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      collaboratorId: user.resourceId,
-      presets: [
-        {
-          presetId: preset01.resourceId,
-          order: 1,
-        },
-        {
-          presetId: preset02.resourceId,
-          order: 2,
-        },
-      ],
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateCollaboratorPresetsParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        collaboratorId: user.resourceId,
+        presets: [
+          {
+            presetId: preset01.resourceId,
+            order: 1,
+          },
+          {
+            presetId: preset02.resourceId,
+            order: 2,
+          },
+        ],
+      }
+    );
 
   const result = await updateCollaboratorPresets(context, instData);
   assertEndpointResultOk(result);

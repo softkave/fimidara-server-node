@@ -37,9 +37,11 @@ afterAll(async () => {
 
 test('email verification code sent', async () => {
   assertContext(context);
-  const {user, userToken, reqData: insertUserReqData} = await insertUserForTest(
-    context
-  );
+  const {
+    user,
+    userToken,
+    reqData: insertUserReqData,
+  } = await insertUserForTest(context);
 
   await waitForWorks(insertUserReqData.works);
   const instData = RequestData.fromExpressRequest(

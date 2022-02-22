@@ -19,9 +19,7 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
 
 export type IProgramAccessTokenDocument = Document<IProgramAccessToken>;
 
-const schema = new Schema<IProgramAccessTokenDocument>(
-  programAccessTokenSchema
-);
+const schema = new Schema<IProgramAccessToken>(programAccessTokenSchema);
 const modelName = 'program-access-token';
 const collectionName = 'program-access-tokens';
 

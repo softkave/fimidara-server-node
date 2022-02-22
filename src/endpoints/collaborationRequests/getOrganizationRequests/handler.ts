@@ -6,7 +6,6 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
-import CollaborationRequestQueries from '../queries';
 import {collabRequestListExtractor} from '../utils';
 import {GetOrganizationRequestsEndpoint} from './types';
 import {getOrganizationRequestsJoiSchema} from './validation';

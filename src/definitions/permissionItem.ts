@@ -3,7 +3,7 @@ import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 export interface IPermissionItem {
   resourceId: string;
   organizationId: string;
-  createdAt: string;
+  createdAt: Date | string;
   createdBy: IAgent;
 
   // Owners are file, folder and organization

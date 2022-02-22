@@ -21,7 +21,7 @@ const permissionItemSchema = ensureTypeFields<IPermissionItem>({
 
 export type IPermissionItemDocument = Document<IPermissionItem>;
 
-const schema = new Schema<IPermissionItemDocument>(permissionItemSchema);
+const schema = new Schema<IPermissionItem>(permissionItemSchema);
 const modelName = 'permission-item';
 const collectionName = 'permission-items';
 

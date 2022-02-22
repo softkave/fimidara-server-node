@@ -131,16 +131,18 @@ export default class SessionContext implements ISessionContext {
           }
 
           case TokenType.ProgramAccessToken: {
-            programAccessToken = await ctx.data.programAccessToken.assertGetItem(
-              ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
-            );
+            programAccessToken =
+              await ctx.data.programAccessToken.assertGetItem(
+                ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
+              );
             break;
           }
 
           case TokenType.ClientAssignedToken: {
-            clientAssignedToken = await ctx.data.clientAssignedToken.assertGetItem(
-              EndpointReusableQueries.getById(incomingTokenData.sub.id)
-            );
+            clientAssignedToken =
+              await ctx.data.clientAssignedToken.assertGetItem(
+                EndpointReusableQueries.getById(incomingTokenData.sub.id)
+              );
             break;
           }
         }
@@ -172,18 +174,16 @@ export default class SessionContext implements ISessionContext {
       }
 
       if (programAccessToken) {
-        const agent: ISessionAgent = makeProgramAccessTokenAgent(
-          programAccessToken
-        );
+        const agent: ISessionAgent =
+          makeProgramAccessTokenAgent(programAccessToken);
 
         data.agent = agent;
         return agent;
       }
 
       if (clientAssignedToken) {
-        const agent: ISessionAgent = makeClientAssignedTokenAgent(
-          clientAssignedToken
-        );
+        const agent: ISessionAgent =
+          makeClientAssignedTokenAgent(clientAssignedToken);
 
         data.agent = agent;
         return agent;
@@ -217,10 +217,11 @@ export default class SessionContext implements ISessionContext {
 
   decodeToken = wrapFireAndThrowErrorNoAsync(
     (ctx: IBaseContext, token: string) => {
-      const tokenData = jwt.verify(
-        token,
-        ctx.appVariables.jwtSecret
-      ) as IBaseTokenData<IGeneralTokenSubject>;
+      const tokenData = cast<IBaseTokenData<IGeneralTokenSubject>>(
+        jwt.verify(token, ctx.appVariables.jwtSecret, {
+          complete: false,
+        })
+      );
 
       if (tokenData.version < CURRENT_TOKEN_VERSION) {
         throw new CredentialsExpiredError();

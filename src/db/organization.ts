@@ -15,7 +15,7 @@ const organizationSchema = ensureTypeFields<IOrganization>({
 
 export type IOrganizationDocument = Document<IOrganization>;
 
-const schema = new Schema<IOrganizationDocument>(organizationSchema);
+const schema = new Schema<IOrganization>(organizationSchema);
 const modelName = 'organization';
 const collectionName = 'organizations';
 

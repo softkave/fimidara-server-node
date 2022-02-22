@@ -20,45 +20,43 @@ import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
  * - Return a list of tokens the agent has access to.
  */
 
-const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(
-    instData.data,
-    getOrganizationClientAssignedTokenJoiSchema
-  );
+const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEndpoint =
+  async (context, instData) => {
+    const data = validate(
+      instData.data,
+      getOrganizationClientAssignedTokenJoiSchema
+    );
 
-  const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+    const agent = await context.session.getAgent(context, instData);
+    const organization = await checkOrganizationExists(
+      context,
+      data.organizationId
+    );
 
-  const tokens = await context.data.clientAssignedToken.getManyItems(
-    EndpointReusableQueries.getByOrganizationId(data.organizationId)
-  );
+    const tokens = await context.data.clientAssignedToken.getManyItems(
+      EndpointReusableQueries.getByOrganizationId(data.organizationId)
+    );
 
-  // TODO: can we do this together, so that we don't waste compute
-  const permittedReads = await Promise.all(
-    tokens.map(item =>
-      checkAuthorization(
-        context,
-        agent,
-        organization.resourceId,
-        item.resourceId,
-        AppResourceType.ClientAssignedToken,
-        makeBasePermissionOwnerList(organization.resourceId),
-        BasicCRUDActions.Read,
-        true
+    // TODO: can we do this together, so that we don't waste compute
+    const permittedReads = await Promise.all(
+      tokens.map(item =>
+        checkAuthorization(
+          context,
+          agent,
+          organization.resourceId,
+          item.resourceId,
+          AppResourceType.ClientAssignedToken,
+          makeBasePermissionOwnerList(organization.resourceId),
+          BasicCRUDActions.Read,
+          true
+        )
       )
-    )
-  );
+    );
 
-  const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
-  return {
-    tokens: ClientAssignedTokenUtils.extractPublicTokenList(allowedTokens),
+    const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
+    return {
+      tokens: ClientAssignedTokenUtils.extractPublicTokenList(allowedTokens),
+    };
   };
-};
 
 export default getOrganizationClientAssignedTokens;

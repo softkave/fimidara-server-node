@@ -32,13 +32,14 @@ test('file details returned', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      path: file.name,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        path: file.name,
+      }
+    );
 
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);

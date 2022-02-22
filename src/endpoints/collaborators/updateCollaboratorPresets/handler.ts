@@ -4,7 +4,6 @@ import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
-import CollaboratorQueries from '../queries';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,

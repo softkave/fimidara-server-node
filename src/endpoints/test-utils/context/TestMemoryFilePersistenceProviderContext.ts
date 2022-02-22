@@ -8,7 +8,8 @@ import {
 import {ITestFilePersistenceProviderContext} from './types';
 
 export default class TestMemoryFilePersistenceProviderContext
-  implements ITestFilePersistenceProviderContext {
+  implements ITestFilePersistenceProviderContext
+{
   public files: IFilePersistenceUploadFileParams[] = [];
 
   public uploadFile = jest

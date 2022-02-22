@@ -52,22 +52,23 @@ test('client assigned token presets updated', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IUpdateClientAssignedTokenPresetsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      tokenId: token01.resourceId,
-      presets: [
-        {
-          presetId: preset01.resourceId,
-          order: 1,
-        },
-        {
-          presetId: preset02.resourceId,
-          order: 2,
-        },
-      ],
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateClientAssignedTokenPresetsParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        tokenId: token01.resourceId,
+        presets: [
+          {
+            presetId: preset01.resourceId,
+            order: 1,
+          },
+          {
+            presetId: preset02.resourceId,
+            order: 2,
+          },
+        ],
+      }
+    );
 
   const result = await updateClientAssignedTokenPresets(context, instData);
   assertEndpointResultOk(result);

@@ -9,13 +9,13 @@ export interface IFolder {
   namePath: string[];
   parentId?: string;
   createdBy: IAgent;
-  createdAt: string;
+  createdAt: Date | string;
   maxFileSizeInBytes: number;
   lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
   isPublic?: boolean;
-  markedPublicAt?: string; // ISO date string
+  markedPublicAt?: Date | string; // ISO date string
   markedPublicBy?: IAgent;
 }

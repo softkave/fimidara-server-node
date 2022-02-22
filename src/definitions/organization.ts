@@ -3,9 +3,9 @@ import {IAgent} from './system';
 export interface IOrganization {
   resourceId: string;
   createdBy: IAgent;
-  createdAt: string;
+  createdAt: Date | string;
   lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
 }

@@ -1,5 +1,5 @@
 export default function cast<ToType>(resource: any): ToType {
-  return (resource as unknown) as ToType;
+  return resource as unknown as ToType;
 }
 
 export function isObjectEmpty(data: Record<string | number, any>) {
@@ -14,7 +14,8 @@ export function getFirstArg<T extends any[]>(...args: T): T[0] {
   return args[0];
 }
 
-export async function noopAsync(...args: any) {}
+/* eslint-disable-next-line @typescript-eslint/no-empty-function */
+export async function noopAsync() {}
 
 export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
   baseConstructors.forEach(baseConstructor => {

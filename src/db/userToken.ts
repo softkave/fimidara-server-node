@@ -14,7 +14,7 @@ const userTokenMongoSchema = ensureTypeFields<IUserToken>({
 
 export type IUserTokenDocument = Document<IUserToken>;
 
-const schema = new Schema<IUserTokenDocument>(userTokenMongoSchema);
+const schema = new Schema<IUserToken>(userTokenMongoSchema);
 const modelName = 'user-token';
 const collectionName = 'user-tokens';
 

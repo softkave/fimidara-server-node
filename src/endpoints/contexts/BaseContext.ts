@@ -45,7 +45,8 @@ export default class BaseContext<
   E extends IEmailProviderContext,
   F extends IFilePersistenceProviderContext,
   V extends IAppVariables
-> implements IBaseContext<T> {
+> implements IBaseContext<T>
+{
   public data: T;
   public email: E;
   public fileBackend: F;

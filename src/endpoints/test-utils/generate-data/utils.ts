@@ -6,7 +6,9 @@ export type GenPartialTestDataFn<T> = (
   cache: Record<string, any>
 ) => Partial<T>;
 
-export const defaultGenPartialTestDataFn: GenPartialTestDataFn<any> = () => ({});
+export const defaultGenPartialTestDataFn: GenPartialTestDataFn<
+  any
+> = () => ({});
 
 export function generateTestList<
   T,

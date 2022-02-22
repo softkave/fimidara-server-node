@@ -1,6 +1,6 @@
+import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicProgramAccessToken} from '../types';
 
 export interface IGetProgramAccessTokenParams {
   tokenId?: string;

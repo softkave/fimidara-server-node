@@ -20,46 +20,44 @@ import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
  * - Return tokens
  */
 
-const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(
-    instData.data,
-    getOrganizationProgramAccessTokenJoiSchema
-  );
+const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpoint =
+  async (context, instData) => {
+    const data = validate(
+      instData.data,
+      getOrganizationProgramAccessTokenJoiSchema
+    );
 
-  const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+    const agent = await context.session.getAgent(context, instData);
+    const organization = await checkOrganizationExists(
+      context,
+      data.organizationId
+    );
 
-  const tokens = await context.data.programAccessToken.getManyItems(
-    ProgramAccessTokenQueries.getByOrganizationId(data.organizationId)
-  );
+    const tokens = await context.data.programAccessToken.getManyItems(
+      ProgramAccessTokenQueries.getByOrganizationId(data.organizationId)
+    );
 
-  // TODO: can we do this together, so that we don't waste compute
-  const permittedReads = await Promise.all(
-    tokens.map(item =>
-      checkAuthorization(
-        context,
-        agent,
-        organization.resourceId,
-        item.resourceId,
-        AppResourceType.ProgramAccessToken,
-        makeBasePermissionOwnerList(organization.resourceId),
-        BasicCRUDActions.Read,
-        true
+    // TODO: can we do this together, so that we don't waste compute
+    const permittedReads = await Promise.all(
+      tokens.map(item =>
+        checkAuthorization(
+          context,
+          agent,
+          organization.resourceId,
+          item.resourceId,
+          AppResourceType.ProgramAccessToken,
+          makeBasePermissionOwnerList(organization.resourceId),
+          BasicCRUDActions.Read,
+          true
+        )
       )
-    )
-  );
+    );
 
-  const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
+    const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
 
-  return {
-    tokens: ProgramAccessTokenUtils.extractPublicTokenList(allowedTokens),
+    return {
+      tokens: ProgramAccessTokenUtils.extractPublicTokenList(allowedTokens),
+    };
   };
-};
 
 export default getOrganizationProgramAccessTokens;

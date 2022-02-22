@@ -6,6 +6,7 @@ import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 import {NotFoundError} from '../../errors';
+import {format} from 'util';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
@@ -33,7 +34,10 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     throw new NotFoundError('File does not exist');
   }
 
+  console.log(`persisted file - ${format(persistedFile)}`);
+
   if (data.imageTranformation) {
+    console.log(`buffer - ${buffer.toString()}`);
     buffer = await sharp(buffer)
       .resize(data.imageTranformation.width, data.imageTranformation.height)
       .png()

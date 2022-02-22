@@ -33,9 +33,7 @@ const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
 
-const schema = new Schema<ICollaborationRequestDocument>(
-  collaborationRequestSchema
-);
+const schema = new Schema<ICollaborationRequest>(collaborationRequestSchema);
 const modelName = 'collaboration-request';
 const collectionName = 'collaboration-requests';
 

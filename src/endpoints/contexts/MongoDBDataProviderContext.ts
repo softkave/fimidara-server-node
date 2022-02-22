@@ -61,7 +61,8 @@ export interface IBaseContextDatabaseModels {
 }
 
 export default class MongoDBDataProviderContext
-  implements IBaseContextDataProviders {
+  implements IBaseContextDataProviders
+{
   protected connection: Connection;
   protected db: IBaseContextDatabaseModels;
 

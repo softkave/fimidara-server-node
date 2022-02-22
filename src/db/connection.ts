@@ -1,12 +1,10 @@
 import {createConnection, Connection} from 'mongoose';
 
-export function getMongoConnection(uri: string): Promise<Connection> {
-  const connection = createConnection(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  });
-
+export function getMongoConnection(
+  uri: string,
+  dbName: string
+): Promise<Connection> {
+  const connection = createConnection(uri, {dbName});
   return new Promise((resolve, reject) => {
     connection?.once('open', () => resolve(connection));
     connection?.once('error', reject);

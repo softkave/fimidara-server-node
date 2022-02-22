@@ -19,7 +19,6 @@ import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
-import CollaborationRequestQueries from './queries';
 import {IPublicCollaborationRequest} from './types';
 
 const collaborationRequestFields = getFields<IPublicCollaborationRequest>({

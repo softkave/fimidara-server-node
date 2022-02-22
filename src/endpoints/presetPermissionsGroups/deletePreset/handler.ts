@@ -16,39 +16,37 @@ import {deletePresetPermissionsGroupJoiSchema} from './validation';
  * - Delete preset and artifacts
  */
 
-const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, deletePresetPermissionsGroupJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {preset} = await checkPresetPermissionsGroupAuthorization02(
-    context,
-    agent,
-    data.presetId,
-    BasicCRUDActions.Delete
-  );
+const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
+  async (context, instData) => {
+    const data = validate(instData.data, deletePresetPermissionsGroupJoiSchema);
+    const agent = await context.session.getAgent(context, instData);
+    const {preset} = await checkPresetPermissionsGroupAuthorization02(
+      context,
+      agent,
+      data.presetId,
+      BasicCRUDActions.Delete
+    );
 
-  await waitOnPromises([
-    // Delete permission items that explicitly give access to this resource
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByResource(
-        preset.resourceId,
-        AppResourceType.PresetPermissionsGroup
-      )
-    ),
+    await waitOnPromises([
+      // Delete permission items that explicitly give access to this resource
+      context.data.permissionItem.deleteManyItems(
+        PermissionItemQueries.getByResource(
+          preset.resourceId,
+          AppResourceType.PresetPermissionsGroup
+        )
+      ),
 
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByPermissionEntity(
-        preset.resourceId,
-        AppResourceType.PresetPermissionsGroup
-      )
-    ),
+      context.data.permissionItem.deleteManyItems(
+        PermissionItemQueries.getByPermissionEntity(
+          preset.resourceId,
+          AppResourceType.PresetPermissionsGroup
+        )
+      ),
 
-    context.data.preset.deleteItem(
-      PresetPermissionsGroupQueries.getById(preset.resourceId)
-    ),
-  ]);
-};
+      context.data.preset.deleteItem(
+        PresetPermissionsGroupQueries.getById(preset.resourceId)
+      ),
+    ]);
+  };
 
 export default deletePresetPermissionsGroup;

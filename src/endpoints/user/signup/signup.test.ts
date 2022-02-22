@@ -6,7 +6,6 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
-import {userExtractor} from '../utils';
 
 /**
  * TODO:

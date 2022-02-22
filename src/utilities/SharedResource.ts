@@ -10,7 +10,7 @@ export interface ISharedResource {
 
 export default abstract class SharedResource {
   // protected members. not for public use.
-  refs: number = 0;
+  refs = 0;
   incrementRef() {
     this.refs++;
   }

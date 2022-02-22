@@ -3,10 +3,10 @@ import {IAgent} from './system';
 
 export interface IClientAssignedToken {
   resourceId: string;
-  createdAt: string;
+  createdAt: Date | string;
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   organizationId: string;
   // environmentId: string;
   version: number;

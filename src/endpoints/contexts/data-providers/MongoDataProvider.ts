@@ -9,13 +9,15 @@ import {
   IDataProviderFilter,
 } from './DataProvider';
 
-export interface IMongoDataProvider<T extends object> extends IDataProvider<T> {
+export interface IMongoDataProvider<T extends {[key: string]: any}>
+  extends IDataProvider<T> {
   model: Model<Document<T>>;
   throwNotFound?: () => void;
 }
 
 export default class MongoDataProvider<T extends {[key: string]: any}>
-  implements IMongoDataProvider<T> {
+  implements IMongoDataProvider<T>
+{
   public model: Model<Document<T>>;
   public throwNotFound?: () => void;
 
