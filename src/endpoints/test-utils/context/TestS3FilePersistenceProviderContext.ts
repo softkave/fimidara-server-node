@@ -3,7 +3,8 @@ import {ITestFilePersistenceProviderContext} from './types';
 
 export default class TestS3FilePersistenceProviderContext
   extends S3FilePersistenceProviderContext
-  implements ITestFilePersistenceProviderContext {
+  implements ITestFilePersistenceProviderContext
+{
   public uploadFile = jest
     .fn(S3FilePersistenceProviderContext.prototype.uploadFile)
     .mockName('uploadFile');

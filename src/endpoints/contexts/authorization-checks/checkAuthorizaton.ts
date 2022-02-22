@@ -1,5 +1,4 @@
 import {flatten} from 'lodash';
-import {formatWithOptions} from 'util';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,

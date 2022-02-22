@@ -32,12 +32,13 @@ test('organization collaborators returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IGetOrganizationCollaboratorsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetOrganizationCollaboratorsParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+      }
+    );
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);

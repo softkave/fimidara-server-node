@@ -38,12 +38,13 @@ test("organization's program access token returned", async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetOrganizationProgramAccessTokensParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetOrganizationProgramAccessTokensParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+      }
+    );
 
   const result = await getOrganizationProgramAccessTokens(context, instData);
   assertEndpointResultOk(result);

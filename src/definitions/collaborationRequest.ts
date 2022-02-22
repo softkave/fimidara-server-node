@@ -13,7 +13,7 @@ export type CollaborationRequestResponse =
 
 export interface ICollaborationRequestStatus {
   status: CollaborationRequestStatusType;
-  date: string;
+  date: Date | string;
 }
 
 export enum CollaborationRequestEmailReason {
@@ -23,7 +23,7 @@ export enum CollaborationRequestEmailReason {
 }
 
 export interface ICollaborationRequestSentEmailHistoryItem {
-  date: string;
+  date: Date | string;
   reason: CollaborationRequestEmailReason;
 }
 
@@ -35,12 +35,12 @@ export interface ICollaborationRequest {
   // TODO: should we allow users to send new messages?
   message: string;
   createdBy: IAgent;
-  createdAt: string;
+  createdAt: Date | string;
   expiresAt?: string;
   organizationId: string;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
-  readAt?: string;
+  readAt?: Date | string;
   statusHistory: ICollaborationRequestStatus[];
   sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
 }

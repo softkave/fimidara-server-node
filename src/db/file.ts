@@ -26,7 +26,7 @@ const fileSchema = ensureTypeFields<IFile>({
 
 export type IFileDocument = Document<IFile>;
 
-const schema = new Schema<IFileDocument>(fileSchema);
+const schema = new Schema<IFile>(fileSchema);
 const modelName = 'file';
 const collectionName = 'files';
 

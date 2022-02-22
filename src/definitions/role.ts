@@ -4,9 +4,9 @@ export interface IUserRole {
   resourceId: string;
   organizationId: string;
   createdBy: IAgent;
-  createdAt: string;
+  createdAt: Date;
   lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date;
   name: string;
   description?: string;
 }

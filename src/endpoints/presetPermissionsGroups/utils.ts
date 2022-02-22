@@ -134,5 +134,6 @@ export function throwPresetPermissionsGroupNotFound() {
 
 export abstract class PresetPermissionsGroupUtils {
   static extractPublicPresetPermissionsGroup = presetPermissionsGroupExtractor;
-  static extractPublicPresetPermissionsGroupList = presetPermissionsGroupListExtractor;
+  static extractPublicPresetPermissionsGroupList =
+    presetPermissionsGroupListExtractor;
 }

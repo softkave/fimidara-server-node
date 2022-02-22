@@ -69,13 +69,14 @@ test('program access token updated', async () => {
     ],
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateProgramAccessTokenParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      tokenId: token01.resourceId,
-      token: tokenUpdateInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateProgramAccessTokenParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        tokenId: token01.resourceId,
+        token: tokenUpdateInput,
+      }
+    );
 
   const result = await updateProgramAccessToken(context, instData);
   assertEndpointResultOk(result);

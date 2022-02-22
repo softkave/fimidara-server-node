@@ -38,19 +38,21 @@ test('client assigned token deleted', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IDeleteClientAssignedTokenParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      tokenId: token.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IDeleteClientAssignedTokenParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        tokenId: token.resourceId,
+      }
+    );
 
   const result = await deleteClientAssignedToken(context, instData);
   assertEndpointResultOk(result);
 
-  const deletedTokenExists = await context.data.clientAssignedToken.checkItemExists(
-    EndpointReusableQueries.getById(token.resourceId)
-  );
+  const deletedTokenExists =
+    await context.data.clientAssignedToken.checkItemExists(
+      EndpointReusableQueries.getById(token.resourceId)
+    );
 
   expect(deletedTokenExists).toBeFalsy();
 });

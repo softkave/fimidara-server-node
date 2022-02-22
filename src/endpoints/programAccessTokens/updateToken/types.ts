@@ -1,9 +1,10 @@
-import {IProgramAccessToken} from '../../../definitions/programAccessToken';
+import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewProgramAccessTokenInput} from '../addToken/types';
 
-export type IUpdateProgramAccessTokenInput = Partial<INewProgramAccessTokenInput>;
+export type IUpdateProgramAccessTokenInput =
+  Partial<INewProgramAccessTokenInput>;
 
 export interface IUpdateProgramAccessTokenParams {
   tokenId?: string;
@@ -12,7 +13,7 @@ export interface IUpdateProgramAccessTokenParams {
 }
 
 export interface IUpdateProgramAccessTokenResult {
-  token: IProgramAccessToken;
+  token: IPublicProgramAccessToken;
 }
 
 export type UpdateProgramAccessTokenEndpoint = Endpoint<

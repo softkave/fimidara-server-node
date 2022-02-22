@@ -116,10 +116,8 @@ export async function fetchAndSortPresets(
   context: IBaseContext,
   entities: IPermissionEntity[]
 ) {
-  const presetsMap: Record<
-    string,
-    IPresetPermissionsGroup | null
-  > = await fetchPresets(context, entities);
+  const presetsMap: Record<string, IPresetPermissionsGroup | null> =
+    await fetchPresets(context, entities);
 
   const processedEntities = commitEntities(
     entities.map(item => item.permissionEntityId),

@@ -2,6 +2,5 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  globalSetup: '/.jest/globalSetup.integration-test.js',
-  globalTeardown: '/.jest/globalTeardown.js',
+  globalTeardown: './jest/globalTeardown.ts',
 };

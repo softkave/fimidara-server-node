@@ -16,7 +16,7 @@ function defaultReducer(data: any) {
   return data;
 }
 
-type GetPathType<T> = T extends object ? keyof T : undefined;
+type GetPathType<T> = T extends {[key: string]: any} ? keyof T : undefined;
 
 export interface IIndexArrayOptions<T, R> {
   path?: GetPathType<T>;

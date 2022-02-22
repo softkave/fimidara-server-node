@@ -14,7 +14,8 @@ import {
  */
 
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
-  implements IDataProviderFilterBuilder<T> {
+  implements IDataProviderFilterBuilder<T>
+{
   private data: {[K in keyof T]?: IDataProviderFilterValue<T[K]>} = {};
 
   public addItem<K extends keyof T>(

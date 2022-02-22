@@ -38,12 +38,13 @@ test("organization's client assigned tokens returned", async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetOrganizationClientAssignedTokensParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetOrganizationClientAssignedTokensParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+      }
+    );
 
   const result = await getOrganizationClientAssignedTokens(context, instData);
   assertEndpointResultOk(result);

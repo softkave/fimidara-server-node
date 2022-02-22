@@ -38,13 +38,14 @@ test('password changed with current password', async () => {
   });
 
   const newPassword = 'gt5_g3!op0';
-  const instData = RequestData.fromExpressRequest<IChangePasswordWithCurrentPasswordEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      currentPassword: oldPassword,
-      password: newPassword,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IChangePasswordWithCurrentPasswordEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        currentPassword: oldPassword,
+        password: newPassword,
+      }
+    );
 
   const oldHash = rawUser.hash;
   const result = await changePasswordWithCurrentPassword(context, instData);

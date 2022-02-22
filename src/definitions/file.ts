@@ -12,14 +12,14 @@ export interface IFile {
   encoding?: string;
   size: number;
   createdBy: IAgent;
-  createdAt: string;
+  createdAt: Date | string;
   lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   name: string;
   extension: string;
   description?: string;
   isPublic?: boolean;
-  markedPublicAt?: string; // ISO date string
+  markedPublicAt?: Date | string; // ISO date string
   markedPublicBy?: IAgent;
 
   // meta?: Record<string, string | number | boolean | null>;

@@ -10,9 +10,10 @@ export const updateProgramAccessTokenJoiSchema = Joi.object()
       .keys({
         name: validationSchemas.name.allow(null),
         description: validationSchemas.description.allow(null),
-        presets: presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
-          null
-        ),
+        presets:
+          presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
+            null
+          ),
       })
       .required(),
   })

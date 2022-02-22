@@ -21,7 +21,8 @@ import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IUser} from '../../definitions/user';
 
 export default class MemoryDataProviderContext
-  implements IBaseContextDataProviders {
+  implements IBaseContextDataProviders
+{
   public folder = new MemoryDataProvider<IFolder>([], throwFolderNotFound);
   public file = new MemoryDataProvider<IFile>([], throwFileNotFound);
   public clientAssignedToken = new MemoryDataProvider<IClientAssignedToken>(

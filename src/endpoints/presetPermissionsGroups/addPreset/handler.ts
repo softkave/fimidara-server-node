@@ -76,9 +76,8 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   });
 
   return {
-    preset: PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroup(
-      preset
-    ),
+    preset:
+      PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroup(preset),
   };
 };
 

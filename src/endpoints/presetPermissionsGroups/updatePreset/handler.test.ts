@@ -70,13 +70,14 @@ test('preset updated', async () => {
     ],
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdatePresetPermissionsGroupParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      presetId: preset00.resourceId,
-      data: updatePresetInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdatePresetPermissionsGroupParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        presetId: preset00.resourceId,
+        data: updatePresetInput,
+      }
+    );
 
   const result = await updatePresetPermissionsGroup(context, instData);
   assertEndpointResultOk(result);

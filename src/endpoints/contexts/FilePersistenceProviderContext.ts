@@ -1,9 +1,7 @@
 import {S3} from 'aws-sdk';
 import {IAppVariables} from '../../resources/appVariables';
 import {assertAWSConfigured} from '../../resources/aws';
-import {indexArray} from '../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
-import {IBaseContext} from './BaseContext';
 
 export interface IFilePersistenceUploadFileParams {
   bucket: string;
@@ -36,7 +34,8 @@ export interface IFilePersistenceProviderContext {
 }
 
 export class S3FilePersistenceProviderContext
-  implements IFilePersistenceProviderContext {
+  implements IFilePersistenceProviderContext
+{
   protected s3: S3;
 
   constructor() {

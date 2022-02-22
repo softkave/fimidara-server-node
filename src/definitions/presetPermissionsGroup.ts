@@ -3,9 +3,9 @@ import {IAgent} from './system';
 export interface IPresetPermissionsGroup {
   resourceId: string;
   organizationId: string;
-  createdAt: string;
+  createdAt: Date | string;
   createdBy: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
   name: string;
   description?: string;
@@ -14,7 +14,7 @@ export interface IPresetPermissionsGroup {
 
 export interface IAssignedPresetPermissionsGroup {
   presetId: string;
-  assignedAt: string;
+  assignedAt: Date | string;
   assignedBy: IAgent;
   order: number;
 }

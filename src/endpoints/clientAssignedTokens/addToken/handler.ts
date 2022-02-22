@@ -54,8 +54,8 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     data.token.presets
   );
 
-  const token: IClientAssignedToken = await context.data.clientAssignedToken.saveItem(
-    {
+  const token: IClientAssignedToken =
+    await context.data.clientAssignedToken.saveItem({
       expires:
         data.token.expires &&
         add(Date.now(), {seconds: data.token.expires}).valueOf(),
@@ -77,8 +77,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
         order: item.order,
         presetId: item.presetId,
       })),
-    }
-  );
+    });
 
   return {
     token: ClientAssignedTokenUtils.extractPublicToken(token),

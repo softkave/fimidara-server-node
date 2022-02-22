@@ -31,11 +31,11 @@ function getOptional<T extends any = any>(
   return processFn(value, envName);
 }
 
-function getBoolean(value: string = '') {
+function getBoolean(value = '') {
   return value.toLowerCase() === 'true';
 }
 
-function getNumber(value: string = '', envName: string) {
+function getNumber(value = '', envName: string) {
   const num = Number(value);
   assert.ok(Number.isNaN(num), `${envName} is not a number`);
   return num;
@@ -64,6 +64,7 @@ export const envFns = {
 export enum AppEnvVariables {
   CLIENT_DOMAIN = 'CLIENT_DOMAIN',
   MONGODB_URI = 'MONGODB_URI',
+  MONGODB_DATABASE_NAME = 'MONGODB_DATABASE_NAME',
   JWT_SECRET = 'JWT_SECRET',
   NODE_ENV = 'NODE_ENV',
   PORT = 'PORT',
@@ -76,6 +77,7 @@ export enum AppEnvVariables {
 interface ISuppliedVariables {
   clientDomain: string;
   mongoDbURI: string;
+  mongoDbDatabaseName: string;
   jwtSecret: string;
   nodeEnv: string;
   port: string;
@@ -97,15 +99,16 @@ interface IStaticVariables {
 }
 
 export interface IAppVariables extends ISuppliedVariables, IStaticVariables {}
-
-const extractSchema: Record<
+export type ExtractEnvSchema = Record<
   keyof ISuppliedVariables,
   {
     required: boolean;
     name: AppEnvVariables;
     defaultValue?: string;
   }
-> = {
+>;
+
+export const extractProdEnvsSchema: ExtractEnvSchema = {
   clientDomain: {
     required: false,
     name: AppEnvVariables.CLIENT_DOMAIN,
@@ -115,6 +118,10 @@ const extractSchema: Record<
   mongoDbURI: {
     required: true,
     name: AppEnvVariables.MONGODB_URI,
+  },
+  mongoDbDatabaseName: {
+    required: true,
+    name: AppEnvVariables.MONGODB_DATABASE_NAME,
   },
   jwtSecret: {
     required: true,
@@ -162,13 +169,17 @@ let appVariables: IAppVariables = cast({
   ...defaultStaticVars,
 });
 
-export function checkRequiredSuppliedVariables(base: IAppVariables) {
+export function checkRequiredSuppliedVariables(
+  schema: ExtractEnvSchema,
+  base: IAppVariables
+) {
   // [Env name, key name]
   const missingVariables: Array<[string, string]> = [];
-  Object.keys(extractSchema).forEach(key => {
-    const meta = extractSchema[key as keyof ISuppliedVariables];
+  Object.keys(schema).forEach(key => {
+    const meta = schema[key as keyof ISuppliedVariables];
+    const value = base[key as keyof ISuppliedVariables];
 
-    if (meta.required && !base[key as keyof ISuppliedVariables]) {
+    if (meta.required && !value) {
       missingVariables.push([meta.name, key]);
     }
   });
@@ -187,10 +198,11 @@ export function checkRequiredSuppliedVariables(base: IAppVariables) {
 }
 
 export function extractEnvVariables(
+  schema: ExtractEnvSchema,
   base: Partial<IAppVariables> = {}
 ): IAppVariables {
-  const envVariables = Object.keys(extractSchema).reduce((accumulator, key) => {
-    const meta = extractSchema[key as keyof ISuppliedVariables];
+  const envVariables = Object.keys(schema).reduce((accumulator, key) => {
+    const meta = schema[key as keyof ISuppliedVariables];
     const variable =
       process.env[meta.name] ||
       base[key as keyof ISuppliedVariables] ||
@@ -216,7 +228,7 @@ export function extractEnvVariables(
 export function setAppVariables(
   ...additionalVars: Array<Partial<IAppVariables>>
 ) {
-  appVariables = merge({}, appVariables, additionalVars);
+  appVariables = merge({}, appVariables, ...additionalVars);
 }
 
 export function setAppVariablesIfUndefined(
@@ -230,6 +242,7 @@ export function setAppVariablesIfUndefined(
 }
 
 export function getAppVariables(
+  schema: ExtractEnvSchema,
   extractFromEnv = true,
   base?: Partial<IAppVariables>,
 
@@ -238,7 +251,7 @@ export function getAppVariables(
   mergeBaseIfNotExist = true
 ) {
   if (extractFromEnv) {
-    setAppVariables(extractEnvVariables());
+    setAppVariables(extractEnvVariables(schema));
   }
 
   if (base) {
@@ -249,6 +262,6 @@ export function getAppVariables(
     }
   }
 
-  checkRequiredSuppliedVariables(appVariables);
+  checkRequiredSuppliedVariables(schema, appVariables);
   return appVariables;
 }

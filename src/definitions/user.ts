@@ -12,14 +12,14 @@ export interface IUser {
   lastName: string;
   email: string;
   hash: string;
-  createdAt: string;
-  lastUpdatedAt?: string;
-  passwordLastChangedAt: string;
+  createdAt: Date | string;
+  lastUpdatedAt?: Date | string;
+  passwordLastChangedAt: Date | string;
 
   // email verification
   isEmailVerified: boolean;
-  emailVerifiedAt?: string | null;
-  emailVerificationEmailSentAt?: string | null;
+  emailVerifiedAt?: Date | string | null;
+  emailVerificationEmailSentAt?: Date | string | null;
 
   organizations: IUserOrganization[];
 }

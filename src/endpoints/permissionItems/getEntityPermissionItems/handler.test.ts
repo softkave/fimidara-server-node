@@ -49,14 +49,15 @@ test('entity permission items returned', async () => {
     {itemResourceType: AppResourceType.File}
   );
 
-  const instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      permissionEntityId: preset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        permissionEntityId: preset.resourceId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      }
+    );
 
   const result = await getEntityPermissionItems(context, instData);
   assertEndpointResultOk(result);

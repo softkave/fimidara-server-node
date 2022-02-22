@@ -23,7 +23,7 @@ const folderSchema = ensureTypeFields<IFolder>({
 
 export type IFolderDocument = Document<IFolder>;
 
-const schema = new Schema<IFolderDocument>(folderSchema);
+const schema = new Schema<IFolder>(folderSchema);
 const modelName = 'folder';
 const collectionName = 'folders';
 

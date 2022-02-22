@@ -19,9 +19,7 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
 
 export type IClientAssignedTokenDocument = Document<IClientAssignedToken>;
 
-const schema = new Schema<IClientAssignedTokenDocument>(
-  clientAssignedTokenSchema
-);
+const schema = new Schema<IClientAssignedToken>(clientAssignedTokenSchema);
 const modelName = 'client-assigned-token';
 const collectionName = 'client-assigned-tokens';
 

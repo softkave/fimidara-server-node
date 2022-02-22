@@ -43,12 +43,13 @@ test('organization collaboration requests returned', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetOrganizationRequestsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetOrganizationRequestsParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+      }
+    );
 
   const result = await getOrganizationRequests(context, instData);
   assertEndpointResultOk(result);

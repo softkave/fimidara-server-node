@@ -5,7 +5,6 @@ import CollaborationRequestQueries from '../../collaborationRequests/queries';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
-import CollaboratorQueries from '../queries';
 import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';

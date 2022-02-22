@@ -42,14 +42,15 @@ test('file updated', async () => {
     mimetype: 'application/octet-stream',
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      path: file.name,
-      file: updateInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        path: file.name,
+        file: updateInput,
+      }
+    );
 
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);

@@ -27,7 +27,7 @@ export const wrapEndpointREST = <
     try {
       const data = req.body;
       const instData = RequestData.fromExpressRequest(
-        (req as unknown) as IServerRequest,
+        req as unknown as IServerRequest,
         data
       );
 

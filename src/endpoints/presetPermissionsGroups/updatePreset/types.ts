@@ -3,7 +3,8 @@ import {Endpoint} from '../../types';
 import {INewPresetPermissionsGroupInput} from '../addPreset/types';
 import {IPublicPresetPermissionsGroup} from '../types';
 
-export type IUpdatePresetPermissionsGroupInput = Partial<INewPresetPermissionsGroupInput>;
+export type IUpdatePresetPermissionsGroupInput =
+  Partial<INewPresetPermissionsGroupInput>;
 
 export interface IUpdatePresetPermissionsGroupParams {
   presetId: string;

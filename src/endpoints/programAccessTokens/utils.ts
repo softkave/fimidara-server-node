@@ -1,4 +1,7 @@
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
+import {
+  IProgramAccessToken,
+  IPublicProgramAccessToken,
+} from '../../definitions/programAccessToken';
 import {
   ISessionAgent,
   BasicCRUDActions,
@@ -16,7 +19,6 @@ import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import ProgramAccessTokenQueries from './queries';
-import {IPublicProgramAccessToken} from './types';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   resourceId: true,

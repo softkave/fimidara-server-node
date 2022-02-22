@@ -32,12 +32,13 @@ test('referenced preset returned', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetPresetPermissionsGroupEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      presetId: preset.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetPresetPermissionsGroupEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        presetId: preset.resourceId,
+      }
+    );
 
   const result = await getProgramAccessToken(context, instData);
   assertEndpointResultOk(result);

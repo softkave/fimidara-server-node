@@ -1,9 +1,9 @@
 import {merge} from 'lodash';
 import {
-  setAppVariables,
   getAppVariables,
   IAppVariables,
   envFns,
+  extractProdEnvsSchema,
 } from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
 
@@ -27,22 +27,7 @@ export enum TestOnlyEnvVariables {
 export type ITestVariables = ITestOnlyVariables & IAppVariables;
 
 export const getTestVars = singletonFunc((): IAppVariables & ITestVariables => {
-  setAppVariables({
-    clientDomain: 'localhost:3000',
-    jwtSecret: 'test-jwt-secret-5768394',
-    nodeEnv: 'test',
-    port: '5000',
-    S3Bucket: 'files-unit-test',
-  });
-
-  const appVariables = getAppVariables(true, {
-    clientDomain: 'localhost:3000',
-    jwtSecret: 'test-jwt-secret-5768394',
-    nodeEnv: 'test',
-    port: '5000',
-    S3Bucket: 'files-unit-test',
-  });
-
+  const appVariables = getAppVariables(extractProdEnvsSchema, true);
   const testOnlyVars: ITestOnlyVariables = {
     dataProviderType: envFns.getOptional(
       TestOnlyEnvVariables.DATA_PROVIDER_TYPE,

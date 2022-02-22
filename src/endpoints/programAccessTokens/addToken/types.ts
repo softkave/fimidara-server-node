@@ -1,7 +1,7 @@
+import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
-import {IPublicProgramAccessToken} from '../types';
 
 export interface INewProgramAccessTokenInput {
   name: string;

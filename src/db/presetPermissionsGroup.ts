@@ -6,14 +6,13 @@ import {
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
-export const assignedPermissionsGroupSchema = ensureTypeFields<IAssignedPresetPermissionsGroup>(
-  {
+export const assignedPermissionsGroupSchema =
+  ensureTypeFields<IAssignedPresetPermissionsGroup>({
     presetId: {type: String},
     assignedAt: {type: Date, default: getDate},
     assignedBy: agentSchema,
     order: {type: Number},
-  }
-);
+  });
 
 const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
   resourceId: {type: String},
@@ -29,9 +28,7 @@ const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
 
 export type IPresetPermissionsItemDocument = Document<IPresetPermissionsGroup>;
 
-const schema = new Schema<IPresetPermissionsItemDocument>(
-  presetPermissionsSchema
-);
+const schema = new Schema<IPresetPermissionsGroup>(presetPermissionsSchema);
 const modelName = 'preset-permissions-item';
 const collectionName = 'preset-permissions-items';
 

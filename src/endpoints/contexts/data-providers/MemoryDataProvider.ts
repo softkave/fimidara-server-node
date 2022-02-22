@@ -162,7 +162,8 @@ function matchMany(
 }
 
 export default class MemoryDataProvider<T extends {[key: string]: any}>
-  implements IDataProvider<T> {
+  implements IDataProvider<T>
+{
   public items: T[];
   private throwNotFound: () => void;
 

@@ -112,11 +112,12 @@ export function extractFields<
     result = paths.finalize(data, result, extraArgs);
   }
 
-  return (result as unknown) as ObjectPaths['result'];
+  return result as unknown as ObjectPaths['result'];
 }
 
+// TODO: make extract simpler
 export function makeExtract<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(data: Partial<T1>) => {
+  const fn = <T1 extends T['object']>(data: Partial<Record<keyof T1, any>>) => {
     return extractFields(data, fields);
   };
 
@@ -124,7 +125,9 @@ export function makeExtract<T extends IObjectPaths<any>>(fields: T) {
 }
 
 export function makeExtractIfPresent<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(data?: Partial<T1>) => {
+  const fn = <T1 extends T['object']>(
+    data?: Partial<Record<keyof T1, any>>
+  ) => {
     return data && extractFields(data, fields);
   };
 
@@ -132,7 +135,9 @@ export function makeExtractIfPresent<T extends IObjectPaths<any>>(fields: T) {
 }
 
 export function makeListExtract<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(data: Partial<T1>[]) => {
+  const fn = <T1 extends T['object']>(
+    data: Partial<Record<keyof T1, any>>[]
+  ) => {
     return data.map(datum => extractFields(datum, fields));
   };
 

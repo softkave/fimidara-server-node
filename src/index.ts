@@ -18,7 +18,7 @@ import setupOrganizationsRESTEndpoints from './endpoints/organizations/setupREST
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
-import {getAppVariables} from './resources/appVariables';
+import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
 import {configureAWS} from './resources/aws';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
 import {
@@ -52,11 +52,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors(corsOption));
-app.use(
-  express.json({
-    type: 'application/json',
-  })
-);
+app.use(express.json() as express.RequestHandler);
 
 function setupJWT(ctx: IBaseContext) {
   app.use(
@@ -70,14 +66,18 @@ function setupJWT(ctx: IBaseContext) {
 }
 
 async function setup() {
-  const appVariables = getAppVariables();
+  const appVariables = getAppVariables(extractProdEnvsSchema);
   configureAWS(
     appVariables.awsAccessKeyId,
     appVariables.awsSecretAccessKey,
     appVariables.awsRegion
   );
 
-  const connection = await getMongoConnection(appVariables.mongoDbURI);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
+
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
   const fileProvider = new S3FilePersistenceProviderContext();
   await ensureAppBucketsReady(fileProvider, appVariables);

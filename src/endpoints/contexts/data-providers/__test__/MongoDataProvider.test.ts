@@ -30,7 +30,11 @@ import MongoDataProvider from '../MongoDataProvider';
 let connection: Connection | null = null;
 
 beforeAll(async () => {
-  connection = await getMongoConnection(getTestVars().mongoDbURI);
+  const testVars = getTestVars();
+  connection = await getMongoConnection(
+    testVars.mongoDbURI,
+    testVars.mongoDbDatabaseName
+  );
 });
 
 afterAll(async () => {

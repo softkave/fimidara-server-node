@@ -22,9 +22,8 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
 
-export const permissionItemListExtractor = makeListExtract(
-  permissionItemFields
-);
+export const permissionItemListExtractor =
+  makeListExtract(permissionItemFields);
 
 export function throwPermissionItemNotFound() {
   throw new NotFoundError('Permission item not found');

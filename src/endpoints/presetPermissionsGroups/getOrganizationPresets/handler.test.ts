@@ -38,12 +38,13 @@ test("organization's presets returned", async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetOrganizationPresetPermissionsGroupsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetOrganizationPresetPermissionsGroupsEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+      }
+    );
 
   const result = await getOrganizationPresetPermissionsGroups(
     context,

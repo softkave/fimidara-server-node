@@ -33,19 +33,21 @@ test('preset permission group deleted', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IDeletePresetPermissionsGroupParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      presetId: preset.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IDeletePresetPermissionsGroupParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        presetId: preset.resourceId,
+      }
+    );
 
   const result = await deletePresetPermissionsGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const deletedPresetExists = await context.data.programAccessToken.checkItemExists(
-    ProgramAccessTokenQueries.getById(preset.resourceId)
-  );
+  const deletedPresetExists =
+    await context.data.programAccessToken.checkItemExists(
+      ProgramAccessTokenQueries.getById(preset.resourceId)
+    );
 
   expect(deletedPresetExists).toBeFalsy();
 });

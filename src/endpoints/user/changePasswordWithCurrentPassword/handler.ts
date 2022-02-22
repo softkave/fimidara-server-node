@@ -32,33 +32,31 @@ export async function completeChangePassword(
   return {result, updatedReqData};
 }
 
-const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
-  const currentPassword = data.currentPassword;
-  let passwordMatch = false;
-  const user = await context.session.getUser(context, instData);
+const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
+  async (context, instData) => {
+    const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+    const currentPassword = data.currentPassword;
+    let passwordMatch = false;
+    const user = await context.session.getUser(context, instData);
 
-  try {
-    passwordMatch = await argon2.verify(user.hash, currentPassword);
-  } catch (error) {
-    console.error(error);
-    throw new ServerError();
-  }
+    try {
+      passwordMatch = await argon2.verify(user.hash, currentPassword);
+    } catch (error) {
+      console.error(error);
+      throw new ServerError();
+    }
 
-  if (!passwordMatch) {
-    throw new IncorrectPasswordError();
-  }
+    if (!passwordMatch) {
+      throw new IncorrectPasswordError();
+    }
 
-  const {result} = await completeChangePassword(
-    context,
-    instData,
-    data.password
-  );
+    const {result} = await completeChangePassword(
+      context,
+      instData,
+      data.password
+    );
 
-  return result;
-};
+    return result;
+  };
 
 export default changePasswordWithCurrentPassword;

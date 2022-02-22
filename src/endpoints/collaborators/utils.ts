@@ -25,9 +25,8 @@ const collaboratorFields = getFields<IPublicCollaborator>({
 });
 
 export const collaboratorBaseExtractor = makeExtract(collaboratorFields);
-export const collaboratorListBaseExtractor = makeListExtract(
-  collaboratorFields
-);
+export const collaboratorListBaseExtractor =
+  makeListExtract(collaboratorFields);
 
 export const collaboratorExtractor = (item: IUser, organizationId: string) => {
   const p = collaboratorBaseExtractor(item);

@@ -72,8 +72,8 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);
-  const token: IProgramAccessToken = await context.data.programAccessToken.saveItem(
-    {
+  const token: IProgramAccessToken =
+    await context.data.programAccessToken.saveItem({
       ...data.token,
       hash,
       organizationId: data.organizationId,
@@ -91,8 +91,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
           agentType: agent.agentType,
         },
       })),
-    }
-  );
+    });
 
   return {
     token: ProgramAccessTokenUtils.extractPublicToken(token),

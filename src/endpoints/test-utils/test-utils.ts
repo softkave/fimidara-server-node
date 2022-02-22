@@ -66,10 +66,15 @@ import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenc
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
+import {format} from 'util';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
   if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
-    const connection = await getMongoConnection(appVariables.mongoDbURI);
+    const connection = await getMongoConnection(
+      appVariables.mongoDbURI,
+      appVariables.mongoDbDatabaseName
+    );
+
     return new MongoDBDataProviderContext(connection);
   } else {
     return new MemoryDataProviderContext();
@@ -234,18 +239,19 @@ export async function insertPresetForTest(
   organizationId: string,
   presetInput: Partial<INewPresetPermissionsGroupInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddPresetPermissionsGroupParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId,
-      preset: {
-        name: faker.lorem.words(3),
-        description: faker.lorem.words(10),
-        presets: [],
-        ...presetInput,
-      },
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IAddPresetPermissionsGroupParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId,
+        preset: {
+          name: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          presets: [],
+          ...presetInput,
+        },
+      }
+    );
 
   const result = await addPresetPermissionsGroup(context, instData);
   assertEndpointResultOk(result);
@@ -282,17 +288,18 @@ export async function insertClientAssignedTokenForTest(
   organizationId: string,
   requestInput: Partial<INewClientAssignedTokenInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddClientAssignedTokenParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId,
-      token: {
-        presets: [],
-        expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
-        ...requestInput,
-      },
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IAddClientAssignedTokenParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId,
+        token: {
+          presets: [],
+          expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+          ...requestInput,
+        },
+      }
+    );
 
   const result = await addClientAssignedToken(context, instData);
   assertEndpointResultOk(result);
@@ -444,21 +451,25 @@ export async function insertFileForTest(
   const input: INewFileInput = {
     path: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
-    data: Buffer.from(faker.lorem.word()),
+    data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',
     ...fileInput,
   };
 
-  if (!input.data) {
+  if (!fileInput.data) {
     if (type === 'image') {
+      console.log('input is image');
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
     } else {
+      console.log('input is text');
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
     }
   }
+
+  console.log(`input - ${format(input)}`);
 
   const instData = RequestData.fromExpressRequest<IUploadFileParams>(
     mockExpressRequestWithUserToken(userToken),

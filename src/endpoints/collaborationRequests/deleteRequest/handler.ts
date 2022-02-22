@@ -3,7 +3,6 @@ import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
-import CollaborationRequestQueries from '../queries';
 import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteRequestEndpoint} from './types';
 import {deleteRequestJoiSchema} from './validation';

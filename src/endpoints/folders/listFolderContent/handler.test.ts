@@ -62,13 +62,14 @@ test('folder content returned', async () => {
     }
   );
 
-  const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      path: folder01.name,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        path: folder01.name,
+      }
+    );
 
   const result = await listFolderContent(context, instData);
   assertEndpointResultOk(result);

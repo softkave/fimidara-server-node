@@ -3,7 +3,6 @@ import {validate} from '../../../utilities/validate';
 import {ExpiredError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
-import CollaborationRequestQueries from '../queries';
 import {collabRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
 import {respondToRequestJoiSchema} from './validation';
