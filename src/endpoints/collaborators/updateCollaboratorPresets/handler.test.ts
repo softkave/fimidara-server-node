@@ -11,6 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import UserQueries from '../../user/UserQueries';
+import {userExtractor} from '../../user/utils';
 import {getCollaboratorOrganization} from '../utils';
 import updateCollaboratorPresets from './handler';
 import {IUpdateCollaboratorPresetsParams} from './types';
@@ -72,7 +73,7 @@ test('collaborator presets updated', async () => {
     UserQueries.getById(user.resourceId)
   );
 
-  expect(updatedUser).toMatchObject(result.collaborator);
+  expect(userExtractor(updatedUser)).toMatchObject(result.collaborator);
   const userOrgData = getCollaboratorOrganization(
     updatedUser,
     organization.resourceId

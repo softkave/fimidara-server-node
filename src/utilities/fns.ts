@@ -1,3 +1,6 @@
+import {isObject} from 'lodash';
+import {AnyObject} from './types';
+
 export default function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
 }
@@ -14,8 +17,8 @@ export function getFirstArg<T extends any[]>(...args: T): T[0] {
   return args[0];
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-empty-function */
-export async function noopAsync() {}
+/* eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars */
+export async function noopAsync(...args: any) {}
 
 export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
   baseConstructors.forEach(baseConstructor => {
@@ -46,4 +49,14 @@ export function applyMixins04<C1, C2, C3, C4>(
   baseConstructors: [C2, C3, C4]
 ): C1 & C2 & C3 & C4 {
   return cast(applyMixins(derivedConstructors, baseConstructors));
+}
+
+export function findItemWithField<T>(
+  items: T[],
+  val: any,
+  field: keyof T
+): T | undefined {
+  return items.find(item => {
+    return item[field] === val;
+  });
 }

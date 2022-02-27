@@ -7,6 +7,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import OrganizationQueries from '../queries';
+import {organizationExtractor} from '../utils';
 import {IAddOrganizationParams} from './types';
 
 let context: IBaseContext | null = null;
@@ -38,5 +39,7 @@ test('organization created', async () => {
     OrganizationQueries.getById(result.organization.resourceId)
   );
 
-  expect(result.organization).toMatchObject(savedCompany);
+  expect(organizationExtractor(savedCompany)).toMatchObject(
+    result.organization
+  );
 });

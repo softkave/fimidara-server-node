@@ -67,3 +67,5 @@ export type Paths<T, D extends number = 10> = [D] extends [never]
         : never;
     }[keyof T]
   : '';
+
+export type AnyObject = {[key: string]: any};

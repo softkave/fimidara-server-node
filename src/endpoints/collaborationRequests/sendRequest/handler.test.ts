@@ -10,6 +10,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
+import {collabRequestExtractor} from '../utils';
 import {ICollaborationRequestInput} from './types';
 
 let context: IBaseContext | null = null;
@@ -44,7 +45,7 @@ test('collaboration request sent', async () => {
     EndpointReusableQueries.getById(request01.resourceId)
   );
 
-  expect(request01).toEqual(savedRequest);
+  expect(request01).toMatchObject(collabRequestExtractor(savedRequest));
   expect(
     savedRequest.statusHistory[savedRequest.statusHistory.length - 1]
   ).toMatchObject({

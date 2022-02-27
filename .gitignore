@@ -107,3 +107,6 @@ build/
 
 # AWS config
 aws-config.json
+
+# Jest output
+jest-output/

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {String} from 'aws-sdk/clients/acm';
 import {pick, isFunction} from 'lodash';
 import cast from './fns';
 
@@ -69,7 +68,7 @@ export function getFields<
           transformer: value,
         });
       } else {
-        paths.scalarFields.push(key as String);
+        paths.scalarFields.push(key as string);
       }
 
       return paths;
@@ -96,7 +95,6 @@ export function extractFields<
   extraArgs?: ObjectPaths['extraArgs']
 ): ObjectPaths['result'] {
   let result = pick(data, paths.scalarFields);
-
   paths.scalarFieldsWithTransformers.forEach(({property, transformer}) => {
     const propValue = data[property];
 

@@ -7,7 +7,7 @@ const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   resourceId: {type: String, index: true, unique: true},
   organizationId: {type: String},
   createdAt: {type: Date, default: getDate},
-  createdBy: agentSchema,
+  createdBy: {type: agentSchema},
   permissionOwnerId: {type: String},
   permissionOwnerType: {type: String},
   permissionEntityId: {type: String},

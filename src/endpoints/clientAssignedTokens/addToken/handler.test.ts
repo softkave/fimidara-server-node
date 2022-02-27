@@ -9,6 +9,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
+import {clientAssignedTokenExtractor} from '../utils';
 
 let context: IBaseContext | null = null;
 
@@ -58,7 +59,7 @@ test('client assigned token added', async () => {
     EndpointReusableQueries.getById(token.resourceId)
   );
 
-  expect(savedToken).toEqual(token);
+  expect(clientAssignedTokenExtractor(savedToken)).toEqual(token);
   expect(savedToken.presets).toHaveLength(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,

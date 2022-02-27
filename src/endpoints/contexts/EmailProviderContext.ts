@@ -1,7 +1,9 @@
-import {SES} from 'aws-sdk';
-import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
+import {
+  wrapFireAndThrowError,
+  wrapFireAndThrowErrorNoAsync,
+} from '../../utilities/promiseFns';
 import {IBaseContext} from './BaseContext';
-import {assertAWSConfigured} from '../../resources/aws';
 
 export interface ISendEmailParams {
   destination: string[];
@@ -15,25 +17,25 @@ export interface ISendEmailParams {
 
 export interface IEmailProviderContext {
   sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
+  close: () => void;
 }
 
 export class SESEmailProviderContext implements IEmailProviderContext {
-  protected ses: SES;
+  protected ses: SESv2Client;
 
-  constructor() {
-    assertAWSConfigured();
-    this.ses = new SES();
+  constructor(region: string) {
+    this.ses = new SESv2Client({region});
   }
 
   public sendEmail = wrapFireAndThrowError(
     async (context: IBaseContext, params: ISendEmailParams) => {
-      await this.ses
-        .sendEmail({
-          Destination: {
-            ToAddresses: params.destination,
-          },
-          Source: params.source,
-          Message: {
+      const command = new SendEmailCommand({
+        Destination: {
+          ToAddresses: params.destination,
+        },
+        FromEmailAddress: params.source,
+        Content: {
+          Simple: {
             Subject: {
               Charset: context.appVariables.awsEmailEncoding,
               Data: params.subject,
@@ -49,8 +51,14 @@ export class SESEmailProviderContext implements IEmailProviderContext {
               },
             },
           },
-        })
-        .promise();
+        },
+      });
+
+      const response = await this.ses.send(command);
     }
   );
+
+  public close = wrapFireAndThrowErrorNoAsync(() => {
+    this.ses.destroy();
+  });
 }

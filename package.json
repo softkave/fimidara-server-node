@@ -13,8 +13,8 @@
     "node": "16.x"
   },
   "scripts": {
-    "test": "env-cmd -f \".env.test\" jest --config=jest.config.test.ts",
-    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts",
+    "test": "env-cmd -f \".env.test\" jest --config=jest.config.test.ts --detectOpenHandles",
+    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -24,8 +24,9 @@
     "posttest": "npm.cmd run lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.52.0",
+    "@aws-sdk/client-sesv2": "^3.52.0",
     "argon2": "^0.27.1",
-    "aws-sdk": "^2.1077.0",
     "cors": "^2.8.5",
     "date-fns": "^2.16.1",
     "dotenv": "^16.0.0",

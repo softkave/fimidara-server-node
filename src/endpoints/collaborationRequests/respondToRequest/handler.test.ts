@@ -11,6 +11,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {collabRequestExtractor} from '../utils';
 import respondToRequest from './handler';
 import {IRespondToRequestParams} from './types';
 
@@ -61,7 +62,7 @@ test('collaboration request declined', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toEqual(updatedRequest);
+  expect(result.request).toMatchObject(collabRequestExtractor(updatedRequest));
   expect(
     updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
   ).toMatchObject({

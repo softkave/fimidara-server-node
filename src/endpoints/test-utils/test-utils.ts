@@ -66,7 +66,6 @@ import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenc
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
-import {format} from 'util';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
   if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
@@ -83,7 +82,7 @@ async function getTestDataProvider(appVariables: ITestVariables) {
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
-    return new TestSESEmailProviderContext();
+    return new TestSESEmailProviderContext(appVariables.awsRegion);
   } else {
     return new MockTestEmailProviderContext();
   }
@@ -91,8 +90,10 @@ function getTestEmailProvider(appVariables: ITestVariables) {
 
 async function getTestFileProvider(appVariables: ITestVariables) {
   if (appVariables.useS3FileProvider) {
-    const fileProvider = new TestS3FilePersistenceProviderContext();
-    await ensureAppBucketsReady(fileProvider, appVariables);
+    const fileProvider = new TestS3FilePersistenceProviderContext(
+      appVariables.awsRegion
+    );
+    // await ensureAppBucketsReady(fileProvider, appVariables);
     return fileProvider;
   } else {
     return new TestMemoryFilePersistenceProviderContext();
@@ -117,7 +118,12 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
   }
 
   if (ctx.fileBackend instanceof TestS3FilePersistenceProviderContext) {
-    promises.push(ctx.fileBackend.cleanupBucket(ctx.appVariables.S3Bucket));
+    // promises.push(ctx.fileBackend.cleanupBucket(ctx.appVariables.S3Bucket));
+    promises.push(ctx.fileBackend.close());
+  }
+
+  if (ctx.email instanceof TestSESEmailProviderContext) {
+    ctx.email.close();
   }
 
   await waitForCleanup(promises);
@@ -458,18 +464,18 @@ export async function insertFileForTest(
 
   if (!fileInput.data) {
     if (type === 'image') {
-      console.log('input is image');
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
+      // input.extension = 'png';
+      input.path = input.path + '.png';
     } else {
-      console.log('input is text');
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
+      // input.extension = 'txt';
+      input.path = input.path + '.txt';
     }
   }
-
-  console.log(`input - ${format(input)}`);
 
   const instData = RequestData.fromExpressRequest<IUploadFileParams>(
     mockExpressRequestWithUserToken(userToken),

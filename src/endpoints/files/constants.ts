@@ -3,6 +3,7 @@ export const fileConstants = {
   fileNameAndExtensionSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
+  maxExtensionCharLength: 100,
   maxFileWidth: 10000, // px
   maxFileHeight: 10000, // px
   uploadedFileFieldName: 'file',

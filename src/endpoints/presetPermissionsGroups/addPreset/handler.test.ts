@@ -7,6 +7,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import PresetPermissionsGroupQueries from '../queries';
+import {presetPermissionsGroupExtractor} from '../utils';
 
 /**
  * TODO:
@@ -37,5 +38,5 @@ test('preset permissions group added', async () => {
     PresetPermissionsGroupQueries.getById(preset.resourceId)
   );
 
-  expect(savedPreset).toEqual(preset);
+  expect(presetPermissionsGroupExtractor(savedPreset)).toMatchObject(preset);
 });

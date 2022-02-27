@@ -51,5 +51,5 @@ test('file deleted', async () => {
 
   const result = await deleteFile(context, instData);
   assertEndpointResultOk(result);
-  assertFileDeleted(context, file.resourceId);
+  await assertFileDeleted(context, file.resourceId);
 });

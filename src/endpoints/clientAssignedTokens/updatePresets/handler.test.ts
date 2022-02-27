@@ -12,6 +12,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {clientAssignedTokenExtractor} from '../utils';
 import updateClientAssignedTokenPresets from './handler';
 import {IUpdateClientAssignedTokenPresetsParams} from './types';
 
@@ -77,7 +78,9 @@ test('client assigned token presets updated', async () => {
     EndpointReusableQueries.getById(token01.resourceId)
   );
 
-  expect(updatedToken).toMatchObject(result.token);
+  expect(clientAssignedTokenExtractor(updatedToken)).toMatchObject(
+    result.token
+  );
   expect(updatedToken.presets.length).toEqual(2);
   expect(updatedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,

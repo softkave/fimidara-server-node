@@ -8,6 +8,7 @@ const fileSizeInBytes = Joi.number()
 
 const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
+const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
 const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
 
 const fileValidationSchemas = {
@@ -15,6 +16,7 @@ const fileValidationSchemas = {
   mimetype,
   encoding,
   buffer,
+  extension,
 };
 
 export default fileValidationSchemas;

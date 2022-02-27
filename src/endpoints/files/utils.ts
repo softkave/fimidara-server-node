@@ -1,4 +1,3 @@
-import {isArray} from 'lodash';
 import {IFile} from '../../definitions/file';
 import {
   AppResourceType,
@@ -13,7 +12,7 @@ import {
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {splitFolderPath} from '../folders/utils';
+import {IFolderPathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
@@ -95,15 +94,18 @@ export async function checkFileAuthorization03(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const splitPath = isArray(path) ? path : splitFolderPath(path);
+  const pathWithDetails = splitFilePathWithDetails(path);
   const file = await context.data.file.assertGetItem(
-    FileQueries.getByNamePath(organizationId, splitPath)
+    FileQueries.getByNamePath(
+      organizationId,
+      pathWithDetails.splitPathWithoutExtension
+    )
   );
   return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 
 export interface ISplitFilenameWithDetails {
-  name: string;
+  nameWithoutExtension: string;
   extension: string;
   providedName: string;
 }
@@ -114,14 +116,35 @@ export function splitFilenameWithDetails(
   const splitStr = providedName.split(
     fileConstants.fileNameAndExtensionSeparator
   );
-  const name = splitStr[0];
+  const nameWithoutExtension = splitStr[0];
   const extension = splitStr
     .slice(1)
     .join(fileConstants.fileNameAndExtensionSeparator);
   return {
     providedName,
-    name,
     extension,
+    nameWithoutExtension,
+  };
+}
+
+export interface ISplitFilePathWithDetails
+  extends ISplitFilenameWithDetails,
+    IFolderPathWithDetails {
+  splitPathWithoutExtension: string[];
+}
+
+export function splitFilePathWithDetails(
+  path: string | string[]
+): ISplitFilePathWithDetails {
+  const pathWithDetails = splitPathWithDetails(path);
+  const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
+  const splitPathWithoutExtension = [...pathWithDetails.splitPath];
+  splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
+    fileNameWithDetails.nameWithoutExtension;
+  return {
+    ...pathWithDetails,
+    ...fileNameWithDetails,
+    splitPathWithoutExtension,
   };
 }
 

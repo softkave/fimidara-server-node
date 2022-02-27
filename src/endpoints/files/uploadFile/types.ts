@@ -4,8 +4,9 @@ import {IPublicFile} from '../types';
 
 export interface INewFileInput {
   description?: string;
-  mimetype: string; // TODO: define mimetypes
   encoding?: string;
+  extension?: string;
+  mimetype: string; // TODO: define mimetypes
   data: Buffer;
   path: string;
 }

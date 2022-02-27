@@ -1,7 +1,20 @@
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
-import * as aws from 'aws-sdk';
+import {
+  ObjectIdentifier,
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import {IFilesNodeJestVars} from './types';
+import {
+  ExtractEnvSchema,
+  extractProdEnvsSchema,
+} from '../src/resources/appVariables';
+import {
+  getTestVarsInternalFn,
+  ITestVariables,
+} from '../src/endpoints/test-utils/vars';
 
 async function waitOnPromises(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
@@ -9,10 +22,12 @@ async function waitOnPromises(promises: Promise<any>[]) {
   );
 }
 
-async function dropMongoCollections(globals: IFilesNodeJestVars) {
+async function dropMongoCollections(globals: ITestVariables) {
   const mongoURI = globals.mongoDbURI;
   const dbName = globals.mongoDbDatabaseName;
   const useMongoDataProvider = globals.dataProviderType === 'mongo';
+
+  console.log({globals, useMongoDataProvider});
 
   if (!mongoURI || !useMongoDataProvider) {
     return;
@@ -22,18 +37,14 @@ async function dropMongoCollections(globals: IFilesNodeJestVars) {
     .createConnection(mongoURI, {dbName})
     .asPromise();
 
-  if (globals.isUsingAddedMongoDatabase) {
-    console.log(`-- Mongo - dropping mongo db ${dbName} --`);
-    await connection.dropDatabase();
-  } else {
-    console.log(`-- Mongo - dropping mongo collections in db ${dbName} --`);
-    const collections = connection.collections;
-    const promises = _.map(collections, collection => {
-      return collection.drop();
-    });
+  console.log(`-- Mongo - dropping mongo collections in db ${dbName} --`);
+  const collections = await connection.db.collections();
+  const promises = _.map(collections, collection => {
+    return collection.drop();
+  });
 
-    await waitOnPromises(promises);
-  }
+  await waitOnPromises(promises);
+  await connection.close();
 }
 
 async function deleteAWSBucketObjects(globals: IFilesNodeJestVars) {
@@ -54,47 +65,45 @@ async function deleteAWSBucketObjects(globals: IFilesNodeJestVars) {
   }
 
   console.log(`-- AWS - deleting bucket ${bucketName} objects --`);
-  const credentials = new aws.Credentials({accessKeyId, secretAccessKey});
-  aws.config.update({credentials, region});
-  const s3 = new aws.S3();
+  const s3 = new S3Client({region: globals.awsRegion});
   let continuationToken: string | undefined;
 
   do {
-    const response: aws.S3.Types.ListObjectsV2Output = await s3
-      .listObjectsV2({Bucket: bucketName, ContinuationToken: continuationToken})
-      .promise();
+    const command = new ListObjectsV2Command({
+      Bucket: bucketName,
+      ContinuationToken: continuationToken,
+    });
 
+    const response = await s3.send(command);
     continuationToken = response.ContinuationToken;
     const contents = response.Contents;
 
     if (contents) {
-      const keys: aws.S3.Types.ObjectIdentifierList = [];
+      const keys: ObjectIdentifier[] = [];
       contents.forEach(item => item.Key && keys.push({Key: item.Key}));
-      await waitOnPromises([
-        s3
-          .deleteObjects({
-            Bucket: bucketName,
-            Delete: {Objects: keys},
-          })
-          .promise(),
-      ]);
+      const command = new DeleteObjectsCommand({
+        Bucket: bucketName,
+        Delete: {Objects: keys},
+      });
+
+      await waitOnPromises([s3.send(command)]);
     }
   } while (continuationToken);
 
-  if (globals.isUsingAddedS3Bucket) {
-    console.log(`-- AWS - deleting bucket ${bucketName} --`);
-    await s3
-      .deleteBucket({
-        Bucket: bucketName,
-      })
-      .promise();
-  }
+  s3.destroy();
 }
 
 async function jestGlobalTeardown(globals: IFilesNodeJestVars) {
+  const envSchema = Object.keys(extractProdEnvsSchema).reduce((map, key) => {
+    const k = key as keyof ExtractEnvSchema;
+    map[k] = {...extractProdEnvsSchema[k], required: false};
+    return map;
+  }, {} as ExtractEnvSchema);
+
+  const vars = getTestVarsInternalFn(envSchema);
   await waitOnPromises([
-    dropMongoCollections(globals),
-    deleteAWSBucketObjects(globals),
+    dropMongoCollections(vars),
+    deleteAWSBucketObjects(vars),
   ]);
 }
 

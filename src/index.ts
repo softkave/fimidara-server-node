@@ -19,7 +19,6 @@ import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setup
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
-import {configureAWS} from './resources/aws';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
 import {
   ensureAppBucketsReady,
@@ -67,23 +66,21 @@ function setupJWT(ctx: IBaseContext) {
 
 async function setup() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  configureAWS(
-    appVariables.awsAccessKeyId,
-    appVariables.awsSecretAccessKey,
-    appVariables.awsRegion
-  );
-
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
   );
 
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
-  const fileProvider = new S3FilePersistenceProviderContext();
+  const fileProvider = new S3FilePersistenceProviderContext(
+    appVariables.awsRegion
+  );
+
+  const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   await ensureAppBucketsReady(fileProvider, appVariables);
   const ctx = new BaseContext(
     mongoDBDataProvider,
-    new SESEmailProviderContext(),
+    emailProvider,
     fileProvider,
     appVariables
   );

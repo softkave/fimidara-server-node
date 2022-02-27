@@ -12,6 +12,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PresetPermissionsGroupQueries from '../queries';
+import {presetPermissionsGroupExtractor} from '../utils';
 import updatePresetPermissionsGroup from './handler';
 import {
   IUpdatePresetPermissionsGroupInput,
@@ -86,7 +87,9 @@ test('preset updated', async () => {
     PresetPermissionsGroupQueries.getById(preset00.resourceId)
   );
 
-  expect(updatedPreset).toMatchObject(result.preset);
+  expect(presetPermissionsGroupExtractor(updatedPreset)).toMatchObject(
+    result.preset
+  );
   expect(updatedPreset.name).toEqual(updatePresetInput.name);
   expect(updatedPreset.description).toEqual(updatePresetInput.description);
   expect(updatedPreset.presets.length).toEqual(2);
