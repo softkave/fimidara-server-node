@@ -12,7 +12,7 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   organizationId: {type: String},
   name: {type: String},
   description: {type: String},
-  presets: {type: [assignedPermissionsGroupSchema]},
+  presets: {type: [assignedPermissionsGroupSchema], default: []},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
 });

@@ -1,3 +1,4 @@
+import {findItemWithField} from '../../../utilities/fns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -51,6 +52,17 @@ test("organization's presets returned", async () => {
     instData
   );
   assertEndpointResultOk(result);
-  expect(result.presets).toContainEqual(preset01);
-  expect(result.presets).toContainEqual(preset02);
+  const resultPreset01 = findItemWithField(
+    result.presets,
+    preset01.resourceId,
+    'resourceId'
+  );
+
+  const resultPreset02 = findItemWithField(
+    result.presets,
+    preset02.resourceId,
+    'resourceId'
+  );
+  expect(resultPreset01).toMatchObject(preset01);
+  expect(resultPreset02).toMatchObject(preset02);
 });

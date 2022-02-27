@@ -45,7 +45,11 @@ export function throwFolderNotFound() {
   throw new FolderNotFoundError();
 }
 
-export function splitFolderPath(path: string) {
+export function splitFolderPath(path: string | string[]) {
+  if (isArray(path)) {
+    return path;
+  }
+
   const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
 
   if (p.length > folderConstants.maxFolderDepth) {
@@ -66,7 +70,7 @@ export function assertSplitFolderPath(path: string) {
 }
 
 export interface IFolderPathWithDetails {
-  path: string;
+  path: string | string[];
   name: string;
   splitPath: string[];
   splitParentPath: string[];
@@ -74,7 +78,9 @@ export interface IFolderPathWithDetails {
   hasParent: boolean;
 }
 
-export function splitPathWithDetails(path: string): IFolderPathWithDetails {
+export function splitPathWithDetails(
+  path: string | string[]
+): IFolderPathWithDetails {
   const splitPath = splitFolderPath(path);
   const name = splitPath[splitPath.length - 1] || '';
   const splitParentPath = splitPath.slice(0, -1);

@@ -8,7 +8,7 @@ import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
 export const userOrganizationSchema = ensureTypeFields<IUserOrganization>({
   organizationId: {type: String},
   joinedAt: {type: String},
-  presets: assignedPermissionsGroupSchema,
+  presets: {type: [assignedPermissionsGroupSchema], default: []},
 });
 
 const userSchema = ensureTypeFields<IUser>({
@@ -25,6 +25,7 @@ const userSchema = ensureTypeFields<IUser>({
   emailVerificationEmailSentAt: {type: Date},
   organizations: {
     type: [userOrganizationSchema],
+    default: [],
   },
 });
 

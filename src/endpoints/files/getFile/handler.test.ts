@@ -1,5 +1,7 @@
+import assert = require('assert');
 import sharp = require('sharp');
 import {IBaseContext} from '../../contexts/BaseContext';
+import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -50,8 +52,10 @@ test('file returned', async () => {
     key: file.resourceId,
   });
 
-  expect(savedFile).toBeTruthy();
-  expect(savedFile.body).toEqual(result.buffer);
+  const savedBuffer =
+    savedFile.body && (await getBodyFromStream(savedFile.body));
+  assert(savedBuffer);
+  expect(result.buffer.equals(savedBuffer)).toBe(true);
 });
 
 test('file resized', async () => {

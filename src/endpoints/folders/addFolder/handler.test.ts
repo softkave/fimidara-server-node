@@ -7,6 +7,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import FolderQueries from '../queries';
+import {folderExtractor} from '../utils';
 
 /**
  * TODO:
@@ -38,5 +39,5 @@ test('folder created', async () => {
     FolderQueries.getById(folder.resourceId)
   );
 
-  expect(folder).toEqual(savedFolder);
+  expect(folder).toMatchObject(folderExtractor(savedFolder));
 });

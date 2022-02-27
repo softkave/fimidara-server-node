@@ -4,6 +4,7 @@ import {
   IAppVariables,
   envFns,
   extractProdEnvsSchema,
+  ExtractEnvSchema,
 } from '../../resources/appVariables';
 import singletonFunc from '../../utilities/singletonFunc';
 
@@ -27,7 +28,11 @@ export enum TestOnlyEnvVariables {
 export type ITestVariables = ITestOnlyVariables & IAppVariables;
 
 export const getTestVars = singletonFunc((): IAppVariables & ITestVariables => {
-  const appVariables = getAppVariables(extractProdEnvsSchema, true);
+  return getTestVarsInternalFn(extractProdEnvsSchema);
+});
+
+export function getTestVarsInternalFn(envSchema: ExtractEnvSchema) {
+  const appVariables = getAppVariables(envSchema, true);
   const testOnlyVars: ITestOnlyVariables = {
     dataProviderType: envFns.getOptional(
       TestOnlyEnvVariables.DATA_PROVIDER_TYPE,
@@ -47,4 +52,4 @@ export const getTestVars = singletonFunc((): IAppVariables & ITestVariables => {
   };
 
   return merge(appVariables, testOnlyVars);
-});
+}

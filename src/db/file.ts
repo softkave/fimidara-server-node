@@ -17,11 +17,11 @@ const fileSchema = ensureTypeFields<IFile>({
   name: {type: String},
   extension: {type: String},
   encoding: {type: String},
-  idPath: {type: [String]},
-  isPublic: {type: Boolean},
+  idPath: {type: [String], default: []},
+  isPublic: {type: Boolean, default: false},
   markedPublicAt: {type: Date},
-  markedPublicBy: agentSchema,
-  namePath: {type: [String]},
+  markedPublicBy: {type: agentSchema},
+  namePath: {type: [String], default: []},
 });
 
 export type IFileDocument = Document<IFile>;

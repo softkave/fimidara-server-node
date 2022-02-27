@@ -11,6 +11,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {collabRequestExtractor} from '../utils';
 import revokeRequest from './handler';
 import {IRevokeRequestParams} from './types';
 
@@ -52,7 +53,7 @@ test('collaboration request revoked', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toEqual(updatedRequest);
+  expect(result.request).toMatchObject(collabRequestExtractor(updatedRequest));
   expect(
     updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
   ).toMatchObject({

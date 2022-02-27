@@ -1,4 +1,6 @@
+import assert = require('assert');
 import {IBaseContext} from '../../contexts/BaseContext';
+import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {
   assertContext,
   getTestBaseContext,
@@ -7,6 +9,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import FileQueries from '../queries';
+import {fileExtractor} from '../utils';
 
 let context: IBaseContext | null = null;
 
@@ -33,12 +36,15 @@ test('file returned', async () => {
     key: file.resourceId,
   });
 
-  expect(persistedFile).toBeTruthy();
-  expect(persistedFile.body).toEqual(buffer);
+  const savedBuffer =
+    persistedFile.body && (await getBodyFromStream(persistedFile.body));
+
+  assert(savedBuffer);
+  expect(buffer.equals(savedBuffer)).toBe(true);
 
   const savedFile = await context.data.file.assertGetItem(
     FileQueries.getById(file.resourceId)
   );
 
-  expect(savedFile).toEqual(file);
+  expect(file).toMatchObject(fileExtractor(savedFile));
 });

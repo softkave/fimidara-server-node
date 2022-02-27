@@ -13,6 +13,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import ClientAssignedTokenQueries from '../queries';
+import {programAccessTokenExtractor} from '../utils';
 import updateProgramAccessToken from './handler';
 import {IUpdateProgramAccessTokenParams} from './types';
 
@@ -85,7 +86,7 @@ test('program access token updated', async () => {
     ClientAssignedTokenQueries.getById(token01.resourceId)
   );
 
-  expect(updatedToken).toMatchObject(result.token);
+  expect(programAccessTokenExtractor(updatedToken)).toMatchObject(result.token);
   expect(updatedToken.name).toBe(tokenUpdateInput.name);
   expect(updatedToken.description).toBe(tokenUpdateInput.description);
   expect(updatedToken.presets.length).toEqual(2);

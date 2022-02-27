@@ -12,9 +12,9 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   version: {type: Number},
   issuedAt: {type: String},
   expires: {type: Number},
-  lastUpdatedAt: {type: Date, default: getDate},
+  lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
-  presets: {type: [assignedPermissionsGroupSchema]},
+  presets: {type: [assignedPermissionsGroupSchema], default: []},
 });
 
 export type IClientAssignedTokenDocument = Document<IClientAssignedToken>;

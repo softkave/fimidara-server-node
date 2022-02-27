@@ -9,6 +9,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
+import {userExtractor} from '../utils';
 import updateUser from './handler';
 import {IUpdateUserParams} from './types';
 
@@ -46,5 +47,5 @@ test('user data updated', async () => {
     UserQueries.getById(result.user.resourceId)
   );
 
-  expect(savedUser).toMatchObject(result.user);
+  expect(userExtractor(savedUser)).toMatchObject(result.user);
 });

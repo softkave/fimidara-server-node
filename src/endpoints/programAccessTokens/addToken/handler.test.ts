@@ -9,6 +9,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
+import {programAccessTokenExtractor} from '../utils';
 
 /**
  * TODO:
@@ -64,7 +65,7 @@ test('program access token added', async () => {
     ProgramAccessTokenQueries.getById(token.resourceId)
   );
 
-  expect(savedToken).toEqual(token);
+  expect(programAccessTokenExtractor(savedToken)).toMatchObject(token);
   expect(savedToken.presets.length).toEqual(2);
   expect(savedToken.presets[0]).toMatchObject({
     presetId: preset01.resourceId,

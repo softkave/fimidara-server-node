@@ -1,3 +1,4 @@
+import {Readable} from 'stream';
 import {noopAsync} from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
 import {
@@ -24,7 +25,14 @@ export default class TestMemoryFilePersistenceProviderContext
         return file.bucket === params.bucket && file.key === params.key;
       });
 
-      return {body: file?.body};
+      if (file) {
+        const readable = new Readable();
+        readable.push(file.body);
+        readable.push(null);
+        return {body: readable};
+      }
+
+      return {body: undefined};
     })
     .mockName('getFile');
 
@@ -38,4 +46,5 @@ export default class TestMemoryFilePersistenceProviderContext
     .mockName('deleteFiles');
 
   public ensureBucketReady = jest.fn(noopAsync);
+  public close = jest.fn(noopAsync);
 }

@@ -6,7 +6,7 @@ import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 import {NotFoundError} from '../../errors';
-import {format} from 'util';
+import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
@@ -28,16 +28,14 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     key: file.resourceId,
   });
 
-  let buffer = persistedFile.body as Buffer | undefined;
+  let buffer =
+    persistedFile.body && (await getBodyFromStream(persistedFile.body));
 
   if (!buffer) {
     throw new NotFoundError('File does not exist');
   }
 
-  console.log(`persisted file - ${format(persistedFile)}`);
-
   if (data.imageTranformation) {
-    console.log(`buffer - ${buffer.toString()}`);
     buffer = await sharp(buffer)
       .resize(data.imageTranformation.width, data.imageTranformation.height)
       .png()

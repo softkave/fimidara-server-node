@@ -18,12 +18,12 @@ const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
   resourceId: {type: String},
   organizationId: {type: String},
   createdAt: {type: Date, default: getDate},
-  createdBy: agentSchema,
+  createdBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
-  lastUpdatedBy: agentSchema,
+  lastUpdatedBy: {type: agentSchema},
   name: {type: String},
   description: {type: String},
-  presets: assignedPermissionsGroupSchema,
+  presets: {type: [assignedPermissionsGroupSchema], default: []},
 });
 
 export type IPresetPermissionsItemDocument = Document<IPresetPermissionsGroup>;

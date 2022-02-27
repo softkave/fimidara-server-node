@@ -28,7 +28,7 @@ const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
   sentEmailHistory: {type: [notificationSentEmailHistorySchema], default: []},
   organizationId: {type: String, index: true},
   lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date, default: () => getDate()},
+  lastUpdatedAt: {type: Date},
 });
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;

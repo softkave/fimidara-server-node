@@ -2,10 +2,16 @@ import {SESEmailProviderContext} from '../../contexts/EmailProviderContext';
 import {ITestEmailProviderContext} from './types';
 
 export default class TestSESEmailProviderContext
-  extends SESEmailProviderContext
   implements ITestEmailProviderContext
 {
-  public sendEmail = jest
-    .fn(SESEmailProviderContext.prototype.sendEmail)
-    .mockName('sendEmail');
+  private client: SESEmailProviderContext;
+
+  sendEmail: ITestEmailProviderContext['sendEmail'];
+  close: ITestEmailProviderContext['close'];
+
+  constructor(region: string) {
+    this.client = new SESEmailProviderContext(region);
+    this.sendEmail = jest.fn(this.client.sendEmail).mockName('sendEmail');
+    this.close = jest.fn(this.client.close).mockName('close');
+  }
 }

@@ -91,7 +91,7 @@ test('folder deleted', async () => {
 
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
-  assertFolderDeleted(context, folder01.resourceId);
-  assertFolderDeleted(context, folder02.resourceId);
-  assertFileDeleted(context, file.resourceId);
+  await assertFolderDeleted(context, folder01.resourceId);
+  await assertFolderDeleted(context, folder02.resourceId);
+  await assertFileDeleted(context, file.resourceId);
 });

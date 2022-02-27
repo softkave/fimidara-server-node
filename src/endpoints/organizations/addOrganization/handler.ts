@@ -111,7 +111,7 @@ async function setupAdminPreset(
     return data;
   });
 
-  await context.data.user.updateItem(
+  const updatedUser = await context.data.user.updateItem(
     EndpointReusableQueries.getById(user.resourceId),
     {
       organizations: user.organizations,

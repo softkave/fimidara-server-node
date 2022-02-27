@@ -11,6 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import FileQueries from '../queries';
+import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {
   IUpdateFileDetailsEndpointParams,
@@ -61,6 +62,6 @@ test('file updated', async () => {
     FileQueries.getById(file.resourceId)
   );
 
-  expect(updatedFile).toEqual(result.file);
+  expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
 });
