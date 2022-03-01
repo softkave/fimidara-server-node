@@ -77,7 +77,6 @@ async function setup() {
   );
 
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
-  await ensureAppBucketsReady(fileProvider, appVariables);
   const ctx = new BaseContext(
     mongoDBDataProvider,
     emailProvider,

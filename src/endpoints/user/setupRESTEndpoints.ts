@@ -34,21 +34,21 @@ export default function setupAccountRESTEndpoints(
     sendEmailVerificationCode: wrapEndpointREST(sendEmailVerificationCode, ctx),
   };
 
-  app.post('/user/signup', account.signup);
-  app.post('/user/login', account.login);
-  app.post('/user/forgotPassword', account.forgotPassword);
+  app.post('/account/signup', account.signup);
+  app.post('/account/login', account.login);
+  app.post('/account/forgotPassword', account.forgotPassword);
   app.post(
-    '/user/changePasswordWithCurrentPassword',
+    '/account/changePasswordWithCurrentPassword',
     account.changePasswordWithCurrentPassword
   );
-  app.post('/user/changePasswordWithToken', account.changePasswordWithToken);
-  app.post('/user/changePassword', account.changePassword);
-  app.post('/user/updateUser', account.updateUser);
-  app.post('/user/getUserData', account.getUserData);
-  app.post('/user/userExists', account.userExists);
-  app.post('/user/confirmEmailAddress', account.confirmEmailAddress);
+  app.post('/account/changePasswordWithToken', account.changePasswordWithToken);
+  app.post('/account/changePassword', account.changePassword);
+  app.post('/account/updateUser', account.updateUser);
+  app.post('/account/getUserData', account.getUserData);
+  app.post('/account/userExists', account.userExists);
+  app.post('/account/confirmEmailAddress', account.confirmEmailAddress);
   app.post(
-    '/user/sendEmailVerificationCode',
+    '/account/sendEmailVerificationCode',
     account.sendEmailVerificationCode
   );
 }

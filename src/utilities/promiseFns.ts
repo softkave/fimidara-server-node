@@ -40,7 +40,7 @@ export const wrapFireAndThrowError = <
   return cast<ReturnFn>(async (...args: any) => {
     try {
       return await fn(...args);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
 
       if (cast<OperationError>(error)?.isPublic) {

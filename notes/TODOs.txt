@@ -48,3 +48,4 @@ write test for . notation for arrays
 what they shouldn't
 - change API passed ids to resource ID
 - Test time diff supplied that the full value is saved
+- Let users paya for special/configurable memory caching space

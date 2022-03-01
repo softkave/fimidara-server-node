@@ -22,7 +22,7 @@ export function collaborationRequestEmailHTML(
   const title = collaborationRequestEmailTitle(props.organizationName);
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US">
     <head>
         <meta charset="utf-8" />
         <title>${getHeaderText(title)}</title>

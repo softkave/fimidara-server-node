@@ -156,11 +156,11 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
 
 export const defaultStaticVars = {
   appName: 'Files by Softkave',
-  appDefaultEmailAddressFrom: 'hello@files.softkave.com',
+  appDefaultEmailAddressFrom: 'Hello@files.softkave.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
-  changePasswordPath: '/change-password',
-  verifyEmailPath: '/verify-email',
+  changePasswordPath: '/account/change-password',
+  verifyEmailPath: '/account/verify-email',
 };
 
 // Cast here is safe as long as nobody uses appVariables directly but through

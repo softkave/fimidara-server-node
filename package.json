@@ -21,7 +21,8 @@
     "fix": "gts fix",
     "prepare": "npm.cmd run compile",
     "pretest": "npm.cmd run compile",
-    "posttest": "npm.cmd run lint"
+    "posttest": "npm.cmd run lint",
+    "render-email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/code/email-templates/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",
@@ -29,7 +30,6 @@
     "argon2": "^0.27.1",
     "cors": "^2.8.5",
     "date-fns": "^2.16.1",
-    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-jwt": "^6.0.0",
     "joi": "^17.3.0",
@@ -38,7 +38,6 @@
     "mongoose": "^6.2.2",
     "multer": "^1.4.4",
     "nanoid": "^3.1.20",
-    "promise.allsettled": "^1.0.5",
     "sharp": "^0.27.0",
     "validator": "^13.5.2",
     "winston": "^3.3.3"
@@ -53,7 +52,6 @@
     "@types/lodash": "^4.14.165",
     "@types/multer": "^1.4.5",
     "@types/node": "^16.11.25",
-    "@types/promise.allsettled": "^1.0.3",
     "@types/sharp": "^0.26.1",
     "@types/validator": "^13.1.2",
     "env-cmd": "^10.1.0",

@@ -21,7 +21,7 @@ export function collaborationRequestRevokedEmailHTML(
   const title = collaborationRequestRevokedEmailTitle(props.organizationName);
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US">
     <head>
       <meta charset="utf-8" />
       <title>${getHeaderText(title)}</title>
