@@ -73,7 +73,7 @@ export class S3FilePersistenceProviderContext
       });
 
       const response = await this.s3.send(command);
-      return {body: response.Body};
+      return {body: <Readable | undefined>response.Body};
     }
   );
 

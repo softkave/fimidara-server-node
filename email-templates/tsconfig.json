@@ -1,0 +1,15 @@
+{
+  "extends": "../node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "outDir": "code",
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true
+  },
+  "exclude": ["node_modules", "dist"],
+  "files": ["index.ts"]
+}

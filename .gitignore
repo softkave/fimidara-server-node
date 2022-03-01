@@ -104,6 +104,7 @@ dist
 
 # build folder
 build/
+email-templates/code
 
 # AWS config
 aws-config.json

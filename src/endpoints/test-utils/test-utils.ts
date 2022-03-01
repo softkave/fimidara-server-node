@@ -2,7 +2,6 @@ import assert = require('assert');
 import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
-import allSettled = require('promise.allsettled');
 import {getMongoConnection} from '../../db/connection';
 import {
   AppResourceType,
@@ -101,7 +100,7 @@ async function getTestFileProvider(appVariables: ITestVariables) {
 }
 
 async function waitForCleanup(promises: Promise<any>[]) {
-  const result = await allSettled(promises);
+  const result = await Promise.allSettled(promises);
   result.forEach(item => {
     if (item.status === 'rejected') {
       console.error(item.reason);

@@ -1,6 +1,7 @@
 import {
   emailTemplateConstants,
   emailTemplateStyles,
+  getDoNotReplyHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
@@ -19,30 +20,27 @@ export function confirmEmailAddressEmailHTML(
 ): string {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US">
     <head>
-        <meta charset="utf-8" />
-        <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
-        <style>${emailTemplateStyles}</style>
-        <style>
-        .${emailTemplateConstants.classNamePrefix}-app-verify-code {
-            text-align: center;
-            font-size: 24px;
-            margin: 24px 0px;
-        }
-        </style>
+      <meta charset="utf-8" />
+      <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
+      ${emailTemplateStyles}
     </head>
     <body>
-        ${getHeaderHTML(confirmEmailAddressEmailTitle)}
-        <div class="email-body">
-            <div class="email-content-center">
-                <p>
-                    Hi ${props.firstName}, follow this 
-                    <a href=${props.link}>link</a> to verify your email address.
-                </p>
-            </div>
+      ${getHeaderHTML(confirmEmailAddressEmailTitle)}
+      <div class="${emailTemplateConstants.classNamePrefix}-body">
+        <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+          <p>
+            Hi ${
+              props.firstName
+            }, follow the link below to verify your email address.
+            <br />
+            <a href="${props.link}">${props.link}</a>
+          </p>
+          ${getDoNotReplyHTML()}
         </div>
-        ${getFooterHTML()}
+      </div>
+      ${getFooterHTML()}
     </body>
     </html>
   `;
@@ -54,7 +52,7 @@ export function confirmEmailAddressEmailText(
   const text = `
     ${getHeaderText(confirmEmailAddressEmailTitle)}
     -
-    Hi ${props.firstName}, visit this link to verify your email address:
+    Hi ${props.firstName}, visit the link below to verify your email address:
     ${props.link} 
     `;
 

@@ -16,7 +16,7 @@ export function collaborationRequestExpiredEmailHTML(
 
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-US">
     <head>
         <meta charset="utf-8" />
         <title>${getHeaderText(title)}</title>

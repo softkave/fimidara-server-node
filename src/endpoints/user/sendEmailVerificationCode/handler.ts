@@ -4,7 +4,7 @@ import {SendEmailVerificationCodeEndpoint} from './types';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
-import * as querystring from 'querystring';
+import {stringify} from 'querystring';
 import getNewId from '../../../utilities/getNewId';
 import {
   CURRENT_TOKEN_VERSION,
@@ -87,7 +87,7 @@ export function getConfirmEmailLink(context: IBaseContext, token: IUserToken) {
 
   return `${context.appVariables.clientDomain}${
     context.appVariables.verifyEmailPath
-  }?${querystring.stringify({
+  }?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 }
