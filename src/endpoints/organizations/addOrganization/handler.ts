@@ -14,6 +14,8 @@ import {validate} from '../../../utilities/validate';
 import {updateCollaboratorOrganization} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
+import {OrganizationExistsError} from '../errors';
+import OrganizationQueries from '../queries';
 import {organizationExtractor} from '../utils';
 import {AddOrganizationEndpoint} from './types';
 import {addOrganizationJoiSchema} from './validation';
@@ -26,6 +28,14 @@ import {addOrganizationJoiSchema} from './validation';
 const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
   const data = validate(instData.data, addOrganizationJoiSchema);
   const user = await context.session.getUser(context, instData);
+  const organizationExists = await context.data.organization.checkItemExists(
+    OrganizationQueries.getByName(data.name)
+  );
+
+  if (organizationExists) {
+    throw new OrganizationExistsError();
+  }
+
   const organization = await context.data.organization.saveItem({
     createdAt: getDateString(),
     createdBy: {

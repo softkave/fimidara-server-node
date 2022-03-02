@@ -29,6 +29,7 @@ const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   createdAt: getDateString,
   expiresAt: getDateStringIfPresent,
   organizationId: true,
+  organizationName: true,
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
   readAt: getDateStringIfPresent,

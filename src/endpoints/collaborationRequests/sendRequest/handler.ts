@@ -100,6 +100,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
       agentType: agent.agentType,
     },
     message: data.request.message,
+    organizationName: organization.name,
     organizationId: organization.resourceId,
     recipientEmail: data.request.recipientEmail,
     expiresAt: getDateString(
