@@ -20,7 +20,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     lastUpdatedAt: getDateString(),
   };
 
-  if (data.email) {
+  if (data.email && data.email.toLowerCase() !== user.email.toLowerCase()) {
     update.isEmailVerified = false;
     update.emailVerifiedAt = null;
     update.emailVerificationEmailSentAt = null;
