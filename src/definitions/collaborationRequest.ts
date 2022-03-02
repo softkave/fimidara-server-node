@@ -37,6 +37,7 @@ export interface ICollaborationRequest {
   createdBy: IAgent;
   createdAt: Date | string;
   expiresAt?: string;
+  organizationName: string;
   organizationId: string;
   lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;

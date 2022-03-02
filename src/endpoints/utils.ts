@@ -21,11 +21,12 @@ export const wrapEndpointREST = <
   handleResponse?: (
     res: Response,
     result: Awaited<ReturnType<EndpointType>>
-  ) => void
+  ) => void,
+  getData?: (req: Request) => Parameters<EndpointType>[1]['data']
 ): ((req: Request, res: Response) => any) => {
   return async (req: Request, res: Response) => {
     try {
-      const data = req.body;
+      const data = getData ? getData(req) : req.body;
       const instData = RequestData.fromExpressRequest(
         req as unknown as IServerRequest,
         data
