@@ -6,6 +6,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   resourceId: {type: String, unique: true, index: true},
+  providedResourceId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   organizationId: {type: String},

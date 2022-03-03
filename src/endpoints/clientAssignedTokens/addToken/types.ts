@@ -4,8 +4,9 @@ import {Endpoint} from '../../types';
 import {IPublicClientAssignedToken} from '../types';
 
 export interface INewClientAssignedTokenInput {
+  providedResourceId?: string;
   expires?: number;
-  presets: IPresetInput[];
+  presets?: IPresetInput[];
 }
 
 export interface IAddClientAssignedTokenParams {

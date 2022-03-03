@@ -1,11 +1,10 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {
-  checkClientAssignedTokenAuthorization02,
+  checkClientAssignedTokenAuthorization03,
   clientAssignedTokenExtractor,
 } from '../utils';
 import {UpdateClientAssignedTokenPresetsEndpoint} from './types';
@@ -32,17 +31,11 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
     );
 
     const agent = await context.session.getAgent(context, instData);
-    const tokenId = getClientAssignedTokenId(
-      agent,
-      data.tokenId,
-      data.onReferenced
-    );
-
-    const checkResult = await checkClientAssignedTokenAuthorization02(
+    const checkResult = await checkClientAssignedTokenAuthorization03(
       context,
       agent,
-      tokenId,
-      BasicCRUDActions.Read
+      data,
+      BasicCRUDActions.Update
     );
 
     await checkPresetsExist(
@@ -54,7 +47,7 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
 
     let token = checkResult.token;
     token = await context.data.clientAssignedToken.assertUpdateItem(
-      EndpointReusableQueries.getById(tokenId),
+      EndpointReusableQueries.getById(checkResult.token.resourceId),
       {
         presets: data.presets.map(preset => ({
           ...preset,

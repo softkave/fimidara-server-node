@@ -6,6 +6,7 @@ import {IPublicClientAssignedToken} from '../types';
 export interface IUpdateClientAssignedTokenPresetsParams {
   tokenId?: string;
   onReferenced?: boolean;
+  providedResourceId?: string;
   presets: IPresetInput[];
 }
 

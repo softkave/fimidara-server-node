@@ -327,16 +327,30 @@ export function getOrganizationId(
   return organizationId;
 }
 
-export function getClientAssignedTokenId(
+export function getClientAssignedTokenIdNoThrow(
   agent: ISessionAgent,
-  providedTokenId?: string | null,
+  inputTokenId?: string | null,
   onReferenced?: boolean
 ) {
-  const tokenId = providedTokenId
-    ? providedTokenId
+  const tokenId = inputTokenId
+    ? inputTokenId
     : onReferenced
     ? agent.clientAssignedToken?.resourceId
     : null;
+
+  return tokenId;
+}
+
+export function getClientAssignedTokenId(
+  agent: ISessionAgent,
+  inputTokenId?: string | null,
+  onReferenced?: boolean
+) {
+  const tokenId = getClientAssignedTokenIdNoThrow(
+    agent,
+    inputTokenId,
+    onReferenced
+  );
 
   if (!tokenId) {
     throw new InvalidRequestError('Client assigned token ID not provided');

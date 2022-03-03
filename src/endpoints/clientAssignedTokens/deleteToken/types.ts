@@ -3,6 +3,7 @@ import {Endpoint} from '../../types';
 
 export interface IDeleteClientAssignedTokenParams {
   tokenId?: string;
+  providedResourceId?: string;
   onReferenced?: boolean;
 }
 

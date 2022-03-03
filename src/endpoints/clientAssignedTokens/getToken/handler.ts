@@ -1,8 +1,7 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import {
-  checkClientAssignedTokenAuthorization02,
+  checkClientAssignedTokenAuthorization03,
   ClientAssignedTokenUtils,
 } from '../utils';
 import {GetClientAssignedTokenEndpoint} from './types';
@@ -23,16 +22,10 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, getClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const tokenId = getClientAssignedTokenId(
-    agent,
-    data.tokenId,
-    data.onReferenced
-  );
-
-  const {token} = await checkClientAssignedTokenAuthorization02(
+  const {token} = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
-    tokenId,
+    data,
     BasicCRUDActions.Read
   );
 

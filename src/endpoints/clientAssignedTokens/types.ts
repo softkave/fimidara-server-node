@@ -3,6 +3,7 @@ import {IAgent} from '../../definitions/system';
 
 export interface IPublicClientAssignedToken {
   resourceId: string;
+  providedResourceId?: string;
   createdAt: string;
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;
