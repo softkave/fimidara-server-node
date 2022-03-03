@@ -72,6 +72,10 @@ export enum AppEnvVariables {
   AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
   AWS_REGION = 'AWS_REGION',
+  FILES_ORGANIZATION_ID = 'FILES_ORGANIZATION_ID',
+  // DEFAULT_ORGANIZATION_NAME = 'DEFAULT_ORGANIZATION_NAME',
+  // DEFAULT_USERS_IMAGES_FOLDER = 'DEFAULT_USERS_IMAGES_FOLDER',
+  // DEFAULT_ORGS_IMAGES_FOLDER = 'DEFAULT_ORGS_IMAGES_FOLDER',
 }
 
 interface ISuppliedVariables {
@@ -85,6 +89,10 @@ interface ISuppliedVariables {
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   awsRegion: string;
+  filesOrganizationId: string;
+  // defaultOrganizationName: string;
+  // defaultUsersImagesFolder: string;
+  // defaultOrgsImagesFolder: string;
 }
 
 interface IStaticVariables {
@@ -102,7 +110,7 @@ export interface IAppVariables extends ISuppliedVariables, IStaticVariables {}
 export type ExtractEnvSchema = Record<
   keyof ISuppliedVariables,
   {
-    required: boolean;
+    required?: boolean;
     name: AppEnvVariables;
     defaultValue?: string;
   }
@@ -152,6 +160,22 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     required: true,
     name: AppEnvVariables.AWS_REGION,
   },
+  filesOrganizationId: {
+    required: true,
+    name: AppEnvVariables.FILES_ORGANIZATION_ID,
+  },
+  // defaultOrganizationName: {
+  //   name: AppEnvVariables.DEFAULT_ORGANIZATION_NAME,
+  //   defaultValue: 'files-by-softkave',
+  // },
+  // defaultUsersImagesFolder: {
+  //   name: AppEnvVariables.DEFAULT_USERS_IMAGES_FOLDER,
+  //   defaultValue: 'files/images/users',
+  // },
+  // defaultOrgsImagesFolder: {
+  //   name: AppEnvVariables.DEFAULT_ORGS_IMAGES_FOLDER,
+  //   defaultValue: 'files/images/orgs',
+  // },
 };
 
 export const defaultStaticVars = {

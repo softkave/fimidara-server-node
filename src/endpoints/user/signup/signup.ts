@@ -17,6 +17,8 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {IUser} from '../../../definitions/user';
+import {IUserToken} from '../../../definitions/userToken';
 
 /**
  * Requirements. Ensure that:
@@ -73,14 +75,7 @@ const signup: SignupEndpoint = async (context, instData) => {
     promise: fireAndForgetPromise(callComfirmEmail(context, instData)),
   });
 
-  return {
-    user: userExtractor(user),
-    token: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.UserToken
-    ),
-  };
+  return toLoginResult(user, context, token);
 };
 
 export default signup;

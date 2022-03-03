@@ -22,7 +22,6 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from '../contexts/BaseContext';
-import {ensureAppBucketsReady} from '../contexts/FilePersistenceProviderContext';
 import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
@@ -32,7 +31,7 @@ import {
 } from '../contexts/SessionContext';
 import {IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
-import {INewFileInput, IUploadFileParams} from '../files/uploadFile/types';
+import {IUploadFileParams} from '../files/uploadFile/types';
 import addFolder from '../folders/addFolder/handler';
 import {IAddFolderParams, INewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
@@ -449,11 +448,12 @@ export async function insertFileForTest(
   context: IBaseContext,
   userToken: IUserToken,
   organizationId: string,
-  fileInput: Partial<INewFileInput> = {},
+  fileInput: Partial<IUploadFileParams> = {},
   type: 'image' | 'text' = 'image',
   imageProps?: IGenerateImageProps
 ) {
-  const input: INewFileInput = {
+  const input: IUploadFileParams = {
+    organizationId,
     path: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
@@ -478,10 +478,7 @@ export async function insertFileForTest(
 
   const instData = RequestData.fromExpressRequest<IUploadFileParams>(
     mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId,
-      file: input,
-    }
+    input
   );
 
   const result = await uploadFile(context, instData);

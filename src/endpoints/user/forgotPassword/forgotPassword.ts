@@ -1,5 +1,5 @@
 import {add} from 'date-fns';
-import * as querystring from 'querystring';
+import {stringify} from 'querystring';
 import {validate} from '../../../utilities/validate';
 import {userConstants} from '../constants';
 import {ForgotPasswordEndpoint} from './types';
@@ -68,7 +68,7 @@ export function getForgotPasswordLinkFromToken(
 
   const link = `${context.appVariables.clientDomain}${
     context.appVariables.changePasswordPath
-  }?${querystring.stringify({
+  }?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 
