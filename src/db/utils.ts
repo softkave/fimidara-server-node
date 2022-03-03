@@ -5,7 +5,7 @@ import {IAgent} from '../definitions/system';
 // TODO: do deep check to make sure that internal schemas are checked too
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function ensureTypeFields<T extends object>(schema: {
-  [path in keyof T]: SchemaDefinitionProperty<T[path]>;
+  [path in keyof Required<T>]: SchemaDefinitionProperty<T[path]>;
 }): any {
   return schema;
 }

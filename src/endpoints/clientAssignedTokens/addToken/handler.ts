@@ -1,6 +1,7 @@
 import {add} from 'date-fns';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {IAppVariables} from '../../../resources/appVariables';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -9,12 +10,19 @@ import {
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
+  IBaseContext,
+  IBaseContextDataProviders,
+} from '../../contexts/BaseContext';
+import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
+import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
+import {
   CURRENT_TOKEN_VERSION,
   getOrganizationId,
   TokenType,
 } from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
+import EndpointReusableQueries from '../../queries';
 import {ClientAssignedTokenUtils} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
@@ -47,15 +55,22 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     BasicCRUDActions.Create
   );
 
-  await checkPresetsExist(
-    context,
-    agent,
-    organization.resourceId,
-    data.token.presets
-  );
+  let token: IClientAssignedToken | null = null;
 
-  const token: IClientAssignedToken =
-    await context.data.clientAssignedToken.saveItem({
+  if (data.token.providedResourceId) {
+    token = await context.data.clientAssignedToken.getItem(
+      EndpointReusableQueries.getByProvidedId(data.token.providedResourceId)
+    );
+  }
+
+  if (!token) {
+    const presets = data.token.presets || [];
+
+    if (presets.length > 0) {
+      await checkPresetsExist(context, agent, organization.resourceId, presets);
+    }
+
+    token = await context.data.clientAssignedToken.saveItem({
       expires:
         data.token.expires &&
         add(Date.now(), {seconds: data.token.expires}).valueOf(),
@@ -68,7 +83,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       },
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
-      presets: data.token.presets.map(item => ({
+      presets: presets.map(item => ({
         assignedAt: getDateString(),
         assignedBy: {
           agentId: agent.agentId,
@@ -78,7 +93,27 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
         presetId: item.presetId,
       })),
     });
+  }
 
+  return toAddTokenResult(token, context);
+};
+
+export default addClientAssignedToken;
+function toAddTokenResult(
+  token: IClientAssignedToken,
+  context: IBaseContext<
+    IBaseContextDataProviders,
+    IEmailProviderContext,
+    IFilePersistenceProviderContext,
+    IAppVariables
+  >
+):
+  | (import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/clientAssignedTokens/addToken/types').IAddClientAssignedTokenResult &
+      import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/types').IBaseEndpointResult)
+  | PromiseLike<
+      import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/clientAssignedTokens/addToken/types').IAddClientAssignedTokenResult &
+        import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/types').IBaseEndpointResult
+    > {
   return {
     token: ClientAssignedTokenUtils.extractPublicToken(token),
     tokenStr: context.session.encodeToken(
@@ -88,6 +123,4 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       token.expires
     ),
   };
-};
-
-export default addClientAssignedToken;
+}

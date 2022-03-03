@@ -7,5 +7,5 @@ export class ClientAssignedTokenExistsError extends OperationError {
 
 export class ClientAssignedTokenDoesNotExistError extends OperationError {
   public name = 'ClientAssignedTokenDoesNotExistError';
-  public message = 'Client assigned token does not exist';
+  public message = 'Client assigned token not found';
 }

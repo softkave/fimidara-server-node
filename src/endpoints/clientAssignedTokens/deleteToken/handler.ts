@@ -1,10 +1,9 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import {getClientAssignedTokenId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
-import {checkClientAssignedTokenAuthorization02} from '../utils';
+import {checkClientAssignedTokenAuthorization03} from '../utils';
 import {DeleteClientAssignedTokenEndpoint} from './types';
 import {deleteClientAssignedTokenJoiSchema} from './validation';
 
@@ -23,16 +22,10 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, deleteClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const tokenId = getClientAssignedTokenId(
-    agent,
-    data.tokenId,
-    data.onReferenced
-  );
-
-  const {token} = await checkClientAssignedTokenAuthorization02(
+  const {token} = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
-    tokenId,
+    data,
     BasicCRUDActions.Delete
   );
 

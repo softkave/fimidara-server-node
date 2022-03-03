@@ -1,3 +1,4 @@
+import assert = require('assert');
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {
   ISessionAgent,
@@ -11,15 +12,18 @@ import {
   makeBasePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {NotFoundError} from '../errors';
+import {getClientAssignedTokenIdNoThrow} from '../contexts/SessionContext';
+import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {ClientAssignedTokenDoesNotExistError} from './errors';
 import {IPublicClientAssignedToken} from './types';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   resourceId: true,
+  providedResourceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
@@ -76,6 +80,51 @@ export async function checkClientAssignedTokenAuthorization02(
     EndpointReusableQueries.getById(tokenId)
   );
 
+  return checkClientAssignedTokenAuthorization(
+    context,
+    agent,
+    token,
+    action,
+    nothrow
+  );
+}
+
+export async function checkClientAssignedTokenAuthorization03(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  input: {
+    tokenId?: string;
+    providedResourceId?: string;
+    onReferenced?: boolean;
+  },
+  action: BasicCRUDActions,
+  nothrow = false
+) {
+  const tokenId = getClientAssignedTokenIdNoThrow(
+    agent,
+    input.tokenId,
+    input.onReferenced
+  );
+
+  if (!tokenId && !input.providedResourceId) {
+    throw new InvalidRequestError(
+      'Client assigned token ID or providedResourceId not set'
+    );
+  }
+
+  let token: IClientAssignedToken | null = null;
+
+  if (tokenId) {
+    await context.data.clientAssignedToken.assertGetItem(
+      EndpointReusableQueries.getById(tokenId)
+    );
+  } else if (input.providedResourceId) {
+    await context.data.clientAssignedToken.assertGetItem(
+      EndpointReusableQueries.getByProvidedId(input.providedResourceId)
+    );
+  }
+
+  assert(token, new ClientAssignedTokenDoesNotExistError());
   return checkClientAssignedTokenAuthorization(
     context,
     agent,
