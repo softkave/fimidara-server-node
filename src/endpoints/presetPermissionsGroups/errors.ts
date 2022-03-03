@@ -1,11 +1,11 @@
 import OperationError from '../../utilities/OperationError';
 
-export class PresetPermissionsItemExistsError extends OperationError {
-  public name = 'PresetPermissionsItemExistsError';
-  public message = 'Preset permission item exists';
+export class PresetPermissionsGroupExistsError extends OperationError {
+  public name = 'PresetPermissionsGroupExistsError';
+  public message = 'Preset permissions groups exists';
 }
 
-export class PresetPermissionsItemDoesNotExistError extends OperationError {
-  public name = 'PresetPermissionsItemDoesNotExistError';
-  public message = 'Preset permission item does not exist';
+export class PresetPermissionsGroupDoesNotExistError extends OperationError {
+  public name = 'PresetPermissionsGroupDoesNotExistError';
+  public message = 'Preset permissions group not found';
 }

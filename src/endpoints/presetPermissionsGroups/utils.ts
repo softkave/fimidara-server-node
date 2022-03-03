@@ -1,6 +1,8 @@
+import assert = require('assert');
 import {
   IAssignedPresetPermissionsGroup,
   IPresetPermissionsGroup,
+  IPresetPermissionsGroupMatcher,
 } from '../../definitions/presetPermissionsGroup';
 import {
   ISessionAgent,
@@ -14,9 +16,11 @@ import {
   makeBasePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {NotFoundError} from '../errors';
+import {assertGetOrganizationIdFromAgent} from '../contexts/SessionContext';
+import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {PresetPermissionsGroupDoesNotExistError} from './errors';
 import PresetPermissionsGroupQueries from './queries';
 import {IPresetInput, IPublicPresetPermissionsGroup} from './types';
 
@@ -101,23 +105,37 @@ export async function checkPresetPermissionsGroupAuthorization02(
 export async function checkPresetPermissionsGroupAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
-  input: {presetId?: string; name?: string},
+  input: IPresetPermissionsGroupMatcher,
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  let presetpermissionsgroup: IPresetPermissionsGroup | null = null;
+  let preset: IPresetPermissionsGroup | null = null;
 
-  if (input.presetId) {
-    presetpermissionsgroup = await context.data.preset.assertGetItem(
-      PresetPermissionsGroupQueries.getById(input.presetId)
-    );
-  } else {
+  if (!input.presetId && !input.name) {
+    throw new InvalidRequestError('Preset ID or name not set');
   }
 
+  if (input.presetId) {
+    preset = await context.data.preset.assertGetItem(
+      PresetPermissionsGroupQueries.getById(input.presetId)
+    );
+  } else if (input.name) {
+    const organizationId =
+      input.organizationId || assertGetOrganizationIdFromAgent(agent);
+
+    preset = await context.data.preset.assertGetItem(
+      PresetPermissionsGroupQueries.getByOrganizationAndName(
+        organizationId,
+        input.name
+      )
+    );
+  }
+
+  assert(preset, new PresetPermissionsGroupDoesNotExistError());
   return checkPresetPermissionsGroupAuthorization(
     context,
     agent,
-    presetpermissionsgroup,
+    preset,
     action,
     nothrow
   );

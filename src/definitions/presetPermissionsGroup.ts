@@ -18,3 +18,9 @@ export interface IAssignedPresetPermissionsGroup {
   assignedBy: IAgent;
   order: number;
 }
+
+export interface IPresetPermissionsGroupMatcher {
+  presetId?: string;
+  name?: string;
+  organizationId?: string;
+}

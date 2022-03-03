@@ -1,7 +1,7 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
-  checkPresetPermissionsGroupAuthorization02,
+  checkPresetPermissionsGroupAuthorization03,
   PresetPermissionsGroupUtils,
 } from '../utils';
 import {GetPresetPermissionsGroupEndpoint} from './types';
@@ -22,10 +22,10 @@ const getPresetPermissionsGroup: GetPresetPermissionsGroupEndpoint = async (
 ) => {
   const data = validate(instData.data, getPresetPermissionsGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {preset} = await checkPresetPermissionsGroupAuthorization02(
+  const {preset} = await checkPresetPermissionsGroupAuthorization03(
     context,
     agent,
-    data.presetId,
+    data,
     BasicCRUDActions.Read
   );
 

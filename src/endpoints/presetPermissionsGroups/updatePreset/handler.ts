@@ -5,7 +5,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import PresetPermissionsGroupQueries from '../queries';
 import {
-  checkPresetPermissionsGroupAuthorization02,
+  checkPresetPermissionsGroupAuthorization03,
   PresetPermissionsGroupUtils,
 } from '../utils';
 import {UpdatePresetPermissionsGroupEndpoint} from './types';
@@ -25,10 +25,10 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, updatePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {preset} = await checkPresetPermissionsGroupAuthorization02(
+    const {preset} = await checkPresetPermissionsGroupAuthorization03(
       context,
       agent,
-      data.presetId,
+      data,
       BasicCRUDActions.Update
     );
 
