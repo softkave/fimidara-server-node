@@ -5,6 +5,7 @@ import {IPublicClientAssignedToken} from '../types';
 export interface IGetClientAssignedTokenParams {
   tokenId?: string;
   providedResourceId?: string;
+  organizationId?: string;
   onReferenced?: boolean;
 }
 

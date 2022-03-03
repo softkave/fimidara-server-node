@@ -392,11 +392,16 @@ export function assertIncomingToken(
   return true;
 }
 
-export function updateReqAgent(
-  reqData: RequestData,
-  fn: (agent?: ISessionAgent) => ISessionAgent | undefined
-) {
-  if (reqData.agent) {
-    reqData.agent = fn(reqData.agent);
+export function assertGetOrganizationIdFromAgent(agent: ISessionAgent) {
+  const organizationId = agent.clientAssignedToken
+    ? agent.clientAssignedToken.organizationId
+    : agent.programAccessToken
+    ? agent.programAccessToken.organizationId
+    : null;
+
+  if (!organizationId) {
+    throw new InvalidRequestError('Organization ID not provided');
   }
+
+  return organizationId;
 }

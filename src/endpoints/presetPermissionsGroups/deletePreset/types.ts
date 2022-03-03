@@ -2,7 +2,8 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IDeletePresetPermissionsGroupParams {
-  presetId: string;
+  presetId?: string;
+  name?: string;
 }
 
 export type DeletePresetPermissionsGroupEndpoint = Endpoint<

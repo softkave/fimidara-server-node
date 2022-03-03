@@ -88,6 +88,32 @@ export async function checkPresetPermissionsGroupAuthorization02(
   const presetpermissionsgroup = await context.data.preset.assertGetItem(
     PresetPermissionsGroupQueries.getById(id)
   );
+
+  return checkPresetPermissionsGroupAuthorization(
+    context,
+    agent,
+    presetpermissionsgroup,
+    action,
+    nothrow
+  );
+}
+
+export async function checkPresetPermissionsGroupAuthorization03(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  input: {presetId?: string; name?: string},
+  action: BasicCRUDActions,
+  nothrow = false
+) {
+  let presetpermissionsgroup: IPresetPermissionsGroup | null = null;
+
+  if (input.presetId) {
+    presetpermissionsgroup = await context.data.preset.assertGetItem(
+      PresetPermissionsGroupQueries.getById(input.presetId)
+    );
+  } else {
+  }
+
   return checkPresetPermissionsGroupAuthorization(
     context,
     agent,
