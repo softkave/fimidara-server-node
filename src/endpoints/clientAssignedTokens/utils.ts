@@ -12,7 +12,10 @@ import {
   makeBasePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getClientAssignedTokenIdNoThrow} from '../contexts/SessionContext';
+import {
+  assertGetOrganizationIdFromAgent,
+  getClientAssignedTokenIdNoThrow,
+} from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
@@ -95,6 +98,7 @@ export async function checkClientAssignedTokenAuthorization03(
   input: {
     tokenId?: string;
     providedResourceId?: string;
+    organizationId?: string;
     onReferenced?: boolean;
   },
   action: BasicCRUDActions,
@@ -115,12 +119,18 @@ export async function checkClientAssignedTokenAuthorization03(
   let token: IClientAssignedToken | null = null;
 
   if (tokenId) {
-    await context.data.clientAssignedToken.assertGetItem(
+    token = await context.data.clientAssignedToken.assertGetItem(
       EndpointReusableQueries.getById(tokenId)
     );
   } else if (input.providedResourceId) {
-    await context.data.clientAssignedToken.assertGetItem(
-      EndpointReusableQueries.getByProvidedId(input.providedResourceId)
+    const organizationId =
+      input.organizationId || assertGetOrganizationIdFromAgent(agent);
+
+    token = await context.data.clientAssignedToken.assertGetItem(
+      EndpointReusableQueries.getByProvidedId(
+        organizationId,
+        input.providedResourceId
+      )
     );
   }
 

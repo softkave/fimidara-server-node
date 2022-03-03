@@ -50,9 +50,17 @@ function getByIds(ids: string[]) {
     .build();
 }
 
-function getByProvidedId(id: string) {
-  return new DataProviderFilterBuilder<{providedResourceId: string}>()
+function getByProvidedId(organizationId: string, id: string) {
+  return new DataProviderFilterBuilder<{
+    providedResourceId: string;
+    organizationId: string;
+  }>()
     .addItem('providedResourceId', id, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
     .build();
 }
 

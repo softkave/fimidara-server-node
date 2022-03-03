@@ -7,6 +7,7 @@ export interface IUpdateClientAssignedTokenPresetsParams {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;
+  organizationId?: string;
   presets: IPresetInput[];
 }
 
