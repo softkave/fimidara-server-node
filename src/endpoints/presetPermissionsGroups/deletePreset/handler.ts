@@ -3,7 +3,7 @@ import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import PermissionItemQueries from '../../permissionItems/queries';
 import PresetPermissionsGroupQueries from '../queries';
-import {checkPresetPermissionsGroupAuthorization02} from '../utils';
+import {checkPresetPermissionsGroupAuthorization03} from '../utils';
 import {DeletePresetPermissionsGroupEndpoint} from './types';
 import {deletePresetPermissionsGroupJoiSchema} from './validation';
 
@@ -20,10 +20,10 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, deletePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {preset} = await checkPresetPermissionsGroupAuthorization02(
+    const {preset} = await checkPresetPermissionsGroupAuthorization03(
       context,
       agent,
-      data.presetId,
+      data,
       BasicCRUDActions.Delete
     );
 
