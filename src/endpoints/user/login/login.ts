@@ -14,6 +14,7 @@ import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 import {userExtractor} from '../utils';
 import {LoginEndpoint} from './types';
+import {toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
 
 /**
@@ -64,14 +65,7 @@ const login: LoginEndpoint = async (context, instData) => {
 
   // Make the user token available to other requests made with this request data
   instData.agent = makeUserSessionAgent(token, user);
-  return {
-    user: userExtractor(user),
-    token: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.UserToken
-    ),
-  };
+  return toLoginResult(context, user, token);
 };
 
 export default login;

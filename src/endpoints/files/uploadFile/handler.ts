@@ -14,7 +14,7 @@ import {
   ISplitFilePathWithDetails,
   splitFilePathWithDetails,
 } from '../utils';
-import {INewFileInput, UploadFileEndpoint} from './types';
+import {IUploadFileParams, UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
 
 async function createFile(
@@ -22,7 +22,7 @@ async function createFile(
   agent: ISessionAgent,
   organizationId: string,
   pathWithDetails: ISplitFilePathWithDetails,
-  data: INewFileInput
+  data: IUploadFileParams
 ): Promise<IFile> {
   let parentFolder: IFolder | null = null;
 
@@ -58,7 +58,7 @@ async function createFile(
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const pathWithDetails = splitFilePathWithDetails(data.file.path);
+  const pathWithDetails = splitFilePathWithDetails(data.path);
   const organizationId = getOrganizationId(agent, data.organizationId);
   let file = await context.data.file.getItem(
     FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)
@@ -70,17 +70,17 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       agent,
       organizationId,
       pathWithDetails,
-      data.file
+      data
     );
   }
 
   await context.fileBackend.uploadFile({
     bucket: context.appVariables.S3Bucket,
     key: file.resourceId,
-    body: data.file.data,
-    contentType: data.file.mimetype,
-    contentEncoding: data.file.encoding,
-    contentLength: data.file.data.byteLength,
+    body: data.data,
+    contentType: data.mimetype,
+    contentEncoding: data.encoding,
+    contentLength: data.data.byteLength,
   });
 
   return {

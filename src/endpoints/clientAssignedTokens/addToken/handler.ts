@@ -59,7 +59,10 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   if (data.token.providedResourceId) {
     token = await context.data.clientAssignedToken.getItem(
-      EndpointReusableQueries.getByProvidedId(data.token.providedResourceId)
+      EndpointReusableQueries.getByProvidedId(
+        organization.resourceId,
+        data.token.providedResourceId
+      )
     );
   }
 
