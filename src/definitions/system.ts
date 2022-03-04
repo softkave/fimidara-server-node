@@ -13,6 +13,11 @@ export enum SessionAgentType {
   System = 'files-system',
 }
 
+export const systemAgent: IAgent = {
+  agentId: SessionAgentType.System,
+  agentType: SessionAgentType.System,
+};
+
 export interface ISessionAgent {
   agentId: string;
   agentType: SessionAgentType;

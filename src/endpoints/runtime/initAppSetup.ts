@@ -4,8 +4,7 @@ import {
   AppResourceType,
   APP_RUNTIME_STATE_DOC_ID,
   BasicCRUDActions,
-  IAgent,
-  SessionAgentType,
+  systemAgent,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
@@ -36,11 +35,6 @@ const appSetupVars = {
   userImagesFolderPath: folder02Path + '/users',
   orgsImageUploadPresetName: 'files-orgs-image-upload',
   usersImageUploadPresetName: 'files-users-image-upload',
-};
-
-const systemAgent: IAgent = {
-  agentId: SessionAgentType.System,
-  agentType: SessionAgentType.System,
 };
 
 async function isAppSetup(context: IBaseContext) {

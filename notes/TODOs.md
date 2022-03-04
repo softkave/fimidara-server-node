@@ -3,6 +3,7 @@
 - Implement provided resource IDs and allow to get permission groups by name
 - Implement resource-based access control, not just agent-based access control
 - Implement a way to give permission to only delete files that belong to or is created by a token
+- Use the endpoints instead of directly saving to db
 - Filter out presets not found, instead of erroring out
 - Do we really need buckets?
 - Listening on files, compressing files, version, integrity, etags,

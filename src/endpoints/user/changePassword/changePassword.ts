@@ -1,16 +1,14 @@
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
+import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {
-  CURRENT_TOKEN_VERSION,
-  makeUserSessionAgent,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+  getUserClientAssignedToken,
+  getUserToken,
+  toLoginResult,
+} from '../login/utils';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
-import {userExtractor} from '../utils';
 import {ChangePasswordEndpoint} from './types';
 import {changePasswordJoiSchema} from './validation';
 
@@ -47,27 +45,15 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
     UserTokenQueries.getByUserId(user.resourceId)
   );
 
-  const newToken = await context.data.userToken.saveItem({
-    resourceId: getNewId(),
-    audience: [TokenAudience.Login],
-    issuedAt: getDateString(),
-    userId: user.resourceId,
-    version: CURRENT_TOKEN_VERSION,
-  });
-
-  // Allow other endpoints called with this request to use the updated user token
-  instData.agent = makeUserSessionAgent(newToken, user);
-  const encodedToken = context.session.encodeToken(
+  const userToken = await getUserToken(context, user);
+  const clientAssignedToken = await getUserClientAssignedToken(
     context,
-    newToken.resourceId,
-    TokenType.UserToken,
-    newToken.expires
+    user.resourceId
   );
 
-  return {
-    token: encodedToken,
-    user: userExtractor(user),
-  };
+  // Allow other endpoints called with this request to use the updated user token
+  instData.agent = makeUserSessionAgent(userToken, user);
+  return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 
 export default changePassword;
