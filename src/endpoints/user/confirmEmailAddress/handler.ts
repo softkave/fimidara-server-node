@@ -1,16 +1,15 @@
 import {EmailAddressVerifiedError} from '../errors';
 import {ConfirmEmailAddressEndpoint} from './types';
 import {getDateString} from '../../../utilities/dateFns';
-import {userExtractor} from '../utils';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+import {TokenAudience} from '../../contexts/SessionContext';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
-import getNewId from '../../../utilities/getNewId';
+import {
+  getUserClientAssignedToken,
+  getUserToken,
+  toLoginResult,
+} from '../login/utils';
 
 /**
  * confirmEmailAddress. Ensure that:
@@ -52,34 +51,13 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
     )
   );
 
-  let userToken = await context.data.userToken.getItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.Login
-    )
-  );
-
-  if (!userToken) {
-    userToken = await context.data.userToken.saveItem({
-      resourceId: getNewId(),
-      userId: user.resourceId,
-      version: CURRENT_TOKEN_VERSION,
-      issuedAt: getDateString(),
-      audience: [TokenAudience.Login],
-    });
-  }
-
-  const encodedToken = context.session.encodeToken(
+  const userToken = await getUserToken(context, user);
+  const clientAssignedToken = await getUserClientAssignedToken(
     context,
-    userToken.resourceId,
-    TokenType.UserToken,
-    userToken.expires
+    user.resourceId
   );
 
-  return {
-    user: userExtractor(user),
-    token: encodedToken,
-  };
+  return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 
 export default confirmEmailAddress;

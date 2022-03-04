@@ -11,7 +11,7 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   createdAt: {type: Date, default: getDate},
   organizationId: {type: String},
   version: {type: Number},
-  issuedAt: {type: String},
+  issuedAt: {type: Date, default: getDate},
   expires: {type: Number},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},

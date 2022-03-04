@@ -1,3 +1,7 @@
+import {isString} from 'lodash';
+import OperationError from './OperationError';
+import {AnyFn} from './types';
+
 export default function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
 }
@@ -52,4 +56,22 @@ export function findItemWithField<T>(
   return items.find(item => {
     return item[field] === val;
   });
+}
+
+export function appAssert(
+  condition: any,
+  response: string | Error | AnyFn,
+  log?: string
+) {
+  if (!!!condition) {
+    console.error(log);
+
+    if (isString(response)) {
+      throw new OperationError(response);
+    } else if (response instanceof Error) {
+      throw response;
+    } else {
+      response();
+    }
+  }
 }

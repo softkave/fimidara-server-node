@@ -1,20 +1,11 @@
 import * as argon2 from 'argon2';
-import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
-import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import {
-  CURRENT_TOKEN_VERSION,
-  makeUserSessionAgent,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {InvalidEmailOrPasswordError} from '../errors';
 import UserQueries from '../UserQueries';
-import UserTokenQueries from '../UserTokenQueries';
-import {userExtractor} from '../utils';
 import {LoginEndpoint} from './types';
-import {toLoginResult} from './utils';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
 
 /**
@@ -46,26 +37,15 @@ const login: LoginEndpoint = async (context, instData) => {
     throw new InvalidEmailOrPasswordError();
   }
 
-  let token = await context.data.userToken.getItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.Login
-    )
+  const userToken = await getUserToken(context, user);
+  const clientAssignedToken = await getUserClientAssignedToken(
+    context,
+    user.resourceId
   );
 
-  if (!token) {
-    token = await context.data.userToken.saveItem({
-      resourceId: getNewId(),
-      userId: user.resourceId,
-      audience: [TokenAudience.Login],
-      issuedAt: getDateString(),
-      version: CURRENT_TOKEN_VERSION,
-    });
-  }
-
   // Make the user token available to other requests made with this request data
-  instData.agent = makeUserSessionAgent(token, user);
-  return toLoginResult(context, user, token);
+  instData.agent = makeUserSessionAgent(userToken, user);
+  return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 
 export default login;

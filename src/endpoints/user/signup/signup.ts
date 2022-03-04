@@ -5,20 +5,17 @@ import {SignupEndpoint} from './types';
 import {signupJoiSchema} from './validation';
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
-import {userExtractor} from '../utils';
 import UserQueries from '../UserQueries';
-import {
-  CURRENT_TOKEN_VERSION,
-  makeUserSessionAgent,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {IUser} from '../../../definitions/user';
-import {IUserToken} from '../../../definitions/userToken';
+import {
+  getUserClientAssignedToken,
+  getUserToken,
+  toLoginResult,
+} from '../login/utils';
 
 /**
  * Requirements. Ensure that:
@@ -60,22 +57,20 @@ const signup: SignupEndpoint = async (context, instData) => {
     organizations: [],
   });
 
-  const token = await context.data.userToken.saveItem({
-    resourceId: getNewId(),
-    userId: user.resourceId,
-    audience: [TokenAudience.Login],
-    issuedAt: getDateString(),
-    version: CURRENT_TOKEN_VERSION,
-  });
+  const userToken = await getUserToken(context, user);
+  const clientAssignedToken = await getUserClientAssignedToken(
+    context,
+    user.resourceId
+  );
 
   // Make the user token available to other requests made with this request data
-  instData.agent = makeUserSessionAgent(token, user);
+  instData.agent = makeUserSessionAgent(userToken, user);
   instData.works.push({
     id: 'callComfirmEmail',
     promise: fireAndForgetPromise(callComfirmEmail(context, instData)),
   });
 
-  return toLoginResult(user, context, token);
+  return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 
 export default signup;

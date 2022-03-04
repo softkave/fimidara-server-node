@@ -90,7 +90,6 @@ interface ISuppliedVariables {
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   awsRegion: string;
-  filesOrganizationId: string;
   defaultUserEmailAddress: string;
   // defaultOrganizationName: string;
   // defaultUsersImagesFolder: string;
@@ -108,7 +107,18 @@ interface IStaticVariables {
   verifyEmailPath: string;
 }
 
-export interface IAppVariables extends ISuppliedVariables, IStaticVariables {}
+// Added after the app initialization phase.
+interface IAppRuntimeVars {
+  appOrganizationId: string;
+  appOrgsImageUploadPresetId: string;
+  appUsersImageUploadPresetId: string;
+}
+
+export interface IAppVariables
+  extends ISuppliedVariables,
+    IStaticVariables,
+    IAppRuntimeVars {}
+
 export type ExtractEnvSchema = Record<
   keyof ISuppliedVariables,
   {
@@ -161,10 +171,6 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
   awsRegion: {
     required: true,
     name: AppEnvVariables.AWS_REGION,
-  },
-  filesOrganizationId: {
-    required: true,
-    name: AppEnvVariables.FILES_ORGANIZATION_ID,
   },
   defaultUserEmailAddress: {
     name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
@@ -248,6 +254,12 @@ export function extractEnvVariables(
     ...defaultStaticVars,
     clientLoginLink: `${envVariables.clientDomain}/login`,
     clientSignupLink: `${envVariables.clientDomain}/signup`,
+
+    // Added after the app initialization phase
+    appOrganizationId: '',
+    appOrgsImageUploadPresetId: '',
+    appUsersImageUploadPresetId: '',
+
     ...base,
     ...envVariables,
   };
