@@ -6,16 +6,20 @@ export interface IPermissionItem {
   createdAt: Date | string;
   createdBy: IAgent;
 
-  // Owners are file, folder and organization
+  // Owners are file, folder and organization.
+  // The action defined in the permission item will affect
+  // the permission owner, and it's children resources.
   permissionOwnerId: string;
   permissionOwnerType: AppResourceType;
 
-  // Entities are user token, client assigned token, program access token
-  // and preset permission groups
+  // Entities are user token, client assigned token,
+  // program access token and preset permission groups.
+  // It's the entity this permission item was created for.
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
 
-  // All application resources except users which are replaced by collaborators
+  // All application resources except users which are
+  // replaced by collaborators
   itemResourceId?: string;
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;

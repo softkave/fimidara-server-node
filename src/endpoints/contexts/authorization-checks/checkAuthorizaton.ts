@@ -50,7 +50,11 @@ export async function checkAuthorization(
         item.permissionEntityType,
         DataProviderFilterValueOperator.Equal
       )
-      .addItem('itemResourceType', type, DataProviderFilterValueOperator.Equal)
+      .addItem(
+        'itemResourceType',
+        [AppResourceType.All, type],
+        DataProviderFilterValueOperator.In
+      )
       .addItem(
         'action',
         [BasicCRUDActions.All, action],
@@ -112,12 +116,14 @@ export async function checkAuthorization(
   const isForOwner = (item: IPermissionItem) =>
     id && item.isForPermissionOwnerOnly && item.permissionOwnerId === id;
 
+  const positiveWeight = items.length * 2;
+  const negativeWeight = positiveWeight * -1;
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
       if (isForOwner(item1)) {
-        return -99;
+        return negativeWeight;
       } else if (isForOwner(item2)) {
-        return 99;
+        return positiveWeight;
       }
 
       return getPermissionOwnerOrder(item1) - getPermissionOwnerOrder(item2);

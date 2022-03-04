@@ -46,6 +46,12 @@ import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';
 import {IBaseContextDataProviders} from './BaseContext';
 import {IDataProvider} from './data-providers/DataProvider';
 import MongoDataProvider from './data-providers/MongoDataProvider';
+import {IAppRuntimeState} from '../../definitions/system';
+import {
+  getAppRuntimeStateModel,
+  IAppRuntimeStateModel,
+} from '../../db/appRuntimeState';
+import {throwNotFound} from '../utils';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -58,6 +64,7 @@ export interface IBaseContextDatabaseModels {
   folder: IFolderDatabaseModel;
   permissionItem: IPermissionItemModel;
   presetPermissionsGroup: IPresetPermissionsItemModel;
+  appRuntimeState: IAppRuntimeStateModel;
 }
 
 export default class MongoDBDataProviderContext
@@ -76,6 +83,7 @@ export default class MongoDBDataProviderContext
   public collaborationRequest: IDataProvider<ICollaborationRequest>;
   public user: IDataProvider<IUser>;
   public userToken: IDataProvider<IUserToken>;
+  public appRuntimeState: IDataProvider<IAppRuntimeState>;
 
   constructor(connection: Connection) {
     this.connection = connection;
@@ -90,6 +98,7 @@ export default class MongoDBDataProviderContext
       folder: getFolderDatabaseModel(connection),
       permissionItem: getPermissionItemModel(connection),
       presetPermissionsGroup: getPresetPermissionsModel(connection),
+      appRuntimeState: getAppRuntimeStateModel(connection),
     };
 
     this.folder = new MongoDataProvider(this.db.folder, throwFolderNotFound);
@@ -98,30 +107,41 @@ export default class MongoDBDataProviderContext
       this.db.clientAssignedToken,
       throwClientAssignedTokenNotFound
     );
+
     this.programAccessToken = new MongoDataProvider(
       this.db.programAccessToken,
       throwProgramAccessTokenNotFound
     );
+
     this.permissionItem = new MongoDataProvider(
       this.db.permissionItem,
       throwPermissionItemNotFound
     );
+
     this.preset = new MongoDataProvider(
       this.db.presetPermissionsGroup,
       throwPresetPermissionsGroupNotFound
     );
+
     this.organization = new MongoDataProvider(
       this.db.organization,
       throwOrganizationNotFound
     );
+
     this.collaborationRequest = new MongoDataProvider(
       this.db.collaborationRequest,
       throwCollaborationRequestNotFound
     );
+
     this.user = new MongoDataProvider(this.db.user, throwUserNotFound);
     this.userToken = new MongoDataProvider(
       this.db.userToken,
       throwUserTokenNotFound
+    );
+
+    this.appRuntimeState = new MongoDataProvider(
+      this.db.appRuntimeState,
+      throwNotFound
     );
   }
 

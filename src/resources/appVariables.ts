@@ -73,6 +73,7 @@ export enum AppEnvVariables {
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
   AWS_REGION = 'AWS_REGION',
   FILES_ORGANIZATION_ID = 'FILES_ORGANIZATION_ID',
+  DEFAULT_USER_EMAIL_ADDRESS = 'DEFAULT_USER_EMAIL_ADDRESS',
   // DEFAULT_ORGANIZATION_NAME = 'DEFAULT_ORGANIZATION_NAME',
   // DEFAULT_USERS_IMAGES_FOLDER = 'DEFAULT_USERS_IMAGES_FOLDER',
   // DEFAULT_ORGS_IMAGES_FOLDER = 'DEFAULT_ORGS_IMAGES_FOLDER',
@@ -90,6 +91,7 @@ interface ISuppliedVariables {
   awsSecretAccessKey: string;
   awsRegion: string;
   filesOrganizationId: string;
+  defaultUserEmailAddress: string;
   // defaultOrganizationName: string;
   // defaultUsersImagesFolder: string;
   // defaultOrgsImagesFolder: string;
@@ -163,6 +165,10 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
   filesOrganizationId: {
     required: true,
     name: AppEnvVariables.FILES_ORGANIZATION_ID,
+  },
+  defaultUserEmailAddress: {
+    name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
+    required: true,
   },
   // defaultOrganizationName: {
   //   name: AppEnvVariables.DEFAULT_ORGANIZATION_NAME,

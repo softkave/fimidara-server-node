@@ -2,6 +2,7 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
+  IAgent,
   ISessionAgent,
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
@@ -10,6 +11,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
+  getFilePermissionOwners,
   makeBasePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -25,9 +27,9 @@ import {
 import {AddFolderEndpoint, INewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
-async function createNextFolder(
+export async function createSingleFolder(
   context: IBaseContext,
-  agent: ISessionAgent,
+  agent: IAgent,
   organizationId: string,
   parent: IFolder | null,
   input: INewFolderInput
@@ -50,19 +52,15 @@ async function createNextFolder(
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
     namePath: parent ? parent.namePath.concat(name) : [name],
     createdAt: getDateString(),
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
+    createdBy: agent,
     description: input.description,
     maxFileSizeInBytes:
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 }
 
-export async function checkIfAgentCanCreateFolder(
+export async function getClosestExistingFolder(
   context: IBaseContext,
-  agent: ISessionAgent,
   organizationId: string,
   splitParentPath: string[]
 ) {
@@ -93,18 +91,30 @@ export async function checkIfAgentCanCreateFolder(
     closestExistingFolder = item;
   }
 
-  if (closestExistingFolder) {
-    // Check if the agent can perform operation
-    await checkAuthorization(
-      context,
-      agent,
-      organizationId,
-      null,
-      AppResourceType.Folder,
-      makeBasePermissionOwnerList(organizationId),
-      BasicCRUDActions.Create
-    );
-  }
+  return {closestExistingFolder, existingFolders};
+}
+
+export async function checkIfAgentCanCreateFolder(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  splitParentPath: string[]
+) {
+  const {closestExistingFolder, existingFolders} =
+    await getClosestExistingFolder(context, organizationId, splitParentPath);
+
+  // Check if the agent can perform operation
+  await checkAuthorization(
+    context,
+    agent,
+    organizationId,
+    null,
+    AppResourceType.Folder,
+    closestExistingFolder
+      ? getFilePermissionOwners(organizationId, closestExistingFolder)
+      : makeBasePermissionOwnerList(organizationId),
+    BasicCRUDActions.Create
+  );
 
   // Return existing folders to skip ahead when creating parent folders for the main folder
   return {existingFolders};
@@ -143,7 +153,7 @@ export async function createFolderList(
       maxFileSizeInBytes: isMainFolder ? input.maxFileSizeInBytes : undefined,
     };
 
-    previousFolder = await createNextFolder(
+    previousFolder = await createSingleFolder(
       context,
       agent,
       organizationId,

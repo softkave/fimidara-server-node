@@ -9,6 +9,7 @@ import cast from '../utilities/fns';
 import OperationError from '../utilities/OperationError';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
+import {NotFoundError} from './errors';
 import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataWork} from './types';
 
@@ -85,4 +86,8 @@ export async function waitForWorks(works: IRequestDataWork[]) {
       return item.promise;
     })
   );
+}
+
+export function throwNotFound() {
+  throw new NotFoundError();
 }

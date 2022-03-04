@@ -19,6 +19,9 @@ import {IFolder} from '../../definitions/folder';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IUser} from '../../definitions/user';
+import {IAppRuntimeState} from '../../definitions/system';
+import {IDataProvider} from './data-providers/DataProvider';
+import {throwNotFound} from '../utils';
 
 export default class MemoryDataProviderContext
   implements IBaseContextDataProviders
@@ -59,5 +62,10 @@ export default class MemoryDataProviderContext
   public userToken = new MemoryDataProvider<IUserToken>(
     [],
     throwUserTokenNotFound
+  );
+
+  public appRuntimeState = new MemoryDataProvider<IAppRuntimeState>(
+    [],
+    throwNotFound
   );
 }

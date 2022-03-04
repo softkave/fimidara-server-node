@@ -115,6 +115,10 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
         date: getDateString(),
       },
     ],
+
+    // TODO: open up to the endpoint.
+    // Currently only in use for the app init setup.
+    assignedPresetsOnAccept: [],
   });
 
   fireAndForgetPromise(

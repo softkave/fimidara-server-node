@@ -13,6 +13,7 @@ import {IUserToken} from '../../definitions/userToken';
 import {IDataProvider} from './data-providers/DataProvider';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {IAppRuntimeState} from '../../definitions/system';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -25,6 +26,7 @@ export interface IBaseContextDataProviders {
   collaborationRequest: IDataProvider<ICollaborationRequest>;
   user: IDataProvider<IUser>;
   userToken: IDataProvider<IUserToken>;
+  appRuntimeState: IDataProvider<IAppRuntimeState>;
 }
 
 export interface IBaseContext<
