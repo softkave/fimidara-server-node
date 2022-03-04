@@ -142,6 +142,11 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
   deleteAll = wrapFireAndThrowError(async () => {
     await this.model.deleteMany({}).exec();
   });
+
+  getAll = wrapFireAndThrowError(async () => {
+    const items = await this.model.find({}).exec();
+    return cast<T[]>(items);
+  });
 }
 
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {

@@ -24,6 +24,7 @@ import {
   ensureAppBucketsReady,
   S3FilePersistenceProviderContext,
 } from './endpoints/contexts/FilePersistenceProviderContext';
+import {setupApp} from './endpoints/runtime/initAppSetup';
 
 console.log('server initialization');
 
@@ -83,6 +84,9 @@ async function setup() {
     fileProvider,
     appVariables
   );
+
+  const defaultOrg = await setupApp(ctx);
+  console.log(`Default organization ID - ${defaultOrg.resourceId}`);
 
   setupJWT(ctx);
   setupClientAssignedTokensRESTEndpoints(ctx, app);

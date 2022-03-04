@@ -1,13 +1,24 @@
 import {defaultTo} from 'lodash';
-import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {ISessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
+import {
+  checkAuthorization,
+  getFilePermissionOwners,
+  makeBasePermissionOwnerList,
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {createFolderList} from '../../folders/addFolder/handler';
+import {
+  createFolderList,
+  getClosestExistingFolder,
+} from '../../folders/addFolder/handler';
 import FileQueries from '../queries';
 import {
   FileUtils,
@@ -17,23 +28,66 @@ import {
 import {IUploadFileParams, UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
 
+const uploadFile: UploadFileEndpoint = async (context, instData) => {
+  const data = validate(instData.data, uploadFileJoiSchema);
+  const agent = await context.session.getAgent(context, instData);
+  const pathWithDetails = splitFilePathWithDetails(data.path);
+  const organizationId = getOrganizationId(agent, data.organizationId);
+  let file = await context.data.file.getItem(
+    FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)
+  );
+
+  if (!file) {
+    const parentFolder = await createParentFolders(
+      context,
+      agent,
+      organizationId,
+      pathWithDetails
+    );
+
+    await checkAuth(context, agent, organizationId, parentFolder);
+    file = await createFile(
+      context,
+      agent,
+      organizationId,
+      pathWithDetails,
+      data,
+      parentFolder
+    );
+  } else {
+    const {closestExistingFolder} = await getClosestExistingFolder(
+      context,
+      organizationId,
+      pathWithDetails.splitParentPath
+    );
+
+    await checkAuth(context, agent, organizationId, closestExistingFolder);
+  }
+
+  await context.fileBackend.uploadFile({
+    bucket: context.appVariables.S3Bucket,
+    key: file.resourceId,
+    body: data.data,
+    contentType: data.mimetype,
+    contentEncoding: data.encoding,
+    contentLength: data.data.byteLength,
+  });
+
+  return {
+    file: FileUtils.getPublicFile(file),
+  };
+};
+
 async function createFile(
   context: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
   pathWithDetails: ISplitFilePathWithDetails,
-  data: IUploadFileParams
-): Promise<IFile> {
-  let parentFolder: IFolder | null = null;
-
-  if (pathWithDetails.hasParent) {
-    parentFolder = await createFolderList(context, agent, organizationId, {
-      path: pathWithDetails.parentPath,
-    });
-  }
-
+  data: IUploadFileParams,
+  parentFolder: IFolder | null
+) {
   const fileId = getNewId();
-  return await context.data.file.saveItem({
+  const file = await context.data.file.saveItem({
     organizationId,
     resourceId: fileId,
     extension: pathWithDetails.extension,
@@ -53,39 +107,50 @@ async function createFile(
     description: data.description,
     encoding: data.encoding,
   });
+
+  return file;
 }
 
-const uploadFile: UploadFileEndpoint = async (context, instData) => {
-  const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const pathWithDetails = splitFilePathWithDetails(data.path);
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  let file = await context.data.file.getItem(
-    FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)
-  );
-
-  if (!file) {
-    file = await createFile(
-      context,
-      agent,
-      organizationId,
-      pathWithDetails,
-      data
-    );
+async function createParentFolders(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  pathWithDetails: ISplitFilePathWithDetails
+) {
+  if (pathWithDetails.hasParent) {
+    return await createFolderList(context, agent, organizationId, {
+      path: pathWithDetails.parentPath,
+    });
   }
 
-  await context.fileBackend.uploadFile({
-    bucket: context.appVariables.S3Bucket,
-    key: file.resourceId,
-    body: data.data,
-    contentType: data.mimetype,
-    contentEncoding: data.encoding,
-    contentLength: data.data.byteLength,
-  });
+  return null;
+}
 
-  return {
-    file: FileUtils.getPublicFile(file),
-  };
-};
+async function checkAuth(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  organizationId: string,
+  closestExistingFolder: IFolder | null
+) {
+  // TODO: also have an update check if file exists
+  // The issue with implementing it now is that it doesn't
+  // work with a scenario where we want a user to be able to
+  // only update a file (or image) they created and not others.
+  // Simply giving them the permission to update will allow them
+  // to update someone else's file (or image) too.
+  // We need fine-grained permissions like only allow an operation
+  // if the user/token created the file or owns the file.
+  await checkAuthorization(
+    context,
+    agent,
+    organizationId,
+    null,
+    AppResourceType.File,
+    closestExistingFolder
+      ? getFilePermissionOwners(organizationId, closestExistingFolder)
+      : makeBasePermissionOwnerList(organizationId),
+    BasicCRUDActions.Create
+  );
+}
 
 export default uploadFile;

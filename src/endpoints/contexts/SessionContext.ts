@@ -6,7 +6,7 @@ import {ISessionAgent, SessionAgentType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
-import cast, {removeNull} from '../../utilities/fns';
+import cast from '../../utilities/fns';
 import {
   wrapFireAndThrowError,
   wrapFireAndThrowErrorNoAsync,
@@ -107,44 +107,40 @@ export default class SessionContext implements ISessionContext {
       let clientAssignedToken: IClientAssignedToken | null = null;
       let programAccessToken: IProgramAccessToken | null = null;
       const incomingTokenData = data.incomingTokenData;
-      const rework = !userToken && !clientAssignedToken && !programAccessToken;
 
-      if (rework) {
-        if (!incomingTokenData) {
-          throw new PermissionDeniedError();
+      if (!incomingTokenData) {
+        throw new PermissionDeniedError();
+      }
+
+      switch (incomingTokenData.sub.type) {
+        case TokenType.UserToken: {
+          userToken = await ctx.data.userToken.assertGetItem(
+            UserTokenQueries.getById(incomingTokenData.sub.id)
+          );
+
+          if (audience) {
+            ctx.session.tokenContainsAudience(ctx, userToken, audience);
+          }
+
+          user = await ctx.data.user.assertGetItem(
+            EndpointReusableQueries.getById(userToken.userId)
+          );
+          break;
         }
 
-        switch (incomingTokenData.sub.type) {
-          case TokenType.UserToken: {
-            userToken = await ctx.data.userToken.assertGetItem(
-              UserTokenQueries.getById(incomingTokenData.sub.id)
+        case TokenType.ProgramAccessToken: {
+          programAccessToken = await ctx.data.programAccessToken.assertGetItem(
+            ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
+          );
+          break;
+        }
+
+        case TokenType.ClientAssignedToken: {
+          clientAssignedToken =
+            await ctx.data.clientAssignedToken.assertGetItem(
+              EndpointReusableQueries.getById(incomingTokenData.sub.id)
             );
-
-            if (audience) {
-              ctx.session.tokenContainsAudience(ctx, userToken, audience);
-            }
-
-            user = await ctx.data.user.assertGetItem(
-              EndpointReusableQueries.getById(userToken.userId)
-            );
-            break;
-          }
-
-          case TokenType.ProgramAccessToken: {
-            programAccessToken =
-              await ctx.data.programAccessToken.assertGetItem(
-                ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
-              );
-            break;
-          }
-
-          case TokenType.ClientAssignedToken: {
-            clientAssignedToken =
-              await ctx.data.clientAssignedToken.assertGetItem(
-                EndpointReusableQueries.getById(incomingTokenData.sub.id)
-              );
-            break;
-          }
+          break;
         }
       }
 
@@ -157,6 +153,8 @@ export default class SessionContext implements ISessionContext {
               return !!programAccessToken;
             case SessionAgentType.ClientAssignedToken:
               return !!clientAssignedToken;
+            default:
+              return false;
           }
         });
 
@@ -165,9 +163,8 @@ export default class SessionContext implements ISessionContext {
         }
       }
 
-      assert(user, new ServerError());
-
       if (userToken) {
+        assert(user, new ServerError());
         const agent: ISessionAgent = makeUserSessionAgent(userToken, user);
         data.agent = agent;
         return agent;
@@ -207,11 +204,8 @@ export default class SessionContext implements ISessionContext {
         audience
       );
 
-      const user = await ctx.data.user.assertGetItem(
-        UserQueries.getById(agent.agentId)
-      );
-
-      return user;
+      assert(agent.user, new ServerError());
+      return agent.user;
     }
   );
 
@@ -302,7 +296,7 @@ export function makeUserSessionAgent(
 ): ISessionAgent {
   return {
     userToken,
-    user: removeNull(user),
+    user,
     agentId: userToken.userId,
     agentType: SessionAgentType.User,
     tokenId: userToken.resourceId,

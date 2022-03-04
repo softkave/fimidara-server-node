@@ -101,6 +101,7 @@ export async function checkFileAuthorization03(
       pathWithDetails.splitPathWithoutExtension
     )
   );
+
   return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 

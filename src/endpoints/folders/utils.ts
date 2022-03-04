@@ -1,4 +1,4 @@
-import {isArray} from 'lodash';
+import {defaultTo, isArray, last} from 'lodash';
 import {IFolder} from '../../definitions/folder';
 import {
   AppResourceType,
@@ -82,7 +82,7 @@ export function splitPathWithDetails(
   path: string | string[]
 ): IFolderPathWithDetails {
   const splitPath = splitFolderPath(path);
-  const name = splitPath[splitPath.length - 1] || '';
+  const name = defaultTo(last(splitPath), '');
   const splitParentPath = splitPath.slice(0, -1);
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
   const hasParent = splitParentPath.length > 0;

@@ -92,7 +92,10 @@ export interface IGetManyItemsOptions {
 
 export interface IDataProvider<T extends {[key: string]: any}> {
   checkItemExists: (filter: IDataProviderFilter<T>) => Promise<boolean>;
-  getItem: (filter: IDataProviderFilter<T>) => Promise<T | null>;
+  assertItemExists: (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => Promise<boolean>;
 
   // TODO: use options with a sortBy field
   getManyItems: (
@@ -100,7 +103,13 @@ export interface IDataProvider<T extends {[key: string]: any}> {
     options?: IGetManyItemsOptions
   ) => Promise<Array<T>>;
 
-  deleteItem: (filter: IDataProviderFilter<T>) => Promise<void>;
+  getItem: (filter: IDataProviderFilter<T>) => Promise<T | null>;
+  getAll: () => Promise<T[]>;
+  assertGetItem: (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => Promise<T>;
+
   updateItem: (
     filter: IDataProviderFilter<T>,
     data: Partial<T>
@@ -117,18 +126,10 @@ export interface IDataProvider<T extends {[key: string]: any}> {
     throwError?: () => void
   ) => Promise<T>;
 
+  deleteItem: (filter: IDataProviderFilter<T>) => Promise<void>;
   deleteManyItems: (filter: IDataProviderFilter<T>) => Promise<void>;
-  assertItemExists: (
-    filter: IDataProviderFilter<T>,
-    throwError?: () => void
-  ) => Promise<boolean>;
-
-  assertGetItem: (
-    filter: IDataProviderFilter<T>,
-    throwError?: () => void
-  ) => Promise<T>;
+  deleteAll: () => Promise<void>;
 
   saveItem: (data: T) => Promise<T>;
   bulkSaveItems: (data: T[]) => Promise<void>;
-  deleteAll: () => Promise<void>;
 }

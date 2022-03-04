@@ -8,6 +8,9 @@ export enum SessionAgentType {
   User = 'user',
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
+
+  // Reserved for system only operations, use sparingly
+  System = 'files-system',
 }
 
 export interface ISessionAgent {
@@ -29,6 +32,7 @@ export interface IAgent {
 }
 
 export enum AppResourceType {
+  All = '*',
   Organization = 'organization',
   CollaborationRequest = 'collaboration-request',
   ProgramAccessToken = 'program-access-token',
@@ -49,52 +53,14 @@ export enum BasicCRUDActions {
   Delete = 'delete',
 }
 
-// Making a map of CRUD actions here before getting the keys for the CRUD actions list
-// so that the linter can catch any change to the CRUD actions enum and require that the
-// change be made to the map also. Same for AppResourceType below.
-const crudActionsMap: Record<BasicCRUDActions, true> = {
-  [BasicCRUDActions.All]: true,
-  [BasicCRUDActions.Create]: true,
-  [BasicCRUDActions.Read]: true,
-  [BasicCRUDActions.Update]: true,
-  [BasicCRUDActions.Delete]: true,
-};
-
-export const crudActionsList = Object.keys(crudActionsMap);
-
-export const orgResourceTypes = [
-  AppResourceType.ClientAssignedToken,
-  AppResourceType.PresetPermissionsGroup,
-  AppResourceType.ProgramAccessToken,
-  AppResourceType.Folder,
-  AppResourceType.File,
-  AppResourceType.CollaborationRequest,
-  AppResourceType.PermissionItem,
-  AppResourceType.User,
-];
-
-/** For organizations, users, and user tokens */
-const orderLevel01 = 1;
-
-/**
- * For resources contained in organizations mainly, like
- * program access tokens, client assigned tokens, collaborators, folders, etc.
- */
-const orderLevel02 = 2;
-
-const appResourceTypesOrder: Record<AppResourceType, number> = {
-  [AppResourceType.Organization]: orderLevel01,
-  [AppResourceType.ProgramAccessToken]: orderLevel02,
-  [AppResourceType.ClientAssignedToken]: orderLevel02,
-  [AppResourceType.Folder]: orderLevel02,
-  [AppResourceType.File]: orderLevel02,
-  [AppResourceType.UserToken]: orderLevel01,
-  [AppResourceType.PresetPermissionsGroup]: orderLevel02,
-  [AppResourceType.PermissionItem]: orderLevel02,
-  [AppResourceType.User]: orderLevel01,
-  [AppResourceType.CollaborationRequest]: orderLevel02,
-};
-
-export const appResourceTypesList = Object.keys(
-  appResourceTypesOrder
+export const crudActionsList = Object.values(BasicCRUDActions);
+export const appResourceTypesList = Object.values(
+  AppResourceType
 ) as Array<AppResourceType>;
+
+export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
+
+export interface IAppRuntimeState {
+  resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
+  isAppSetup: boolean;
+}
