@@ -1,3 +1,4 @@
+import {IPresetPermissionsGroupMatcher} from '../../../definitions/presetPermissionsGroup';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -10,7 +11,6 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getProgramAccessToken from './handler';
-import {IGetPresetPermissionsGroupEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -33,7 +33,7 @@ test('referenced preset returned', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IGetPresetPermissionsGroupEndpointParams>(
+    RequestData.fromExpressRequest<IPresetPermissionsGroupMatcher>(
       mockExpressRequestWithUserToken(userToken),
       {
         presetId: preset.resourceId,

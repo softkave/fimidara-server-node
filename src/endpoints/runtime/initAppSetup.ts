@@ -14,6 +14,8 @@ import OrganizationQueries from '../organizations/queries';
 import {setupAdminPreset} from '../organizations/addOrganization/utils';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
+import {IAppRuntimeVars} from '../../resources/appVariables';
+import {merge} from 'lodash';
 
 /**
  * isAppSetup
@@ -36,14 +38,6 @@ const appSetupVars = {
   orgsImageUploadPresetName: 'files-orgs-image-upload',
   usersImageUploadPresetName: 'files-users-image-upload',
 };
-
-async function isAppSetup(context: IBaseContext) {
-  const appRuntimeState = await context.data.appRuntimeState.getItem(
-    EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID)
-  );
-
-  return appRuntimeState?.isAppSetup;
-}
 
 async function setupOrg(context: IBaseContext, name: string) {
   const organization = await context.data.organization.saveItem({
@@ -117,7 +111,7 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
     systemAgent,
     organizationId,
     folder02,
-    {path: appSetupVars.orgImagesFolderPath}
+    {path: appSetupVars.orgImagesFolderPath, isPublic: true}
   );
 
   const userImagesFolder = await createSingleFolder(
@@ -125,7 +119,7 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
     systemAgent,
     organizationId,
     folder02,
-    {path: appSetupVars.userImagesFolderPath}
+    {path: appSetupVars.userImagesFolderPath, isPublic: true}
   );
 
   return {folder01, folder02, orgImagesFolder, userImagesFolder};
@@ -164,12 +158,24 @@ async function setupImageUploadPermissionGroup(
   }));
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
+  return imageUploadPreset;
 }
 
 export async function setupApp(context: IBaseContext) {
-  if (await isAppSetup(context)) {
+  const appRuntimeState = await context.data.appRuntimeState.getItem(
+    EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID)
+  );
+
+  if (appRuntimeState) {
+    const appRuntimeVars: IAppRuntimeVars = {
+      appOrganizationId: appRuntimeState.appOrganizationId,
+      appOrgsImageUploadPresetId: appRuntimeState.appOrgsImageUploadPresetId,
+      appUsersImageUploadPresetId: appRuntimeState.appUsersImageUploadPresetId,
+    };
+
+    merge(context.appVariables, appRuntimeVars);
     return await context.data.organization.assertGetItem(
-      OrganizationQueries.getByName(appSetupVars.orgName)
+      OrganizationQueries.getById(appRuntimeState.appOrganizationId)
     );
   }
 
@@ -187,24 +193,32 @@ export async function setupApp(context: IBaseContext) {
     org.resourceId
   );
 
-  await setupImageUploadPermissionGroup(
+  const appOrgsImageUploadPreset = await setupImageUploadPermissionGroup(
     context,
     org.resourceId,
     appSetupVars.orgsImageUploadPresetName,
     orgImagesFolder.resourceId
   );
 
-  await setupImageUploadPermissionGroup(
+  const appUsersImageUploadPreset = await setupImageUploadPermissionGroup(
     context,
     org.resourceId,
     appSetupVars.orgsImageUploadPresetName,
     userImagesFolder.resourceId
   );
 
+  const appRuntimeVars: IAppRuntimeVars = {
+    appOrganizationId: org.resourceId,
+    appOrgsImageUploadPresetId: appOrgsImageUploadPreset.resourceId,
+    appUsersImageUploadPresetId: appUsersImageUploadPreset.resourceId,
+  };
+
   await context.data.appRuntimeState.saveItem({
     isAppSetup: true,
     resourceId: APP_RUNTIME_STATE_DOC_ID,
+    ...appRuntimeVars,
   });
 
+  merge(context.appVariables, appRuntimeVars);
   return org;
 }

@@ -9,7 +9,8 @@ import uploadFile from './uploadFile/handler';
 import {IBaseContext} from '../contexts/BaseContext';
 import {fileConstants} from './constants';
 import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
-import {isNumber} from 'lodash';
+import {isNumber, merge} from 'lodash';
+import {IUploadFileParams} from './uploadFile/types';
 
 function handleGetFileResponse(
   res: Response,
@@ -24,8 +25,7 @@ function handleGetFileResponse(
     .send(result.buffer);
 }
 
-// '/files/getFile/:imagePath'
-function getGetFileData(req: Request): IGetFileEndpointParams {
+function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
   const organizationId = req.query.orgId as string;
   const filePath = req.query.p as string;
   const width = req.query.w;
@@ -35,7 +35,35 @@ function getGetFileData(req: Request): IGetFileEndpointParams {
     path: filePath,
     imageTranformation:
       isNumber(width) && isNumber(height) ? {width, height} : undefined,
+    ...req.body,
   };
+}
+
+function extractUploadFilesParamsFromQuery(
+  req: Request
+): Partial<IUploadFileParams> {
+  const organizationId = req.query.orgId as string;
+  const filePath = req.query.p as string;
+  return {
+    organizationId,
+    path: filePath,
+  };
+}
+
+function extractUploadFilesParamsFromFormData(req: Request): IUploadFileParams {
+  const file = req.file;
+  return {
+    ...req.body,
+    data: file?.buffer,
+    mimetype: req.body.mimetype || file?.mimetype,
+  };
+}
+
+function extractUploadFilesParamsFromReq(req: Request): IUploadFileParams {
+  return merge(
+    extractUploadFilesParamsFromQuery(req),
+    extractUploadFilesParamsFromFormData(req)
+  );
 }
 
 export default function setupFilesRESTEndpoints(
@@ -47,21 +75,23 @@ export default function setupFilesRESTEndpoints(
     deleteFile: wrapEndpointREST(deleteFile, ctx),
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
     updateFileDetails: wrapEndpointREST(updateFileDetails, ctx),
-    uploadFile: wrapEndpointREST(uploadFile, ctx),
+    uploadFile: wrapEndpointREST(
+      uploadFile,
+      ctx,
+      undefined,
+      extractUploadFilesParamsFromReq
+    ),
+    getFile: wrapEndpointREST(
+      getFile,
+      ctx,
+      handleGetFileResponse,
+      extractGetFileParamsFromReq
+    ),
   };
 
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
-  app.post(
-    '/files/getFile',
-    wrapEndpointREST(getFile, ctx, handleGetFileResponse)
-  );
-
-  app.get(
-    '/files/getFile/:imagePath',
-    wrapEndpointREST(getFile, ctx, handleGetFileResponse, getGetFileData)
-  );
-
+  app.post('/files/getFile', endpoints.getFile);
   app.post('/files/deleteFile', endpoints.deleteFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
   app.post('/files/updateFileDetails', endpoints.updateFileDetails);

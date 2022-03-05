@@ -54,6 +54,7 @@ import {
 } from '../programAccessTokens/addToken/types';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
+import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
@@ -129,12 +130,15 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
 
 async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
-  return new BaseContext(
+  const ctx = new BaseContext(
     await getTestDataProvider(appVariables),
     getTestEmailProvider(appVariables),
     await getTestFileProvider(appVariables),
     appVariables
   );
+
+  await setupApp(ctx);
+  return ctx;
 }
 
 export const getTestBaseContext = singletonFunc(

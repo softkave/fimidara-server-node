@@ -6,5 +6,5 @@ export const fileConstants = {
   maxExtensionCharLength: 100,
   maxFileWidth: 10000, // px
   maxFileHeight: 10000, // px
-  uploadedFileFieldName: 'file',
+  uploadedFileFieldName: 'data',
 };

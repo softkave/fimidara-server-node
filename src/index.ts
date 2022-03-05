@@ -20,10 +20,7 @@ import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermiss
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {
-  ensureAppBucketsReady,
-  S3FilePersistenceProviderContext,
-} from './endpoints/contexts/FilePersistenceProviderContext';
+import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 
 console.log('server initialization');

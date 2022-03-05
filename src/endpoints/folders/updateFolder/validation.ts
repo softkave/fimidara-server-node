@@ -14,6 +14,7 @@ export const updateFolderJoiSchema = Joi.object()
     path: folderValidationSchemas.path.required(),
     folder: Joi.object()
       .keys({
+        isPublic: Joi.bool().allow(null),
         description: validationSchemas.description.allow(null),
         maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
       })

@@ -17,7 +17,7 @@ export interface IUploadFileParams {
   description?: string;
   encoding?: string;
   extension?: string;
-  mimetype: string; // TODO: define mimetypes
+  mimetype?: string; // TODO: define mimetypes
   data: Buffer;
   path: string;
 }
