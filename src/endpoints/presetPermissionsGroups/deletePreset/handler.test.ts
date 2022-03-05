@@ -1,3 +1,4 @@
+import {IPresetPermissionsGroupMatcher} from '../../../definitions/presetPermissionsGroup';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
 import deletePresetPermissionsGroup from './handler';
-import {IDeletePresetPermissionsGroupParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -34,7 +34,7 @@ test('preset permission group deleted', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IDeletePresetPermissionsGroupParams>(
+    RequestData.fromExpressRequest<IPresetPermissionsGroupMatcher>(
       mockExpressRequestWithUserToken(userToken),
       {
         presetId: preset.resourceId,

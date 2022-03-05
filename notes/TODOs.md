@@ -3,7 +3,11 @@
 - Implement provided resource IDs and allow to get permission groups by name
 - Implement resource-based access control, not just agent-based access control
 - Implement a way to give permission to only delete files that belong to or is created by a token
+- Add public default preset
+- Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning presets.
+- Implement folder upload and not requiring file name but generating one when not provided
 - Use the endpoints instead of directly saving to db
+- Write end-to-end tests
 - Filter out presets not found, instead of erroring out
 - Do we really need buckets?
 - Listening on files, compressing files, version, integrity, etags,

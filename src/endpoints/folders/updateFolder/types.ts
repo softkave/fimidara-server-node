@@ -5,6 +5,7 @@ import {IPublicFolder} from '../types';
 export interface IUpdateFolderInput {
   description?: string;
   maxFileSizeInBytes?: number;
+  isPublic?: boolean;
 }
 
 export interface IUpdateFolderParams {

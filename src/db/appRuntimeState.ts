@@ -5,6 +5,9 @@ import {ensureTypeFields} from './utils';
 const appRuntimeStateSchema = ensureTypeFields<IAppRuntimeState>({
   resourceId: {type: String, unique: true, index: true},
   isAppSetup: {type: Boolean, default: false},
+  appOrganizationId: {type: String},
+  appOrgsImageUploadPresetId: {type: String},
+  appUsersImageUploadPresetId: {type: String},
 });
 
 export type IAppRuntimeStateDocument = Document<IAppRuntimeState>;

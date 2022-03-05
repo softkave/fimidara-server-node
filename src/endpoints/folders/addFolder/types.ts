@@ -6,6 +6,7 @@ export interface INewFolderInput {
   path: string;
   description?: string;
   maxFileSizeInBytes?: number;
+  isPublic?: boolean;
 }
 
 export interface IAddFolderParams {

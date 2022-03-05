@@ -1,4 +1,5 @@
 import {TokenType} from '../endpoints/contexts/SessionContext';
+import {IAppRuntimeVars} from '../resources/appVariables';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {IProgramAccessToken} from './programAccessToken';
 import {IUser} from './user';
@@ -65,7 +66,7 @@ export const appResourceTypesList = Object.values(
 
 export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
 
-export interface IAppRuntimeState {
+export interface IAppRuntimeState extends IAppRuntimeVars {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
 }

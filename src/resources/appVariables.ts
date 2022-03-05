@@ -108,7 +108,7 @@ interface IStaticVariables {
 }
 
 // Added after the app initialization phase.
-interface IAppRuntimeVars {
+export interface IAppRuntimeVars {
   appOrganizationId: string;
   appOrgsImageUploadPresetId: string;
   appUsersImageUploadPresetId: string;

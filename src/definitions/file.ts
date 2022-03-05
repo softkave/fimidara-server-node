@@ -18,6 +18,8 @@ export interface IFile {
   name: string;
   extension: string;
   description?: string;
+
+  // TODO: add which op is public
   isPublic?: boolean;
   markedPublicAt?: Date | string; // ISO date string
   markedPublicBy?: IAgent;
