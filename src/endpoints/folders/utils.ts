@@ -120,10 +120,6 @@ export async function checkFolderAuthorization(
     folder.organizationId
   );
 
-  if (folder.isPublic) {
-    return {agent, folder, organization};
-  }
-
   await checkAuthorization(
     context,
     agent,
@@ -132,7 +128,8 @@ export async function checkFolderAuthorization(
     AppResourceType.Folder,
     getFilePermissionOwners(organization.resourceId, folder),
     action,
-    nothrow
+    nothrow,
+    folder
   );
 
   return {agent, folder, organization};
