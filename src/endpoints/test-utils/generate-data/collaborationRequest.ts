@@ -17,11 +17,13 @@ export function generateCollaborationRequestForTest() {
       agentId: getNewId(),
       agentType: SessionAgentType.User,
     },
+    organizationName: faker.company.companyName(),
     organizationId: getNewId(),
     recipientEmail: faker.internet.email(),
     message: '',
     statusHistory: [],
     sentEmailHistory: [],
+    assignedPresetsOnAccept: [],
   };
 
   return item;
