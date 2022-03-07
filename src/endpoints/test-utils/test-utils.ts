@@ -184,6 +184,13 @@ export function mockExpressRequestWithUserToken(token: IUserToken) {
   return req;
 }
 
+export function mockExpressRequestForPublicAgent() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const req: IServerRequest = {};
+  return req;
+}
+
 export async function insertUserForTest(
   context: IBaseContext,
   userInput: Partial<ISignupParams> = {}

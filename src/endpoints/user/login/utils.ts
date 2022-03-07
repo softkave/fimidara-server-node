@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {systemAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';

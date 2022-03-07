@@ -12,5 +12,6 @@ export const uploadFileJoiSchema = Joi.object()
     encoding: fileValidationSchemas.encoding.allow(null),
     extension: fileValidationSchemas.extension.allow(null),
     data: fileValidationSchemas.buffer.required(),
+    isPublic: Joi.bool().allow(null),
   })
   .required();

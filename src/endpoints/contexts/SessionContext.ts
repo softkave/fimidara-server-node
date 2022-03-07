@@ -1,6 +1,5 @@
 import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
-import {isArray} from 'lodash';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
@@ -21,11 +20,7 @@ import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
-import {
-  CredentialsExpiredError,
-  InvalidCredentialsError,
-  PermissionDeniedError,
-} from '../user/errors';
+import {CredentialsExpiredError, PermissionDeniedError} from '../user/errors';
 import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
 
@@ -99,7 +94,11 @@ export default class SessionContext implements ISessionContext {
     async (
       ctx: IBaseContext,
       data: RequestData,
-      permittedAgentTypes?: SessionAgentType[],
+      permittedAgentTypes: SessionAgentType[] = [
+        SessionAgentType.User,
+        SessionAgentType.ClientAssignedToken,
+        SessionAgentType.ProgramAccessToken,
+      ],
       audience: TokenAudience | TokenAudience[] = TokenAudience.Login
     ) => {
       if (data.agent) {
@@ -111,10 +110,6 @@ export default class SessionContext implements ISessionContext {
       let clientAssignedToken: IClientAssignedToken | null = null;
       let programAccessToken: IProgramAccessToken | null = null;
       const incomingTokenData = data.incomingTokenData;
-
-      if (!isAudienceEmpty(audience) && !incomingTokenData) {
-        throw new PermissionDeniedError();
-      }
 
       switch (incomingTokenData?.sub.type) {
         case TokenType.UserToken: {
@@ -157,6 +152,8 @@ export default class SessionContext implements ISessionContext {
               return !!programAccessToken;
             case SessionAgentType.ClientAssignedToken:
               return !!clientAssignedToken;
+            case SessionAgentType.Public:
+              return true;
             default:
               return false;
           }
@@ -264,10 +261,6 @@ export default class SessionContext implements ISessionContext {
 }
 
 export const getSessionContext = singletonFunc(() => new SessionContext());
-
-function isAudienceEmpty(audience: TokenAudience | TokenAudience[]) {
-  return isArray(audience) ? audience.length === 0 : !!!audience;
-}
 
 export function makeClientAssignedTokenAgent(
   clientAssignedToken: IClientAssignedToken

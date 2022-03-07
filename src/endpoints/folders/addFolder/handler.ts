@@ -1,4 +1,4 @@
-import {defaultTo, isNull} from 'lodash';
+import {defaultTo} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
@@ -84,10 +84,7 @@ export async function getClosestExistingFolder(
     })
   );
 
-  const firstNullItemIndex = existingFolders.findIndex(folder =>
-    isNull(folder)
-  );
-
+  const firstNullItemIndex = existingFolders.findIndex(folder => !folder);
   const closestExistingFolderIndex =
     firstNullItemIndex === -1
       ? existingFolders.length - 1

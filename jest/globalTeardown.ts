@@ -93,7 +93,7 @@ async function deleteAWSBucketObjects(globals: IFilesNodeJestVars) {
   s3.destroy();
 }
 
-async function jestGlobalTeardown(globals: IFilesNodeJestVars) {
+async function jestGlobalTeardown() {
   const envSchema = Object.keys(extractProdEnvsSchema).reduce((map, key) => {
     const k = key as keyof ExtractEnvSchema;
     map[k] = {...extractProdEnvsSchema[k], required: false};

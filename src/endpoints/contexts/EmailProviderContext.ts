@@ -54,7 +54,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
         },
       });
 
-      const response = await this.ses.send(command);
+      await this.ses.send(command);
     }
   );
 
