@@ -61,7 +61,7 @@ export class S3FilePersistenceProviderContext
         ContentLength: params.contentLength,
       });
 
-      const response = await this.s3.send(command);
+      await this.s3.send(command);
     }
   );
 
@@ -91,7 +91,7 @@ export class S3FilePersistenceProviderContext
         },
       });
 
-      const response = await this.s3.send(command);
+      await this.s3.send(command);
     }
   );
 
@@ -116,7 +116,7 @@ export class S3FilePersistenceProviderContext
           },
         });
 
-        const response = await this.s3.send(command);
+        await this.s3.send(command);
       }
     }
   );
@@ -140,7 +140,7 @@ export async function ensureAppBucketsReady(
 
 export function getBodyFromStream(body: Readable): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    let chunks: Buffer[] = [];
+    const chunks: Buffer[] = [];
     body.once('error', err => reject(err));
     body.on('data', chunk => chunks.push(chunk));
     body.once('end', () => resolve(Buffer.concat(chunks)));

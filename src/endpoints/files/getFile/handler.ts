@@ -1,5 +1,5 @@
 import * as sharp from 'sharp';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {BasicCRUDActions, SessionAgentType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
@@ -10,12 +10,13 @@ import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    /* permittedAgentTypes= */ [], // Allow every agent type, including public
-    /* audience= */ [] // Allow every token audience type
-  );
+  const agent = await context.session.getAgent(context, instData, [
+    SessionAgentType.ClientAssignedToken,
+    SessionAgentType.ProgramAccessToken,
+    SessionAgentType.User,
+    SessionAgentType.Public,
+  ]);
+
   const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,

@@ -57,7 +57,7 @@ async function setupDefaultUserCollaborationRequest(
   userEmail: string,
   adminPresetId: string
 ) {
-  const request = await context.data.collaborationRequest.saveItem({
+  await context.data.collaborationRequest.saveItem({
     resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: systemAgent,

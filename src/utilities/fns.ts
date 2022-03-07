@@ -63,7 +63,7 @@ export function appAssert(
   response: string | Error | AnyFn,
   log?: string
 ) {
-  if (!!!condition) {
+  if (!condition) {
     console.error(log);
 
     if (isString(response)) {
