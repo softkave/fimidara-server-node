@@ -55,10 +55,6 @@ export async function checkFileAuthorization(
     file.organizationId
   );
 
-  if (file.isPublic) {
-    return {agent, file, organization};
-  }
-
   await checkAuthorization(
     context,
     agent,
@@ -67,7 +63,8 @@ export async function checkFileAuthorization(
     AppResourceType.File,
     getFilePermissionOwners(organization.resourceId, file),
     action,
-    nothrow
+    nothrow,
+    file
   );
 
   return {agent, file, organization};

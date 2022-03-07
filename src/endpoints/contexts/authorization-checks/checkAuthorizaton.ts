@@ -22,6 +22,7 @@ export interface IPermissionOwner {
   order?: number;
 }
 
+// TODO: convert params to an object
 export async function checkAuthorization(
   ctx: IBaseContext,
   agent: ISessionAgent,
@@ -30,8 +31,13 @@ export async function checkAuthorization(
   type: AppResourceType,
   permissionOwners: IPermissionOwner[],
   action: BasicCRUDActions,
-  noThrow?: boolean
+  noThrow?: boolean,
+  resource?: {isPublic?: boolean}
 ) {
+  if (resource?.isPublic) {
+    return true;
+  }
+
   function newFilter() {
     return new DataProviderFilterBuilder<IPermissionItem>();
   }
