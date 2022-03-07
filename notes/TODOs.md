@@ -7,7 +7,9 @@
 - Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning presets.
 - Implement folder upload and not requiring file name but generating one when not provided
 - Use the endpoints instead of directly saving to db
+- Update accepted collaboration requests to include the user ID of the recipient for better info in case the user changes their email address
 - Write end-to-end tests
+- Implement file versioning, and versioning for other reosurces
 - Filter out presets not found, instead of erroring out
 - Do we really need buckets?
 - Listening on files, compressing files, version, integrity, etags,

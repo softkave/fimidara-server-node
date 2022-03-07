@@ -87,9 +87,17 @@ async function createFile(
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();
+  const isPublic = defaultTo(
+    data.isPublic,
+    defaultTo(parentFolder?.isPublic, false)
+  );
+
   const file = await context.data.file.saveItem({
     organizationId,
     resourceId: fileId,
+    isPublic,
+    markedPublicAt: isPublic ? getDateString() : undefined,
+    markedPublicBy: isPublic ? agent : undefined,
     extension: pathWithDetails.extension,
     name: pathWithDetails.nameWithoutExtension || defaultTo(data.extension, ''),
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],

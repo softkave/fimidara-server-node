@@ -91,6 +91,7 @@ export default function setupFilesRESTEndpoints(
 
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
+  app.get('/files/getFile', endpoints.getFile);
   app.post('/files/getFile', endpoints.getFile);
   app.post('/files/deleteFile', endpoints.deleteFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
