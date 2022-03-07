@@ -1,8 +1,13 @@
 import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
+import {isArray} from 'lodash';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {ISessionAgent, SessionAgentType} from '../../definitions/system';
+import {
+  ISessionAgent,
+  publicAgent,
+  SessionAgentType,
+} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
@@ -21,7 +26,6 @@ import {
   InvalidCredentialsError,
   PermissionDeniedError,
 } from '../user/errors';
-import UserQueries from '../user/UserQueries';
 import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
 
@@ -96,7 +100,7 @@ export default class SessionContext implements ISessionContext {
       ctx: IBaseContext,
       data: RequestData,
       permittedAgentTypes?: SessionAgentType[],
-      audience?: TokenAudience | TokenAudience[]
+      audience: TokenAudience | TokenAudience[] = TokenAudience.Login
     ) => {
       if (data.agent) {
         return data.agent;
@@ -108,11 +112,11 @@ export default class SessionContext implements ISessionContext {
       let programAccessToken: IProgramAccessToken | null = null;
       const incomingTokenData = data.incomingTokenData;
 
-      if (!incomingTokenData) {
+      if (!isAudienceEmpty(audience) && !incomingTokenData) {
         throw new PermissionDeniedError();
       }
 
-      switch (incomingTokenData.sub.type) {
+      switch (incomingTokenData?.sub.type) {
         case TokenType.UserToken: {
           userToken = await ctx.data.userToken.assertGetItem(
             UserTokenQueries.getById(incomingTokenData.sub.id)
@@ -144,7 +148,7 @@ export default class SessionContext implements ISessionContext {
         }
       }
 
-      if (permittedAgentTypes) {
+      if (permittedAgentTypes?.length) {
         const permittedAgent = permittedAgentTypes.find(type => {
           switch (type) {
             case SessionAgentType.User:
@@ -168,17 +172,13 @@ export default class SessionContext implements ISessionContext {
         const agent: ISessionAgent = makeUserSessionAgent(userToken, user);
         data.agent = agent;
         return agent;
-      }
-
-      if (programAccessToken) {
+      } else if (programAccessToken) {
         const agent: ISessionAgent =
           makeProgramAccessTokenAgent(programAccessToken);
 
         data.agent = agent;
         return agent;
-      }
-
-      if (clientAssignedToken) {
+      } else if (clientAssignedToken) {
         const agent: ISessionAgent =
           makeClientAssignedTokenAgent(clientAssignedToken);
 
@@ -186,8 +186,7 @@ export default class SessionContext implements ISessionContext {
         return agent;
       }
 
-      // Throw error, control should not get here
-      throw new InvalidCredentialsError();
+      return makePublicSessionAgent();
     }
   );
 
@@ -266,6 +265,10 @@ export default class SessionContext implements ISessionContext {
 
 export const getSessionContext = singletonFunc(() => new SessionContext());
 
+function isAudienceEmpty(audience: TokenAudience | TokenAudience[]) {
+  return isArray(audience) ? audience.length === 0 : !!!audience;
+}
+
 export function makeClientAssignedTokenAgent(
   clientAssignedToken: IClientAssignedToken
 ): ISessionAgent {
@@ -301,6 +304,12 @@ export function makeUserSessionAgent(
     agentType: SessionAgentType.User,
     tokenId: userToken.resourceId,
     tokenType: TokenType.UserToken,
+  };
+}
+
+export function makePublicSessionAgent(): ISessionAgent {
+  return {
+    ...publicAgent,
   };
 }
 
