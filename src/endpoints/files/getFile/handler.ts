@@ -10,7 +10,12 @@ import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    /* permittedAgentTypes= */ [], // Allow every agent type, including public
+    /* audience= */ [] // Allow every token audience type
+  );
   const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,

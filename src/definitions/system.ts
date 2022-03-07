@@ -10,6 +10,10 @@ export enum SessionAgentType {
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
 
+  // For un-authenticated agents, like agents performing
+  // operations on a public folder or file.
+  Public = 'public',
+
   // Reserved for system only operations, use sparingly
   System = 'files-system',
 }
@@ -19,11 +23,16 @@ export const systemAgent: IAgent = {
   agentType: SessionAgentType.System,
 };
 
+export const publicAgent: IAgent = {
+  agentId: SessionAgentType.Public,
+  agentType: SessionAgentType.Public,
+};
+
 export interface ISessionAgent {
   agentId: string;
   agentType: SessionAgentType;
-  tokenId: string;
-  tokenType: TokenType;
+  tokenId?: string;
+  tokenType?: TokenType;
 
   // One of the following, depending on the agentType
   userToken?: IUserToken;
