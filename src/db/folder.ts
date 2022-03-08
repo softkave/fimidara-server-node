@@ -1,7 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IFolder} from '../definitions/folder';
 import {getDate} from '../utilities/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {agentSchema, ensureTypeFields, publicAccessOpSchema} from './utils';
 
 const folderSchema = ensureTypeFields<IFolder>({
   resourceId: {type: String, unique: true, index: true},
@@ -15,9 +15,7 @@ const folderSchema = ensureTypeFields<IFolder>({
   name: {type: String, index: true},
   description: {type: String},
   idPath: {type: [String], default: []},
-  isPublic: {type: Boolean, default: false},
-  markedPublicAt: {type: Date},
-  markedPublicBy: {type: agentSchema},
+  publicAccessOps: {type: [publicAccessOpSchema], default: []},
   namePath: {type: [String], default: []},
 });
 

@@ -79,3 +79,15 @@ export interface IAppRuntimeState extends IAppRuntimeVars {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
 }
+
+export interface IPublicAccessOpInput {
+  action: BasicCRUDActions;
+  resourceType: AppResourceType;
+}
+
+export interface IPublicAccessOp {
+  action: BasicCRUDActions;
+  resourceType: AppResourceType;
+  markedAt: Date | string;
+  markedBy: IAgent;
+}

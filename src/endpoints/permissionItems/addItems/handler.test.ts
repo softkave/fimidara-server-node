@@ -16,6 +16,7 @@ import {
  * [Medium] - Test for program access token entity
  * [Medium] - Test for client assigned token entity
  * [Medium] - Test for different resources and owners
+ * [Medium] - Test that items are not getting duplicated in DB
  */
 
 let context: IBaseContext | null = null;

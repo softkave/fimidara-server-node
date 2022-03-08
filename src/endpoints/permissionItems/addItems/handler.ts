@@ -1,11 +1,10 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {checkOrganizationExists} from '../../organizations/utils';
 import checkEntityExists from '../checkEntityExists';
 import checkOwnersExist from '../checkOwnersExist';
 import {PermissionItemUtils} from '../utils';
+import {savePermissionItems} from './savePermissionItems';
 import {AddPermissionItemsEndpoint} from './types';
 import {addPermissionItemsJoiSchema} from './validation';
 
@@ -22,7 +21,6 @@ import {addPermissionItemsJoiSchema} from './validation';
  *
  * TODO:
  * - [High] Check that resource exists in the organization
- * - [High] Check that permission items are not duplicated in DB
  */
 
 const addPermissionItems: AddPermissionItemsEndpoint = async (
@@ -44,33 +42,14 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
     data.permissionEntityType
   );
 
-  await checkOwnersExist(
+  await checkOwnersExist(context, agent, organization, data.items, true);
+  let items: IPermissionItem[] = await savePermissionItems(
     context,
     agent,
-    organization.resourceId,
-    data.items,
-    true
+    organization,
+    data
   );
 
-  const items: IPermissionItem[] = data.items.map(input => {
-    const item: IPermissionItem = {
-      ...input,
-      resourceId: getNewId(),
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-      organizationId: organization.resourceId,
-      permissionEntityId: data.permissionEntityId,
-      permissionEntityType: data.permissionEntityType,
-    };
-
-    return item;
-  });
-
-  // Insert new permission items
-  await context.data.permissionItem.bulkSaveItems(items);
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(items),
   };

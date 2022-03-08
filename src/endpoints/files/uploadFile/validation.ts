@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
 import folderValidationSchemas from '../../folders/validation';
 import fileValidationSchemas from '../validation';
+import {UploadFilePublicAccessActions} from './types';
 
 export const uploadFileJoiSchema = Joi.object()
   .keys({
@@ -12,6 +13,10 @@ export const uploadFileJoiSchema = Joi.object()
     encoding: fileValidationSchemas.encoding.allow(null),
     extension: fileValidationSchemas.extension.allow(null),
     data: fileValidationSchemas.buffer.required(),
-    isPublic: Joi.bool().allow(null),
+    publicAccessActions: Joi.string().allow(
+      ...Object.values(UploadFilePublicAccessActions),
+      null
+    ),
+    inheritParentPublicAccessOps: Joi.boolean().allow(null).default(true),
   })
   .required();

@@ -111,7 +111,12 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
     systemAgent,
     organizationId,
     folder02,
-    {path: appSetupVars.orgImagesFolderPath, isPublic: true}
+    {
+      path: appSetupVars.orgImagesFolderPath,
+      publicAccessOps: [
+        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+      ],
+    }
   );
 
   const userImagesFolder = await createSingleFolder(
@@ -119,7 +124,12 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
     systemAgent,
     organizationId,
     folder02,
-    {path: appSetupVars.userImagesFolderPath, isPublic: true}
+    {
+      path: appSetupVars.userImagesFolderPath,
+      publicAccessOps: [
+        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+      ],
+    }
   );
 
   return {folder01, folder02, orgImagesFolder, userImagesFolder};

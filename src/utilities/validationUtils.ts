@@ -1,6 +1,10 @@
 import * as Joi from 'joi';
-import {appResourceTypesList, crudActionsList} from '../definitions/system';
+import {
+  appResourceTypesList as systemAppResourceTypesList,
+  crudActionsList as systemCrudActionsList,
+} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
+import {permissionItemConstants} from '../endpoints/permissionItems/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;
@@ -48,8 +52,16 @@ const verificationCode = Joi.string()
 const nanoid = Joi.string().trim().length(21);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
-const resourceType = Joi.string().valid(...appResourceTypesList);
-const crudActions = Joi.string().valid(...crudActionsList);
+const resourceType = Joi.string().valid(...systemAppResourceTypesList);
+const crudAction = Joi.string().valid(...systemCrudActionsList);
+const publicAccessOp = Joi.object().keys({
+  action: crudAction.required(),
+  resourceType: resourceType.required(),
+});
+
+const publicAccessOpList = Joi.array()
+  .items(publicAccessOp)
+  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 export const validationSchemas = {
   nanoid,
@@ -66,7 +78,9 @@ export const validationSchemas = {
   fromNowSecs,
   alphanum,
   resourceType,
-  crudActions,
+  crudAction,
+  publicAccessOp,
+  publicAccessOpList,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {
