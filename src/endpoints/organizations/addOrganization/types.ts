@@ -1,6 +1,6 @@
+import {IPublicOrganization} from '../../../definitions/organization';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicOrganization} from '../types';
 
 export interface INewOrganizationInput {
   name: string;

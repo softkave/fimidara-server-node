@@ -1,0 +1,2 @@
+- Preset weight, not order
+- Reusable resource public access to permission item map

@@ -120,17 +120,16 @@ export async function checkFolderAuthorization(
     folder.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    folder.resourceId,
-    AppResourceType.Folder,
-    getFilePermissionOwners(organization.resourceId, folder),
+    organization,
     action,
     nothrow,
-    folder
-  );
+    resource: folder,
+    type: AppResourceType.Folder,
+    permissionOwners: getFilePermissionOwners(organization.resourceId, folder),
+  });
 
   return {agent, folder, organization};
 }

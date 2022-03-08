@@ -1,3 +1,4 @@
+import {IOrganization} from '../../../definitions/organization';
 import {IAssignedPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {
   AppResourceType,
@@ -22,12 +23,14 @@ function extractPresetsData(presets: IAssignedPresetPermissionsGroup[]) {
 
 export function getPermissionEntities(
   agent: ISessionAgent,
-  organizationId: string
+  organization: IOrganization
 ): Array<IPermissionEntity> {
+  let permissionEntities: Array<IPermissionEntity> = [];
+
   switch (agent.agentType) {
     case SessionAgentType.User: {
       if (agent.user) {
-        return [
+        permissionEntities = [
           {
             permissionEntityId: agent.user.resourceId,
             permissionEntityType: AppResourceType.User,
@@ -35,8 +38,8 @@ export function getPermissionEntities(
           },
         ].concat(
           extractPresetsData(
-            getCollaboratorOrganization(agent.user, organizationId)?.presets ||
-              []
+            getCollaboratorOrganization(agent.user, organization.resourceId)
+              ?.presets || []
           )
         );
       }
@@ -45,7 +48,7 @@ export function getPermissionEntities(
 
     case SessionAgentType.ClientAssignedToken: {
       if (agent.clientAssignedToken) {
-        return [
+        permissionEntities = [
           {
             permissionEntityId: agent.clientAssignedToken.resourceId,
             permissionEntityType: AppResourceType.ClientAssignedToken,
@@ -58,7 +61,7 @@ export function getPermissionEntities(
 
     case SessionAgentType.ProgramAccessToken: {
       if (agent.programAccessToken) {
-        return [
+        permissionEntities = [
           {
             permissionEntityId: agent.programAccessToken.resourceId,
             permissionEntityType: AppResourceType.ProgramAccessToken,
@@ -70,6 +73,14 @@ export function getPermissionEntities(
     }
   }
 
-  // TODO: log cause control shouldn't get here
-  return [];
+  if (organization.publicPresetId) {
+    permissionEntities = permissionEntities.concat([
+      {
+        permissionEntityId: organization.publicPresetId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      },
+    ]);
+  }
+
+  return permissionEntities;
 }

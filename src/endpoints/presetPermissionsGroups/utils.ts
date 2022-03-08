@@ -1,4 +1,5 @@
 import assert = require('assert');
+import {IOrganization} from '../../definitions/organization';
 import {
   IAssignedPresetPermissionsGroup,
   IPresetPermissionsGroup,
@@ -13,7 +14,7 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {assertGetOrganizationIdFromAgent} from '../contexts/SessionContext';
@@ -68,16 +69,16 @@ export async function checkPresetPermissionsGroupAuthorization(
     preset.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    preset.resourceId,
-    AppResourceType.PresetPermissionsGroup,
-    makeBasePermissionOwnerList(organization.resourceId),
+    organization,
     action,
-    nothrow
-  );
+    nothrow,
+    resource: preset,
+    type: AppResourceType.PresetPermissionsGroup,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+  });
 
   return {agent, preset, organization};
 }
@@ -144,7 +145,7 @@ export async function checkPresetPermissionsGroupAuthorization03(
 export async function checkPresetsExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   presetInputs: IPresetInput[]
 ) {
   const presets = await Promise.all(
@@ -157,15 +158,15 @@ export async function checkPresetsExist(
 
   await Promise.all(
     presets.map(item =>
-      checkAuthorization(
+      checkAuthorization({
         context,
         agent,
-        organizationId,
-        item.resourceId,
-        AppResourceType.PresetPermissionsGroup,
-        makeBasePermissionOwnerList(organizationId),
-        BasicCRUDActions.Read
-      )
+        organization,
+        resource: item,
+        type: AppResourceType.PresetPermissionsGroup,
+        permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+        action: BasicCRUDActions.Read,
+      })
     )
   );
 

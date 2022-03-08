@@ -9,12 +9,13 @@ import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {FileUtils} from '../../files/utils';
+import EndpointReusableQueries from '../../queries';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization03, FolderUtils} from '../utils';
 import {ListFolderContentEndpoint} from './types';
@@ -39,6 +40,10 @@ const listFolderContent: ListFolderContentEndpoint = async (
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
+  const organization = await context.data.organization.assertGetItem(
+    EndpointReusableQueries.getById(organizationId)
+  );
+
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
 
@@ -60,29 +65,29 @@ const listFolderContent: ListFolderContentEndpoint = async (
 
   // TODO: can we do this together, so that we don't waste compute
   const checkFoldersPermissionQueue = fetchedFolders.map(item =>
-    checkAuthorization(
+    checkAuthorization({
       context,
       agent,
-      organizationId,
-      item.resourceId,
-      AppResourceType.Folder,
-      makeBasePermissionOwnerList(organizationId),
-      BasicCRUDActions.Read,
-      true
-    )
+      organization,
+      resource: item,
+      type: AppResourceType.Folder,
+      permissionOwners: makeOrgPermissionOwnerList(organizationId),
+      action: BasicCRUDActions.Read,
+      nothrow: true,
+    })
   );
 
   const checkFilesPermissionQueue = fetchedFiles.map(item =>
-    checkAuthorization(
+    checkAuthorization({
       context,
       agent,
-      organizationId,
-      item.resourceId,
-      AppResourceType.File,
-      makeBasePermissionOwnerList(organizationId),
-      BasicCRUDActions.Read,
-      true
-    )
+      organization,
+      resource: item,
+      type: AppResourceType.File,
+      permissionOwners: makeOrgPermissionOwnerList(organizationId),
+      action: BasicCRUDActions.Read,
+      nothrow: true,
+    })
   );
 
   const folderPermittedReads = await waitOnPromises(

@@ -12,7 +12,7 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
@@ -59,16 +59,16 @@ export async function checkCollaborationRequestAuthorization(
     request.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    request.resourceId,
-    AppResourceType.CollaborationRequest,
-    makeBasePermissionOwnerList(organization.resourceId),
+    organization,
     action,
-    nothrow
-  );
+    nothrow,
+    resource: request,
+    type: AppResourceType.CollaborationRequest,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+  });
 
   return {agent, request, organization};
 }

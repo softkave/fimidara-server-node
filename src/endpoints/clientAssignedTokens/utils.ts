@@ -9,7 +9,7 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {
@@ -58,16 +58,16 @@ export async function checkClientAssignedTokenAuthorization(
     token.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    token.resourceId,
-    AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organization.resourceId),
+    organization,
+    resource: token,
     action,
-    nothrow
-  );
+    nothrow,
+    type: AppResourceType.ClientAssignedToken,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+  });
 
   return {agent, token, organization};
 }

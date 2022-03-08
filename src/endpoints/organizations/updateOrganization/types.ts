@@ -1,7 +1,7 @@
+import {IPublicOrganization} from '../../../definitions/organization';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewOrganizationInput} from '../addOrganization/types';
-import {IPublicOrganization} from '../types';
 
 export type IUpdateOrganizationInput = Partial<INewOrganizationInput>;
 

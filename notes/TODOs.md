@@ -19,6 +19,7 @@
 - Look into the TODOs in the project
 - What fields should be indexed in MongoDB?
 - Short links for files
+- Move from the data provider model to special functions for accessing and operating on data in data providers, primarily so that we can implement a caching mechanism using it. If we can implement the same on top of the current system, that is fine too.
 - Skip filenames and generate new ones or appending random strings to filenames
 - Pothen name
 - Perform existing file check using the file binary / checking that mime is correct using file binary
