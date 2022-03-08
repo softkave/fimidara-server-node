@@ -19,7 +19,7 @@ import {getCollaboratorOrganization} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {
@@ -48,15 +48,14 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     data.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    null,
-    AppResourceType.CollaborationRequest,
-    makeBasePermissionOwnerList(organization.resourceId),
-    BasicCRUDActions.Create
-  );
+    organization,
+    type: AppResourceType.CollaborationRequest,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    action: BasicCRUDActions.Create,
+  });
 
   const existingUser = await context.data.user.getItem(
     CollaboratorQueries.getByUserEmail(data.request.recipientEmail)

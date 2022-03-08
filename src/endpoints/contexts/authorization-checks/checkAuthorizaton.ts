@@ -1,4 +1,5 @@
 import {flatten} from 'lodash';
+import {IOrganization} from '../../../definitions/organization';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -22,18 +23,30 @@ export interface IPermissionOwner {
   order?: number;
 }
 
+export interface ICheckAuthorizationParams {
+  context: IBaseContext;
+  agent: ISessionAgent;
+  organization: IOrganization;
+  type: AppResourceType;
+  permissionOwners: IPermissionOwner[];
+  action: BasicCRUDActions;
+  nothrow?: boolean;
+  resource?: {resourceId: string; isPublic?: boolean};
+}
+
 // TODO: convert params to an object
-export async function checkAuthorization(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  organizationId: string,
-  id: string | null, // doesn't fetch resource
-  type: AppResourceType,
-  permissionOwners: IPermissionOwner[],
-  action: BasicCRUDActions,
-  noThrow?: boolean,
-  resource?: {isPublic?: boolean}
-) {
+export async function checkAuthorization(params: ICheckAuthorizationParams) {
+  const {
+    context,
+    agent,
+    organization,
+    type,
+    permissionOwners,
+    action,
+    nothrow,
+    resource,
+  } = params;
+
   if (resource?.isPublic) {
     return true;
   }
@@ -42,8 +55,11 @@ export async function checkAuthorization(
     return new DataProviderFilterBuilder<IPermissionItem>();
   }
 
-  const agentPermissionEntities = getPermissionEntities(agent, organizationId);
-  const authEntities = await fetchAndSortPresets(ctx, agentPermissionEntities);
+  const agentPermissionEntities = getPermissionEntities(agent, organization);
+  const authEntities = await fetchAndSortPresets(
+    context,
+    agentPermissionEntities
+  );
   const queries = authEntities.map(item => {
     return newFilter()
       .addItem(
@@ -70,7 +86,7 @@ export async function checkAuthorization(
   });
 
   const permissionItemsList = await Promise.all(
-    queries.map(query => ctx.data.permissionItem.getManyItems(query))
+    queries.map(query => context.data.permissionItem.getManyItems(query))
   );
 
   const getPermissionOwnerKey = (item: IPermissionOwner) =>
@@ -88,7 +104,11 @@ export async function checkAuthorization(
     !!permissionOwnersMap[getPermissionOwnerKey(item)];
 
   const items = flatten(permissionItemsList).filter(item => {
-    if (id && item.itemResourceId && item.itemResourceId !== id) {
+    if (
+      resource &&
+      item.itemResourceId &&
+      item.itemResourceId !== resource.resourceId
+    ) {
       return false;
     }
 
@@ -120,7 +140,9 @@ export async function checkAuthorization(
     entityTypeWeight[item.permissionEntityType] ?? 99;
 
   const isForOwner = (item: IPermissionItem) =>
-    id && item.isForPermissionOwnerOnly && item.permissionOwnerId === id;
+    resource &&
+    item.isForPermissionOwnerOnly &&
+    item.permissionOwnerId === resource.resourceId;
 
   const positiveWeight = items.length * 2;
   const negativeWeight = positiveWeight * -1;
@@ -143,7 +165,7 @@ export async function checkAuthorization(
   });
 
   const throwAuthorizationError = () => {
-    if (noThrow) {
+    if (nothrow) {
       return;
     }
 
@@ -165,7 +187,7 @@ export async function checkAuthorization(
   return true;
 }
 
-export function makeBasePermissionOwnerList(organizationId: string) {
+export function makeOrgPermissionOwnerList(organizationId: string) {
   return [
     {
       permissionOwnerId: organizationId,
@@ -179,7 +201,7 @@ export function getFilePermissionOwners(
   organizationId: string,
   file: {idPath: string[]}
 ) {
-  return makeBasePermissionOwnerList(organizationId).concat(
+  return makeOrgPermissionOwnerList(organizationId).concat(
     file.idPath.map((id, index) => ({
       permissionOwnerId: id,
       permissionOwnerType: AppResourceType.Folder,

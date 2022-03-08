@@ -8,7 +8,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {TokenType} from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
@@ -42,15 +42,14 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     data.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    null,
-    AppResourceType.ProgramAccessToken,
-    makeBasePermissionOwnerList(organization.resourceId),
-    BasicCRUDActions.Create
-  );
+    organization,
+    type: AppResourceType.ProgramAccessToken,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    action: BasicCRUDActions.Create,
+  });
 
   const itemExists = await context.data.programAccessToken.checkItemExists(
     EndpointReusableQueries.getByOrganizationAndName(
@@ -63,13 +62,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     throw new ResourceExistsError('Program access token exists');
   }
 
-  await checkPresetsExist(
-    context,
-    agent,
-    organization.resourceId,
-    data.token.presets
-  );
-
+  await checkPresetsExist(context, agent, organization, data.token.presets);
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);
   const token: IProgramAccessToken =

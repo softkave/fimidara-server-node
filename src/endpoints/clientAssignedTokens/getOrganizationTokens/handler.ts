@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
@@ -40,16 +40,16 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
     // TODO: can we do this together, so that we don't waste compute
     const permittedReads = await Promise.all(
       tokens.map(item =>
-        checkAuthorization(
+        checkAuthorization({
           context,
           agent,
-          organization.resourceId,
-          item.resourceId,
-          AppResourceType.ClientAssignedToken,
-          makeBasePermissionOwnerList(organization.resourceId),
-          BasicCRUDActions.Read,
-          true
-        )
+          organization,
+          resource: item,
+          type: AppResourceType.ClientAssignedToken,
+          permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+          action: BasicCRUDActions.Read,
+          nothrow: true,
+        })
       )
     );
 

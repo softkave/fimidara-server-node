@@ -1,4 +1,5 @@
 import {uniq} from 'lodash';
+import {IOrganization} from '../../definitions/organization';
 import {
   ISessionAgent,
   AppResourceType,
@@ -7,7 +8,7 @@ import {
 import {waitOnPromises} from '../../utilities/waitOnPromises';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
@@ -23,7 +24,7 @@ interface IPermissionOwner {
 export default async function checkOwnersExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   items: Array<IPermissionOwner>,
   organizationChecked = false
 ) {
@@ -60,47 +61,50 @@ export default async function checkOwnersExist(
     );
   }
 
-  if (ownerOrganizations.length && ownerOrganizations[0] !== organizationId) {
+  if (
+    ownerOrganizations.length &&
+    ownerOrganizations[0] !== organization.resourceId
+  ) {
     throw new InvalidRequestError(
       'Provided organization type permission owner and the provided organization do not match'
     );
   }
 
   if (!organizationChecked) {
-    await checkOrganizationExists(context, organizationId);
+    await checkOrganizationExists(context, organization.resourceId);
   }
 
   const [folders, files] = await Promise.all([
     context.data.folder.getManyItems(
-      FolderQueries.getByMultipleIds(ownerFolders, organizationId)
+      FolderQueries.getByMultipleIds(ownerFolders, organization.resourceId)
     ),
     context.data.file.getManyItems(
-      FileQueries.getByMultipleIds(ownerFiles, organizationId)
+      FileQueries.getByMultipleIds(ownerFiles, organization.resourceId)
     ),
   ]);
 
   const checkFoldersPermissionQueue = folders.map(item =>
-    checkAuthorization(
+    checkAuthorization({
       context,
       agent,
-      organizationId,
-      item.resourceId,
-      AppResourceType.Folder,
-      makeBasePermissionOwnerList(organizationId),
-      BasicCRUDActions.Read
-    )
+      organization,
+      resource: item,
+      type: AppResourceType.Folder,
+      permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+      action: BasicCRUDActions.Read,
+    })
   );
 
   const checkFilesPermissionQueue = files.map(item =>
-    checkAuthorization(
+    checkAuthorization({
       context,
       agent,
-      organizationId,
-      item.resourceId,
-      AppResourceType.File,
-      makeBasePermissionOwnerList(organizationId),
-      BasicCRUDActions.Read
-    )
+      organization,
+      resource: item,
+      type: AppResourceType.File,
+      permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+      action: BasicCRUDActions.Read,
+    })
   );
 
   await waitOnPromises(checkFoldersPermissionQueue);

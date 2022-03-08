@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaboratorQueries from '../queries';
@@ -32,16 +32,16 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint =
     // TODO: can we do this together, so that we don't waste compute
     const permittedReads = await Promise.all(
       collaborators.map(item =>
-        checkAuthorization(
+        checkAuthorization({
           context,
           agent,
-          organization.resourceId,
-          item.resourceId,
-          AppResourceType.User,
-          makeBasePermissionOwnerList(organization.resourceId),
-          BasicCRUDActions.Read,
-          true
-        )
+          organization,
+          resource: item,
+          type: AppResourceType.User,
+          permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+          action: BasicCRUDActions.Read,
+          nothrow: true,
+        })
       )
     );
 

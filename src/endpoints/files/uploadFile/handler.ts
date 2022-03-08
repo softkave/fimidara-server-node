@@ -1,5 +1,6 @@
 import {defaultTo} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
+import {IOrganization} from '../../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -11,7 +12,7 @@ import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   getFilePermissionOwners,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
@@ -19,6 +20,7 @@ import {
   createFolderList,
   getClosestExistingFolder,
 } from '../../folders/addFolder/handler';
+import EndpointReusableQueries from '../../queries';
 import FileQueries from '../queries';
 import {
   FileUtils,
@@ -33,6 +35,10 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData);
   const pathWithDetails = splitFilePathWithDetails(data.path);
   const organizationId = getOrganizationId(agent, data.organizationId);
+  const organization = await context.data.organization.assertGetItem(
+    EndpointReusableQueries.getById(organizationId)
+  );
+
   let file = await context.data.file.getItem(
     FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)
   );
@@ -45,7 +51,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       pathWithDetails
     );
 
-    await checkAuth(context, agent, organizationId, parentFolder);
+    await checkAuth(context, agent, organization, parentFolder);
     file = await createFile(
       context,
       agent,
@@ -61,7 +67,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       pathWithDetails.splitParentPath
     );
 
-    await checkAuth(context, agent, organizationId, closestExistingFolder);
+    await checkAuth(context, agent, organization, closestExistingFolder);
   }
 
   await context.fileBackend.uploadFile({
@@ -137,7 +143,7 @@ async function createParentFolders(
 async function checkAuth(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   closestExistingFolder: IFolder | null
 ) {
   // TODO: also have an update check if file exists
@@ -148,17 +154,16 @@ async function checkAuth(
   // to update someone else's file (or image) too.
   // We need fine-grained permissions like only allow an operation
   // if the user/token created the file or owns the file.
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organizationId,
-    null,
-    AppResourceType.File,
-    closestExistingFolder
-      ? getFilePermissionOwners(organizationId, closestExistingFolder)
-      : makeBasePermissionOwnerList(organizationId),
-    BasicCRUDActions.Create
-  );
+    organization,
+    type: AppResourceType.File,
+    permissionOwners: closestExistingFolder
+      ? getFilePermissionOwners(organization.resourceId, closestExistingFolder)
+      : makeOrgPermissionOwnerList(organization.resourceId),
+    action: BasicCRUDActions.Create,
+  });
 }
 
 export default uploadFile;

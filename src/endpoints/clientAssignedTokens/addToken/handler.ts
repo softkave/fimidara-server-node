@@ -7,7 +7,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
   IBaseContext,
@@ -45,15 +45,14 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
   const organization = await checkOrganizationExists(context, organizationId);
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    null,
-    AppResourceType.ClientAssignedToken,
-    makeBasePermissionOwnerList(organization.resourceId),
-    BasicCRUDActions.Create
-  );
+    organization,
+    type: AppResourceType.ClientAssignedToken,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    action: BasicCRUDActions.Create,
+  });
 
   let token: IClientAssignedToken | null = null;
 
@@ -70,7 +69,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     const presets = data.token.presets || [];
 
     if (presets.length > 0) {
-      await checkPresetsExist(context, agent, organization.resourceId, presets);
+      await checkPresetsExist(context, agent, organization, presets);
     }
 
     token = await context.data.clientAssignedToken.saveItem({

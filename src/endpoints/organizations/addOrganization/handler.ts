@@ -2,13 +2,14 @@ import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
-import {updateCollaboratorOrganization} from '../../collaborators/utils';
-import EndpointReusableQueries from '../../queries';
 import {OrganizationExistsError} from '../errors';
 import OrganizationQueries from '../queries';
 import {organizationExtractor} from '../utils';
 import {AddOrganizationEndpoint} from './types';
-import {setupAdminPreset, assignAdminPresetToUser} from './utils';
+import {
+  setupDefaultOrgPresets,
+  addOrgToUserAndAssignAdminPreset,
+} from './utils';
 import {addOrganizationJoiSchema} from './validation';
 
 /**
@@ -27,7 +28,7 @@ const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
     throw new OrganizationExistsError();
   }
 
-  const organization = await context.data.organization.saveItem({
+  let organization = await context.data.organization.saveItem({
     createdAt: getDateString(),
     createdBy: {
       agentId: user.resourceId,
@@ -38,26 +39,29 @@ const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
     description: data.description,
   });
 
-  updateCollaboratorOrganization(user, organization.resourceId, () => ({
-    organizationId: organization.resourceId,
-    joinedAt: getDateString(),
-    presets: [],
-  }));
-
-  await context.data.user.updateItem(
-    EndpointReusableQueries.getById(user.resourceId),
-    {
-      organizations: user.organizations,
-    }
-  );
-
   const agent: IAgent = {
     agentId: user.resourceId,
     agentType: SessionAgentType.User,
   };
 
-  const adminPreset = await setupAdminPreset(context, agent, organization);
-  await assignAdminPresetToUser(context, user, organization, adminPreset);
+  const {adminPreset, publicPreset} = await setupDefaultOrgPresets(
+    context,
+    agent,
+    organization
+  );
+
+  organization = await context.data.organization.assertUpdateItem(
+    OrganizationQueries.getById(organization.resourceId),
+    {publicPresetId: publicPreset.resourceId}
+  );
+
+  await addOrgToUserAndAssignAdminPreset(
+    context,
+    user,
+    organization,
+    adminPreset
+  );
+
   return {
     organization: organizationExtractor(organization),
   };

@@ -1,5 +1,6 @@
 import * as faker from 'faker';
 import {IBaseContext} from '../../contexts/BaseContext';
+import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   getTestBaseContext,
@@ -9,6 +10,7 @@ import {
 import OrganizationQueries from '../queries';
 import {organizationExtractor} from '../utils';
 import {IAddOrganizationParams} from './types';
+import {DEFAULT_ADMIN_PRESET_NAME, DEFAULT_PUBLIC_PRESET_NAME} from './utils';
 
 let context: IBaseContext | null = null;
 
@@ -35,6 +37,7 @@ test('organization created', async () => {
   );
 
   expect(result.organization).toMatchObject(companyInput);
+  expect(result.organization.publicPresetId).toBeTruthy();
   const savedCompany = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(result.organization.resourceId)
   );
@@ -42,4 +45,33 @@ test('organization created', async () => {
   expect(organizationExtractor(savedCompany)).toMatchObject(
     result.organization
   );
+
+  const adminPreset = await context.data.preset.assertGetItem(
+    EndpointReusableQueries.getByOrganizationAndName(
+      savedCompany.resourceId,
+      DEFAULT_ADMIN_PRESET_NAME
+    )
+  );
+
+  await context.data.preset.assertGetItem(
+    EndpointReusableQueries.getByOrganizationAndName(
+      savedCompany.resourceId,
+      DEFAULT_PUBLIC_PRESET_NAME
+    )
+  );
+
+  const user = await context.data.user.assertGetItem(
+    EndpointReusableQueries.getById(userToken.userId)
+  );
+
+  const userOrg = user.organizations.find(
+    item => item.organizationId === savedCompany.resourceId
+  );
+
+  expect(userOrg).toBeTruthy();
+  const assignedAdminPreset = userOrg?.presets.find(
+    item => item.presetId === adminPreset.resourceId
+  );
+
+  expect(assignedAdminPreset).toBeTruthy();
 });

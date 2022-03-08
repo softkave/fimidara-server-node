@@ -14,8 +14,10 @@ import {updateCollaboratorOrganization} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 
-export const DEFAULT_ADMIN_PRESET_NAME = 'admin';
-export async function setupAdminPreset(
+export const DEFAULT_ADMIN_PRESET_NAME = 'Admin';
+export const DEFAULT_PUBLIC_PRESET_NAME = 'Public';
+
+export async function setupDefaultOrgPresets(
   context: IBaseContext,
   agent: IAgent,
   organization: IOrganization
@@ -31,7 +33,18 @@ export async function setupAdminPreset(
     presets: [],
   };
 
-  await context.data.preset.saveItem(adminPreset);
+  const publicPreset: IPresetPermissionsGroup = {
+    resourceId: getNewId(),
+    organizationId: organization.resourceId,
+    createdAt: getDateString(),
+    createdBy: agent,
+    name: DEFAULT_PUBLIC_PRESET_NAME,
+    description:
+      'Auto-generated preset for accessing and performing public operations.',
+    presets: [],
+  };
+
+  await context.data.preset.bulkSaveItems([adminPreset, publicPreset]);
   const permissionItems: IPermissionItem[] = [AppResourceType.All].map(type => {
     return {
       resourceId: getNewId(),
@@ -51,17 +64,23 @@ export async function setupAdminPreset(
   });
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
-  return adminPreset;
+  return {adminPreset, publicPreset};
 }
 
-export async function assignAdminPresetToUser(
+export async function addOrgToUserAndAssignAdminPreset(
   context: IBaseContext,
   user: IUser,
   organization: IOrganization,
   adminPreset: IPresetPermissionsGroup
 ) {
-  updateCollaboratorOrganization(user, organization.resourceId, data => {
-    data?.presets.push({
+  updateCollaboratorOrganization(user, organization.resourceId, userOrg => {
+    userOrg = userOrg || {
+      organizationId: organization.resourceId,
+      joinedAt: getDateString(),
+      presets: [],
+    };
+
+    userOrg.presets.push({
       presetId: adminPreset.resourceId,
       assignedAt: getDateString(),
       assignedBy: {
@@ -71,7 +90,7 @@ export async function assignAdminPresetToUser(
       order: 0,
     });
 
-    return data;
+    return userOrg;
   });
 
   return await context.data.user.updateItem(

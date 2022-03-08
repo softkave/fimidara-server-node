@@ -7,7 +7,7 @@ import {IUser, IUserOrganization} from '../../definitions/user';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
@@ -58,16 +58,16 @@ export async function checkCollaboratorAuthorization(
   nothrow = false
 ) {
   const organization = await checkOrganizationExists(context, organizationId);
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organizationId,
-    collaborator.resourceId,
-    AppResourceType.User,
-    makeBasePermissionOwnerList(organizationId),
+    organization,
     action,
-    nothrow
-  );
+    nothrow,
+    resource: collaborator,
+    type: AppResourceType.User,
+    permissionOwners: makeOrgPermissionOwnerList(organizationId),
+  });
 
   return {agent, collaborator, organization};
 }

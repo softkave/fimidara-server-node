@@ -11,7 +11,7 @@ import getNewId from '../../utilities/getNewId';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
 import OrganizationQueries from '../organizations/queries';
-import {setupAdminPreset} from '../organizations/addOrganization/utils';
+import {setupDefaultOrgPresets} from '../organizations/addOrganization/utils';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IAppRuntimeVars} from '../../resources/appVariables';
@@ -180,7 +180,7 @@ export async function setupApp(context: IBaseContext) {
   }
 
   const org = await setupOrg(context, appSetupVars.orgName);
-  const adminPreset = await setupAdminPreset(context, systemAgent, org);
+  const {adminPreset} = await setupDefaultOrgPresets(context, systemAgent, org);
   await setupDefaultUserCollaborationRequest(
     context,
     org,

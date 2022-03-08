@@ -1,4 +1,7 @@
-import {IOrganization} from '../../definitions/organization';
+import {
+  IOrganization,
+  IPublicOrganization,
+} from '../../definitions/organization';
 import {
   ISessionAgent,
   BasicCRUDActions,
@@ -11,7 +14,6 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import OrganizationQueries from './queries';
-import {IPublicOrganization} from './types';
 
 const organizationFields = getFields<IPublicOrganization>({
   resourceId: true,
@@ -21,6 +23,7 @@ const organizationFields = getFields<IPublicOrganization>({
   lastUpdatedAt: getDateStringIfPresent,
   name: true,
   description: true,
+  publicPresetId: true,
 });
 
 export const organizationExtractor = makeExtract(organizationFields);
@@ -46,16 +49,16 @@ export async function checkOrganizationAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    organization.resourceId,
-    AppResourceType.Organization,
-    [],
+    organization,
     action,
-    nothrow
-  );
+    nothrow,
+    resource: organization,
+    type: AppResourceType.Organization,
+    permissionOwners: [],
+  });
 
   return {agent, organization};
 }

@@ -1,5 +1,6 @@
 import {defaultTo} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
+import {IOrganization} from '../../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -13,11 +14,12 @@ import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   getFilePermissionOwners,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
+import EndpointReusableQueries from '../../queries';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
@@ -97,14 +99,14 @@ export async function getClosestExistingFolder(
 export async function createFolderList(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   input: INewFolderInput
 ) {
   const pathWithDetails = assertSplitPathWithDetails(input.path);
   const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
     await getClosestExistingFolder(
       context,
-      organizationId,
+      organization.resourceId,
       pathWithDetails.splitPath
     );
 
@@ -124,17 +126,16 @@ export async function createFolderList(
 
     if (!hasCheckAuth) {
       // Check if the agent can perform operation
-      await checkAuthorization(
+      await checkAuthorization({
         context,
         agent,
-        organizationId,
-        null,
-        AppResourceType.Folder,
-        previousFolder
-          ? getFilePermissionOwners(organizationId, previousFolder)
-          : makeBasePermissionOwnerList(organizationId),
-        BasicCRUDActions.Create
-      );
+        organization,
+        type: AppResourceType.Folder,
+        permissionOwners: previousFolder
+          ? getFilePermissionOwners(organization.resourceId, previousFolder)
+          : makeOrgPermissionOwnerList(organization.resourceId),
+        action: BasicCRUDActions.Create,
+      });
 
       hasCheckAuth = true;
     }
@@ -151,7 +152,7 @@ export async function createFolderList(
     previousFolder = await createSingleFolder(
       context,
       agent,
-      organizationId,
+      organization.resourceId,
       previousFolder,
       nextInput
     );
@@ -170,10 +171,14 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
+  const organization = await context.data.organization.assertGetItem(
+    EndpointReusableQueries.getById(organizationId)
+  );
+
   const folder = await createFolderList(
     context,
     agent,
-    organizationId,
+    organization,
     data.folder
   );
 

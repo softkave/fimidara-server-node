@@ -31,6 +31,7 @@ export interface IDataProviderFilterValue<Value> {
   logicalOp?: DataProviderFilterValueLogicalOperator;
 }
 
+// TODO: support combine operators for filtering
 export enum DataProviderFilterCombineOperator {
   Or,
   And,

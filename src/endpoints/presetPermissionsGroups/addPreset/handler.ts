@@ -4,7 +4,7 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeBasePermissionOwnerList,
+  makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import PresetPermissionsGroupQueries from '../queries';
@@ -34,15 +34,14 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
     data.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    null,
-    AppResourceType.PresetPermissionsGroup,
-    makeBasePermissionOwnerList(organization.resourceId),
-    BasicCRUDActions.Create
-  );
+    organization,
+    type: AppResourceType.PresetPermissionsGroup,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    action: BasicCRUDActions.Create,
+  });
 
   const itemExists = await context.data.preset.checkItemExists(
     PresetPermissionsGroupQueries.getByOrganizationAndName(

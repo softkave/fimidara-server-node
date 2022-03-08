@@ -55,17 +55,16 @@ export async function checkFileAuthorization(
     file.organizationId
   );
 
-  await checkAuthorization(
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    file.resourceId,
-    AppResourceType.File,
-    getFilePermissionOwners(organization.resourceId, file),
+    organization,
     action,
     nothrow,
-    file
-  );
+    resource: file,
+    type: AppResourceType.File,
+    permissionOwners: getFilePermissionOwners(organization.resourceId, file),
+  });
 
   return {agent, file, organization};
 }

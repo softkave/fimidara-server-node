@@ -8,4 +8,7 @@ export interface IOrganization {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
+  publicPresetId?: string;
 }
+
+export type IPublicOrganization = IOrganization;
