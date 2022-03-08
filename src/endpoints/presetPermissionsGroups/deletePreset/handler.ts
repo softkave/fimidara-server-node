@@ -1,6 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {InvalidRequestError} from '../../errors';
 import PermissionItemQueries from '../../permissionItems/queries';
 import PresetPermissionsGroupQueries from '../queries';
 import {checkPresetPermissionsGroupAuthorization03} from '../utils';
@@ -20,12 +21,19 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, deletePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {preset} = await checkPresetPermissionsGroupAuthorization03(
-      context,
-      agent,
-      data,
-      BasicCRUDActions.Delete
-    );
+    const {preset, organization} =
+      await checkPresetPermissionsGroupAuthorization03(
+        context,
+        agent,
+        data,
+        BasicCRUDActions.Delete
+      );
+
+    if (preset.resourceId === organization.publicPresetId) {
+      throw new InvalidRequestError(
+        "Cannot delete the organization's public public preset"
+      );
+    }
 
     await waitOnPromises([
       // Delete permission items that explicitly give access to this resource

@@ -1,4 +1,4 @@
-import {IAgent} from './system';
+import {IAgent, IPublicAccessOp} from './system';
 
 export interface IFolder {
   resourceId: string;
@@ -15,11 +15,5 @@ export interface IFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
-
-  // TODO: add which op is public
-  // OR have a public preset by defaualt and add public
-  // resources to it
-  isPublic?: boolean;
-  markedPublicAt?: Date | string; // ISO date string
-  markedPublicBy?: IAgent;
+  publicAccessOps: IPublicAccessOp[];
 }

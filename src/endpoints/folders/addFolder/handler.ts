@@ -1,13 +1,15 @@
-import {defaultTo} from 'lodash';
+import {defaultTo, merge, omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
   IAgent,
+  IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
+import {compactPublicAccessOps} from '../../../definitions/utils';
+import {getDate, getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -19,6 +21,7 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
+import {addAccessOpsToPublicPreset} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
@@ -33,13 +36,13 @@ import {addFolderJoiSchema} from './validation';
 export async function createSingleFolder(
   context: IBaseContext,
   agent: IAgent,
-  organizationId: string,
+  organization: IOrganization,
   parent: IFolder | null,
   input: INewFolderInput
 ) {
   const {splitPath, name} = splitPathWithDetails(input.path);
   const existingFolder = await context.data.folder.getItem(
-    FolderQueries.folderExistsByNamePath(organizationId, splitPath)
+    FolderQueries.folderExistsByNamePath(organization.resourceId, splitPath)
   );
 
   if (existingFolder) {
@@ -47,15 +50,23 @@ export async function createSingleFolder(
   }
 
   const folderId = getNewId();
-  const isPublic = defaultTo(
-    input.isPublic,
-    defaultTo(parent?.isPublic, false)
-  );
+  let publicAccessOps: IPublicAccessOp[] = input.publicAccessOps
+    ? input.publicAccessOps.map(op => ({
+        ...op,
+        markedAt: getDate(),
+        markedBy: agent,
+      }))
+    : [];
 
-  return await context.data.folder.saveItem({
-    organizationId,
+  if (input.inheritParentPublicAccessOps && parent) {
+    publicAccessOps = publicAccessOps.concat(parent.publicAccessOps);
+  }
+
+  publicAccessOps = compactPublicAccessOps(publicAccessOps);
+  const savedFolder = await context.data.folder.saveItem({
     name,
-    isPublic,
+    publicAccessOps,
+    organizationId: organization.resourceId,
     resourceId: folderId,
     parentId: parent?.resourceId,
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
@@ -65,9 +76,18 @@ export async function createSingleFolder(
     description: input.description,
     maxFileSizeInBytes:
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
-    markedPublicAt: isPublic ? getDateString() : undefined,
-    markedPublicBy: isPublic ? agent : undefined,
   });
+
+  await addAccessOpsToPublicPreset(
+    context,
+    agent,
+    organization,
+    savedFolder.resourceId,
+    AppResourceType.Folder,
+    publicAccessOps
+  );
+
+  return savedFolder;
 }
 
 export async function getClosestExistingFolder(
@@ -143,16 +163,18 @@ export async function createFolderList(
     // The main folder we want to create
     const isMainFolder = i === pathWithDetails.splitPath.length - 1;
     const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
-    const nextInput: INewFolderInput = {
+    let nextInput: INewFolderInput = {
       path: nextInputPath.join(folderConstants.nameSeparator),
-      description: isMainFolder ? input.description : undefined,
-      maxFileSizeInBytes: isMainFolder ? input.maxFileSizeInBytes : undefined,
     };
+
+    if (isMainFolder) {
+      merge(nextInput, omit(input, 'path'));
+    }
 
     previousFolder = await createSingleFolder(
       context,
       agent,
-      organization.resourceId,
+      organization,
       previousFolder,
       nextInput
     );

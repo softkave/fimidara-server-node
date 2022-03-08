@@ -4,9 +4,15 @@ import {IOrganization} from '../../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
+  IAgent,
+  IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
+import {
+  compactPublicAccessOps,
+  getPublicAccessOpsForType,
+} from '../../../definitions/utils';
+import {getDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
@@ -20,6 +26,7 @@ import {
   createFolderList,
   getClosestExistingFolder,
 } from '../../folders/addFolder/handler';
+import {addAccessOpsToPublicPreset} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import FileQueries from '../queries';
 import {
@@ -27,7 +34,11 @@ import {
   ISplitFilePathWithDetails,
   splitFilePathWithDetails,
 } from '../utils';
-import {IUploadFileParams, UploadFileEndpoint} from './types';
+import {
+  IUploadFileParams,
+  UploadFileEndpoint,
+  UploadFilePublicAccessActions,
+} from './types';
 import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
@@ -47,7 +58,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     const parentFolder = await createParentFolders(
       context,
       agent,
-      organizationId,
+      organization,
       pathWithDetails
     );
 
@@ -55,7 +66,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     file = await createFile(
       context,
       agent,
-      organizationId,
+      organization,
       pathWithDetails,
       data,
       parentFolder
@@ -84,26 +95,81 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   };
 };
 
+const makePublicReadFileAccessOps = (agent: IAgent): IPublicAccessOp[] => [
+  {
+    action: BasicCRUDActions.Read,
+    markedAt: getDate(),
+    markedBy: agent,
+    resourceType: AppResourceType.File,
+  },
+];
+
+const makePublicReadAndUpdateFileAccessOps = (
+  agent: IAgent
+): IPublicAccessOp[] =>
+  makePublicReadFileAccessOps(agent).concat([
+    {
+      action: BasicCRUDActions.Update,
+      markedAt: getDate(),
+      markedBy: agent,
+      resourceType: AppResourceType.File,
+    },
+  ]);
+
+const makePublicReadUpdateAndDeleteFileAccessOps = (
+  agent: IAgent
+): IPublicAccessOp[] =>
+  makePublicReadAndUpdateFileAccessOps(agent).concat([
+    {
+      action: BasicCRUDActions.Update,
+      markedAt: getDate(),
+      markedBy: agent,
+      resourceType: AppResourceType.File,
+    },
+  ]);
+
 async function createFile(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   pathWithDetails: ISplitFilePathWithDetails,
   data: IUploadFileParams,
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();
-  const isPublic = defaultTo(
-    data.isPublic,
-    defaultTo(parentFolder?.isPublic, false)
-  );
+  let publicAccessOps: IPublicAccessOp[] = [];
 
+  switch (data.publicAccessActions) {
+    case UploadFilePublicAccessActions.Read:
+      publicAccessOps = makePublicReadFileAccessOps(agent);
+      break;
+    case UploadFilePublicAccessActions.ReadAndUpdate:
+      publicAccessOps = makePublicReadAndUpdateFileAccessOps(agent);
+      break;
+    case UploadFilePublicAccessActions.ReadUpdateAndDelete:
+      publicAccessOps = makePublicReadUpdateAndDeleteFileAccessOps(agent);
+      break;
+  }
+
+  if (data.inheritParentPublicAccessOps && parentFolder) {
+    publicAccessOps = publicAccessOps.concat(
+      getPublicAccessOpsForType(
+        parentFolder.publicAccessOps,
+        AppResourceType.File,
+        [
+          BasicCRUDActions.Read,
+          BasicCRUDActions.Update,
+          BasicCRUDActions.Delete,
+        ]
+      )
+    );
+  }
+
+  publicAccessOps = compactPublicAccessOps(publicAccessOps);
   const file = await context.data.file.saveItem({
-    organizationId,
+    publicAccessOps,
+    organizationId: organization.resourceId,
     resourceId: fileId,
-    isPublic,
-    markedPublicAt: isPublic ? getDateString() : undefined,
-    markedPublicBy: isPublic ? agent : undefined,
     extension: pathWithDetails.extension,
     name: pathWithDetails.nameWithoutExtension || defaultTo(data.extension, ''),
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
@@ -122,17 +188,27 @@ async function createFile(
     encoding: data.encoding,
   });
 
+  await addAccessOpsToPublicPreset(
+    context,
+    agent,
+    organization,
+    file.resourceId,
+    AppResourceType.File,
+    publicAccessOps,
+    file.resourceId
+  );
+
   return file;
 }
 
 async function createParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  organization: IOrganization,
   pathWithDetails: ISplitFilePathWithDetails
 ) {
   if (pathWithDetails.hasParent) {
-    return await createFolderList(context, agent, organizationId, {
+    return await createFolderList(context, agent, organization, {
       path: pathWithDetails.parentPath,
     });
   }

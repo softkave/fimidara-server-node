@@ -44,7 +44,7 @@ export const emailTemplateStyles = `
 
 export function getFooterHTML() {
   return `
-    <footer class="${classNamePrefix}-footer">
+    <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
       &copy; - ${defaultStaticVars.appName} - ${new Date().getFullYear()}
     </footer>
     `;

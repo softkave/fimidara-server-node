@@ -3,6 +3,7 @@ import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
+import {INewPermissionItemInput} from './addItems/types';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IPermissionItem>();

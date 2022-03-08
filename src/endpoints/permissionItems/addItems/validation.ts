@@ -14,7 +14,7 @@ export const addPermissionItemsJoiSchema = Joi.object()
           permissionOwnerType: validationSchemas.resourceType.required(),
           itemResourceId: validationSchemas.nanoid.allow(null),
           itemResourceType: validationSchemas.resourceType.required(),
-          action: validationSchemas.crudActions.required(),
+          action: validationSchemas.crudAction.required(),
           isExclusion: Joi.boolean().allow(null),
           isForPermissionOwnerOnly: Joi.boolean().allow(null),
         })

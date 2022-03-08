@@ -1,7 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IFile} from '../definitions/file';
 import {getDate} from '../utilities/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {agentSchema, ensureTypeFields, publicAccessOpSchema} from './utils';
 
 const fileSchema = ensureTypeFields<IFile>({
   resourceId: {type: String, unique: true, index: true},
@@ -18,9 +18,7 @@ const fileSchema = ensureTypeFields<IFile>({
   extension: {type: String},
   encoding: {type: String},
   idPath: {type: [String], default: []},
-  isPublic: {type: Boolean, default: false},
-  markedPublicAt: {type: Date},
-  markedPublicBy: {type: agentSchema},
+  publicAccessOps: {type: [publicAccessOpSchema], default: []},
   namePath: {type: [String], default: []},
 });
 

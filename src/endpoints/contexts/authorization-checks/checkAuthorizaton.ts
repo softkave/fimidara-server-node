@@ -4,6 +4,7 @@ import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
+  IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
@@ -31,10 +32,18 @@ export interface ICheckAuthorizationParams {
   permissionOwners: IPermissionOwner[];
   action: BasicCRUDActions;
   nothrow?: boolean;
-  resource?: {resourceId: string; isPublic?: boolean};
+  resource?: {resourceId: string; publicAccessOps?: IPublicAccessOp[]};
 }
 
-// TODO: convert params to an object
+// TODO: What happens if there are permission items that both allow
+// and disallow at the same time?
+
+// TODO: There's an issue where say if a folder is public and it allows
+// public read of it's files, if we proceed to make a child file, but
+// mark it as not public, it is still treated as public cause the parent
+// folder's permission items are also used in determining access to the
+// resource.
+
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const {
     context,
@@ -47,7 +56,13 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     resource,
   } = params;
 
-  if (resource?.isPublic) {
+  // Check if resource is public and short-circuit.
+  if (
+    resource?.publicAccessOps &&
+    resource.publicAccessOps.find(
+      op => op.action === action && op.resourceType === type
+    )
+  ) {
     return true;
   }
 
@@ -60,6 +75,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     context,
     agentPermissionEntities
   );
+
   const queries = authEntities.map(item => {
     return newFilter()
       .addItem(
@@ -144,14 +160,14 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     item.isForPermissionOwnerOnly &&
     item.permissionOwnerId === resource.resourceId;
 
-  const positiveWeight = items.length * 2;
-  const negativeWeight = positiveWeight * -1;
+  const lowerWeight = items.length * 2;
+  const higherWeight = lowerWeight * -1;
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
       if (isForOwner(item1)) {
-        return negativeWeight;
+        return higherWeight;
       } else if (isForOwner(item2)) {
-        return positiveWeight;
+        return lowerWeight;
       }
 
       return getPermissionOwnerOrder(item1) - getPermissionOwnerOrder(item2);
