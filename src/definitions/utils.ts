@@ -1,5 +1,10 @@
 import {uniqWith} from 'lodash';
-import {IPublicAccessOp, AppResourceType, BasicCRUDActions} from './system';
+import {
+  IPublicAccessOp,
+  AppResourceType,
+  BasicCRUDActions,
+  IPublicAccessOpInput,
+} from './system';
 
 export function getPublicAccessOpsForType(
   ops: IPublicAccessOp[],
@@ -13,11 +18,13 @@ export function getPublicAccessOpsForType(
   );
 }
 
-const publicAccessOpComparator = (
-  op01: IPublicAccessOp,
-  op02: IPublicAccessOp
+const publicAccessOpComparator = <T extends IPublicAccessOpInput>(
+  op01: T,
+  op02: T
 ) => op01.action === op02.action && op01.resourceType === op02.resourceType;
 
-export function compactPublicAccessOps(ops: IPublicAccessOp[]) {
+export function compactPublicAccessOps<T extends IPublicAccessOpInput>(
+  ops: T[]
+) {
   return uniqWith(ops, publicAccessOpComparator);
 }

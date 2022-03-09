@@ -1,5 +1,11 @@
+import faker = require('faker');
 import {defaultTo} from 'lodash';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {IFolder} from '../../../definitions/folder';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IPublicAccessOpInput,
+} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertCanDeletePublicFile,
@@ -12,15 +18,27 @@ import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems
 import RequestData from '../../RequestData';
 import {
   assertContext,
+  assertEndpointResultOk,
   getTestBaseContext,
   IInsertOrganizationForTestResult,
   IInsertUserForTestResult,
   insertFolderForTest,
   insertOrganizationForTest,
   insertUserForTest,
+  mockExpressRequestForPublicAgent,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {PermissionDeniedError} from '../../user/errors';
+import {folderConstants} from '../constants';
+import deleteFolder from '../deleteFolder/handler';
+import {IDeleteFolderParams} from '../deleteFolder/types';
+import getFolder from '../getFolder/handler';
+import {IGetFolderEndpointParams} from '../getFolder/types';
+import listFolderContent from '../listFolderContent/handler';
+import {IListFolderContentEndpointParams} from '../listFolderContent/types';
 import FolderQueries from '../queries';
+import updateFolder from '../updateFolder/handler';
+import {IUpdateFolderInput, IUpdateFolderParams} from '../updateFolder/types';
 import {folderExtractor} from '../utils';
 import {INewFolderInput} from './types';
 
@@ -120,92 +138,188 @@ const addFolderWithPublicAccessOpsTest = async (
   return uploadResult;
 };
 
+export async function assertCanCreateFolderInPublicFolder(
+  organizationId: string,
+  folderPath: string
+) {
+  assertContext(context);
+  return await insertFolderForTest(context, null, organizationId, {
+    path: folderPath,
+  });
+}
+
 export async function assertCanReadPublicFolder(
   organizationId: string,
-  filePath: string
+  folderPath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+  const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: filePath}
+    {organizationId, path: folderPath}
   );
 
   assertContext(context);
-  const result = await getFile(context, instData);
+  const result = await getFolder(context, instData);
   assertEndpointResultOk(result);
-}
-
-export async function assertCanUploadToPublicFolder(
-  organizationId: string,
-  filePath: string
-) {
-  assertContext(context);
-  await insertFileForTest(context, null, organizationId, {
-    organizationId,
-    path: filePath,
-  });
+  return result;
 }
 
 export async function assertCanUpdatePublicFolder(
   organizationId: string,
-  filePath: string
+  folderPath: string
 ) {
-  const updateInput: IUpdateFileDetailsInput = {
-    description: faker.lorem.paragraph(),
-    mimetype: 'application/octet-stream',
+  const updateInput: IUpdateFolderInput = {
+    description: faker.lorem.words(20),
+    maxFileSizeInBytes: 9_000_000_000,
   };
 
+  const instData = RequestData.fromExpressRequest<IUpdateFolderParams>(
+    mockExpressRequestForPublicAgent(),
+    {
+      organizationId,
+      path: folderPath,
+      folder: updateInput,
+    }
+  );
+
+  assertContext(context);
+  const result = await updateFolder(context, instData);
+  assertEndpointResultOk(result);
+}
+
+export async function assertCanListContentOfPublicFolder(
+  organizationId: string,
+  folderPath: string
+) {
   const instData =
-    RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
+    RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, path: filePath, file: updateInput}
+      {organizationId, path: folderPath}
     );
 
   assertContext(context);
-  const result = await updateFileDetails(context, instData);
+  const result = await listFolderContent(context, instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertCanDeletePublicFolder(
   organizationId: string,
-  filePath: string
+  folderPath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IDeleteFileParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteFolderParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: filePath}
+    {organizationId, path: folderPath}
   );
 
   assertContext(context);
-  const result = await deleteFile(context, instData);
+  const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
 }
 
-const testActions = {
-  [AppResourceType.File]: {
-    [BasicCRUDActions.All]: [
-      assertCanUploadToPublicFile,
-      assertCanReadPublicFile,
-      assertCanUpdatePublicFile,
-      assertCanDeletePublicFile,
-    ],
-    [BasicCRUDActions.Create]: [assertCanUploadToPublicFile],
-    [BasicCRUDActions.Read]: [assertCanReadPublicFile],
-    [BasicCRUDActions.Update]: [
-      assertCanUpdatePublicFile,
-      assertCanUploadToPublicFile,
-    ],
-    [BasicCRUDActions.Delete]: [assertCanDeletePublicFile],
-  },
-  [AppResourceType.Folder]: {
-    [BasicCRUDActions.All]: [],
-    [BasicCRUDActions.Create]: [],
-    [BasicCRUDActions.Read]: [],
-    [BasicCRUDActions.Update]: [],
-    [BasicCRUDActions.Delete]: [],
-  },
-};
+export async function assertPublicOps(
+  folder: IFolder,
+  insertOrgResult: IInsertOrganizationForTestResult
+) {
+  const folderPath = folder.namePath.join(folderConstants.nameSeparator);
+  const orgId = insertOrgResult.organization.resourceId;
+  const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
+    orgId,
+    folderPath
+  );
+
+  const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
+  const {file} = await assertCanUploadToPublicFile(orgId, folder02Path);
+  await assertCanListContentOfPublicFolder(orgId, folder02Path);
+  await assertCanUpdatePublicFolder(orgId, folder02Path);
+  await assertCanReadPublicFolder(orgId, folder02Path);
+
+  const filePath = file.namePath.join(folderConstants.nameSeparator);
+  await assertCanReadPublicFile(orgId, filePath);
+  await assertCanUpdatePublicFile(orgId, filePath);
+  await assertCanUploadToPublicFile(orgId, filePath);
+  await assertCanDeletePublicFolder(orgId, folderPath);
+}
 
 describe('addFolder', () => {
   test('folder created', async () => {
     await addFolderBaseTest();
+  });
+
+  test('folder created with public access ops', async () => {
+    const {folder, insertOrgResult} = await addFolderWithPublicAccessOpsTest({
+      publicAccessOps: [
+        {
+          action: BasicCRUDActions.Create,
+          resourceType: AppResourceType.File,
+        },
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+        },
+        {
+          action: BasicCRUDActions.Create,
+          resourceType: AppResourceType.Folder,
+        },
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.Folder,
+        },
+      ],
+    });
+
+    const folderPath = folder.namePath.join(folderConstants.nameSeparator);
+    const orgId = insertOrgResult.organization.resourceId;
+    const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
+      orgId,
+      folderPath
+    );
+
+    const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
+    const {file} = await assertCanUploadToPublicFile(orgId, folder02Path);
+    await assertCanListContentOfPublicFolder(orgId, folder02Path);
+    const filePath = file.namePath.join(folderConstants.nameSeparator);
+    await assertCanReadPublicFile(orgId, filePath);
+
+    expect(
+      async () => await assertCanDeletePublicFolder(orgId, folderPath)
+    ).toThrowError(PermissionDeniedError);
+
+    expect(
+      async () => await assertCanDeletePublicFile(orgId, filePath)
+    ).toThrowError(PermissionDeniedError);
+  });
+
+  test('folder created with all public access ops', async () => {
+    const {savedFolder, insertOrgResult} =
+      await addFolderWithPublicAccessOpsTest({
+        publicAccessOps: [BasicCRUDActions.All].reduce((list, action) => {
+          return list.concat(
+            [AppResourceType.File, AppResourceType.Folder].map(type => ({
+              action,
+              resourceType: type,
+            }))
+          );
+        }, [] as IPublicAccessOpInput[]),
+      });
+
+    await assertPublicOps(savedFolder, insertOrgResult);
+  });
+
+  test('folder created with all public access ops', async () => {
+    const {savedFolder, insertOrgResult} =
+      await addFolderWithPublicAccessOpsTest({
+        publicAccessOps: Object.values(BasicCRUDActions).reduce(
+          (list, action) => {
+            return list.concat(
+              [AppResourceType.File, AppResourceType.Folder].map(type => ({
+                action,
+                resourceType: type,
+              }))
+            );
+          },
+          [] as IPublicAccessOpInput[]
+        ),
+      });
+
+    await assertPublicOps(savedFolder, insertOrgResult);
   });
 });

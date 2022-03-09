@@ -432,12 +432,14 @@ export async function insertPermissionItemsForTestUsingItems(
 
 export async function insertFolderForTest(
   context: IBaseContext,
-  userToken: IUserToken,
+  userToken: IUserToken | null,
   organizationId: string,
   folderInput: Partial<INewFolderInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<IAddFolderParams>(
-    mockExpressRequestWithUserToken(userToken),
+    userToken
+      ? mockExpressRequestWithUserToken(userToken)
+      : mockExpressRequestForPublicAgent(),
     {
       organizationId,
       folder: {
