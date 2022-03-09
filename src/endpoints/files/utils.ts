@@ -1,4 +1,4 @@
-import {IFile} from '../../definitions/file';
+import {IFile, IPublicFile} from '../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -14,10 +14,13 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {IFolderPathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {
+  agentExtractor,
+  agentExtractorIfPresent,
+  publicAccessOpListExtractor,
+} from '../utils';
 import {fileConstants} from './constants';
 import FileQueries from './queries';
-import {IPublicFile} from './types';
 
 const fileFields = getFields<IPublicFile>({
   resourceId: true,
@@ -34,10 +37,8 @@ const fileFields = getFields<IPublicFile>({
   encoding: true,
   extension: true,
   idPath: true,
-  isPublic: true,
-  markedPublicAt: getDateStringIfPresent,
-  markedPublicBy: agentExtractorIfPresent,
   namePath: true,
+  publicAccessOps: publicAccessOpListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);

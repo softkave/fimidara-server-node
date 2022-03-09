@@ -21,7 +21,7 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
-import {addAccessOpsToPublicPreset} from '../../permissionItems/utils';
+import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
@@ -58,9 +58,9 @@ export async function createSingleFolder(
       }))
     : [];
 
-  if (input.inheritParentPublicAccessOps && parent) {
-    publicAccessOps = publicAccessOps.concat(parent.publicAccessOps);
-  }
+  // if (input.inheritParentPublicAccessOps && parent) {
+  //   publicAccessOps = publicAccessOps.concat(parent.publicAccessOps);
+  // }
 
   publicAccessOps = compactPublicAccessOps(publicAccessOps);
   const savedFolder = await context.data.folder.saveItem({
@@ -78,13 +78,14 @@ export async function createSingleFolder(
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 
-  await addAccessOpsToPublicPreset(
+  await updatePublicPresetAccessOps(
     context,
     agent,
     organization,
     savedFolder.resourceId,
     AppResourceType.Folder,
-    publicAccessOps
+    publicAccessOps,
+    []
   );
 
   return savedFolder;

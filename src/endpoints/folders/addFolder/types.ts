@@ -14,7 +14,7 @@ export interface INewFolderInput {
   publicAccessOps?: IPublicAccessOpInput[];
 
   // Defaults to true
-  inheritParentPublicAccessOps?: boolean;
+  // inheritParentPublicAccessOps?: boolean;
 }
 
 export interface IAddFolderParams {

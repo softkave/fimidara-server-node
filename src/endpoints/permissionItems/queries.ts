@@ -3,7 +3,6 @@ import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
-import {INewPermissionItemInput} from './addItems/types';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IPermissionItem>();
@@ -54,6 +53,36 @@ function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
     .build();
 }
 
+function getByPermissionEntityAndOwner(
+  entityId: string,
+  entityType: AppResourceType,
+  ownerId: string,
+  ownerType: AppResourceType
+) {
+  return newFilter()
+    .addItem(
+      'permissionEntityId',
+      entityId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'permissionEntityType',
+      entityType,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'permissionOwnerId',
+      ownerId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'permissionOwnerType',
+      ownerType,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class PermissionItemQueries {
   static getById = EndpointReusableQueries.getById;
   static getByIds = EndpointReusableQueries.getByIdsAndOrgId;
@@ -61,4 +90,5 @@ export default abstract class PermissionItemQueries {
   static getByPermissionEntity = getByPermissionEntity;
   static getByResource = getByResource;
   static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
+  static getByPermissionEntityAndOwner = getByPermissionEntityAndOwner;
 }

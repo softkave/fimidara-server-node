@@ -34,7 +34,7 @@ afterAll(async () => {
 });
 
 describe('checkAuthorization', () => {
-  test('auth is granted when it should be', async () => {
+  test('auth is granted when agent has permission', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {organization} = await insertOrganizationForTest(context, userToken);
@@ -62,7 +62,7 @@ describe('checkAuthorization', () => {
     expect(permitted).toBeTruthy();
   });
 
-  test('auth fails when it should fail', async () => {
+  test('auth fails when agent does not have permission', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
@@ -94,7 +94,7 @@ describe('checkAuthorization', () => {
     expect(permitted).toBeFalsy();
   });
 
-  test('should throw when nothrow is turned off', async () => {
+  test('should throw error when nothrow is turned off', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
@@ -130,4 +130,6 @@ describe('checkAuthorization', () => {
       expect(error instanceof PermissionDeniedError).toBeTruthy();
     }
   });
+
+  test('should allow access to resource with public access op', async () => {});
 });

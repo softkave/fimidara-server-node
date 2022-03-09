@@ -17,6 +17,6 @@ export const uploadFileJoiSchema = Joi.object()
       ...Object.values(UploadFilePublicAccessActions),
       null
     ),
-    inheritParentPublicAccessOps: Joi.boolean().allow(null).default(true),
+    // inheritParentPublicAccessOps: Joi.boolean().allow(null).default(true),
   })
   .required();

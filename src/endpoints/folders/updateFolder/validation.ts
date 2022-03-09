@@ -17,6 +17,7 @@ export const updateFolderJoiSchema = Joi.object()
         isPublic: Joi.bool().allow(null),
         description: validationSchemas.description.allow(null),
         maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
+        publicAccessOps: validationSchemas.publicAccessOpList.allow(null),
       })
       .required(),
   })

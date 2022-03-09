@@ -46,7 +46,6 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   let items: IPermissionItem[] = await savePermissionItems(
     context,
     agent,
-    organization,
     data
   );
 

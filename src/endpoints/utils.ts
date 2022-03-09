@@ -1,4 +1,6 @@
 import {Response, Request} from 'express';
+import {IPublicAccessOp} from '../definitions/system';
+import {getDateString} from '../utilities/dateFns';
 import {
   getFields,
   makeExtract,
@@ -79,6 +81,19 @@ const agentPublicFields = getFields<IPublicAgent>({
 export const agentExtractor = makeExtract(agentPublicFields);
 export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);
+
+const publicAccessOpFields = getFields<IPublicAccessOp>({
+  action: true,
+  markedAt: getDateString,
+  markedBy: agentExtractor,
+  resourceType: true,
+});
+
+export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
+export const publicAccessOpExtractorIfPresent =
+  makeExtractIfPresent(publicAccessOpFields);
+export const publicAccessOpListExtractor =
+  makeListExtract(publicAccessOpFields);
 
 export async function waitForWorks(works: IRequestDataWork[]) {
   await Promise.all(

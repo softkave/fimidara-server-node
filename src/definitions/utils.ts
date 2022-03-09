@@ -13,10 +13,11 @@ export function getPublicAccessOpsForType(
   );
 }
 
+const publicAccessOpComparator = (
+  op01: IPublicAccessOp,
+  op02: IPublicAccessOp
+) => op01.action === op02.action && op01.resourceType === op02.resourceType;
+
 export function compactPublicAccessOps(ops: IPublicAccessOp[]) {
-  return uniqWith(
-    ops,
-    (op01, op02) =>
-      op01.action !== op02.action && op01.resourceType !== op02.resourceType
-  );
+  return uniqWith(ops, publicAccessOpComparator);
 }
