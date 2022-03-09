@@ -1,8 +1,9 @@
+import {IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicFile} from '../types';
 
 export enum UploadFilePublicAccessActions {
+  None = 'none',
   Read = 'read',
   ReadAndUpdate = 'read-update',
   ReadUpdateAndDelete = 'read-update-delete',
@@ -14,11 +15,10 @@ export interface IUploadFileParams {
   encoding?: string;
   extension?: string;
   mimetype?: string; // TODO: define mimetypes
-  isPublic?: boolean;
   data: Buffer;
   path: string;
   publicAccessActions?: UploadFilePublicAccessActions;
-  inheritParentPublicAccessOps?: boolean;
+  // inheritParentPublicAccessOps?: boolean;
 }
 
 export interface IUploadFileResult {

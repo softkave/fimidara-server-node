@@ -1,3 +1,4 @@
+import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {IPublicFolder} from '../types';
@@ -5,7 +6,7 @@ import {IPublicFolder} from '../types';
 export interface IUpdateFolderInput {
   description?: string;
   maxFileSizeInBytes?: number;
-  isPublic?: boolean;
+  publicAccessOps?: IPublicAccessOpInput[];
 }
 
 export interface IUpdateFolderParams {

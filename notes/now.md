@@ -1,3 +1,5 @@
 - Preset weight, not order
 - Remove avatars
 - unit tests
+- add clearing out existing permission items when saving new ones
+- add if permission item is only for owner, for children, or both

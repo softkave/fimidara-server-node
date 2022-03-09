@@ -12,6 +12,13 @@ export async function savePermissionItems(
   agent: IAgent,
   data: IAddPermissionItemsParams
 ) {
+  if (data.items.length === 0) {
+    // Bail early
+    return [];
+  }
+
+  // TODO: this could be too expensive for presets with a lot
+  // of permissions
   const existingPermissionItems =
     await context.data.permissionItem.getManyItems(
       PermissionItemQueries.getByPermissionEntity(

@@ -1,5 +1,5 @@
+import {IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPublicFile} from '../../files/types';
 import {Endpoint} from '../../types';
 import {IPublicFolder} from '../types';
 

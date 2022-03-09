@@ -1,19 +1,11 @@
-import {defaultTo} from 'lodash';
+import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
-  IAgent,
-  IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
-import {
-  compactPublicAccessOps,
-  getPublicAccessOpsForType,
-} from '../../../definitions/utils';
-import {getDate, getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
@@ -22,11 +14,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {
-  createFolderList,
-  getClosestExistingFolder,
-} from '../../folders/addFolder/handler';
-import {addAccessOpsToPublicPreset} from '../../permissionItems/utils';
+import {createFolderList} from '../../folders/addFolder/handler';
 import EndpointReusableQueries from '../../queries';
 import FileQueries from '../queries';
 import {
@@ -34,11 +22,9 @@ import {
   ISplitFilePathWithDetails,
   splitFilePathWithDetails,
 } from '../utils';
-import {
-  IUploadFileParams,
-  UploadFileEndpoint,
-  UploadFilePublicAccessActions,
-} from './types';
+import {internalCreateFile} from './internalCreateFile';
+import {internalUpdateFile} from './internalUpdateFile';
+import {UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
@@ -55,15 +41,15 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   );
 
   if (!file) {
-    const parentFolder = await createParentFolders(
+    const parentFolder = await createFileParentFolders(
       context,
       agent,
       organization,
       pathWithDetails
     );
 
-    await checkAuth(context, agent, organization, parentFolder);
-    file = await createFile(
+    await checkUploadFileAuth(context, agent, organization, null, parentFolder);
+    file = await internalCreateFile(
       context,
       agent,
       organization,
@@ -72,13 +58,15 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       parentFolder
     );
   } else {
-    const {closestExistingFolder} = await getClosestExistingFolder(
+    await checkUploadFileAuth(context, agent, organization, file, null);
+    file = await internalUpdateFile(
       context,
-      organizationId,
-      pathWithDetails.splitParentPath
+      agent,
+      organization,
+      pathWithDetails,
+      file,
+      data
     );
-
-    await checkAuth(context, agent, organization, closestExistingFolder);
   }
 
   await context.fileBackend.uploadFile({
@@ -95,113 +83,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   };
 };
 
-const makePublicReadFileAccessOps = (agent: IAgent): IPublicAccessOp[] => [
-  {
-    action: BasicCRUDActions.Read,
-    markedAt: getDate(),
-    markedBy: agent,
-    resourceType: AppResourceType.File,
-  },
-];
-
-const makePublicReadAndUpdateFileAccessOps = (
-  agent: IAgent
-): IPublicAccessOp[] =>
-  makePublicReadFileAccessOps(agent).concat([
-    {
-      action: BasicCRUDActions.Update,
-      markedAt: getDate(),
-      markedBy: agent,
-      resourceType: AppResourceType.File,
-    },
-  ]);
-
-const makePublicReadUpdateAndDeleteFileAccessOps = (
-  agent: IAgent
-): IPublicAccessOp[] =>
-  makePublicReadAndUpdateFileAccessOps(agent).concat([
-    {
-      action: BasicCRUDActions.Update,
-      markedAt: getDate(),
-      markedBy: agent,
-      resourceType: AppResourceType.File,
-    },
-  ]);
-
-async function createFile(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  organization: IOrganization,
-  pathWithDetails: ISplitFilePathWithDetails,
-  data: IUploadFileParams,
-  parentFolder: IFolder | null
-) {
-  const fileId = getNewId();
-  let publicAccessOps: IPublicAccessOp[] = [];
-
-  switch (data.publicAccessActions) {
-    case UploadFilePublicAccessActions.Read:
-      publicAccessOps = makePublicReadFileAccessOps(agent);
-      break;
-    case UploadFilePublicAccessActions.ReadAndUpdate:
-      publicAccessOps = makePublicReadAndUpdateFileAccessOps(agent);
-      break;
-    case UploadFilePublicAccessActions.ReadUpdateAndDelete:
-      publicAccessOps = makePublicReadUpdateAndDeleteFileAccessOps(agent);
-      break;
-  }
-
-  if (data.inheritParentPublicAccessOps && parentFolder) {
-    publicAccessOps = publicAccessOps.concat(
-      getPublicAccessOpsForType(
-        parentFolder.publicAccessOps,
-        AppResourceType.File,
-        [
-          BasicCRUDActions.Read,
-          BasicCRUDActions.Update,
-          BasicCRUDActions.Delete,
-        ]
-      )
-    );
-  }
-
-  publicAccessOps = compactPublicAccessOps(publicAccessOps);
-  const file = await context.data.file.saveItem({
-    publicAccessOps,
-    organizationId: organization.resourceId,
-    resourceId: fileId,
-    extension: pathWithDetails.extension,
-    name: pathWithDetails.nameWithoutExtension || defaultTo(data.extension, ''),
-    idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-    namePath: parentFolder
-      ? parentFolder.namePath.concat(pathWithDetails.nameWithoutExtension)
-      : [pathWithDetails.nameWithoutExtension],
-    folderId: parentFolder?.resourceId,
-    mimetype: data.mimetype,
-    size: data.data.length,
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
-    createdAt: getDateString(),
-    description: data.description,
-    encoding: data.encoding,
-  });
-
-  await addAccessOpsToPublicPreset(
-    context,
-    agent,
-    organization,
-    file.resourceId,
-    AppResourceType.File,
-    publicAccessOps,
-    file.resourceId
-  );
-
-  return file;
-}
-
-async function createParentFolders(
+async function createFileParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
@@ -216,10 +98,11 @@ async function createParentFolders(
   return null;
 }
 
-async function checkAuth(
+async function checkUploadFileAuth(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
+  file: IFile | null,
   closestExistingFolder: IFolder | null
 ) {
   // TODO: also have an update check if file exists
@@ -235,9 +118,14 @@ async function checkAuth(
     agent,
     organization,
     type: AppResourceType.File,
-    permissionOwners: closestExistingFolder
+    permissionOwners: file
+      ? getFilePermissionOwners(organization.resourceId, file)
+      : closestExistingFolder
       ? getFilePermissionOwners(organization.resourceId, closestExistingFolder)
       : makeOrgPermissionOwnerList(organization.resourceId),
+
+    // TODO: should it be create and or update, rather than
+    // just create, in case of existing files
     action: BasicCRUDActions.Create,
   });
 }

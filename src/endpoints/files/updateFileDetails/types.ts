@@ -1,6 +1,6 @@
+import {IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicFile} from '../types';
 
 export interface IUpdateFileDetailsInput {
   // name?: string;

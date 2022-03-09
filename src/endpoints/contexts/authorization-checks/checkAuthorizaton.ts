@@ -43,6 +43,9 @@ export interface ICheckAuthorizationParams {
 // mark it as not public, it is still treated as public cause the parent
 // folder's permission items are also used in determining access to the
 // resource.
+// Possible fix is to segment permission items by owners and only use
+// the permission items of the closest possible owner if a combination
+// of action and resource type/ID match.
 
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const {
@@ -149,25 +152,25 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     indexer: getEntityKey,
   });
 
+  const lowerPriorityWeight = items.length * 2;
+  const higherPriorityWeight = lowerPriorityWeight * -1;
   const getEntityOrder = (item: IPermissionEntity) =>
-    entitiesMap[getEntityKey(item)]?.order ?? 99;
+    entitiesMap[getEntityKey(item)]?.order ?? lowerPriorityWeight;
 
   const getEntityWeight = (item: IPermissionEntity) =>
-    entityTypeWeight[item.permissionEntityType] ?? 99;
+    entityTypeWeight[item.permissionEntityType] ?? lowerPriorityWeight;
 
   const isForOwner = (item: IPermissionItem) =>
     resource &&
     item.isForPermissionOwnerOnly &&
     item.permissionOwnerId === resource.resourceId;
 
-  const lowerWeight = items.length * 2;
-  const higherWeight = lowerWeight * -1;
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
       if (isForOwner(item1)) {
-        return higherWeight;
+        return higherPriorityWeight;
       } else if (isForOwner(item2)) {
-        return lowerWeight;
+        return lowerPriorityWeight;
       }
 
       return getPermissionOwnerOrder(item1) - getPermissionOwnerOrder(item2);

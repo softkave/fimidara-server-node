@@ -4,8 +4,14 @@
 - Implement resource-based access control, not just agent-based access control
 - Implement a way to give permission to only delete files that belong to or is created by a token
 - Add public default preset
+- Resource-bound tokens, for accessing resources
+- Backups
+- File versioning
+- Byte range
+- Use extension when file matching so that users can upload files with the same name but with different extensions
 - Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning presets.
 - Implement folder upload and not requiring file name but generating one when not provided
+- For public resources, determine what data parts public actions affect, like a folder can be public, but a public agent can't change it from public to private
 - Use the endpoints instead of directly saving to db
 - Update accepted collaboration requests to include the user ID of the recipient for better info in case the user changes their email address
 - Write end-to-end tests

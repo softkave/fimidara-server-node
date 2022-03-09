@@ -3,11 +3,13 @@ import {add, differenceInSeconds} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
+import {IPublicOrganization} from '../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
   crudActionsList,
 } from '../../definitions/system';
+import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import singletonFunc from '../../utilities/singletonFunc';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
@@ -58,6 +60,7 @@ import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
+import {IPublicUserData} from '../user/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
@@ -191,10 +194,18 @@ export function mockExpressRequestForPublicAgent() {
   return req;
 }
 
+export interface IInsertUserForTestResult {
+  rawUser: IUser;
+  userToken: IUserToken;
+  user: IPublicUserData;
+  userTokenStr: string;
+  reqData: RequestData<ISignupParams>;
+}
+
 export async function insertUserForTest(
   context: IBaseContext,
   userInput: Partial<ISignupParams> = {}
-) {
+): Promise<IInsertUserForTestResult> {
   const instData = RequestData.fromExpressRequest<ISignupParams>(
     mockExpressRequest(),
     {
@@ -208,7 +219,6 @@ export async function insertUserForTest(
 
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
-
   const tokenData = context.session.decodeToken(context, result.token);
   const userToken = await context.data.userToken.assertGetItem(
     UserTokenQueries.getById(tokenData.sub.id)
@@ -227,11 +237,15 @@ export async function insertUserForTest(
   };
 }
 
+export interface IInsertOrganizationForTestResult {
+  organization: IPublicOrganization;
+}
+
 export async function insertOrganizationForTest(
   context: IBaseContext,
   userToken: IUserToken,
   orgInput: Partial<IAddOrganizationParams> = {}
-) {
+): Promise<IInsertOrganizationForTestResult> {
   const instData = RequestData.fromExpressRequest<IAddOrganizationParams>(
     mockExpressRequestWithUserToken(userToken),
     {
@@ -345,9 +359,19 @@ export async function insertProgramAccessTokenForTest(
   return result;
 }
 
-function makePermissionItemInputs(
-  owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
-  base: Partial<INewPermissionItemInput> & {itemResourceType: AppResourceType}
+export interface ITestPermissionItemOwner {
+  permissionOwnerId: string;
+  permissionOwnerType: AppResourceType;
+}
+
+export interface ITestPermissionItemBase
+  extends Partial<INewPermissionItemInput> {
+  itemResourceType: AppResourceType;
+}
+
+export function makeTestPermissionItemInputs(
+  owner: ITestPermissionItemOwner,
+  base: ITestPermissionItemBase
 ) {
   const items: INewPermissionItemInput[] = crudActionsList.map(action => ({
     ...base,
@@ -360,15 +384,15 @@ function makePermissionItemInputs(
   return items;
 }
 
-export async function insertPermissionItemsForTest01(
+export async function insertPermissionItemsForTestUsingOwnerAndBase(
   context: IBaseContext,
   userToken: IUserToken,
   organizationId: string,
   entity: IPermissionEntity,
-  owner: {permissionOwnerId: string; permissionOwnerType: AppResourceType},
-  base: Partial<INewPermissionItemInput> & {itemResourceType: AppResourceType}
+  owner: ITestPermissionItemOwner,
+  base: ITestPermissionItemBase
 ) {
-  const itemsInput = makePermissionItemInputs(owner, base);
+  const itemsInput = makeTestPermissionItemInputs(owner, base);
   const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
     mockExpressRequestWithUserToken(userToken),
     {
@@ -384,7 +408,7 @@ export async function insertPermissionItemsForTest01(
   return result;
 }
 
-export async function insertPermissionItemsForTest02(
+export async function insertPermissionItemsForTestUsingItems(
   context: IBaseContext,
   userToken: IUserToken,
   organizationId: string,
@@ -457,7 +481,7 @@ export function generateTestTextFile() {
 
 export async function insertFileForTest(
   context: IBaseContext,
-  userToken: IUserToken,
+  userToken: IUserToken | null, // Pass null for public agent
   organizationId: string,
   fileInput: Partial<IUploadFileParams> = {},
   type: 'image' | 'text' = 'image',
@@ -476,19 +500,21 @@ export async function insertFileForTest(
     if (type === 'image') {
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
-      // input.extension = 'png';
+      input.extension = 'png';
       input.path = input.path + '.png';
     } else {
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
-      // input.extension = 'txt';
+      input.extension = 'txt';
       input.path = input.path + '.txt';
     }
   }
 
   const instData = RequestData.fromExpressRequest<IUploadFileParams>(
-    mockExpressRequestWithUserToken(userToken),
+    userToken
+      ? mockExpressRequestWithUserToken(userToken)
+      : mockExpressRequestForPublicAgent(),
     input
   );
 
