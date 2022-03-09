@@ -9,7 +9,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import deleteFolder from './handler';
+import getFolder from './handler';
 import {IGetFolderEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
@@ -40,7 +40,7 @@ test('folder returned', async () => {
     }
   );
 
-  const result = await deleteFolder(context, instData);
+  const result = await getFolder(context, instData);
   assertEndpointResultOk(result);
   expect(result.folder).toEqual(folder01);
 });

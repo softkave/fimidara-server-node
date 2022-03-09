@@ -1,5 +1,10 @@
 import assert = require('assert');
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IPublicAccessOp,
+  IPublicAccessOpInput,
+} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import RequestData from '../../RequestData';
@@ -89,6 +94,68 @@ const uploadFileBaseTest = async (
   };
 };
 
+export async function assertPublicAccessOps(
+  ctx: IBaseContext,
+  resource: {resourceId: string; publicAccessOps: IPublicAccessOp[]},
+  insertUserResult: IInsertUserForTestResult,
+  insertOrgResult: IInsertOrganizationForTestResult,
+  publicAccessOpsInput: IPublicAccessOpInput[] = []
+) {
+  const agent = await ctx.session.getAgent(
+    ctx,
+    RequestData.fromExpressRequest(
+      mockExpressRequestWithUserToken(insertUserResult.userToken)
+    )
+  );
+
+  // expectedActions.forEach(action => {
+  //   expect(savedFile.publicAccessOps).toContain(
+  //     expect.objectContaining({
+  //       action,
+  //       resourceType: AppResourceType.File,
+  //       markedBy: agent,
+  //     })
+  //   );
+  // });
+
+  expect(resource.publicAccessOps).toContain(
+    expect.arrayContaining(
+      publicAccessOpsInput.map(op => {
+        return {
+          action: op.action,
+          resourceType: op.resourceType,
+          markedBy: agent,
+        };
+      })
+    )
+  );
+
+  const publicPresetPermissionitems =
+    await ctx.data.permissionItem.getManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        insertOrgResult.organization.publicPresetId!,
+        AppResourceType.PresetPermissionsGroup
+      )
+    );
+
+  const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(
+    resource.resourceId,
+    AppResourceType.File,
+    publicAccessOpsInput,
+    resource.resourceId
+  );
+
+  // basePermissionItems.forEach(item => {
+  //   expect(publicPresetPermissionitems).toContainEqual(
+  //     expect.objectContaining(item)
+  //   );
+  // });
+
+  expect(publicPresetPermissionitems).toContainEqual(
+    expect.arrayContaining(basePermissionItems)
+  );
+}
+
 const uploadFileWithPublicAccessActionTest = async (
   input: Partial<IUploadFileParams>,
   expectedPublicAccessOpsCount: number,
@@ -109,58 +176,17 @@ const uploadFileWithPublicAccessActionTest = async (
   insertUserResult = uploadResult.insertUserResult;
   insertOrgResult = uploadResult.insertOrgResult;
   expect(savedFile.publicAccessOps).toHaveLength(expectedPublicAccessOpsCount);
-  const agent = await context.session.getAgent(
+  await assertPublicAccessOps(
     context,
-    RequestData.fromExpressRequest(
-      mockExpressRequestWithUserToken(insertUserResult.userToken)
-    )
-  );
-
-  // expectedActions.forEach(action => {
-  //   expect(savedFile.publicAccessOps).toContain(
-  //     expect.objectContaining({
-  //       action,
-  //       resourceType: AppResourceType.File,
-  //       markedBy: agent,
-  //     })
-  //   );
-  // });
-
-  expect(savedFile.publicAccessOps).toContain(
-    expect.arrayContaining(
-      expectedActions.map(action => {
-        return {
-          action,
-          resourceType: AppResourceType.File,
-          markedBy: agent,
-        };
-      })
-    )
-  );
-
-  const publicPresetPermissionitems =
-    await context.data.permissionItem.getManyItems(
-      PermissionItemQueries.getByPermissionEntity(
-        insertOrgResult.organization.publicPresetId!,
-        AppResourceType.PresetPermissionsGroup
-      )
-    );
-
-  const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(
-    savedFile.resourceId,
-    AppResourceType.File,
-    makeFilePublicAccessOps(agent, input.publicAccessActions),
-    savedFile.resourceId
-  );
-
-  // basePermissionItems.forEach(item => {
-  //   expect(publicPresetPermissionitems).toContainEqual(
-  //     expect.objectContaining(item)
-  //   );
-  // });
-
-  expect(publicPresetPermissionitems).toContainEqual(
-    expect.arrayContaining(basePermissionItems)
+    savedFile,
+    insertUserResult,
+    insertOrgResult,
+    expectedActions.map(action => {
+      return {
+        action,
+        resourceType: AppResourceType.File,
+      };
+    })
   );
 
   return uploadResult;
@@ -206,7 +232,7 @@ export async function assertCanUploadToPublicFile(
   filePath: string
 ) {
   assertContext(context);
-  await insertFileForTest(context, null, organizationId, {
+  return await insertFileForTest(context, null, organizationId, {
     organizationId,
     path: filePath,
   });

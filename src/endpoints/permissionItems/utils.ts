@@ -5,6 +5,7 @@ import {
   AppResourceType,
   IAgent,
   IPublicAccessOp,
+  IPublicAccessOpInput,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
@@ -77,7 +78,7 @@ export const publicAccessOpComparator = (
 export function makePermissionItemInputsFromPublicAccessOps(
   permissionOwnerId: string,
   permissionOwnerType: AppResourceType,
-  ops: IPublicAccessOp[],
+  ops: IPublicAccessOpInput[],
   itemResourceId?: string
 ): INewPermissionItemInput[] {
   return ops.map(op => ({
