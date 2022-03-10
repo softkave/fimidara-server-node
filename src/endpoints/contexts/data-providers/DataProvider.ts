@@ -129,7 +129,6 @@ export interface IDataProvider<T extends {[key: string]: any}> {
 
   deleteItem: (filter: IDataProviderFilter<T>) => Promise<void>;
   deleteManyItems: (filter: IDataProviderFilter<T>) => Promise<void>;
-  deleteAll: () => Promise<void>;
 
   saveItem: (data: T) => Promise<T>;
   bulkSaveItems: (data: T[]) => Promise<void>;

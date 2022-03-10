@@ -38,6 +38,7 @@ import {
 } from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {IUploadFileParams} from './types';
+import {expectItemsContain} from '../../test-utils/helpers/permissionItem';
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,
@@ -138,31 +139,7 @@ export async function assertPublicAccessOps(
     resourceType === AppResourceType.File ? resource.resourceId : undefined
   );
 
-  const permissionItemIndexer = (item: INewPermissionItemInput) =>
-    item.permissionOwnerId +
-    '-' +
-    item.permissionOwnerType +
-    '-' +
-    item.itemResourceId +
-    '-' +
-    item.itemResourceType +
-    '-' +
-    item.action +
-    '-' +
-    item.isExclusion +
-    '-' +
-    item.isForPermissionOwnerOnly;
-
-  const publicPresetPermissionitemsMap = indexArray(
-    publicPresetPermissionitems,
-    {indexer: permissionItemIndexer}
-  );
-
-  basePermissionItems.forEach(item => {
-    expect(
-      publicPresetPermissionitemsMap[permissionItemIndexer(item)]
-    ).toMatchObject(item);
-  });
+  expectItemsContain(publicPresetPermissionitems, basePermissionItems);
 }
 
 export async function assertPublicPermissionsDonotExistForOwner(

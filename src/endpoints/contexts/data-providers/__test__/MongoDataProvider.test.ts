@@ -39,8 +39,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   assert(connection);
-  const orgModel = getOrganizationModel(connection);
-  await orgModel.deleteMany({}).exec();
+
   await connection.close();
 });
 
@@ -271,6 +270,7 @@ describe('MongoDataProvider', () => {
       orgModel,
       10
     );
+
     await provider.deleteManyItems(
       OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
     );
@@ -313,25 +313,4 @@ describe('MongoDataProvider', () => {
     await provider.bulkSaveItems(orgs);
     expect(await getMatchedOrgsCount(orgModel, orgs)).toBe(10);
   });
-
-  // Can't test deleteAll because it'll interfere with other tests
-  // as we use one mongo instance and Db for all tests
-
-  // test('deleteAll', async () => {
-  //   const {provider, orgModel} = await getOrgMongoProviderForTest();
-  //   await insertOrganizationsMongo(orgModel, 10);
-  //   await provider.deleteAll();
-  //   expect(await orgModel.estimatedDocumentCount()).toBe(0);
-  // });
-
-  // Can't test getAll because we use a shared db instance and
-  // getAll is going to return all the items in that collection
-  // making it hard to assert against the count
-
-  // test('getAll', async () => {
-  //   const {provider, orgModel} = await getOrgMongoProviderForTest();
-  //   await insertOrganizationsMongo(orgModel, 10);
-  //   const orgs = await provider.getAll();
-  //   expect(orgs.length).toBe(10);
-  // });
 });
