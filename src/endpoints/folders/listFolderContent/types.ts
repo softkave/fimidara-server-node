@@ -1,7 +1,7 @@
 import {IPublicFile} from '../../../definitions/file';
+import {IPublicFolder} from '../../../definitions/folder';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicFolder} from '../types';
 
 export interface IListFolderContentEndpointParams {
   // parentFolderId?: string;

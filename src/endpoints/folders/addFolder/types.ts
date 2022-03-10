@@ -1,7 +1,7 @@
+import {IPublicFolder} from '../../../definitions/folder';
 import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicFolder} from '../types';
 
 export interface INewFolderInput {
   path: string;
