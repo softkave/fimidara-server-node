@@ -1,6 +1,5 @@
 import {Readable} from 'stream';
 import {noopAsync} from '../../../utilities/fns';
-import {indexArray} from '../../../utilities/indexArray';
 import {
   IFilePersistenceUploadFileParams,
   IFilePersistenceGetFileParams,
@@ -11,19 +10,17 @@ import {ITestFilePersistenceProviderContext} from './types';
 export default class TestMemoryFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext
 {
-  public files: IFilePersistenceUploadFileParams[] = [];
+  public files: Record<string, IFilePersistenceUploadFileParams> = {};
 
   public uploadFile = jest
     .fn(async (params: IFilePersistenceUploadFileParams) => {
-      this.files.push(params);
+      this.files[params.bucket + '-' + params.key] = params;
     })
     .mockName('uploadFile');
 
   public getFile = jest
     .fn(async (params: IFilePersistenceGetFileParams) => {
-      const file = this.files.find(file => {
-        return file.bucket === params.bucket && file.key === params.key;
-      });
+      const file = this.files[params.bucket + '-' + params.key];
 
       if (file) {
         const readable = new Readable();
@@ -38,9 +35,8 @@ export default class TestMemoryFilePersistenceProviderContext
 
   public deleteFiles = jest
     .fn(async (params: IFilePersistenceDeleteFilesParams) => {
-      const keysMap = indexArray(params.keys);
-      this.files = this.files.filter(file => {
-        return !(file.bucket === params.bucket && keysMap[file.key]);
+      params.keys.forEach(key => {
+        delete this.files[params.bucket + '-' + key];
       });
     })
     .mockName('deleteFiles');

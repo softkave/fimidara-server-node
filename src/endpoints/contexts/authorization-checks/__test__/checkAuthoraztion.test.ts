@@ -55,7 +55,11 @@ describe('checkAuthorization', () => {
       organization,
       resource: file,
       type: AppResourceType.File,
-      permissionOwners: getFilePermissionOwners(organization.resourceId, file),
+      permissionOwners: getFilePermissionOwners(
+        organization.resourceId,
+        file,
+        AppResourceType.File
+      ),
       action: BasicCRUDActions.Read,
     });
 
@@ -86,7 +90,11 @@ describe('checkAuthorization', () => {
       agent: agent02,
       resource: file,
       type: AppResourceType.File,
-      permissionOwners: getFilePermissionOwners(organization.resourceId, file),
+      permissionOwners: getFilePermissionOwners(
+        organization.resourceId,
+        file,
+        AppResourceType.File
+      ),
       action: BasicCRUDActions.Read,
       nothrow: true,
     });
@@ -121,7 +129,8 @@ describe('checkAuthorization', () => {
         type: AppResourceType.File,
         permissionOwners: getFilePermissionOwners(
           organization.resourceId,
-          file
+          file,
+          AppResourceType.File
         ),
         action: BasicCRUDActions.Read,
         nothrow: false,
@@ -130,6 +139,4 @@ describe('checkAuthorization', () => {
       expect(error instanceof PermissionDeniedError).toBeTruthy();
     }
   });
-
-  test('should allow access to resource with public access op', async () => {});
 });

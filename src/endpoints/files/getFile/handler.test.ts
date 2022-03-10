@@ -1,6 +1,7 @@
 import assert = require('assert');
 import faker = require('faker');
 import sharp = require('sharp');
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {folderConstants} from '../../folders/constants';
@@ -17,6 +18,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
+import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
 
@@ -102,7 +104,7 @@ describe('getFile', () => {
     expect(fileMetadata.height).toEqual(expectedHeight);
   });
 
-  test('can read public file', async () => {
+  test('can read file from public folder', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {organization} = await insertOrganizationForTest(context, userToken);
@@ -112,7 +114,11 @@ describe('getFile', () => {
       context,
       userToken,
       organization.resourceId,
-      {isPublic: true}
+      {
+        publicAccessOps: [
+          {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+        ],
+      }
     );
 
     const {file} = await insertFileForTest(
@@ -120,11 +126,34 @@ describe('getFile', () => {
       userToken,
       organization.resourceId,
       {
-        isPublic: true,
         path: folder.namePath
           .concat([faker.lorem.word()])
           .join(folderConstants.nameSeparator),
       }
+    );
+
+    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {
+        organizationId: organization.resourceId,
+        path: file.namePath.join(folderConstants.nameSeparator),
+      }
+    );
+
+    const result = await getFile(context, instData);
+    assertEndpointResultOk(result);
+    expect(result.file).toEqual(file);
+  });
+
+  test('can read public file', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {file} = await insertFileForTest(
+      context,
+      userToken,
+      organization.resourceId,
+      {publicAccessActions: UploadFilePublicAccessActions.Read}
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(

@@ -4,6 +4,7 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
+  publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
@@ -38,7 +39,12 @@ const listFolderContent: ListFolderContentEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    publicPermissibleEndpointAgents
+  );
+
   const organizationId = getOrganizationId(agent, data.organizationId);
   const organization = await context.data.organization.assertGetItem(
     EndpointReusableQueries.getById(organizationId)

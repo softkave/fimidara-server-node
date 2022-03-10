@@ -123,13 +123,13 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     !!permissionOwnersMap[getPermissionOwnerKey(item)];
 
   const items = flatten(permissionItemsList).filter(item => {
-    if (
-      resource &&
-      item.itemResourceId &&
-      item.itemResourceId !== resource.resourceId
-    ) {
-      return false;
-    }
+    // if (
+    //   resource &&
+    //   item.itemResourceId &&
+    //   item.itemResourceId !== resource.resourceId
+    // ) {
+    //   return false;
+    // }
 
     if (hasPermissionOwners() && !permissionOwnerExists(item)) {
       return false;
@@ -218,13 +218,14 @@ export function makeOrgPermissionOwnerList(organizationId: string) {
 
 export function getFilePermissionOwners(
   organizationId: string,
-  file: {idPath: string[]}
+  resource: {idPath: string[]},
+  type: AppResourceType
 ) {
-  return makeOrgPermissionOwnerList(organizationId).concat(
-    file.idPath.map((id, index) => ({
+  return resource.idPath
+    .map(id => ({
       permissionOwnerId: id,
-      permissionOwnerType: AppResourceType.Folder,
-      order: index + 2, // +2 cause organizationId is already 1 and index is zero-based
+      permissionOwnerType: type,
     }))
-  );
+    .concat(makeOrgPermissionOwnerList(organizationId))
+    .map((item, index) => ({...item, order: index}));
 }

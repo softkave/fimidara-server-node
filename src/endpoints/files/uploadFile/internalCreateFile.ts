@@ -67,7 +67,6 @@ export async function internalCreateFile(
     file.resourceId,
     AppResourceType.File,
     publicAccessOps,
-    [],
     file.resourceId
   );
 

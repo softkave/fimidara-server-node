@@ -89,11 +89,14 @@ async function setupDefaultUserCollaborationRequest(
   });
 }
 
-async function setupFolders(context: IBaseContext, organizationId: string) {
+async function setupFolders(
+  context: IBaseContext,
+  organization: IOrganization
+) {
   const folder01 = await createSingleFolder(
     context,
     systemAgent,
-    organizationId,
+    organization,
     null,
     {path: folder01Path}
   );
@@ -101,7 +104,7 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
   const folder02 = await createSingleFolder(
     context,
     systemAgent,
-    organizationId,
+    organization,
     folder01,
     {path: folder02Path}
   );
@@ -109,7 +112,7 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
   const orgImagesFolder = await createSingleFolder(
     context,
     systemAgent,
-    organizationId,
+    organization,
     folder02,
     {
       path: appSetupVars.orgImagesFolderPath,
@@ -122,7 +125,7 @@ async function setupFolders(context: IBaseContext, organizationId: string) {
   const userImagesFolder = await createSingleFolder(
     context,
     systemAgent,
-    organizationId,
+    organization,
     folder02,
     {
       path: appSetupVars.userImagesFolderPath,
@@ -198,11 +201,7 @@ export async function setupApp(context: IBaseContext) {
     adminPreset.resourceId
   );
 
-  const {orgImagesFolder, userImagesFolder} = await setupFolders(
-    context,
-    org.resourceId
-  );
-
+  const {orgImagesFolder, userImagesFolder} = await setupFolders(context, org);
   const appOrgsImageUploadPreset = await setupImageUploadPermissionGroup(
     context,
     org.resourceId,

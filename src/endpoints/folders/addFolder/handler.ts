@@ -1,4 +1,4 @@
-import {defaultTo, merge, omit} from 'lodash';
+import {merge, omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
 import {
@@ -7,6 +7,7 @@ import {
   IAgent,
   IPublicAccessOp,
   ISessionAgent,
+  publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
 import {getDate, getDateString} from '../../../utilities/dateFns';
@@ -84,8 +85,7 @@ export async function createSingleFolder(
     organization,
     savedFolder.resourceId,
     AppResourceType.Folder,
-    publicAccessOps,
-    []
+    publicAccessOps
   );
 
   return savedFolder;
@@ -153,7 +153,11 @@ export async function createFolderList(
         organization,
         type: AppResourceType.Folder,
         permissionOwners: previousFolder
-          ? getFilePermissionOwners(organization.resourceId, previousFolder)
+          ? getFilePermissionOwners(
+              organization.resourceId,
+              previousFolder,
+              AppResourceType.Folder
+            )
           : makeOrgPermissionOwnerList(organization.resourceId),
         action: BasicCRUDActions.Create,
       });
@@ -164,7 +168,7 @@ export async function createFolderList(
     // The main folder we want to create
     const isMainFolder = i === pathWithDetails.splitPath.length - 1;
     const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
-    let nextInput: INewFolderInput = {
+    const nextInput: INewFolderInput = {
       path: nextInputPath.join(folderConstants.nameSeparator),
     };
 
@@ -192,7 +196,12 @@ export async function createFolderList(
 // TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    publicPermissibleEndpointAgents
+  );
+
   const organizationId = getOrganizationId(agent, data.organizationId);
   const organization = await context.data.organization.assertGetItem(
     EndpointReusableQueries.getById(organizationId)

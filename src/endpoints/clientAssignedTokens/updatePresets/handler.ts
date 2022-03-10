@@ -41,7 +41,7 @@ const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint
     await checkPresetsExist(
       context,
       agent,
-      checkResult.organization.resourceId,
+      checkResult.organization,
       data.presets
     );
 

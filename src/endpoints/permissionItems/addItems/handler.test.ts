@@ -10,7 +10,6 @@ import {
   insertUserForTest,
   ITestPermissionItemBase,
   ITestPermissionItemOwner,
-  makeTestPermissionItemInputs,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
 

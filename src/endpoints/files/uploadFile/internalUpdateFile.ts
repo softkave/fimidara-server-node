@@ -1,11 +1,7 @@
-import {defaultTo, differenceWith} from 'lodash';
+import {defaultTo} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IOrganization} from '../../../definitions/organization';
-import {
-  AppResourceType,
-  IPublicAccessOp,
-  ISessionAgent,
-} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
@@ -52,8 +48,7 @@ export async function internalUpdateFile(
     organization,
     file.resourceId,
     AppResourceType.File,
-    differenceWith(publicAccessOps, existingPublicAccessOps),
-    differenceWith(existingPublicAccessOps, publicAccessOps),
+    publicAccessOps,
     file.resourceId
   );
 

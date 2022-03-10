@@ -28,6 +28,13 @@ export const publicAgent: IAgent = {
   agentType: SessionAgentType.Public,
 };
 
+export const publicPermissibleEndpointAgents = [
+  SessionAgentType.ClientAssignedToken,
+  SessionAgentType.ProgramAccessToken,
+  SessionAgentType.User,
+  SessionAgentType.Public,
+];
+
 export interface ISessionAgent {
   agentId: string;
   agentType: SessionAgentType;

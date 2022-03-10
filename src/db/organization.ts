@@ -11,6 +11,7 @@ const organizationSchema = ensureTypeFields<IOrganization>({
   lastUpdatedAt: {type: Date},
   name: {type: String},
   description: {type: String},
+  publicPresetId: {type: String},
 });
 
 export type IOrganizationDocument = Document<IOrganization>;

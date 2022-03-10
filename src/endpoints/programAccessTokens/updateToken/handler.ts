@@ -56,7 +56,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     await checkPresetsExist(
       context,
       agent,
-      checkResult.organization.resourceId,
+      checkResult.organization,
       data.token.presets
     );
 
