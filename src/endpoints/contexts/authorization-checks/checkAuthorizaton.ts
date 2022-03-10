@@ -1,4 +1,4 @@
-import {flatten} from 'lodash';
+import {flatten, last} from 'lodash';
 import {IOrganization} from '../../../definitions/organization';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
@@ -46,6 +46,8 @@ export interface ICheckAuthorizationParams {
 // Possible fix is to segment permission items by owners and only use
 // the permission items of the closest possible owner if a combination
 // of action and resource type/ID match.
+
+// TODO: make checkAuthorization more performant
 
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const {
@@ -216,16 +218,34 @@ export function makeOrgPermissionOwnerList(organizationId: string) {
   ];
 }
 
+// TODO: write a more performant function
 export function getFilePermissionOwners(
   organizationId: string,
   resource: {idPath: string[]},
-  type: AppResourceType
+  type: AppResourceType.Folder | AppResourceType.File
 ) {
-  return resource.idPath
+  let permissionOwners: IPermissionOwner[] =
+    makeOrgPermissionOwnerList(organizationId);
+  const folderIds =
+    type === AppResourceType.File
+      ? resource.idPath.slice(0, resource.idPath.length - 1) // End index is non-inclusive
+      : resource.idPath;
+
+  permissionOwners = folderIds
     .map(id => ({
       permissionOwnerId: id,
-      permissionOwnerType: type,
+      permissionOwnerType: AppResourceType.Folder,
     }))
-    .concat(makeOrgPermissionOwnerList(organizationId))
-    .map((item, index) => ({...item, order: index}));
+    .concat(permissionOwners);
+
+  if (type === AppResourceType.File) {
+    permissionOwners = [
+      {
+        permissionOwnerId: last(resource.idPath) as string,
+        permissionOwnerType: AppResourceType.File,
+      },
+    ].concat(permissionOwners);
+  }
+
+  return permissionOwners.map((item, index) => ({...item, order: index}));
 }

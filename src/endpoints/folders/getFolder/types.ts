@@ -1,5 +1,5 @@
+import {IPublicFolder} from '../../../definitions/folder';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPublicFolder} from '../types';
 import {Endpoint} from '../../types';
 
 export interface IGetFolderEndpointParams {

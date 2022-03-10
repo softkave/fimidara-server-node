@@ -1,7 +1,11 @@
 import {defaultTo} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IOrganization} from '../../../definitions/organization';
-import {AppResourceType, ISessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  IPublicAccessOp,
+  ISessionAgent,
+} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
@@ -18,12 +22,29 @@ export async function internalUpdateFile(
   existingFile: IFile,
   data: IUploadFileParams
 ) {
-  const existingPublicAccessOps = existingFile.publicAccessOps;
-  const publicAccessOps = makeFilePublicAccessOps(
-    agent,
-    data.publicAccessActions,
-    existingPublicAccessOps
-  );
+  let publicAccessOps: IPublicAccessOp[] = [];
+  const update: Partial<IFile> = {
+    extension: pathWithDetails.extension || defaultTo(data.extension, ''),
+    mimetype: data.mimetype,
+    size: data.data.length,
+    lastUpdatedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+    lastUpdatedAt: getDate(),
+    description: data.description,
+    encoding: data.encoding,
+  };
+
+  if (data.publicAccessActions) {
+    publicAccessOps = makeFilePublicAccessOps(
+      agent,
+      data.publicAccessActions,
+      existingFile.publicAccessOps
+    );
+
+    update.publicAccessOps = publicAccessOps;
+  }
 
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),
@@ -42,15 +63,17 @@ export async function internalUpdateFile(
     }
   );
 
-  await updatePublicPresetAccessOps(
-    context,
-    agent,
-    organization,
-    file.resourceId,
-    AppResourceType.File,
-    publicAccessOps,
-    file.resourceId
-  );
+  if (data.publicAccessActions) {
+    await updatePublicPresetAccessOps(
+      context,
+      agent,
+      organization,
+      file.resourceId,
+      AppResourceType.File,
+      publicAccessOps,
+      file.resourceId
+    );
+  }
 
   return file;
 }

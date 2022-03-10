@@ -1,3 +1,5 @@
+import {omit} from 'lodash';
+import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -31,40 +33,55 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     BasicCRUDActions.Update
   );
 
-  const existingPublicAccessOps = folder.publicAccessOps;
-  let publicAccessOps: IPublicAccessOp[] = data.folder.publicAccessOps
-    ? data.folder.publicAccessOps.map(op => ({
-        ...op,
-        markedAt: getDate(),
-        markedBy: agent,
-      }))
-    : [];
+  const incomingPublicAccessOps = data.folder.publicAccessOps || [];
+  const update: Partial<IFolder> = {
+    ...omit(data.folder, 'publicAccessOps'),
+    lastUpdatedAt: getDateString(),
+    lastUpdatedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+  };
 
-  publicAccessOps = compactPublicAccessOps(
-    publicAccessOps.concat(existingPublicAccessOps)
-  );
+  let publicAccessOps: IPublicAccessOp[] = [];
+  const hasPublicAccessOpsChanges =
+    incomingPublicAccessOps.length > 0 || data.folder.removePublicAccessOps;
+
+  if (hasPublicAccessOpsChanges) {
+    publicAccessOps = incomingPublicAccessOps
+      ? incomingPublicAccessOps.map(op => ({
+          ...op,
+          markedAt: getDate(),
+          markedBy: agent,
+        }))
+      : [];
+
+    publicAccessOps = compactPublicAccessOps(
+      publicAccessOps.concat(folder.publicAccessOps)
+    );
+
+    if (data.folder.removePublicAccessOps) {
+      publicAccessOps = [];
+    }
+
+    update.publicAccessOps = publicAccessOps;
+  }
 
   const updatedFolder = await context.data.folder.assertUpdateItem(
     FolderQueries.getById(folder.resourceId),
-    {
-      ...data.folder,
-      publicAccessOps,
-      lastUpdatedAt: getDateString(),
-      lastUpdatedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    }
+    update
   );
 
-  await updatePublicPresetAccessOps(
-    context,
-    agent,
-    organization,
-    updatedFolder.resourceId,
-    AppResourceType.Folder,
-    publicAccessOps
-  );
+  if (hasPublicAccessOpsChanges) {
+    await updatePublicPresetAccessOps(
+      context,
+      agent,
+      organization,
+      updatedFolder.resourceId,
+      AppResourceType.Folder,
+      publicAccessOps
+    );
+  }
 
   return {folder: folderExtractor(updatedFolder)};
 };

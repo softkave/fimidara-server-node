@@ -1,5 +1,5 @@
 import {defaultTo, isArray, last} from 'lodash';
-import {IFolder} from '../../definitions/folder';
+import {IFolder, IPublicFolder} from '../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -14,11 +14,14 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {
+  agentExtractor,
+  agentExtractorIfPresent,
+  publicAccessOpListExtractor,
+} from '../utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import FolderQueries from './queries';
-import {IPublicFolder} from './types';
 
 const folderFields = getFields<IPublicFolder>({
   resourceId: true,
@@ -32,10 +35,8 @@ const folderFields = getFields<IPublicFolder>({
   name: true,
   description: true,
   idPath: true,
-  isPublic: true,
-  markedPublicAt: getDateStringIfPresent,
-  markedPublicBy: agentExtractorIfPresent,
   namePath: true,
+  publicAccessOps: publicAccessOpListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);

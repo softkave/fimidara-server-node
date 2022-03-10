@@ -1,10 +1,13 @@
 import * as faker from 'faker';
+import {IFolder} from '../../../definitions/folder';
+import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertPublicAccessOps,
   assertPublicPermissionsDonotExistForOwner,
-} from '../../files/uploadFile/handler.test';
+} from '../../files/uploadFile/uploadFileTestUtils';
 import RequestData from '../../RequestData';
+import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -16,10 +19,12 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {PermissionDeniedError} from '../../user/errors';
 import {
   assertPublicOps,
   makeEveryFolderPublicAccessOp,
-} from '../addFolder/handler.test';
+} from '../addFolder/addFolderTestUtils';
+import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {folderExtractor} from '../utils';
 import updateFolder from './handler';
@@ -37,20 +42,23 @@ afterAll(async () => {
 
 async function updateFolderBaseTest(
   ctx: IBaseContext,
-  incomingUpdateInput: Partial<IUpdateFolderParams> = {},
+  incomingUpdateInput: Partial<IUpdateFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertOrgResult?: IInsertOrganizationForTestResult,
+  existingFolder?: IFolder
 ) {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
   insertOrgResult =
     insertOrgResult ||
     (await insertOrganizationForTest(ctx, insertUserResult.userToken));
 
-  const {folder} = await insertFolderForTest(
-    ctx,
-    insertUserResult.userToken,
-    insertOrgResult.organization.resourceId
-  );
+  const {folder} = existingFolder
+    ? {folder: existingFolder}
+    : await insertFolderForTest(
+        ctx,
+        insertUserResult.userToken,
+        insertOrgResult.organization.resourceId
+      );
 
   const updateInput: IUpdateFolderInput = {
     description: faker.lorem.words(20),
@@ -62,7 +70,7 @@ async function updateFolderBaseTest(
     mockExpressRequestWithUserToken(insertUserResult.userToken),
     {
       organizationId: insertOrgResult.organization.resourceId,
-      path: folder.name,
+      path: folder.namePath.join(folderConstants.nameSeparator),
       folder: updateInput,
     }
   );
@@ -70,27 +78,40 @@ async function updateFolderBaseTest(
   const result = await updateFolder(ctx, instData);
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
-  expect(result.folder).toMatchObject(updateInput);
+  expect(result.folder).toMatchObject(folderExtractor(updateInput));
   const savedFolder = await ctx.data.folder.assertGetItem(
     FolderQueries.getById(folder.resourceId)
   );
 
-  expect(folder).toMatchObject(folderExtractor(savedFolder));
-  return {folder, savedFolder, insertUserResult, insertOrgResult};
+  expect(result.folder).toMatchObject(folderExtractor(savedFolder));
+  return {
+    savedFolder,
+    insertUserResult,
+    insertOrgResult,
+    folder: result.folder,
+  };
 }
 
 const updateFolderWithPublicAccessOpsTest = async (
   ctx: IBaseContext,
-  incomingUpdateInput: Partial<IUpdateFolderParams> = {},
+  incomingUpdateInput: Partial<IUpdateFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertOrgResult?: IInsertOrganizationForTestResult,
+  existingFolder?: IFolder
 ) => {
-  const uploadResult = await updateFolderBaseTest(ctx, incomingUpdateInput);
+  const uploadResult = await updateFolderBaseTest(
+    ctx,
+    incomingUpdateInput,
+    insertUserResult,
+    insertOrgResult,
+    existingFolder
+  );
+
   const {savedFolder} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertOrgResult = uploadResult.insertOrgResult;
   expect(savedFolder.publicAccessOps).toHaveLength(
-    incomingUpdateInput.folder?.publicAccessOps?.length || 0
+    incomingUpdateInput.publicAccessOps?.length || 0
   );
 
   await assertPublicAccessOps(
@@ -98,7 +119,8 @@ const updateFolderWithPublicAccessOpsTest = async (
     savedFolder,
     insertUserResult,
     insertOrgResult,
-    incomingUpdateInput?.folder?.publicAccessOps || []
+    incomingUpdateInput.publicAccessOps || [],
+    AppResourceType.Folder
   );
 
   return uploadResult;
@@ -114,9 +136,7 @@ describe('updateFolder', () => {
     assertContext(context);
     const {savedFolder, insertOrgResult} =
       await updateFolderWithPublicAccessOpsTest(context, {
-        folder: {
-          publicAccessOps: makeEveryFolderPublicAccessOp(),
-        },
+        publicAccessOps: makeEveryFolderPublicAccessOp(),
       });
 
     await assertPublicOps(context, savedFolder, insertOrgResult);
@@ -124,18 +144,27 @@ describe('updateFolder', () => {
 
   test('folder public access ops removed', async () => {
     assertContext(context);
-    await updateFolderWithPublicAccessOpsTest(context, {
-      folder: {
-        publicAccessOps: makeEveryFolderPublicAccessOp(),
-      },
+    const {
+      insertOrgResult,
+      insertUserResult,
+      savedFolder: savedFolder01,
+    } = await updateFolderWithPublicAccessOpsTest(context, {
+      publicAccessOps: makeEveryFolderPublicAccessOp(),
     });
 
-    const {savedFolder, insertOrgResult} =
-      await updateFolderWithPublicAccessOpsTest(context, {
-        folder: {removePublicAccessOps: true},
-      });
+    const {savedFolder} = await updateFolderWithPublicAccessOpsTest(
+      context,
+      {removePublicAccessOps: true},
+      insertUserResult,
+      insertOrgResult,
+      savedFolder01
+    );
 
-    await assertPublicOps(context, savedFolder, insertOrgResult);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await assertPublicOps(context, savedFolder, insertOrgResult);
+    }, [PermissionDeniedError.name]);
+
     await assertPublicPermissionsDonotExistForOwner(
       context,
       insertOrgResult.organization,
