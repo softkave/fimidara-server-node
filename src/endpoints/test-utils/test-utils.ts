@@ -67,6 +67,7 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
+import {expectItemsContain} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
@@ -131,7 +132,7 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
   await waitForCleanup(promises);
 }
 
-async function initTestBaseContext(): Promise<ITestBaseContext> {
+export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
   const ctx = new BaseContext(
     await getTestDataProvider(appVariables),
@@ -404,7 +405,7 @@ export async function insertPermissionItemsForTestUsingOwnerAndBase(
 
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
-  expect(result.items.length).toEqual(itemsInput.length);
+  expectItemsContain(result.items, itemsInput);
   return result;
 }
 

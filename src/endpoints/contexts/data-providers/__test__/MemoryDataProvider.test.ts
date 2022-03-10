@@ -279,14 +279,6 @@ describe('MemoryDataProvider', () => {
     expect(provider.items).toHaveLength(10);
   });
 
-  test('deleteAll', async () => {
-    const data: IOrganization[] = [];
-    const provider = new MemoryDataProvider(data, throwOrganizationNotFound);
-    insertOrganizationsMemory(data, 10);
-    await provider.deleteAll();
-    expect(provider.items).toHaveLength(0);
-  });
-
   test('getAll', async () => {
     const data: IOrganization[] = [];
     const provider = new MemoryDataProvider(data, throwOrganizationNotFound);

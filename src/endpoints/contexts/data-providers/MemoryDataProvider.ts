@@ -289,10 +289,6 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
     data.forEach(item => this.items.push(item));
   });
 
-  deleteAll = wrapFireAndThrowError(async () => {
-    this.items = [];
-  });
-
   getAll = wrapFireAndThrowError(async () => {
     return this.items;
   });

@@ -8,4 +8,5 @@ module.exports = {
     '/jest/',
   ],
   globalTeardown: './jest/globalTeardown.ts',
+  globalSetup: './jest/globalSetup.integration-test.ts',
 };
