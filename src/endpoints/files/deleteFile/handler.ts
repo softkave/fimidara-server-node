@@ -1,4 +1,8 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  publicPermissibleEndpointAgents,
+} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {getOrganizationId} from '../../contexts/SessionContext';
@@ -10,7 +14,12 @@ import {deleteFileJoiSchema} from './validation';
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    publicPermissibleEndpointAgents
+  );
+
   const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,

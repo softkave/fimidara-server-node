@@ -64,7 +64,11 @@ export async function checkFileAuthorization(
     nothrow,
     resource: file,
     type: AppResourceType.File,
-    permissionOwners: getFilePermissionOwners(organization.resourceId, file),
+    permissionOwners: getFilePermissionOwners(
+      organization.resourceId,
+      file,
+      AppResourceType.File
+    ),
   });
 
   return {agent, file, organization};

@@ -27,6 +27,13 @@ export async function savePermissionItems(
       )
     );
 
+  await context.data.permissionItem.deleteManyItems(
+    PermissionItemQueries.getByPermissionEntity(
+      data.permissionEntityId,
+      data.permissionEntityType
+    )
+  );
+
   let items: IPermissionItem[] = data.items
     .map(input => {
       const item: IPermissionItem = {

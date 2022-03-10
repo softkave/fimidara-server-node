@@ -43,7 +43,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   );
 
   await checkOwnersExist(context, agent, organization, data.items, true);
-  let items: IPermissionItem[] = await savePermissionItems(
+  const items: IPermissionItem[] = await savePermissionItems(
     context,
     agent,
     data

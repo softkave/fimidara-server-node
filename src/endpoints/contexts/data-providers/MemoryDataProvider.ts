@@ -1,4 +1,4 @@
-import {isEqual, isArray, merge, get} from 'lodash';
+import {isEqual, isArray, get} from 'lodash';
 import {ServerError} from '../../../utilities/errors';
 import cast from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
@@ -208,10 +208,11 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
 
   updateItem = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const {item} = matchFirst(this.items, filter);
+      const {item, index} = matchFirst(this.items, filter);
       if (item) {
-        merge(item, data);
-        return cast<T>(item);
+        const newItem = {...item, ...data} as T;
+        this.items[index] = newItem;
+        return cast<T>(newItem);
       } else {
         return null;
       }
@@ -220,8 +221,10 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
 
   updateManyItems = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const {matchedItems} = matchMany(this.items, filter);
-      matchedItems.forEach(item => merge(item, data));
+      const {matchedItems, indexes} = matchMany(this.items, filter);
+      matchedItems.forEach((item, index) => {
+        this.items[indexes[index]] = {...item, ...data} as T;
+      });
     }
   );
 

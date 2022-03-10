@@ -5,6 +5,7 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
+  publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
@@ -29,7 +30,12 @@ import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    publicPermissibleEndpointAgents
+  );
+
   const pathWithDetails = splitFilePathWithDetails(data.path);
   const organizationId = getOrganizationId(agent, data.organizationId);
   const organization = await context.data.organization.assertGetItem(
@@ -37,7 +43,10 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   );
 
   let file = await context.data.file.getItem(
-    FileQueries.getByNamePath(organizationId, pathWithDetails.splitPath)
+    FileQueries.getByNamePath(
+      organizationId,
+      pathWithDetails.splitPathWithoutExtension
+    )
   );
 
   if (!file) {
@@ -119,9 +128,17 @@ async function checkUploadFileAuth(
     organization,
     type: AppResourceType.File,
     permissionOwners: file
-      ? getFilePermissionOwners(organization.resourceId, file)
+      ? getFilePermissionOwners(
+          organization.resourceId,
+          file,
+          AppResourceType.File
+        )
       : closestExistingFolder
-      ? getFilePermissionOwners(organization.resourceId, closestExistingFolder)
+      ? getFilePermissionOwners(
+          organization.resourceId,
+          closestExistingFolder,
+          AppResourceType.Folder
+        )
       : makeOrgPermissionOwnerList(organization.resourceId),
 
     // TODO: should it be create and or update, rather than

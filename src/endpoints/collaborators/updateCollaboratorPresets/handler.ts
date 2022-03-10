@@ -26,7 +26,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   const data = validate(instData.data, updateCollaboratorPresetsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
-  const {collaborator} = await checkCollaboratorAuthorization02(
+  const {collaborator, organization} = await checkCollaboratorAuthorization02(
     context,
     agent,
     organizationId,
@@ -34,7 +34,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     BasicCRUDActions.Update // TODO: should there be a separate update presets action?
   );
 
-  await checkPresetsExist(context, agent, organizationId, data.presets);
+  await checkPresetsExist(context, agent, organization, data.presets);
   const organizationIndex = collaborator.organizations.findIndex(
     item => item.organizationId === data.organizationId
   );

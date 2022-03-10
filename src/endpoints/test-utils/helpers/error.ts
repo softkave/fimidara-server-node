@@ -1,5 +1,6 @@
 import assert = require('assert');
 import {isArray} from 'lodash';
+import {AnyFn} from '../../../utilities/types';
 
 export function assertResultErrorsIncludes(
   error: any,
@@ -21,4 +22,15 @@ export function assertResultErrorsIncludes(
     missingTypes.length === 0,
     new Error(`${missingTypes.join(', ')} not found in ${error}`)
   );
+}
+
+export async function expectErrorThrown(
+  fn: AnyFn,
+  expectedErrorNames: string[]
+) {
+  try {
+    await fn();
+  } catch (error) {
+    assertResultErrorsIncludes(error, expectedErrorNames);
+  }
 }

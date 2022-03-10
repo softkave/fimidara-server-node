@@ -128,7 +128,11 @@ export async function checkFolderAuthorization(
     nothrow,
     resource: folder,
     type: AppResourceType.Folder,
-    permissionOwners: getFilePermissionOwners(organization.resourceId, folder),
+    permissionOwners: getFilePermissionOwners(
+      organization.resourceId,
+      folder,
+      AppResourceType.Folder
+    ),
   });
 
   return {agent, folder, organization};

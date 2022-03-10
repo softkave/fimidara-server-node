@@ -7,6 +7,7 @@ export interface IUpdateFolderInput {
   description?: string;
   maxFileSizeInBytes?: number;
   publicAccessOps?: IPublicAccessOpInput[];
+  removePublicAccessOps?: boolean;
 }
 
 export interface IUpdateFolderParams {

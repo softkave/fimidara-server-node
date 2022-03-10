@@ -29,6 +29,12 @@ export const makeFilePublicReadAndUpdateAccessOps = (
       markedBy: agent,
       resourceType: AppResourceType.File,
     },
+    {
+      action: BasicCRUDActions.Create,
+      markedAt: getDate(),
+      markedBy: agent,
+      resourceType: AppResourceType.File,
+    },
   ]);
 
 export const makeFilePublicReadUpdateAndDeleteAccessOps = (
@@ -36,7 +42,7 @@ export const makeFilePublicReadUpdateAndDeleteAccessOps = (
 ): IPublicAccessOp[] =>
   makeFilePublicReadAndUpdateAccessOps(agent).concat([
     {
-      action: BasicCRUDActions.Update,
+      action: BasicCRUDActions.Delete,
       markedAt: getDate(),
       markedBy: agent,
       resourceType: AppResourceType.File,
@@ -62,7 +68,8 @@ export const makeFilePublicAccessOps = (
         existingOps.concat(makeFilePublicReadUpdateAndDeleteAccessOps(agent))
       );
     case UploadFilePublicAccessActions.None:
-    default:
       return [];
+    default:
+      return existingOps;
   }
 };
