@@ -1,11 +1,14 @@
 # TODOs
 
+- Delete assigned presets when presets are deleted
+- Don't delete program tokens, mark them disabled
 - Implement provided resource IDs and allow to get permission groups by name
 - Implement resource-based access control, not just agent-based access control
 - Implement a way to give permission to only delete files that belong to or is created by a token
 - Add public default preset
 - Resource-bound tokens, for accessing resources
 - Backups
+- Pagination
 - File versioning
 - Byte range
 - Use extension when file matching so that users can upload files with the same name but with different extensions
