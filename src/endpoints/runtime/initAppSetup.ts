@@ -16,6 +16,7 @@ import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IAppRuntimeVars} from '../../resources/appVariables';
 import {merge} from 'lodash';
+import internalCreateOrg from '../organizations/addOrganization/internalCreateOrg';
 
 /**
  * isAppSetup
@@ -40,15 +41,14 @@ const appSetupVars = {
 };
 
 async function setupOrg(context: IBaseContext, name: string) {
-  const organization = await context.data.organization.saveItem({
-    name,
-    createdAt: getDateString(),
-    createdBy: systemAgent,
-    resourceId: getNewId(),
-    description: "System-generated organization for Files's own operations",
-  });
-
-  return organization;
+  return await internalCreateOrg(
+    context,
+    {
+      name,
+      description: "System-generated organization for Files's own operations",
+    },
+    systemAgent
+  );
 }
 
 async function setupDefaultUserCollaborationRequest(

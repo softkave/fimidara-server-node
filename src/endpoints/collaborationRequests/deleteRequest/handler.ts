@@ -11,6 +11,7 @@ import {deleteRequestJoiSchema} from './validation';
  * deleteRequest. Ensure that:
  * - Check auth
  * - Delete request and related artifacts
+ * - Only allow delete request if pending
  */
 
 const deleteRequest: DeleteRequestEndpoint = async (context, instData) => {
