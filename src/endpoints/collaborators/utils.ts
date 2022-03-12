@@ -137,3 +137,12 @@ export function updateCollaboratorOrganization(
 
   return false;
 }
+
+export function removeOtherUserOrgs(collaborator: IUser, orgId: string): IUser {
+  return {
+    ...collaborator,
+    organizations: collaborator.organizations.filter(
+      item => item.organizationId === orgId
+    ),
+  };
+}

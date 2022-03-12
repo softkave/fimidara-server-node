@@ -5,7 +5,7 @@ import getOrganizationClientAssignedTokens from './getOrganizationTokens/handler
 import getClientAssignedToken from './getToken/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
-import updateClientAssignedTokenPresets from './updatePresets/handler';
+import updateClientAssignedTokenPresets from './updateToken/handler';
 
 export default function setupClientAssignedTokensRESTEndpoints(
   ctx: IBaseContext,

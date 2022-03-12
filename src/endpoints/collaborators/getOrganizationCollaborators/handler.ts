@@ -6,7 +6,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import CollaboratorQueries from '../queries';
-import {collaboratorListExtractor} from '../utils';
+import {collaboratorListExtractor, removeOtherUserOrgs} from '../utils';
 import {GetOrganizationCollaboratorsEndpoint} from './types';
 import {getOrganizationCollaboratorsJoiSchema} from './validation';
 
@@ -51,7 +51,9 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint =
 
     return {
       collaborators: collaboratorListExtractor(
-        allowedCollaborators,
+        allowedCollaborators.map(collaborator =>
+          removeOtherUserOrgs(collaborator, organization.resourceId)
+        ),
         organization.resourceId
       ),
     };

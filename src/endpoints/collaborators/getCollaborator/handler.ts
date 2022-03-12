@@ -4,6 +4,7 @@ import {getOrganizationId} from '../../contexts/SessionContext';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
+  removeOtherUserOrgs,
 } from '../utils';
 import {GetCollaboratorEndpoint} from './types';
 import {getCollaboratorJoiSchema} from './validation';
@@ -26,7 +27,10 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  const publicData = collaboratorExtractor(collaborator, organizationId);
+  const publicData = collaboratorExtractor(
+    removeOtherUserOrgs(collaborator, organizationId),
+    organizationId
+  );
   return {
     collaborator: publicData,
   };

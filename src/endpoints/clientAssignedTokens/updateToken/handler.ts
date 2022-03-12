@@ -7,7 +7,7 @@ import {
   checkClientAssignedTokenAuthorization03,
   clientAssignedTokenExtractor,
 } from '../utils';
-import {UpdateClientAssignedTokenPresetsEndpoint} from './types';
+import {UpdateClientAssignedTokenEndpoint} from './types';
 import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
 
 /**
@@ -23,7 +23,7 @@ import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
  * - [Medium] Change to update token for expires
  */
 
-const updateClientAssignedTokenPresets: UpdateClientAssignedTokenPresetsEndpoint =
+const updateClientAssignedTokenPresets: UpdateClientAssignedTokenEndpoint =
   async (context, instData) => {
     const data = validate(
       instData.data,
