@@ -12,7 +12,6 @@ import {IUserToken} from '../../../definitions/userToken';
 import {indexArray} from '../../../utilities/indexArray';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
-import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import RequestData from '../../RequestData';

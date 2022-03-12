@@ -4,3 +4,7 @@
 - add clearing out existing permission items when saving new ones
 - add if permission item is only for owner, for children, or both
 - convert session agent to the small agent data saved to db
+- Delete assigned presets when presets are deleted
+- confirm what error is returned when file is not found
+- Make api params naming and format consistent. If data, use data, if resource name, use resource name
+- Validate that client assigned token provided resource ID is unique, and add it to the other endpoints, and write unit tests for it

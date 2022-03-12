@@ -7,6 +7,7 @@ import EndpointReusableQueries from '../../queries';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
+  removeOtherUserOrgs,
 } from '../utils';
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
@@ -59,7 +60,10 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     }
   );
 
-  const publicData = collaboratorExtractor(collaborator, organizationId);
+  const publicData = collaboratorExtractor(
+    removeOtherUserOrgs(collaborator, organizationId),
+    organizationId
+  );
   return {
     collaborator: publicData,
   };

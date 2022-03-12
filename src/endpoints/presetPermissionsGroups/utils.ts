@@ -9,9 +9,11 @@ import {
   ISessionAgent,
   BasicCRUDActions,
   AppResourceType,
+  IAgent,
 } from '../../definitions/system';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {indexArray} from '../../utilities/indexArray';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -171,6 +173,26 @@ export async function checkPresetsExist(
   );
 
   return presets;
+}
+
+export function mergePresetsWithInput(
+  presets: IAssignedPresetPermissionsGroup[],
+  input: IPresetInput[],
+  agent: IAgent
+) {
+  const inputMap = indexArray(input, {path: 'presetId'});
+  return presets
+    .filter(item => !inputMap[item.presetId])
+    .concat(
+      input.map(preset => ({
+        ...preset,
+        assignedAt: getDateString(),
+        assignedBy: {
+          agentId: agent.agentId,
+          agentType: agent.agentType,
+        },
+      }))
+    );
 }
 
 export function throwPresetPermissionsGroupNotFound() {

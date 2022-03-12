@@ -1,6 +1,5 @@
 # TODOs
 
-- Delete assigned presets when presets are deleted
 - Don't delete program tokens, mark them disabled
 - Implement provided resource IDs and allow to get permission groups by name
 - Implement resource-based access control, not just agent-based access control
@@ -18,6 +17,7 @@
 - Use the endpoints instead of directly saving to db
 - Update accepted collaboration requests to include the user ID of the recipient for better info in case the user changes their email address
 - Write end-to-end tests
+- Implement stae-whie-revalidate and other http headers and options
 - Implement file versioning, and versioning for other reosurces
 - Filter out presets not found, instead of erroring out
 - Do we really need buckets?

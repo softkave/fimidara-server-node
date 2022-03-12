@@ -5,7 +5,6 @@ import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {OrganizationExistsError} from '../errors';
 import OrganizationQueries from '../queries';
-import {organizationExtractor} from '../utils';
 import {INewOrganizationInput} from './types';
 import {
   setupDefaultOrgPresets,

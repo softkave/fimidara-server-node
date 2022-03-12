@@ -14,7 +14,7 @@ import {
 } from '../../test-utils/test-utils';
 import {clientAssignedTokenExtractor} from '../utils';
 import updateClientAssignedTokenPresets from './handler';
-import {IUpdateClientAssignedTokenPresetsParams} from './types';
+import {IUpdateClientAssignedTokenParams} from './types';
 
 /**
  * TODO:
@@ -54,7 +54,7 @@ test('client assigned token presets updated', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IUpdateClientAssignedTokenPresetsParams>(
+    RequestData.fromExpressRequest<IUpdateClientAssignedTokenParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token01.resourceId,
