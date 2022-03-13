@@ -5,7 +5,7 @@ import getOrganizationClientAssignedTokens from './getOrganizationTokens/handler
 import getClientAssignedToken from './getToken/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
-import updateClientAssignedTokenPresets from './updateToken/handler';
+import updateClientAssignedToken from './updateToken/handler';
 
 export default function setupClientAssignedTokensRESTEndpoints(
   ctx: IBaseContext,
@@ -19,7 +19,7 @@ export default function setupClientAssignedTokensRESTEndpoints(
       ctx
     ),
     getToken: wrapEndpointREST(getClientAssignedToken, ctx),
-    updatePresets: wrapEndpointREST(updateClientAssignedTokenPresets, ctx),
+    updateToken: wrapEndpointREST(updateClientAssignedToken, ctx),
   };
 
   app.post('/clientAssignedTokens/addToken', endpoints.addToken);
@@ -29,5 +29,5 @@ export default function setupClientAssignedTokensRESTEndpoints(
     endpoints.getOrganizationTokens
   );
   app.post('/clientAssignedTokens/getToken', endpoints.getToken);
-  app.post('/clientAssignedTokens/updatePresets', endpoints.updatePresets);
+  app.post('/clientAssignedTokens/updateToken', endpoints.updateToken);
 }

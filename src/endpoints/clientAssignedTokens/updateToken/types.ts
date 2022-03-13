@@ -11,7 +11,7 @@ export interface IUpdateClientAssignedTokenParams {
   onReferenced?: boolean;
   providedResourceId?: string;
   organizationId?: string;
-  data: IUpdateClientAssignedTokenInput;
+  token: IUpdateClientAssignedTokenInput;
 }
 
 export interface IUpdateClientAssignedTokenResult {

@@ -1,5 +1,7 @@
+import {omit} from 'lodash';
+import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
+import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
@@ -23,46 +25,59 @@ import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
  * - [Medium] Change to update token for expires
  */
 
-const updateClientAssignedTokenPresets: UpdateClientAssignedTokenEndpoint =
-  async (context, instData) => {
-    const data = validate(
-      instData.data,
-      updateClientAssignedTokenPresetsJoiSchema
-    );
+const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
+  context,
+  instData
+) => {
+  const data = validate(
+    instData.data,
+    updateClientAssignedTokenPresetsJoiSchema
+  );
 
-    const agent = await context.session.getAgent(context, instData);
-    const checkResult = await checkClientAssignedTokenAuthorization03(
-      context,
-      agent,
-      data,
-      BasicCRUDActions.Update
-    );
+  const agent = await context.session.getAgent(context, instData);
+  const checkResult = await checkClientAssignedTokenAuthorization03(
+    context,
+    agent,
+    data,
+    BasicCRUDActions.Update
+  );
 
+  const update: Partial<IClientAssignedToken> = {
+    ...omit(data.token, 'presets'),
+    lastUpdatedAt: getDate(),
+    lastUpdatedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+  };
+
+  if (data.token.presets) {
     await checkPresetsExist(
       context,
       agent,
       checkResult.organization,
-      data.presets
+      data.token.presets
     );
 
-    let token = checkResult.token;
-    token = await context.data.clientAssignedToken.assertUpdateItem(
-      EndpointReusableQueries.getById(checkResult.token.resourceId),
-      {
-        presets: data.presets.map(preset => ({
-          ...preset,
-          assignedAt: getDateString(),
-          assignedBy: {
-            agentId: agent.agentId,
-            agentType: agent.agentType,
-          },
-        })),
-      }
-    );
+    update.presets = data.token.presets.map(preset => ({
+      ...preset,
+      assignedAt: getDateString(),
+      assignedBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+    }));
+  }
 
-    return {
-      token: clientAssignedTokenExtractor(token),
-    };
+  let token = checkResult.token;
+  token = await context.data.clientAssignedToken.assertUpdateItem(
+    EndpointReusableQueries.getById(checkResult.token.resourceId),
+    update
+  );
+
+  return {
+    token: clientAssignedTokenExtractor(token),
   };
+};
 
-export default updateClientAssignedTokenPresets;
+export default updateClientAssignedToken;
