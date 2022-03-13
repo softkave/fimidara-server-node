@@ -10,10 +10,9 @@ import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {TokenType} from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {programAccessTokenConstants} from '../constants';
-import {ProgramAccessTokenUtils} from '../utils';
+import {getPublicToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
 import EndpointReusableQueries from '../../queries';
@@ -87,12 +86,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     });
 
   return {
-    token: ProgramAccessTokenUtils.extractPublicToken(token),
-    tokenStr: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.ProgramAccessToken
-    ),
+    token: getPublicToken(context, token),
   };
 };
 

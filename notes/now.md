@@ -11,3 +11,4 @@
 - Change token expiry to ISO string
 - Store all dates and times as utc
 - Send email and notification to removed collaborators
+- Flatten collaborator organization
