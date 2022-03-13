@@ -13,12 +13,13 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {clientAssignedTokenExtractor} from '../utils';
-import updateClientAssignedTokenPresets from './handler';
+import updateClientAssignedToken from './handler';
 import {IUpdateClientAssignedTokenParams} from './types';
 
 /**
  * TODO:
  * - [Low] Test that hanlder fails if preset doesn't exist
+ * - Test updating other fields
  */
 
 let context: IBaseContext | null = null;
@@ -58,20 +59,22 @@ test('client assigned token presets updated', async () => {
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token01.resourceId,
-        presets: [
-          {
-            presetId: preset01.resourceId,
-            order: 1,
-          },
-          {
-            presetId: preset02.resourceId,
-            order: 2,
-          },
-        ],
+        token: {
+          presets: [
+            {
+              presetId: preset01.resourceId,
+              order: 1,
+            },
+            {
+              presetId: preset02.resourceId,
+              order: 2,
+            },
+          ],
+        },
       }
     );
 
-  const result = await updateClientAssignedTokenPresets(context, instData);
+  const result = await updateClientAssignedToken(context, instData);
   assertEndpointResultOk(result);
 
   const updatedToken = await context.data.clientAssignedToken.assertGetItem(

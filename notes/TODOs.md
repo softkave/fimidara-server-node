@@ -15,6 +15,8 @@
 - Implement folder upload and not requiring file name but generating one when not provided
 - For public resources, determine what data parts public actions affect, like a folder can be public, but a public agent can't change it from public to private
 - Use the endpoints instead of directly saving to db
+- Implement notifications
+- Implement real time updates
 - Update accepted collaboration requests to include the user ID of the recipient for better info in case the user changes their email address
 - Write end-to-end tests
 - Implement stae-whie-revalidate and other http headers and options
