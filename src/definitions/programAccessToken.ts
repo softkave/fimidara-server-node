@@ -25,4 +25,5 @@ export interface IPublicProgramAccessToken {
   lastUpdatedBy?: IAgent;
   organizationId: string;
   presets: IAssignedPresetPermissionsGroup[];
+  tokenStr: string;
 }

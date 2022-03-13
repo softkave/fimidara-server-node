@@ -14,6 +14,7 @@ import {
   makeOrgPermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {TokenType} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
@@ -30,6 +31,7 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   presets: assignedPresetsListExtractor,
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
+  tokenStr: true,
 });
 
 export const programAccessTokenExtractor = makeExtract(
@@ -88,6 +90,20 @@ export async function checkProgramAccessTokenAuthorization02(
 
 export function throwProgramAccessTokenNotFound() {
   throw new NotFoundError('Program access token not found');
+}
+
+export function getPublicToken(
+  context: IBaseContext,
+  token: IProgramAccessToken
+) {
+  return ProgramAccessTokenUtils.extractPublicToken({
+    ...token,
+    tokenStr: context.session.encodeToken(
+      context,
+      token.resourceId,
+      TokenType.ProgramAccessToken
+    ),
+  });
 }
 
 export abstract class ProgramAccessTokenUtils {

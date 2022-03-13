@@ -6,7 +6,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import ProgramAccessTokenQueries from '../queries';
-import {ProgramAccessTokenUtils} from '../utils';
+import {getPublicToken, ProgramAccessTokenUtils} from '../utils';
 import {GetOrganizationProgramAccessTokenEndpoint} from './types';
 import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
 
@@ -53,10 +53,12 @@ const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpo
       )
     );
 
-    const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
+    const allowedTokens = tokens
+      .filter((item, i) => !!permittedReads[i])
+      .map(token => getPublicToken(context, token));
 
     return {
-      tokens: ProgramAccessTokenUtils.extractPublicTokenList(allowedTokens),
+      tokens: allowedTokens,
     };
   };
 
