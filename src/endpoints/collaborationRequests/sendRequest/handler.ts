@@ -26,6 +26,7 @@ import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
+  ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
 
 /**
@@ -120,10 +121,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     assignedPresetsOnAccept: [],
   });
 
-  fireAndForgetPromise(
-    sendEmail(context, request, existingUser, organization.name)
-  );
-
+  fireAndForgetPromise(sendEmail(context, request, existingUser));
   return {
     request: collabRequestExtractor(request),
   };
@@ -132,25 +130,21 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
 async function sendEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
-  toUser: IUser | null,
-  organizationName: string
+  toUser: IUser | null
 ) {
-  const html = collaborationRequestEmailHTML({
-    organizationName,
+  const emailProps: ICollaborationRequestEmailProps = {
+    organizationName: request.organizationName,
     isRecipientAUser: !!toUser,
     loginLink: context.appVariables.clientLoginLink,
     signupLink: context.appVariables.clientSignupLink,
-  });
+    expires: request.expiresAt,
+    message: request.message,
+  };
 
-  const text = collaborationRequestEmailText({
-    organizationName,
-    isRecipientAUser: !!toUser,
-    loginLink: context.appVariables.clientLoginLink,
-    signupLink: context.appVariables.clientSignupLink,
-  });
-
+  const html = collaborationRequestEmailHTML(emailProps);
+  const text = collaborationRequestEmailText(emailProps);
   await context.email.sendEmail(context, {
-    subject: collaborationRequestEmailTitle(organizationName),
+    subject: collaborationRequestEmailTitle(request.organizationName),
     body: {html, text},
     destination: [request.recipientEmail],
     source: context.appVariables.appDefaultEmailAddressFrom,

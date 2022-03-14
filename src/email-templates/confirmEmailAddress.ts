@@ -50,11 +50,11 @@ export function confirmEmailAddressEmailText(
   props: IConfirmEmailAddressEmailProps
 ): string {
   const text = `
-    ${getHeaderText(confirmEmailAddressEmailTitle)}
-    -
-    Hi ${props.firstName}, visit the link below to verify your email address:
-    ${props.link} 
-    `;
+${getHeaderText(confirmEmailAddressEmailTitle)}
+-
+Hi ${props.firstName}, visit the link below to verify your email address:
+${props.link} 
+`;
 
   return text;
 }

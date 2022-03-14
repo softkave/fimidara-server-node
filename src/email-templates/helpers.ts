@@ -15,6 +15,10 @@ export const emailTemplateFonts = `
 
 export const emailTemplateStyles = `
 <style>
+body {
+  font-family: arial;
+}
+
 .${classNamePrefix}-header {
   text-align: left;
 }
@@ -53,7 +57,7 @@ export function getFooterHTML() {
 export function getHeaderHTML(title: string) {
   return `
     <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-      <h1>${defaultStaticVars.appName} | ${title}</h1>
+      <h1>${defaultStaticVars.appName} - <br /> ${title}</h1>
     </header>
     `;
 }
@@ -66,6 +70,18 @@ export function getDoNotReplyHTML() {
     `;
 }
 
+export function getCenteredContentHTML(content: string, withDoNotReply = true) {
+  return `
+<div class="${emailTemplateConstants.classNamePrefix}-body">
+  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+    ${content}
+    ${withDoNotReply ? getDoNotReplyHTML() : ''}
+  </div>
+</div>
+    `;
+}
+
 export function getHeaderText(title: string) {
-  return `${defaultStaticVars.appName} | ${title}`;
+  return `${defaultStaticVars.appName} - 
+${title}`;
 }
