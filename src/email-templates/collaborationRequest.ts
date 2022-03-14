@@ -1,5 +1,7 @@
+import {formatDateTime} from '../utilities/dateFns';
 import {
   emailTemplateStyles,
+  getCenteredContentHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
@@ -10,6 +12,8 @@ export interface ICollaborationRequestEmailProps {
   loginLink: string;
   organizationName: string;
   isRecipientAUser: boolean;
+  message?: string;
+  expires?: string;
 }
 
 export function collaborationRequestEmailTitle(organizationName: string) {
@@ -26,15 +30,22 @@ export function collaborationRequestEmailHTML(
     <head>
         <meta charset="utf-8" />
         <title>${getHeaderText(title)}</title>
-        <style>${emailTemplateStyles}</style>
+        ${emailTemplateStyles}
     </head>
     <body>
         ${getHeaderHTML(title)}
+        ${getCenteredContentHTML(`
         <p>
             You have a new collaboration request from <b>${
               props.organizationName
             }</b>.
         </p>
+        ${props.message ? `<p>Message - <br />${props.message}</p>` : ''}
+        ${
+          props.expires
+            ? `<p>Expires - <br />${formatDateTime(props.expires)}</p>`
+            : ''
+        }
         <p>
             To respond to this request,
             ${
@@ -43,6 +54,7 @@ export function collaborationRequestEmailHTML(
                 : `<a href="${props.signupLink}">Signup here</a>`
             }
         </p>
+        `)}
         ${getFooterHTML()}
     </body>
     </html>
@@ -68,11 +80,13 @@ export function collaborationRequestEmailText(
   }
 
   const txt = `
-    ${getHeaderText(title)}
-    -
-    You have a new collaboration request from ${props.organizationName}
-    -
-    To respond to this request, ${linkText}
+${getHeaderText(title)}
+-
+You have a new collaboration request from ${props.organizationName}.
+${props.message ? `Message - ${props.message}.` : ''}
+${props.expires ? `Expires - ${formatDateTime(props.expires)}` : ''}
+-
+To respond to this request, ${linkText}
   `;
 
   return txt;

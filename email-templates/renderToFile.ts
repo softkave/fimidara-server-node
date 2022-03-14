@@ -9,6 +9,16 @@ import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
 } from '../src/email-templates/forgotPassword';
+import {
+  ICollaborationRequestEmailProps,
+  collaborationRequestEmailHTML,
+  collaborationRequestEmailText,
+} from '../src/email-templates/collaborationRequest';
+import {
+  ICollaborationRequestRevokedEmailProps,
+  collaborationRequestRevokedEmailHTML,
+  collaborationRequestRevokedEmailText,
+} from '../src/email-templates/collaborationRequestRevoked';
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =
@@ -44,4 +54,45 @@ export function renderForgotPasswordMedia() {
   const renderedText = forgotPasswordEmailText(props);
   fs.writeFileSync(forgotPasswordEmailHTMLFile, renderedHTML);
   fs.writeFileSync(forgotPasswordEmailTxtFile, renderedText);
+}
+
+// Collaboration request email
+const collaborationRequestEmailHTMLFile =
+  './email-templates/templates/collaboration-request-html.html';
+const collaborationRequestEmailTxtFile =
+  './email-templates/templates/collaboration-request-text.txt';
+
+export function renderCollaborationRequestMedia() {
+  const props: ICollaborationRequestEmailProps = {
+    organizationName: 'Files by Softkave',
+    isRecipientAUser: true,
+    loginLink: 'https://files.softkave.com/accounts/signup',
+    signupLink: 'https://files.softkave.com/accounts/login',
+    expires: new Date().toISOString(),
+    message:
+      'Test collaboration request message. ' +
+      'Not too long, and not too short.',
+  };
+
+  const renderedHTML = collaborationRequestEmailHTML(props);
+  const renderedText = collaborationRequestEmailText(props);
+  fs.writeFileSync(collaborationRequestEmailHTMLFile, renderedHTML);
+  fs.writeFileSync(collaborationRequestEmailTxtFile, renderedText);
+}
+
+// Collaboration request revoked email
+const collaborationRequestRevokedEmailHTMLFile =
+  './email-templates/templates/collaboration-request-revoked-html.html';
+const collaborationRequestRevokedEmailTxtFile =
+  './email-templates/templates/collaboration-request-revoked-text.txt';
+
+export function renderCollaborationRequestRevokedMedia() {
+  const props: ICollaborationRequestRevokedEmailProps = {
+    organizationName: 'Files by Softkave',
+  };
+
+  const renderedHTML = collaborationRequestRevokedEmailHTML(props);
+  const renderedText = collaborationRequestRevokedEmailText(props);
+  fs.writeFileSync(collaborationRequestRevokedEmailHTMLFile, renderedHTML);
+  fs.writeFileSync(collaborationRequestRevokedEmailTxtFile, renderedText);
 }

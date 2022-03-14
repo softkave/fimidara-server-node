@@ -42,12 +42,12 @@ export function collaborationRequestExpiredEmailText(
 ) {
   const title = `Collaboration Request from ${props.organizationName} Expired`;
   const txt = `
-    ${getHeaderText(title)}
-    -
-    This is to notify you that the collaboration request sent from ${
-      props.organizationName
-    } has been expired.
-    `;
+${getHeaderText(title)}
+-
+This is to notify you that the collaboration request sent from ${
+    props.organizationName
+  } has been expired.
+`;
 
   return txt;
 }

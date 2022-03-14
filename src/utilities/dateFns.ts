@@ -28,5 +28,9 @@ export function getDateStringIfPresent(initial?: any) {
 }
 
 export function formatDate(date: number | string | Date) {
-  return format(new Date(date), 'MMM d YYY');
+  return format(new Date(date), 'MMM d yyyy');
+}
+
+export function formatDateTime(date: number | string | Date) {
+  return format(new Date(date), 'MMM d yyyy, H:mm a');
 }

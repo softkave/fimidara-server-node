@@ -1,5 +1,6 @@
 import {
   emailTemplateStyles,
+  getCenteredContentHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
@@ -25,17 +26,15 @@ export function collaborationRequestRevokedEmailHTML(
     <head>
       <meta charset="utf-8" />
       <title>${getHeaderText(title)}</title>
-      <style>${emailTemplateStyles}</style>
+      ${emailTemplateStyles}
     </head>
     <body>
         ${getHeaderHTML(title)}
+        ${getCenteredContentHTML(`
         <p>
-            This is to notify you that the collaboration request sent from ${
-              props.organizationName
-            } has been revoked.
+            This is to notify you that the collaboration request sent from <b>${props.organizationName}</b> has been revoked.
         </p>
-        <p>
-        </p>
+        `)}
         ${getFooterHTML()}
     </body>
     </html>
@@ -47,12 +46,12 @@ export function collaborationRequestRevokedEmailText(
 ) {
   const title = collaborationRequestRevokedEmailTitle(props.organizationName);
   const txt = `
-    ${getHeaderText(title)}
-    -
-    This is to notify you that the collaboration request sent from ${
-      props.organizationName
-    } has been revoked.
-    `;
+${getHeaderText(title)}
+-
+This is to notify you that the collaboration request sent from ${
+    props.organizationName
+  } has been revoked.
+`;
 
   return txt;
 }

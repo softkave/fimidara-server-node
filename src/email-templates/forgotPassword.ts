@@ -65,22 +65,22 @@ export function forgotPasswordEmailText(
   props: IForgotPasswordEmailProps
 ): string {
   const text = `
-    ${getHeaderText(forgotPasswordEmailTitle)}
-    -
-    To change your password, copy the following link, and visit in your browser:- ${
-      props.link
-    }
-    -
-    This link expires:
-    1. Immediately after you change your password -OR-
-    2. In ${formatDistance(props.expiration, new Date())}, on ${format(
+${getHeaderText(forgotPasswordEmailTitle)}
+-
+To change your password, copy the following link, and visit in your browser:- ${
+    props.link
+  }
+-
+This link expires:
+1. Immediately after you change your password -OR-
+2. In ${formatDistance(props.expiration, new Date())}, on ${format(
     props.expiration,
     'MM/dd/yyyy hh:mm aaa'
   )}.
-    -
-    If you did not request a change of password, please ignore this mail.
-    Do not share this link with anybody, as they will be able to change your password with it.
-    `;
+-
+If you did not request a change of password, please ignore this mail.
+Do not share this link with anybody, as they will be able to change your password with it.
+`;
 
   return text;
 }
