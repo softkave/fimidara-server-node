@@ -2,7 +2,7 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkClientAssignedTokenAuthorization03,
-  ClientAssignedTokenUtils,
+  getPublicClientToken,
 } from '../utils';
 import {GetClientAssignedTokenEndpoint} from './types';
 import {getClientAssignedTokenJoiSchema} from './validation';
@@ -30,7 +30,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
   );
 
   return {
-    token: ClientAssignedTokenUtils.extractPublicToken(token),
+    token: getPublicClientToken(context, token),
   };
 };
 

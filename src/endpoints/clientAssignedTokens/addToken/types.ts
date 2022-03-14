@@ -16,7 +16,6 @@ export interface IAddClientAssignedTokenParams {
 
 export interface IAddClientAssignedTokenResult {
   token: IPublicClientAssignedToken;
-  tokenStr: string;
 }
 
 export type AddClientAssignedTokenEndpoint = Endpoint<

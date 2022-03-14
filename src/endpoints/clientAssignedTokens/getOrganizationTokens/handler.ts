@@ -6,7 +6,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
-import {ClientAssignedTokenUtils} from '../utils';
+import {getPublicClientToken} from '../utils';
 import {GetOrganizationClientAssignedTokenEndpoint} from './types';
 import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
 
@@ -53,9 +53,12 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
       )
     );
 
-    const allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
+    const allowedTokens = tokens
+      .filter((item, i) => !!permittedReads[i])
+      .map(token => getPublicClientToken(context, token));
+
     return {
-      tokens: ClientAssignedTokenUtils.extractPublicTokenList(allowedTokens),
+      tokens: allowedTokens,
     };
   };
 

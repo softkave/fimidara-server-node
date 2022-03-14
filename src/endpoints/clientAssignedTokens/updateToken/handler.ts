@@ -7,7 +7,7 @@ import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {
   checkClientAssignedTokenAuthorization03,
-  clientAssignedTokenExtractor,
+  getPublicClientToken,
 } from '../utils';
 import {UpdateClientAssignedTokenEndpoint} from './types';
 import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
@@ -76,7 +76,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   return {
-    token: clientAssignedTokenExtractor(token),
+    token: getPublicClientToken(context, token),
   };
 };
 

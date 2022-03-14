@@ -1,7 +1,6 @@
 import {add} from 'date-fns';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {IAppVariables} from '../../../resources/appVariables';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -10,20 +9,13 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
-  IBaseContext,
-  IBaseContextDataProviders,
-} from '../../contexts/BaseContext';
-import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
-import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
-import {
   CURRENT_TOKEN_VERSION,
   getOrganizationId,
-  TokenType,
 } from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
-import {ClientAssignedTokenUtils} from '../utils';
+import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
 
@@ -97,32 +89,9 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     });
   }
 
-  return toAddTokenResult(token, context);
+  return {
+    token: getPublicClientToken(context, token),
+  };
 };
 
 export default addClientAssignedToken;
-function toAddTokenResult(
-  token: IClientAssignedToken,
-  context: IBaseContext<
-    IBaseContextDataProviders,
-    IEmailProviderContext,
-    IFilePersistenceProviderContext,
-    IAppVariables
-  >
-):
-  | (import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/clientAssignedTokens/addToken/types').IAddClientAssignedTokenResult &
-      import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/types').IBaseEndpointResult)
-  | PromiseLike<
-      import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/clientAssignedTokens/addToken/types').IAddClientAssignedTokenResult &
-        import('c:/Users/yword/Desktop/projects/files/files-server-node/src/endpoints/types').IBaseEndpointResult
-    > {
-  return {
-    token: ClientAssignedTokenUtils.extractPublicToken(token),
-    tokenStr: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.ClientAssignedToken,
-      token.expires
-    ),
-  };
-}

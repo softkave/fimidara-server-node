@@ -15,6 +15,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {
   assertGetOrganizationIdFromAgent,
   getClientAssignedTokenIdNoThrow,
+  TokenType,
 } from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
@@ -36,6 +37,7 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
   presets: assignedPresetsListExtractor,
+  tokenStr: true,
 });
 
 export const clientAssignedTokenExtractor = makeExtract(
@@ -151,4 +153,19 @@ export function throwClientAssignedTokenNotFound() {
 export abstract class ClientAssignedTokenUtils {
   static extractPublicToken = clientAssignedTokenExtractor;
   static extractPublicTokenList = clientAssignedTokenListExtractor;
+}
+
+export function getPublicClientToken(
+  context: IBaseContext,
+  token: IClientAssignedToken
+) {
+  return ClientAssignedTokenUtils.extractPublicToken({
+    ...token,
+    tokenStr: context.session.encodeToken(
+      context,
+      token.resourceId,
+      TokenType.ClientAssignedToken,
+      token.expires
+    ),
+  });
 }

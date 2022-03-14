@@ -1,7 +1,10 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
-import {checkProgramAccessTokenAuthorization02, getPublicToken} from '../utils';
+import {
+  checkProgramAccessTokenAuthorization02,
+  getPublicProgramToken,
+} from '../utils';
 import {GetProgramAccessTokenEndpoint} from './types';
 import {getProgramAccessTokenJoiSchema} from './validation';
 
@@ -34,7 +37,7 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
   );
 
   return {
-    token: getPublicToken(context, token),
+    token: getPublicProgramToken(context, token),
   };
 };
 

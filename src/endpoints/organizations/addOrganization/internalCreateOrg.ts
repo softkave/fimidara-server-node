@@ -53,7 +53,7 @@ const internalCreateOrg = async (
     );
   }
 
-  return organization;
+  return {organization, adminPreset, publicPreset};
 };
 
 export default internalCreateOrg;

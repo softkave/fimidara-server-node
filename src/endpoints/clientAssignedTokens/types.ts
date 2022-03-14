@@ -13,4 +13,5 @@ export interface IPublicClientAssignedToken {
   presets: IAssignedPresetPermissionsGroup[];
   issuedAt: string;
   expires?: number;
+  tokenStr: string;
 }
