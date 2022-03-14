@@ -12,7 +12,7 @@ export default function setupPermissionItemsRESTEndpoints(
   const endpoints = {
     addPermissionItems: wrapEndpointREST(addPermissionItems, ctx),
     deletePermissionItems: wrapEndpointREST(deletePermissionItems, ctx),
-    getPermissionEntityItems: wrapEndpointREST(getEntityPermissionItems, ctx),
+    getEntityPermissionItems: wrapEndpointREST(getEntityPermissionItems, ctx),
   };
 
   app.post('/permissionItems/addPermissionItems', endpoints.addPermissionItems);
@@ -21,7 +21,7 @@ export default function setupPermissionItemsRESTEndpoints(
     endpoints.deletePermissionItems
   );
   app.post(
-    '/permissionItems/getPermissionEntityItems',
-    endpoints.getPermissionEntityItems
+    '/permissionItems/getEntityPermissionItems',
+    endpoints.getEntityPermissionItems
   );
 }

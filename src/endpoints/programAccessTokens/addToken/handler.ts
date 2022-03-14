@@ -12,7 +12,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import {programAccessTokenConstants} from '../constants';
-import {getPublicToken} from '../utils';
+import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
 import EndpointReusableQueries from '../../queries';
@@ -86,7 +86,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     });
 
   return {
-    token: getPublicToken(context, token),
+    token: getPublicProgramToken(context, token),
   };
 };
 

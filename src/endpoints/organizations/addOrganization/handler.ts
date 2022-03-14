@@ -18,7 +18,7 @@ const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
     agentType: SessionAgentType.User,
   };
 
-  const organization = await internalCreateOrg(context, data, agent, user);
+  const {organization} = await internalCreateOrg(context, data, agent, user);
   return {
     organization: organizationExtractor(organization),
   };

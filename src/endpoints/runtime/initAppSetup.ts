@@ -11,7 +11,6 @@ import getNewId from '../../utilities/getNewId';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
 import OrganizationQueries from '../organizations/queries';
-import {setupDefaultOrgPresets} from '../organizations/addOrganization/utils';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IAppRuntimeVars} from '../../resources/appVariables';
@@ -33,11 +32,11 @@ import internalCreateOrg from '../organizations/addOrganization/internalCreateOr
 const folder01Path = '/files';
 const folder02Path = '/files/images';
 const appSetupVars = {
-  orgName: 'files-by-softkave',
+  orgName: 'Files by softkave',
   orgImagesFolderPath: folder02Path + '/orgs',
   userImagesFolderPath: folder02Path + '/users',
-  orgsImageUploadPresetName: 'files-orgs-image-upload',
-  usersImageUploadPresetName: 'files-users-image-upload',
+  orgsImageUploadPresetName: 'Files-orgs-image-upload',
+  usersImageUploadPresetName: 'Files-users-image-upload',
 };
 
 async function setupOrg(context: IBaseContext, name: string) {
@@ -64,7 +63,7 @@ async function setupDefaultUserCollaborationRequest(
     message:
       'System-generated collaboration request ' +
       "to the system-generated organization that manages File's " +
-      'own operations.',
+      'own operations',
     organizationName: organization.name,
     organizationId: organization.resourceId,
     recipientEmail: userEmail,
@@ -142,15 +141,16 @@ async function setupImageUploadPermissionGroup(
   context: IBaseContext,
   orgId: string,
   name: string,
+  description: string,
   folderId: string
 ) {
   const imageUploadPreset = await context.data.preset.saveItem({
     name,
+    description,
     resourceId: getNewId(),
     organizationId: orgId,
     createdAt: getDateString(),
     createdBy: systemAgent,
-    description: 'Auto-generated preset for uploading images.',
     presets: [],
   });
 
@@ -192,8 +192,11 @@ export async function setupApp(context: IBaseContext) {
     );
   }
 
-  const org = await setupOrg(context, appSetupVars.orgName);
-  const {adminPreset} = await setupDefaultOrgPresets(context, systemAgent, org);
+  const {adminPreset, organization: org} = await setupOrg(
+    context,
+    appSetupVars.orgName
+  );
+
   await setupDefaultUserCollaborationRequest(
     context,
     org,
@@ -206,6 +209,7 @@ export async function setupApp(context: IBaseContext) {
     context,
     org.resourceId,
     appSetupVars.orgsImageUploadPresetName,
+    'Auto-generated preset for uploading images to the organization images folder',
     orgImagesFolder.resourceId
   );
 
@@ -213,6 +217,7 @@ export async function setupApp(context: IBaseContext) {
     context,
     org.resourceId,
     appSetupVars.orgsImageUploadPresetName,
+    'Auto-generated preset for uploading images to the user images folder',
     userImagesFolder.resourceId
   );
 

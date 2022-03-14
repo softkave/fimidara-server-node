@@ -92,7 +92,7 @@ export function throwProgramAccessTokenNotFound() {
   throw new NotFoundError('Program access token not found');
 }
 
-export function getPublicToken(
+export function getPublicProgramToken(
   context: IBaseContext,
   token: IProgramAccessToken
 ) {

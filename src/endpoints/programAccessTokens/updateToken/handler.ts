@@ -5,7 +5,10 @@ import {validate} from '../../../utilities/validate';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import ProgramAccessTokenQueries from '../queries';
-import {checkProgramAccessTokenAuthorization02, getPublicToken} from '../utils';
+import {
+  checkProgramAccessTokenAuthorization02,
+  getPublicProgramToken,
+} from '../utils';
 import {UpdateProgramAccessTokenEndpoint} from './types';
 import {updateProgramAccessTokenJoiSchema} from './validation';
 
@@ -73,7 +76,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   );
 
   return {
-    token: getPublicToken(context, token),
+    token: getPublicProgramToken(context, token),
   };
 };
 

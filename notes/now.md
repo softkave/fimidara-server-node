@@ -12,3 +12,5 @@
 - Store all dates and times as utc
 - Send email and notification to removed collaborators
 - Flatten collaborator organization
+- Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app.
+- Consistent '.' at the end of descriptions and messages

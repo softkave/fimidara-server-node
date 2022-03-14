@@ -74,3 +74,5 @@
 - change API passed ids to resource ID
 - Test time diff supplied that the full value is saved
 - Let users paya for special/configurable memory caching space
+- Filesystem file provider
+- Cache control for files
