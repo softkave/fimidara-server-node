@@ -5,6 +5,7 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
+import {PermissionDeniedError} from '../../user/errors';
 import PresetPermissionsGroupQueries from '../queries';
 import {PresetPermissionsGroupUtils} from '../utils';
 import {GetOrganizationPresetPermissionsGroupsEndpoint} from './types';
@@ -54,6 +55,11 @@ const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGr
     );
 
     const allowedItems = items.filter((item, i) => !!permittedReads[i]);
+
+    if (allowedItems.length === 0 && items.length > 0) {
+      throw new PermissionDeniedError();
+    }
+
     return {
       presets:
         PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroupList(

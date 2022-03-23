@@ -1,6 +1,6 @@
 import {defaultStaticVars} from '../resources/appVariables';
 
-const maxWidth = '500px';
+const maxWidth = '700px';
 const classNamePrefix = 'fbs'; // files by softkave
 export const emailTemplateConstants = {
   maxWidth,

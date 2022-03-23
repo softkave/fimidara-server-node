@@ -65,11 +65,10 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     }
 
     token = await context.data.clientAssignedToken.saveItem({
-      expires:
-        data.token.expires &&
-        add(Date.now(), {seconds: data.token.expires}).valueOf(),
+      expires: data.token.expires,
       organizationId: organization.resourceId,
       resourceId: getNewId(),
+      providedResourceId: data.token.providedResourceId,
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,

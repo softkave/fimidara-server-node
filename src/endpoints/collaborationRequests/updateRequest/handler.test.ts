@@ -1,4 +1,4 @@
-import {add, differenceInSeconds} from 'date-fns';
+import {add} from 'date-fns';
 import * as faker from 'faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
@@ -37,7 +37,7 @@ test('collaboration request updated', async () => {
 
   const updateRequestInput: IUpdateCollaborationRequestInput = {
     message: faker.lorem.paragraph(),
-    expiresAt: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+    expiresAt: add(Date.now(), {days: 1}).toISOString(),
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateRequestParams>(

@@ -8,7 +8,7 @@ import {
 } from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
+import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {ISplitFilePathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
@@ -64,7 +64,7 @@ export async function internalUpdateFile(
   );
 
   if (data.publicAccessActions) {
-    await updatePublicPresetAccessOps(
+    await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,
       organization,

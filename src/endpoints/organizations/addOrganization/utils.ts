@@ -16,6 +16,113 @@ import EndpointReusableQueries from '../../queries';
 
 export const DEFAULT_ADMIN_PRESET_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PRESET_NAME = 'Public';
+export const DEFAULT_COLLABORATOR_PRESET_NAME = 'Collaborator';
+
+function makeAdminPermissions(
+  agent: IAgent,
+  organization: IOrganization,
+  adminPreset: IPresetPermissionsGroup
+) {
+  const permissionItems: IPermissionItem[] = [AppResourceType.All].map(type => {
+    return {
+      resourceId: getNewId(),
+      organizationId: organization.resourceId,
+      createdAt: getDateString(),
+      createdBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+      permissionOwnerId: organization.resourceId,
+      permissionOwnerType: AppResourceType.Organization,
+      permissionEntityId: adminPreset.resourceId,
+      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      itemResourceType: type,
+      action: BasicCRUDActions.All,
+    };
+  });
+
+  return permissionItems;
+}
+
+function makeCollaboratorPermissions(
+  agent: IAgent,
+  organization: IOrganization,
+  preset: IPresetPermissionsGroup
+) {
+  function makePermission(
+    actions: BasicCRUDActions[],
+    itemResourceType: AppResourceType,
+    itemResourceId?: string
+  ) {
+    return actions.map(action => ({
+      itemResourceType,
+      action,
+      itemResourceId,
+      resourceId: getNewId(),
+      organizationId: organization.resourceId,
+      createdAt: getDateString(),
+      createdBy: {
+        agentId: agent.agentId,
+        agentType: agent.agentType,
+      },
+      permissionOwnerId: organization.resourceId,
+      permissionOwnerType: AppResourceType.Organization,
+      permissionEntityId: preset.resourceId,
+      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+    }));
+  }
+
+  let permissionItems: IPermissionItem[] = [];
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.Organization,
+      organization.resourceId
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.ProgramAccessToken,
+      organization.resourceId
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.ClientAssignedToken,
+      organization.resourceId
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      AppResourceType.Folder,
+      organization.resourceId
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      AppResourceType.File,
+      organization.resourceId
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.User,
+      organization.resourceId
+    )
+  );
+
+  return permissionItems;
+}
 
 export async function setupDefaultOrgPresets(
   context: IBaseContext,
@@ -44,27 +151,32 @@ export async function setupDefaultOrgPresets(
     presets: [],
   };
 
-  await context.data.preset.bulkSaveItems([adminPreset, publicPreset]);
-  const permissionItems: IPermissionItem[] = [AppResourceType.All].map(type => {
-    return {
-      resourceId: getNewId(),
-      organizationId: organization.resourceId,
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
-      permissionEntityId: adminPreset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
-      itemResourceType: type,
-      action: BasicCRUDActions.All,
-    };
-  });
+  const collaboratorPreset: IPresetPermissionsGroup = {
+    resourceId: getNewId(),
+    organizationId: organization.resourceId,
+    createdAt: getDateString(),
+    createdBy: agent,
+    name: DEFAULT_COLLABORATOR_PRESET_NAME,
+    description: 'Auto-generated preset for collaborators.',
+    presets: [],
+  };
+
+  await context.data.preset.bulkSaveItems([
+    adminPreset,
+    publicPreset,
+    collaboratorPreset,
+  ]);
+
+  const permissionItems: IPermissionItem[] = makeAdminPermissions(
+    agent,
+    organization,
+    adminPreset
+  ).concat(
+    makeCollaboratorPermissions(agent, organization, collaboratorPreset)
+  );
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
-  return {adminPreset, publicPreset};
+  return {adminPreset, publicPreset, collaboratorPreset};
 }
 
 export async function addOrgToUserAndAssignAdminPreset(

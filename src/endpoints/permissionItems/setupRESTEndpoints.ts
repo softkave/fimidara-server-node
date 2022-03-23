@@ -1,27 +1,50 @@
 import {Express} from 'express';
-import addPermissionItems from './addItems/handler';
-import deletePermissionItems from './deleteItems/handler';
-import getEntityPermissionItems from './getEntityPermissionItems/handler';
+import replacePermissionItemsByEntity from './replaceItemsByEntity/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
+import getEntityPermissionItems from './getEntityPermissionItems/handler';
+import replacePermissionItemsByResource from './replaceItemsByResource/handler';
+import getResourcePermissionItems from './getResourcePermissionItems/handler';
 
 export default function setupPermissionItemsRESTEndpoints(
   ctx: IBaseContext,
   app: Express
 ) {
   const endpoints = {
-    addPermissionItems: wrapEndpointREST(addPermissionItems, ctx),
-    deletePermissionItems: wrapEndpointREST(deletePermissionItems, ctx),
+    replacePermissionItemsByEntity: wrapEndpointREST(
+      replacePermissionItemsByEntity,
+      ctx
+    ),
+
     getEntityPermissionItems: wrapEndpointREST(getEntityPermissionItems, ctx),
+    replacePermissionItemsByResource: wrapEndpointREST(
+      replacePermissionItemsByResource,
+      ctx
+    ),
+
+    getResourcePermissionItems: wrapEndpointREST(
+      getResourcePermissionItems,
+      ctx
+    ),
   };
 
-  app.post('/permissionItems/addPermissionItems', endpoints.addPermissionItems);
   app.post(
-    '/permissionItems/deletePermissionItems',
-    endpoints.deletePermissionItems
+    '/permissionItems/replacePermissionItemsByEntity',
+    endpoints.replacePermissionItemsByEntity
   );
+
   app.post(
     '/permissionItems/getEntityPermissionItems',
     endpoints.getEntityPermissionItems
+  );
+
+  app.post(
+    '/permissionItems/replacePermissionItemsByResource',
+    endpoints.replacePermissionItemsByResource
+  );
+
+  app.post(
+    '/permissionItems/getResourcePermissionItems',
+    endpoints.getResourcePermissionItems
   );
 }

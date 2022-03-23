@@ -14,3 +14,14 @@
 - Flatten collaborator organization
 - Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app.
 - Consistent '.' at the end of descriptions and messages
+- Each organization should have a folder
+- get permission items by resource
+- add permission items
+- delete permission items
+- save and replace permission items
+- use a hashed string for mapping equality for permission items
+- get resource endpoint, taking id and type
+- add index to fields to be indexed for mongo
+- org ID should be be conditional in inputs like for the tokens
+- delete permission items when entity, owner, or resource is deleted
+- robust delete permission items

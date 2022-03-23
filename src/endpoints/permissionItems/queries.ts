@@ -38,6 +38,41 @@ function getByResource(resourceId: string, resourceType: AppResourceType) {
     .build();
 }
 
+function getByOwnerAndResource(
+  ownerId: string,
+  ownerType: AppResourceType,
+  resourceType: AppResourceType,
+  resourceId?: string
+) {
+  const filter = newFilter()
+    .addItem(
+      'permissionOwnerId',
+      ownerId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'permissionOwnerType',
+      ownerType,
+      DataProviderFilterValueOperator.Equal
+    )
+
+    .addItem(
+      'itemResourceType',
+      resourceType,
+      DataProviderFilterValueOperator.Equal
+    );
+
+  if (!resourceId) {
+    filter.addItem(
+      'itemResourceId',
+      resourceId,
+      DataProviderFilterValueOperator.Equal
+    );
+  }
+
+  return filter.build();
+}
+
 function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
   return newFilter()
     .addItem(
@@ -91,4 +126,5 @@ export default abstract class PermissionItemQueries {
   static getByResource = getByResource;
   static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
   static getByPermissionEntityAndOwner = getByPermissionEntityAndOwner;
+  static getByOwnerAndResource = getByOwnerAndResource;
 }

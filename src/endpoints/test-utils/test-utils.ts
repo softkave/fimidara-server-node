@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {add, differenceInSeconds} from 'date-fns';
+import {add} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
@@ -39,11 +39,11 @@ import {IAddFolderParams, INewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
 import addOrganization from '../organizations/addOrganization/handler';
 import {IAddOrganizationParams} from '../organizations/addOrganization/types';
-import addPermissionItems from '../permissionItems/addItems/handler';
+import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
 import {
-  IAddPermissionItemsParams,
-  INewPermissionItemInput,
-} from '../permissionItems/addItems/types';
+  IReplacePermissionItemsByEntityParams,
+  INewPermissionItemInputByEntity,
+} from '../permissionItems/replaceItemsByEntity/types';
 import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
   IAddPresetPermissionsGroupParams,
@@ -301,7 +301,7 @@ export async function insertRequestForTest(
       request: {
         recipientEmail: faker.internet.email(),
         message: faker.lorem.paragraph(),
-        expires: differenceInSeconds(add(Date.now(), {days: 10}), Date.now()),
+        expires: add(Date.now(), {days: 10}).toISOString(),
         ...requestInput,
       },
     }
@@ -325,7 +325,7 @@ export async function insertClientAssignedTokenForTest(
         organizationId,
         token: {
           presets: [],
-          expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+          expires: add(Date.now(), {days: 1}).toISOString(),
           ...requestInput,
         },
       }
@@ -366,7 +366,7 @@ export interface ITestPermissionItemOwner {
 }
 
 export interface ITestPermissionItemBase
-  extends Partial<INewPermissionItemInput> {
+  extends Partial<INewPermissionItemInputByEntity> {
   itemResourceType: AppResourceType;
 }
 
@@ -374,13 +374,15 @@ export function makeTestPermissionItemInputs(
   owner: ITestPermissionItemOwner,
   base: ITestPermissionItemBase
 ) {
-  const items: INewPermissionItemInput[] = crudActionsList.map(action => ({
-    ...base,
-    ...owner,
-    action: action as BasicCRUDActions,
-    isExclusion: faker.datatype.boolean(),
-    isForPermissionOwnerOnly: faker.datatype.boolean(),
-  }));
+  const items: INewPermissionItemInputByEntity[] = crudActionsList.map(
+    action => ({
+      ...base,
+      ...owner,
+      action: action as BasicCRUDActions,
+      isExclusion: faker.datatype.boolean(),
+      isForPermissionOwnerOnly: faker.datatype.boolean(),
+    })
+  );
 
   return items;
 }
@@ -394,16 +396,17 @@ export async function insertPermissionItemsForTestUsingOwnerAndBase(
   base: ITestPermissionItemBase
 ) {
   const itemsInput = makeTestPermissionItemInputs(owner, base);
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      ...entity,
-      organizationId: organizationId,
-      items: itemsInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        ...entity,
+        organizationId: organizationId,
+        items: itemsInput,
+      }
+    );
 
-  const result = await addPermissionItems(context, instData);
+  const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   expectItemsContain(result.items, itemsInput);
   return result;
@@ -414,18 +417,19 @@ export async function insertPermissionItemsForTestUsingItems(
   userToken: IUserToken,
   organizationId: string,
   entity: IPermissionEntity,
-  items: INewPermissionItemInput[]
+  items: INewPermissionItemInputByEntity[]
 ) {
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      ...entity,
-      items,
-      organizationId: organizationId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        ...entity,
+        items,
+        organizationId: organizationId,
+      }
+    );
 
-  const result = await addPermissionItems(context, instData);
+  const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   expect(result.items.length).toEqual(items.length);
   return result;

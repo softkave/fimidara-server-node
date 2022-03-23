@@ -10,7 +10,7 @@ import {compactPublicAccessOps} from '../../../definitions/utils';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
+import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization03, folderExtractor} from '../utils';
 import {UpdateFolderEndpoint} from './types';
@@ -73,7 +73,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   );
 
   if (hasPublicAccessOpsChanges) {
-    await updatePublicPresetAccessOps(
+    await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,
       organization,

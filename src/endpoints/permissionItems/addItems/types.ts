@@ -13,19 +13,19 @@ export interface INewPermissionItemInput {
   isForPermissionOwnerOnly?: boolean;
 }
 
-export interface IAddPermissionItemsParams {
+export interface IReplacePermissionItemsByEntityParams {
   organizationId: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
   items: INewPermissionItemInput[];
 }
 
-export interface IAddPermissionItemsResult {
+export interface IReplacePermissionItemsByEntityResult {
   items: IPublicPermissionItem[];
 }
 
-export type AddPermissionItemsEndpoint = Endpoint<
+export type ReplacePermissionItemsByEntityEndpoint = Endpoint<
   IBaseContext,
-  IAddPermissionItemsParams,
-  IAddPermissionItemsResult
+  IReplacePermissionItemsByEntityParams,
+  IReplacePermissionItemsByEntityResult
 >;

@@ -1,16 +1,15 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {validate} from '../../../utilities/validate';
 import {checkOrganizationExists} from '../../organizations/utils';
-import checkEntityExists from '../checkEntityExists';
-import checkOwnersExist from '../checkOwnersExist';
+import checkEntitiesExist from '../checkEntitiesExist';
+import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import {PermissionItemUtils} from '../utils';
 import {savePermissionItems} from './savePermissionItems';
-import {AddPermissionItemsEndpoint} from './types';
-import {addPermissionItemsJoiSchema} from './validation';
+import {ReplacePermissionItemsByEntityEndpoint} from './types';
+import {replacePermissionItemsByEntityJoiSchema} from './validation';
 
 /**
- * addPermissionItems.
- * Creates permission items.
+ * Creates permission items that replace the existing ones.
  *
  * Ensure that:
  * - Auth check
@@ -23,35 +22,42 @@ import {addPermissionItemsJoiSchema} from './validation';
  * - [High] Check that resource exists in the organization
  */
 
-const addPermissionItems: AddPermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, addPermissionItemsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint =
+  async (context, instData) => {
+    const data = validate(
+      instData.data,
+      replacePermissionItemsByEntityJoiSchema
+    );
+    const agent = await context.session.getAgent(context, instData);
+    const organization = await checkOrganizationExists(
+      context,
+      data.organizationId
+    );
 
-  await checkEntityExists(
-    context,
-    agent,
-    organization.resourceId,
-    data.permissionEntityId,
-    data.permissionEntityType
-  );
+    await checkEntitiesExist(
+      context,
+      agent,
+      organization.resourceId,
+      data.permissionEntityId,
+      data.permissionEntityType
+    );
 
-  await checkOwnersExist(context, agent, organization, data.items, true);
-  const items: IPermissionItem[] = await savePermissionItems(
-    context,
-    agent,
-    data
-  );
+    await checkPermissionOwnersExist(
+      context,
+      agent,
+      organization,
+      data.items,
+      true
+    );
+    const items: IPermissionItem[] = await savePermissionItems(
+      context,
+      agent,
+      data
+    );
 
-  return {
-    items: PermissionItemUtils.extractPublicPermissionItemList(items),
+    return {
+      items: PermissionItemUtils.extractPublicPermissionItemList(items),
+    };
   };
-};
 
-export default addPermissionItems;
+export default replacePermissionItemsByEntity;

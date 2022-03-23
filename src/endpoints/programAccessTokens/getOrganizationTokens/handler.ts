@@ -5,6 +5,7 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
+import {PermissionDeniedError} from '../../user/errors';
 import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken, ProgramAccessTokenUtils} from '../utils';
 import {GetOrganizationProgramAccessTokenEndpoint} from './types';
@@ -56,6 +57,10 @@ const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpo
     const allowedTokens = tokens
       .filter((item, i) => !!permittedReads[i])
       .map(token => getPublicProgramToken(context, token));
+
+    if (allowedTokens.length === 0 && tokens.length > 0) {
+      throw new PermissionDeniedError();
+    }
 
     return {
       tokens: allowedTokens,

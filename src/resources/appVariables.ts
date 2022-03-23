@@ -252,8 +252,8 @@ export function extractEnvVariables(
 
   const vars: IAppVariables = {
     ...defaultStaticVars,
-    clientLoginLink: `${envVariables.clientDomain}/login`,
-    clientSignupLink: `${envVariables.clientDomain}/signup`,
+    clientLoginLink: `${envVariables.clientDomain}/account/login`,
+    clientSignupLink: `${envVariables.clientDomain}/account/signup`,
 
     // Added after the app initialization phase
     appOrganizationId: '',
