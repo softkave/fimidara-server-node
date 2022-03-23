@@ -9,6 +9,7 @@ import {
 } from '../../definitions/system';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import cast from '../../utilities/fns';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -96,14 +97,14 @@ export function getPublicProgramToken(
   context: IBaseContext,
   token: IProgramAccessToken
 ) {
-  return ProgramAccessTokenUtils.extractPublicToken({
-    ...token,
-    tokenStr: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.ProgramAccessToken
-    ),
-  });
+  const tokenStr = context.session.encodeToken(
+    context,
+    token.resourceId,
+    TokenType.ProgramAccessToken
+  );
+
+  cast<IPublicProgramAccessToken>(token).tokenStr = tokenStr;
+  return ProgramAccessTokenUtils.extractPublicToken(token);
 }
 
 export abstract class ProgramAccessTokenUtils {

@@ -5,7 +5,7 @@ import {IPublicClientAssignedToken} from '../types';
 
 export interface INewClientAssignedTokenInput {
   providedResourceId?: string;
-  expires?: number;
+  expires?: string;
   presets?: IPresetInput[];
 }
 

@@ -16,7 +16,7 @@ export interface IClientAssignedToken {
   // not same as iat in token, may be a litte bit behind or after
   // and is a ISO string, where iat is time in seconds
   issuedAt: Date | string;
-  expires?: number;
+  expires?: Date | string;
   // meta?: Record<string, string | number | boolean | null>;
   // authURL: string;
 }

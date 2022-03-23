@@ -1,4 +1,4 @@
-import {add, differenceInSeconds} from 'date-fns';
+import {add} from 'date-fns';
 import * as faker from 'faker';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -31,7 +31,7 @@ test('collaboration request sent', async () => {
   const requestInput: ICollaborationRequestInput = {
     recipientEmail: user02.email,
     message: faker.lorem.paragraph(),
-    expires: differenceInSeconds(add(Date.now(), {days: 1}), Date.now()),
+    expires: add(Date.now(), {days: 1}).toISOString(),
   };
 
   const {request: request01} = await insertRequestForTest(

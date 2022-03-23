@@ -12,8 +12,8 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import {savePermissionItems} from './addItems/savePermissionItems';
-import {INewPermissionItemInput} from './addItems/types';
+import {internalReplacePermissionItemsByEntity} from './replaceItemsByEntity/internalReplaceItemsByEntity';
+import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 import PermissionItemQueries from './queries';
 import {IPublicPermissionItem} from './types';
 
@@ -79,7 +79,7 @@ export function makePermissionItemInputsFromPublicAccessOps(
   permissionOwnerType: AppResourceType,
   ops: IPublicAccessOpInput[],
   itemResourceId?: string
-): INewPermissionItemInput[] {
+): INewPermissionItemInputByEntity[] {
   return ops.map(op => ({
     permissionOwnerId,
     permissionOwnerType,
@@ -89,7 +89,7 @@ export function makePermissionItemInputsFromPublicAccessOps(
   }));
 }
 
-export async function updatePublicPresetAccessOps(
+export async function replacePublicPresetAccessOpsByPermissionOwner(
   context: IBaseContext,
   agent: IAgent,
   organization: IOrganization,
@@ -99,46 +99,6 @@ export async function updatePublicPresetAccessOps(
   itemResourceId?: string
 ) {
   if (organization.publicPresetId) {
-    // if (removeOps.length > 0) {
-    //   // TODO: I think this will be slow, so we should run
-    //   // performance profiling and find ways to improve it
-
-    //   const permissionItems = await context.data.permissionItem.getManyItems(
-    //     PermissionItemQueries.getByPermissionEntityAndOwner(
-    //       organization.publicPresetId,
-    //       AppResourceType.PresetPermissionsGroup,
-    //       permissionOwnerId,
-    //       permissionOwnerType
-    //     )
-    //   );
-
-    //   const inputs = makePermissionItemInputsFromPublicAccessOps(
-    //     permissionOwnerId,
-    //     permissionOwnerType,
-    //     removeOps,
-    //     itemResourceId
-    //   );
-
-    //   const staleItems = differenceWith(
-    //     permissionItems as INewPermissionItemInput[],
-    //     inputs,
-    //     (item01, item02) =>
-    //       item01.permissionOwnerId !== item02.permissionOwnerId &&
-    //       item01.permissionOwnerType !== item02.permissionOwnerType &&
-    //       item01.action !== item02.action &&
-    //       item01.itemResourceId !== item02.itemResourceId &&
-    //       item01.itemResourceType !== item02.itemResourceType
-    //   ) as IPermissionItem[];
-
-    //   await Promise.all(
-    //     staleItems.map(item =>
-    //       context.data.permissionItem.deleteItem(
-    //         EndpointReusableQueries.getById(item.resourceId)
-    //       )
-    //     )
-    //   );
-    // }
-
     await context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntityAndOwner(
         organization.publicPresetId,
@@ -149,7 +109,7 @@ export async function updatePublicPresetAccessOps(
     );
 
     if (addOps.length > 0) {
-      await savePermissionItems(context, agent, {
+      await internalReplacePermissionItemsByEntity(context, agent, {
         organizationId: organization.resourceId,
         permissionEntityId: organization.publicPresetId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
@@ -163,6 +123,9 @@ export async function updatePublicPresetAccessOps(
     }
   }
 }
+
+export const permissionItemIndexer = (item: INewPermissionItemInputByEntity) =>
+  `${item.permissionOwnerId}-${item.permissionOwnerType}-${item.itemResourceId}-${item.itemResourceType}-${item.action}-${item.isExclusion}-${item.isForPermissionOwnerOnly}`;
 
 export abstract class PermissionItemUtils {
   static extractPublicPermissionItem = permissionItemExtractor;

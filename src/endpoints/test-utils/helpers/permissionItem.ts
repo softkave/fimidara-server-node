@@ -1,25 +1,11 @@
 import {indexArray} from '../../../utilities/indexArray';
-import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
+import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
+import {permissionItemIndexer} from '../../permissionItems/utils';
 
 export function expectItemsContain(
-  expectedItems: INewPermissionItemInput[],
-  matches: INewPermissionItemInput[]
+  expectedItems: INewPermissionItemInputByEntity[],
+  matches: INewPermissionItemInputByEntity[]
 ) {
-  const permissionItemIndexer = (item: INewPermissionItemInput) =>
-    item.permissionOwnerId +
-    '-' +
-    item.permissionOwnerType +
-    '-' +
-    item.itemResourceId +
-    '-' +
-    item.itemResourceType +
-    '-' +
-    item.action +
-    '-' +
-    item.isExclusion +
-    '-' +
-    item.isForPermissionOwnerOnly;
-
   const publicPresetPermissionitemsMap = indexArray(expectedItems, {
     indexer: permissionItemIndexer,
   });

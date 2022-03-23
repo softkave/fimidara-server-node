@@ -5,7 +5,7 @@ import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
+import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {ISplitFilePathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileParams} from './types';
@@ -60,7 +60,7 @@ export async function internalCreateFile(
     encoding: data.encoding,
   });
 
-  await updatePublicPresetAccessOps(
+  await replacePublicPresetAccessOpsByPermissionOwner(
     context,
     agent,
     organization,

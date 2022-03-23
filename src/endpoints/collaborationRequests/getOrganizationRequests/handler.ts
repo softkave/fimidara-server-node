@@ -6,6 +6,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
+import {PermissionDeniedError} from '../../user/errors';
 import {collabRequestListExtractor} from '../utils';
 import {GetOrganizationRequestsEndpoint} from './types';
 import {getOrganizationRequestsJoiSchema} from './validation';
@@ -52,6 +53,11 @@ const getOrganizationRequests: GetOrganizationRequestsEndpoint = async (
   );
 
   const allowedRequests = requests.filter((item, i) => !!permittedReads[i]);
+
+  if (allowedRequests.length === 0 && requests.length > 0) {
+    throw new PermissionDeniedError();
+  }
+
   return {
     requests: collabRequestListExtractor(allowedRequests),
   };

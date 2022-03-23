@@ -49,6 +49,15 @@ export async function checkOrganizationAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
+  if (
+    agent.user &&
+    agent.user.organizations.find(
+      item => item.organizationId === organization.resourceId
+    )
+  ) {
+    return {agent, organization};
+  }
+
   await checkAuthorization({
     context,
     agent,
@@ -73,6 +82,7 @@ export async function checkOrganizationAuthorization02(
   const organization = await context.data.organization.assertGetItem(
     OrganizationQueries.getById(id)
   );
+
   return checkOrganizationAuthorization(
     context,
     agent,

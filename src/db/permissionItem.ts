@@ -17,6 +17,7 @@ const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   action: {type: String},
   isExclusion: {type: Boolean},
   isForPermissionOwnerOnly: {type: Boolean},
+  hash: {type: String, index: true},
 });
 
 export type IPermissionItemDocument = Document<IPermissionItem>;

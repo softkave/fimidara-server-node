@@ -19,7 +19,7 @@ export default function setupProgramAccessTokensRESTEndpoints(
       ctx
     ),
     getProgramAccessToken: wrapEndpointREST(getProgramAccessToken, ctx),
-    updatePresets: wrapEndpointREST(updateProgramAccessToken, ctx),
+    updateToken: wrapEndpointREST(updateProgramAccessToken, ctx),
   };
 
   app.post('/programAccessTokens/addToken', endpoints.addProgramAccessToken);
@@ -32,5 +32,5 @@ export default function setupProgramAccessTokensRESTEndpoints(
     endpoints.getOrganizationProgramAccessTokens
   );
   app.post('/programAccessTokens/getToken', endpoints.getProgramAccessToken);
-  app.post('/programAccessTokens/updatePresets', endpoints.updatePresets);
+  app.post('/programAccessTokens/updateToken', endpoints.updateToken);
 }

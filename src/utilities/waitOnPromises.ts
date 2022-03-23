@@ -37,14 +37,9 @@ function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
   });
 }
 
-export const waitOnPromisesWithId = <ProvidedPromise extends IPromiseWithId[]>(
-  promises: ProvidedPromise
-): Promise<
-  ISettledPromise<
-    ReturnType<ProvidedPromise[number]['promise']['then']>,
-    ReturnType<ProvidedPromise[number]['promise']['catch']>
-  >[]
-> => {
+export const waitOnPromisesWithId = <T>(
+  promises: IPromiseWithId<T>[]
+): Promise<ISettledPromiseWithId<T, any>[]> => {
   const mappedPromises = promises.map(wrapPromiseWithId);
   return Promise.all(mappedPromises);
 };

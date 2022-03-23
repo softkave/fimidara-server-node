@@ -5,6 +5,7 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
+import {PermissionDeniedError} from '../../user/errors';
 import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor, removeOtherUserOrgs} from '../utils';
 import {GetOrganizationCollaboratorsEndpoint} from './types';
@@ -48,6 +49,10 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint =
     const allowedCollaborators = collaborators.filter(
       (item, i) => !!permittedReads[i]
     );
+
+    if (allowedCollaborators.length === 0 && collaborators.length > 0) {
+      throw new PermissionDeniedError();
+    }
 
     return {
       collaborators: collaboratorListExtractor(

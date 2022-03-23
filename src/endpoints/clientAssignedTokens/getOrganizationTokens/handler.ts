@@ -6,6 +6,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
+import {PermissionDeniedError} from '../../user/errors';
 import {getPublicClientToken} from '../utils';
 import {GetOrganizationClientAssignedTokenEndpoint} from './types';
 import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
@@ -56,6 +57,10 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
     const allowedTokens = tokens
       .filter((item, i) => !!permittedReads[i])
       .map(token => getPublicClientToken(context, token));
+
+    if (allowedTokens.length === 0 && tokens.length > 0) {
+      throw new PermissionDeniedError();
+    }
 
     return {
       tokens: allowedTokens,

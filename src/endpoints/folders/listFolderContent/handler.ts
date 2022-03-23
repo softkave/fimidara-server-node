@@ -17,6 +17,7 @@ import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {FileUtils} from '../../files/utils';
 import EndpointReusableQueries from '../../queries';
+import {PermissionDeniedError} from '../../user/errors';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization03, FolderUtils} from '../utils';
 import {ListFolderContentEndpoint} from './types';
@@ -99,13 +100,24 @@ const listFolderContent: ListFolderContentEndpoint = async (
   const folderPermittedReads = await waitOnPromises(
     checkFoldersPermissionQueue
   );
+
   const filePermittedReads = await waitOnPromises(checkFilesPermissionQueue);
   const allowedFolders = fetchedFolders.filter(
     (item, i) => !!folderPermittedReads[i]
   );
+
   const allowedFiles = fetchedFiles.filter(
     (item, i) => !!filePermittedReads[i]
   );
+
+  if (
+    allowedFolders.length === 0 &&
+    allowedFiles.length === 0 &&
+    allowedFolders.length > 0 &&
+    allowedFiles.length > 0
+  ) {
+    throw new PermissionDeniedError();
+  }
 
   return {
     folders: FolderUtils.getPublicFolderList(allowedFolders),

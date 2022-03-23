@@ -216,7 +216,7 @@ export async function setupApp(context: IBaseContext) {
   const appUsersImageUploadPreset = await setupImageUploadPermissionGroup(
     context,
     org.resourceId,
-    appSetupVars.orgsImageUploadPresetName,
+    appSetupVars.usersImageUploadPresetName,
     'Auto-generated preset for uploading images to the user images folder',
     userImagesFolder.resourceId
   );

@@ -226,6 +226,7 @@ export function getFilePermissionOwners(
 ) {
   let permissionOwners: IPermissionOwner[] =
     makeOrgPermissionOwnerList(organizationId);
+
   const folderIds =
     type === AppResourceType.File
       ? resource.idPath.slice(0, resource.idPath.length - 1) // End index is non-inclusive
@@ -248,4 +249,16 @@ export function getFilePermissionOwners(
   }
 
   return permissionOwners.map((item, index) => ({...item, order: index}));
+}
+
+export function makeResourcePermissionOwnerList(
+  organizationId: string,
+  type: AppResourceType,
+  resource: any
+) {
+  if (type === AppResourceType.Folder || type === AppResourceType.File) {
+    return getFilePermissionOwners(organizationId, resource, type);
+  }
+
+  return makeOrgPermissionOwnerList(organizationId);
 }

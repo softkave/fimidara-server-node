@@ -23,6 +23,9 @@ export interface IPermissionItem {
   itemResourceId?: string;
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
-  isExclusion?: boolean; // That is this permission item denies permission to the resource
+
+  // That is this permission item denies permission to the resource
+  isExclusion?: boolean;
   isForPermissionOwnerOnly?: boolean;
+  hash: string;
 }

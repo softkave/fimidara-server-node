@@ -103,11 +103,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     organizationName: organization.name,
     organizationId: organization.resourceId,
     recipientEmail: data.request.recipientEmail,
-    expiresAt: getDateString(
-      add(new Date(), {
-        seconds: data.request.expires,
-      })
-    ),
+    expiresAt: data.request.expires,
     sentEmailHistory: [],
     statusHistory: [
       {

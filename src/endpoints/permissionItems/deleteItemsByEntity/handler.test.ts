@@ -12,8 +12,8 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
-import deletePermissionItems from './handler';
-import {IDeletePermissionItemsParams} from './types';
+import deletePermissionItemsByEntity from './handler';
+import {IDeletePermissionItemsByEntityParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -51,17 +51,18 @@ test('permission items deleted', async () => {
   );
 
   const itemIds = items.map(item => item.resourceId);
-  const instData = RequestData.fromExpressRequest<IDeletePermissionItemsParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      permissionEntityId: preset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
-      itemIds: itemIds,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IDeletePermissionItemsByEntityParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        permissionEntityId: preset.resourceId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        itemIds: itemIds,
+      }
+    );
 
-  const result = await deletePermissionItems(context, instData);
+  const result = await deletePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   const deletedItems = await context.data.permissionItem.getManyItems(
     PermissionItemQueries.getByIds(itemIds, organization.resourceId)

@@ -4,7 +4,7 @@ import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGro
 import clientAssignedTokenValidationSchemas from '../validation';
 
 export const newClientAssignedTokenJoiSchema = Joi.object().keys({
-  expires: validationSchemas.fromNowMs.allow(null),
+  expires: validationSchemas.time.allow(null),
   presets:
     presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(null),
   providedResourceId:

@@ -5,12 +5,12 @@ import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import PermissionItemQueries from '../queries';
 import {compactPermissionItems} from '../utils';
-import {IAddPermissionItemsParams} from './types';
+import {IReplacePermissionItemsByEntityParams} from './types';
 
 export async function savePermissionItems(
   context: IBaseContext,
   agent: IAgent,
-  data: IAddPermissionItemsParams
+  data: IReplacePermissionItemsByEntityParams
 ) {
   if (data.items.length === 0) {
     // Bail early

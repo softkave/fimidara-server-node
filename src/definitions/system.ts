@@ -73,6 +73,8 @@ export enum BasicCRUDActions {
   Read = 'read',
   Update = 'update',
   Delete = 'delete',
+
+  GrantPermission = 'grant-permission',
 }
 
 export const crudActionsList = Object.values(BasicCRUDActions);
@@ -97,4 +99,8 @@ export interface IPublicAccessOp {
   resourceType: AppResourceType;
   markedAt: Date | string;
   markedBy: IAgent;
+}
+
+export interface IResourceBase {
+  resourceId: string;
 }

@@ -76,3 +76,5 @@
 - Let users paya for special/configurable memory caching space
 - Filesystem file provider
 - Cache control for files
+- Better action types, so that you can allow people to create tokens but some presets will not be available
+- Use the right HTTP errors instead of server error for everything

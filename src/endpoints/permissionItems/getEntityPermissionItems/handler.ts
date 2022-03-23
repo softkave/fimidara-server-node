@@ -1,6 +1,11 @@
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {
+  checkAuthorization,
+  makeOrgPermissionOwnerList,
+} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
-import checkEntityExists from '../checkEntityExists';
+import checkEntitiesExist from '../checkEntitiesExist';
 import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
 import {GetEntityPermissionItemsEndpoint} from './types';
@@ -17,13 +22,15 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
     data.organizationId
   );
 
-  await checkEntityExists(
+  await checkEntitiesExist(context, agent, organization, [data]);
+  await checkAuthorization({
     context,
     agent,
-    organization.resourceId,
-    data.permissionEntityId,
-    data.permissionEntityType
-  );
+    organization,
+    action: BasicCRUDActions.Read,
+    type: AppResourceType.PermissionItem,
+    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+  });
 
   const items = await context.data.permissionItem.getManyItems(
     PermissionItemQueries.getByPermissionEntity(

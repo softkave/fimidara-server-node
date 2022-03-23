@@ -22,7 +22,7 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
-import {updatePublicPresetAccessOps} from '../../permissionItems/utils';
+import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
@@ -79,7 +79,7 @@ export async function createSingleFolder(
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 
-  await updatePublicPresetAccessOps(
+  await replacePublicPresetAccessOpsByPermissionOwner(
     context,
     agent,
     organization,
