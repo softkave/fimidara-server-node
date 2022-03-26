@@ -1,13 +1,11 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
-import folderValidationSchemas from '../../folders/validation';
 import fileValidationSchemas from '../validation';
 import {UploadFilePublicAccessActions} from './types';
 
 export const uploadFileJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow(null),
-    path: folderValidationSchemas.path.required(),
+    ...fileValidationSchemas.fileMatcherParts,
     description: validationSchemas.description.allow(null),
     mimetype: fileValidationSchemas.mimetype.allow(null),
     encoding: fileValidationSchemas.encoding.allow(null),

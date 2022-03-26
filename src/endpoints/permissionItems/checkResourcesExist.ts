@@ -1,7 +1,7 @@
 import {IOrganization} from '../../definitions/organization';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getResources} from '../resources/getResources';
+import {getResources, IGetResourcesOptions} from '../resources/getResources';
 import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
 
 interface IPermissionResource {
@@ -26,12 +26,16 @@ export default async function checkResourcesExist(
     context,
     agent,
     organization,
-    inputResources: items
-      .filter(item => item.itemResourceId)
-      .map(item => ({
-        resourceId: item.itemResourceId!,
-        resourceType: item.itemResourceType,
-      })),
+    inputResources: items.reduce((list, item) => {
+      if (item.itemResourceId) {
+        list.push({
+          resourceId: item.itemResourceId,
+          resourceType: item.itemResourceType,
+        });
+      }
+
+      return list;
+    }, [] as IGetResourcesOptions['inputResources']),
     checkAuth: true,
   });
 

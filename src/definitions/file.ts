@@ -1,4 +1,4 @@
-import {IAgent, IPublicAccessOp} from './system';
+import {IAgent} from './system';
 
 export interface IFile {
   resourceId: string;

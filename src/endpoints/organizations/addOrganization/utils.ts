@@ -12,6 +12,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {updateCollaboratorOrganization} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {permissionItemIndexer} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 
 export const DEFAULT_ADMIN_PRESET_NAME = 'Admin';
@@ -24,7 +25,7 @@ function makeAdminPermissions(
   adminPreset: IPresetPermissionsGroup
 ) {
   const permissionItems: IPermissionItem[] = [AppResourceType.All].map(type => {
-    return {
+    const item: IPermissionItem = {
       resourceId: getNewId(),
       organizationId: organization.resourceId,
       createdAt: getDateString(),
@@ -38,7 +39,11 @@ function makeAdminPermissions(
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
       itemResourceType: type,
       action: BasicCRUDActions.All,
+      hash: '',
     };
+
+    item.hash = permissionItemIndexer(item);
+    return item;
   });
 
   return permissionItems;
@@ -54,22 +59,28 @@ function makeCollaboratorPermissions(
     itemResourceType: AppResourceType,
     itemResourceId?: string
   ) {
-    return actions.map(action => ({
-      itemResourceType,
-      action,
-      itemResourceId,
-      resourceId: getNewId(),
-      organizationId: organization.resourceId,
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
-      permissionEntityId: preset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
-    }));
+    return actions.map(action => {
+      const item: IPermissionItem = {
+        itemResourceType,
+        action,
+        itemResourceId,
+        resourceId: getNewId(),
+        organizationId: organization.resourceId,
+        createdAt: getDateString(),
+        createdBy: {
+          agentId: agent.agentId,
+          agentType: agent.agentType,
+        },
+        permissionOwnerId: organization.resourceId,
+        permissionOwnerType: AppResourceType.Organization,
+        permissionEntityId: preset.resourceId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        hash: '',
+      };
+
+      item.hash = permissionItemIndexer(item);
+      return item;
+    });
   }
 
   let permissionItems: IPermissionItem[] = [];

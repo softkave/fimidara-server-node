@@ -3,13 +3,11 @@ import assert = require('assert');
 import {IFile} from '../../../definitions/file';
 import {IOrganization} from '../../../definitions/organization';
 import {
-  IPublicAccessOp,
   IPublicAccessOpInput,
   AppResourceType,
   BasicCRUDActions,
 } from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
-import {indexArray} from '../../../utilities/indexArray';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import PermissionItemQueries from '../../permissionItems/queries';
@@ -37,12 +35,12 @@ import {
 } from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {IUploadFileParams} from './types';
-import {expectItemsContain} from '../../test-utils/helpers/permissionItem';
+import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,
   input: Partial<IUploadFileParams> = {},
-  type: 'image' | 'text' = 'image',
+  type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
   insertOrgResult?: IInsertOrganizationForTestResult
 ) => {
@@ -138,7 +136,12 @@ export async function assertPublicAccessOps(
     resourceType === AppResourceType.File ? resource.resourceId : undefined
   );
 
-  expectItemsContain(publicPresetPermissionitems, basePermissionItems);
+  expectItemsByEntityPresent(
+    publicPresetPermissionitems,
+    basePermissionItems,
+    insertOrgResult.organization.publicPresetId,
+    AppResourceType.PresetPermissionsGroup
+  );
 }
 
 export async function assertPublicPermissionsDonotExistForOwner(
@@ -167,7 +170,7 @@ export const uploadFileWithPublicAccessActionTest = async (
   input: Partial<IUploadFileParams>,
   expectedPublicAccessOpsCount: number,
   expectedActions: BasicCRUDActions[],
-  type: 'image' | 'text' = 'image',
+  type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
   insertOrgResult?: IInsertOrganizationForTestResult
 ) => {

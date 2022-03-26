@@ -1,11 +1,6 @@
-import {defaultTo} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IOrganization} from '../../../definitions/organization';
-import {
-  AppResourceType,
-  IPublicAccessOp,
-  ISessionAgent,
-} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
@@ -25,7 +20,7 @@ export async function internalUpdateFile(
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),
     {
-      extension: pathWithDetails.extension || defaultTo(data.extension, ''),
+      extension: data.extension || pathWithDetails.extension,
       mimetype: data.mimetype,
       size: data.data.length,
       lastUpdatedBy: {

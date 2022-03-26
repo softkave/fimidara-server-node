@@ -6,7 +6,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
-  insertPermissionItemsForTestUsingOwnerAndBase,
+  insertPermissionItemsForTestByEntity,
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -35,7 +35,7 @@ test('permission items deleted', async () => {
     organization.resourceId
   );
 
-  const {items} = await insertPermissionItemsForTestUsingOwnerAndBase(
+  const {items} = await insertPermissionItemsForTestByEntity(
     context,
     userToken,
     organization.resourceId,

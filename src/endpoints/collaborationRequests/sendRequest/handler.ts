@@ -7,7 +7,6 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {SendRequestEndpoint} from './types';
 import {sendRequestJoiSchema} from './validation';
-import {add} from 'date-fns';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {collabRequestExtractor} from '../utils';
 import {IUser} from '../../../definitions/user';

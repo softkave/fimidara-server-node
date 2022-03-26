@@ -171,7 +171,7 @@ export async function getResources(options: IGetResourcesOptions) {
           resources.push({
             resource,
             resourceId: resource.resourceId,
-            resourceType: item.id as AppResourceType,
+            resourceType: item.resourceType,
           });
         });
       } else if (throwOnFetchError) {
@@ -253,7 +253,7 @@ export async function getResources(options: IGetResourcesOptions) {
           if (permitted) {
             resources.push({
               resource,
-              resourceId: item.id as string,
+              resourceId: resource.resourceId,
               resourceType: item.resourceType,
             });
           }

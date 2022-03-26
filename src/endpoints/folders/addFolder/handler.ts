@@ -41,7 +41,7 @@ export async function createSingleFolder(
   parent: IFolder | null,
   input: INewFolderInput
 ) {
-  const {splitPath, name} = splitPathWithDetails(input.path);
+  const {splitPath, name} = splitPathWithDetails(input.folderPath);
   const existingFolder = await context.data.folder.getItem(
     FolderQueries.folderExistsByNamePath(organization.resourceId, splitPath)
   );
@@ -118,7 +118,7 @@ export async function createFolderList(
   organization: IOrganization,
   input: INewFolderInput
 ) {
-  const pathWithDetails = assertSplitPathWithDetails(input.path);
+  const pathWithDetails = assertSplitPathWithDetails(input.folderPath);
   const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
     await getClosestExistingFolder(
       context,
@@ -164,7 +164,7 @@ export async function createFolderList(
     const isMainFolder = i === pathWithDetails.splitPath.length - 1;
     const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
     const nextInput: INewFolderInput = {
-      path: nextInputPath.join(folderConstants.nameSeparator),
+      folderPath: nextInputPath.join(folderConstants.nameSeparator),
     };
 
     if (isMainFolder) {

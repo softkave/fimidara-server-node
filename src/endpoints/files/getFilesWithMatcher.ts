@@ -20,7 +20,7 @@ export async function getFilesWithMatcher(
     return [file];
   } else if (matcher.filePath && matcher.organizationId) {
     const pathWithDetails = splitFilePathWithDetails(matcher.filePath);
-    let files = await context.data.file.getManyItems(
+    const files = await context.data.file.getManyItems(
       pathWithDetails.extension
         ? FileQueries.getByNamePathAndExtention(
             matcher.organizationId,
@@ -67,10 +67,11 @@ export async function assertGetSingleFileWithMatcher(
   matcher: IFileMatcher
 ): Promise<IFile> {
   const files = await getFilesWithMatcher(context, matcher, 1);
+  const file = first(files);
 
-  if (files.length === 0) {
+  if (!file) {
     throw new NotFoundError('File does not exist');
   }
 
-  return first(files)!;
+  return file;
 }

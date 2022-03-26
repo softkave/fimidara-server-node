@@ -58,9 +58,12 @@ export function checkNotOrganizationResources(
 
   if (outsideResources.length) {
     const message = format(
-      'Following resources do not belong to organization (%s): \n%o',
+      'The following resources do not belong to organization %s: \n%O',
       organizationId,
-      outsideResources
+      outsideResources.map(item => ({
+        resourceId: item.resourceId,
+        resourceType: item.resourceType,
+      }))
     );
 
     throw new InvalidRequestError(message);

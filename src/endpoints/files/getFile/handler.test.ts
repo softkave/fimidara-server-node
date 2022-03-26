@@ -77,7 +77,7 @@ describe('getFile', () => {
       userToken,
       organization.resourceId,
       {},
-      'image',
+      'png',
       {width: startWidth, height: startHeight}
     );
 

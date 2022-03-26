@@ -1,4 +1,3 @@
-import {defaultTo} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
@@ -22,7 +21,7 @@ export async function internalCreateFile(
   const file = await context.data.file.saveItem({
     organizationId: organization.resourceId,
     resourceId: fileId,
-    extension: pathWithDetails.extension || defaultTo(data.extension, ''),
+    extension: data.extension || pathWithDetails.extension || '',
     name: pathWithDetails.nameWithoutExtension,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder

@@ -5,10 +5,10 @@ import {
   assertContext,
   getTestBaseContext,
   insertOrganizationForTest,
-  insertPermissionItemsForTestUsingOwnerAndBase,
+  insertPermissionItemsForTestByEntity,
   insertPresetForTest,
   insertUserForTest,
-  ITestPermissionItemBase,
+  ITestPermissionItemByEntityBase,
   ITestPermissionItemOwner,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
@@ -33,7 +33,7 @@ afterAll(async () => {
   await getTestBaseContext.release();
 });
 
-describe('add permission items', () => {
+describe('replaceItemsByEntity', () => {
   test('permission items added', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
@@ -44,7 +44,7 @@ describe('add permission items', () => {
       organization.resourceId
     );
 
-    await insertPermissionItemsForTestUsingOwnerAndBase(
+    await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       organization.resourceId,
@@ -75,7 +75,7 @@ describe('add permission items', () => {
       permissionOwnerType: AppResourceType.Organization,
     };
 
-    const itemsBase: ITestPermissionItemBase = {
+    const itemsBase: ITestPermissionItemByEntityBase = {
       itemResourceType: AppResourceType.File,
     };
 
@@ -85,7 +85,7 @@ describe('add permission items', () => {
     };
 
     // First insert
-    await insertPermissionItemsForTestUsingOwnerAndBase(
+    await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       organization.resourceId,
@@ -96,7 +96,7 @@ describe('add permission items', () => {
 
     // Second insert of the very same permission items as the first
     // insert
-    const result = await insertPermissionItemsForTestUsingOwnerAndBase(
+    const result = await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       organization.resourceId,

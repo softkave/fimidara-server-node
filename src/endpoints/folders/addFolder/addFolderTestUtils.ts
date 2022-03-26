@@ -89,7 +89,7 @@ export async function assertCanCreateFolderInPublicFolder(
   folderPath: string
 ) {
   return await insertFolderForTest(ctx, null, organizationId, {
-    path: folderPath,
+    folderPath: folderPath,
   });
 }
 

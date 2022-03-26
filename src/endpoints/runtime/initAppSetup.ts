@@ -13,7 +13,7 @@ import EndpointReusableQueries from '../queries';
 import OrganizationQueries from '../organizations/queries';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
-import {IAppRuntimeVars, IAppVariables} from '../../resources/appVariables';
+import {IAppRuntimeVars} from '../../resources/appVariables';
 import {merge} from 'lodash';
 import internalCreateOrg from '../organizations/addOrganization/internalCreateOrg';
 import {permissionItemIndexer} from '../permissionItems/utils';
@@ -113,7 +113,7 @@ async function setupFolders(
     systemAgent,
     organization,
     null,
-    {path: folder01Path}
+    {folderPath: folder01Path}
   );
 
   const folder02 = await createSingleFolder(
@@ -121,7 +121,7 @@ async function setupFolders(
     systemAgent,
     organization,
     folder01,
-    {path: folder02Path}
+    {folderPath: folder02Path}
   );
 
   const orgImagesFolder = await createSingleFolder(
@@ -130,7 +130,7 @@ async function setupFolders(
     organization,
     folder02,
     {
-      path: appSetupVars.orgImagesFolderPath,
+      folderPath: appSetupVars.orgImagesFolderPath,
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],
@@ -143,7 +143,7 @@ async function setupFolders(
     organization,
     folder02,
     {
-      path: appSetupVars.userImagesFolderPath,
+      folderPath: appSetupVars.userImagesFolderPath,
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],

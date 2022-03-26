@@ -32,3 +32,5 @@
 - add endpoints for adding, updating, and deleting public access ops and similar items
 - allow every resource to have provided resource ID
 - don't sepearate extension from file name
+- add the right http errors and status text to http responses
+- add error message in constructor to all errors

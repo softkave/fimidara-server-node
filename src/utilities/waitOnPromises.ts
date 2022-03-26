@@ -20,19 +20,14 @@ function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
     p.promise
       .then(result =>
         resolve({
+          ...p,
           resolved: true,
           rejected: false,
           value: result,
-          id: p.id,
         })
       )
       .catch(error =>
-        resolve({
-          resolved: false,
-          rejected: true,
-          reason: error,
-          id: p.id,
-        })
+        resolve({...p, resolved: false, rejected: true, reason: error})
       );
   });
 }
