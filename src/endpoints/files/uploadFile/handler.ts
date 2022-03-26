@@ -40,7 +40,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   );
 
   const matcher = getFileMatcher(agent, data);
-  let file = first(await getFilesWithMatcher(context, matcher, 1));
+  let file = first(await getFilesWithMatcher(context, matcher, /* count */ 1));
 
   if (!file) {
     assert(
@@ -108,7 +108,7 @@ async function createFileParentFolders(
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, organization, {
-      path: pathWithDetails.parentPath,
+      folderPath: pathWithDetails.parentPath,
     });
   }
 

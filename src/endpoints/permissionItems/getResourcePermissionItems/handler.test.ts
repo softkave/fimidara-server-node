@@ -6,13 +6,13 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
-  insertPermissionItemsForTestByEntity,
+  insertPermissionItemsForTestByResource,
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getEntityPermissionItems from './handler';
-import {IGetEntityPermissionItemsParams} from './types';
+import {IGetResourcePermissionItemsParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -24,8 +24,8 @@ afterAll(async () => {
   await getTestBaseContext.release();
 });
 
-describe('getEntityPermissionitems', () => {
-  test('entity permission items returned', async () => {
+describe('getResourcePermissionItems', () => {
+  test('resource permission items returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {organization} = await insertOrganizationForTest(context, userToken);
@@ -35,28 +35,25 @@ describe('getEntityPermissionitems', () => {
       organization.resourceId
     );
 
-    const {items} = await insertPermissionItemsForTestByEntity(
+    const {items} = await insertPermissionItemsForTestByResource(
       context,
       userToken,
       organization.resourceId,
-      {
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
-      },
-      {
-        permissionOwnerId: organization.resourceId,
-        permissionOwnerType: AppResourceType.Organization,
-      },
-      {itemResourceType: AppResourceType.File}
+      organization.resourceId,
+      AppResourceType.Organization,
+      organization.resourceId,
+      AppResourceType.Organization,
+      preset.resourceId,
+      AppResourceType.PresetPermissionsGroup
     );
 
     const instData =
-      RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
+      RequestData.fromExpressRequest<IGetResourcePermissionItemsParams>(
         mockExpressRequestWithUserToken(userToken),
         {
           organizationId: organization.resourceId,
-          permissionEntityId: preset.resourceId,
-          permissionEntityType: AppResourceType.PresetPermissionsGroup,
+          itemResourceType: AppResourceType.Organization,
+          itemResourceId: organization.resourceId,
         }
       );
 

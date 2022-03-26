@@ -3,6 +3,7 @@ import {IOrganization} from '../../definitions/organization';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
+  BasicCRUDActions,
   IAgent,
   IPublicAccessOp,
   IPublicAccessOpInput,
@@ -124,8 +125,21 @@ export async function replacePublicPresetAccessOpsByPermissionOwner(
   }
 }
 
-export const permissionItemIndexer = (item: INewPermissionItemInputByEntity) =>
-  `${item.permissionOwnerId}-${item.permissionOwnerType}-${item.itemResourceId}-${item.itemResourceType}-${item.action}-${item.isExclusion}-${item.isForPermissionOwnerOnly}`;
+export interface IPermissionItemBase {
+  permissionOwnerId: string;
+  permissionOwnerType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
+  permissionEntityId: string;
+  permissionEntityType: AppResourceType;
+  action: BasicCRUDActions;
+  isExclusion?: boolean;
+  isForPermissionOwnerOnly?: boolean;
+}
+
+export const permissionItemIndexer = (item: IPermissionItemBase) => {
+  return `${item.permissionEntityId}-${item.permissionEntityType}-${item.permissionOwnerId}-${item.permissionOwnerType}-${item.itemResourceId}-${item.itemResourceType}-${item.action}-${item.isExclusion}-${item.isForPermissionOwnerOnly}`;
+};
 
 export abstract class PermissionItemUtils {
   static extractPublicPermissionItem = permissionItemExtractor;

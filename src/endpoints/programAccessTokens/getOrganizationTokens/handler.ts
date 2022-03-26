@@ -7,7 +7,7 @@ import {
 import {checkOrganizationExists} from '../../organizations/utils';
 import {PermissionDeniedError} from '../../user/errors';
 import ProgramAccessTokenQueries from '../queries';
-import {getPublicProgramToken, ProgramAccessTokenUtils} from '../utils';
+import {getPublicProgramToken} from '../utils';
 import {GetOrganizationProgramAccessTokenEndpoint} from './types';
 import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
 

@@ -28,7 +28,7 @@ export default async function checkEntitiesExist(
   }>
 ) {
   entities.forEach(item => {
-    if (allowedTypes.has(item.permissionEntityType)) {
+    if (!allowedTypes.has(item.permissionEntityType)) {
       const message = format(
         'Invalid permission entity type %s',
         item.permissionEntityType

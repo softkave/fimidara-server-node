@@ -10,8 +10,7 @@ export const folderInputJoiSchema = Joi.object().keys({
 
 export const updateFolderJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow(null),
-    path: folderValidationSchemas.path.required(),
+    ...folderValidationSchemas.folderMatcherParts,
     folder: Joi.object()
       .keys({
         description: validationSchemas.description.allow(null),

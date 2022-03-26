@@ -1,12 +1,10 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utilities/validationUtils';
-import folderValidationSchemas from '../../folders/validation';
 import {fileConstants} from '../constants';
+import fileValidationSchemas from '../validation';
 
 export const getFileJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.allow(null),
-    path: folderValidationSchemas.path.required(),
+    ...fileValidationSchemas.fileMatcherParts,
     imageTranformation: Joi.object()
       .keys({
         width: Joi.number().max(fileConstants.maxFileWidth).allow(null),

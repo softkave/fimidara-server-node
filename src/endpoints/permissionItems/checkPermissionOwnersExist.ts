@@ -23,7 +23,7 @@ export default async function checkPermissionOwnersExist(
   items: Array<IPermissionOwner>
 ) {
   items.forEach(item => {
-    if (allowedTypes.has(item.permissionOwnerType)) {
+    if (!allowedTypes.has(item.permissionOwnerType)) {
       const message = format(
         'Invalid permission owner type %s',
         item.permissionOwnerType

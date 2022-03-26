@@ -15,6 +15,12 @@ import {
   uploadFileBaseTest,
   uploadFileWithPublicAccessActionTest,
 } from './uploadFileTestUtils';
+import {getFileName} from '../utils';
+
+/**
+ * TODO:
+ * - test multiple files with the same path but different extensions
+ */
 
 let context: IBaseContext | null = null;
 
@@ -42,7 +48,6 @@ describe('uploadFile', () => {
     );
 
     const filePath = file.namePath.join(folderConstants.nameSeparator);
-
     await expectErrorThrown(async () => {
       assertContext(context);
       await assertCanDeletePublicFile(
@@ -117,7 +122,7 @@ describe('uploadFile', () => {
     const {savedFile, insertUserResult, insertOrgResult} =
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileParams> = {
-      filePath: savedFile.namePath.join(folderConstants.nameSeparator),
+      filePath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.Read,
     };
 
@@ -126,7 +131,7 @@ describe('uploadFile', () => {
       update,
       /* expectedPublicAccessOpsCount */ 1,
       [BasicCRUDActions.Read],
-      /* type */ 'text',
+      /* type */ 'txt',
       insertUserResult,
       insertOrgResult
     );
@@ -158,7 +163,7 @@ describe('uploadFile', () => {
       );
 
     const update: Partial<IUploadFileParams> = {
-      filePath: savedFile.namePath.join(folderConstants.nameSeparator),
+      filePath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.None,
     };
 
@@ -167,7 +172,7 @@ describe('uploadFile', () => {
       update,
       /* expectedPublicAccessOpsCount */ 0,
       /* expectedActions */ [],
-      /* type */ 'text',
+      /* type */ 'txt',
       insertUserResult,
       insertOrgResult
     );

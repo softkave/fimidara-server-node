@@ -23,19 +23,25 @@ function getByOwner(ownerId: string, ownerType: AppResourceType) {
     .build();
 }
 
-function getByResource(resourceId: string, resourceType: AppResourceType) {
-  return newFilter()
-    .addItem(
+function getByResource(
+  resourceId: string | undefined,
+  resourceType: AppResourceType
+) {
+  const filter = newFilter().addItem(
+    'itemResourceType',
+    resourceType,
+    DataProviderFilterValueOperator.Equal
+  );
+
+  if (resourceId) {
+    filter.addItem(
       'itemResourceId',
       resourceId,
       DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'itemResourceType',
-      resourceType,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
+    );
+  }
+
+  return filter.build();
 }
 
 function getByOwnerAndResource(

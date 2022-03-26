@@ -34,6 +34,7 @@ import {
 import {IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
 import {IUploadFileParams} from '../files/uploadFile/types';
+import {splitFilePathWithDetails} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
 import {IAddFolderParams, INewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
@@ -44,6 +45,11 @@ import {
   IReplacePermissionItemsByEntityParams,
   INewPermissionItemInputByEntity,
 } from '../permissionItems/replaceItemsByEntity/types';
+import replacePermissionItemsByResource from '../permissionItems/replaceItemsByResource/handler';
+import {
+  INewPermissionItemInputByResource,
+  IReplacePermissionItemsByResourceParams,
+} from '../permissionItems/replaceItemsByResource/types';
 import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
   IAddPresetPermissionsGroupParams,
@@ -67,7 +73,10 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
-import {expectItemsContain} from './helpers/permissionItem';
+import {
+  expectItemsByEntityPresent,
+  expectItemsByResourcePresent,
+} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
@@ -365,14 +374,14 @@ export interface ITestPermissionItemOwner {
   permissionOwnerType: AppResourceType;
 }
 
-export interface ITestPermissionItemBase
+export interface ITestPermissionItemByEntityBase
   extends Partial<INewPermissionItemInputByEntity> {
   itemResourceType: AppResourceType;
 }
 
-export function makeTestPermissionItemInputs(
+export function makeTestPermissionItemByEntityInputs(
   owner: ITestPermissionItemOwner,
-  base: ITestPermissionItemBase
+  base: ITestPermissionItemByEntityBase
 ) {
   const items: INewPermissionItemInputByEntity[] = crudActionsList.map(
     action => ({
@@ -387,15 +396,15 @@ export function makeTestPermissionItemInputs(
   return items;
 }
 
-export async function insertPermissionItemsForTestUsingOwnerAndBase(
+export async function insertPermissionItemsForTestByEntity(
   context: IBaseContext,
   userToken: IUserToken,
   organizationId: string,
   entity: IPermissionEntity,
   owner: ITestPermissionItemOwner,
-  base: ITestPermissionItemBase
+  base: ITestPermissionItemByEntityBase
 ) {
-  const itemsInput = makeTestPermissionItemInputs(owner, base);
+  const itemsInput = makeTestPermissionItemByEntityInputs(owner, base);
   const instData =
     RequestData.fromExpressRequest<IReplacePermissionItemsByEntityParams>(
       mockExpressRequestWithUserToken(userToken),
@@ -408,7 +417,73 @@ export async function insertPermissionItemsForTestUsingOwnerAndBase(
 
   const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
-  expectItemsContain(result.items, itemsInput);
+  expectItemsByEntityPresent(
+    result.items,
+    itemsInput,
+    entity.permissionEntityId,
+    entity.permissionEntityType
+  );
+
+  return result;
+}
+
+export function makeTestPermissionItemByResourceInputs(
+  permissionEntityId: string,
+  permissionEntityType: AppResourceType
+) {
+  const items: INewPermissionItemInputByResource[] = crudActionsList.map(
+    action => ({
+      permissionEntityId,
+      permissionEntityType,
+      action: action as BasicCRUDActions,
+      isExclusion: faker.datatype.boolean(),
+      isForPermissionOwnerOnly: faker.datatype.boolean(),
+    })
+  );
+
+  return items;
+}
+
+export async function insertPermissionItemsForTestByResource(
+  context: IBaseContext,
+  userToken: IUserToken,
+  organizationId: string,
+  permissionOwnerId: string,
+  permissionOwnerType: AppResourceType,
+  itemResourceId: string | undefined,
+  itemResourceType: AppResourceType,
+  permissionEntityId: string,
+  permissionEntityType: AppResourceType
+) {
+  const itemsInput = makeTestPermissionItemByResourceInputs(
+    permissionEntityId,
+    permissionEntityType
+  );
+
+  const instData =
+    RequestData.fromExpressRequest<IReplacePermissionItemsByResourceParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        permissionOwnerId,
+        permissionOwnerType,
+        itemResourceType,
+        itemResourceId,
+        organizationId: organizationId,
+        items: itemsInput,
+      }
+    );
+
+  const result = await replacePermissionItemsByResource(context, instData);
+  assertEndpointResultOk(result);
+  expectItemsByResourcePresent(
+    result.items,
+    itemsInput,
+    permissionOwnerId,
+    permissionOwnerType,
+    itemResourceId,
+    itemResourceType
+  );
+
   return result;
 }
 
@@ -448,7 +523,7 @@ export async function insertFolderForTest(
     {
       organizationId,
       folder: {
-        path: [faker.lorem.word()].join(folderConstants.nameSeparator),
+        folderPath: [faker.lorem.word()].join(folderConstants.nameSeparator),
         description: faker.lorem.paragraph(),
         maxFileSizeInBytes: 1_000_000_000,
         ...folderInput,
@@ -491,7 +566,7 @@ export async function insertFileForTest(
   userToken: IUserToken | null, // Pass null for public agent
   organizationId: string,
   fileInput: Partial<IUploadFileParams> = {},
-  type: 'image' | 'text' = 'image',
+  type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
   const input: IUploadFileParams = {
@@ -503,19 +578,25 @@ export async function insertFileForTest(
     ...fileInput,
   };
 
+  assert(input.filePath);
+
   if (!fileInput.data) {
-    if (type === 'image') {
+    if (type === 'png') {
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
       input.extension = 'png';
-      input.filePath = input.filePath + '.png';
     } else {
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
       input.extension = 'txt';
-      input.filePath = input.filePath + '.txt';
     }
+  }
+
+  const pathWithDetails = splitFilePathWithDetails(input.filePath);
+
+  if (!pathWithDetails.extension) {
+    input.filePath = input.filePath + '.' + input.extension;
   }
 
   const instData = RequestData.fromExpressRequest<IUploadFileParams>(

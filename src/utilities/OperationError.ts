@@ -7,7 +7,7 @@ export interface IOperationErrorParameters {
   value?: any;
 }
 
-class OperationError extends Error {
+export default class OperationError extends Error {
   public message = 'Error';
   public field?: string;
   public action?: string;
@@ -15,7 +15,7 @@ class OperationError extends Error {
   public isPublic = true;
 
   constructor(props?: IOperationErrorParameters | string) {
-    super(isString(props) ? props : props?.message);
+    super();
 
     if (isObject(props)) {
       // error data path
@@ -27,8 +27,25 @@ class OperationError extends Error {
       if (props.value) {
         this.value = JSON.stringify(props.value);
       }
+
+      if (props.message) {
+        this.message = props.message;
+      }
+    } else if (props) {
+      this.message = props;
     }
   }
 }
 
-export default OperationError;
+export function getErrorMessageFromParams(
+  props?: IOperationErrorParameters | string,
+  defaultMessage = ''
+) {
+  if (isString(props)) {
+    return props;
+  } else if (props?.message) {
+    return props.message;
+  }
+
+  return defaultMessage;
+}
