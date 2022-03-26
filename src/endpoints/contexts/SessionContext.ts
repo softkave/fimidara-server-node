@@ -306,10 +306,9 @@ export function makePublicSessionAgent(): ISessionAgent {
   };
 }
 
-export function getOrganizationId(
+export function getOrganizationIdNoThrow(
   agent: ISessionAgent,
-  providedOrganizationId?: string,
-  nothrow = false
+  providedOrganizationId?: string
 ) {
   const organizationId = agent.clientAssignedToken
     ? agent.clientAssignedToken.organizationId
@@ -317,7 +316,19 @@ export function getOrganizationId(
     ? agent.programAccessToken.organizationId
     : providedOrganizationId;
 
-  if (!nothrow && !organizationId) {
+  return organizationId;
+}
+
+export function getOrganizationId(
+  agent: ISessionAgent,
+  providedOrganizationId?: string
+) {
+  const organizationId = getClientAssignedTokenIdNoThrow(
+    agent,
+    providedOrganizationId
+  );
+
+  if (!organizationId) {
     throw new InvalidRequestError('Organization ID not provided');
   }
 

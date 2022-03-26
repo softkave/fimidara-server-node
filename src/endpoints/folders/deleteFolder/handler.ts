@@ -7,11 +7,10 @@ import {
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FolderQueries from '../queries';
-import {assertSplitFolderPath, checkFolderAuthorization03} from '../utils';
+import {checkFolderAuthorization03, getFolderMatcher} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
@@ -71,13 +70,10 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const splitPath = assertSplitFolderPath(data.path);
   const {folder} = await checkFolderAuthorization03(
     context,
     agent,
-    organizationId,
-    splitPath,
+    getFolderMatcher(agent, data),
     BasicCRUDActions.Delete
   );
 

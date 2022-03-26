@@ -1,5 +1,5 @@
 import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
+import {IFolder, IFolderMatcher} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -19,7 +19,11 @@ import {FileUtils} from '../../files/utils';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import FolderQueries from '../queries';
-import {checkFolderAuthorization03, FolderUtils} from '../utils';
+import {
+  checkFolderAuthorization03,
+  FolderUtils,
+  getFolderMatcher,
+} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
 
@@ -54,7 +58,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
 
-  if (data.path === '') {
+  if (data.folderPath === '') {
     const result = await fetchRootLevelContent(context, organizationId);
     fetchedFiles = result.files;
     fetchedFolders = result.folders;
@@ -62,8 +66,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
     const result = await fetchFolderContent(
       context,
       agent,
-      organizationId,
-      data.path
+      getFolderMatcher(agent, data)
     );
 
     fetchedFiles = result.files;
@@ -142,14 +145,12 @@ async function fetchRootLevelContent(
 async function fetchFolderContent(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
-  path: string
+  matcher: IFolderMatcher
 ) {
   const {folder} = await checkFolderAuthorization03(
     context,
     agent,
-    organizationId,
-    path,
+    matcher,
     BasicCRUDActions.Read
   );
 

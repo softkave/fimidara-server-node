@@ -71,10 +71,6 @@ export const addFolderWithPublicAccessOpsTest = async (
   const {savedFolder} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertOrgResult = uploadResult.insertOrgResult;
-  expect(savedFolder.publicAccessOps).toHaveLength(
-    input.publicAccessOps?.length || 0
-  );
-
   await assertPublicAccessOps(
     ctx,
     savedFolder,
@@ -104,7 +100,7 @@ export async function assertCanReadPublicFolder(
 ) {
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: folderPath}
+    {organizationId, folderPath: folderPath}
   );
 
   const result = await getFolder(ctx, instData);
@@ -126,7 +122,7 @@ export async function assertCanUpdatePublicFolder(
     mockExpressRequestForPublicAgent(),
     {
       organizationId,
-      path: folderPath,
+      folderPath: folderPath,
       folder: updateInput,
     }
   );
@@ -143,7 +139,7 @@ export async function assertCanListContentOfPublicFolder(
   const instData =
     RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, path: folderPath}
+      {organizationId, folderPath: folderPath}
     );
 
   const result = await listFolderContent(ctx, instData);
@@ -157,7 +153,7 @@ export async function assertCanDeletePublicFolder(
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFolderParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: folderPath}
+    {organizationId, folderPath: folderPath}
   );
 
   const result = await deleteFolder(ctx, instData);
