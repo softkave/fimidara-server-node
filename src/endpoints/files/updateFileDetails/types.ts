@@ -1,4 +1,4 @@
-import {IPublicFile} from '../../../definitions/file';
+import {IFileMatcher, IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
@@ -8,9 +8,7 @@ export interface IUpdateFileDetailsInput {
   mimetype?: string;
 }
 
-export interface IUpdateFileDetailsEndpointParams {
-  organizationId?: string;
-  path: string;
+export interface IUpdateFileDetailsEndpointParams extends IFileMatcher {
   file: IUpdateFileDetailsInput;
 }
 

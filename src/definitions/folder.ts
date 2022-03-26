@@ -1,4 +1,4 @@
-import {IAgent, IPublicAccessOp} from './system';
+import {IAgent} from './system';
 
 export interface IFolder {
   resourceId: string;
@@ -15,7 +15,6 @@ export interface IFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
-  publicAccessOps: IPublicAccessOp[];
 }
 
 export interface IPublicFolder {
@@ -31,5 +30,10 @@ export interface IPublicFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
-  publicAccessOps: IPublicAccessOp[];
+}
+
+export interface IFolderMatcher {
+  folderPath?: string;
+  folderId?: string;
+  organizationId?: string;
 }

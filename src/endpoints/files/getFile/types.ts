@@ -1,4 +1,4 @@
-import {IPublicFile} from '../../../definitions/file';
+import {IFileMatcher, IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
@@ -7,10 +7,7 @@ export interface IImageTransformationParams {
   height?: number;
 }
 
-export interface IGetFileEndpointParams {
-  // fileId: string;
-  path: string;
-  organizationId?: string;
+export interface IGetFileEndpointParams extends IFileMatcher {
   imageTranformation?: IImageTransformationParams;
 }
 

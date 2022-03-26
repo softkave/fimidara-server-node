@@ -5,7 +5,7 @@ import {IPublicPermissionItem} from '../types';
 
 export interface IGetResourcePermissionItemsParams {
   organizationId: string;
-  itemResourceId: string;
+  itemResourceId?: string;
   itemResourceType: AppResourceType;
 }
 

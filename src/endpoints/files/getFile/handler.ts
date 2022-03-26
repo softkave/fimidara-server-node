@@ -4,8 +4,11 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkFileAuthorization03, fileExtractor} from '../utils';
+import {
+  checkFileAuthorization03,
+  fileExtractor,
+  getFileMatcher,
+} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 import {NotFoundError} from '../../errors';
@@ -19,12 +22,10 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,
     agent,
-    organizationId,
-    data.path,
+    getFileMatcher(agent, data),
     BasicCRUDActions.Read
   );
 

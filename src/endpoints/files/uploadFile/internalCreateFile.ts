@@ -24,22 +24,8 @@ export async function internalCreateFile(
     data.publicAccessActions
   );
 
-  // if (data.inheritParentPublicAccessOps && parentFolder) {
-  //   publicAccessOps = publicAccessOps.concat(
-  //     getPublicAccessOpsForType(
-  //       parentFolder.publicAccessOps,
-  //       AppResourceType.File,
-  //       [
-  //         BasicCRUDActions.Read,
-  //         BasicCRUDActions.Update,
-  //         BasicCRUDActions.Delete,
-  //       ]
-  //     )
-  //   );
-  // }
-
   const file = await context.data.file.saveItem({
-    publicAccessOps,
+    // publicAccessOps,
     organizationId: organization.resourceId,
     resourceId: fileId,
     extension: pathWithDetails.extension || defaultTo(data.extension, ''),

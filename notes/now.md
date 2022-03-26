@@ -25,3 +25,10 @@
 - org ID should be be conditional in inputs like for the tokens
 - delete permission items when entity, owner, or resource is deleted
 - robust delete permission items
+- tags and meta
+- public access ops and similar inputs should be replace
+- flatten the endpoint inputs?
+- check file size when uploading
+- add endpoints for adding, updating, and deleting public access ops and similar items
+- allow every resource to have provided resource ID
+- don't sepearate extension from file name

@@ -47,7 +47,7 @@ describe('getFile', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,
-        path: file.name,
+        filePath: file.name,
       }
     );
 
@@ -87,7 +87,7 @@ describe('getFile', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,
-        path: file.name,
+        filePath: file.name,
         imageTranformation: {
           width: expectedWidth,
           height: expectedHeight,
@@ -126,7 +126,7 @@ describe('getFile', () => {
       userToken,
       organization.resourceId,
       {
-        path: folder.namePath
+        filePath: folder.namePath
           .concat([faker.lorem.word()])
           .join(folderConstants.nameSeparator),
       }
@@ -136,7 +136,7 @@ describe('getFile', () => {
       mockExpressRequestForPublicAgent(),
       {
         organizationId: organization.resourceId,
-        path: file.namePath.join(folderConstants.nameSeparator),
+        filePath: file.namePath.join(folderConstants.nameSeparator),
       }
     );
 
@@ -160,7 +160,7 @@ describe('getFile', () => {
       mockExpressRequestForPublicAgent(),
       {
         organizationId: organization.resourceId,
-        path: file.namePath.join(folderConstants.nameSeparator),
+        filePath: file.namePath.join(folderConstants.nameSeparator),
       }
     );
 
@@ -187,7 +187,7 @@ describe('getFile', () => {
         mockExpressRequestForPublicAgent(),
         {
           organizationId: organization.resourceId,
-          path: file.namePath.join(folderConstants.nameSeparator),
+          filePath: file.namePath.join(folderConstants.nameSeparator),
         }
       );
 

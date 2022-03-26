@@ -18,7 +18,6 @@ export interface IFile {
   name: string;
   extension: string;
   description?: string;
-  publicAccessOps: IPublicAccessOp[];
 
   // meta?: Record<string, string | number | boolean | null>;
 
@@ -26,3 +25,9 @@ export interface IFile {
 }
 
 export type IPublicFile = IFile;
+
+export interface IFileMatcher {
+  filePath?: string;
+  fileId?: string;
+  organizationId?: string;
+}

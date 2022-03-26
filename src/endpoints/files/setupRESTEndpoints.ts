@@ -32,7 +32,7 @@ function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
   const height = req.query.h;
   return {
     organizationId,
-    path: filePath,
+    filePath: filePath,
     imageTranformation:
       isNumber(width) && isNumber(height) ? {width, height} : undefined,
     ...req.body,
@@ -46,7 +46,7 @@ function extractUploadFilesParamsFromQuery(
   const filePath = req.query.p as string;
   return {
     organizationId,
-    path: filePath,
+    filePath: filePath,
   };
 }
 

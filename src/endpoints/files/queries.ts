@@ -31,6 +31,22 @@ function getByNamePath(organizationId: string, namePath: string[]) {
     .build();
 }
 
+function getByNamePathAndExtention(
+  organizationId: string,
+  namePath: string[],
+  extension: string
+) {
+  return newFilter()
+    .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem('extension', extension, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 function getRootFiles(organizationId: string) {
   return newFilter()
     .addItem(
@@ -49,4 +65,5 @@ export default abstract class FileQueries {
   static getByNamePath = getByNamePath;
   static getRootFiles = getRootFiles;
   static getByMultipleIds = EndpointReusableQueries.getByIdsAndOrgId;
+  static getByNamePathAndExtention = getByNamePathAndExtention;
 }

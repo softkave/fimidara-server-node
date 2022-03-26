@@ -231,7 +231,7 @@ export async function assertCanReadPublicFile(
 ) {
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: filePath}
+    {organizationId, filePath: filePath}
   );
 
   const result = await getFile(ctx, instData);
@@ -245,7 +245,7 @@ export async function assertCanUploadToPublicFile(
 ) {
   return await insertFileForTest(ctx, null, organizationId, {
     organizationId,
-    path: filePath,
+    filePath: filePath,
   });
 }
 
@@ -262,7 +262,7 @@ export async function assertCanUpdatePublicFile(
   const instData =
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, path: filePath, file: updateInput}
+      {organizationId, filePath: filePath, file: updateInput}
     );
 
   const result = await updateFileDetails(ctx, instData);
@@ -276,7 +276,7 @@ export async function assertCanDeletePublicFile(
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFileParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, path: filePath}
+    {organizationId, filePath: filePath}
   );
 
   const result = await deleteFile(ctx, instData);
