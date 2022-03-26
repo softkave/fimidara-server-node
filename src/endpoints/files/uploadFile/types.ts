@@ -1,4 +1,4 @@
-import {IPublicFile} from '../../../definitions/file';
+import {IFileMatcher, IPublicFile} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
@@ -9,16 +9,13 @@ export enum UploadFilePublicAccessActions {
   ReadUpdateAndDelete = 'read-update-delete',
 }
 
-export interface IUploadFileParams {
-  organizationId?: string;
+export interface IUploadFileParams extends IFileMatcher {
   description?: string;
   encoding?: string;
   extension?: string;
   mimetype?: string; // TODO: define mimetypes
   data: Buffer;
-  path: string;
   publicAccessActions?: UploadFilePublicAccessActions;
-  // inheritParentPublicAccessOps?: boolean;
 }
 
 export interface IUploadFileResult {

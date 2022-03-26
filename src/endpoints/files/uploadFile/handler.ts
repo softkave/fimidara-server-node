@@ -1,3 +1,5 @@
+import assert = require('assert');
+import {first} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IOrganization} from '../../../definitions/organization';
@@ -7,6 +9,7 @@ import {
   ISessionAgent,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
+import {ValidationError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
@@ -14,12 +17,12 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getOrganizationId} from '../../contexts/SessionContext';
 import {createFolderList} from '../../folders/addFolder/handler';
 import EndpointReusableQueries from '../../queries';
-import FileQueries from '../queries';
+import {getFilesWithMatcher} from '../getFilesWithMatcher';
 import {
   FileUtils,
+  getFileMatcher,
   ISplitFilePathWithDetails,
   splitFilePathWithDetails,
 } from '../utils';
@@ -36,20 +39,20 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const pathWithDetails = splitFilePathWithDetails(data.path);
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const organization = await context.data.organization.assertGetItem(
-    EndpointReusableQueries.getById(organizationId)
-  );
-
-  let file = await context.data.file.getItem(
-    FileQueries.getByNamePath(
-      organizationId,
-      pathWithDetails.splitPathWithoutExtension
-    )
-  );
+  const matcher = getFileMatcher(agent, data);
+  let file = first(await getFilesWithMatcher(context, matcher, 1));
 
   if (!file) {
+    assert(
+      matcher.organizationId && matcher.filePath,
+      new ValidationError('Organization ID and or file path missing')
+    );
+
+    const pathWithDetails = splitFilePathWithDetails(matcher.filePath);
+    const organization = await context.data.organization.assertGetItem(
+      EndpointReusableQueries.getById(matcher.organizationId)
+    );
+
     const parentFolder = await createFileParentFolders(
       context,
       agent,
@@ -67,7 +70,12 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       parentFolder
     );
   } else {
+    const organization = await context.data.organization.assertGetItem(
+      EndpointReusableQueries.getById(file.organizationId)
+    );
+
     await checkUploadFileAuth(context, agent, organization, file, null);
+    const pathWithDetails = splitFilePathWithDetails(file.namePath);
     file = await internalUpdateFile(
       context,
       agent,

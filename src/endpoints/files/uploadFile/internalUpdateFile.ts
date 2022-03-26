@@ -23,33 +23,14 @@ export async function internalUpdateFile(
   data: IUploadFileParams
 ) {
   let publicAccessOps: IPublicAccessOp[] = [];
-  const update: Partial<IFile> = {
-    extension: pathWithDetails.extension || defaultTo(data.extension, ''),
-    mimetype: data.mimetype,
-    size: data.data.length,
-    lastUpdatedBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
-    lastUpdatedAt: getDate(),
-    description: data.description,
-    encoding: data.encoding,
-  };
 
   if (data.publicAccessActions) {
-    publicAccessOps = makeFilePublicAccessOps(
-      agent,
-      data.publicAccessActions,
-      existingFile.publicAccessOps
-    );
-
-    update.publicAccessOps = publicAccessOps;
+    publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessActions);
   }
 
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),
     {
-      publicAccessOps,
       extension: pathWithDetails.extension || defaultTo(data.extension, ''),
       mimetype: data.mimetype,
       size: data.data.length,

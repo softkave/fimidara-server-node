@@ -117,7 +117,7 @@ describe('uploadFile', () => {
     const {savedFile, insertUserResult, insertOrgResult} =
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileParams> = {
-      path: savedFile.namePath.join(folderConstants.nameSeparator),
+      filePath: savedFile.namePath.join(folderConstants.nameSeparator),
       publicAccessActions: UploadFilePublicAccessActions.Read,
     };
 
@@ -158,7 +158,7 @@ describe('uploadFile', () => {
       );
 
     const update: Partial<IUploadFileParams> = {
-      path: savedFile.namePath.join(folderConstants.nameSeparator),
+      filePath: savedFile.namePath.join(folderConstants.nameSeparator),
       publicAccessActions: UploadFilePublicAccessActions.None,
     };
 

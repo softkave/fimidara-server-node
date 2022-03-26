@@ -496,7 +496,7 @@ export async function insertFileForTest(
 ) {
   const input: IUploadFileParams = {
     organizationId,
-    path: [faker.lorem.word()].join(folderConstants.nameSeparator),
+    filePath: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',
@@ -508,13 +508,13 @@ export async function insertFileForTest(
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
       input.extension = 'png';
-      input.path = input.path + '.png';
+      input.filePath = input.filePath + '.png';
     } else {
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
       input.extension = 'txt';
-      input.path = input.path + '.txt';
+      input.filePath = input.filePath + '.txt';
     }
   }
 

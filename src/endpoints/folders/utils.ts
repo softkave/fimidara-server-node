@@ -36,7 +36,7 @@ const folderFields = getFields<IPublicFolder>({
   description: true,
   idPath: true,
   namePath: true,
-  publicAccessOps: publicAccessOpListExtractor,
+  // publicAccessOps: publicAccessOpListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -71,7 +71,7 @@ export function assertSplitFolderPath(path: string) {
 }
 
 export interface IFolderPathWithDetails {
-  path: string | string[];
+  providedPath: string | string[];
   name: string;
   splitPath: string[];
   splitParentPath: string[];
@@ -80,9 +80,9 @@ export interface IFolderPathWithDetails {
 }
 
 export function splitPathWithDetails(
-  path: string | string[]
+  providedPath: string | string[]
 ): IFolderPathWithDetails {
-  const splitPath = splitFolderPath(path);
+  const splitPath = splitFolderPath(providedPath);
   const name = defaultTo(last(splitPath), '');
   const splitParentPath = splitPath.slice(0, -1);
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
@@ -92,8 +92,8 @@ export function splitPathWithDetails(
     splitParentPath,
     splitPath,
     name,
-    path,
     parentPath,
+    providedPath,
   };
 }
 
@@ -167,6 +167,10 @@ export async function checkFolderAuthorization03(
     FolderQueries.getByNamePath(organizationId, splitPath)
   );
   return checkFolderAuthorization(context, agent, folder, action, nothrow);
+}
+
+export function getFolderName(folder: IFolder) {
+  return folder.namePath.join(folderConstants.nameSeparator);
 }
 
 export abstract class FolderUtils {

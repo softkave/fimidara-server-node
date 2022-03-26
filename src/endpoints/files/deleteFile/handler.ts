@@ -5,10 +5,9 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import {getOrganizationId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FileQueries from '../queries';
-import {checkFileAuthorization03} from '../utils';
+import {checkFileAuthorization03, getFileMatcher} from '../utils';
 import {DeleteFileEndpoint} from './types';
 import {deleteFileJoiSchema} from './validation';
 
@@ -20,12 +19,10 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,
     agent,
-    organizationId,
-    data.path,
+    getFileMatcher(agent, data),
     BasicCRUDActions.Delete
   );
 

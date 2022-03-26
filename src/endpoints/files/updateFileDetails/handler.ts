@@ -4,9 +4,8 @@ import {
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../queries';
-import {checkFileAuthorization03, FileUtils} from '../utils';
+import {checkFileAuthorization03, FileUtils, getFileMatcher} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -26,12 +25,10 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
   const {file} = await checkFileAuthorization03(
     context,
     agent,
-    organizationId,
-    data.path,
+    getFileMatcher(agent, data),
     BasicCRUDActions.Update
   );
 

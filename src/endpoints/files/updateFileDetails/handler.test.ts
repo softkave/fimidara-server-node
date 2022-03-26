@@ -48,7 +48,7 @@ test('file updated', async () => {
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,
-        path: file.name,
+        filePath: file.name,
         file: updateInput,
       }
     );

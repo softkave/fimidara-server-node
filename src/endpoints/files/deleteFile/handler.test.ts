@@ -45,7 +45,7 @@ test('file deleted', async () => {
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId: organization.resourceId,
-      path: file.name,
+      filePath: file.name,
     }
   );
 

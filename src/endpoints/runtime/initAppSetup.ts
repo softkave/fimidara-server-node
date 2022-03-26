@@ -13,31 +13,47 @@ import EndpointReusableQueries from '../queries';
 import OrganizationQueries from '../organizations/queries';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {IPermissionItem} from '../../definitions/permissionItem';
-import {IAppRuntimeVars} from '../../resources/appVariables';
+import {IAppRuntimeVars, IAppVariables} from '../../resources/appVariables';
 import {merge} from 'lodash';
 import internalCreateOrg from '../organizations/addOrganization/internalCreateOrg';
-
-/**
- * isAppSetup
- * - yes, do nothing
- * - no
- *   - create organization
- *   - setup admin preset
- *   - create collaboration request for default user
- *   - create image folders
- *   - create permission groups for uploading to the folders
- *   - update app setup state
- */
+import {permissionItemIndexer} from '../permissionItems/utils';
 
 const folder01Path = '/files';
 const folder02Path = '/files/images';
 const appSetupVars = {
   orgName: 'Files by softkave',
+  orgsFolder: '/files-prod/orgs',
   orgImagesFolderPath: folder02Path + '/orgs',
   userImagesFolderPath: folder02Path + '/users',
   orgsImageUploadPresetName: 'Files-orgs-image-upload',
   usersImageUploadPresetName: 'Files-users-image-upload',
 };
+
+// export function getAppBaseFolder(nodeEnv: string) {
+//   switch (nodeEnv) {
+//     case 'production':
+//       return 'files-prod';
+//     case 'test':
+//       return 'files-test';
+//     case 'development':
+//     default:
+//       return 'files-dev';
+//   }
+// }
+
+// export function getAppSetupVars(nodeEnv: string) {
+//   const baseFolder = getAppBaseFolder(nodeEnv);
+//   const appSetupVars = {
+//     orgName: 'Files by softkave',
+//     orgsFolder: `${baseFolder}/orgs`,
+//     imageFolderName: '/images',
+//     userImagesFolder: `${baseFolder}/users`,
+//     orgsImageUploadPresetName: 'Files-orgs-image-upload',
+//     usersImageUploadPresetName: 'Files-users-image-upload',
+//   };
+
+//   return appSetupVars;
+// }
 
 async function setupOrg(context: IBaseContext, name: string) {
   return await internalCreateOrg(
@@ -157,18 +173,24 @@ async function setupImageUploadPermissionGroup(
   const permissionItems: IPermissionItem[] = [
     BasicCRUDActions.Create,
     BasicCRUDActions.Read,
-  ].map(action => ({
-    action,
-    resourceId: getNewId(),
-    organizationId: orgId,
-    createdAt: getDateString(),
-    createdBy: systemAgent,
-    permissionOwnerId: folderId,
-    permissionOwnerType: AppResourceType.Folder,
-    permissionEntityId: imageUploadPreset.resourceId,
-    permissionEntityType: AppResourceType.PresetPermissionsGroup,
-    itemResourceType: AppResourceType.File,
-  }));
+  ].map(action => {
+    const item: IPermissionItem = {
+      action,
+      hash: '',
+      resourceId: getNewId(),
+      organizationId: orgId,
+      createdAt: getDateString(),
+      createdBy: systemAgent,
+      permissionOwnerId: folderId,
+      permissionOwnerType: AppResourceType.Folder,
+      permissionEntityId: imageUploadPreset.resourceId,
+      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      itemResourceType: AppResourceType.File,
+    };
+
+    item.hash = permissionItemIndexer(item);
+    return item;
+  });
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
   return imageUploadPreset;

@@ -308,7 +308,8 @@ export function makePublicSessionAgent(): ISessionAgent {
 
 export function getOrganizationId(
   agent: ISessionAgent,
-  providedOrganizationId?: string | null
+  providedOrganizationId?: string,
+  nothrow = false
 ) {
   const organizationId = agent.clientAssignedToken
     ? agent.clientAssignedToken.organizationId
@@ -316,7 +317,7 @@ export function getOrganizationId(
     ? agent.programAccessToken.organizationId
     : providedOrganizationId;
 
-  if (!organizationId) {
+  if (!nothrow && !organizationId) {
     throw new InvalidRequestError('Organization ID not provided');
   }
 

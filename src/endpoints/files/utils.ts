@@ -1,26 +1,25 @@
-import {IFile, IPublicFile} from '../../definitions/file';
+import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {ValidationError} from '../../utilities/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {getOrganizationId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
+import {folderConstants} from '../folders/constants';
 import {IFolderPathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
-import {
-  agentExtractor,
-  agentExtractorIfPresent,
-  publicAccessOpListExtractor,
-} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
-import FileQueries from './queries';
+import {assertGetSingleFileWithMatcher} from './getFilesWithMatcher';
 
 const fileFields = getFields<IPublicFile>({
   resourceId: true,
@@ -38,7 +37,7 @@ const fileFields = getFields<IPublicFile>({
   extension: true,
   idPath: true,
   namePath: true,
-  publicAccessOps: publicAccessOpListExtractor,
+  // publicAccessOps: publicAccessOpListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -74,41 +73,20 @@ export async function checkFileAuthorization(
   return {agent, file, organization};
 }
 
-// With file ID
-export async function checkFileAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  id: string,
-  action: BasicCRUDActions,
-  nothrow = false
-) {
-  const file = await context.data.file.assertGetItem(FileQueries.getById(id));
-  return checkFileAuthorization(context, agent, file, action, nothrow);
-}
-
-// With file path
 export async function checkFileAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
-  path: string | string[],
+  matcher: IFileMatcher,
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const pathWithDetails = splitFilePathWithDetails(path);
-  const file = await context.data.file.assertGetItem(
-    FileQueries.getByNamePath(
-      organizationId,
-      pathWithDetails.splitPathWithoutExtension
-    )
-  );
-
+  const file = await assertGetSingleFileWithMatcher(context, matcher);
   return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 
 export interface ISplitFilenameWithDetails {
   nameWithoutExtension: string;
-  extension: string;
+  extension?: string;
   providedName: string;
 }
 
@@ -118,10 +96,21 @@ export function splitFilenameWithDetails(
   const splitStr = providedName.split(
     fileConstants.fileNameAndExtensionSeparator
   );
-  const nameWithoutExtension = splitStr[0];
-  const extension = splitStr
+
+  let nameWithoutExtension = splitStr[0];
+  let extension: string | undefined = splitStr
     .slice(1)
     .join(fileConstants.fileNameAndExtensionSeparator);
+
+  if (extension && !nameWithoutExtension) {
+    nameWithoutExtension = extension;
+    extension = undefined;
+  }
+
+  if (!nameWithoutExtension) {
+    throw new ValidationError('File name is empty');
+  }
+
   return {
     providedName,
     extension,
@@ -143,6 +132,7 @@ export function splitFilePathWithDetails(
   const splitPathWithoutExtension = [...pathWithDetails.splitPath];
   splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
     fileNameWithDetails.nameWithoutExtension;
+
   return {
     ...pathWithDetails,
     ...fileNameWithDetails,
@@ -152,6 +142,20 @@ export function splitFilePathWithDetails(
 
 export function throwFileNotFound() {
   throw new NotFoundError('File not found');
+}
+
+export function getFileName(file: IFile) {
+  return `${file.namePath.join(folderConstants.nameSeparator)}${
+    fileConstants.fileNameAndExtensionSeparator
+  }${file.extension}`;
+}
+
+export function getFileMatcher(agent: ISessionAgent, data: IFileMatcher) {
+  const organizationId = getOrganizationId(agent, data.organizationId, true);
+  return {
+    ...data,
+    organizationId,
+  };
 }
 
 export abstract class FileUtils {
