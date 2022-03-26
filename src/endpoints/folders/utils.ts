@@ -1,5 +1,5 @@
 import {defaultTo, isArray, last} from 'lodash';
-import {IFolder, IPublicFolder} from '../../definitions/folder';
+import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -12,16 +12,13 @@ import {
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {
-  agentExtractor,
-  agentExtractorIfPresent,
-  publicAccessOpListExtractor,
-} from '../utils';
+import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
-import FolderQueries from './queries';
+import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
 const folderFields = getFields<IPublicFolder>({
   resourceId: true,
@@ -139,38 +136,28 @@ export async function checkFolderAuthorization(
   return {agent, folder, organization};
 }
 
-// With folder ID
-export async function checkFolderAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  id: string,
-  action: BasicCRUDActions,
-  nothrow = false
-) {
-  const folder = await context.data.folder.assertGetItem(
-    FolderQueries.getById(id)
-  );
-  return checkFolderAuthorization(context, agent, folder, action, nothrow);
-}
-
 // With folder path
 export async function checkFolderAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
-  path: string | string[],
+  matcher: IFolderMatcher,
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const splitPath = isArray(path) ? path : splitFolderPath(path);
-  const folder = await context.data.folder.assertGetItem(
-    FolderQueries.getByNamePath(organizationId, splitPath)
-  );
+  const folder = await assertGetFolderWithMatcher(context, matcher);
   return checkFolderAuthorization(context, agent, folder, action, nothrow);
 }
 
 export function getFolderName(folder: IFolder) {
   return folder.namePath.join(folderConstants.nameSeparator);
+}
+
+export function getFolderMatcher(agent: ISessionAgent, data: IFolderMatcher) {
+  const organizationId = getOrganizationIdNoThrow(agent, data.organizationId);
+  return {
+    ...data,
+    organizationId,
+  };
 }
 
 export abstract class FolderUtils {

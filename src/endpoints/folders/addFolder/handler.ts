@@ -51,22 +51,8 @@ export async function createSingleFolder(
   }
 
   const folderId = getNewId();
-  let publicAccessOps: IPublicAccessOp[] = input.publicAccessOps
-    ? input.publicAccessOps.map(op => ({
-        ...op,
-        markedAt: getDate(),
-        markedBy: agent,
-      }))
-    : [];
-
-  // if (input.inheritParentPublicAccessOps && parent) {
-  //   publicAccessOps = publicAccessOps.concat(parent.publicAccessOps);
-  // }
-
-  publicAccessOps = compactPublicAccessOps(publicAccessOps);
   const savedFolder = await context.data.folder.saveItem({
     name,
-    publicAccessOps,
     organizationId: organization.resourceId,
     resourceId: folderId,
     parentId: parent?.resourceId,
@@ -79,6 +65,15 @@ export async function createSingleFolder(
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 
+  let publicAccessOps: IPublicAccessOp[] = input.publicAccessOps
+    ? input.publicAccessOps.map(op => ({
+        ...op,
+        markedAt: getDate(),
+        markedBy: agent,
+      }))
+    : [];
+
+  publicAccessOps = compactPublicAccessOps(publicAccessOps);
   await replacePublicPresetAccessOpsByPermissionOwner(
     context,
     agent,

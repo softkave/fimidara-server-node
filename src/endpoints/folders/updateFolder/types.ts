@@ -1,4 +1,4 @@
-import {IPublicFolder} from '../../../definitions/folder';
+import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
 import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
@@ -10,10 +10,7 @@ export interface IUpdateFolderInput {
   removePublicAccessOps?: boolean;
 }
 
-export interface IUpdateFolderParams {
-  // folderId: string;
-  organizationId?: string;
-  path: string;
+export interface IUpdateFolderParams extends IFolderMatcher {
   folder: IUpdateFolderInput;
 }
 

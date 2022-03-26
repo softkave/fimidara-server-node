@@ -22,12 +22,6 @@ export async function internalUpdateFile(
   existingFile: IFile,
   data: IUploadFileParams
 ) {
-  let publicAccessOps: IPublicAccessOp[] = [];
-
-  if (data.publicAccessActions) {
-    publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessActions);
-  }
-
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),
     {
@@ -45,6 +39,11 @@ export async function internalUpdateFile(
   );
 
   if (data.publicAccessActions) {
+    const publicAccessOps = makeFilePublicAccessOps(
+      agent,
+      data.publicAccessActions
+    );
+
     await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,

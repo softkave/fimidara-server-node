@@ -12,7 +12,7 @@ import {
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getOrganizationId} from '../contexts/SessionContext';
+import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IFolderPathWithDetails, splitPathWithDetails} from '../folders/utils';
@@ -151,7 +151,7 @@ export function getFileName(file: IFile) {
 }
 
 export function getFileMatcher(agent: ISessionAgent, data: IFileMatcher) {
-  const organizationId = getOrganizationId(agent, data.organizationId, true);
+  const organizationId = getOrganizationIdNoThrow(agent, data.organizationId);
   return {
     ...data,
     organizationId,

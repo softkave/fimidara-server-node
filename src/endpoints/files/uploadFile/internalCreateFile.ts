@@ -19,13 +19,7 @@ export async function internalCreateFile(
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();
-  const publicAccessOps = makeFilePublicAccessOps(
-    agent,
-    data.publicAccessActions
-  );
-
   const file = await context.data.file.saveItem({
-    // publicAccessOps,
     organizationId: organization.resourceId,
     resourceId: fileId,
     extension: pathWithDetails.extension || defaultTo(data.extension, ''),
@@ -45,6 +39,11 @@ export async function internalCreateFile(
     description: data.description,
     encoding: data.encoding,
   });
+
+  const publicAccessOps = makeFilePublicAccessOps(
+    agent,
+    data.publicAccessActions
+  );
 
   await replacePublicPresetAccessOpsByPermissionOwner(
     context,

@@ -3,16 +3,17 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
-  IPublicAccessOp,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
-import {compactPublicAccessOps} from '../../../definitions/utils';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {getOrganizationId} from '../../contexts/SessionContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
-import {checkFolderAuthorization03, folderExtractor} from '../utils';
+import {
+  checkFolderAuthorization03,
+  folderExtractor,
+  getFolderMatcher,
+} from '../utils';
 import {UpdateFolderEndpoint} from './types';
 import {updateFolderJoiSchema} from './validation';
 
@@ -24,12 +25,10 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
   const {folder, organization} = await checkFolderAuthorization03(
     context,
     agent,
-    organizationId,
-    data.path,
+    getFolderMatcher(agent, data),
     BasicCRUDActions.Update
   );
 
@@ -43,12 +42,16 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     },
   };
 
-  let publicAccessOps: IPublicAccessOp[] = [];
+  const updatedFolder = await context.data.folder.assertUpdateItem(
+    FolderQueries.getById(folder.resourceId),
+    update
+  );
+
   const hasPublicAccessOpsChanges =
     incomingPublicAccessOps.length > 0 || data.folder.removePublicAccessOps;
 
   if (hasPublicAccessOpsChanges) {
-    publicAccessOps = incomingPublicAccessOps
+    let publicAccessOps = incomingPublicAccessOps
       ? incomingPublicAccessOps.map(op => ({
           ...op,
           markedAt: getDate(),
@@ -56,23 +59,10 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
         }))
       : [];
 
-    publicAccessOps = compactPublicAccessOps(
-      publicAccessOps.concat(folder.publicAccessOps)
-    );
-
     if (data.folder.removePublicAccessOps) {
       publicAccessOps = [];
     }
 
-    update.publicAccessOps = publicAccessOps;
-  }
-
-  const updatedFolder = await context.data.folder.assertUpdateItem(
-    FolderQueries.getById(folder.resourceId),
-    update
-  );
-
-  if (hasPublicAccessOpsChanges) {
     await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,

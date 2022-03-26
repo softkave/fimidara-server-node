@@ -84,35 +84,35 @@ export const uploadFileBaseTest = async (
 
 export async function assertPublicAccessOps(
   ctx: IBaseContext,
-  resource: {resourceId: string; publicAccessOps: IPublicAccessOp[]},
+  resource: {resourceId: string},
   insertUserResult: IInsertUserForTestResult,
   insertOrgResult: IInsertOrganizationForTestResult,
   publicAccessOpsInput: IPublicAccessOpInput[],
   resourceType: AppResourceType
 ) {
-  const agent = await ctx.session.getAgent(
-    ctx,
-    RequestData.fromExpressRequest(
-      mockExpressRequestWithUserToken(insertUserResult.userToken)
-    )
-  );
+  // const agent = await ctx.session.getAgent(
+  //   ctx,
+  //   RequestData.fromExpressRequest(
+  //     mockExpressRequestWithUserToken(insertUserResult.userToken)
+  //   )
+  // );
 
-  const resourcePublicAccessOpsMap = indexArray(resource.publicAccessOps, {
-    indexer: op => op.action + op.resourceType,
-  });
+  // const resourcePublicAccessOpsMap = indexArray(resource.publicAccessOps, {
+  //   indexer: op => op.action + op.resourceType,
+  // });
 
-  publicAccessOpsInput.forEach(op => {
-    expect(
-      resourcePublicAccessOpsMap[op.action + op.resourceType]
-    ).toMatchObject({
-      action: op.action,
-      resourceType: op.resourceType,
-      markedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    });
-  });
+  // publicAccessOpsInput.forEach(op => {
+  //   expect(
+  //     resourcePublicAccessOpsMap[op.action + op.resourceType]
+  //   ).toMatchObject({
+  //     action: op.action,
+  //     resourceType: op.resourceType,
+  //     markedBy: {
+  //       agentId: agent.agentId,
+  //       agentType: agent.agentType,
+  //     },
+  //   });
+  // });
 
   assert(insertOrgResult.organization.publicPresetId);
   const publicPresetPermissionitems = (
@@ -182,7 +182,7 @@ export const uploadFileWithPublicAccessActionTest = async (
   const {savedFile} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertOrgResult = uploadResult.insertOrgResult;
-  expect(savedFile.publicAccessOps).toHaveLength(expectedPublicAccessOpsCount);
+  // expect(savedFile.publicAccessOps).toHaveLength(expectedPublicAccessOpsCount);
   await assertPublicAccessOps(
     ctx,
     savedFile,
@@ -216,7 +216,7 @@ export async function assertFileUpdated(
   expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
   expect(savedFile.size).not.toBe(updatedFile.size);
   expect(savedFile.encoding).not.toBe(updatedFile.encoding);
-  expect(savedFile.publicAccessOps).not.toBe(updatedFile.publicAccessOps);
+  // expect(savedFile.publicAccessOps).not.toBe(updatedFile.publicAccessOps);
   expect(updatedFile.lastUpdatedAt).toBeTruthy();
   expect(updatedFile.lastUpdatedBy).toMatchObject({
     agentId: agent.agentId,
