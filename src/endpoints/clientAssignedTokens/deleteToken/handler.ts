@@ -42,6 +42,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
     // permission carrying resources, e.g a progam access token
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
+        token.organizationId,
         token.resourceId,
         AppResourceType.ClientAssignedToken
       )

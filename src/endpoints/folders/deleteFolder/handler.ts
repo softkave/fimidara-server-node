@@ -93,6 +93,7 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
     // Delete permission items that explicitly give access to the folder
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
+        folder.organizationId,
         folder.resourceId,
         AppResourceType.Folder
       )

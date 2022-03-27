@@ -18,15 +18,15 @@ import {
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
-import {IResource} from './types';
+import {IFetchResourceItem, IResource} from './types';
 
 export interface IGetResourcesOptions {
   context: IBaseContext;
-  inputResources: Array<{
-    resourceId: string;
-    resourceType: AppResourceType;
-    action?: BasicCRUDActions;
-  }>;
+  inputResources: Array<
+    IFetchResourceItem & {
+      action?: BasicCRUDActions;
+    }
+  >;
   allowedTypes?: AppResourceType[];
   throwOnFetchError?: boolean;
   checkAuth?: boolean;

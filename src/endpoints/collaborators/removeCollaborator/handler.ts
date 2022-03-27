@@ -53,6 +53,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     // Delete permission items that explicitly give access to the resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
+        organizationId,
         collaborator.resourceId,
         AppResourceType.User
       )

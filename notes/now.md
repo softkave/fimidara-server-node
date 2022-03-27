@@ -1,3 +1,4 @@
+- copy and centralize all your todos in one place
 - Preset weight, not order
 - Remove avatars
 - unit tests
@@ -34,3 +35,9 @@
 - don't sepearate extension from file name
 - add the right http errors and status text to http responses
 - add error message in constructor to all errors
+- allow creating files and folders by folder iD and name
+- remove undefined and null from permission item hash
+- write more auth check tests, particularly for ones that shouldn't grant access
+- better name your APIs, the REST urls
+- add /api to your urls
+- differentiate between user and collaborator

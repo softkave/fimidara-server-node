@@ -7,6 +7,7 @@ import {
   IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
+import {ServerError} from '../../../utilities/errors';
 import {indexArray} from '../../../utilities/indexArray';
 import {PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
@@ -29,6 +30,7 @@ export interface ICheckAuthorizationParams {
   agent: ISessionAgent;
   organization: IOrganization;
   type: AppResourceType;
+  itemResourceId?: string;
   permissionOwners: IPermissionOwner[];
   action: BasicCRUDActions;
   nothrow?: boolean;
@@ -60,6 +62,17 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     nothrow,
     resource,
   } = params;
+
+  const itemResourceId = params.resource?.resourceId || params.itemResourceId;
+
+  if (
+    resource &&
+    params.itemResourceId &&
+    resource.resourceId !== params.itemResourceId
+  ) {
+    // TODO: throw invalid argument error instead
+    throw new ServerError();
+  }
 
   // Check if resource is public and short-circuit.
   if (
@@ -120,10 +133,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const getPermissionOwnerOrder = (item: IPermissionOwner) =>
     entitiesMap[getPermissionOwnerKey(item)]?.order ?? 99;
 
-  const hasPermissionOwners = () => permissionOwners.length > 0;
-  const permissionOwnerExists = (item: IPermissionItem) =>
-    !!permissionOwnersMap[getPermissionOwnerKey(item)];
-
+  const hasPermissionOwners = permissionOwners.length > 0;
   const items = flatten(permissionItemsList).filter(item => {
     // if (
     //   resource &&
@@ -133,7 +143,14 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     //   return false;
     // }
 
-    if (hasPermissionOwners() && !permissionOwnerExists(item)) {
+    if (item.itemResourceId && item.itemResourceId !== itemResourceId) {
+      return false;
+    }
+
+    const permissionOwnerKey = getPermissionOwnerKey(item);
+    const permissionOwnerExists = !!permissionOwnersMap[permissionOwnerKey];
+
+    if (hasPermissionOwners && !permissionOwnerExists) {
       return false;
     }
 

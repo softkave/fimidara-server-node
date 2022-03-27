@@ -58,7 +58,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
 
-  if (data.folderPath === '') {
+  if (!data.folderPath && !data.folderId) {
     const result = await fetchRootLevelContent(context, organizationId);
     fetchedFiles = result.files;
     fetchedFolders = result.folders;

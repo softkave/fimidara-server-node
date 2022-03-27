@@ -10,6 +10,8 @@ export interface IOperationErrorParameters {
 export default class OperationError extends Error {
   public message = 'Error';
   public field?: string;
+
+  // recommended action for the client
   public action?: string;
   public value?: string;
   public isPublic = true;
@@ -18,10 +20,7 @@ export default class OperationError extends Error {
     super();
 
     if (isObject(props)) {
-      // error data path
       this.field = props.field;
-
-      // recommended action for the client
       this.action = props.action;
 
       if (props.value) {
@@ -48,4 +47,8 @@ export function getErrorMessageFromParams(
   }
 
   return defaultMessage;
+}
+
+export function isOperationError(error: any): error is OperationError {
+  return !!error?.message;
 }
