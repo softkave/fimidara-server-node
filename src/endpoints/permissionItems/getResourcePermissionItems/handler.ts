@@ -34,6 +34,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 
   const items = await context.data.permissionItem.getManyItems(
     PermissionItemQueries.getByResource(
+      organization.resourceId,
       data.itemResourceId,
       data.itemResourceType
     )

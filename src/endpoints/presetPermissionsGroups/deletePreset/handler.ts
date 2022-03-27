@@ -39,6 +39,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
       // Delete permission items that explicitly give access to this resource
       context.data.permissionItem.deleteManyItems(
         PermissionItemQueries.getByResource(
+          organization.resourceId,
           preset.resourceId,
           AppResourceType.PresetPermissionsGroup
         )

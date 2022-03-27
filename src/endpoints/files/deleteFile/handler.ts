@@ -29,7 +29,11 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByResource(file.resourceId, AppResourceType.File)
+      PermissionItemQueries.getByResource(
+        file.organizationId,
+        file.resourceId,
+        AppResourceType.File
+      )
     ),
 
     // Delete permission items that are owned by the file

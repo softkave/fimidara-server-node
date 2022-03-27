@@ -32,6 +32,7 @@ const deleteRequest: DeleteRequestEndpoint = async (context, instData) => {
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
+        request.organizationId,
         request.resourceId,
         AppResourceType.CollaborationRequest
       )

@@ -41,6 +41,7 @@ const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint =
       ...data.itemIds.map(id => {
         return context.data.permissionItem.deleteManyItems(
           PermissionItemQueries.getByResource(
+            organization.resourceId,
             id,
             AppResourceType.PermissionItem
           )

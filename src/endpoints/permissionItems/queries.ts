@@ -24,20 +24,33 @@ function getByOwner(ownerId: string, ownerType: AppResourceType) {
 }
 
 function getByResource(
+  organizationId: string,
   resourceId: string | undefined,
   resourceType: AppResourceType
 ) {
   const filter = newFilter().addItem(
-    'itemResourceType',
-    resourceType,
+    'organizationId',
+    organizationId,
     DataProviderFilterValueOperator.Equal
   );
 
   if (resourceId) {
+    filter
+      .addItem(
+        'itemResourceId',
+        resourceId,
+        DataProviderFilterValueOperator.Equal
+      )
+      .addItem(
+        'itemResourceType',
+        resourceType,
+        DataProviderFilterValueOperator.Equal
+      );
+  } else {
     filter.addItem(
-      'itemResourceId',
-      resourceId,
-      DataProviderFilterValueOperator.Equal
+      'itemResourceType',
+      [resourceType, AppResourceType.All],
+      DataProviderFilterValueOperator.In
     );
   }
 
@@ -60,19 +73,25 @@ function getByOwnerAndResource(
       'permissionOwnerType',
       ownerType,
       DataProviderFilterValueOperator.Equal
-    )
-
-    .addItem(
-      'itemResourceType',
-      resourceType,
-      DataProviderFilterValueOperator.Equal
     );
 
-  if (!resourceId) {
+  if (resourceId) {
+    filter
+      .addItem(
+        'itemResourceId',
+        resourceId,
+        DataProviderFilterValueOperator.Equal
+      )
+      .addItem(
+        'itemResourceType',
+        resourceType,
+        DataProviderFilterValueOperator.Equal
+      );
+  } else {
     filter.addItem(
-      'itemResourceId',
-      resourceId,
-      DataProviderFilterValueOperator.Equal
+      'itemResourceType',
+      [resourceType, AppResourceType.All],
+      DataProviderFilterValueOperator.In
     );
   }
 

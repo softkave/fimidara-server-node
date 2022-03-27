@@ -9,6 +9,7 @@ import {
   CredentialsExpiredError,
   InvalidCredentialsError,
 } from '../endpoints/user/errors';
+import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utilities/errors';
 
 export function resolveJWTError(err: Error) {
@@ -71,16 +72,16 @@ function handleErrors(...args: any[]) {
   const JWTError = resolveJWTError(err);
 
   if (JWTError) {
-    res.status(kUnauthorizedStatusCode).send({
-      errors: [JWTError],
+    res.status(kUnauthorizedStatusCode).json({
+      errors: getPublicErrors([JWTError]),
     });
   } else if (err instanceof multer.MulterError) {
-    res.status(kServerErrorStatusCode).send({
-      errors: [new Error('Error handling file upload')],
+    res.status(kServerErrorStatusCode).json({
+      errors: getPublicErrors([new Error('Error handling file upload')]),
     });
   } else {
-    res.status(kServerErrorStatusCode).send({
-      errors: [new ServerError()],
+    res.status(kServerErrorStatusCode).json({
+      errors: getPublicErrors([new ServerError()]),
     });
   }
 

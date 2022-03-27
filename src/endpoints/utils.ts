@@ -7,13 +7,33 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../utilities/extract';
-import cast from '../utilities/fns';
 import OperationError from '../utilities/OperationError';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataWork} from './types';
+
+export function getPublicErrors(inputError: any) {
+  const errors = Array.isArray(inputError) ? inputError : [inputError];
+
+  // We are mapping errors cause some values don't show if we don't
+  // or was it errors, not sure anymore, this is old code.
+  // TODO: Feel free to look into it, cause it could help performance.
+  const preppedErrors: Omit<OperationError, 'isPublic'>[] = [];
+  errors.forEach(
+    errorItem =>
+      errorItem?.isPublic &&
+      preppedErrors.push({
+        name: errorItem.name,
+        message: errorItem.message,
+        action: errorItem.action,
+        field: errorItem.field,
+      })
+  );
+
+  return preppedErrors;
+}
 
 export const wrapEndpointREST = <
   Context extends IBaseContext,
@@ -43,27 +63,12 @@ export const wrapEndpointREST = <
         res.status(200).json(result || {});
       }
     } catch (error) {
-      const errors = Array.isArray(error) ? error : [error];
-
       // TODO: move to winston
       console.error(error);
       console.log(); // for spacing
 
-      // We are mapping errors cause some values don't show if we don't
-      // or was it errors, not sure anymore, this is old code.
-      // TODO: Feel free to look into it, cause it could help performance.
-      const preppedErrors: Omit<OperationError, 'isPublic'>[] = [];
-      cast<OperationError[]>(errors).forEach(
-        err =>
-          err.isPublic &&
-          preppedErrors.push({
-            name: err.name,
-            message: err.message,
-            action: err.action,
-            field: err.field,
-          })
-      );
-
+      const errors = Array.isArray(error) ? error : [error];
+      const preppedErrors = getPublicErrors(errors);
       const result = {
         errors: preppedErrors,
       };

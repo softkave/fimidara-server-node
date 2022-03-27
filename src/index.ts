@@ -22,6 +22,7 @@ import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
 import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
 import {setupApp} from './endpoints/runtime/initAppSetup';
+import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 
 console.log('server initialization');
 
@@ -96,6 +97,7 @@ async function setup() {
   setupPresetPermissionsGroupsRESTEndpoints(ctx, app);
   setupProgramAccessTokensRESTEndpoints(ctx, app);
   setupAccountRESTEndpoints(ctx, app);
+  setupResourcesRESTEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);

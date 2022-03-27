@@ -29,7 +29,7 @@ export default function setupPermissionItemsRESTEndpoints(
   };
 
   app.post(
-    '/permissionItems/replacePermissionItemsByEntity',
+    '/permissionItems/replaceItemsByEntity',
     endpoints.replacePermissionItemsByEntity
   );
 
@@ -39,7 +39,7 @@ export default function setupPermissionItemsRESTEndpoints(
   );
 
   app.post(
-    '/permissionItems/replacePermissionItemsByResource',
+    '/permissionItems/replaceItemsByResource',
     endpoints.replacePermissionItemsByResource
   );
 

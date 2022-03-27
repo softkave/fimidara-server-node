@@ -9,3 +9,8 @@ export interface IResource<T extends IResourceBase = IResourceBase> {
 export interface IOrganizationResource extends IResourceBase {
   organizationId: string;
 }
+
+export interface IFetchResourceItem {
+  resourceId: string;
+  resourceType: AppResourceType;
+}
