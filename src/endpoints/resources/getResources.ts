@@ -6,6 +6,7 @@ import {
   IResourceBase,
   ISessionAgent,
 } from '../../definitions/system';
+import {makeKey} from '../../utilities/fns';
 import {indexArray} from '../../utilities/indexArray';
 import {
   IPromiseWithId,
@@ -20,13 +21,13 @@ import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
 import {IFetchResourceItem, IResource} from './types';
 
+export type IFetchResourceItemWithAction = IFetchResourceItem & {
+  action?: BasicCRUDActions;
+};
+
 export interface IGetResourcesOptions {
   context: IBaseContext;
-  inputResources: Array<
-    IFetchResourceItem & {
-      action?: BasicCRUDActions;
-    }
-  >;
+  inputResources: Array<IFetchResourceItemWithAction>;
   allowedTypes?: AppResourceType[];
   throwOnFetchError?: boolean;
   checkAuth?: boolean;
@@ -49,18 +50,23 @@ export async function getResources(options: IGetResourcesOptions) {
     checkAuth = true,
   } = options;
 
-  const groupedInput: Record<string, string[]> = {};
+  const idsGroupedByType: Record<string, string[]> = {};
   const allowedTypesMap = indexArray(allowedTypes);
-  inputResources.forEach(item => {
+  const checkedInputResourcesMap = inputResources.reduce((map, item) => {
     if (
       allowedTypesMap[BasicCRUDActions.All] ||
       allowedTypesMap[item.resourceType]
     ) {
-      const ids = defaultTo(groupedInput[item.resourceType], []);
+      const ids = defaultTo(idsGroupedByType[item.resourceType], []);
       ids.push(item.resourceId);
-      groupedInput[item.resourceType] = ids;
+      idsGroupedByType[item.resourceType] = ids;
+      map[makeKey([item.resourceId, item.resourceType])] = item;
     }
-  });
+
+    return map;
+  }, {} as Record<string, IFetchResourceItemWithAction>);
+
+  const checkedInputResources = Object.values(checkedInputResourcesMap);
 
   interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
     resourceType: AppResourceType;
@@ -71,7 +77,7 @@ export async function getResources(options: IGetResourcesOptions) {
   }
 
   const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
-  mapKeys(groupedInput, (ids, type) => {
+  mapKeys(idsGroupedByType, (ids, type) => {
     const query = EndpointReusableQueries.getByIds(ids);
     switch (type) {
       case AppResourceType.Organization:
@@ -185,7 +191,7 @@ export async function getResources(options: IGetResourcesOptions) {
       resourceType: AppResourceType
     ) => `${resourceId}-${resourceType}`;
 
-    const inputMap = indexArray(inputResources, {
+    const inputMap = indexArray(checkedInputResources, {
       indexer: item => resourceIndexer(item.resourceId, item.resourceType),
     });
 

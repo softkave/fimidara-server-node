@@ -429,12 +429,16 @@ export async function insertPermissionItemsForTestByEntity(
 
 export function makeTestPermissionItemByResourceInputs(
   permissionEntityId: string,
-  permissionEntityType: AppResourceType
+  permissionEntityType: AppResourceType,
+  permissionOwnerId: string,
+  permissionOwnerType: AppResourceType
 ) {
   const items: INewPermissionItemInputByResource[] = crudActionsList.map(
     action => ({
       permissionEntityId,
       permissionEntityType,
+      permissionOwnerId,
+      permissionOwnerType,
       action: action as BasicCRUDActions,
       isExclusion: faker.datatype.boolean(),
       isForPermissionOwnerOnly: faker.datatype.boolean(),
@@ -457,15 +461,15 @@ export async function insertPermissionItemsForTestByResource(
 ) {
   const itemsInput = makeTestPermissionItemByResourceInputs(
     permissionEntityId,
-    permissionEntityType
+    permissionEntityType,
+    permissionOwnerId,
+    permissionOwnerType
   );
 
   const instData =
     RequestData.fromExpressRequest<IReplacePermissionItemsByResourceParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        permissionOwnerId,
-        permissionOwnerType,
         itemResourceType,
         itemResourceId,
         organizationId: organizationId,

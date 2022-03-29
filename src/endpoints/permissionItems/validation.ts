@@ -22,6 +22,9 @@ const itemInputByResource = Joi.object().keys({
   action: validationSchemas.crudAction.required(),
   isExclusion: Joi.boolean().allow(null),
   isForPermissionOwnerOnly: Joi.boolean().allow(null),
+  permissionOwnerId: validationSchemas.nanoid.required(),
+  permissionOwnerType: validationSchemas.resourceType.required(),
+  isWildcardResourceType: Joi.bool(),
 });
 
 const itemInputByResourceList = Joi.array()

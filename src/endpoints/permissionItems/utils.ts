@@ -17,6 +17,7 @@ import {internalReplacePermissionItemsByEntity} from './replaceItemsByEntity/int
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 import PermissionItemQueries from './queries';
 import {IPublicPermissionItem} from './types';
+import {makeKey} from '../../utilities/fns';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   resourceId: true,
@@ -138,7 +139,17 @@ export interface IPermissionItemBase {
 }
 
 export const permissionItemIndexer = (item: IPermissionItemBase) => {
-  return `${item.permissionEntityId}-${item.permissionEntityType}-${item.permissionOwnerId}-${item.permissionOwnerType}-${item.itemResourceId}-${item.itemResourceType}-${item.action}-${item.isExclusion}-${item.isForPermissionOwnerOnly}`;
+  return makeKey([
+    item.permissionEntityId,
+    item.permissionEntityType,
+    item.permissionOwnerId,
+    item.permissionOwnerType,
+    item.itemResourceId,
+    item.itemResourceType,
+    item.action,
+    item.isExclusion,
+    item.isForPermissionOwnerOnly,
+  ]);
 };
 
 export abstract class PermissionItemUtils {

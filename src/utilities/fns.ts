@@ -1,4 +1,4 @@
-import {isString} from 'lodash';
+import {compact, isString} from 'lodash';
 import OperationError from './OperationError';
 import {AnyFn} from './types';
 
@@ -74,4 +74,12 @@ export function appAssert(
       response();
     }
   }
+}
+
+export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
+  if (omitFalsy) {
+    fields = compact(fields);
+  }
+
+  return fields.join(separator);
 }
