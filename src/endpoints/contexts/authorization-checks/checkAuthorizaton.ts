@@ -145,6 +145,11 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
     if (item.itemResourceId && item.itemResourceId !== itemResourceId) {
       return false;
+    } else if (
+      item.isForPermissionOwnerOnly &&
+      item.permissionOwnerId !== itemResourceId
+    ) {
+      return false;
     }
 
     const permissionOwnerKey = getPermissionOwnerKey(item);
