@@ -26,7 +26,8 @@ function getByOwner(ownerId: string, ownerType: AppResourceType) {
 function getByResource(
   organizationId: string,
   resourceId: string | undefined,
-  resourceType: AppResourceType
+  resourceType: AppResourceType,
+  includeWildcard = false
 ) {
   const filter = newFilter().addItem(
     'organizationId',
@@ -35,22 +36,24 @@ function getByResource(
   );
 
   if (resourceId) {
-    filter
-      .addItem(
-        'itemResourceId',
-        resourceId,
-        DataProviderFilterValueOperator.Equal
-      )
-      .addItem(
-        'itemResourceType',
-        resourceType,
-        DataProviderFilterValueOperator.Equal
-      );
-  } else {
+    filter.addItem(
+      'itemResourceId',
+      resourceId,
+      DataProviderFilterValueOperator.Equal
+    );
+  }
+
+  if (includeWildcard) {
     filter.addItem(
       'itemResourceType',
       [resourceType, AppResourceType.All],
       DataProviderFilterValueOperator.In
+    );
+  } else {
+    filter.addItem(
+      'itemResourceType',
+      resourceType,
+      DataProviderFilterValueOperator.Equal
     );
   }
 
@@ -61,7 +64,8 @@ function getByOwnerAndResource(
   ownerId: string,
   ownerType: AppResourceType,
   resourceType: AppResourceType,
-  resourceId?: string
+  resourceId?: string,
+  includeWildcard = false
 ) {
   const filter = newFilter()
     .addItem(
@@ -76,22 +80,24 @@ function getByOwnerAndResource(
     );
 
   if (resourceId) {
-    filter
-      .addItem(
-        'itemResourceId',
-        resourceId,
-        DataProviderFilterValueOperator.Equal
-      )
-      .addItem(
-        'itemResourceType',
-        resourceType,
-        DataProviderFilterValueOperator.Equal
-      );
-  } else {
+    filter.addItem(
+      'itemResourceId',
+      resourceId,
+      DataProviderFilterValueOperator.Equal
+    );
+  }
+
+  if (includeWildcard) {
     filter.addItem(
       'itemResourceType',
       [resourceType, AppResourceType.All],
       DataProviderFilterValueOperator.In
+    );
+  } else {
+    filter.addItem(
+      'itemResourceType',
+      resourceType,
+      DataProviderFilterValueOperator.Equal
     );
   }
 

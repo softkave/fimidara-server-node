@@ -36,7 +36,8 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
     PermissionItemQueries.getByResource(
       organization.resourceId,
       data.itemResourceId,
-      data.itemResourceType
+      data.itemResourceType,
+      true
     )
   );
 

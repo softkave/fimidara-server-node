@@ -23,7 +23,16 @@ const replacePermissionItemsByResource: ReplacePermissionItemsByResourceEndpoint
 
     await checkResourcesExist(context, agent, organization, [data]);
     await checkEntitiesExist(context, agent, organization, data.items);
-    await checkPermissionOwnersExist(context, agent, organization, [data]);
+    await checkPermissionOwnersExist(
+      context,
+      agent,
+      organization,
+      data.items.map(item => ({
+        permissionOwnerId: item.permissionOwnerId,
+        permissionOwnerType: item.permissionOwnerType,
+      }))
+    );
+
     const items: IPermissionItem[] =
       await internalReplacePermissionItemsByResource(context, agent, data);
 

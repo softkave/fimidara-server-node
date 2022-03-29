@@ -159,9 +159,9 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,
-    [AppResourceType.ClientAssignedToken]: 3,
-    [AppResourceType.ProgramAccessToken]: 4,
-    [AppResourceType.PresetPermissionsGroup]: 5,
+    [AppResourceType.ClientAssignedToken]: 2,
+    [AppResourceType.ProgramAccessToken]: 3,
+    [AppResourceType.PresetPermissionsGroup]: 4,
   };
 
   const getEntityKey = (item: IPermissionEntity) =>

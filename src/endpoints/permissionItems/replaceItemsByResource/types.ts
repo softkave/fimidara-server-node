@@ -9,11 +9,12 @@ export interface INewPermissionItemInputByResource {
   action: BasicCRUDActions;
   isExclusion?: boolean;
   isForPermissionOwnerOnly?: boolean;
+  permissionOwnerId: string;
+  permissionOwnerType: AppResourceType;
+  isWildcardResourceType?: boolean;
 }
 
 export interface IReplacePermissionItemsByResourceParams {
-  permissionOwnerId: string;
-  permissionOwnerType: AppResourceType;
   organizationId: string;
   itemResourceId?: string;
   itemResourceType: AppResourceType;

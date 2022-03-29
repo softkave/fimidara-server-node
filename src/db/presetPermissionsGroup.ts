@@ -29,8 +29,8 @@ const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
 export type IPresetPermissionsItemDocument = Document<IPresetPermissionsGroup>;
 
 const schema = new Schema<IPresetPermissionsGroup>(presetPermissionsSchema);
-const modelName = 'preset-permissions-item';
-const collectionName = 'preset-permissions-items';
+const modelName = 'preset-permissions-groups';
+const collectionName = 'preset-permissions-groupss';
 
 export function getPresetPermissionsModel(connection: Connection) {
   const model = connection.model<IPresetPermissionsItemDocument>(
