@@ -1,13 +1,23 @@
-import {AppResourceType, IResourceBase} from '../../../definitions/system';
+import faker = require('faker');
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  crudActionsList,
+  IResourceBase,
+} from '../../../definitions/system';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
+import addPermissionItems from '../../permissionItems/addItems/handler';
+import {
+  IAddPermissionItemsEndpointParams,
+  INewPermissionItemInput,
+} from '../../permissionItems/addItems/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertOrganizationForTest,
-  insertPermissionItemsForTestByResource,
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -39,18 +49,33 @@ describe('getResources', () => {
       organization.resourceId
     );
 
-    const {items} = await insertPermissionItemsForTestByResource(
-      context,
-      userToken,
-      organization.resourceId,
-      organization.resourceId,
-      AppResourceType.Organization,
-      organization.resourceId,
-      AppResourceType.Organization,
-      preset.resourceId,
-      AppResourceType.PresetPermissionsGroup
+    const inputItems: INewPermissionItemInput[] = crudActionsList.map(
+      action => ({
+        action: action as BasicCRUDActions,
+        isExclusion: faker.datatype.boolean(),
+        isForPermissionOwnerOnly: faker.datatype.boolean(),
+        itemResourceType: AppResourceType.Organization,
+        permissionEntityId: preset.resourceId,
+        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionOwnerId: organization.resourceId,
+        permissionOwnerType: AppResourceType.Organization,
+        itemResourceId: organization.resourceId,
+      })
     );
 
+    const addPermissionItemsReqData =
+      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        mockExpressRequestWithUserToken(userToken),
+        {items: inputItems, organizationId: organization.resourceId}
+      );
+
+    const addPermissionItemsResult = await addPermissionItems(
+      context,
+      addPermissionItemsReqData
+    );
+
+    assertEndpointResultOk(addPermissionItemsResult);
+    const items = addPermissionItemsResult.items;
     const resourcesInput: IFetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
     const getKey = (item: IResourceBase, type: AppResourceType) =>
@@ -80,8 +105,6 @@ describe('getResources', () => {
     const result = await getResources(context, instData);
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
-
-    // console.log(formatWithOptions({depth: 10}, {resourcesMap, result}));
 
     result.resources.forEach(resource => {
       expect(resource.resource).toMatchObject(

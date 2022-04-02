@@ -50,6 +50,20 @@ function getByIds(ids: string[]) {
     .build();
 }
 
+function getByOrgIdAndIds(organizationId: string, ids: string[]) {
+  return new DataProviderFilterBuilder<{
+    resourceId: string;
+    organizationId: string;
+  }>()
+    .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 function getByProvidedId(organizationId: string, id: string) {
   return new DataProviderFilterBuilder<{
     providedResourceId: string;
@@ -71,4 +85,5 @@ export default abstract class EndpointReusableQueries {
   static getByIdsAndOrgId = getByIdsAndOrgId;
   static getByIds = getByIds;
   static getByProvidedId = getByProvidedId;
+  static getByOrgIdAndIds = getByOrgIdAndIds;
 }

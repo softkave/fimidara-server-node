@@ -3,8 +3,9 @@ import replacePermissionItemsByEntity from './replaceItemsByEntity/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
 import getEntityPermissionItems from './getEntityPermissionItems/handler';
-import replacePermissionItemsByResource from './replaceItemsByResource/handler';
 import getResourcePermissionItems from './getResourcePermissionItems/handler';
+import addItems from './addItems/handler';
+import deleteItemsById from './deleteItemsById/handler';
 
 export default function setupPermissionItemsRESTEndpoints(
   ctx: IBaseContext,
@@ -17,11 +18,8 @@ export default function setupPermissionItemsRESTEndpoints(
     ),
 
     getEntityPermissionItems: wrapEndpointREST(getEntityPermissionItems, ctx),
-    replacePermissionItemsByResource: wrapEndpointREST(
-      replacePermissionItemsByResource,
-      ctx
-    ),
-
+    addItems: wrapEndpointREST(addItems, ctx),
+    deleteItemsById: wrapEndpointREST(deleteItemsById, ctx),
     getResourcePermissionItems: wrapEndpointREST(
       getResourcePermissionItems,
       ctx
@@ -38,11 +36,8 @@ export default function setupPermissionItemsRESTEndpoints(
     endpoints.getEntityPermissionItems
   );
 
-  app.post(
-    '/permissionItems/replaceItemsByResource',
-    endpoints.replacePermissionItemsByResource
-  );
-
+  app.post('/permissionItems/addItems', endpoints.addItems);
+  app.post('/permissionItems/deleteItemsById', endpoints.deleteItemsById);
   app.post(
     '/permissionItems/getResourcePermissionItems',
     endpoints.getResourcePermissionItems

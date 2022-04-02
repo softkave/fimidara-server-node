@@ -40,4 +40,5 @@ export default async function checkResourcesExist(
   });
 
   checkNotOrganizationResources(organization.resourceId, resources);
+  return {resources};
 }
