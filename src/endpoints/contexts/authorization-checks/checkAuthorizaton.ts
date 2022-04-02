@@ -270,6 +270,29 @@ export function getFilePermissionOwners(
     ].concat(permissionOwners);
   }
 
+  // if (type === AppResourceType.File) {
+  //   resource.idPath.forEach((id) => {
+  //     if (i === resource.idPath.length) {
+  //       permissionOwners.push({
+  //         permissionOwnerId: id,
+  //         permissionOwnerType: AppResourceType.File,
+  //       });
+  //     } else {
+  //       permissionOwners.push({
+  //         permissionOwnerId: id,
+  //         permissionOwnerType: AppResourceType.Folder,
+  //       });
+  //     }
+  //   });
+  // } else {
+  //   resource.idPath.forEach((id, i) => {
+  //     permissionOwners.push({
+  //       permissionOwnerId: id,
+  //       permissionOwnerType: AppResourceType.Folder,
+  //     });
+  //   });
+  // }
+
   return permissionOwners.map((item, index) => ({...item, order: index}));
 }
 

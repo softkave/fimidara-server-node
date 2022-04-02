@@ -149,6 +149,17 @@ function getByPermissionEntityAndOwner(
     .build();
 }
 
+function getByHashList(organizationId: string, hashList: string[]) {
+  return newFilter()
+    .addItem('hash', hashList, DataProviderFilterValueOperator.In)
+    .addItem(
+      'organizationId',
+      organizationId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .build();
+}
+
 export default abstract class PermissionItemQueries {
   static getById = EndpointReusableQueries.getById;
   static getByIds = EndpointReusableQueries.getByIdsAndOrgId;
@@ -158,4 +169,5 @@ export default abstract class PermissionItemQueries {
   static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
   static getByPermissionEntityAndOwner = getByPermissionEntityAndOwner;
   static getByOwnerAndResource = getByOwnerAndResource;
+  static getByHashList = getByHashList;
 }

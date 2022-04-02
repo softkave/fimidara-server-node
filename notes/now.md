@@ -41,3 +41,6 @@
 - better name your APIs, the REST urls
 - add /api to your urls
 - differentiate between user and collaborator
+- remove exclusion on re-allow, and compact
+- increase the length of nanoids
+- mark right fields to be indexed in db

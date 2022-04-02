@@ -93,43 +93,29 @@ function makeCollaboratorPermissions(
   );
 
   permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.ProgramAccessToken,
-      organization.resourceId
-    )
+    makePermission([BasicCRUDActions.Read], AppResourceType.ProgramAccessToken)
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission([BasicCRUDActions.Read], AppResourceType.ClientAssignedToken)
   );
 
   permissionItems = permissionItems.concat(
     makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.ClientAssignedToken,
-      organization.resourceId
+      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      AppResourceType.Folder
     )
   );
 
   permissionItems = permissionItems.concat(
     makePermission(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
-      AppResourceType.Folder,
-      organization.resourceId
+      AppResourceType.File
     )
   );
 
   permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
-      AppResourceType.File,
-      organization.resourceId
-    )
-  );
-
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.User,
-      organization.resourceId
-    )
+    makePermission([BasicCRUDActions.Read], AppResourceType.User)
   );
 
   return permissionItems;

@@ -1,11 +1,26 @@
 import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
+import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
-import {INewPermissionItemInputByResource} from '../../permissionItems/replaceItemsByResource/types';
 import {
   IPermissionItemBase,
   permissionItemIndexer,
 } from '../../permissionItems/utils';
+
+export function expectItemsPresent(
+  items: IPermissionItemBase[],
+  expected: INewPermissionItemInput[]
+) {
+  const publicPresetPermissionitemsMap = indexArray(items, {
+    indexer: permissionItemIndexer,
+  });
+
+  expected.forEach(item => {
+    expect(
+      publicPresetPermissionitemsMap[permissionItemIndexer(item)]
+    ).toMatchObject(item);
+  });
+}
 
 function inputByEntityToItem(
   input: INewPermissionItemInputByEntity,
@@ -37,47 +52,5 @@ export function expectItemsByEntityPresent(
         )
       ]
     ).toMatchObject(item);
-  });
-}
-
-function inputByResourceToItem(
-  input: INewPermissionItemInputByResource,
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType,
-  itemResourceId: string | undefined,
-  itemResourceType: AppResourceType
-): IPermissionItemBase {
-  return {
-    ...input,
-    itemResourceType,
-    permissionOwnerId,
-    permissionOwnerType,
-    itemResourceId,
-  };
-}
-
-export function expectItemsByResourcePresent(
-  expectedItems: IPermissionItemBase[],
-  matches: INewPermissionItemInputByResource[],
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType,
-  itemResourceId: string | undefined,
-  itemResourceType: AppResourceType
-) {
-  const publicPresetPermissionitemsMap = indexArray(expectedItems, {
-    indexer: permissionItemIndexer,
-  });
-
-  matches.forEach(item => {
-    const formedItem = inputByResourceToItem(
-      item,
-      permissionOwnerId,
-      permissionOwnerType,
-      itemResourceId,
-      itemResourceType
-    );
-
-    const key = permissionItemIndexer(formedItem);
-    expect(publicPresetPermissionitemsMap[key]).toMatchObject(item);
   });
 }

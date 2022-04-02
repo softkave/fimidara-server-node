@@ -45,4 +45,5 @@ export default async function checkPermissionOwnersExist(
   });
 
   checkNotOrganizationResources(organization.resourceId, resources);
+  return {resources};
 }

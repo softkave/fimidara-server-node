@@ -45,11 +45,6 @@ import {
   IReplacePermissionItemsByEntityParams,
   INewPermissionItemInputByEntity,
 } from '../permissionItems/replaceItemsByEntity/types';
-import replacePermissionItemsByResource from '../permissionItems/replaceItemsByResource/handler';
-import {
-  INewPermissionItemInputByResource,
-  IReplacePermissionItemsByResourceParams,
-} from '../permissionItems/replaceItemsByResource/types';
 import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
   IAddPresetPermissionsGroupParams,
@@ -73,10 +68,7 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
-import {
-  expectItemsByEntityPresent,
-  expectItemsByResourcePresent,
-} from './helpers/permissionItem';
+import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
@@ -422,70 +414,6 @@ export async function insertPermissionItemsForTestByEntity(
     itemsInput,
     entity.permissionEntityId,
     entity.permissionEntityType
-  );
-
-  return result;
-}
-
-export function makeTestPermissionItemByResourceInputs(
-  permissionEntityId: string,
-  permissionEntityType: AppResourceType,
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType
-) {
-  const items: INewPermissionItemInputByResource[] = crudActionsList.map(
-    action => ({
-      permissionEntityId,
-      permissionEntityType,
-      permissionOwnerId,
-      permissionOwnerType,
-      action: action as BasicCRUDActions,
-      isExclusion: faker.datatype.boolean(),
-      isForPermissionOwnerOnly: faker.datatype.boolean(),
-    })
-  );
-
-  return items;
-}
-
-export async function insertPermissionItemsForTestByResource(
-  context: IBaseContext,
-  userToken: IUserToken,
-  organizationId: string,
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType,
-  itemResourceId: string | undefined,
-  itemResourceType: AppResourceType,
-  permissionEntityId: string,
-  permissionEntityType: AppResourceType
-) {
-  const itemsInput = makeTestPermissionItemByResourceInputs(
-    permissionEntityId,
-    permissionEntityType,
-    permissionOwnerId,
-    permissionOwnerType
-  );
-
-  const instData =
-    RequestData.fromExpressRequest<IReplacePermissionItemsByResourceParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        itemResourceType,
-        itemResourceId,
-        organizationId: organizationId,
-        items: itemsInput,
-      }
-    );
-
-  const result = await replacePermissionItemsByResource(context, instData);
-  assertEndpointResultOk(result);
-  expectItemsByResourcePresent(
-    result.items,
-    itemsInput,
-    permissionOwnerId,
-    permissionOwnerType,
-    itemResourceId,
-    itemResourceType
   );
 
   return result;
