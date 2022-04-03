@@ -14,7 +14,6 @@ export interface IConfirmEmailAddressEmailProps {
   link: string;
 }
 
-// TODO: show time code expires?
 export function confirmEmailAddressEmailHTML(
   props: IConfirmEmailAddressEmailProps
 ): string {

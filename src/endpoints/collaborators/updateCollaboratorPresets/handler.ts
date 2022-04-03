@@ -32,7 +32,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     agent,
     organizationId,
     data.collaboratorId,
-    BasicCRUDActions.Update // TODO: should there be a separate update presets action?
+    BasicCRUDActions.Update
   );
 
   await checkPresetsExist(context, agent, organization, data.presets);
