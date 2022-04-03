@@ -100,14 +100,27 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   );
 
   let items = uniqBy(flattenDeep(items2DList), 'hash');
+  items = items.filter(item => {
+    if (data.itemResourceId) {
+      if (item.itemResourceId && item.itemResourceId !== data.itemResourceId) {
+        return false;
+      }
 
-  if (data.itemResourceId) {
-    items = items.filter(item =>
-      item.itemResourceId ? item.itemResourceId === data.itemResourceId : true
-    );
-  } else {
-    items = items.filter(item => !item.itemResourceId);
-  }
+      if (item.permissionOwnerId === data.itemResourceId) {
+        if (item.isForPermissionOwnerChildren) {
+          return false;
+        }
+      } else {
+        if (item.isForPermissionOwner) {
+          return false;
+        }
+      }
+
+      return true;
+    } else {
+      return !item.itemResourceId;
+    }
+  });
 
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(items),
