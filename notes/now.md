@@ -1,15 +1,13 @@
+- Store all dates and times as utc
 - copy and centralize all your todos in one place
 - Preset weight, not order
 - Remove avatars
 - unit tests
 - Delete assigned presets when presets are deleted
 - confirm what error is returned when file is not found
-- Make api params naming and format consistent. If data, use data, if resource name, use resource name
 - Validate that client assigned token provided resource ID is unique, and add it to the other endpoints, and write unit tests for it
 - Change token expiry to ISO string
-- Store all dates and times as utc
 - Send email and notification to removed collaborators
-- Flatten collaborator organization
 - Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app.
 - Consistent '.' at the end of descriptions and messages
 - Each organization should have a folder

@@ -76,7 +76,7 @@ test('preset updated', async () => {
       mockExpressRequestWithUserToken(userToken),
       {
         presetId: preset00.resourceId,
-        data: updatePresetInput,
+        preset: updatePresetInput,
       }
     );
 
