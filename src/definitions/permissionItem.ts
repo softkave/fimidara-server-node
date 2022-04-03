@@ -30,3 +30,20 @@ export interface IPermissionItem {
   isForPermissionOwnerChildren?: boolean;
   hash: string;
 }
+
+export interface IPublicPermissionItem {
+  resourceId: string;
+  organizationId: string;
+  createdAt: string;
+  createdBy: IAgent;
+  permissionOwnerId: string;
+  permissionOwnerType: AppResourceType;
+  permissionEntityId: string;
+  permissionEntityType: AppResourceType;
+  itemResourceId?: string;
+  itemResourceType: AppResourceType;
+  action: BasicCRUDActions;
+  isExclusion?: boolean;
+  isForPermissionOwner?: boolean;
+  isForPermissionOwnerChildren?: boolean;
+}

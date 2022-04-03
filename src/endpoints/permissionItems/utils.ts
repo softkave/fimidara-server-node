@@ -1,6 +1,9 @@
 import {uniqWith} from 'lodash';
 import {IOrganization} from '../../definitions/organization';
-import {IPermissionItem} from '../../definitions/permissionItem';
+import {
+  IPermissionItem,
+  IPublicPermissionItem,
+} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -16,7 +19,6 @@ import {agentExtractor} from '../utils';
 import {internalReplacePermissionItemsByEntity} from './replaceItemsByEntity/internalReplaceItemsByEntity';
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 import PermissionItemQueries from './queries';
-import {IPublicPermissionItem} from './types';
 import {makeKey} from '../../utilities/fns';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
@@ -33,6 +35,7 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   action: true,
   isExclusion: true,
   isForPermissionOwner: true,
+  isForPermissionOwnerChildren: true,
 });
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
