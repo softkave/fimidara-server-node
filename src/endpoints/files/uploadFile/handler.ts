@@ -135,6 +135,7 @@ async function checkUploadFileAuth(
     agent,
     organization,
     type: AppResourceType.File,
+    resource: file,
     permissionOwners: file
       ? getFilePermissionOwners(
           organization.resourceId,

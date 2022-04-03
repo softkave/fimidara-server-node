@@ -4,7 +4,6 @@ import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
-  IPublicAccessOp,
   ISessionAgent,
 } from '../../../definitions/system';
 import {ServerError} from '../../../utilities/errors';
@@ -34,7 +33,7 @@ export interface ICheckAuthorizationParams {
   permissionOwners: IPermissionOwner[];
   action: BasicCRUDActions;
   nothrow?: boolean;
-  resource?: {resourceId: string; publicAccessOps?: IPublicAccessOp[]};
+  resource?: {resourceId: string} | null;
 }
 
 // TODO: What happens if there are permission items that both allow
@@ -72,16 +71,6 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   ) {
     // TODO: throw invalid argument error instead
     throw new ServerError();
-  }
-
-  // Check if resource is public and short-circuit.
-  if (
-    resource?.publicAccessOps &&
-    resource.publicAccessOps.find(
-      op => op.action === action && op.resourceType === type
-    )
-  ) {
-    return true;
   }
 
   function newFilter() {
@@ -146,7 +135,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     if (item.itemResourceId && item.itemResourceId !== itemResourceId) {
       return false;
     } else if (
-      item.isForPermissionOwnerOnly &&
+      item.isForPermissionOwner &&
       item.permissionOwnerId !== itemResourceId
     ) {
       return false;
@@ -186,7 +175,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const isForOwner = (item: IPermissionItem) =>
     resource &&
-    item.isForPermissionOwnerOnly &&
+    item.isForPermissionOwner &&
     item.permissionOwnerId === resource.resourceId;
 
   items.sort((item1, item2) => {

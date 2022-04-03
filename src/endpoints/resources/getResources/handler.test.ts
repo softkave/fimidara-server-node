@@ -2,7 +2,7 @@ import faker = require('faker');
 import {
   AppResourceType,
   BasicCRUDActions,
-  crudActionsList,
+  getOrgActionList,
   IResourceBase,
 } from '../../../definitions/system';
 import {collaboratorExtractor} from '../../collaborators/utils';
@@ -49,11 +49,11 @@ describe('getResources', () => {
       organization.resourceId
     );
 
-    const inputItems: INewPermissionItemInput[] = crudActionsList.map(
+    const inputItems: INewPermissionItemInput[] = getOrgActionList().map(
       action => ({
         action: action as BasicCRUDActions,
         isExclusion: faker.datatype.boolean(),
-        isForPermissionOwnerOnly: faker.datatype.boolean(),
+        isForPermissionOwner: faker.datatype.boolean(),
         itemResourceType: AppResourceType.Organization,
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,

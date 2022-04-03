@@ -32,7 +32,7 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   itemResourceType: true,
   action: true,
   isExclusion: true,
-  isForPermissionOwnerOnly: true,
+  isForPermissionOwner: true,
 });
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
@@ -63,7 +63,7 @@ export function compactPermissionItems(items: IPermissionItem[]) {
       item01.permissionOwnerType === item02.permissionOwnerType &&
       item01.action === item02.action &&
       item01.isExclusion === item02.isExclusion &&
-      item01.isForPermissionOwnerOnly === item02.isForPermissionOwnerOnly &&
+      item01.isForPermissionOwner === item02.isForPermissionOwner &&
       item01.itemResourceId === item02.itemResourceId &&
       item01.itemResourceType === item02.itemResourceType
   );
@@ -135,7 +135,7 @@ export interface IPermissionItemBase {
   permissionEntityType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
-  isForPermissionOwnerOnly?: boolean;
+  isForPermissionOwner?: boolean;
 }
 
 export const permissionItemIndexer = (item: IPermissionItemBase) => {
@@ -148,7 +148,7 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
     item.itemResourceType,
     item.action,
     item.isExclusion,
-    item.isForPermissionOwnerOnly,
+    item.isForPermissionOwner,
   ]);
 };
 

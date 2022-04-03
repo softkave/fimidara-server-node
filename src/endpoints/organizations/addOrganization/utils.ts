@@ -6,6 +6,7 @@ import {
   AppResourceType,
   BasicCRUDActions,
   IAgent,
+  getOrgActionList,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
@@ -24,8 +25,9 @@ function makeAdminPermissions(
   organization: IOrganization,
   adminPreset: IPresetPermissionsGroup
 ) {
-  const permissionItems: IPermissionItem[] = [AppResourceType.All].map(type => {
+  const permissionItems: IPermissionItem[] = getOrgActionList().map(action => {
     const item: IPermissionItem = {
+      action,
       resourceId: getNewId(),
       organizationId: organization.resourceId,
       createdAt: getDateString(),
@@ -37,8 +39,7 @@ function makeAdminPermissions(
       permissionOwnerType: AppResourceType.Organization,
       permissionEntityId: adminPreset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
-      itemResourceType: type,
-      action: BasicCRUDActions.All,
+      itemResourceType: AppResourceType.All,
       hash: '',
     };
 
@@ -57,13 +58,15 @@ function makeCollaboratorPermissions(
   function makePermission(
     actions: BasicCRUDActions[],
     itemResourceType: AppResourceType,
-    itemResourceId?: string
+    itemResourceId?: string,
+    isForPermissionOwnerChildren?: boolean
   ) {
     return actions.map(action => {
       const item: IPermissionItem = {
         itemResourceType,
         action,
         itemResourceId,
+        isForPermissionOwnerChildren,
         resourceId: getNewId(),
         organizationId: organization.resourceId,
         createdAt: getDateString(),
@@ -93,29 +96,48 @@ function makeCollaboratorPermissions(
   );
 
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.ProgramAccessToken)
-  );
-
-  permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.ClientAssignedToken)
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.ProgramAccessToken,
+      undefined,
+      true
+    )
   );
 
   permissionItems = permissionItems.concat(
     makePermission(
-      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
-      AppResourceType.Folder
+      [BasicCRUDActions.Read],
+      AppResourceType.ClientAssignedToken,
+      undefined,
+      true
     )
   );
 
   permissionItems = permissionItems.concat(
     makePermission(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
-      AppResourceType.File
+      AppResourceType.Folder,
+      undefined,
+      true
     )
   );
 
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.User)
+    makePermission(
+      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      AppResourceType.File,
+      undefined,
+      true
+    )
+  );
+
+  permissionItems = permissionItems.concat(
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.User,
+      undefined,
+      true
+    )
   );
 
   return permissionItems;

@@ -10,9 +10,10 @@ export interface INewPermissionItemInput {
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
-  isForPermissionOwnerOnly?: boolean;
+  isForPermissionOwner?: boolean;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
+  isForPermissionOwnerChildren?: boolean;
 }
 
 export interface IAddPermissionItemsEndpointParams {
