@@ -20,8 +20,6 @@ export interface IFile {
   description?: string;
 
   // meta?: Record<string, string | number | boolean | null>;
-
-  // TODO: look through other file platforms providers for features to implement
 }
 
 export type IPublicFile = IFile;

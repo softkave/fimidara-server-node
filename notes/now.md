@@ -2,9 +2,6 @@
 - Preset weight, not order
 - Remove avatars
 - unit tests
-- add clearing out existing permission items when saving new ones
-- add if permission item is only for owner, for children, or both
-- convert session agent to the small agent data saved to db
 - Delete assigned presets when presets are deleted
 - confirm what error is returned when file is not found
 - Make api params naming and format consistent. If data, use data, if resource name, use resource name
@@ -45,3 +42,5 @@
 - increase the length of nanoids
 - mark right fields to be indexed in db
 - maybe have a separate db for testing mongodataprovider and teardown after test or move away from data providers quickly
+- set multer limits and config
+- Send notification to the sender that the user has responded to their collaboration request

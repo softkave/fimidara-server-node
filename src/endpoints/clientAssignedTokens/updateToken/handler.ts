@@ -12,19 +12,6 @@ import {
 import {UpdateClientAssignedTokenEndpoint} from './types';
 import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
 
-/**
- * updateClientAssignedTokenPresets.
- * Updates the presets assigned to the reference client assigned token.
- *
- * Ensure that:
- * - Auth check
- * - Check that presets exist
- * - Update token presets
- *
- * TODO:
- * - [Medium] Change to update token for expires
- */
-
 const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   context,
   instData

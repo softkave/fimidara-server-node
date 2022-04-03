@@ -17,9 +17,6 @@ import {updateRequestJoiSchema} from './validation';
  * Ensure that:
  * - Auth check
  * - Update request
- *
- * TODO:
- * - Send email to the recipient of the change
  */
 
 const updateRequest: UpdateRequestEndpoint = async (context, instData) => {

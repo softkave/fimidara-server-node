@@ -31,9 +31,6 @@ export interface ICollaborationRequestSentEmailHistoryItem {
 export interface ICollaborationRequest {
   resourceId: string;
   recipientEmail: string;
-
-  // TODO: should we keep messages sent back and forth?
-  // TODO: should we allow users to send new messages?
   message: string;
   createdBy: IAgent;
   createdAt: Date | string;

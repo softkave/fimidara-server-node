@@ -8,19 +8,6 @@ import {collabRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
 import {respondToRequestJoiSchema} from './validation';
 
-/**
- * respondToRequest.
- * Updates the response to a collaboration request if it's still open.
- *
- * Ensure that:
- * - Check that user exists
- * - Check that request exists, is open, and the user can respond to it
- * - Update request with the response
- *
- * TODO:
- * - [High] Send notification to the sender that the user has responded
- */
-
 const respondToRequest: RespondToRequestEndpoint = async (
   context,
   instData

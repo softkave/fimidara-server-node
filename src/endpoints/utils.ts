@@ -63,7 +63,6 @@ export const wrapEndpointREST = <
         res.status(200).json(result || {});
       }
     } catch (error) {
-      // TODO: move to winston
       console.error(error);
       console.log(); // for spacing
 

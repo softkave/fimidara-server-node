@@ -79,3 +79,9 @@
 - Better action types, so that you can allow people to create tokens but some presets will not be available
 - Use the right HTTP errors instead of server error for everything
 - use dash instead of camel case for APIs?
+- look through other file platforms providers for features to implement
+- implement logging with winston
+- implement performance logging
+- Send email to the recipient of the change in collaboration request
+- show time code expires in emails
+- allow setting default presets on accept collaboration requests
