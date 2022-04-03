@@ -27,8 +27,6 @@ async function dropMongoCollections(globals: ITestVariables) {
   const dbName = globals.mongoDbDatabaseName;
   const useMongoDataProvider = globals.dataProviderType === 'mongo';
 
-  console.log({globals, useMongoDataProvider});
-
   if (!mongoURI || !useMongoDataProvider) {
     return;
   }

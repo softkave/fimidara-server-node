@@ -9,7 +9,8 @@ const itemInputByEntity = Joi.object().keys({
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
   isExclusion: Joi.boolean().allow(null),
-  isForPermissionOwnerOnly: Joi.boolean().allow(null),
+  isForPermissionOwner: Joi.boolean().allow(null),
+  isForPermissionOwnerChildren: Joi.boolean().allow(null),
 });
 
 const itemInput = Joi.object().keys({
@@ -19,7 +20,8 @@ const itemInput = Joi.object().keys({
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
   isExclusion: Joi.boolean().allow(null),
-  isForPermissionOwnerOnly: Joi.boolean().allow(null),
+  isForPermissionOwner: Joi.boolean().allow(null),
+  isForPermissionOwnerChildren: Joi.boolean().allow(null),
   permissionEntityId: validationSchemas.nanoid.required(),
   permissionEntityType: validationSchemas.resourceType.required(),
 });
@@ -32,21 +34,6 @@ const itemInputList = Joi.array()
   .items(itemInput)
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
-const itemInputByResource = Joi.object().keys({
-  permissionEntityId: validationSchemas.nanoid.required(),
-  permissionEntityType: validationSchemas.resourceType.required(),
-  action: validationSchemas.crudAction.required(),
-  isExclusion: Joi.boolean().allow(null),
-  isForPermissionOwnerOnly: Joi.boolean().allow(null),
-  permissionOwnerId: validationSchemas.nanoid.required(),
-  permissionOwnerType: validationSchemas.resourceType.required(),
-  isWildcardResourceType: Joi.bool(),
-});
-
-const itemInputByResourceList = Joi.array()
-  .items(itemInputByResource)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
-
 const itemIds = Joi.array()
   .items(validationSchemas.nanoid.required())
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
@@ -56,8 +43,6 @@ const permissionItemValidationSchemas = {
   itemInputByEntity,
   itemInputByEntityList,
   itemIds,
-  itemInputByResource,
-  itemInputByResourceList,
   itemInput,
   itemInputList,
 };

@@ -2,7 +2,7 @@ import faker = require('faker');
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
-  BasicCRUDActions,
+  getNonOrgActionList,
   IPublicAccessOpInput,
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -192,7 +192,7 @@ export async function assertPublicOps(
 }
 
 export function makeEveryFolderPublicAccessOp() {
-  return [BasicCRUDActions.All].reduce((list, action) => {
+  return getNonOrgActionList().reduce((list, action) => {
     return list.concat(
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,
@@ -203,7 +203,7 @@ export function makeEveryFolderPublicAccessOp() {
 }
 
 export function makeEveryFolderPublicAccessOp02() {
-  return Object.values(BasicCRUDActions).reduce((list, action) => {
+  return getNonOrgActionList().reduce((list, action) => {
     return list.concat(
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,

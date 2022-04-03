@@ -17,5 +17,5 @@ export interface IPublicPermissionItem {
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
-  isForPermissionOwnerOnly?: boolean;
+  isForPermissionOwner?: boolean;
 }

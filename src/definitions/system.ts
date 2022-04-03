@@ -77,7 +77,25 @@ export enum BasicCRUDActions {
   GrantPermission = 'grant-permission',
 }
 
-export const crudActionsList = Object.values(BasicCRUDActions);
+export function getOrgActionList() {
+  return [
+    BasicCRUDActions.Create,
+    BasicCRUDActions.Read,
+    BasicCRUDActions.Update,
+    BasicCRUDActions.Delete,
+    BasicCRUDActions.GrantPermission,
+  ];
+}
+
+export function getNonOrgActionList() {
+  return [
+    BasicCRUDActions.Create,
+    BasicCRUDActions.Read,
+    BasicCRUDActions.Update,
+    BasicCRUDActions.Delete,
+  ];
+}
+
 export const appResourceTypesList = Object.values(
   AppResourceType
 ) as Array<AppResourceType>;

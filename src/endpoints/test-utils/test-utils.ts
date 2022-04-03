@@ -7,7 +7,8 @@ import {IPublicOrganization} from '../../definitions/organization';
 import {
   AppResourceType,
   BasicCRUDActions,
-  crudActionsList,
+  getNonOrgActionList,
+  getOrgActionList,
 } from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
@@ -375,15 +376,19 @@ export function makeTestPermissionItemByEntityInputs(
   owner: ITestPermissionItemOwner,
   base: ITestPermissionItemByEntityBase
 ) {
-  const items: INewPermissionItemInputByEntity[] = crudActionsList.map(
-    action => ({
-      ...base,
-      ...owner,
-      action: action as BasicCRUDActions,
-      isExclusion: faker.datatype.boolean(),
-      isForPermissionOwnerOnly: faker.datatype.boolean(),
-    })
-  );
+  const actionList =
+    base.itemResourceType === AppResourceType.Organization ||
+    base.itemResourceType === AppResourceType.All
+      ? getOrgActionList()
+      : getNonOrgActionList();
+
+  const items: INewPermissionItemInputByEntity[] = actionList.map(action => ({
+    ...base,
+    ...owner,
+    action: action as BasicCRUDActions,
+    isExclusion: faker.datatype.boolean(),
+    isForPermissionOwner: faker.datatype.boolean(),
+  }));
 
   return items;
 }

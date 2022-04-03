@@ -10,7 +10,8 @@ export interface INewPermissionItemInputByEntity {
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
   isExclusion?: boolean;
-  isForPermissionOwnerOnly?: boolean;
+  isForPermissionOwner?: boolean;
+  isForPermissionOwnerChildren?: boolean;
 }
 
 export interface IReplacePermissionItemsByEntityParams {

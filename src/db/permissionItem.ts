@@ -16,7 +16,8 @@ const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   itemResourceType: {type: String},
   action: {type: String},
   isExclusion: {type: Boolean},
-  isForPermissionOwnerOnly: {type: Boolean},
+  isForPermissionOwner: {type: Boolean},
+  isForPermissionOwnerChildren: {type: Boolean},
   hash: {type: String, index: true},
 });
 

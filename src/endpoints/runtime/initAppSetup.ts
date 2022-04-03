@@ -186,6 +186,7 @@ async function setupImageUploadPermissionGroup(
       permissionEntityId: imageUploadPreset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
       itemResourceType: AppResourceType.File,
+      isForPermissionOwnerChildren: true,
     };
 
     item.hash = permissionItemIndexer(item);

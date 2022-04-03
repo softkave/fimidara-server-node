@@ -59,15 +59,6 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
     permissionOwner = first(result.resources);
   }
 
-  // const itemsTargetingResource = await context.data.permissionItem.getManyItems(
-  //   PermissionItemQueries.getByResource(
-  //     organization.resourceId,
-  //     data.itemResourceId,
-  //     data.itemResourceType,
-  //     true
-  //   )
-  // );
-
   let permissionOwners: IPermissionOwner[] = [];
 
   if (
@@ -101,14 +92,23 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
           item.permissionOwnerId,
           item.permissionOwnerType,
           data.itemResourceType,
-          data.itemResourceId,
+          undefined, // data.itemResourceId,
           true
         )
       )
     )
   );
 
-  const items = uniqBy(flattenDeep(items2DList), 'hash');
+  let items = uniqBy(flattenDeep(items2DList), 'hash');
+
+  if (data.itemResourceId) {
+    items = items.filter(item =>
+      item.itemResourceId ? item.itemResourceId === data.itemResourceId : true
+    );
+  } else {
+    items = items.filter(item => !item.itemResourceId);
+  }
+
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(items),
   };

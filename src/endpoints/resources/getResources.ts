@@ -54,7 +54,7 @@ export async function getResources(options: IGetResourcesOptions) {
   const allowedTypesMap = indexArray(allowedTypes);
   const checkedInputResourcesMap = inputResources.reduce((map, item) => {
     if (
-      allowedTypesMap[BasicCRUDActions.All] ||
+      allowedTypesMap[AppResourceType.All] ||
       allowedTypesMap[item.resourceType]
     ) {
       const ids = defaultTo(idsGroupedByType[item.resourceType], []);

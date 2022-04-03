@@ -26,6 +26,7 @@ export interface IPermissionItem {
 
   // That is this permission item denies permission to the resource
   isExclusion?: boolean;
-  isForPermissionOwnerOnly?: boolean;
+  isForPermissionOwner?: boolean;
+  isForPermissionOwnerChildren?: boolean;
   hash: string;
 }
