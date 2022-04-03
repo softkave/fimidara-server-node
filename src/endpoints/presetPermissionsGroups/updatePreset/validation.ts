@@ -5,7 +5,7 @@ import presetPermissionsGroupsValidationSchemas from '../validation';
 export const updatePresetPermissionsGroupJoiSchema = Joi.object()
   .keys({
     presetId: validationSchemas.nanoid.required(),
-    data: Joi.object().keys({
+    preset: Joi.object().keys({
       name: validationSchemas.name.allow(null),
       description: validationSchemas.description.allow(null),
       presets:

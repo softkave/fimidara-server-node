@@ -85,3 +85,5 @@
 - Send email to the recipient of the change in collaboration request
 - show time code expires in emails
 - allow setting default presets on accept collaboration requests
+- implement limit capping based on folder, tag, token, etc
+- audit logs

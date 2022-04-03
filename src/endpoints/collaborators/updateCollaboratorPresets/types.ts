@@ -1,7 +1,7 @@
+import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
-import {IPublicCollaborator} from '../types';
 
 export interface IUpdateCollaboratorPresetsParams {
   organizationId: string;

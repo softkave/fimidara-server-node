@@ -1,6 +1,6 @@
+import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicCollaborator} from '../types';
 
 export interface IGetCollaboratorParams {
   organizationId: string;

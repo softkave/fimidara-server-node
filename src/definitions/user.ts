@@ -23,3 +23,10 @@ export interface IUser {
 
   organizations: IUserOrganization[];
 }
+
+export interface IPublicCollaborator extends IUserOrganization {
+  resourceId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}

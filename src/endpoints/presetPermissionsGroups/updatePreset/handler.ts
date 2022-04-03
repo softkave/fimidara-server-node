@@ -33,13 +33,13 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
     );
 
     const update: Partial<IPresetPermissionsGroup> = {
-      ...omit(data.data, 'presets'),
+      ...omit(data.preset, 'presets'),
       lastUpdatedAt: getDateString(),
       lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
     };
 
-    if (data.data.presets) {
-      update.presets = data.data.presets.map(preset => ({
+    if (data.preset.presets) {
+      update.presets = data.preset.presets.map(preset => ({
         ...preset,
         assignedAt: getDateString(),
         assignedBy: {

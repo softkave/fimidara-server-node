@@ -9,7 +9,7 @@ export type IUpdatePresetPermissionsGroupInput =
 
 export interface IUpdatePresetPermissionsGroupParams
   extends IPresetPermissionsGroupMatcher {
-  data: IUpdatePresetPermissionsGroupInput;
+  preset: IUpdatePresetPermissionsGroupInput;
 }
 
 export interface IUpdatePresetPermissionsGroupResult {

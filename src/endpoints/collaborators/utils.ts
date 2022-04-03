@@ -3,8 +3,13 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {IUser, IUserOrganization} from '../../definitions/user';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {
+  IPublicCollaborator,
+  IUser,
+  IUserOrganization,
+} from '../../definitions/user';
+import {getDateString} from '../../utilities/dateFns';
+import {getFields} from '../../utilities/extract';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -12,41 +17,44 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {userOrgListExtractor} from '../user/utils';
+import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import CollaboratorQueries from './queries';
-import {IPublicCollaborator} from './types';
 
 const collaboratorFields = getFields<IPublicCollaborator>({
   resourceId: true,
   firstName: true,
   lastName: true,
   email: true,
-  organizations: userOrgListExtractor,
+  joinedAt: getDateString,
+  organizationId: true,
+  presets: assignedPresetsListExtractor,
 });
 
-export const collaboratorBaseExtractor = makeExtract(collaboratorFields);
-export const collaboratorListBaseExtractor =
-  makeListExtract(collaboratorFields);
-
 export const collaboratorExtractor = (item: IUser, organizationId: string) => {
-  const p = collaboratorBaseExtractor(item);
-  p.organizations = p.organizations.filter(
-    io1 => io1.organizationId === organizationId
-  );
-  return p;
+  const userOrg = getCollaboratorOrganization(item, organizationId);
+
+  if (!userOrg) {
+    throw new NotFoundError('Collaborator not found');
+  }
+
+  const collaborator: IPublicCollaborator = {
+    resourceId: item.resourceId,
+    firstName: item.firstName,
+    lastName: item.lastName,
+    email: item.email,
+    joinedAt: userOrg.joinedAt,
+    organizationId: userOrg.organizationId,
+    presets: userOrg.presets,
+  };
+
+  return collaborator;
 };
 
 export const collaboratorListExtractor = (
   items: IUser[],
   organizationId: string
 ) => {
-  const ps = collaboratorListBaseExtractor(items);
-  ps.forEach(p => {
-    p.organizations = p.organizations.filter(
-      io1 => io1.organizationId === organizationId
-    );
-  });
-  return ps;
+  return items.map(item => collaboratorExtractor(item, organizationId));
 };
 
 export async function checkCollaboratorAuthorization(
