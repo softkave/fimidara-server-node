@@ -10,7 +10,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {fileConstants} from './constants';
 import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
 import {isNumber, merge} from 'lodash';
-import {IUploadFileParams} from './uploadFile/types';
+import {IUploadFileEndpointParams} from './uploadFile/types';
 
 function handleGetFileResponse(
   res: Response,
@@ -41,7 +41,7 @@ function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
 
 function extractUploadFilesParamsFromQuery(
   req: Request
-): Partial<IUploadFileParams> {
+): Partial<IUploadFileEndpointParams> {
   const organizationId = req.query.orgId as string;
   const filePath = req.query.p as string;
   return {
@@ -50,7 +50,9 @@ function extractUploadFilesParamsFromQuery(
   };
 }
 
-function extractUploadFilesParamsFromFormData(req: Request): IUploadFileParams {
+function extractUploadFilesParamsFromFormData(
+  req: Request
+): IUploadFileEndpointParams {
   const file = req.file;
   return {
     ...req.body,
@@ -59,7 +61,9 @@ function extractUploadFilesParamsFromFormData(req: Request): IUploadFileParams {
   };
 }
 
-function extractUploadFilesParamsFromReq(req: Request): IUploadFileParams {
+function extractUploadFilesParamsFromReq(
+  req: Request
+): IUploadFileEndpointParams {
   return merge(
     extractUploadFilesParamsFromQuery(req),
     extractUploadFilesParamsFromFormData(req)

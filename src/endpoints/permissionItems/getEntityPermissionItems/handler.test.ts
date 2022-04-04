@@ -12,7 +12,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getEntityPermissionItems from './handler';
-import {IGetEntityPermissionItemsParams} from './types';
+import {IGetEntityPermissionItemsEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -51,7 +51,7 @@ describe('getEntityPermissionitems', () => {
     );
 
     const instData =
-      RequestData.fromExpressRequest<IGetEntityPermissionItemsParams>(
+      RequestData.fromExpressRequest<IGetEntityPermissionItemsEndpointParams>(
         mockExpressRequestWithUserToken(userToken),
         {
           organizationId: organization.resourceId,

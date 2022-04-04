@@ -24,7 +24,7 @@ import {
   assertEndpointResultOk,
 } from '../../test-utils/test-utils';
 import deleteFile from '../deleteFile/handler';
-import {IDeleteFileParams} from '../deleteFile/types';
+import {IDeleteFileEndpointParams} from '../deleteFile/types';
 import getFile from '../getFile/handler';
 import {IGetFileEndpointParams} from '../getFile/types';
 import FileQueries from '../queries';
@@ -34,12 +34,12 @@ import {
   IUpdateFileDetailsEndpointParams,
 } from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
-import {IUploadFileParams} from './types';
+import {IUploadFileEndpointParams} from './types';
 import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,
-  input: Partial<IUploadFileParams> = {},
+  input: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
   insertOrgResult?: IInsertOrganizationForTestResult
@@ -167,7 +167,7 @@ export async function assertPublicPermissionsDonotExistForOwner(
 
 export const uploadFileWithPublicAccessActionTest = async (
   ctx: IBaseContext,
-  input: Partial<IUploadFileParams>,
+  input: Partial<IUploadFileEndpointParams>,
   expectedPublicAccessOpsCount: number,
   expectedActions: BasicCRUDActions[],
   type: 'png' | 'txt' = 'png',
@@ -277,7 +277,7 @@ export async function assertCanDeletePublicFile(
   organizationId: string,
   filePath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IDeleteFileParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {organizationId, filePath: filePath}
   );

@@ -11,7 +11,7 @@ import {
 } from '../../test-utils/test-utils';
 import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
-import {IGetCollaboratorParams} from './types';
+import {IGetCollaboratorEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -27,13 +27,14 @@ test('collaborator returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IGetCollaboratorParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      collaboratorId: user.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        collaboratorId: user.resourceId,
+      }
+    );
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);

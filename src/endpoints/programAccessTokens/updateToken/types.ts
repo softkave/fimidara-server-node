@@ -6,18 +6,18 @@ import {INewProgramAccessTokenInput} from '../addToken/types';
 export type IUpdateProgramAccessTokenInput =
   Partial<INewProgramAccessTokenInput>;
 
-export interface IUpdateProgramAccessTokenParams {
+export interface IUpdateProgramAccessTokenEndpointParams {
   tokenId?: string;
   onReferenced?: boolean;
   token: IUpdateProgramAccessTokenInput;
 }
 
-export interface IUpdateProgramAccessTokenResult {
+export interface IUpdateProgramAccessTokenEndpointResult {
   token: IPublicProgramAccessToken;
 }
 
 export type UpdateProgramAccessTokenEndpoint = Endpoint<
   IBaseContext,
-  IUpdateProgramAccessTokenParams,
-  IUpdateProgramAccessTokenResult
+  IUpdateProgramAccessTokenEndpointParams,
+  IUpdateProgramAccessTokenEndpointResult
 >;

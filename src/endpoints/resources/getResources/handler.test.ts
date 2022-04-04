@@ -24,7 +24,7 @@ import {
 } from '../../test-utils/test-utils';
 import {IFetchResourceItem} from '../types';
 import getResources from './handler';
-import {IGetResourcesParams} from './types';
+import {IGetResourcesEndpointParams} from './types';
 
 // TODO: Test resources that the agent doesn't have read permission to
 
@@ -94,13 +94,14 @@ describe('getResources', () => {
     );
 
     items.forEach(item => addResource(item, AppResourceType.PermissionItem));
-    const instData = RequestData.fromExpressRequest<IGetResourcesParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        organizationId: organization.resourceId,
-        resources: resourcesInput,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
+        mockExpressRequestWithUserToken(userToken),
+        {
+          organizationId: organization.resourceId,
+          resources: resourcesInput,
+        }
+      );
 
     const result = await getResources(context, instData);
     assertEndpointResultOk(result);

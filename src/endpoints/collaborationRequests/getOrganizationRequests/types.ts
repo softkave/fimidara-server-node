@@ -1,17 +1,17 @@
+import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicCollaborationRequest} from '../types';
 
-export interface IGetOrganizationRequestsParams {
+export interface IGetOrganizationRequestsEndpointParams {
   organizationId: string;
 }
 
-export interface IGetOrganizationRequestsResult {
+export interface IGetOrganizationRequestsEndpointResult {
   requests: IPublicCollaborationRequest[];
 }
 
 export type GetOrganizationRequestsEndpoint = Endpoint<
   IBaseContext,
-  IGetOrganizationRequestsParams,
-  IGetOrganizationRequestsResult
+  IGetOrganizationRequestsEndpointParams,
+  IGetOrganizationRequestsEndpointResult
 >;

@@ -20,3 +20,18 @@ export interface IClientAssignedToken {
   // meta?: Record<string, string | number | boolean | null>;
   // authURL: string;
 }
+
+export interface IPublicClientAssignedToken {
+  resourceId: string;
+  providedResourceId?: string;
+  createdAt: string;
+  createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: string;
+  organizationId: string;
+  version: number;
+  presets: IAssignedPresetPermissionsGroup[];
+  issuedAt: string;
+  expires?: number;
+  tokenStr: string;
+}

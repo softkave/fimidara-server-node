@@ -1,7 +1,7 @@
+import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
+import {IPresetInput} from '../../../definitions/presetPermissionsGroup';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
-import {IPublicClientAssignedToken} from '../types';
 
 export interface INewClientAssignedTokenInput {
   providedResourceId?: string;
@@ -9,17 +9,17 @@ export interface INewClientAssignedTokenInput {
   presets?: IPresetInput[];
 }
 
-export interface IAddClientAssignedTokenParams {
+export interface IAddClientAssignedTokenEndpointParams {
   organizationId?: string;
   token: INewClientAssignedTokenInput;
 }
 
-export interface IAddClientAssignedTokenResult {
+export interface IAddClientAssignedTokenEndpointResult {
   token: IPublicClientAssignedToken;
 }
 
 export type AddClientAssignedTokenEndpoint = Endpoint<
   IBaseContext,
-  IAddClientAssignedTokenParams,
-  IAddClientAssignedTokenResult
+  IAddClientAssignedTokenEndpointParams,
+  IAddClientAssignedTokenEndpointResult
 >;

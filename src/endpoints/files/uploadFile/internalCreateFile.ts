@@ -7,14 +7,14 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {ISplitFilePathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
-import {IUploadFileParams} from './types';
+import {IUploadFileEndpointParams} from './types';
 
 export async function internalCreateFile(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
   pathWithDetails: ISplitFilePathWithDetails,
-  data: IUploadFileParams,
+  data: IUploadFileEndpointParams,
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();

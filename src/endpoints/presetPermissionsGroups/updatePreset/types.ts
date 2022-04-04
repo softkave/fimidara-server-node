@@ -1,23 +1,25 @@
-import {IPresetPermissionsGroupMatcher} from '../../../definitions/presetPermissionsGroup';
+import {
+  IPresetPermissionsGroupMatcher,
+  IPublicPresetPermissionsGroup,
+} from '../../../definitions/presetPermissionsGroup';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewPresetPermissionsGroupInput} from '../addPreset/types';
-import {IPublicPresetPermissionsGroup} from '../types';
 
 export type IUpdatePresetPermissionsGroupInput =
   Partial<INewPresetPermissionsGroupInput>;
 
-export interface IUpdatePresetPermissionsGroupParams
+export interface IUpdatePresetPermissionsGroupEndpointParams
   extends IPresetPermissionsGroupMatcher {
   preset: IUpdatePresetPermissionsGroupInput;
 }
 
-export interface IUpdatePresetPermissionsGroupResult {
+export interface IUpdatePresetPermissionsGroupEndpointResult {
   preset: IPublicPresetPermissionsGroup;
 }
 
 export type UpdatePresetPermissionsGroupEndpoint = Endpoint<
   IBaseContext,
-  IUpdatePresetPermissionsGroupParams,
-  IUpdatePresetPermissionsGroupResult
+  IUpdatePresetPermissionsGroupEndpointParams,
+  IUpdatePresetPermissionsGroupEndpointResult
 >;

@@ -14,7 +14,7 @@ import UserQueries from '../../user/UserQueries';
 import {userExtractor} from '../../user/utils';
 import {getCollaboratorOrganization} from '../utils';
 import updateCollaboratorPresets from './handler';
-import {IUpdateCollaboratorPresetsParams} from './types';
+import {IUpdateCollaboratorPresetsEndpointParams} from './types';
 
 /**
  * TODO:
@@ -48,7 +48,7 @@ test('collaborator presets updated', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IUpdateCollaboratorPresetsParams>(
+    RequestData.fromExpressRequest<IUpdateCollaboratorPresetsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,

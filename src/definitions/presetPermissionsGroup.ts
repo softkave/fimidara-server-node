@@ -24,3 +24,20 @@ export interface IPresetPermissionsGroupMatcher {
   name?: string;
   organizationId?: string;
 }
+
+export interface IPublicPresetPermissionsGroup {
+  resourceId: string;
+  organizationId: string;
+  createdAt: string;
+  createdBy: IAgent;
+  lastUpdatedAt?: string;
+  lastUpdatedBy?: IAgent;
+  name: string;
+  description?: string;
+  presets: IAssignedPresetPermissionsGroup[];
+}
+
+export interface IPresetInput {
+  presetId: string;
+  order: number;
+}

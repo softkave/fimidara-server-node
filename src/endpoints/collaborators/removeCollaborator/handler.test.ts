@@ -10,7 +10,7 @@ import {
 } from '../../test-utils/test-utils';
 import UserQueries from '../../user/UserQueries';
 import removeCollaborator from './handler';
-import {IRemoveCollaboratorParams} from './types';
+import {IRemoveCollaboratorEndpointParams} from './types';
 
 /**
  * TODO:
@@ -31,13 +31,14 @@ test('collaborator removed', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IRemoveCollaboratorParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      collaboratorId: user.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        collaboratorId: user.resourceId,
+      }
+    );
 
   const result = await removeCollaborator(context, instData);
   assertEndpointResultOk(result);

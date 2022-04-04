@@ -1,5 +1,6 @@
 - Store all dates and times as utc
 - copy and centralize all your todos in one place
+- drop max file size for now and reimplement
 - Preset weight, not order
 - Remove avatars
 - unit tests

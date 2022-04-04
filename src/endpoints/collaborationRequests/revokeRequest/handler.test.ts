@@ -13,7 +13,7 @@ import {
 } from '../../test-utils/test-utils';
 import {collabRequestExtractor} from '../utils';
 import revokeRequest from './handler';
-import {IRevokeRequestParams} from './types';
+import {IRevokeRequestEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -39,7 +39,7 @@ test('collaboration request revoked', async () => {
     }
   );
 
-  const instData = RequestData.fromExpressRequest<IRevokeRequestParams>(
+  const instData = RequestData.fromExpressRequest<IRevokeRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       requestId: request01.resourceId,

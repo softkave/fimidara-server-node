@@ -7,7 +7,7 @@ import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionIte
 import EndpointReusableQueries from '../../queries';
 import {ISplitFilePathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
-import {IUploadFileParams} from './types';
+import {IUploadFileEndpointParams} from './types';
 
 export async function internalUpdateFile(
   context: IBaseContext,
@@ -15,7 +15,7 @@ export async function internalUpdateFile(
   organization: IOrganization,
   pathWithDetails: ISplitFilePathWithDetails,
   existingFile: IFile,
-  data: IUploadFileParams
+  data: IUploadFileEndpointParams
 ) {
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),

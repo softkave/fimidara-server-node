@@ -15,13 +15,13 @@ import {IUserToken} from '../../definitions/userToken';
 import singletonFunc from '../../utilities/singletonFunc';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
-  IAddClientAssignedTokenParams,
+  IAddClientAssignedTokenEndpointParams,
   INewClientAssignedTokenInput,
 } from '../clientAssignedTokens/addToken/types';
 import sendRequest from '../collaborationRequests/sendRequest/handler';
 import {
   ICollaborationRequestInput,
-  ISendRequestParams,
+  ISendRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext, {IBaseContext} from '../contexts/BaseContext';
@@ -34,26 +34,29 @@ import {
 } from '../contexts/SessionContext';
 import {IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
-import {IUploadFileParams} from '../files/uploadFile/types';
+import {IUploadFileEndpointParams} from '../files/uploadFile/types';
 import {splitFilePathWithDetails} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
-import {IAddFolderParams, INewFolderInput} from '../folders/addFolder/types';
+import {
+  IAddFolderEndpointParams,
+  INewFolderInput,
+} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
 import addOrganization from '../organizations/addOrganization/handler';
 import {IAddOrganizationParams} from '../organizations/addOrganization/types';
 import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
 import {
-  IReplacePermissionItemsByEntityParams,
+  IReplacePermissionItemsByEntityEndpointParams,
   INewPermissionItemInputByEntity,
 } from '../permissionItems/replaceItemsByEntity/types';
 import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
-  IAddPresetPermissionsGroupParams,
+  IAddPresetPermissionsGroupEndpointParams,
   INewPresetPermissionsGroupInput,
 } from '../presetPermissionsGroups/addPreset/types';
 import addProgramAccessToken from '../programAccessTokens/addToken/handler';
 import {
-  IAddProgramAccessTokenParams,
+  IAddProgramAccessTokenEndpointParams,
   INewProgramAccessTokenInput,
 } from '../programAccessTokens/addToken/types';
 import EndpointReusableQueries from '../queries';
@@ -272,7 +275,7 @@ export async function insertPresetForTest(
   presetInput: Partial<INewPresetPermissionsGroupInput> = {}
 ) {
   const instData =
-    RequestData.fromExpressRequest<IAddPresetPermissionsGroupParams>(
+    RequestData.fromExpressRequest<IAddPresetPermissionsGroupEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId,
@@ -296,7 +299,7 @@ export async function insertRequestForTest(
   organizationId: string,
   requestInput: Partial<ICollaborationRequestInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<ISendRequestParams>(
+  const instData = RequestData.fromExpressRequest<ISendRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId,
@@ -321,7 +324,7 @@ export async function insertClientAssignedTokenForTest(
   requestInput: Partial<INewClientAssignedTokenInput> = {}
 ) {
   const instData =
-    RequestData.fromExpressRequest<IAddClientAssignedTokenParams>(
+    RequestData.fromExpressRequest<IAddClientAssignedTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId,
@@ -344,18 +347,19 @@ export async function insertProgramAccessTokenForTest(
   organizationId: string,
   tokenInput: Partial<INewProgramAccessTokenInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddProgramAccessTokenParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId,
-      token: {
-        name: faker.lorem.words(2),
-        description: faker.lorem.words(10),
-        presets: [],
-        ...tokenInput,
-      },
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IAddProgramAccessTokenEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId,
+        token: {
+          name: faker.lorem.words(2),
+          description: faker.lorem.words(10),
+          presets: [],
+          ...tokenInput,
+        },
+      }
+    );
 
   const result = await addProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
@@ -403,7 +407,7 @@ export async function insertPermissionItemsForTestByEntity(
 ) {
   const itemsInput = makeTestPermissionItemByEntityInputs(owner, base);
   const instData =
-    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityParams>(
+    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         ...entity,
@@ -432,7 +436,7 @@ export async function insertPermissionItemsForTestUsingItems(
   items: INewPermissionItemInputByEntity[]
 ) {
   const instData =
-    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityParams>(
+    RequestData.fromExpressRequest<IReplacePermissionItemsByEntityEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         ...entity,
@@ -453,7 +457,7 @@ export async function insertFolderForTest(
   organizationId: string,
   folderInput: Partial<INewFolderInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddFolderParams>(
+  const instData = RequestData.fromExpressRequest<IAddFolderEndpointParams>(
     userToken
       ? mockExpressRequestWithUserToken(userToken)
       : mockExpressRequestForPublicAgent(),
@@ -502,11 +506,11 @@ export async function insertFileForTest(
   context: IBaseContext,
   userToken: IUserToken | null, // Pass null for public agent
   organizationId: string,
-  fileInput: Partial<IUploadFileParams> = {},
+  fileInput: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
-  const input: IUploadFileParams = {
+  const input: IUploadFileEndpointParams = {
     organizationId,
     filePath: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
@@ -536,7 +540,7 @@ export async function insertFileForTest(
     input.filePath = input.filePath + '.' + input.extension;
   }
 
-  const instData = RequestData.fromExpressRequest<IUploadFileParams>(
+  const instData = RequestData.fromExpressRequest<IUploadFileEndpointParams>(
     userToken
       ? mockExpressRequestWithUserToken(userToken)
       : mockExpressRequestForPublicAgent(),

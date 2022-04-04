@@ -3,7 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export interface IGetResourcePermissionItemsParams {
+export interface IGetResourcePermissionItemsEndpointParams {
   organizationId: string;
   itemResourceId?: string;
   itemResourceType: AppResourceType;
@@ -11,12 +11,12 @@ export interface IGetResourcePermissionItemsParams {
   permissionOwnerType?: AppResourceType;
 }
 
-export interface IGetResourcePermissionItemsResult {
+export interface IGetResourcePermissionItemsEndpointResult {
   items: IPublicPermissionItem[];
 }
 
 export type GetResourcePermissionItemsEndpoint = Endpoint<
   IBaseContext,
-  IGetResourcePermissionItemsParams,
-  IGetResourcePermissionItemsResult
+  IGetResourcePermissionItemsEndpointParams,
+  IGetResourcePermissionItemsEndpointResult
 >;

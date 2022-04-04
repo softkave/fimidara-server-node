@@ -1,7 +1,7 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export interface IDeleteClientAssignedTokenParams {
+export interface IDeleteClientAssignedTokenEndpointParams {
   tokenId?: string;
   providedResourceId?: string;
   organizationId?: string;
@@ -10,5 +10,5 @@ export interface IDeleteClientAssignedTokenParams {
 
 export type DeleteClientAssignedTokenEndpoint = Endpoint<
   IBaseContext,
-  IDeleteClientAssignedTokenParams
+  IDeleteClientAssignedTokenEndpointParams
 >;

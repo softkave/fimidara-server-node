@@ -41,8 +41,24 @@ export interface ICollaborationRequest {
   lastUpdatedBy?: IAgent;
   readAt?: Date | string;
   statusHistory: ICollaborationRequestStatus[];
-  sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
+  // sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
 
   // Presets assigned to the user on accepting the request
   assignedPresetsOnAccept: IAssignedPresetPermissionsGroup[];
+}
+
+export interface IPublicCollaborationRequest {
+  resourceId: string;
+  recipientEmail: string;
+  message: string;
+  createdBy: IAgent;
+  createdAt: string;
+  expiresAt?: string;
+  organizationId: string;
+  organizationName: string;
+  lastUpdatedAt?: string;
+  lastUpdatedBy?: IAgent;
+  readAt?: string;
+  statusHistory: ICollaborationRequestStatus[];
+  sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
 }

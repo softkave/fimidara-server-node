@@ -1,20 +1,20 @@
+import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicClientAssignedToken} from '../types';
 
-export interface IGetClientAssignedTokenParams {
+export interface IGetClientAssignedTokenEndpointParams {
   tokenId?: string;
   providedResourceId?: string;
   organizationId?: string;
   onReferenced?: boolean;
 }
 
-export interface IGetClientAssignedTokenResult {
+export interface IGetClientAssignedTokenEndpointResult {
   token: IPublicClientAssignedToken;
 }
 
 export type GetClientAssignedTokenEndpoint = Endpoint<
   IBaseContext,
-  IGetClientAssignedTokenParams,
-  IGetClientAssignedTokenResult
+  IGetClientAssignedTokenEndpointParams,
+  IGetClientAssignedTokenEndpointResult
 >;

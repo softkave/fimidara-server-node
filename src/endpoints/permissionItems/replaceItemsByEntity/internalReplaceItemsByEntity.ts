@@ -5,12 +5,12 @@ import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import PermissionItemQueries from '../queries';
 import {compactPermissionItems, permissionItemIndexer} from '../utils';
-import {IReplacePermissionItemsByEntityParams} from './types';
+import {IReplacePermissionItemsByEntityEndpointParams} from './types';
 
 export async function internalReplacePermissionItemsByEntity(
   context: IBaseContext,
   agent: IAgent,
-  data: IReplacePermissionItemsByEntityParams
+  data: IReplacePermissionItemsByEntityEndpointParams
 ) {
   await context.data.permissionItem.deleteManyItems(
     PermissionItemQueries.getByPermissionEntity(

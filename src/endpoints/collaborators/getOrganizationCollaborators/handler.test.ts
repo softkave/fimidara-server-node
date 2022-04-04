@@ -11,7 +11,7 @@ import {
 } from '../../test-utils/test-utils';
 import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
-import {IGetOrganizationCollaboratorsParams} from './types';
+import {IGetOrganizationCollaboratorsEndpointParams} from './types';
 
 /**
  * TODO:
@@ -33,7 +33,7 @@ test('organization collaborators returned', async () => {
   const {userToken, user} = await insertUserForTest(context);
   const {organization} = await insertOrganizationForTest(context, userToken);
   const instData =
-    RequestData.fromExpressRequest<IGetOrganizationCollaboratorsParams>(
+    RequestData.fromExpressRequest<IGetOrganizationCollaboratorsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,

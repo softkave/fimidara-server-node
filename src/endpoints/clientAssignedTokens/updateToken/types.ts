@@ -1,12 +1,12 @@
+import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewClientAssignedTokenInput} from '../addToken/types';
-import {IPublicClientAssignedToken} from '../types';
 
 export type IUpdateClientAssignedTokenInput =
   Partial<INewClientAssignedTokenInput>;
 
-export interface IUpdateClientAssignedTokenParams {
+export interface IUpdateClientAssignedTokenEndpointParams {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;
@@ -14,12 +14,12 @@ export interface IUpdateClientAssignedTokenParams {
   token: IUpdateClientAssignedTokenInput;
 }
 
-export interface IUpdateClientAssignedTokenResult {
+export interface IUpdateClientAssignedTokenEndpointResult {
   token: IPublicClientAssignedToken;
 }
 
 export type UpdateClientAssignedTokenEndpoint = Endpoint<
   IBaseContext,
-  IUpdateClientAssignedTokenParams,
-  IUpdateClientAssignedTokenResult
+  IUpdateClientAssignedTokenEndpointParams,
+  IUpdateClientAssignedTokenEndpointResult
 >;

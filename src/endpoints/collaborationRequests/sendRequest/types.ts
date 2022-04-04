@@ -1,6 +1,6 @@
+import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicCollaborationRequest} from '../types';
 
 export interface ICollaborationRequestInput {
   recipientEmail: string;
@@ -8,17 +8,17 @@ export interface ICollaborationRequestInput {
   expires?: string;
 }
 
-export interface ISendRequestParams {
+export interface ISendRequestEndpointParams {
   organizationId: string;
   request: ICollaborationRequestInput;
 }
 
-export interface ISendRequestResult {
+export interface ISendRequestEndpointResult {
   request: IPublicCollaborationRequest;
 }
 
 export type SendRequestEndpoint = Endpoint<
   IBaseContext,
-  ISendRequestParams,
-  ISendRequestResult
+  ISendRequestEndpointParams,
+  ISendRequestEndpointResult
 >;

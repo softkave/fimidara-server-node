@@ -1,20 +1,20 @@
+import {IPresetInput} from '../../../definitions/presetPermissionsGroup';
 import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateCollaboratorPresetsParams {
+export interface IUpdateCollaboratorPresetsEndpointParams {
   organizationId: string;
   collaboratorId: string;
   presets: IPresetInput[];
 }
 
-export interface IUpdateCollaboratorPresetsResult {
+export interface IUpdateCollaboratorPresetsEndpointResult {
   collaborator: IPublicCollaborator;
 }
 
 export type UpdateCollaboratorPresetsEndpoint = Endpoint<
   IBaseContext,
-  IUpdateCollaboratorPresetsParams,
-  IUpdateCollaboratorPresetsResult
+  IUpdateCollaboratorPresetsEndpointParams,
+  IUpdateCollaboratorPresetsEndpointResult
 >;
