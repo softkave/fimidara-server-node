@@ -1,5 +1,8 @@
 import assert = require('assert');
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
+import {
+  IClientAssignedToken,
+  IPublicClientAssignedToken,
+} from '../../definitions/clientAssignedToken';
 import {
   ISessionAgent,
   BasicCRUDActions,
@@ -24,7 +27,6 @@ import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {ClientAssignedTokenDoesNotExistError} from './errors';
-import {IPublicClientAssignedToken} from './types';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   resourceId: true,

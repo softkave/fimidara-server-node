@@ -1,23 +1,23 @@
+import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicCollaborationRequest} from '../types';
 
 export interface IUpdateCollaborationRequestInput {
   message?: string;
   expiresAt?: string;
 }
 
-export interface IUpdateRequestParams {
+export interface IUpdateRequestEndpointParams {
   requestId: string;
   request: IUpdateCollaborationRequestInput;
 }
 
-export interface IUpdateRequestResult {
+export interface IUpdateRequestEndpointResult {
   request: IPublicCollaborationRequest;
 }
 
 export type UpdateRequestEndpoint = Endpoint<
   IBaseContext,
-  IUpdateRequestParams,
-  IUpdateRequestResult
+  IUpdateRequestEndpointParams,
+  IUpdateRequestEndpointResult
 >;

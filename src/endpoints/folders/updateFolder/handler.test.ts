@@ -28,7 +28,7 @@ import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {folderExtractor} from '../utils';
 import updateFolder from './handler';
-import {IUpdateFolderInput, IUpdateFolderParams} from './types';
+import {IUpdateFolderInput, IUpdateFolderEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -66,7 +66,7 @@ async function updateFolderBaseTest(
     ...incomingUpdateInput,
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFolderParams>(
+  const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
     mockExpressRequestWithUserToken(insertUserResult.userToken),
     {
       organizationId: insertOrgResult.organization.resourceId,

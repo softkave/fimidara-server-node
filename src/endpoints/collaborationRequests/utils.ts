@@ -2,6 +2,7 @@ import {
   ICollaborationRequest,
   ICollaborationRequestSentEmailHistoryItem,
   ICollaborationRequestStatus,
+  IPublicCollaborationRequest,
 } from '../../definitions/collaborationRequest';
 import {
   ISessionAgent,
@@ -19,7 +20,6 @@ import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
-import {IPublicCollaborationRequest} from './types';
 
 const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   resourceId: true,

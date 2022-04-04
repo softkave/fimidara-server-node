@@ -11,7 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteClientAssignedToken from './handler';
-import {IDeleteClientAssignedTokenParams} from './types';
+import {IDeleteClientAssignedTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -39,7 +39,7 @@ test('client assigned token deleted', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IDeleteClientAssignedTokenParams>(
+    RequestData.fromExpressRequest<IDeleteClientAssignedTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token.resourceId,

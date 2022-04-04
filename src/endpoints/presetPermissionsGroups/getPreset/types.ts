@@ -1,7 +1,12 @@
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPublicPresetPermissionsGroup} from '../types';
 import {Endpoint} from '../../types';
-import {IPresetPermissionsGroupMatcher} from '../../../definitions/presetPermissionsGroup';
+import {
+  IPresetPermissionsGroupMatcher,
+  IPublicPresetPermissionsGroup,
+} from '../../../definitions/presetPermissionsGroup';
+
+export interface IGetPresetPermissionsGroupEndpointParams
+  extends IPresetPermissionsGroupMatcher {}
 
 export interface IGetPresetPermissionsGroupEndpointResult {
   preset: IPublicPresetPermissionsGroup;
@@ -9,6 +14,6 @@ export interface IGetPresetPermissionsGroupEndpointResult {
 
 export type GetPresetPermissionsGroupEndpoint = Endpoint<
   IBaseContext,
-  IPresetPermissionsGroupMatcher,
+  IGetPresetPermissionsGroupEndpointParams,
   IGetPresetPermissionsGroupEndpointResult
 >;

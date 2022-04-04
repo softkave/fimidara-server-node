@@ -11,7 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteFile from './handler';
-import {IDeleteFileParams} from './types';
+import {IDeleteFileEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -41,7 +41,7 @@ test('file deleted', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IDeleteFileParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId: organization.resourceId,

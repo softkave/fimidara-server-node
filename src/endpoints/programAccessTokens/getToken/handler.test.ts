@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getProgramAccessToken from './handler';
-import {IGetProgramAccessTokenParams} from './types';
+import {IGetProgramAccessTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -37,12 +37,13 @@ test('referenced program access token returned', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IGetProgramAccessTokenParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      tokenId: token01.resourceId,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IGetProgramAccessTokenEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        tokenId: token01.resourceId,
+      }
+    );
 
   const result = await getProgramAccessToken(context, instData);
   assertEndpointResultOk(result);

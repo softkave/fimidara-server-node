@@ -2,16 +2,16 @@ import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export interface IGetOrganizationCollaboratorsParams {
+export interface IGetOrganizationCollaboratorsEndpointParams {
   organizationId: string;
 }
 
-export interface IGetOrganizationCollaboratorsResult {
+export interface IGetOrganizationCollaboratorsEndpointResult {
   collaborators: IPublicCollaborator[];
 }
 
 export type GetOrganizationCollaboratorsEndpoint = Endpoint<
   IBaseContext,
-  IGetOrganizationCollaboratorsParams,
-  IGetOrganizationCollaboratorsResult
+  IGetOrganizationCollaboratorsEndpointParams,
+  IGetOrganizationCollaboratorsEndpointResult
 >;

@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getOrganizationClientAssignedTokens from './handler';
-import {IGetOrganizationClientAssignedTokensParams} from './types';
+import {IGetOrganizationClientAssignedTokensEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -39,7 +39,7 @@ test("organization's client assigned tokens returned", async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IGetOrganizationClientAssignedTokensParams>(
+    RequestData.fromExpressRequest<IGetOrganizationClientAssignedTokensEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,

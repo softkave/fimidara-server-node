@@ -2,8 +2,10 @@ import assert = require('assert');
 import {IOrganization} from '../../definitions/organization';
 import {
   IAssignedPresetPermissionsGroup,
+  IPresetInput,
   IPresetPermissionsGroup,
   IPresetPermissionsGroupMatcher,
+  IPublicPresetPermissionsGroup,
 } from '../../definitions/presetPermissionsGroup';
 import {
   ISessionAgent,
@@ -25,7 +27,6 @@ import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {PresetPermissionsGroupDoesNotExistError} from './errors';
 import PresetPermissionsGroupQueries from './queries';
-import {IPresetInput, IPublicPresetPermissionsGroup} from './types';
 
 const assignedPresetsFields = getFields<IAssignedPresetPermissionsGroup>({
   presetId: true,

@@ -1,7 +1,10 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {assertContext, getTestBaseContext} from '../../test-utils/test-utils';
-import {IUploadFileParams, UploadFilePublicAccessActions} from './types';
+import {
+  IUploadFileEndpointParams,
+  UploadFilePublicAccessActions,
+} from './types';
 import {folderConstants} from '../../folders/constants';
 import {PermissionDeniedError} from '../../user/errors';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
@@ -121,7 +124,7 @@ describe('uploadFile', () => {
     assertContext(context);
     const {savedFile, insertUserResult, insertOrgResult} =
       await uploadFileBaseTest(context);
-    const update: Partial<IUploadFileParams> = {
+    const update: Partial<IUploadFileEndpointParams> = {
       filePath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.Read,
     };
@@ -162,7 +165,7 @@ describe('uploadFile', () => {
         ]
       );
 
-    const update: Partial<IUploadFileParams> = {
+    const update: Partial<IUploadFileEndpointParams> = {
       filePath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.None,
     };

@@ -15,7 +15,7 @@ import {
 import ClientAssignedTokenQueries from '../queries';
 import {programAccessTokenExtractor} from '../utils';
 import updateProgramAccessToken from './handler';
-import {IUpdateProgramAccessTokenParams} from './types';
+import {IUpdateProgramAccessTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -71,7 +71,7 @@ test('program access token updated', async () => {
   };
 
   const instData =
-    RequestData.fromExpressRequest<IUpdateProgramAccessTokenParams>(
+    RequestData.fromExpressRequest<IUpdateProgramAccessTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token01.resourceId,

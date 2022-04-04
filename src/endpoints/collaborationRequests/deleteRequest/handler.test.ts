@@ -11,7 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteRequest from './handler';
-import {IDeleteRequestParams} from './types';
+import {IDeleteRequestEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -33,7 +33,7 @@ test('collaboration request deleted', async () => {
     organization.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IDeleteRequestParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       requestId: request.resourceId,

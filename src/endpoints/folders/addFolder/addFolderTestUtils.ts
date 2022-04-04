@@ -24,14 +24,17 @@ import {
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
-import {IDeleteFolderParams} from '../deleteFolder/types';
+import {IDeleteFolderEndpointParams} from '../deleteFolder/types';
 import getFolder from '../getFolder/handler';
 import {IGetFolderEndpointParams} from '../getFolder/types';
 import listFolderContent from '../listFolderContent/handler';
 import {IListFolderContentEndpointParams} from '../listFolderContent/types';
 import FolderQueries from '../queries';
 import updateFolder from '../updateFolder/handler';
-import {IUpdateFolderInput, IUpdateFolderParams} from '../updateFolder/types';
+import {
+  IUpdateFolderInput,
+  IUpdateFolderEndpointParams,
+} from '../updateFolder/types';
 import {folderExtractor} from '../utils';
 import {INewFolderInput} from './types';
 
@@ -118,7 +121,7 @@ export async function assertCanUpdatePublicFolder(
     maxFileSizeInBytes: 9_000_000_000,
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFolderParams>(
+  const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
       organizationId,
@@ -151,7 +154,7 @@ export async function assertCanDeletePublicFolder(
   organizationId: string,
   folderPath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IDeleteFolderParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {organizationId, folderPath: folderPath}
   );

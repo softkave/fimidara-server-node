@@ -17,17 +17,17 @@ export interface INewFolderInput {
   // inheritParentPublicAccessOps?: boolean;
 }
 
-export interface IAddFolderParams {
+export interface IAddFolderEndpointParams {
   organizationId?: string;
   folder: INewFolderInput;
 }
 
-export interface IAddFolderResult {
+export interface IAddFolderEndpointResult {
   folder: IPublicFolder;
 }
 
 export type AddFolderEndpoint = Endpoint<
   IBaseContext,
-  IAddFolderParams,
-  IAddFolderResult
+  IAddFolderEndpointParams,
+  IAddFolderEndpointResult
 >;

@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getOrganizationRequests from './handler';
-import {IGetOrganizationRequestsParams} from './types';
+import {IGetOrganizationRequestsEndpointParams} from './types';
 
 /**
  * TODO:
@@ -44,7 +44,7 @@ test('organization collaboration requests returned', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IGetOrganizationRequestsParams>(
+    RequestData.fromExpressRequest<IGetOrganizationRequestsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,

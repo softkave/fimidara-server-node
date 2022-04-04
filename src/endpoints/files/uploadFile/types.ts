@@ -9,7 +9,7 @@ export enum UploadFilePublicAccessActions {
   ReadUpdateAndDelete = 'read-update-delete',
 }
 
-export interface IUploadFileParams extends IFileMatcher {
+export interface IUploadFileEndpointParams extends IFileMatcher {
   description?: string;
   encoding?: string;
   extension?: string;
@@ -18,12 +18,12 @@ export interface IUploadFileParams extends IFileMatcher {
   publicAccessActions?: UploadFilePublicAccessActions;
 }
 
-export interface IUploadFileResult {
+export interface IUploadFileEndpointResult {
   file: IPublicFile;
 }
 
 export type UploadFileEndpoint = Endpoint<
   IBaseContext,
-  IUploadFileParams,
-  IUploadFileResult
+  IUploadFileEndpointParams,
+  IUploadFileEndpointResult
 >;

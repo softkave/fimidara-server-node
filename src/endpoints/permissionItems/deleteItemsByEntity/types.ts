@@ -2,7 +2,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export interface IDeletePermissionItemsByEntityParams {
+export interface IDeletePermissionItemsByEntityEndpointParams {
   organizationId: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
@@ -11,5 +11,5 @@ export interface IDeletePermissionItemsByEntityParams {
 
 export type DeletePermissionItemsByEntityEndpoint = Endpoint<
   IBaseContext,
-  IDeletePermissionItemsByEntityParams
+  IDeletePermissionItemsByEntityEndpointParams
 >;

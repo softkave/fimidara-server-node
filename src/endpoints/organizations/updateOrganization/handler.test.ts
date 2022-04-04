@@ -11,7 +11,10 @@ import {
 } from '../../test-utils/test-utils';
 import OrganizationQueries from '../queries';
 import updateOrganization from './handler';
-import {IUpdateOrganizationInput, IUpdateOrganizationParams} from './types';
+import {
+  IUpdateOrganizationInput,
+  IUpdateOrganizationEndpointParams,
+} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -31,13 +34,14 @@ test('organization updated', async () => {
     name: faker.company.companyName(),
     description: faker.company.catchPhraseDescriptor(),
   };
-  const instData = RequestData.fromExpressRequest<IUpdateOrganizationParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      organizationId: organization.resourceId,
-      organization: orgUpdateInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateOrganizationEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        organizationId: organization.resourceId,
+        organization: orgUpdateInput,
+      }
+    );
 
   const result = await updateOrganization(context, instData);
   assertEndpointResultOk(result);

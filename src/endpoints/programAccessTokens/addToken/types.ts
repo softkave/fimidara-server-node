@@ -1,6 +1,6 @@
+import {IPresetInput} from '../../../definitions/presetPermissionsGroup';
 import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IPresetInput} from '../../presetPermissionsGroups/types';
 import {Endpoint} from '../../types';
 
 export interface INewProgramAccessTokenInput {
@@ -9,17 +9,17 @@ export interface INewProgramAccessTokenInput {
   presets: IPresetInput[];
 }
 
-export interface IAddProgramAccessTokenParams {
+export interface IAddProgramAccessTokenEndpointParams {
   organizationId: string;
   token: INewProgramAccessTokenInput;
 }
 
-export interface IAddProgramAccessTokenResult {
+export interface IAddProgramAccessTokenEndpointResult {
   token: IPublicProgramAccessToken;
 }
 
 export type AddProgramAccessTokenEndpoint = Endpoint<
   IBaseContext,
-  IAddProgramAccessTokenParams,
-  IAddProgramAccessTokenResult
+  IAddProgramAccessTokenEndpointParams,
+  IAddProgramAccessTokenEndpointResult
 >;

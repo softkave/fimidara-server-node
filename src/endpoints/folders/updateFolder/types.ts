@@ -10,16 +10,16 @@ export interface IUpdateFolderInput {
   removePublicAccessOps?: boolean;
 }
 
-export interface IUpdateFolderParams extends IFolderMatcher {
+export interface IUpdateFolderEndpointParams extends IFolderMatcher {
   folder: IUpdateFolderInput;
 }
 
-export interface IUpdateFolderResult {
+export interface IUpdateFolderEndpointResult {
   folder: IPublicFolder;
 }
 
 export type UpdateFolderEndpoint = Endpoint<
   IBaseContext,
-  IUpdateFolderParams,
-  IUpdateFolderResult
+  IUpdateFolderEndpointParams,
+  IUpdateFolderEndpointResult
 >;

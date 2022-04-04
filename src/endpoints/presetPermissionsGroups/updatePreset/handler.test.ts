@@ -16,7 +16,7 @@ import {presetPermissionsGroupExtractor} from '../utils';
 import updatePresetPermissionsGroup from './handler';
 import {
   IUpdatePresetPermissionsGroupInput,
-  IUpdatePresetPermissionsGroupParams,
+  IUpdatePresetPermissionsGroupEndpointParams,
 } from './types';
 
 /**
@@ -72,7 +72,7 @@ test('preset updated', async () => {
   };
 
   const instData =
-    RequestData.fromExpressRequest<IUpdatePresetPermissionsGroupParams>(
+    RequestData.fromExpressRequest<IUpdatePresetPermissionsGroupEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         presetId: preset00.resourceId,

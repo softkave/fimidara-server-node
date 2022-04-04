@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getOrganizationClientAssignedTokens from './handler';
-import {IGetClientAssignedTokenParams} from './types';
+import {IGetClientAssignedTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -38,7 +38,7 @@ test('client assigned token returned', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IGetClientAssignedTokenParams>(
+    RequestData.fromExpressRequest<IGetClientAssignedTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token01.resourceId,

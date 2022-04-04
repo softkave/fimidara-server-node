@@ -5,17 +5,17 @@ import {INewOrganizationInput} from '../addOrganization/types';
 
 export type IUpdateOrganizationInput = Partial<INewOrganizationInput>;
 
-export interface IUpdateOrganizationParams {
+export interface IUpdateOrganizationEndpointParams {
   organizationId: string;
   organization: IUpdateOrganizationInput;
 }
 
-export interface IUpdateOrganizationResult {
+export interface IUpdateOrganizationEndpointResult {
   organization: IPublicOrganization;
 }
 
 export type UpdateOrganizationEndpoint = Endpoint<
   IBaseContext,
-  IUpdateOrganizationParams,
-  IUpdateOrganizationResult
+  IUpdateOrganizationEndpointParams,
+  IUpdateOrganizationEndpointResult
 >;

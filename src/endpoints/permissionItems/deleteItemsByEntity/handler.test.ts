@@ -13,7 +13,7 @@ import {
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
 import deletePermissionItemsByEntity from './handler';
-import {IDeletePermissionItemsByEntityParams} from './types';
+import {IDeletePermissionItemsByEntityEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -52,7 +52,7 @@ test('permission items deleted', async () => {
 
   const itemIds = items.map(item => item.resourceId);
   const instData =
-    RequestData.fromExpressRequest<IDeletePermissionItemsByEntityParams>(
+    RequestData.fromExpressRequest<IDeletePermissionItemsByEntityEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,

@@ -15,7 +15,7 @@ import {
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import deleteFolder from './handler';
-import {IDeleteFolderParams} from './types';
+import {IDeleteFolderEndpointParams} from './types';
 
 /**
  * TODO:
@@ -81,7 +81,7 @@ test('folder deleted', async () => {
     }
   );
 
-  const instData = RequestData.fromExpressRequest<IDeleteFolderParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId: organization.resourceId,

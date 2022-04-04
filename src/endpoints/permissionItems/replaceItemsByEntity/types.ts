@@ -14,19 +14,19 @@ export interface INewPermissionItemInputByEntity {
   isForPermissionOwnerChildren?: boolean;
 }
 
-export interface IReplacePermissionItemsByEntityParams {
+export interface IReplacePermissionItemsByEntityEndpointParams {
   organizationId: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
   items: INewPermissionItemInputByEntity[];
 }
 
-export interface IReplacePermissionItemsByEntityResult {
+export interface IReplacePermissionItemsByEntityEndpointResult {
   items: IPublicPermissionItem[];
 }
 
 export type ReplacePermissionItemsByEntityEndpoint = Endpoint<
   IBaseContext,
-  IReplacePermissionItemsByEntityParams,
-  IReplacePermissionItemsByEntityResult
+  IReplacePermissionItemsByEntityEndpointParams,
+  IReplacePermissionItemsByEntityEndpointResult
 >;

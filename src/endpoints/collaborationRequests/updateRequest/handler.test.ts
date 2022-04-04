@@ -13,7 +13,10 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import updateRequest from './handler';
-import {IUpdateCollaborationRequestInput, IUpdateRequestParams} from './types';
+import {
+  IUpdateCollaborationRequestInput,
+  IUpdateRequestEndpointParams,
+} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -40,7 +43,7 @@ test('collaboration request updated', async () => {
     expiresAt: add(Date.now(), {days: 1}).toISOString(),
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateRequestParams>(
+  const instData = RequestData.fromExpressRequest<IUpdateRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       requestId: request01.resourceId,

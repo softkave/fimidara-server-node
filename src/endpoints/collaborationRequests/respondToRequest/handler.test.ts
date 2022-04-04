@@ -13,7 +13,7 @@ import {
 } from '../../test-utils/test-utils';
 import {collabRequestExtractor} from '../utils';
 import respondToRequest from './handler';
-import {IRespondToRequestParams} from './types';
+import {IRespondToRequestEndpointParams} from './types';
 
 /**
  * TODO:
@@ -47,13 +47,14 @@ test('collaboration request declined', async () => {
     }
   );
 
-  const instData = RequestData.fromExpressRequest<IRespondToRequestParams>(
-    mockExpressRequestWithUserToken(user02Token),
-    {
-      requestId: request01.resourceId,
-      response: CollaborationRequestStatusType.Accepted,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IRespondToRequestEndpointParams>(
+      mockExpressRequestWithUserToken(user02Token),
+      {
+        requestId: request01.resourceId,
+        response: CollaborationRequestStatusType.Accepted,
+      }
+    );
 
   const result = await respondToRequest(context, instData);
   assertEndpointResultOk(result);

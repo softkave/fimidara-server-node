@@ -22,7 +22,7 @@ import {
   INewPermissionItemInput,
 } from '../addItems/types';
 import getEntityPermissionItems from './handler';
-import {IGetResourcePermissionItemsParams} from './types';
+import {IGetResourcePermissionItemsEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -72,7 +72,7 @@ describe('getResourcePermissionItems', () => {
 
     const items = addPermissionItemsResult.items;
     const instData =
-      RequestData.fromExpressRequest<IGetResourcePermissionItemsParams>(
+      RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
         mockExpressRequestWithUserToken(userToken),
         {
           organizationId: organization.resourceId,

@@ -11,7 +11,7 @@ import {
 } from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
 import deleteProgramAccessToken from './handler';
-import {IDeleteProgramAccessTokenParams} from './types';
+import {IDeleteProgramAccessTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -39,7 +39,7 @@ test('program access token deleted', async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IDeleteProgramAccessTokenParams>(
+    RequestData.fromExpressRequest<IDeleteProgramAccessTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         tokenId: token.resourceId,

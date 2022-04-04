@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getOrganizationProgramAccessTokens from './handler';
-import {IGetOrganizationProgramAccessTokensParams} from './types';
+import {IGetOrganizationProgramAccessTokensEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -39,7 +39,7 @@ test("organization's program access token returned", async () => {
   );
 
   const instData =
-    RequestData.fromExpressRequest<IGetOrganizationProgramAccessTokensParams>(
+    RequestData.fromExpressRequest<IGetOrganizationProgramAccessTokensEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,
