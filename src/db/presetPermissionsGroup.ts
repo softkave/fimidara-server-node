@@ -4,6 +4,7 @@ import {
   IPresetPermissionsGroup,
 } from '../definitions/presetPermissionsGroup';
 import {getDate} from '../utilities/dateFns';
+import {assignedTagSchema} from './tag';
 import {agentSchema, ensureTypeFields} from './utils';
 
 export const assignedPermissionsGroupSchema =
@@ -24,6 +25,7 @@ const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
   name: {type: String},
   description: {type: String},
   presets: {type: [assignedPermissionsGroupSchema], default: []},
+  tags: {type: [assignedTagSchema], default: []},
 });
 
 export type IPresetPermissionsItemDocument = Document<IPresetPermissionsGroup>;

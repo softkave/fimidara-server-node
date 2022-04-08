@@ -1,4 +1,5 @@
 import {IAgent} from './system';
+import {IAssignedTag} from './tag';
 
 export interface IFolder {
   resourceId: string;
@@ -15,6 +16,7 @@ export interface IFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
+  tags: IAssignedTag[];
 }
 
 export interface IPublicFolder {
@@ -30,6 +32,7 @@ export interface IPublicFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
+  tags: IAssignedTag[];
 }
 
 export interface IFolderMatcher {

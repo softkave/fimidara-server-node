@@ -1,4 +1,5 @@
 import {IAgent} from './system';
+import {IAssignedTag} from './tag';
 
 export interface IFile {
   resourceId: string;
@@ -20,6 +21,8 @@ export interface IFile {
   description?: string;
 
   // meta?: Record<string, string | number | boolean | null>;
+
+  tags: IAssignedTag[];
 }
 
 export type IPublicFile = IFile;

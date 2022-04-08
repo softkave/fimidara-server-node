@@ -2,6 +2,7 @@ import {Connection, Document, Model, Schema} from 'mongoose';
 import {IProgramAccessToken} from '../definitions/programAccessToken';
 import {getDate} from '../utilities/dateFns';
 import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
+import {assignedTagSchema} from './tag';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
@@ -15,6 +16,7 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   presets: {type: [assignedPermissionsGroupSchema], default: []},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
+  tags: {type: [assignedTagSchema], default: []},
 });
 
 export type IProgramAccessTokenDocument = Document<IProgramAccessToken>;
