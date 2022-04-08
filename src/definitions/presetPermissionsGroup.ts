@@ -1,4 +1,5 @@
 import {IAgent} from './system';
+import {IAssignedTag} from './tag';
 
 export interface IPresetPermissionsGroup {
   resourceId: string;
@@ -10,6 +11,7 @@ export interface IPresetPermissionsGroup {
   name: string;
   description?: string;
   presets: IAssignedPresetPermissionsGroup[];
+  tags: IAssignedTag[];
 }
 
 export interface IAssignedPresetPermissionsGroup {
@@ -35,6 +37,7 @@ export interface IPublicPresetPermissionsGroup {
   name: string;
   description?: string;
   presets: IAssignedPresetPermissionsGroup[];
+  tags: IAssignedTag[];
 }
 
 export interface IPresetInput {

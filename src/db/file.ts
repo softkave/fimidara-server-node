@@ -1,6 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IFile} from '../definitions/file';
 import {getDate} from '../utilities/dateFns';
+import {assignedTagSchema} from './tag';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const fileSchema = ensureTypeFields<IFile>({
@@ -20,6 +21,7 @@ const fileSchema = ensureTypeFields<IFile>({
   idPath: {type: [String], default: []},
   // publicAccessOps: {type: [publicAccessOpSchema], default: []},
   namePath: {type: [String], default: []},
+  tags: {type: [assignedTagSchema], default: []},
 });
 
 export type IFileDocument = Document<IFile>;

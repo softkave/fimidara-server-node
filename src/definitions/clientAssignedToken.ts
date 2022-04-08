@@ -1,5 +1,6 @@
 import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {IAgent} from './system';
+import {IAssignedTag} from './tag';
 
 export interface IClientAssignedToken {
   resourceId: string;
@@ -19,6 +20,8 @@ export interface IClientAssignedToken {
   expires?: Date | string;
   // meta?: Record<string, string | number | boolean | null>;
   // authURL: string;
+
+  tags: IAssignedTag[];
 }
 
 export interface IPublicClientAssignedToken {
@@ -34,4 +37,5 @@ export interface IPublicClientAssignedToken {
   issuedAt: string;
   expires?: number;
   tokenStr: string;
+  tags: IAssignedTag[];
 }

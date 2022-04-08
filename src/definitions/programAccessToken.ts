@@ -1,5 +1,6 @@
 import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {IAgent} from './system';
+import {IAssignedTag} from './tag';
 
 export interface IProgramAccessToken {
   resourceId: string;
@@ -13,6 +14,7 @@ export interface IProgramAccessToken {
   organizationId: string;
   // environmentId: string;
   presets: IAssignedPresetPermissionsGroup[];
+  tags: IAssignedTag[];
 }
 
 export interface IPublicProgramAccessToken {
@@ -26,4 +28,5 @@ export interface IPublicProgramAccessToken {
   organizationId: string;
   presets: IAssignedPresetPermissionsGroup[];
   tokenStr: string;
+  tags: IAssignedTag[];
 }
