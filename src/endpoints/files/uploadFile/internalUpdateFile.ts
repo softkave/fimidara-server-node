@@ -5,7 +5,7 @@ import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
-import {ISplitFilePathWithDetails} from '../utils';
+import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
 
@@ -13,7 +13,7 @@ export async function internalUpdateFile(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
-  pathWithDetails: ISplitFilePathWithDetails,
+  pathWithDetails: ISplitfilepathWithDetails,
   existingFile: IFile,
   data: IUploadFileEndpointParams
 ) {

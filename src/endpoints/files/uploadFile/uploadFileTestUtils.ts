@@ -230,11 +230,11 @@ export async function assertFileUpdated(
 export async function assertCanReadPublicFile(
   ctx: IBaseContext,
   organizationId: string,
-  filePath: string
+  filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, filePath: filePath}
+    {organizationId, filepath: filepath}
   );
 
   const result = await getFile(ctx, instData);
@@ -244,18 +244,18 @@ export async function assertCanReadPublicFile(
 export async function assertCanUploadToPublicFile(
   ctx: IBaseContext,
   organizationId: string,
-  filePath: string
+  filepath: string
 ) {
   return await insertFileForTest(ctx, null, organizationId, {
     organizationId,
-    filePath: filePath,
+    filepath: filepath,
   });
 }
 
 export async function assertCanUpdatePublicFile(
   ctx: IBaseContext,
   organizationId: string,
-  filePath: string
+  filepath: string
 ) {
   const updateInput: IUpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
@@ -265,7 +265,7 @@ export async function assertCanUpdatePublicFile(
   const instData =
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, filePath: filePath, file: updateInput}
+      {organizationId, filepath: filepath, file: updateInput}
     );
 
   const result = await updateFileDetails(ctx, instData);
@@ -275,11 +275,11 @@ export async function assertCanUpdatePublicFile(
 export async function assertCanDeletePublicFile(
   ctx: IBaseContext,
   organizationId: string,
-  filePath: string
+  filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, filePath: filePath}
+    {organizationId, filepath: filepath}
   );
 
   const result = await deleteFile(ctx, instData);

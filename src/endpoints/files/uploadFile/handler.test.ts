@@ -50,13 +50,13 @@ describe('uploadFile', () => {
       [BasicCRUDActions.Read]
     );
 
-    const filePath = file.namePath.join(folderConstants.nameSeparator);
+    const filepath = file.namePath.join(folderConstants.nameSeparator);
     await expectErrorThrown(async () => {
       assertContext(context);
       await assertCanDeletePublicFile(
         context,
         insertOrgResult.organization.resourceId,
-        filePath
+        filepath
       );
     }, [PermissionDeniedError.name]);
 
@@ -65,7 +65,7 @@ describe('uploadFile', () => {
       await assertCanUpdatePublicFile(
         context,
         insertOrgResult.organization.resourceId,
-        filePath
+        filepath
       );
     }, [PermissionDeniedError.name]);
   });
@@ -94,29 +94,29 @@ describe('uploadFile', () => {
       ]
     );
 
-    const filePath = file.namePath.join(folderConstants.nameSeparator);
+    const filepath = file.namePath.join(folderConstants.nameSeparator);
     await assertCanReadPublicFile(
       context,
       insertOrgResult.organization.resourceId,
-      filePath
+      filepath
     );
 
     await assertCanUploadToPublicFile(
       context,
       insertOrgResult.organization.resourceId,
-      filePath
+      filepath
     );
 
     await assertCanUpdatePublicFile(
       context,
       insertOrgResult.organization.resourceId,
-      filePath
+      filepath
     );
 
     await assertCanDeletePublicFile(
       context,
       insertOrgResult.organization.resourceId,
-      filePath
+      filepath
     );
   });
 
@@ -125,7 +125,7 @@ describe('uploadFile', () => {
     const {savedFile, insertUserResult, insertOrgResult} =
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileEndpointParams> = {
-      filePath: getFileName(savedFile),
+      filepath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.Read,
     };
 
@@ -166,7 +166,7 @@ describe('uploadFile', () => {
       );
 
     const update: Partial<IUploadFileEndpointParams> = {
-      filePath: getFileName(savedFile),
+      filepath: getFileName(savedFile),
       publicAccessActions: UploadFilePublicAccessActions.None,
     };
 

@@ -5,7 +5,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
-import {ISplitFilePathWithDetails} from '../utils';
+import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
 
@@ -13,7 +13,7 @@ export async function internalCreateFile(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
-  pathWithDetails: ISplitFilePathWithDetails,
+  pathWithDetails: ISplitfilepathWithDetails,
   data: IUploadFileEndpointParams,
   parentFolder: IFolder | null
 ) {

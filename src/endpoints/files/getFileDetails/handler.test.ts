@@ -37,7 +37,7 @@ test('file details returned', async () => {
       mockExpressRequestWithUserToken(userToken),
       {
         organizationId: organization.resourceId,
-        filePath: file.name,
+        filepath: file.name,
       }
     );
 

@@ -118,15 +118,15 @@ export function splitFilenameWithDetails(
   };
 }
 
-export interface ISplitFilePathWithDetails
+export interface ISplitfilepathWithDetails
   extends ISplitFilenameWithDetails,
     IFolderPathWithDetails {
   splitPathWithoutExtension: string[];
 }
 
-export function splitFilePathWithDetails(
+export function splitfilepathWithDetails(
   path: string | string[]
-): ISplitFilePathWithDetails {
+): ISplitfilepathWithDetails {
   const pathWithDetails = splitPathWithDetails(path);
   const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
   const splitPathWithoutExtension = [...pathWithDetails.splitPath];

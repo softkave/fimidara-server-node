@@ -23,8 +23,8 @@ import {getFilesWithMatcher} from '../getFilesWithMatcher';
 import {
   FileUtils,
   getFileMatcher,
-  ISplitFilePathWithDetails,
-  splitFilePathWithDetails,
+  ISplitfilepathWithDetails,
+  splitfilepathWithDetails,
 } from '../utils';
 import {internalCreateFile} from './internalCreateFile';
 import {internalUpdateFile} from './internalUpdateFile';
@@ -44,11 +44,11 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
   if (!file) {
     assert(
-      matcher.organizationId && matcher.filePath,
+      matcher.organizationId && matcher.filepath,
       new ValidationError('Organization ID and or file path missing')
     );
 
-    const pathWithDetails = splitFilePathWithDetails(matcher.filePath);
+    const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
     const organization = await context.data.organization.assertGetItem(
       EndpointReusableQueries.getById(matcher.organizationId)
     );
@@ -75,7 +75,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
 
     await checkUploadFileAuth(context, agent, organization, file, null);
-    const pathWithDetails = splitFilePathWithDetails(file.namePath);
+    const pathWithDetails = splitfilepathWithDetails(file.namePath);
     file = await internalUpdateFile(
       context,
       agent,
@@ -104,7 +104,7 @@ async function createFileParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
   organization: IOrganization,
-  pathWithDetails: ISplitFilePathWithDetails
+  pathWithDetails: ISplitfilepathWithDetails
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, organization, {

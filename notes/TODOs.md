@@ -4,7 +4,6 @@
 - Implement provided resource IDs and allow to get permission groups by name
 - Implement resource-based access control, not just agent-based access control
 - Implement a way to give permission to only delete files that belong to or is created by a token
-- Add public default preset
 - Resource-bound tokens, for accessing resources
 - Backups
 - Pagination

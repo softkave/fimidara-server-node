@@ -34,7 +34,7 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
       EndpointReusableQueries.getById(data.requestId),
       {
         message: data.request.message ? data.request.message : request.message,
-        expiresAt: data.request.expiresAt,
+        expiresAt: data.request.expires,
         lastUpdatedAt: getDateString(),
         lastUpdatedBy: {
           agentId: agent.agentId,

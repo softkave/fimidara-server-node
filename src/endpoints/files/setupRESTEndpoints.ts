@@ -27,12 +27,12 @@ function handleGetFileResponse(
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
   const organizationId = req.query.orgId as string;
-  const filePath = req.query.p as string;
+  const filepath = req.query.filepath as string;
   const width = req.query.w;
   const height = req.query.h;
   return {
     organizationId,
-    filePath: filePath,
+    filepath: filepath,
     imageTranformation:
       isNumber(width) && isNumber(height) ? {width, height} : undefined,
     ...req.body,
@@ -43,10 +43,10 @@ function extractUploadFilesParamsFromQuery(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
   const organizationId = req.query.orgId as string;
-  const filePath = req.query.p as string;
+  const filepath = req.query.p as string;
   return {
     organizationId,
-    filePath: filePath,
+    filepath: filepath,
   };
 }
 
@@ -96,7 +96,7 @@ export default function setupFilesRESTEndpoints(
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
   app.get('/files/getFile', endpoints.getFile);
-  app.post('/files/getFile', endpoints.getFile);
+  // app.post('/files/getFile', endpoints.getFile);
   app.post('/files/deleteFile', endpoints.deleteFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
   app.post('/files/updateFileDetails', endpoints.updateFileDetails);
