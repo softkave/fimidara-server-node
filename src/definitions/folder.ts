@@ -33,7 +33,7 @@ export interface IPublicFolder {
 }
 
 export interface IFolderMatcher {
-  folderPath?: string;
+  folderpath?: string;
   folderId?: string;
   organizationId?: string;
 }

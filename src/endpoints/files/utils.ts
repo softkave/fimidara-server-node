@@ -15,7 +15,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {IFolderPathWithDetails, splitPathWithDetails} from '../folders/utils';
+import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
@@ -120,7 +120,7 @@ export function splitFilenameWithDetails(
 
 export interface ISplitfilepathWithDetails
   extends ISplitFilenameWithDetails,
-    IFolderPathWithDetails {
+    IfolderpathWithDetails {
   splitPathWithoutExtension: string[];
 }
 

@@ -69,12 +69,12 @@ describe('addFolder', () => {
       }
     );
 
-    const folderPath = folder.namePath.join(folderConstants.nameSeparator);
+    const folderpath = folder.namePath.join(folderConstants.nameSeparator);
     const orgId = insertOrgResult.organization.resourceId;
     const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
       context,
       orgId,
-      folderPath
+      folderpath
     );
 
     const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
@@ -89,7 +89,7 @@ describe('addFolder', () => {
     await assertCanReadPublicFile(context, orgId, filepath);
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFolder(context, orgId, folderPath);
+      await assertCanDeletePublicFolder(context, orgId, folderpath);
     }, [PermissionDeniedError.name]);
 
     await expectErrorThrown(async () => {

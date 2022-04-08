@@ -108,7 +108,7 @@ async function createFileParentFolders(
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, organization, {
-      folderPath: pathWithDetails.parentPath,
+      folderpath: pathWithDetails.parentPath,
     });
   }
 

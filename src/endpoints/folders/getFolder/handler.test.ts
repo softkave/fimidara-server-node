@@ -36,7 +36,7 @@ test('folder returned', async () => {
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId: organization.resourceId,
-      folderPath: folder01.name,
+      folderpath: folder01.name,
     }
   );
 

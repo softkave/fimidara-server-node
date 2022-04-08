@@ -70,7 +70,7 @@ async function updateFolderBaseTest(
     mockExpressRequestWithUserToken(insertUserResult.userToken),
     {
       organizationId: insertOrgResult.organization.resourceId,
-      folderPath: folder.namePath.join(folderConstants.nameSeparator),
+      folderpath: folder.namePath.join(folderConstants.nameSeparator),
       folder: updateInput,
     }
   );

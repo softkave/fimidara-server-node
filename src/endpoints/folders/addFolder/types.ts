@@ -4,7 +4,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface INewFolderInput {
-  folderPath: string;
+  folderpath: string;
   description?: string;
   maxFileSizeInBytes?: number;
 

@@ -64,7 +64,7 @@ test('folder deleted', async () => {
     userToken,
     organization.resourceId,
     {
-      folderPath: folder01.namePath
+      folderpath: folder01.namePath
         .concat(faker.lorem.word())
         .join(folderConstants.nameSeparator),
     }
@@ -85,7 +85,7 @@ test('folder deleted', async () => {
     mockExpressRequestWithUserToken(userToken),
     {
       organizationId: organization.resourceId,
-      folderPath: folder01.name,
+      folderpath: folder01.name,
     }
   );
 
