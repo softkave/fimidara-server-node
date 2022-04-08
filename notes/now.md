@@ -1,5 +1,5 @@
 - Store all dates and times as utc
-- rename filepath and folderPath to filepath and folderpath
+- rename filepath and folderpath to filepath and folderpath
 - copy and centralize all your todos in one place
 - drop max file size for now and reimplement
 - Preset weight, not order

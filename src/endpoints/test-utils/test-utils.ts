@@ -464,7 +464,7 @@ export async function insertFolderForTest(
     {
       organizationId,
       folder: {
-        folderPath: [faker.lorem.word()].join(folderConstants.nameSeparator),
+        folderpath: [faker.lorem.word()].join(folderConstants.nameSeparator),
         description: faker.lorem.paragraph(),
         maxFileSizeInBytes: 1_000_000_000,
         ...folderInput,

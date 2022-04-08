@@ -43,7 +43,7 @@ export function throwFolderNotFound() {
   throw new FolderNotFoundError();
 }
 
-export function splitFolderPath(path: string | string[]) {
+export function splitfolderpath(path: string | string[]) {
   if (isArray(path)) {
     return path;
   }
@@ -57,8 +57,8 @@ export function splitFolderPath(path: string | string[]) {
   return p;
 }
 
-export function assertSplitFolderPath(path: string) {
-  const splitPath = splitFolderPath(path);
+export function assertSplitfolderpath(path: string) {
+  const splitPath = splitfolderpath(path);
 
   if (splitPath.length === 0) {
     throw new InvalidRequestError('Path is empty');
@@ -67,7 +67,7 @@ export function assertSplitFolderPath(path: string) {
   return splitPath;
 }
 
-export interface IFolderPathWithDetails {
+export interface IfolderpathWithDetails {
   providedPath: string | string[];
   name: string;
   splitPath: string[];
@@ -78,8 +78,8 @@ export interface IFolderPathWithDetails {
 
 export function splitPathWithDetails(
   providedPath: string | string[]
-): IFolderPathWithDetails {
-  const splitPath = splitFolderPath(providedPath);
+): IfolderpathWithDetails {
+  const splitPath = splitfolderpath(providedPath);
   const name = defaultTo(last(splitPath), '');
   const splitParentPath = splitPath.slice(0, -1);
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
@@ -96,7 +96,7 @@ export function splitPathWithDetails(
 
 export function assertSplitPathWithDetails(
   path: string
-): IFolderPathWithDetails {
+): IfolderpathWithDetails {
   const result = splitPathWithDetails(path);
 
   if (result.splitPath.length === 0) {

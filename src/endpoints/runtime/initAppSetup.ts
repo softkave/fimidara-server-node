@@ -23,8 +23,8 @@ const folder02Path = '/files/images';
 const appSetupVars = {
   orgName: 'Files by softkave',
   orgsFolder: '/files-prod/orgs',
-  orgImagesFolderPath: folder02Path + '/orgs',
-  userImagesFolderPath: folder02Path + '/users',
+  orgImagesfolderpath: folder02Path + '/orgs',
+  userImagesfolderpath: folder02Path + '/users',
   orgsImageUploadPresetName: 'Files-orgs-image-upload',
   usersImageUploadPresetName: 'Files-users-image-upload',
 };
@@ -113,7 +113,7 @@ async function setupFolders(
     systemAgent,
     organization,
     null,
-    {folderPath: folder01Path}
+    {folderpath: folder01Path}
   );
 
   const folder02 = await createSingleFolder(
@@ -121,7 +121,7 @@ async function setupFolders(
     systemAgent,
     organization,
     folder01,
-    {folderPath: folder02Path}
+    {folderpath: folder02Path}
   );
 
   const orgImagesFolder = await createSingleFolder(
@@ -130,7 +130,7 @@ async function setupFolders(
     organization,
     folder02,
     {
-      folderPath: appSetupVars.orgImagesFolderPath,
+      folderpath: appSetupVars.orgImagesfolderpath,
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],
@@ -143,7 +143,7 @@ async function setupFolders(
     organization,
     folder02,
     {
-      folderPath: appSetupVars.userImagesFolderPath,
+      folderpath: appSetupVars.userImagesfolderpath,
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],

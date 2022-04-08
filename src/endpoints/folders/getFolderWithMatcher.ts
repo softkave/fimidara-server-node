@@ -3,7 +3,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import FolderQueries from './queries';
-import {assertSplitFolderPath} from './utils';
+import {assertSplitfolderpath} from './utils';
 
 export async function getFolderWithMatcher(
   context: IBaseContext,
@@ -13,8 +13,8 @@ export async function getFolderWithMatcher(
     return await context.data.folder.getItem(
       EndpointReusableQueries.getById(matcher.folderId)
     );
-  } else if (matcher.folderPath && matcher.organizationId) {
-    const splitPath = assertSplitFolderPath(matcher.folderPath);
+  } else if (matcher.folderpath && matcher.organizationId) {
+    const splitPath = assertSplitfolderpath(matcher.folderpath);
     const folder = await context.data.folder.assertGetItem(
       FolderQueries.getByNamePath(matcher.organizationId, splitPath)
     );
