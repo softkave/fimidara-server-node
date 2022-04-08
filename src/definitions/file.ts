@@ -25,7 +25,7 @@ export interface IFile {
 export type IPublicFile = IFile;
 
 export interface IFileMatcher {
-  filePath?: string;
+  filepath?: string;
   fileId?: string;
   organizationId?: string;
 }

@@ -12,7 +12,7 @@ const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
 const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
 const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
-const filePath = Joi.string()
+const filepath = Joi.string()
   // eslint-disable-next-line no-useless-escape
   .regex(/[A-Za-z0-9\/._-]+/)
   .min(folderConstants.minFolderNameLength)
@@ -22,7 +22,7 @@ const filePath = Joi.string()
   );
 
 const fileMatcherParts = {
-  filePath,
+  filepath,
   organizationId: validationSchemas.nanoid,
   fileId: validationSchemas.nanoid,
 };

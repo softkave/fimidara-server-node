@@ -5,7 +5,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import FileQueries from './queries';
-import {getFileName, splitFilePathWithDetails} from './utils';
+import {getFileName, splitfilepathWithDetails} from './utils';
 
 export async function getFilesWithMatcher(
   context: IBaseContext,
@@ -18,8 +18,8 @@ export async function getFilesWithMatcher(
     );
 
     return [file];
-  } else if (matcher.filePath && matcher.organizationId) {
-    const pathWithDetails = splitFilePathWithDetails(matcher.filePath);
+  } else if (matcher.filepath && matcher.organizationId) {
+    const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
     const files = await context.data.file.getManyItems(
       pathWithDetails.extension
         ? FileQueries.getByNamePathAndExtention(

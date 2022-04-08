@@ -187,10 +187,10 @@ export async function assertPublicOps(
   await assertCanUpdatePublicFolder(ctx, orgId, folder02Path);
   await assertCanReadPublicFolder(ctx, orgId, folder02Path);
 
-  const filePath = file.namePath.join(folderConstants.nameSeparator);
-  await assertCanReadPublicFile(ctx, orgId, filePath);
-  await assertCanUpdatePublicFile(ctx, orgId, filePath);
-  await assertCanUploadToPublicFile(ctx, orgId, filePath);
+  const filepath = file.namePath.join(folderConstants.nameSeparator);
+  await assertCanReadPublicFile(ctx, orgId, filepath);
+  await assertCanUpdatePublicFile(ctx, orgId, filepath);
+  await assertCanUploadToPublicFile(ctx, orgId, filepath);
   await assertCanDeletePublicFolder(ctx, orgId, folderPath);
 }
 

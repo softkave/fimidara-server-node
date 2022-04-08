@@ -35,7 +35,7 @@ import {
 import {IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
 import {IUploadFileEndpointParams} from '../files/uploadFile/types';
-import {splitFilePathWithDetails} from '../files/utils';
+import {splitfilepathWithDetails} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
 import {
   IAddFolderEndpointParams,
@@ -512,14 +512,14 @@ export async function insertFileForTest(
 ) {
   const input: IUploadFileEndpointParams = {
     organizationId,
-    filePath: [faker.lorem.word()].join(folderConstants.nameSeparator),
+    filepath: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',
     ...fileInput,
   };
 
-  assert(input.filePath);
+  assert(input.filepath);
 
   if (!fileInput.data) {
     if (type === 'png') {
@@ -534,10 +534,10 @@ export async function insertFileForTest(
     }
   }
 
-  const pathWithDetails = splitFilePathWithDetails(input.filePath);
+  const pathWithDetails = splitfilepathWithDetails(input.filepath);
 
   if (!pathWithDetails.extension) {
-    input.filePath = input.filePath + '.' + input.extension;
+    input.filepath = input.filepath + '.' + input.extension;
   }
 
   const instData = RequestData.fromExpressRequest<IUploadFileEndpointParams>(

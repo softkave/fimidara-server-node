@@ -75,7 +75,7 @@ test('folder deleted', async () => {
     userToken,
     organization.resourceId,
     {
-      filePath: folder01.namePath
+      filepath: folder01.namePath
         .concat(faker.lorem.word())
         .join(folderConstants.nameSeparator),
     }

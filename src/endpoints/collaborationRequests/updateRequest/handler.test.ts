@@ -40,7 +40,7 @@ test('collaboration request updated', async () => {
 
   const updateRequestInput: IUpdateCollaborationRequestInput = {
     message: faker.lorem.paragraph(),
-    expiresAt: add(Date.now(), {days: 1}).toISOString(),
+    expires: add(Date.now(), {days: 1}).toISOString(),
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateRequestEndpointParams>(

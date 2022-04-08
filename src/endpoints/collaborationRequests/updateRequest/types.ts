@@ -4,7 +4,7 @@ import {Endpoint} from '../../types';
 
 export interface IUpdateCollaborationRequestInput {
   message?: string;
-  expiresAt?: string;
+  expires?: string;
 }
 
 export interface IUpdateRequestEndpointParams {
