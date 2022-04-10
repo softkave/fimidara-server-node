@@ -27,18 +27,7 @@ import {
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
-
-/**
- * sendRequest.
- * Revoke a collaboration request, meaning it's no longer available.
- *
- * Ensure that:
- * - Auth check
- * - Check that collaborator does not exist
- * - Check that an open collaboration request does not exist
- * - Create request
- * - Send email
- */
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
@@ -57,13 +46,22 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     action: BasicCRUDActions.Create,
   });
 
+  let collaboratorExists = false;
   const existingUser = await context.data.user.getItem(
     CollaboratorQueries.getByUserEmail(data.request.recipientEmail)
   );
 
-  const collaboratorExists =
-    existingUser &&
-    getCollaboratorOrganization(existingUser, data.organizationId);
+  if (existingUser) {
+    const existingUserWithOrgs = await withUserOrganizations(
+      context,
+      existingUser
+    );
+
+    collaboratorExists = !!(
+      existingUser &&
+      getCollaboratorOrganization(existingUserWithOrgs, data.organizationId)
+    );
+  }
 
   if (collaboratorExists) {
     throw new ResourceExistsError(
@@ -103,14 +101,12 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     organizationId: organization.resourceId,
     recipientEmail: data.request.recipientEmail,
     expiresAt: data.request.expires,
-    sentEmailHistory: [],
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
         date: getDateString(),
       },
     ],
-    assignedPresetsOnAccept: [],
   });
 
   fireAndForgetPromise(sendEmail(context, request, existingUser));

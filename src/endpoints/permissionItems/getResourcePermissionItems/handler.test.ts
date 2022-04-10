@@ -23,6 +23,7 @@ import {
 } from '../addItems/types';
 import getEntityPermissionItems from './handler';
 import {IGetResourcePermissionItemsEndpointParams} from './types';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 
 let context: IBaseContext | null = null;
 
@@ -48,8 +49,8 @@ describe('getResourcePermissionItems', () => {
     const inputItems: INewPermissionItemInput[] = getOrgActionList().map(
       action => ({
         action: action as BasicCRUDActions,
-        isExclusion: faker.datatype.boolean(),
-        isForPermissionOwner: faker.datatype.boolean(),
+        grantAccess: faker.datatype.boolean(),
+        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Organization,
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,

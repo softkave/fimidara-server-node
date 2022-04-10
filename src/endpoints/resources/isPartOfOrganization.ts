@@ -1,13 +1,15 @@
 import {format} from 'util';
 import {AppResourceType} from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {IUserWithOrganization} from '../../definitions/user';
+import {InternalError} from '../../utilities/errors';
 import {getCollaboratorOrganization} from '../collaborators/utils';
 import {InvalidRequestError} from '../errors';
 import {IOrganizationResource, IResource} from './types';
 
 export function isResourcePartOfOrganization(
   organizationId: string,
-  resource: IResource
+  resource: IResource,
+  acknowledgeUserOrgsFilledIn: boolean
 ) {
   switch (resource.resourceType) {
     case AppResourceType.Organization:
@@ -24,8 +26,12 @@ export function isResourcePartOfOrganization(
         organizationId
       );
     case AppResourceType.User:
+      if (!acknowledgeUserOrgsFilledIn) {
+        throw new InternalError('User orgs not filled in');
+      }
+
       return !!getCollaboratorOrganization(
-        resource.resource as IUser,
+        resource.resource as IUserWithOrganization,
         organizationId
       );
     case AppResourceType.UserToken:
@@ -36,25 +42,57 @@ export function isResourcePartOfOrganization(
 
 export function getResourcesNotPartOfOrg(
   organizationId: string,
-  resources: IResource[]
+  resources: IResource[],
+  acknowledgeUserOrgsFilledIn: boolean
 ) {
   return resources.filter(
-    item => !isResourcePartOfOrganization(organizationId, item)
+    item =>
+      !isResourcePartOfOrganization(
+        organizationId,
+        item,
+        acknowledgeUserOrgsFilledIn
+      )
+  );
+}
+
+export function getResourcesPartOfOrg(
+  organizationId: string,
+  resources: IResource[],
+  acknowledgeUserOrgsFilledIn: boolean
+) {
+  return resources.filter(item =>
+    isResourcePartOfOrganization(
+      organizationId,
+      item,
+      acknowledgeUserOrgsFilledIn
+    )
   );
 }
 
 export function hasResourcesNotPartOfOrg(
   organizationId: string,
-  resources: IResource[]
+  resources: IResource[],
+  acknowledgeUserOrgsFilledIn: boolean
 ) {
-  return getResourcesNotPartOfOrg(organizationId, resources).length > 0;
+  return (
+    getResourcesNotPartOfOrg(
+      organizationId,
+      resources,
+      acknowledgeUserOrgsFilledIn
+    ).length > 0
+  );
 }
 
 export function checkNotOrganizationResources(
   organizationId: string,
-  resources: IResource[]
+  resources: IResource[],
+  acknowledgeUserOrgsFilledIn: boolean
 ) {
-  const outsideResources = getResourcesNotPartOfOrg(organizationId, resources);
+  const outsideResources = getResourcesNotPartOfOrg(
+    organizationId,
+    resources,
+    acknowledgeUserOrgsFilledIn
+  );
 
   if (outsideResources.length) {
     const message = format(

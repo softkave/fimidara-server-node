@@ -15,6 +15,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
+import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
@@ -33,7 +34,7 @@ const folderFields = getFields<IPublicFolder>({
   description: true,
   idPath: true,
   namePath: true,
-  // publicAccessOps: publicAccessOpListExtractor,
+  tags: assignedTagListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -133,11 +134,11 @@ export async function checkFolderAuthorization(
     ),
   });
 
-  return {agent, folder, organization};
+  return {agent, organization, folder};
 }
 
 // With folder path
-export async function checkFolderAuthorization03(
+export async function checkFolderAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   matcher: IFolderMatcher,
@@ -158,10 +159,4 @@ export function getFolderMatcher(agent: ISessionAgent, data: IFolderMatcher) {
     ...data,
     organizationId,
   };
-}
-
-export abstract class FolderUtils {
-  static getPublicFolder = folderExtractor;
-  static getPublicFolderList = folderListExtractor;
-  static throwFolderNotFound = throwFolderNotFound;
 }

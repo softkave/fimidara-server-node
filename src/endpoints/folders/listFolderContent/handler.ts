@@ -8,6 +8,7 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -15,29 +16,17 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
-import {FileUtils} from '../../files/utils';
+import {fileListExtractor} from '../../files/utils';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import FolderQueries from '../queries';
 import {
-  checkFolderAuthorization03,
-  FolderUtils,
+  checkFolderAuthorization02,
+  folderListExtractor,
   getFolderMatcher,
 } from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
-
-/**
- * listFolderContent:
- * For fetching a folder's content, mainly folders and files contained in the folder.
- * Can also be used to fetch the root-level files and folders, i.e the ones that do not
- * have a parent folder.
- *
- * Ensure that:
- * - Auth check for agent and folder & organization
- * - Determine if to fetch root level content or folder content
- * - Fetch files and folders and check read access
- */
 
 const listFolderContent: ListFolderContentEndpoint = async (
   context,
@@ -105,13 +94,11 @@ const listFolderContent: ListFolderContentEndpoint = async (
   );
 
   const filePermittedReads = await waitOnPromises(checkFilesPermissionQueue);
-  const allowedFolders = fetchedFolders.filter(
+  let allowedFolders = fetchedFolders.filter(
     (item, i) => !!folderPermittedReads[i]
   );
 
-  const allowedFiles = fetchedFiles.filter(
-    (item, i) => !!filePermittedReads[i]
-  );
+  let allowedFiles = fetchedFiles.filter((item, i) => !!filePermittedReads[i]);
 
   if (
     allowedFolders.length === 0 &&
@@ -122,9 +109,23 @@ const listFolderContent: ListFolderContentEndpoint = async (
     throw new PermissionDeniedError();
   }
 
+  allowedFolders = await resourceListWithAssignedPresetsAndTags(
+    context,
+    organization.resourceId,
+    allowedFolders,
+    AppResourceType.Folder
+  );
+
+  allowedFiles = await resourceListWithAssignedPresetsAndTags(
+    context,
+    organization.resourceId,
+    allowedFiles,
+    AppResourceType.File
+  );
+
   return {
-    folders: FolderUtils.getPublicFolderList(allowedFolders),
-    files: FileUtils.getPublicFileList(allowedFiles),
+    folders: folderListExtractor(allowedFolders),
+    files: fileListExtractor(allowedFiles),
   };
 };
 
@@ -147,7 +148,7 @@ async function fetchFolderContent(
   agent: ISessionAgent,
   matcher: IFolderMatcher
 ) {
-  const {folder} = await checkFolderAuthorization03(
+  const {folder} = await checkFolderAuthorization02(
     context,
     agent,
     matcher,

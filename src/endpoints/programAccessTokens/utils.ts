@@ -19,6 +19,7 @@ import {TokenType} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
+import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import ProgramAccessTokenQueries from './queries';
 
@@ -33,6 +34,7 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
   tokenStr: true,
+  tags: assignedTagListExtractor,
 });
 
 export const programAccessTokenExtractor = makeExtract(
@@ -104,10 +106,5 @@ export function getPublicProgramToken(
   );
 
   cast<IPublicProgramAccessToken>(token).tokenStr = tokenStr;
-  return ProgramAccessTokenUtils.extractPublicToken(token);
-}
-
-export abstract class ProgramAccessTokenUtils {
-  static extractPublicToken = programAccessTokenExtractor;
-  static extractPublicTokenList = programAccessTokenListExtractor;
+  return programAccessTokenExtractor(token);
 }

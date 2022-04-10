@@ -10,13 +10,6 @@ import {
 import {GetRequestEndpoint} from './types';
 import {getRequestJoiSchema} from './validation';
 
-/**
- * getRequest. Ensure that:
- * - Check auth
- * - Get request and related artifacts
- * - Write test
- */
-
 const getRequest: GetRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, getRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);

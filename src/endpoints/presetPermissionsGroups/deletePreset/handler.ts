@@ -1,21 +1,16 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {
+  deleteAssignableItemAssignedItems,
+  deleteResourceAssignedItems,
+} from '../../assignedItems/deleteAssignedItems';
 import {InvalidRequestError} from '../../errors';
 import PermissionItemQueries from '../../permissionItems/queries';
 import PresetPermissionsGroupQueries from '../queries';
 import {checkPresetPermissionsGroupAuthorization03} from '../utils';
 import {DeletePresetPermissionsGroupEndpoint} from './types';
 import {deletePresetPermissionsGroupJoiSchema} from './validation';
-
-/**
- * deletePresetPermissionsGroup.
- * Deletes a preset and related artifacts.
- *
- * Ensure that:
- * - Auth check
- * - Delete preset and artifacts
- */
 
 const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
   async (context, instData) => {
@@ -45,6 +40,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
         )
       ),
 
+      // Delete permission items owned by preset
       context.data.permissionItem.deleteManyItems(
         PermissionItemQueries.getByPermissionEntity(
           preset.resourceId,
@@ -52,6 +48,23 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
         )
       ),
 
+      // Delete preset assigned items
+      deleteResourceAssignedItems(
+        context,
+        preset.organizationId,
+        preset.resourceId,
+        AppResourceType.PresetPermissionsGroup
+      ),
+
+      // Remove references where preset is assigned
+      deleteAssignableItemAssignedItems(
+        context,
+        preset.organizationId,
+        preset.resourceId,
+        AppResourceType.PresetPermissionsGroup
+      ),
+
+      // Delete preset
       context.data.preset.deleteItem(
         PresetPermissionsGroupQueries.getById(preset.resourceId)
       ),

@@ -17,6 +17,7 @@ import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkOrganizationExists} from '../organizations/utils';
+import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher} from './getFilesWithMatcher';
@@ -37,7 +38,7 @@ const fileFields = getFields<IPublicFile>({
   extension: true,
   idPath: true,
   namePath: true,
-  // publicAccessOps: publicAccessOpListExtractor,
+  tags: assignedTagListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -156,9 +157,4 @@ export function getFileMatcher(agent: ISessionAgent, data: IFileMatcher) {
     ...data,
     organizationId,
   };
-}
-
-export abstract class FileUtils {
-  static getPublicFile = fileExtractor;
-  static getPublicFileList = fileListExtractor;
 }

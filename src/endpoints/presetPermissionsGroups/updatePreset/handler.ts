@@ -1,36 +1,30 @@
 import {omit} from 'lodash';
 import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {checkPresetNameExists} from '../checkPresetNameExists';
 import PresetPermissionsGroupQueries from '../queries';
 import {
   checkPresetPermissionsGroupAuthorization03,
-  PresetPermissionsGroupUtils,
+  presetPermissionsGroupExtractor,
 } from '../utils';
 import {UpdatePresetPermissionsGroupEndpoint} from './types';
 import {updatePresetPermissionsGroupJoiSchema} from './validation';
-
-/**
- * updatePresetPermissionsGroup.
- * Updates the referenced preset.
- *
- * Ensure that:
- * - Auth check and permission check
- * - Check assigned presets exist and access check
- * - Update preset
- */
 
 const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, updatePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {preset} = await checkPresetPermissionsGroupAuthorization03(
-      context,
-      agent,
-      data,
-      BasicCRUDActions.Update
-    );
+    let {preset, organization} =
+      await checkPresetPermissionsGroupAuthorization03(
+        context,
+        agent,
+        data,
+        BasicCRUDActions.Update
+      );
 
     const update: Partial<IPresetPermissionsGroup> = {
       ...omit(data.preset, 'presets'),
@@ -38,15 +32,12 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
       lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
     };
 
-    if (data.preset.presets) {
-      update.presets = data.preset.presets.map(preset => ({
-        ...preset,
-        assignedAt: getDateString(),
-        assignedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-      }));
+    if (update.name) {
+      await checkPresetNameExists(
+        context,
+        organization.resourceId,
+        update.name
+      );
     }
 
     const item = await context.data.preset.assertUpdateItem(
@@ -54,9 +45,24 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
       update
     );
 
+    await saveResourceAssignedItems(
+      context,
+      agent,
+      organization,
+      preset.resourceId,
+      AppResourceType.PresetPermissionsGroup,
+      data.preset
+    );
+
+    preset = await withAssignedPresetsAndTags(
+      context,
+      preset.organizationId,
+      preset,
+      AppResourceType.PresetPermissionsGroup
+    );
+
     return {
-      preset:
-        PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroup(item),
+      preset: presetPermissionsGroupExtractor(item),
     };
   };
 

@@ -34,17 +34,6 @@ function getByOrganizationIdAndUserEmail(
     .build();
 }
 
-function getByOrganizationIdAndUserId(organizationId: string, userId: string) {
-  return newFilter()
-    .addItemWithStringKey(
-      'organizations.organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem('resourceId', userId, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
 function getByUserEmail(userEmail: string) {
   return newFilter()
     .addItem(
@@ -70,6 +59,5 @@ export default abstract class CollaboratorQueries {
   static getByOrganizationId = getByOrganizationId;
   static getByOrganizationIdAndUserEmail = getByOrganizationIdAndUserEmail;
   static getByUserEmail = getByUserEmail;
-  static getByOrganizationIdAndUserId = getByOrganizationIdAndUserId;
   static getByIds = getByIds;
 }

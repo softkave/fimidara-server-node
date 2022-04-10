@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {fileConstants} from '../files/constants';
 import {folderConstants} from '../folders/constants';
+import {UploadFilePublicAccessActions} from './uploadFile/types';
 
 const fileSizeInBytes = Joi.number()
   .integer()
@@ -21,6 +22,10 @@ const filepath = Joi.string()
       fileConstants.maxExtensionCharLength
   );
 
+const publicAccessAction = Joi.string().valid(
+  ...Object.values(UploadFilePublicAccessActions)
+);
+
 const fileMatcherParts = {
   filepath,
   organizationId: validationSchemas.nanoid,
@@ -34,6 +39,7 @@ const fileValidationSchemas = {
   buffer,
   extension,
   fileMatcherParts,
+  publicAccessAction,
 };
 
 export default fileValidationSchemas;

@@ -4,15 +4,21 @@ import * as faker from 'faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
 import {IPublicOrganization} from '../../definitions/organization';
+import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
   getNonOrgActionList,
   getOrgActionList,
 } from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {
+  IPublicUserData,
+  IUser,
+  IUserWithOrganization,
+} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import singletonFunc from '../../utilities/singletonFunc';
+import {withUserOrganizations} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
   IAddClientAssignedTokenEndpointParams,
@@ -65,7 +71,6 @@ import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
-import {IPublicUserData} from '../user/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
@@ -201,7 +206,7 @@ export function mockExpressRequestForPublicAgent() {
 }
 
 export interface IInsertUserForTestResult {
-  rawUser: IUser;
+  rawUser: IUserWithOrganization;
   userToken: IUserToken;
   user: IPublicUserData;
   userTokenStr: string;
@@ -230,8 +235,11 @@ export async function insertUserForTest(
     UserTokenQueries.getById(tokenData.sub.id)
   );
 
-  const rawUser = await context.data.user.assertGetItem(
-    EndpointReusableQueries.getById(result.user.resourceId)
+  const rawUser = await withUserOrganizations(
+    context,
+    await context.data.user.assertGetItem(
+      EndpointReusableQueries.getById(result.user.resourceId)
+    )
   );
 
   return {
@@ -355,7 +363,6 @@ export async function insertProgramAccessTokenForTest(
         token: {
           name: faker.lorem.words(2),
           description: faker.lorem.words(10),
-          presets: [],
           ...tokenInput,
         },
       }
@@ -390,8 +397,8 @@ export function makeTestPermissionItemByEntityInputs(
     ...base,
     ...owner,
     action: action as BasicCRUDActions,
-    isExclusion: faker.datatype.boolean(),
-    isForPermissionOwner: faker.datatype.boolean(),
+    grantAccess: faker.datatype.boolean(),
+    appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
   }));
 
   return items;

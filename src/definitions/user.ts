@@ -2,7 +2,7 @@ import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 
 export interface IUserOrganization {
   organizationId: string;
-  joinedAt: string;
+  joinedAt: Date | string;
   presets: IAssignedPresetPermissionsGroup[];
 }
 
@@ -20,7 +20,23 @@ export interface IUser {
   isEmailVerified: boolean;
   emailVerifiedAt?: Date | string | null;
   emailVerificationEmailSentAt?: Date | string | null;
+}
 
+export interface IUserWithOrganization extends IUser {
+  organizations: IUserOrganization[];
+}
+
+export interface IPublicUserData {
+  resourceId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt: string;
+  lastUpdatedAt?: string;
+  passwordLastChangedAt: string;
+  isEmailVerified: boolean;
+  emailVerifiedAt?: string | null;
+  emailVerificationEmailSentAt?: string | null;
   organizations: IUserOrganization[];
 }
 

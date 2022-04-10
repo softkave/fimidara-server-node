@@ -1,8 +1,9 @@
 import {TokenType} from '../endpoints/contexts/SessionContext';
 import {IAppRuntimeVars} from '../resources/appVariables';
+import {ResourceWithPresetsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {IProgramAccessToken} from './programAccessToken';
-import {IUser} from './user';
+import {IUserWithOrganization} from './user';
 import {IUserToken} from './userToken';
 
 export enum SessionAgentType {
@@ -43,9 +44,9 @@ export interface ISessionAgent {
 
   // One of the following, depending on the agentType
   userToken?: IUserToken;
-  programAccessToken?: IProgramAccessToken;
-  clientAssignedToken?: IClientAssignedToken;
-  user?: IUser;
+  programAccessToken?: ResourceWithPresetsAndTags<IProgramAccessToken>;
+  clientAssignedToken?: ResourceWithPresetsAndTags<IClientAssignedToken>;
+  user?: IUserWithOrganization;
 }
 
 export interface IAgent {
@@ -65,6 +66,10 @@ export enum AppResourceType {
   Folder = 'folder',
   File = 'file',
   User = 'user',
+  Tag = 'tag',
+
+  // [internal-only]
+  AssignedItem = 'assigned-item',
 }
 
 export enum BasicCRUDActions {

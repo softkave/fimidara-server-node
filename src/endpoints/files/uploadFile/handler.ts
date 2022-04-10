@@ -11,6 +11,7 @@ import {
 } from '../../../definitions/system';
 import {ValidationError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -21,7 +22,7 @@ import {createFolderList} from '../../folders/addFolder/handler';
 import EndpointReusableQueries from '../../queries';
 import {getFilesWithMatcher} from '../getFilesWithMatcher';
 import {
-  FileUtils,
+  fileExtractor,
   getFileMatcher,
   ISplitfilepathWithDetails,
   splitfilepathWithDetails,
@@ -95,8 +96,15 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     contentLength: data.data.byteLength,
   });
 
+  file = await withAssignedPresetsAndTags(
+    context,
+    file.organizationId,
+    file,
+    AppResourceType.File
+  );
+
   return {
-    file: FileUtils.getPublicFile(file),
+    file: fileExtractor(file),
   };
 };
 

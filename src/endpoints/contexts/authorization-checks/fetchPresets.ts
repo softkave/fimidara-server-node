@@ -1,7 +1,9 @@
 import {uniqBy} from 'lodash';
+import {ResourceWithPresetsAndTags} from '../../../definitions/assignedItem';
 import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import PresetPermissionsGroupQueries from '../../presetPermissionsGroups/queries';
 import {IBaseContext} from '../BaseContext';
 import {IPermissionEntity} from './getPermissionEntities';
@@ -22,7 +24,10 @@ const addEntity = (
 // Commit a list of entities using their IDs
 const commitEntities = (
   entityIds: Array<string>,
-  presetsMap: Record<string, IPresetPermissionsGroup | null>,
+  presetsMap: Record<
+    string,
+    ResourceWithPresetsAndTags<IPresetPermissionsGroup> | null
+  >,
 
   // Entities originally gotten from the agent performing the operation
   existingEntitiesMap: Record<string, IPermissionEntity>,
@@ -76,12 +81,17 @@ async function fetchPresets(
   context: IBaseContext,
   inputEntities: Array<IPermissionEntity>
 ) {
-  const presetsMap: Record<string, IPresetPermissionsGroup | null> = {};
+  const presetsMap: Record<
+    string,
+    ResourceWithPresetsAndTags<IPresetPermissionsGroup> | null
+  > = {};
+
   const presetEntitiesIds = inputEntities
-    .filter(
-      item =>
+    .filter(item => {
+      return (
         item.permissionEntityType === AppResourceType.PresetPermissionsGroup
-    )
+      );
+    })
     .map(item => item.permissionEntityId);
 
   // Start with the input entities that are presets
@@ -89,12 +99,28 @@ async function fetchPresets(
 
   while (iterationIds.length > 0) {
     const presets = await Promise.all(
-      iterationIds.map(
-        id =>
-          // Reuse preset if we've fetched it already, otherwise fetch if we don't have it
-          presetsMap[id] ||
-          context.data.preset.getItem(PresetPermissionsGroupQueries.getById(id))
-      )
+      iterationIds.map(async id => {
+        if (presetsMap[id]) {
+          // Reuse preset if we've fetched it already, otherwise fetch if we
+          // don't have it
+          return presetsMap[id];
+        }
+
+        const preset = await context.data.preset.getItem(
+          PresetPermissionsGroupQueries.getById(id)
+        );
+
+        if (preset) {
+          return withAssignedPresetsAndTags(
+            context,
+            preset.organizationId,
+            preset,
+            AppResourceType.PresetPermissionsGroup
+          );
+        }
+
+        return null;
+      })
     );
 
     // Empty the IDs we've fetched so that we can reuse the list
@@ -116,9 +142,7 @@ export async function fetchAndSortPresets(
   context: IBaseContext,
   entities: IPermissionEntity[]
 ) {
-  const presetsMap: Record<string, IPresetPermissionsGroup | null> =
-    await fetchPresets(context, entities);
-
+  const presetsMap = await fetchPresets(context, entities);
   const processedEntities = commitEntities(
     entities.map(item => item.permissionEntityId),
     presetsMap,

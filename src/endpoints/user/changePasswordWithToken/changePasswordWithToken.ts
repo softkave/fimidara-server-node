@@ -11,13 +11,6 @@ import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
-/**
- * changePasswordWithToken. Ensure that:
- * - Token exists, hasn't expired, and it's a change password token
- * - User exists
- * - Call changePassword endpoint
- */
-
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   context,
   instData

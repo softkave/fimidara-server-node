@@ -1,5 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {userListWithOrganizations} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -10,12 +11,6 @@ import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor, removeOtherUserOrgs} from '../utils';
 import {GetOrganizationCollaboratorsEndpoint} from './types';
 import {getOrganizationCollaboratorsJoiSchema} from './validation';
-
-/**
- * getOrganizationCollaborators. Ensure that:
- * - Check auth on agent and collaborators
- * - Return collaborators
- */
 
 const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint =
   async (context, instData) => {
@@ -54,9 +49,14 @@ const getOrganizationCollaborators: GetOrganizationCollaboratorsEndpoint =
       throw new PermissionDeniedError();
     }
 
+    const usersWithOrgs = await userListWithOrganizations(
+      context,
+      allowedCollaborators
+    );
+
     return {
       collaborators: collaboratorListExtractor(
-        allowedCollaborators.map(collaborator =>
+        usersWithOrgs.map(collaborator =>
           removeOtherUserOrgs(collaborator, organization.resourceId)
         ),
         organization.resourceId

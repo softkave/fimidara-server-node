@@ -45,7 +45,7 @@ describe('uploadFile', () => {
     assertContext(context);
     const {file, insertOrgResult} = await uploadFileWithPublicAccessActionTest(
       context,
-      {publicAccessActions: UploadFilePublicAccessActions.Read},
+      {publicAccessAction: UploadFilePublicAccessActions.Read},
       /* expectedPublicAccessOpsCount */ 1,
       [BasicCRUDActions.Read]
     );
@@ -74,7 +74,7 @@ describe('uploadFile', () => {
     assertContext(context);
     await uploadFileWithPublicAccessActionTest(
       context,
-      {publicAccessActions: UploadFilePublicAccessActions.ReadAndUpdate},
+      {publicAccessAction: UploadFilePublicAccessActions.ReadAndUpdate},
       /* expectedPublicAccessOpsCount */ 3,
       [BasicCRUDActions.Read, BasicCRUDActions.Update, BasicCRUDActions.Create]
     );
@@ -84,7 +84,7 @@ describe('uploadFile', () => {
     assertContext(context);
     const {insertOrgResult, file} = await uploadFileWithPublicAccessActionTest(
       context,
-      {publicAccessActions: UploadFilePublicAccessActions.ReadUpdateAndDelete},
+      {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
       /* expectedPublicAccessOpsCount */ 4,
       [
         BasicCRUDActions.Read,
@@ -126,7 +126,7 @@ describe('uploadFile', () => {
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileEndpointParams> = {
       filepath: getFileName(savedFile),
-      publicAccessActions: UploadFilePublicAccessActions.Read,
+      publicAccessAction: UploadFilePublicAccessActions.Read,
     };
 
     const {savedFile: updatedFile} = await uploadFileWithPublicAccessActionTest(
@@ -153,8 +153,7 @@ describe('uploadFile', () => {
       await uploadFileWithPublicAccessActionTest(
         context,
         {
-          publicAccessActions:
-            UploadFilePublicAccessActions.ReadUpdateAndDelete,
+          publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete,
         },
         /* expectedPublicAccessOpsCount */ 4,
         [
@@ -167,7 +166,7 @@ describe('uploadFile', () => {
 
     const update: Partial<IUploadFileEndpointParams> = {
       filepath: getFileName(savedFile),
-      publicAccessActions: UploadFilePublicAccessActions.None,
+      publicAccessAction: UploadFilePublicAccessActions.None,
     };
 
     const {savedFile: updatedFile} = await uploadFileWithPublicAccessActionTest(

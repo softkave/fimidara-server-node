@@ -17,13 +17,6 @@ import {
   toLoginResult,
 } from '../login/utils';
 
-/**
- * Requirements. Ensure that:
- * - Email address is not taken
- * - User account is created
- * - User token is created
- */
-
 async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
   const sendEmailReqData = RequestData.clone(reqData, reqData.data);
   const result = await sendEmailVerificationCode(context, sendEmailReqData);
@@ -54,7 +47,6 @@ const signup: SignupEndpoint = async (context, instData) => {
     createdAt: now,
     passwordLastChangedAt: now,
     isEmailVerified: false,
-    organizations: [],
   });
 
   const userToken = await getUserToken(context, user);
@@ -63,8 +55,13 @@ const signup: SignupEndpoint = async (context, instData) => {
     user.resourceId
   );
 
-  // Make the user token available to other requests made with this request data
-  instData.agent = makeUserSessionAgent(userToken, user);
+  // Make the user token available to other requests
+  // made with this request data
+  instData.agent = makeUserSessionAgent(userToken, {
+    ...user,
+    organizations: [],
+  });
+
   instData.works.push({
     id: 'callComfirmEmail',
     promise: fireAndForgetPromise(callComfirmEmail(context, instData)),

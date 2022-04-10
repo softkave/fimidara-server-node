@@ -10,15 +10,7 @@ import {
   getUserToken,
   toLoginResult,
 } from '../login/utils';
-
-/**
- * confirmEmailAddress. Ensure that:
- * - User exists and is not already verified
- * - Update user data with verification details
- * - Delete token used to verify user
- * - Reuse login token if one exists or create a new one
- * - Return user data and encoded token
- */
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   context,
@@ -32,12 +24,15 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
     throw new EmailAddressVerifiedError();
   }
 
-  user = await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.resourceId),
-    {
-      isEmailVerified: true,
-      emailVerifiedAt: getDateString(),
-    }
+  user = await withUserOrganizations(
+    context,
+    await context.data.user.assertUpdateItem(
+      UserQueries.getById(user.resourceId),
+      {
+        isEmailVerified: true,
+        emailVerifiedAt: getDateString(),
+      }
+    )
   );
 
   // Delete the token used for this request cause it's no longer needed

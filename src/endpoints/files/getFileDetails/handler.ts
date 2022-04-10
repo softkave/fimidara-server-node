@@ -1,9 +1,15 @@
 import {
+  AppResourceType,
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkFileAuthorization03, FileUtils, getFileMatcher} from '../utils';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {
+  checkFileAuthorization03,
+  fileExtractor,
+  getFileMatcher,
+} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
 import {getFileDetailsJoiSchema} from './validation';
 
@@ -15,15 +21,22 @@ const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const {file} = await checkFileAuthorization03(
+  let {file} = await checkFileAuthorization03(
     context,
     agent,
     getFileMatcher(agent, data),
     BasicCRUDActions.Read
   );
 
+  file = await withAssignedPresetsAndTags(
+    context,
+    file.organizationId,
+    file,
+    AppResourceType.File
+  );
+
   return {
-    file: FileUtils.getPublicFile(file),
+    file: fileExtractor(file),
   };
 };
 

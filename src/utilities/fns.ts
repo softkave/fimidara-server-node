@@ -83,3 +83,7 @@ export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
 
   return fields.join(separator);
 }
+
+export function objectHasData(data: object) {
+  return Object.keys(data).length > 0;
+}

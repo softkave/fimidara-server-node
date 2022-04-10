@@ -1,4 +1,3 @@
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {IAgent} from './system';
 
 export enum CollaborationRequestStatusType {
@@ -41,10 +40,6 @@ export interface ICollaborationRequest {
   lastUpdatedBy?: IAgent;
   readAt?: Date | string;
   statusHistory: ICollaborationRequestStatus[];
-  // sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];
-
-  // Presets assigned to the user on accepting the request
-  assignedPresetsOnAccept: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IPublicCollaborationRequest {

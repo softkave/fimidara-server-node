@@ -2,6 +2,7 @@ import {IFile} from '../../../definitions/file';
 import {IOrganization} from '../../../definitions/organization';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
@@ -20,23 +21,22 @@ export async function internalUpdateFile(
   const file = await context.data.file.assertUpdateItem(
     EndpointReusableQueries.getById(existingFile.resourceId),
     {
-      extension: data.extension || pathWithDetails.extension,
-      mimetype: data.mimetype,
+      ...data,
+      extension:
+        data.extension || pathWithDetails.extension || existingFile.extension,
       size: data.data.length,
       lastUpdatedBy: {
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
       lastUpdatedAt: getDate(),
-      description: data.description,
-      encoding: data.encoding,
     }
   );
 
-  if (data.publicAccessActions) {
+  if (data.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(
       agent,
-      data.publicAccessActions
+      data.publicAccessAction
     );
 
     await replacePublicPresetAccessOpsByPermissionOwner(
@@ -49,6 +49,16 @@ export async function internalUpdateFile(
       file.resourceId
     );
   }
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    file.resourceId,
+    AppResourceType.File,
+    data,
+    true
+  );
 
   return file;
 }

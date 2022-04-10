@@ -3,6 +3,7 @@ import {IOrganization} from '../../../definitions/organization';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
@@ -41,7 +42,7 @@ export async function internalCreateFile(
 
   const publicAccessOps = makeFilePublicAccessOps(
     agent,
-    data.publicAccessActions
+    data.publicAccessAction
   );
 
   await replacePublicPresetAccessOpsByPermissionOwner(
@@ -52,6 +53,16 @@ export async function internalCreateFile(
     AppResourceType.File,
     publicAccessOps,
     file.resourceId
+  );
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    file.resourceId,
+    AppResourceType.File,
+    data,
+    false
   );
 
   return file;

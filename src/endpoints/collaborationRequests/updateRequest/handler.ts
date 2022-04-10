@@ -10,15 +10,6 @@ import {
 import {UpdateRequestEndpoint} from './types';
 import {updateRequestJoiSchema} from './validation';
 
-/**
- * updateRequest.
- * Updates a collaboration request.
- *
- * Ensure that:
- * - Auth check
- * - Update request
- */
-
 const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
@@ -33,7 +24,7 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
     request = await context.data.collaborationRequest.assertUpdateItem(
       EndpointReusableQueries.getById(data.requestId),
       {
-        message: data.request.message ? data.request.message : request.message,
+        message: data.request.message || request.message,
         expiresAt: data.request.expires,
         lastUpdatedAt: getDateString(),
         lastUpdatedBy: {

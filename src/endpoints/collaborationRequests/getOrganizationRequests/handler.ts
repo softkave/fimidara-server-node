@@ -11,16 +11,6 @@ import {collabRequestListExtractor} from '../utils';
 import {GetOrganizationRequestsEndpoint} from './types';
 import {getOrganizationRequestsJoiSchema} from './validation';
 
-/**
- * getOrganizationRequests.
- * Fetches an organization's collaboration requests after auth check
- * and filters the ones the fetching agent has access to.
- *
- * Ensure that:
- * - Check auth
- * - Fetch and filter permitted requests
- */
-
 const getOrganizationRequests: GetOrganizationRequestsEndpoint = async (
   context,
   instData

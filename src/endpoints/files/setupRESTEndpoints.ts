@@ -19,7 +19,7 @@ function handleGetFileResponse(
   res
     .set({
       'Content-Length': result.buffer.length,
-      'Content-Type': result.file.mimetype,
+      'Content-Type': result.mimetype,
     })
     .status(200)
     .send(result.buffer);

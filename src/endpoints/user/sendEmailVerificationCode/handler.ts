@@ -17,14 +17,6 @@ import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {IUserToken} from '../../../definitions/userToken';
 
-/**
- * sendEmailVerificationCode. Ensure that:
- * - Email is not already verified
- * - Create email verification token
- * - Send email verification email
- * - Update user email verification email sent date
- */
-
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   context,
   instData

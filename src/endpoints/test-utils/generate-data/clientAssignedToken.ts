@@ -14,7 +14,6 @@ export function generateClientAssignedTokenForTest() {
     },
     organizationId: getNewId(),
     version: CURRENT_TOKEN_VERSION,
-    presets: [],
     issuedAt: getDateString(),
   };
 

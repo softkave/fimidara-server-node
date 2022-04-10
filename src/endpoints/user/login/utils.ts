@@ -1,11 +1,12 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {systemAgent} from '../../../definitions/system';
+import {AppResourceType, systemAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IUserToken} from '../../../definitions/userToken';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import {appAssert} from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
+import {addAssignedPresetList} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -77,22 +78,29 @@ export async function getUserClientAssignedToken(
       createdBy: systemAgent,
       organizationId: context.appVariables.appOrganizationId,
       version: CURRENT_TOKEN_VERSION,
-      presets: [
+      issuedAt: getDateString(),
+    });
+
+    addAssignedPresetList(
+      context,
+      systemAgent,
+      await context.data.organization.assertGetItem(
+        EndpointReusableQueries.getById(context.appVariables.appOrganizationId)
+      ),
+      [
         {
-          assignedAt: getDateString(),
-          assignedBy: systemAgent,
           order: 1,
           presetId: context.appVariables.appOrgsImageUploadPresetId,
         },
         {
-          assignedAt: getDateString(),
-          assignedBy: systemAgent,
           order: 2,
           presetId: context.appVariables.appUsersImageUploadPresetId,
         },
       ],
-      issuedAt: getDateString(),
-    });
+      token.resourceId,
+      AppResourceType.ClientAssignedToken,
+      false
+    );
   }
 
   return token;

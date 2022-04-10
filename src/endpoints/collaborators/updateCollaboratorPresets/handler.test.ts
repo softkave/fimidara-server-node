@@ -1,4 +1,5 @@
 import {SessionAgentType} from '../../../definitions/system';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -69,8 +70,9 @@ test('collaborator presets updated', async () => {
   const result = await updateCollaboratorPresets(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(user.resourceId)
+  const updatedUser = await withUserOrganizations(
+    context,
+    await context.data.user.assertGetItem(UserQueries.getById(user.resourceId))
   );
 
   expect(userExtractor(updatedUser)).toMatchObject(result.collaborator);

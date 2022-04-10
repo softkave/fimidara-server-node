@@ -12,9 +12,10 @@ export interface IProgramAccessToken {
   lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
   organizationId: string;
+
   // environmentId: string;
-  presets: IAssignedPresetPermissionsGroup[];
-  tags: IAssignedTag[];
+  // presets: IAssignedPresetPermissionsGroup[];
+  // tags: IAssignedTag[];
 }
 
 export interface IPublicProgramAccessToken {

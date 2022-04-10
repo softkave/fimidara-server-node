@@ -1,27 +1,30 @@
 import Joi = require('joi');
+import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {permissionItemConstants} from './constants';
 
+const appliesTo = Joi.string()
+  .valid(...Object.values(PermissionItemAppliesTo))
+  .default(PermissionItemAppliesTo.OwnerAndChildren);
+
 const itemInputByEntity = Joi.object().keys({
+  appliesTo,
   permissionOwnerId: validationSchemas.nanoid.required(),
   permissionOwnerType: validationSchemas.resourceType.required(),
   itemResourceId: validationSchemas.nanoid.allow(null),
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
-  isExclusion: Joi.boolean().allow(null),
-  isForPermissionOwner: Joi.boolean().allow(null),
-  isForPermissionOwnerChildren: Joi.boolean().allow(null),
+  grantAccess: Joi.boolean().required(),
 });
 
 const itemInput = Joi.object().keys({
+  appliesTo,
   permissionOwnerId: validationSchemas.nanoid.required(),
   permissionOwnerType: validationSchemas.resourceType.required(),
   itemResourceId: validationSchemas.nanoid.allow(null),
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
-  isExclusion: Joi.boolean().allow(null),
-  isForPermissionOwner: Joi.boolean().allow(null),
-  isForPermissionOwnerChildren: Joi.boolean().allow(null),
+  grantAccess: Joi.boolean().required(),
   permissionEntityId: validationSchemas.nanoid.required(),
   permissionEntityType: validationSchemas.resourceType.required(),
 });

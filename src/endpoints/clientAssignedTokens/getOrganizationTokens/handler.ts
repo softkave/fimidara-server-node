@@ -1,5 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -10,16 +11,6 @@ import {PermissionDeniedError} from '../../user/errors';
 import {getPublicClientToken} from '../utils';
 import {GetOrganizationClientAssignedTokenEndpoint} from './types';
 import {getOrganizationClientAssignedTokenJoiSchema} from './validation';
-
-/**
- * getOrganizationTokens.
- * Returns a list of read-permissible client assigned tokens the agent
- * has access to.
- *
- * Ensure that:
- * - Auth check
- * - Return a list of tokens the agent has access to.
- */
 
 const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEndpoint =
   async (context, instData) => {
@@ -54,16 +45,21 @@ const getOrganizationClientAssignedTokens: GetOrganizationClientAssignedTokenEnd
       )
     );
 
-    const allowedTokens = tokens
-      .filter((item, i) => !!permittedReads[i])
-      .map(token => getPublicClientToken(context, token));
+    let allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
 
     if (allowedTokens.length === 0 && tokens.length > 0) {
       throw new PermissionDeniedError();
     }
 
+    allowedTokens = await resourceListWithAssignedPresetsAndTags(
+      context,
+      organization.resourceId,
+      allowedTokens,
+      AppResourceType.ClientAssignedToken
+    );
+
     return {
-      tokens: allowedTokens,
+      tokens: allowedTokens.map(token => getPublicClientToken(context, token)),
     };
   };
 

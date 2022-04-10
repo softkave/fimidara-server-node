@@ -166,13 +166,11 @@ export async function getResources(options: IGetResourcesOptions) {
     IExtendedSettledPromiseWithId<IResourceBase[]>
   >;
 
-  // const groupedResources: Record<string, IResourceBase[]> = {};
   const resources: Array<IResource> = [];
 
   if (!checkAuth || !agent || !organization) {
     settledPromises.forEach(item => {
       if (item.resolved) {
-        // groupedResources[item.id] = item.value || [];
         item.value?.forEach(resource => {
           resources.push({
             resource,

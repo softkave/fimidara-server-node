@@ -1,21 +1,13 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import ProgramAccessTokenQueries from '../queries';
 import {checkProgramAccessTokenAuthorization02} from '../utils';
 import {DeleteProgramAccessTokenEndpoint} from './types';
 import {deleteProgramAccessTokenJoiSchema} from './validation';
-
-/**
- * deleteProgramAccessToken.
- * Deletes a program access token and related artifacts.
- *
- * Ensure that:
- * - Auth check
- * - Delete token and artifacts
- */
 
 const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
   context,
@@ -46,11 +38,20 @@ const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
       )
     ),
 
+    // Delete token permission items
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntity(
         token.resourceId,
         AppResourceType.ProgramAccessToken
       )
+    ),
+
+    // Delete all assigned items
+    deleteResourceAssignedItems(
+      context,
+      token.organizationId,
+      token.resourceId,
+      AppResourceType.ProgramAccessToken
     ),
 
     context.data.programAccessToken.deleteItem(

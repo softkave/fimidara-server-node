@@ -1,21 +1,13 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import CollaborationRequestQueries from '../../collaborationRequests/queries';
+import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
+import AssignedItemQueries from '../../assignedItems/queries';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../../permissionItems/queries';
-import EndpointReusableQueries from '../../queries';
 import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
-
-/**
- * removeCollaborator. Ensure that:
- * - Check auth on agent
- * - Check that user is a part of organization
- * - Remove organization from collaborator
- * - Delete artifacts
- */
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async (
   context,
@@ -32,13 +24,14 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     BasicCRUDActions.Delete
   );
 
-  collaborator.organizations = collaborator.organizations.filter(
-    item => item.organizationId !== data.organizationId
-  );
-
-  await context.data.user.updateItem(
-    EndpointReusableQueries.getById(data.collaboratorId),
-    {organizations: collaborator.organizations}
+  await context.data.assignedItem.deleteItem(
+    AssignedItemQueries.getByMainFields({
+      organizationId,
+      assignedItemId: organizationId,
+      assignedItemType: AppResourceType.Organization,
+      assignedToItemId: collaborator.resourceId,
+      assignedToItemType: AppResourceType.User,
+    })
   );
 
   await waitOnPromises([
@@ -59,11 +52,12 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
       )
     ),
 
-    context.data.collaborationRequest.deleteManyItems(
-      CollaborationRequestQueries.getByOrganizationIdAndUserEmail(
-        organizationId,
-        collaborator.email
-      )
+    // Delete all presets, and user organization data assigned
+    deleteResourceAssignedItems(
+      context,
+      organizationId,
+      collaborator.resourceId,
+      AppResourceType.User
     ),
   ]);
 };

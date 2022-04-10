@@ -1,10 +1,12 @@
 import {
+  AppResourceType,
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
-  checkFolderAuthorization03,
+  checkFolderAuthorization02,
   folderExtractor,
   getFolderMatcher,
 } from '../utils';
@@ -19,11 +21,18 @@ const getFolder: GetFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const {folder} = await checkFolderAuthorization03(
+  let {folder} = await checkFolderAuthorization02(
     context,
     agent,
     getFolderMatcher(agent, data),
     BasicCRUDActions.Read
+  );
+
+  folder = await withAssignedPresetsAndTags(
+    context,
+    folder.organizationId,
+    folder,
+    AppResourceType.Folder
   );
 
   return {

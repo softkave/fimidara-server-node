@@ -1,6 +1,6 @@
+import {IPublicUserData} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
-import {IPublicUserData} from '../types';
 
 export interface IUpdateUserParams {
   firstName?: string;

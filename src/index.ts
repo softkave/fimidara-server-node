@@ -23,12 +23,11 @@ import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext
 import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
+import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
 
 console.log('server initialization');
 
 const app = express();
-
-// TODO(abayomi): set limits and file filter
 const upload = multer();
 const httpServer = http.createServer(app);
 
@@ -54,11 +53,11 @@ app.use(express.json() as express.RequestHandler);
 
 function setupJWT(ctx: IBaseContext) {
   app.use(
-    // TODO: do further research on JWT options and best practices
+    // TODO: do further research on JWT options, algorithms and best practices
     expressJwt({
       secret: ctx.appVariables.jwtSecret,
       credentialsRequired: false,
-      algorithms: ['HS256'], // TODO: do further research JWT algorithms
+      algorithms: ['HS256'],
     })
   );
 }
@@ -98,6 +97,7 @@ async function setup() {
   setupProgramAccessTokensRESTEndpoints(ctx, app);
   setupAccountRESTEndpoints(ctx, app);
   setupResourcesRESTEndpoints(ctx, app);
+  setupTagsRESTEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);

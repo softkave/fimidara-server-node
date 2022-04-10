@@ -4,8 +4,6 @@ import {IAssignedTag} from './tag';
 export interface IFile {
   resourceId: string;
   organizationId: string;
-  // environmentId: string;
-  // bucketId: string;
   folderId?: string;
   idPath: string[];
   namePath: string[];
@@ -20,12 +18,12 @@ export interface IFile {
   extension: string;
   description?: string;
 
+  // environmentId: string;
+  // bucketId: string;
   // meta?: Record<string, string | number | boolean | null>;
-
-  tags: IAssignedTag[];
 }
 
-export type IPublicFile = IFile;
+export type IPublicFile = IFile & {tags: IAssignedTag[]};
 
 export interface IFileMatcher {
   filepath?: string;

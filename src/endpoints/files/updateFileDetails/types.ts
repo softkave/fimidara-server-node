@@ -1,13 +1,14 @@
 import {IFileMatcher, IPublicFile} from '../../../definitions/file';
+import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
 
 export interface IUpdateFileDetailsInput {
-  // name?: string;
   description?: string;
   mimetype?: string;
-  publicAccessActions?: UploadFilePublicAccessActions;
+  publicAccessAction?: UploadFilePublicAccessActions;
+  tags?: IAssignedTagInput[];
 }
 
 export interface IUpdateFileDetailsEndpointParams extends IFileMatcher {

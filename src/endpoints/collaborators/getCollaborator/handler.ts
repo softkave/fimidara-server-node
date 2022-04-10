@@ -1,5 +1,6 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {getOrganizationId} from '../../contexts/SessionContext';
 import {
   checkCollaboratorAuthorization02,
@@ -9,17 +10,13 @@ import {
 import {GetCollaboratorEndpoint} from './types';
 import {getCollaboratorJoiSchema} from './validation';
 
-/**
- * getCollaborator. Ensure that:
- * - Check auth
- * - Return collaborator if exists
- */
-
 const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
   const data = validate(instData.data, getCollaboratorJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
-  const {collaborator} = await checkCollaboratorAuthorization02(
+
+  // checkCollaboratorAuthorization fills in the user organizations
+  let {collaborator} = await checkCollaboratorAuthorization02(
     context,
     agent,
     organizationId,
@@ -27,12 +24,11 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  const publicData = collaboratorExtractor(
-    removeOtherUserOrgs(collaborator, organizationId),
-    organizationId
-  );
   return {
-    collaborator: publicData,
+    collaborator: collaboratorExtractor(
+      removeOtherUserOrgs(collaborator, organizationId),
+      organizationId
+    ),
   };
 };
 

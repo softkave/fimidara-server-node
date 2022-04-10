@@ -53,7 +53,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
 
   return {
     buffer,
-    file: fileExtractor(file),
+    mimetype: file.mimetype,
   };
 };
 

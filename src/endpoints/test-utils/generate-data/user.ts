@@ -16,13 +16,6 @@ export function generateUserForTest() {
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
     hash: '',
-    organizations: [
-      {
-        joinedAt: getDateString(),
-        organizationId: getNewId(),
-        presets: [],
-      },
-    ],
     passwordLastChangedAt: getDateString(),
     isEmailVerified: false,
   };

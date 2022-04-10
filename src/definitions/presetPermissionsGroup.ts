@@ -10,8 +10,8 @@ export interface IPresetPermissionsGroup {
   lastUpdatedBy?: IAgent;
   name: string;
   description?: string;
-  presets: IAssignedPresetPermissionsGroup[];
-  tags: IAssignedTag[];
+
+  // presets: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IAssignedPresetPermissionsGroup {

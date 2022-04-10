@@ -1,6 +1,9 @@
 import {flatten, last} from 'lodash';
 import {IOrganization} from '../../../definitions/organization';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {
+  IPermissionItem,
+  PermissionItemAppliesTo,
+} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -124,18 +127,10 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const hasPermissionOwners = permissionOwners.length > 0;
   const items = flatten(permissionItemsList).filter(item => {
-    // if (
-    //   resource &&
-    //   item.itemResourceId &&
-    //   item.itemResourceId !== resource.resourceId
-    // ) {
-    //   return false;
-    // }
-
     if (item.itemResourceId && item.itemResourceId !== itemResourceId) {
       return false;
     } else if (
-      item.isForPermissionOwner &&
+      item.appliesTo === PermissionItemAppliesTo.Owner &&
       item.permissionOwnerId !== itemResourceId
     ) {
       return false;
@@ -175,7 +170,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const isForOwner = (item: IPermissionItem) =>
     resource &&
-    item.isForPermissionOwner &&
+    item.appliesTo === PermissionItemAppliesTo.Owner &&
     item.permissionOwnerId === resource.resourceId;
 
   items.sort((item1, item2) => {
@@ -211,7 +206,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const item0 = items[0];
 
-  if (item0.isExclusion) {
+  if (!item0.grantAccess) {
     throwAuthorizationError();
     return false;
   }

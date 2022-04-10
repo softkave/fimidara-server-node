@@ -84,14 +84,15 @@ test('client assigned token presets updated', async () => {
   expect(clientAssignedTokenExtractor(updatedToken)).toMatchObject(
     result.token
   );
-  expect(updatedToken.presets.length).toEqual(2);
-  expect(updatedToken.presets[0]).toMatchObject({
+
+  expect(result.token.presets.length).toEqual(2);
+  expect(result.token.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(updatedToken.presets[1]).toMatchObject({
+  expect(result.token.presets[1]).toMatchObject({
     presetId: preset02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,

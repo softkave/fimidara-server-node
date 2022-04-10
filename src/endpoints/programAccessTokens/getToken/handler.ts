@@ -1,5 +1,6 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {
   checkProgramAccessTokenAuthorization02,
@@ -7,15 +8,6 @@ import {
 } from '../utils';
 import {GetProgramAccessTokenEndpoint} from './types';
 import {getProgramAccessTokenJoiSchema} from './validation';
-
-/**
- * getProgramAccessToken.
- * Returns the referenced program access token if the calling agent has read access to it.
- *
- * Ensure that:
- * - Auth check and permission check
- * - Return referenced token
- */
 
 const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
   context,
@@ -29,11 +21,18 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
     data.onReferenced
   );
 
-  const {token} = await checkProgramAccessTokenAuthorization02(
+  let {token} = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
     tokenId,
     BasicCRUDActions.Read
+  );
+
+  token = await withAssignedPresetsAndTags(
+    context,
+    token.organizationId,
+    token,
+    AppResourceType.ClientAssignedToken
   );
 
   return {

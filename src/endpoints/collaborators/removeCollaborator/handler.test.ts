@@ -1,4 +1,7 @@
+import {AppResourceType} from '../../../definitions/system';
+import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {NotFoundError} from '../../errors';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -9,6 +12,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import UserQueries from '../../user/UserQueries';
+import getCollaborator from '../getCollaborator/handler';
 import removeCollaborator from './handler';
 import {IRemoveCollaboratorEndpointParams} from './types';
 
@@ -42,9 +46,22 @@ test('collaborator removed', async () => {
 
   const result = await removeCollaborator(context, instData);
   assertEndpointResultOk(result);
-
-  const updatedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(user.resourceId)
+  const assignedItems = await getResourceAssignedItems(
+    context,
+    organization.resourceId,
+    user.resourceId,
+    AppResourceType.User
   );
-  expect(updatedUser.organizations).toHaveLength(0);
+
+  expect(
+    assignedItems.findIndex(
+      item => item.assignedToItemId === organization.resourceId
+    )
+  ).toBe(-1);
+
+  try {
+    await getCollaborator(context, instData);
+  } catch (error: any) {
+    expect(error instanceof NotFoundError).toBeTruthy();
+  }
 });

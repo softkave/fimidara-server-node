@@ -1,4 +1,5 @@
 import faker = require('faker');
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -52,8 +53,8 @@ describe('getResources', () => {
     const inputItems: INewPermissionItemInput[] = getOrgActionList().map(
       action => ({
         action: action as BasicCRUDActions,
-        isExclusion: faker.datatype.boolean(),
-        isForPermissionOwner: faker.datatype.boolean(),
+        grantAccess: faker.datatype.boolean(),
+        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Organization,
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,

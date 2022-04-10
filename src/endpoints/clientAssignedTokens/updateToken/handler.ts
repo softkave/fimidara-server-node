@@ -1,9 +1,10 @@
 import {omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {BasicCRUDActions} from '../../../definitions/system';
-import {getDate, getDateString} from '../../../utilities/dateFns';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {getDate} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {
   checkClientAssignedTokenAuthorization03,
@@ -22,7 +23,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkClientAssignedTokenAuthorization03(
+  let {organization, token} = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
     data,
@@ -30,7 +31,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   const update: Partial<IClientAssignedToken> = {
-    ...omit(data.token, 'presets'),
+    ...omit(data.token, 'presets', 'tags'),
     lastUpdatedAt: getDate(),
     lastUpdatedBy: {
       agentId: agent.agentId,
@@ -38,28 +39,25 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
     },
   };
 
-  if (data.token.presets) {
-    await checkPresetsExist(
-      context,
-      agent,
-      checkResult.organization,
-      data.token.presets
-    );
-
-    update.presets = data.token.presets.map(preset => ({
-      ...preset,
-      assignedAt: getDateString(),
-      assignedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    }));
-  }
-
-  let token = checkResult.token;
   token = await context.data.clientAssignedToken.assertUpdateItem(
-    EndpointReusableQueries.getById(checkResult.token.resourceId),
+    EndpointReusableQueries.getById(token.resourceId),
     update
+  );
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    token.resourceId,
+    AppResourceType.ClientAssignedToken,
+    data.token
+  );
+
+  token = await withAssignedPresetsAndTags(
+    context,
+    token.organizationId,
+    token,
+    AppResourceType.ClientAssignedToken
   );
 
   return {

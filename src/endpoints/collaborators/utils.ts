@@ -5,11 +5,9 @@ import {
 } from '../../definitions/system';
 import {
   IPublicCollaborator,
-  IUser,
-  IUserOrganization,
+  IUserWithOrganization,
 } from '../../definitions/user';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields} from '../../utilities/extract';
+import {withUserOrganizations} from '../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -17,20 +15,12 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
-import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
-import CollaboratorQueries from './queries';
+import EndpointReusableQueries from '../queries';
 
-const collaboratorFields = getFields<IPublicCollaborator>({
-  resourceId: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  joinedAt: getDateString,
-  organizationId: true,
-  presets: assignedPresetsListExtractor,
-});
-
-export const collaboratorExtractor = (item: IUser, organizationId: string) => {
+export const collaboratorExtractor = (
+  item: IUserWithOrganization,
+  organizationId: string
+) => {
   const userOrg = getCollaboratorOrganization(item, organizationId);
 
   if (!userOrg) {
@@ -51,7 +41,7 @@ export const collaboratorExtractor = (item: IUser, organizationId: string) => {
 };
 
 export const collaboratorListExtractor = (
-  items: IUser[],
+  items: IUserWithOrganization[],
   organizationId: string
 ) => {
   return items.map(item => collaboratorExtractor(item, organizationId));
@@ -61,10 +51,16 @@ export async function checkCollaboratorAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   organizationId: string,
-  collaborator: IUser,
+  collaborator: IUserWithOrganization,
   action: BasicCRUDActions,
   nothrow = false
 ) {
+  const userOrg = getCollaboratorOrganization(collaborator, organizationId);
+
+  if (!userOrg) {
+    throwCollaboratorNotFound();
+  }
+
   const organization = await checkOrganizationExists(context, organizationId);
   await checkAuthorization({
     context,
@@ -88,10 +84,10 @@ export async function checkCollaboratorAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const collaborator = await context.data.user.assertGetItem(
-    CollaboratorQueries.getByOrganizationIdAndUserId(
-      organizationId,
-      collaboratorId
+  const collaborator = await withUserOrganizations(
+    context,
+    await context.data.user.assertGetItem(
+      EndpointReusableQueries.getById(collaboratorId)
     )
   );
 
@@ -110,7 +106,7 @@ export function throwCollaboratorNotFound() {
 }
 
 export function getCollaboratorOrganization(
-  user: IUser,
+  user: IUserWithOrganization,
   organizationId: string
 ) {
   return user.organizations.find(
@@ -118,35 +114,10 @@ export function getCollaboratorOrganization(
   );
 }
 
-export function getCollaboratorOrganizationIndex(
-  user: IUser,
-  organizationId: string
-) {
-  return user.organizations.findIndex(
-    item => item.organizationId === organizationId
-  );
-}
-
-export function updateCollaboratorOrganization(
-  user: IUser,
-  organizationId: string,
-  fn: (data?: IUserOrganization) => IUserOrganization | undefined
-) {
-  const index = getCollaboratorOrganizationIndex(user, organizationId);
-  const data = index === -1 ? undefined : user.organizations[index];
-  const update = fn(data);
-
-  if (update) {
-    index === -1
-      ? user.organizations.push(update)
-      : (user.organizations[index] = update);
-    return true;
-  }
-
-  return false;
-}
-
-export function removeOtherUserOrgs(collaborator: IUser, orgId: string): IUser {
+export function removeOtherUserOrgs(
+  collaborator: IUserWithOrganization,
+  orgId: string
+): IUserWithOrganization {
   return {
     ...collaborator,
     organizations: collaborator.organizations.filter(
