@@ -1,20 +1,12 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
 import {checkClientAssignedTokenAuthorization03} from '../utils';
 import {DeleteClientAssignedTokenEndpoint} from './types';
 import {deleteClientAssignedTokenJoiSchema} from './validation';
-
-/**
- * deleteClientAssignedToken.
- * Deletes a client assigned token and it's artifacts.
- *
- * Ensure that:
- * - Auth check
- * - Delete token and artifacts
- */
 
 const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
   context,
@@ -48,6 +40,15 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (
       )
     ),
 
+    // Delete all assigned items
+    deleteResourceAssignedItems(
+      context,
+      token.organizationId,
+      token.resourceId,
+      AppResourceType.ClientAssignedToken
+    ),
+
+    // Delete client token
     context.data.clientAssignedToken.deleteItem(
       EndpointReusableQueries.getById(token.resourceId)
     ),

@@ -4,8 +4,6 @@ import {IAssignedTag} from './tag';
 export interface IFolder {
   resourceId: string;
   organizationId: string;
-  // bucketId: string;
-  // environmentId: string;
   idPath: string[];
   namePath: string[];
   parentId?: string;
@@ -16,7 +14,9 @@ export interface IFolder {
   lastUpdatedAt?: Date | string;
   name: string;
   description?: string;
-  tags: IAssignedTag[];
+
+  // bucketId: string;
+  // environmentId: string;
 }
 
 export interface IPublicFolder {

@@ -8,5 +8,6 @@ export interface IUserToken {
   issuedAt: Date | string;
   audience: string[];
   expires?: number;
+
   // meta?: Record<string, string | number | boolean | null>;
 }

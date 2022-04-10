@@ -3,6 +3,7 @@ import {IOrganization} from '../../definitions/organization';
 import {
   IPermissionItem,
   IPublicPermissionItem,
+  PermissionItemAppliesTo,
 } from '../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -33,9 +34,8 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   itemResourceId: true,
   itemResourceType: true,
   action: true,
-  isExclusion: true,
-  isForPermissionOwner: true,
-  isForPermissionOwnerChildren: true,
+  grantAccess: true,
+  appliesTo: true,
 });
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
@@ -65,8 +65,8 @@ export function compactPermissionItems(items: IPermissionItem[]) {
       item01.permissionOwnerId === item02.permissionOwnerId &&
       item01.permissionOwnerType === item02.permissionOwnerType &&
       item01.action === item02.action &&
-      item01.isExclusion === item02.isExclusion &&
-      item01.isForPermissionOwner === item02.isForPermissionOwner &&
+      item01.grantAccess === item02.grantAccess &&
+      item01.appliesTo === item02.appliesTo &&
       item01.itemResourceId === item02.itemResourceId &&
       item01.itemResourceType === item02.itemResourceType
   );
@@ -83,7 +83,9 @@ export function makePermissionItemInputsFromPublicAccessOps(
   permissionOwnerId: string,
   permissionOwnerType: AppResourceType,
   ops: IPublicAccessOpInput[],
-  itemResourceId?: string
+  itemResourceId?: string,
+  grantAccess = true,
+  appliesTo = PermissionItemAppliesTo.OwnerAndChildren
 ): INewPermissionItemInputByEntity[] {
   return ops.map(op => ({
     permissionOwnerId,
@@ -91,6 +93,8 @@ export function makePermissionItemInputsFromPublicAccessOps(
     itemResourceId,
     action: op.action,
     itemResourceType: op.resourceType,
+    grantAccess,
+    appliesTo,
   }));
 }
 
@@ -137,7 +141,7 @@ export interface IPermissionItemBase {
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
   action: BasicCRUDActions;
-  isExclusion?: boolean;
+  grantAccess?: boolean;
   isForPermissionOwner?: boolean;
 }
 
@@ -150,7 +154,7 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
     item.itemResourceId,
     item.itemResourceType,
     item.action,
-    item.isExclusion,
+    item.grantAccess,
     item.isForPermissionOwner,
   ]);
 };

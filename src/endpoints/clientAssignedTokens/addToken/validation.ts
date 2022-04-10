@@ -1,14 +1,15 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
-import presetPermissionsGroupsValidationSchemas from '../../presetPermissionsGroups/validation';
+import presetsValidationSchemas from '../../presetPermissionsGroups/validation';
+import tagsValidationSchemas from '../../tags/validation';
 import clientAssignedTokenValidationSchemas from '../validation';
 
 export const newClientAssignedTokenJoiSchema = Joi.object().keys({
   expires: validationSchemas.time.allow(null),
-  presets:
-    presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(null),
   providedResourceId:
     clientAssignedTokenValidationSchemas.providedResourceId.allow(null),
+  tags: tagsValidationSchemas.assignedTagsList.allow(null),
+  presets: presetsValidationSchemas.assignedPresetsList.allow(null),
 });
 
 export const addClientAssignedTokenJoiSchema = Joi.object()

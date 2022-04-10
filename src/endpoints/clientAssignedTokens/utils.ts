@@ -25,6 +25,7 @@ import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../queries';
+import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {ClientAssignedTokenDoesNotExistError} from './errors';
 
@@ -34,13 +35,13 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   createdAt: getDateString,
   createdBy: agentExtractor,
   organizationId: true,
-  version: true,
   issuedAt: getDateString,
-  expires: true,
+  expires: getDateString,
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
   presets: assignedPresetsListExtractor,
   tokenStr: true,
+  tags: assignedTagListExtractor,
 });
 
 export const clientAssignedTokenExtractor = makeExtract(
@@ -153,11 +154,6 @@ export function throwClientAssignedTokenNotFound() {
   throw new NotFoundError('Client assigned token not found');
 }
 
-export abstract class ClientAssignedTokenUtils {
-  static extractPublicToken = clientAssignedTokenExtractor;
-  static extractPublicTokenList = clientAssignedTokenListExtractor;
-}
-
 export function getPublicClientToken(
   context: IBaseContext,
   token: IClientAssignedToken
@@ -169,5 +165,5 @@ export function getPublicClientToken(
   );
 
   cast<IPublicClientAssignedToken>(token).tokenStr = tokenStr;
-  return ClientAssignedTokenUtils.extractPublicToken(token);
+  return clientAssignedTokenExtractor(token);
 }

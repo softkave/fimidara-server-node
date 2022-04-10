@@ -22,8 +22,6 @@ export function generateCollaborationRequestForTest() {
     recipientEmail: faker.internet.email(),
     message: '',
     statusHistory: [],
-    sentEmailHistory: [],
-    assignedPresetsOnAccept: [],
   };
 
   return item;

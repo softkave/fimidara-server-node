@@ -66,14 +66,14 @@ test('program access token added', async () => {
   );
 
   expect(programAccessTokenExtractor(savedToken)).toMatchObject(token);
-  expect(savedToken.presets.length).toEqual(2);
-  expect(savedToken.presets[0]).toMatchObject({
+  expect(token.presets.length).toEqual(2);
+  expect(token.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(savedToken.presets[1]).toMatchObject({
+  expect(token.presets[1]).toMatchObject({
     presetId: preset02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,

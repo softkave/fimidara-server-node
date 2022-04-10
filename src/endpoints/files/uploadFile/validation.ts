@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
+import tagValidationSchemas from '../../tags/validation';
 import fileValidationSchemas from '../validation';
 import {UploadFilePublicAccessActions} from './types';
 
@@ -11,10 +12,10 @@ export const uploadFileJoiSchema = Joi.object()
     encoding: fileValidationSchemas.encoding.allow(null),
     extension: fileValidationSchemas.extension.allow(null),
     data: fileValidationSchemas.buffer.required(),
-    publicAccessActions: Joi.string().allow(
+    publicAccessAction: Joi.string().allow(
       ...Object.values(UploadFilePublicAccessActions),
       null
     ),
-    // inheritParentPublicAccessOps: Joi.boolean().allow(null).default(true),
+    tags: tagValidationSchemas.assignedTagsList.allow(null),
   })
   .required();

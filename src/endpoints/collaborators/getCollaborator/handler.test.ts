@@ -1,3 +1,4 @@
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -40,8 +41,11 @@ test('collaborator returned', async () => {
   assertEndpointResultOk(result);
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(
-      await context.data.user.assertGetItem(
-        EndpointReusableQueries.getById(user.resourceId)
+      await withUserOrganizations(
+        context,
+        await context.data.user.assertGetItem(
+          EndpointReusableQueries.getById(user.resourceId)
+        )
       ),
       organization.resourceId
     )

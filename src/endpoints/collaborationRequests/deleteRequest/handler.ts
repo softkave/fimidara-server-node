@@ -7,13 +7,6 @@ import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteRequestEndpoint} from './types';
 import {deleteRequestJoiSchema} from './validation';
 
-/**
- * deleteRequest. Ensure that:
- * - Check auth
- * - Delete request and related artifacts
- * - Only allow delete request if pending
- */
-
 const deleteRequest: DeleteRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);

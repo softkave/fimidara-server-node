@@ -1,9 +1,8 @@
-import {BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
-import EndpointReusableQueries from '../../queries';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
@@ -12,14 +11,6 @@ import {
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
 
-/**
- * updateCollaboratorPresets. Ensure that:
- * - Check auth on agent
- * - Check that user is a part of organization
- * - Check that presets exist and agent can assign them
- * - Update collaborator presets
- */
-
 const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   context,
   instData
@@ -27,7 +18,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   const data = validate(instData.data, updateCollaboratorPresetsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const organizationId = getOrganizationId(agent, data.organizationId);
-  const {collaborator, organization} = await checkCollaboratorAuthorization02(
+  let {collaborator, organization} = await checkCollaboratorAuthorization02(
     context,
     agent,
     organizationId,
@@ -35,35 +26,22 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     BasicCRUDActions.Update
   );
 
-  await checkPresetsExist(context, agent, organization, data.presets);
-  const organizationIndex = collaborator.organizations.findIndex(
-    item => item.organizationId === data.organizationId
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    collaborator.resourceId,
+    AppResourceType.User,
+    data,
+    true
   );
 
-  const collaboratorOrganization =
-    collaborator.organizations[organizationIndex];
-  collaboratorOrganization.presets = data.presets.map(item => ({
-    ...item,
-    assignedAt: getDateString(),
-    assignedBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
-  }));
-
-  collaborator.organizations[organizationIndex] = collaboratorOrganization;
-  await context.data.user.assertUpdateItem(
-    EndpointReusableQueries.getById(data.collaboratorId),
-    {
-      organizations: collaborator.organizations,
-      lastUpdatedAt: getDateString(),
-    }
-  );
-
+  collaborator = await withUserOrganizations(context, collaborator);
   const publicData = collaboratorExtractor(
     removeOtherUserOrgs(collaborator, organizationId),
     organizationId
   );
+
   return {
     collaborator: publicData,
   };

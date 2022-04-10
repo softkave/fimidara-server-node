@@ -1,4 +1,4 @@
-import {IFileMatcher, IPublicFile} from '../../../definitions/file';
+import {IFileMatcher} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
@@ -13,7 +13,7 @@ export interface IGetFileEndpointParams extends IFileMatcher {
 
 export interface IGetFileEndpointResult {
   buffer: Buffer;
-  file: IPublicFile;
+  mimetype?: string;
 }
 
 export type GetFileEndpoint = Endpoint<

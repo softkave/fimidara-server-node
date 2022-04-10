@@ -10,18 +10,18 @@ export interface IClientAssignedToken {
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: Date | string;
   organizationId: string;
-  // environmentId: string;
   version: number;
-  presets: IAssignedPresetPermissionsGroup[];
 
   // not same as iat in token, may be a litte bit behind or after
   // and is a ISO string, where iat is time in seconds
   issuedAt: Date | string;
   expires?: Date | string;
+
+  // environmentId: string;
   // meta?: Record<string, string | number | boolean | null>;
   // authURL: string;
-
-  tags: IAssignedTag[];
+  // tags: IAssignedTag[];
+  // presets: IAssignedPresetPermissionsGroup[];
 }
 
 export interface IPublicClientAssignedToken {
@@ -32,10 +32,9 @@ export interface IPublicClientAssignedToken {
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
   organizationId: string;
-  version: number;
   presets: IAssignedPresetPermissionsGroup[];
   issuedAt: string;
-  expires?: number;
+  expires?: string;
   tokenStr: string;
   tags: IAssignedTag[];
 }

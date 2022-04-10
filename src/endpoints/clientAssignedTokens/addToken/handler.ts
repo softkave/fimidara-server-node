@@ -3,6 +3,8 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -12,21 +14,10 @@ import {
   getOrganizationId,
 } from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
-import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
-
-/**
- * addClientAssignedToken.
- * Updates a collaboration request.
- *
- * Ensure that:
- * - Auth check
- * - Check that presets exist
- * - Create token and return token and encoded token
- */
 
 const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   context,
@@ -57,12 +48,6 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   }
 
   if (!token) {
-    const presets = data.token.presets || [];
-
-    if (presets.length > 0) {
-      await checkPresetsExist(context, agent, organization, presets);
-    }
-
     token = await context.data.clientAssignedToken.saveItem({
       expires: data.token.expires,
       organizationId: organization.resourceId,
@@ -75,17 +60,24 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       },
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
-      presets: presets.map(item => ({
-        assignedAt: getDateString(),
-        assignedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-        order: item.order,
-        presetId: item.presetId,
-      })),
     });
   }
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    token.resourceId,
+    AppResourceType.ClientAssignedToken,
+    data.token
+  );
+
+  token = await withAssignedPresetsAndTags(
+    context,
+    token.organizationId,
+    token,
+    AppResourceType.ClientAssignedToken
+  );
 
   return {
     token: getPublicClientToken(context, token),

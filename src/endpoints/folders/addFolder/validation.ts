@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
 import fileValidationSchemas from '../../files/validation';
+import tagValidationSchemas from '../../tags/validation';
 import folderValidationSchemas from '../validation';
 
 export const addFolderJoiSchema = Joi.object()
@@ -12,6 +13,7 @@ export const addFolderJoiSchema = Joi.object()
         description: validationSchemas.description.allow(null),
         maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
         publicAccessOps: validationSchemas.publicAccessOpList.allow(null),
+        tags: tagValidationSchemas.assignedTagsList.allow(null),
       })
       .required(),
   })

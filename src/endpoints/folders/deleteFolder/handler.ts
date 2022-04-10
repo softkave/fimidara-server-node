@@ -6,11 +6,13 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
 import FileQueries from '../../files/queries';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FolderQueries from '../queries';
-import {checkFolderAuthorization03, getFolderMatcher} from '../utils';
+import {checkFolderAuthorization02, getFolderMatcher} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
@@ -20,8 +22,9 @@ async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
     FileQueries.getFilesByParentId(folderId)
   );
 
-  await context.data.file.deleteManyItems(
-    FileQueries.getFilesByParentId(folderId)
+  await waitOnPromises(
+    // Delete file and assigned items
+    files.map(file => deleteFileAndArtifacts(context, file))
   );
 
   await context.fileBackend.deleteFiles({
@@ -43,10 +46,38 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
   ]);
 
   await waitOnPromises([
+    // Delete folder children folders
     context.data.folder.deleteManyItems(
       FolderQueries.getFoldersByParentId(folder.resourceId)
     ),
+
+    // Delete folder
     context.data.folder.deleteItem(FolderQueries.getById(folder.resourceId)),
+
+    // Delete folder assigned items like tags
+    deleteResourceAssignedItems(
+      context,
+      folder.organizationId,
+      folder.resourceId,
+      AppResourceType.Folder
+    ),
+
+    // Delete permission items that are owned by the folder
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByOwner(
+        folder.resourceId,
+        AppResourceType.Folder
+      )
+    ),
+
+    // Delete permission items that explicitly give access to the folder
+    context.data.permissionItem.deleteManyItems(
+      PermissionItemQueries.getByResource(
+        folder.organizationId,
+        folder.resourceId,
+        AppResourceType.Folder
+      )
+    ),
   ]);
 }
 
@@ -70,7 +101,7 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const {folder} = await checkFolderAuthorization03(
+  const {folder} = await checkFolderAuthorization02(
     context,
     agent,
     getFolderMatcher(agent, data),
@@ -78,31 +109,7 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   );
 
   // TODO: this be fire and forget with retry OR move it to a job
-  await waitOnPromises([
-    // Delete files that exist inside the folder and it's children
-    internalDeleteFolder(context, folder),
-
-    // Delete permission items that are owned by the folder
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByOwner(
-        folder.resourceId,
-        AppResourceType.Folder
-      )
-    ),
-
-    // Delete permission items that explicitly give access to the folder
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByResource(
-        folder.organizationId,
-        folder.resourceId,
-        AppResourceType.Folder
-      )
-    ),
-  ]);
-
-  // await context.data.folder.deleteManyItems(
-  //   FolderQueries.getFoldersWithNamePath(organizationId, splitPath)
-  // );
+  await internalDeleteFolder(context, folder);
 };
 
 export default deleteFolder;

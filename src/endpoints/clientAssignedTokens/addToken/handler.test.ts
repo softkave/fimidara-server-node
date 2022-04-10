@@ -59,15 +59,15 @@ test('client assigned token added', async () => {
     EndpointReusableQueries.getById(token.resourceId)
   );
 
-  expect(clientAssignedTokenExtractor(savedToken)).toEqual(token);
-  expect(savedToken.presets).toHaveLength(2);
-  expect(savedToken.presets[0]).toMatchObject({
+  expect(clientAssignedTokenExtractor(savedToken)).toMatchObject(token);
+  expect(token.presets).toHaveLength(2);
+  expect(token.presets[0]).toMatchObject({
     presetId: preset01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(savedToken.presets[1]).toMatchObject({
+  expect(token.presets[1]).toMatchObject({
     presetId: preset02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,

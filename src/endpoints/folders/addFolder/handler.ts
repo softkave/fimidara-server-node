@@ -14,6 +14,8 @@ import {getDate, getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -28,7 +30,7 @@ import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
   assertSplitPathWithDetails,
-  FolderUtils,
+  folderExtractor,
   splitPathWithDetails,
 } from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
@@ -168,7 +170,7 @@ export async function createFolderList(
     };
 
     if (isMainFolder) {
-      merge(nextInput, omit(input, 'path'));
+      merge(nextInput, omit(input, 'path', 'tags'));
     }
 
     previousFolder = await createSingleFolder(
@@ -202,15 +204,32 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     EndpointReusableQueries.getById(organizationId)
   );
 
-  const folder = await createFolderList(
+  let folder = await createFolderList(
     context,
     agent,
     organization,
     data.folder
   );
 
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    folder.resourceId,
+    AppResourceType.Folder,
+    data.folder,
+    false
+  );
+
+  folder = await withAssignedPresetsAndTags(
+    context,
+    folder.organizationId,
+    folder,
+    AppResourceType.Folder
+  );
+
   return {
-    folder: FolderUtils.getPublicFolder(folder),
+    folder: folderExtractor(folder),
   };
 };
 

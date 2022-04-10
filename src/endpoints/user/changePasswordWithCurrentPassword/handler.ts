@@ -9,12 +9,6 @@ import changePassword from '../changePassword/changePassword';
 import RequestData from '../../RequestData';
 import {IBaseContext} from '../../contexts/BaseContext';
 
-/**
- * changePasswordWithCurrentPassword. Ensure that:
- * - Ensure current password match
- * - Call changePassword endpoint
- */
-
 export async function completeChangePassword(
   context: IBaseContext,
   reqData: RequestData,

@@ -1,3 +1,4 @@
+import {IFile} from '../../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -5,6 +6,8 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
+import {IBaseContext} from '../../contexts/BaseContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FileQueries from '../queries';
 import {checkFileAuthorization03, getFileMatcher} from '../utils';
@@ -26,6 +29,13 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
     BasicCRUDActions.Delete
   );
 
+  await deleteFileAndArtifacts(context, file);
+};
+
+export async function deleteFileAndArtifacts(
+  context: IBaseContext,
+  file: IFile
+) {
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
@@ -41,8 +51,16 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
       PermissionItemQueries.getByOwner(file.resourceId, AppResourceType.File)
     ),
 
+    // Delete assigned tags and presets
+    deleteResourceAssignedItems(
+      context,
+      file.organizationId,
+      file.resourceId,
+      AppResourceType.File
+    ),
+
     context.data.file.deleteItem(FileQueries.getById(file.resourceId)),
   ]);
-};
+}
 
 export default deleteFile;

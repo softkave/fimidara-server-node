@@ -24,6 +24,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {assertGetOrganizationIdFromAgent} from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {checkOrganizationExists} from '../organizations/utils';
+import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {PresetPermissionsGroupDoesNotExistError} from './errors';
 import PresetPermissionsGroupQueries from './queries';
@@ -50,6 +51,7 @@ const presetPermissionsGroupFields = getFields<IPublicPresetPermissionsGroup>({
   name: true,
   description: true,
   presets: assignedPresetsListExtractor,
+  tags: assignedTagListExtractor,
 });
 
 export const presetPermissionsGroupExtractor = makeExtract(
@@ -198,10 +200,4 @@ export function mergePresetsWithInput(
 
 export function throwPresetPermissionsGroupNotFound() {
   throw new NotFoundError('Preset permissions group not found');
-}
-
-export abstract class PresetPermissionsGroupUtils {
-  static extractPublicPresetPermissionsGroup = presetPermissionsGroupExtractor;
-  static extractPublicPresetPermissionsGroupList =
-    presetPermissionsGroupListExtractor;
 }

@@ -3,10 +3,9 @@ import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getResources, IGetResourcesOptions} from '../resources/getResources';
 import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 interface IPermissionResource {
-  // permissionOwnerId: string;
-  // permissionOwnerType: AppResourceType;
   itemResourceId?: string;
   itemResourceType: AppResourceType;
 }
@@ -22,7 +21,7 @@ export default async function checkResourcesExist(
    * - check that they belong to the owners and unique owner, action, resource
    */
 
-  const resources = await getResources({
+  let resources = await getResources({
     context,
     agent,
     organization,
@@ -39,6 +38,13 @@ export default async function checkResourcesExist(
     checkAuth: true,
   });
 
-  checkNotOrganizationResources(organization.resourceId, resources);
+  resources = await resourceListWithAssignedItems(
+    context,
+    organization.resourceId,
+    resources,
+    [AppResourceType.User] // Limit to users only
+  );
+
+  checkNotOrganizationResources(organization.resourceId, resources, true);
   return {resources};
 }

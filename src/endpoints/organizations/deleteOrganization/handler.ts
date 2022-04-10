@@ -1,8 +1,14 @@
-import {BasicCRUDActions, SessionAgentType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  SessionAgentType,
+} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
 import FileQueries from '../../files/queries';
 import {internalDeleteFolderList} from '../../folders/deleteFolder/handler';
 import FolderQueries from '../../folders/queries';
@@ -14,13 +20,6 @@ import OrganizationQueries from '../queries';
 import {checkOrganizationAuthorization02} from '../utils';
 import {DeleteOrganizationEndpoint} from './types';
 import {deleteOrganizationJoiSchema} from './validation';
-
-/**
- * deleteOrganization. Ensure that:
- * - Get agent and make sure it's a user
- * - Check that org exists and the agent can perform the operation
- * - Delete org and artifacts
- */
 
 const deleteOrganization: DeleteOrganizationEndpoint = async (
   context,
@@ -39,29 +38,53 @@ const deleteOrganization: DeleteOrganizationEndpoint = async (
   );
 
   await waitOnPromises([
+    // Collaboration requests
     context.data.collaborationRequest.deleteManyItems(
       CollaboratorQueries.getByOrganizationId(organization.resourceId)
     ),
 
+    // Program tokens
     context.data.programAccessToken.deleteManyItems(
       ProgramAccessTokenQueries.getByOrganizationId(organization.resourceId)
     ),
 
+    // Client tokens
     context.data.clientAssignedToken.deleteManyItems(
       EndpointReusableQueries.getByOrganizationId(organization.resourceId)
     ),
 
+    // Presets
     context.data.preset.deleteManyItems(
-      PresetPermissionsGroupQueries.getByOrganizationId(organization.resourceId)
+      EndpointReusableQueries.getByOrganizationId(organization.resourceId)
     ),
 
+    // Permission items
     context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByOrganizationId(organization.resourceId)
+      EndpointReusableQueries.getByOrganizationId(organization.resourceId)
     ),
 
+    // Tags
+    context.data.tag.deleteManyItems(
+      EndpointReusableQueries.getByOrganizationId(organization.resourceId)
+    ),
+
+    // Assigned items
+    context.data.assignedItem.deleteManyItems(
+      EndpointReusableQueries.getByOrganizationId(organization.resourceId)
+    ),
+
+    // Folders
+    // TODO: deleting folders this way may be more expensive, when we can
+    // possibly one-shot it since we're deleting the entire organization
     internalDeleteFoldersByOrganizationId(context, organization.resourceId),
+
+    // Files
     internalDeleteFilesByOrganizationId(context, organization.resourceId),
+
+    // Remove collaborators
     updateCollaborators(context, organization.resourceId),
+
+    //  Delete the organization
     context.data.organization.deleteItem(
       OrganizationQueries.getById(organization.resourceId)
     ),
@@ -104,21 +127,11 @@ async function updateCollaborators(
   context: IBaseContext,
   organizationId: string
 ) {
-  const collaborators = await context.data.user.getManyItems(
-    CollaboratorQueries.getByOrganizationId(organizationId)
-  );
-
-  await waitOnPromises(
-    collaborators.map(async collaborator => {
-      collaborator.organizations = collaborator.organizations.filter(
-        item => item.organizationId !== organizationId
-      );
-
-      await context.data.user.updateItem(
-        EndpointReusableQueries.getById(collaborator.resourceId),
-        {organizations: collaborator.organizations}
-      );
-    })
+  await deleteAssignableItemAssignedItems(
+    context,
+    organizationId,
+    organizationId,
+    AppResourceType.Organization
   );
 }
 

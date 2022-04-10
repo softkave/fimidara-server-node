@@ -1,9 +1,8 @@
-import {IUserOrganization} from '../../definitions/user';
+import {IPublicUserData, IUserOrganization} from '../../definitions/user';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {NotFoundError} from '../errors';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
-import {IPublicUserData} from './types';
 
 const publicUserOrgFields = getFields<IUserOrganization>({
   organizationId: true,

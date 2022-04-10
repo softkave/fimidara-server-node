@@ -1,18 +1,13 @@
 import * as argon2 from 'argon2';
 import {ServerError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {InvalidEmailOrPasswordError} from '../errors';
 import UserQueries from '../UserQueries';
 import {LoginEndpoint} from './types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
-
-/**
- * login. Ensure that:
- * - Password is checked
- * - User token is reused if one exists or a new one is created otherwise
- */
 
 const login: LoginEndpoint = async (context, instData) => {
   const data = validate(instData.data, loginJoiSchema);
@@ -43,8 +38,11 @@ const login: LoginEndpoint = async (context, instData) => {
     user.resourceId
   );
 
-  // Make the user token available to other requests made with this request data
-  instData.agent = makeUserSessionAgent(userToken, user);
+  const userWithOrgs = await withUserOrganizations(context, user);
+
+  // Make the user token available to other requests
+  // made with this request data
+  instData.agent = makeUserSessionAgent(userToken, userWithOrgs);
   return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 

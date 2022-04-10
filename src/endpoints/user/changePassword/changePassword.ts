@@ -1,6 +1,7 @@
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {
   getUserClientAssignedToken,
@@ -12,25 +13,20 @@ import UserTokenQueries from '../UserTokenQueries';
 import {ChangePasswordEndpoint} from './types';
 import {changePasswordJoiSchema} from './validation';
 
-/**
- * changePassword. Ensure that:
- * - Update user data
- * - Clear token data in request data
- * - Delete existing tokens
- * - Create new user login token
- */
-
 const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const result = validate(instData.data, changePasswordJoiSchema);
   const newPassword = result.password;
   let user = await context.session.getUser(context, instData);
   const hash = await argon2.hash(newPassword);
-  user = await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.resourceId),
-    {
-      hash,
-      passwordLastChangedAt: getDateString(),
-    }
+  user = await withUserOrganizations(
+    context,
+    await context.data.user.assertUpdateItem(
+      UserQueries.getById(user.resourceId),
+      {
+        hash,
+        passwordLastChangedAt: getDateString(),
+      }
+    )
   );
 
   // Allow other endpoints called with this request to use the updated user data

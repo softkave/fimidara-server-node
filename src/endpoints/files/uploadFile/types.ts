@@ -1,4 +1,5 @@
 import {IFileMatcher, IPublicFile} from '../../../definitions/file';
+import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
@@ -15,7 +16,8 @@ export interface IUploadFileEndpointParams extends IFileMatcher {
   extension?: string;
   mimetype?: string; // TODO: define mimetypes
   data: Buffer;
-  publicAccessActions?: UploadFilePublicAccessActions;
+  publicAccessAction?: UploadFilePublicAccessActions;
+  tags?: IAssignedTagInput[];
 }
 
 export interface IUploadFileEndpointResult {

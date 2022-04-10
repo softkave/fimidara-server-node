@@ -1,4 +1,5 @@
 import {first, flattenDeep, uniqBy} from 'lodash';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
@@ -106,14 +107,10 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
         return false;
       }
 
-      if (item.permissionOwnerId === data.itemResourceId) {
-        if (item.isForPermissionOwnerChildren) {
-          return false;
-        }
-      } else {
-        if (item.isForPermissionOwner) {
-          return false;
-        }
+      if (item.appliesTo === PermissionItemAppliesTo.Owner) {
+        return item.permissionOwnerId === data.itemResourceId;
+      } else if (item.appliesTo === PermissionItemAppliesTo.Children) {
+        return item.permissionOwnerId !== data.itemResourceId;
       }
 
       return true;

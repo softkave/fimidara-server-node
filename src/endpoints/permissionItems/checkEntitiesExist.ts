@@ -5,6 +5,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
 import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 /**
  * Entity auth check is enough for permission items cause
@@ -38,7 +39,7 @@ export default async function checkEntitiesExist(
     }
   });
 
-  const resources = await getResources({
+  let resources = await getResources({
     context,
     agent,
     organization,
@@ -49,5 +50,12 @@ export default async function checkEntitiesExist(
     checkAuth: true,
   });
 
-  checkNotOrganizationResources(organization.resourceId, resources);
+  resources = await resourceListWithAssignedItems(
+    context,
+    organization.resourceId,
+    resources,
+    [AppResourceType.User] // Limit to users only
+  );
+
+  checkNotOrganizationResources(organization.resourceId, resources, true);
 }

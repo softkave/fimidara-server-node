@@ -7,21 +7,12 @@ import {
   makeOrgPermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkOrganizationExists} from '../../organizations/utils';
-import PresetPermissionsGroupQueries from '../queries';
-import {PresetPermissionsGroupUtils} from '../utils';
 import {AddPresetPermissionsGroupEndpoint} from './types';
 import {addPresetPermissionsGroupJoiSchema} from './validation';
-import {ResourceExistsError} from '../../errors';
-
-/**
- * addPresetPermissionsGroup.
- * Creates a preset permission group.
- *
- * Ensure that:
- * - Auth check
- * - Check that preset doesn't exist
- * - Save preset
- */
+import {checkPresetNameExists} from '../checkPresetNameExists';
+import {presetPermissionsGroupExtractor} from '../utils';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 
 const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   context,
@@ -43,19 +34,13 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
     action: BasicCRUDActions.Create,
   });
 
-  const itemExists = await context.data.preset.checkItemExists(
-    PresetPermissionsGroupQueries.getByOrganizationAndName(
-      organization.resourceId,
-      data.preset.name
-    )
+  await checkPresetNameExists(
+    context,
+    organization.resourceId,
+    data.preset.name
   );
 
-  if (itemExists) {
-    throw new ResourceExistsError('Permission group exists');
-  }
-
-  // TODO: validate that the presets being assigned exist. Do same for other endpoints.
-  const preset = await context.data.preset.saveItem({
+  let preset = await context.data.preset.saveItem({
     ...data.preset,
     resourceId: getNewId(),
     createdAt: getDateString(),
@@ -64,19 +49,26 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
       agentType: agent.agentType,
     },
     organizationId: organization.resourceId,
-    presets: (data.preset.presets || []).map(preset => ({
-      ...preset,
-      assignedAt: getDateString(),
-      assignedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    })),
   });
 
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    preset.resourceId,
+    AppResourceType.PresetPermissionsGroup,
+    data.preset
+  );
+
+  preset = await withAssignedPresetsAndTags(
+    context,
+    preset.organizationId,
+    preset,
+    AppResourceType.PresetPermissionsGroup
+  );
+
   return {
-    preset:
-      PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroup(preset),
+    preset: presetPermissionsGroupExtractor(preset),
   };
 };
 

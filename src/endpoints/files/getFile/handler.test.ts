@@ -53,7 +53,6 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    expect(result.file).toEqual(file);
 
     const savedFile = await context.fileBackend.getFile({
       bucket: context.appVariables.S3Bucket,
@@ -97,7 +96,6 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    expect(result.file).toEqual(file);
 
     const fileMetadata = await sharp(result.buffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
@@ -142,7 +140,6 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    expect(result.file).toEqual(file);
   });
 
   test('can read public file', async () => {
@@ -153,7 +150,7 @@ describe('getFile', () => {
       context,
       userToken,
       organization.resourceId,
-      {publicAccessActions: UploadFilePublicAccessActions.Read}
+      {publicAccessAction: UploadFilePublicAccessActions.Read}
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
@@ -166,7 +163,6 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    expect(result.file).toEqual(file);
   });
 
   test('cannot read private file', async () => {

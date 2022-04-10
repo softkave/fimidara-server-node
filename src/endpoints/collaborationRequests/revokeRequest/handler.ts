@@ -21,16 +21,6 @@ import {
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
 
-/**
- * revokeRequest.
- * Revoke a collaboration request, meaning it's no longer available.
- *
- * Ensure that:
- * - Auth check
- * - Check that request exists, is open, and is not revoked
- * - Update request and send email to request recipient
- */
-
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);

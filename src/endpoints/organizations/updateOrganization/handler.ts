@@ -1,7 +1,7 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {OrganizationExistsError} from '../errors';
+import {checkOrgNameExists} from '../checkOrgNameExists';
 import OrganizationQueries from '../queries';
 import {
   checkOrganizationAuthorization02,
@@ -30,13 +30,7 @@ const updateOrganization: UpdateOrganizationEndpoint = async (
   );
 
   if (data.organization.name) {
-    const organizationExists = await context.data.organization.checkItemExists(
-      OrganizationQueries.getByName(data.organization.name)
-    );
-
-    if (organizationExists) {
-      throw new OrganizationExistsError();
-    }
+    await checkOrgNameExists(context, data.organization.name);
   }
 
   const updatedOrganization = await context.data.organization.assertUpdateItem(

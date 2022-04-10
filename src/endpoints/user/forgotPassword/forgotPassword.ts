@@ -16,13 +16,6 @@ import sendChangePasswordEmail from './sendChangePasswordEmail';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {IUserToken} from '../../../definitions/userToken';
 
-/**
- * Requirements. Ensure that:
- * - Check that user exists
- * - Forgot password token is created
- * - Email is sent with a change password link
- */
-
 const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
   const user = await context.data.user.assertGetItem(

@@ -1,17 +1,11 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {ICollaborationRequest} from '../definitions/collaborationRequest';
 import {getDate} from '../utilities/dateFns';
-import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const collaborationRequestStatusHistorySchema = {
   status: {type: String},
   date: {type: Date},
-};
-
-const notificationSentEmailHistorySchema = {
-  date: {type: Date},
-  reason: {type: String},
 };
 
 const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
@@ -30,10 +24,6 @@ const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
   organizationName: {type: String},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
-  assignedPresetsOnAccept: {
-    type: [assignedPermissionsGroupSchema],
-    default: [],
-  },
 });
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;

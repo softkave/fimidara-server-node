@@ -1,15 +1,23 @@
+import {omit} from 'lodash';
 import {
   AppResourceType,
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
+import {objectHasData} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import FileQueries from '../queries';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
-import {checkFileAuthorization03, FileUtils, getFileMatcher} from '../utils';
+import {
+  checkFileAuthorization03,
+  fileExtractor,
+  getFileMatcher,
+} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -29,33 +37,35 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     publicPermissibleEndpointAgents
   );
 
-  const {file} = await checkFileAuthorization03(
+  let {file} = await checkFileAuthorization03(
     context,
     agent,
     getFileMatcher(agent, data),
     BasicCRUDActions.Update
   );
 
-  const updatedFile = await context.data.file.assertUpdateItem(
-    FileQueries.getById(file.resourceId),
-    {
-      ...data.file,
-      lastUpdatedAt: getDateString(),
-      lastUpdatedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    }
+  if (objectHasData(omit(data.file, 'tags'))) {
+    file = await context.data.file.assertUpdateItem(
+      FileQueries.getById(file.resourceId),
+      {
+        ...data.file,
+        lastUpdatedAt: getDateString(),
+        lastUpdatedBy: {
+          agentId: agent.agentId,
+          agentType: agent.agentType,
+        },
+      }
+    );
+  }
+
+  const organization = await context.data.organization.assertGetItem(
+    EndpointReusableQueries.getById(file.organizationId)
   );
 
-  if (data.file.publicAccessActions) {
+  if (data.file.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(
       agent,
-      data.file.publicAccessActions
-    );
-
-    const organization = await context.data.organization.assertGetItem(
-      EndpointReusableQueries.getById(file.organizationId)
+      data.file.publicAccessAction
     );
 
     await replacePublicPresetAccessOpsByPermissionOwner(
@@ -69,8 +79,25 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     );
   }
 
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    file.resourceId,
+    AppResourceType.File,
+    data.file,
+    true
+  );
+
+  file = await withAssignedPresetsAndTags(
+    context,
+    file.organizationId,
+    file,
+    AppResourceType.File
+  );
+
   return {
-    file: FileUtils.getPublicFile(updatedFile),
+    file: fileExtractor(file),
   };
 };
 

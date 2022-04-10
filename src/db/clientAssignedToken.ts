@@ -1,8 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IClientAssignedToken} from '../definitions/clientAssignedToken';
 import {getDate} from '../utilities/dateFns';
-import {assignedPermissionsGroupSchema} from './presetPermissionsGroup';
-import {assignedTagSchema} from './tag';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
@@ -16,8 +14,6 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   expires: {type: Date},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
-  presets: {type: [assignedPermissionsGroupSchema], default: []},
-  tags: {type: [assignedTagSchema], default: []},
 });
 
 export type IClientAssignedTokenDocument = Document<IClientAssignedToken>;

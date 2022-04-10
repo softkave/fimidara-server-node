@@ -1,3 +1,4 @@
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -42,8 +43,11 @@ test('organization collaborators returned', async () => {
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetItem(
-    EndpointReusableQueries.getById(user.resourceId)
+  const updatedUser = await withUserOrganizations(
+    context,
+    await context.data.user.assertGetItem(
+      EndpointReusableQueries.getById(user.resourceId)
+    )
   );
 
   expect(result.collaborators).toContainEqual(

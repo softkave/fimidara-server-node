@@ -21,6 +21,11 @@ import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IUser} from '../../definitions/user';
 import {IAppRuntimeState} from '../../definitions/system';
 import {throwNotFound} from '../utils';
+import {ITag} from '../../definitions/tag';
+import {throwTagNotFound} from '../tags/utils';
+import {IAssignedItem} from '../../definitions/assignedItem';
+import {IDataProvider} from './data-providers/DataProvider';
+import {throwAssignedItemNotFound} from '../assignedItems/utils';
 
 export default class MemoryDataProviderContext
   implements IBaseContextDataProviders
@@ -66,5 +71,11 @@ export default class MemoryDataProviderContext
   public appRuntimeState = new MemoryDataProvider<IAppRuntimeState>(
     [],
     throwNotFound
+  );
+
+  public tag = new MemoryDataProvider<ITag>([], throwTagNotFound);
+  public assignedItem = new MemoryDataProvider<IAssignedItem>(
+    [],
+    throwAssignedItemNotFound
   );
 }

@@ -44,6 +44,12 @@ export default async function checkPermissionOwnersExist(
     checkAuth: true,
   });
 
-  checkNotOrganizationResources(organization.resourceId, resources);
+  checkNotOrganizationResources(
+    organization.resourceId,
+    resources,
+    // We only use organizations, folders, and files in here
+    true
+  );
+
   return {resources};
 }

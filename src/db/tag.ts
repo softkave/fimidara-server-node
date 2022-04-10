@@ -3,12 +3,6 @@ import {IAssignedTag, ITag} from '../definitions/tag';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
-export const assignedTagSchema = ensureTypeFields<IAssignedTag>({
-  tagId: {type: String},
-  assignedAt: {type: Date, default: getDate},
-  assignedBy: agentSchema,
-});
-
 const tagSchema = ensureTypeFields<ITag>({
   resourceId: {type: String},
   organizationId: {type: String},
@@ -20,14 +14,14 @@ const tagSchema = ensureTypeFields<ITag>({
   description: {type: String},
 });
 
-export type ITagItemDocument = Document<ITag>;
+export type ITagDocument = Document<ITag>;
 
 const schema = new Schema<ITag>(tagSchema);
 const modelName = 'tag';
 const collectionName = 'tags';
 
 export function getTagModel(connection: Connection) {
-  const model = connection.model<ITagItemDocument>(
+  const model = connection.model<ITagDocument>(
     modelName,
     schema,
     collectionName
@@ -36,4 +30,4 @@ export function getTagModel(connection: Connection) {
   return model;
 }
 
-export type ITagItemModel = Model<ITagItemDocument>;
+export type ITagModel = Model<ITagDocument>;

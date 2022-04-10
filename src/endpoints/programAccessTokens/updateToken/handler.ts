@@ -1,9 +1,12 @@
+import {omit} from 'lodash';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
-import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
+import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import ProgramAccessTokenQueries from '../queries';
 import {
   checkProgramAccessTokenAuthorization02,
@@ -11,16 +14,6 @@ import {
 } from '../utils';
 import {UpdateProgramAccessTokenEndpoint} from './types';
 import {updateProgramAccessTokenJoiSchema} from './validation';
-
-/**
- * updateProgramAccessTokenPresets.
- * Updates the referenced program access token's presets.
- *
- * Ensure that:
- * - Auth check and permission check
- * - Check presets exists and access check
- * - Update token presets
- */
 
 const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   context,
@@ -34,17 +27,15 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     data.onReferenced
   );
 
-  const checkResult = await checkProgramAccessTokenAuthorization02(
+  let {organization, token} = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
     tokenId,
     BasicCRUDActions.Read
   );
 
-  let token = checkResult.token;
   const tokenUpdate: Partial<IProgramAccessToken> = {
-    name: data.token.name,
-    description: data.token.description,
+    ...omit(data.token, 'presets'),
     lastUpdatedAt: getDateString(),
     lastUpdatedBy: {
       agentId: agent.agentId,
@@ -52,27 +43,33 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     },
   };
 
-  if (data.token.presets) {
-    await checkPresetsExist(
+  if (tokenUpdate.name) {
+    await checkProgramTokenNameExists(
       context,
-      agent,
-      checkResult.organization,
-      data.token.presets
+      organization.resourceId,
+      tokenUpdate.name
     );
-
-    tokenUpdate.presets = data.token.presets?.map(preset => ({
-      ...preset,
-      assignedAt: getDateString(),
-      assignedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    }));
   }
 
   token = await context.data.programAccessToken.assertUpdateItem(
     ProgramAccessTokenQueries.getById(tokenId),
     tokenUpdate
+  );
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    token.resourceId,
+    AppResourceType.ProgramAccessToken,
+    data.token
+  );
+
+  token = await withAssignedPresetsAndTags(
+    context,
+    token.organizationId,
+    token,
+    AppResourceType.ProgramAccessToken
   );
 
   return {

@@ -1,5 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -7,19 +8,9 @@ import {
 import {checkOrganizationExists} from '../../organizations/utils';
 import {PermissionDeniedError} from '../../user/errors';
 import PresetPermissionsGroupQueries from '../queries';
-import {PresetPermissionsGroupUtils} from '../utils';
+import {presetPermissionsGroupListExtractor} from '../utils';
 import {GetOrganizationPresetPermissionsGroupsEndpoint} from './types';
 import {getOrganizationPresetPermissionsGroupsJoiSchema} from './validation';
-
-/**
- * getOrganizationPresetPermissionsItem.
- * Returns the referenced organization's presets
- * the calling agent has read access to.
- *
- * Ensure that:
- * - Auth check and permission check
- * - Return presets
- */
 
 const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGroupsEndpoint =
   async (context, instData) => {
@@ -54,17 +45,21 @@ const getOrganizationPresetPermissionsGroups: GetOrganizationPresetPermissionsGr
       )
     );
 
-    const allowedItems = items.filter((item, i) => !!permittedReads[i]);
+    let allowedItems = items.filter((item, i) => !!permittedReads[i]);
 
     if (allowedItems.length === 0 && items.length > 0) {
       throw new PermissionDeniedError();
     }
 
+    allowedItems = await resourceListWithAssignedPresetsAndTags(
+      context,
+      organization.resourceId,
+      allowedItems,
+      AppResourceType.PresetPermissionsGroup
+    );
+
     return {
-      presets:
-        PresetPermissionsGroupUtils.extractPublicPresetPermissionsGroupList(
-          allowedItems
-        ),
+      presets: presetPermissionsGroupListExtractor(allowedItems),
     };
   };
 

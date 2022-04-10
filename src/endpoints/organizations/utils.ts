@@ -11,6 +11,7 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
+import {getOrganizationId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import OrganizationQueries from './queries';
@@ -37,6 +38,20 @@ export async function checkOrganizationExists(
   ctx: IBaseContext,
   organizationId: string
 ) {
+  return await ctx.data.organization.assertGetItem(
+    OrganizationQueries.getById(organizationId)
+  );
+}
+
+export async function checkOrganizationExistsWithAgent(
+  ctx: IBaseContext,
+  agent: ISessionAgent,
+  organizationId?: string
+) {
+  if (!organizationId) {
+    organizationId = getOrganizationId(agent, organizationId);
+  }
+
   return await ctx.data.organization.assertGetItem(
     OrganizationQueries.getById(organizationId)
   );

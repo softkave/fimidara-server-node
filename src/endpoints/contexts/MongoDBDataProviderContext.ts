@@ -52,6 +52,12 @@ import {
   IAppRuntimeStateModel,
 } from '../../db/appRuntimeState';
 import {throwNotFound} from '../utils';
+import {ITag} from '../../definitions/tag';
+import {getTagModel, ITagModel} from '../../db/tag';
+import {throwTagNotFound} from '../tags/utils';
+import {IAssignedItem} from '../../definitions/assignedItem';
+import {throwAssignedItemNotFound} from '../assignedItems/utils';
+import {getAssignedItemModel, IAssignedItemModel} from '../../db/assignedItem';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -65,6 +71,8 @@ export interface IBaseContextDatabaseModels {
   permissionItem: IPermissionItemModel;
   presetPermissionsGroup: IPresetPermissionsItemModel;
   appRuntimeState: IAppRuntimeStateModel;
+  tag: ITagModel;
+  assignedItem: IAssignedItemModel;
 }
 
 export default class MongoDBDataProviderContext
@@ -84,6 +92,8 @@ export default class MongoDBDataProviderContext
   public user: IDataProvider<IUser>;
   public userToken: IDataProvider<IUserToken>;
   public appRuntimeState: IDataProvider<IAppRuntimeState>;
+  public tag: IDataProvider<ITag>;
+  public assignedItem: IDataProvider<IAssignedItem<object>>;
 
   constructor(connection: Connection) {
     this.connection = connection;
@@ -99,6 +109,8 @@ export default class MongoDBDataProviderContext
       permissionItem: getPermissionItemModel(connection),
       presetPermissionsGroup: getPresetPermissionsModel(connection),
       appRuntimeState: getAppRuntimeStateModel(connection),
+      tag: getTagModel(connection),
+      assignedItem: getAssignedItemModel(connection),
     };
 
     this.folder = new MongoDataProvider(this.db.folder, throwFolderNotFound);
@@ -142,6 +154,12 @@ export default class MongoDBDataProviderContext
     this.appRuntimeState = new MongoDataProvider(
       this.db.appRuntimeState,
       throwNotFound
+    );
+
+    this.tag = new MongoDataProvider(this.db.tag, throwTagNotFound);
+    this.assignedItem = new MongoDataProvider(
+      this.db.assignedItem,
+      throwAssignedItemNotFound
     );
   }
 

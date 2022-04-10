@@ -1,5 +1,5 @@
 import {Response, Request} from 'express';
-import {IPublicAccessOp} from '../definitions/system';
+import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utilities/dateFns';
 import {
   getFields,
@@ -109,4 +109,37 @@ export async function waitForWorks(works: IRequestDataWork[]) {
 
 export function throwNotFound() {
   throw new NotFoundError();
+}
+
+export type IResourceWithoutAssignedAgent<T> = Omit<
+  T,
+  'assignedAt' | 'assignedBy'
+>;
+
+export function withAssignedAgent<T extends object>(
+  agent: IAgent,
+  item: T
+): T & {assignedBy: IAgent; assignedAt: string} {
+  return {
+    ...item,
+    assignedAt: getDateString(),
+    assignedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+  };
+}
+
+export function withAssignedAgentList<T extends object>(
+  agent: IAgent,
+  items: T[] = []
+): Array<T & {assignedBy: IAgent; assignedAt: string}> {
+  return items.map(item => ({
+    ...item,
+    assignedAt: getDateString(),
+    assignedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+  }));
 }

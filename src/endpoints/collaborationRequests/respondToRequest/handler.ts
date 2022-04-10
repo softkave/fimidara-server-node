@@ -1,6 +1,7 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {addAssignedUserOrganization} from '../../assignedItems/addAssignedItems';
 import {ExpiredError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
@@ -45,17 +46,11 @@ const respondToRequest: RespondToRequestEndpoint = async (
   );
 
   if (data.response === CollaborationRequestStatusType.Accepted) {
-    await context.data.user.updateItem(
-      EndpointReusableQueries.getById(user.resourceId),
-      {
-        organizations: user.organizations.concat([
-          {
-            joinedAt: getDateString(),
-            organizationId: request.organizationId,
-            presets: request.assignedPresetsOnAccept || [],
-          },
-        ]),
-      }
+    await addAssignedUserOrganization(
+      context,
+      request.createdBy,
+      request.organizationId,
+      user
     );
   }
 

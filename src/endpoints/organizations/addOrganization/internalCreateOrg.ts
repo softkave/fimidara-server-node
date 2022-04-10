@@ -3,7 +3,7 @@ import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {OrganizationExistsError} from '../errors';
+import {checkOrgNameExists} from '../checkOrgNameExists';
 import OrganizationQueries from '../queries';
 import {INewOrganizationInput} from './types';
 import {
@@ -17,14 +17,7 @@ const internalCreateOrg = async (
   agent: IAgent,
   user?: IUser
 ) => {
-  const organizationExists = await context.data.organization.checkItemExists(
-    OrganizationQueries.getByName(data.name)
-  );
-
-  if (organizationExists) {
-    throw new OrganizationExistsError();
-  }
-
+  await checkOrgNameExists(context, data.name);
   let organization = await context.data.organization.saveItem({
     createdAt: getDateString(),
     createdBy: agent,

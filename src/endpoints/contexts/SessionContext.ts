@@ -1,13 +1,15 @@
 import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
+import {ResourceWithPresetsAndTags} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
+  AppResourceType,
   ISessionAgent,
   publicAgent,
   SessionAgentType,
 } from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {IUser, IUserWithOrganization} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
 import cast from '../../utilities/fns';
@@ -16,6 +18,10 @@ import {
   wrapFireAndThrowErrorNoAsync,
 } from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
+import {
+  withAssignedPresetsAndTags,
+  withUserOrganizations,
+} from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import EndpointReusableQueries from '../queries';
@@ -71,7 +77,7 @@ export interface ISessionContext {
     ctx: IBaseContext,
     data: RequestData,
     audience?: TokenAudience | TokenAudience[]
-  ) => Promise<IUser>;
+  ) => Promise<IUserWithOrganization>;
   decodeToken: (
     ctx: IBaseContext,
     token: string
@@ -106,9 +112,11 @@ export default class SessionContext implements ISessionContext {
       }
 
       let userToken: IUserToken | null = null;
-      let user: IUser | null = null;
-      let clientAssignedToken: IClientAssignedToken | null = null;
-      let programAccessToken: IProgramAccessToken | null = null;
+      let user: IUserWithOrganization | null = null;
+      let clientAssignedToken: ResourceWithPresetsAndTags<IClientAssignedToken> | null =
+        null;
+      let programAccessToken: ResourceWithPresetsAndTags<IProgramAccessToken> | null =
+        null;
       const incomingTokenData = data.incomingTokenData;
 
       switch (incomingTokenData?.sub.type) {
@@ -121,24 +129,40 @@ export default class SessionContext implements ISessionContext {
             ctx.session.tokenContainsAudience(ctx, userToken, audience);
           }
 
-          user = await ctx.data.user.assertGetItem(
-            EndpointReusableQueries.getById(userToken.userId)
+          user = await withUserOrganizations(
+            ctx,
+            await ctx.data.user.assertGetItem(
+              EndpointReusableQueries.getById(userToken.userId)
+            )
           );
           break;
         }
 
         case TokenType.ProgramAccessToken: {
-          programAccessToken = await ctx.data.programAccessToken.assertGetItem(
+          const pgt = await ctx.data.programAccessToken.assertGetItem(
             ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
+          );
+
+          programAccessToken = await withAssignedPresetsAndTags(
+            ctx,
+            pgt.organizationId,
+            pgt,
+            AppResourceType.ProgramAccessToken
           );
           break;
         }
 
         case TokenType.ClientAssignedToken: {
-          clientAssignedToken =
-            await ctx.data.clientAssignedToken.assertGetItem(
-              EndpointReusableQueries.getById(incomingTokenData.sub.id)
-            );
+          const clt = await ctx.data.clientAssignedToken.assertGetItem(
+            EndpointReusableQueries.getById(incomingTokenData.sub.id)
+          );
+
+          clientAssignedToken = await withAssignedPresetsAndTags(
+            ctx,
+            clt.organizationId,
+            clt,
+            AppResourceType.ClientAssignedToken
+          );
           break;
         }
       }
@@ -263,7 +287,7 @@ export default class SessionContext implements ISessionContext {
 export const getSessionContext = singletonFunc(() => new SessionContext());
 
 export function makeClientAssignedTokenAgent(
-  clientAssignedToken: IClientAssignedToken
+  clientAssignedToken: ResourceWithPresetsAndTags<IClientAssignedToken>
 ): ISessionAgent {
   return {
     clientAssignedToken,
@@ -275,7 +299,7 @@ export function makeClientAssignedTokenAgent(
 }
 
 export function makeProgramAccessTokenAgent(
-  programAccessToken: IProgramAccessToken
+  programAccessToken: ResourceWithPresetsAndTags<IProgramAccessToken>
 ): ISessionAgent {
   return {
     programAccessToken,
@@ -288,7 +312,7 @@ export function makeProgramAccessTokenAgent(
 
 export function makeUserSessionAgent(
   userToken: IUserToken,
-  user: IUser
+  user: IUserWithOrganization
 ): ISessionAgent {
   return {
     userToken,

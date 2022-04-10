@@ -12,11 +12,15 @@ import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
 import OrganizationQueries from '../organizations/queries';
 import {createSingleFolder} from '../folders/addFolder/handler';
-import {IPermissionItem} from '../../definitions/permissionItem';
+import {
+  IPermissionItem,
+  PermissionItemAppliesTo,
+} from '../../definitions/permissionItem';
 import {IAppRuntimeVars} from '../../resources/appVariables';
 import {merge} from 'lodash';
 import internalCreateOrg from '../organizations/addOrganization/internalCreateOrg';
 import {permissionItemIndexer} from '../permissionItems/utils';
+import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
 
 const folder01Path = '/files';
 const folder02Path = '/files/images';
@@ -28,32 +32,6 @@ const appSetupVars = {
   orgsImageUploadPresetName: 'Files-orgs-image-upload',
   usersImageUploadPresetName: 'Files-users-image-upload',
 };
-
-// export function getAppBaseFolder(nodeEnv: string) {
-//   switch (nodeEnv) {
-//     case 'production':
-//       return 'files-prod';
-//     case 'test':
-//       return 'files-test';
-//     case 'development':
-//     default:
-//       return 'files-dev';
-//   }
-// }
-
-// export function getAppSetupVars(nodeEnv: string) {
-//   const baseFolder = getAppBaseFolder(nodeEnv);
-//   const appSetupVars = {
-//     orgName: 'Files by softkave',
-//     orgsFolder: `${baseFolder}/orgs`,
-//     imageFolderName: '/images',
-//     userImagesFolder: `${baseFolder}/users`,
-//     orgsImageUploadPresetName: 'Files-orgs-image-upload',
-//     usersImageUploadPresetName: 'Files-users-image-upload',
-//   };
-
-//   return appSetupVars;
-// }
 
 async function setupOrg(context: IBaseContext, name: string) {
   return await internalCreateOrg(
@@ -72,7 +50,7 @@ async function setupDefaultUserCollaborationRequest(
   userEmail: string,
   adminPresetId: string
 ) {
-  await context.data.collaborationRequest.saveItem({
+  const request = await context.data.collaborationRequest.saveItem({
     resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: systemAgent,
@@ -83,25 +61,23 @@ async function setupDefaultUserCollaborationRequest(
     organizationName: organization.name,
     organizationId: organization.resourceId,
     recipientEmail: userEmail,
-    sentEmailHistory: [],
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
         date: getDateString(),
       },
     ],
-
-    // TODO: open up to the endpoint.
-    // Currently only in use for the app init setup.
-    assignedPresetsOnAccept: [
-      {
-        assignedAt: getDateString(),
-        assignedBy: systemAgent,
-        order: 0,
-        presetId: adminPresetId,
-      },
-    ],
   });
+
+  await addAssignedPresetList(
+    context,
+    systemAgent,
+    organization,
+    [{order: 0, presetId: adminPresetId}],
+    request.resourceId,
+    AppResourceType.CollaborationRequest,
+    false
+  );
 }
 
 async function setupFolders(
@@ -167,7 +143,6 @@ async function setupImageUploadPermissionGroup(
     organizationId: orgId,
     createdAt: getDateString(),
     createdBy: systemAgent,
-    presets: [],
   });
 
   const permissionItems: IPermissionItem[] = [
@@ -186,7 +161,8 @@ async function setupImageUploadPermissionGroup(
       permissionEntityId: imageUploadPreset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
       itemResourceType: AppResourceType.File,
-      isForPermissionOwnerChildren: true,
+      grantAccess: true,
+      appliesTo: PermissionItemAppliesTo.Children,
     };
 
     item.hash = permissionItemIndexer(item);

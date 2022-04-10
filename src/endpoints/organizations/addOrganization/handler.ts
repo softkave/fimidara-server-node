@@ -5,11 +5,6 @@ import internalCreateOrg from './internalCreateOrg';
 import {AddOrganizationEndpoint} from './types';
 import {addOrganizationJoiSchema} from './validation';
 
-/**
- * addOrganization. Ensure that:
- * - Create and return organization
- */
-
 const addOrganization: AddOrganizationEndpoint = async (context, instData) => {
   const data = validate(instData.data, addOrganizationJoiSchema);
   const user = await context.session.getUser(context, instData);

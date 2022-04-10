@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
+import tagValidationSchemas from '../../tags/validation';
 import fileValidationSchemas from '../validation';
 
 export const updateFileDetailsJoiSchema = Joi.object()
@@ -7,9 +8,11 @@ export const updateFileDetailsJoiSchema = Joi.object()
     ...fileValidationSchemas.fileMatcherParts,
     file: Joi.object()
       .keys({
-        // name: folderValidationSchemas.name.allow(null),
         description: validationSchemas.description.allow(null),
         mimetype: fileValidationSchemas.mimetype.allow(null),
+        publicAccessAction:
+          fileValidationSchemas.publicAccessAction.allow(null),
+        tags: tagValidationSchemas.assignedTagsList.allow(null),
       })
       .required(),
   })

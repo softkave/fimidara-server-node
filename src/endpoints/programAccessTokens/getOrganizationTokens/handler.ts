@@ -1,5 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
+import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeOrgPermissionOwnerList,
@@ -10,16 +11,6 @@ import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken} from '../utils';
 import {GetOrganizationProgramAccessTokenEndpoint} from './types';
 import {getOrganizationProgramAccessTokenJoiSchema} from './validation';
-
-/**
- * getOrganizationProgramAccessTokens.
- * Returns the referenced organization's program access tokens
- * the calling agent has read access to.
- *
- * Ensure that:
- * - Auth check and permission check
- * - Return tokens
- */
 
 const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpoint =
   async (context, instData) => {
@@ -54,16 +45,21 @@ const getOrganizationProgramAccessTokens: GetOrganizationProgramAccessTokenEndpo
       )
     );
 
-    const allowedTokens = tokens
-      .filter((item, i) => !!permittedReads[i])
-      .map(token => getPublicProgramToken(context, token));
+    let allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
 
     if (allowedTokens.length === 0 && tokens.length > 0) {
       throw new PermissionDeniedError();
     }
 
+    allowedTokens = await resourceListWithAssignedPresetsAndTags(
+      context,
+      organization.resourceId,
+      allowedTokens,
+      AppResourceType.ProgramAccessToken
+    );
+
     return {
-      tokens: allowedTokens,
+      tokens: allowedTokens.map(token => getPublicProgramToken(context, token)),
     };
   };
 

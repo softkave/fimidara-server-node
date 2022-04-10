@@ -15,20 +15,9 @@ import {programAccessTokenConstants} from '../constants';
 import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
-import EndpointReusableQueries from '../../queries';
-import {ResourceExistsError} from '../../errors';
-import {checkPresetsExist} from '../../presetPermissionsGroups/utils';
-
-/**
- * addProgramAccessToken.
- * Creates a program access token.
- *
- * Ensure that:
- * - Auth check
- * - Check that presets exist
- * - Token and secret key is generated
- * - Return token and encoded token string
- */
+import {checkProgramTokenNameExists} from '../checkProgramNameExists';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 
 const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   context,
@@ -50,21 +39,15 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     action: BasicCRUDActions.Create,
   });
 
-  const itemExists = await context.data.programAccessToken.checkItemExists(
-    EndpointReusableQueries.getByOrganizationAndName(
-      organization.resourceId,
-      data.token.name
-    )
+  await checkProgramTokenNameExists(
+    context,
+    organization.resourceId,
+    data.token.name
   );
 
-  if (itemExists) {
-    throw new ResourceExistsError('Program access token exists');
-  }
-
-  await checkPresetsExist(context, agent, organization, data.token.presets);
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);
-  const token: IProgramAccessToken =
+  let token: IProgramAccessToken =
     await context.data.programAccessToken.saveItem({
       ...data.token,
       hash,
@@ -75,15 +58,23 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      presets: data.token.presets.map(item => ({
-        ...item,
-        assignedAt: getDateString(),
-        assignedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-      })),
     });
+
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    token.resourceId,
+    AppResourceType.ProgramAccessToken,
+    data.token
+  );
+
+  token = await withAssignedPresetsAndTags(
+    context,
+    token.organizationId,
+    token,
+    AppResourceType.ProgramAccessToken
+  );
 
   return {
     token: getPublicProgramToken(context, token),

@@ -1,5 +1,11 @@
 import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 
+export enum PermissionItemAppliesTo {
+  Owner = 'owner',
+  OwnerAndChildren = 'owner-and-children',
+  Children = 'children',
+}
+
 export interface IPermissionItem {
   resourceId: string;
   organizationId: string;
@@ -17,17 +23,11 @@ export interface IPermissionItem {
   // It's the entity this permission item was created for.
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
-
-  // All application resources except users which are
-  // replaced by collaborators
   itemResourceId?: string;
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
-
-  // That is this permission item denies permission to the resource
-  isExclusion?: boolean;
-  isForPermissionOwner?: boolean;
-  isForPermissionOwnerChildren?: boolean;
+  grantAccess: boolean;
+  appliesTo: PermissionItemAppliesTo;
   hash: string;
 }
 
@@ -43,7 +43,6 @@ export interface IPublicPermissionItem {
   itemResourceId?: string;
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
-  isExclusion?: boolean;
-  isForPermissionOwner?: boolean;
-  isForPermissionOwnerChildren?: boolean;
+  grantAccess: boolean;
+  appliesTo: PermissionItemAppliesTo;
 }

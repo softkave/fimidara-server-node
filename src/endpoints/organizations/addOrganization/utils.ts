@@ -1,5 +1,8 @@
 import {IOrganization} from '../../../definitions/organization';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {
+  IPermissionItem,
+  PermissionItemAppliesTo,
+} from '../../../definitions/permissionItem';
 import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {
   SessionAgentType,
@@ -11,10 +14,13 @@ import {
 import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
-import {updateCollaboratorOrganization} from '../../collaborators/utils';
+import {
+  addAssignedPresetList,
+  addAssignedUserOrganization,
+} from '../../assignedItems/addAssignedItems';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {permissionItemIndexer} from '../../permissionItems/utils';
-import EndpointReusableQueries from '../../queries';
 
 export const DEFAULT_ADMIN_PRESET_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PRESET_NAME = 'Public';
@@ -41,6 +47,8 @@ function makeAdminPermissions(
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
       itemResourceType: AppResourceType.All,
       hash: '',
+      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+      grantAccess: true,
     };
 
     item.hash = permissionItemIndexer(item);
@@ -59,14 +67,14 @@ function makeCollaboratorPermissions(
     actions: BasicCRUDActions[],
     itemResourceType: AppResourceType,
     itemResourceId?: string,
-    isForPermissionOwnerChildren?: boolean
+    appliesTo: PermissionItemAppliesTo = PermissionItemAppliesTo.OwnerAndChildren
   ) {
     return actions.map(action => {
       const item: IPermissionItem = {
         itemResourceType,
         action,
         itemResourceId,
-        isForPermissionOwnerChildren,
+        appliesTo,
         resourceId: getNewId(),
         organizationId: organization.resourceId,
         createdAt: getDateString(),
@@ -79,6 +87,7 @@ function makeCollaboratorPermissions(
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
         hash: '',
+        grantAccess: true,
       };
 
       item.hash = permissionItemIndexer(item);
@@ -100,7 +109,7 @@ function makeCollaboratorPermissions(
       [BasicCRUDActions.Read],
       AppResourceType.ProgramAccessToken,
       undefined,
-      true
+      PermissionItemAppliesTo.OwnerAndChildren
     )
   );
 
@@ -109,7 +118,7 @@ function makeCollaboratorPermissions(
       [BasicCRUDActions.Read],
       AppResourceType.ClientAssignedToken,
       undefined,
-      true
+      PermissionItemAppliesTo.OwnerAndChildren
     )
   );
 
@@ -118,7 +127,7 @@ function makeCollaboratorPermissions(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.Folder,
       undefined,
-      true
+      PermissionItemAppliesTo.OwnerAndChildren
     )
   );
 
@@ -127,7 +136,7 @@ function makeCollaboratorPermissions(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.File,
       undefined,
-      true
+      PermissionItemAppliesTo.OwnerAndChildren
     )
   );
 
@@ -136,7 +145,7 @@ function makeCollaboratorPermissions(
       [BasicCRUDActions.Read],
       AppResourceType.User,
       undefined,
-      true
+      PermissionItemAppliesTo.OwnerAndChildren
     )
   );
 
@@ -156,7 +165,6 @@ export async function setupDefaultOrgPresets(
     name: DEFAULT_ADMIN_PRESET_NAME,
     description:
       'Auto-generated preset that can access and perform every and all actions on all resources',
-    presets: [],
   };
 
   const publicPreset: IPresetPermissionsGroup = {
@@ -167,7 +175,6 @@ export async function setupDefaultOrgPresets(
     name: DEFAULT_PUBLIC_PRESET_NAME,
     description:
       'Auto-generated preset for accessing and performing public operations.',
-    presets: [],
   };
 
   const collaboratorPreset: IPresetPermissionsGroup = {
@@ -177,7 +184,6 @@ export async function setupDefaultOrgPresets(
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PRESET_NAME,
     description: 'Auto-generated preset for collaborators.',
-    presets: [],
   };
 
   await context.data.preset.bulkSaveItems([
@@ -204,30 +210,26 @@ export async function addOrgToUserAndAssignAdminPreset(
   organization: IOrganization,
   adminPreset: IPresetPermissionsGroup
 ) {
-  updateCollaboratorOrganization(user, organization.resourceId, userOrg => {
-    userOrg = userOrg || {
-      organizationId: organization.resourceId,
-      joinedAt: getDateString(),
-      presets: [],
-    };
+  const agent: IAgent = {
+    agentId: user.resourceId,
+    agentType: SessionAgentType.User,
+  };
 
-    userOrg.presets.push({
-      presetId: adminPreset.resourceId,
-      assignedAt: getDateString(),
-      assignedBy: {
-        agentId: user.resourceId,
-        agentType: SessionAgentType.User,
-      },
-      order: 0,
-    });
+  await Promise.all([
+    // Assign organization to user
+    addAssignedUserOrganization(context, agent, organization.resourceId, user),
 
-    return userOrg;
-  });
+    // Assign admin preset to user
+    addAssignedPresetList(
+      context,
+      agent,
+      organization,
+      [{presetId: adminPreset.resourceId, order: 0}],
+      user.resourceId,
+      AppResourceType.User,
+      false
+    ),
+  ]);
 
-  return await context.data.user.updateItem(
-    EndpointReusableQueries.getById(user.resourceId),
-    {
-      organizations: user.organizations,
-    }
-  );
+  return await withUserOrganizations(context, user);
 }

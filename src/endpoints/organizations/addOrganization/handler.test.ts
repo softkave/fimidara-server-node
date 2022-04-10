@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -60,8 +61,11 @@ test('organization created', async () => {
     )
   );
 
-  const user = await context.data.user.assertGetItem(
-    EndpointReusableQueries.getById(userToken.userId)
+  const user = await withUserOrganizations(
+    context,
+    await context.data.user.assertGetItem(
+      EndpointReusableQueries.getById(userToken.userId)
+    )
   );
 
   const userOrg = user.organizations.find(

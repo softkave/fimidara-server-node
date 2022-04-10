@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
-import presetPermissionsGroupsValidationSchemas from '../validation';
+import tagValidationSchemas from '../../tags/validation';
+import presetsValidationSchemas from '../validation';
 
 export const addPresetPermissionsGroupJoiSchema = Joi.object()
   .keys({
@@ -9,10 +10,8 @@ export const addPresetPermissionsGroupJoiSchema = Joi.object()
       .keys({
         name: validationSchemas.name.required(),
         description: validationSchemas.description.allow(null),
-        presets:
-          presetPermissionsGroupsValidationSchemas.assignedPresetsList.allow(
-            null
-          ),
+        presets: presetsValidationSchemas.assignedPresetsList.allow(null),
+        tags: tagValidationSchemas.assignedTagsList.allow(null),
       })
       .required(),
   })

@@ -7,10 +7,12 @@ import {
 } from '../../../definitions/system';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
 import {
-  checkFolderAuthorization03,
+  checkFolderAuthorization02,
   folderExtractor,
   getFolderMatcher,
 } from '../utils';
@@ -25,7 +27,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const {folder, organization} = await checkFolderAuthorization03(
+  let {folder, organization} = await checkFolderAuthorization02(
     context,
     agent,
     getFolderMatcher(agent, data),
@@ -42,7 +44,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     },
   };
 
-  const updatedFolder = await context.data.folder.assertUpdateItem(
+  folder = await context.data.folder.assertUpdateItem(
     FolderQueries.getById(folder.resourceId),
     update
   );
@@ -67,13 +69,30 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
       context,
       agent,
       organization,
-      updatedFolder.resourceId,
+      folder.resourceId,
       AppResourceType.Folder,
       publicAccessOps
     );
   }
 
-  return {folder: folderExtractor(updatedFolder)};
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    organization,
+    folder.resourceId,
+    AppResourceType.Folder,
+    data.folder,
+    true
+  );
+
+  folder = await withAssignedPresetsAndTags(
+    context,
+    folder.organizationId,
+    folder,
+    AppResourceType.Folder
+  );
+
+  return {folder: folderExtractor(folder)};
 };
 
 export default updateFolder;

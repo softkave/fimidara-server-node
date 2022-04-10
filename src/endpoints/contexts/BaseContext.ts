@@ -14,6 +14,8 @@ import {IDataProvider} from './data-providers/DataProvider';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
 import {IAppRuntimeState} from '../../definitions/system';
+import {ITag} from '../../definitions/tag';
+import {IAssignedItem} from '../../definitions/assignedItem';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -27,6 +29,8 @@ export interface IBaseContextDataProviders {
   user: IDataProvider<IUser>;
   userToken: IDataProvider<IUserToken>;
   appRuntimeState: IDataProvider<IAppRuntimeState>;
+  tag: IDataProvider<ITag>;
+  assignedItem: IDataProvider<IAssignedItem>;
 }
 
 export interface IBaseContext<

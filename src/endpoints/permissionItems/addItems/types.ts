@@ -1,4 +1,7 @@
-import {IPublicPermissionItem} from '../../../definitions/permissionItem';
+import {
+  IPublicPermissionItem,
+  PermissionItemAppliesTo,
+} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
@@ -9,11 +12,10 @@ export interface INewPermissionItemInput {
   itemResourceId?: string;
   itemResourceType: AppResourceType;
   action: BasicCRUDActions;
-  isExclusion?: boolean;
-  isForPermissionOwner?: boolean;
+  grantAccess: boolean;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
-  isForPermissionOwnerChildren?: boolean;
+  appliesTo: PermissionItemAppliesTo;
 }
 
 export interface IAddPermissionItemsEndpointParams {
