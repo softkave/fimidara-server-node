@@ -76,7 +76,8 @@ async function setupDefaultUserCollaborationRequest(
     [{order: 0, presetId: adminPresetId}],
     request.resourceId,
     AppResourceType.CollaborationRequest,
-    false
+    /** deleteExisting */ false,
+    /** skipPresetsCheck */ true
   );
 }
 

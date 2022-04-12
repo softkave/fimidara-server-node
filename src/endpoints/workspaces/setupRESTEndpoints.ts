@@ -22,7 +22,7 @@ export default function setupWorkspacesRESTEndpoints(
   };
 
   app.post('/workspaces/addWorkspace', endpoints.addWorkspace);
-  app.post('/workspaces/deleteWorkspace', endpoints.deleteWorkspace);
+  app.delete('/workspaces/deleteWorkspace', endpoints.deleteWorkspace);
   app.post('/workspaces/getUserWorkspaces', endpoints.getUserWorkspaces);
   app.post('/workspaces/getWorkspace', endpoints.getWorkspace);
   app.post('/workspaces/getRequestWorkspace', endpoints.getRequestWorkspace);

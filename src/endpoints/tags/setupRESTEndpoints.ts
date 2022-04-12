@@ -20,7 +20,7 @@ export default function setupTagsRESTEndpoints(
   };
 
   app.post('/tags/addTag', endpoints.addTag);
-  app.post('/tags/deleteTag', endpoints.deleteTag);
+  app.delete('/tags/deleteTag', endpoints.deleteTag);
   app.post('/tags/getWorkspaceTags', endpoints.getWorkspaceTags);
   app.post('/tags/getTag', endpoints.getTag);
   app.post('/tags/updateTag', endpoints.updateTag);

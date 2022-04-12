@@ -38,12 +38,7 @@
 - [ ] should we gate who can see who's permissions
 - [ ] check that resources belong to the workspace in getResources
 - [ ] find all the places where server error is thrown and the error shouldn't be public and make them InternalError
-- [ ] swagger API
-- [ ] API compatibility layer between Igeeks and ours
+- [ ] swagger API documentation
 - [ ] use tags and update the names when workspace names or user names changes
-- [ ] add tag tests
-- [ ] client token name and description
 - [ ] free flowing tags
-- [ ] rename workspace to workspace
 - [ ] sort data by date by default
-- [ ] chage delete endpoints to use DELETE

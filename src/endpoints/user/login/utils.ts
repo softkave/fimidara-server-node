@@ -99,7 +99,8 @@ export async function getUserClientAssignedToken(
       ],
       token.resourceId,
       AppResourceType.ClientAssignedToken,
-      false
+      /** deleteExisting */ false,
+      /** skipPresetsCheck */ true
     );
   }
 

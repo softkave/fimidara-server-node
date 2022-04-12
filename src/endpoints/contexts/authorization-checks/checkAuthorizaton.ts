@@ -20,6 +20,7 @@ import {
   getPermissionEntities,
   IPermissionEntity,
 } from './getPermissionEntities';
+import {formatWithOptions} from 'util';
 
 export interface IPermissionOwner {
   permissionOwnerId: string;
@@ -84,6 +85,13 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const authEntities = await fetchAndSortPresets(
     context,
     agentPermissionEntities
+  );
+
+  console.log(
+    formatWithOptions(
+      {depth: 10},
+      {authEntities, agent, agentPermissionEntities}
+    )
   );
 
   const queries = authEntities.map(item => {
@@ -253,29 +261,6 @@ export function getFilePermissionOwners(
       },
     ].concat(permissionOwners);
   }
-
-  // if (type === AppResourceType.File) {
-  //   resource.idPath.forEach((id) => {
-  //     if (i === resource.idPath.length) {
-  //       permissionOwners.push({
-  //         permissionOwnerId: id,
-  //         permissionOwnerType: AppResourceType.File,
-  //       });
-  //     } else {
-  //       permissionOwners.push({
-  //         permissionOwnerId: id,
-  //         permissionOwnerType: AppResourceType.Folder,
-  //       });
-  //     }
-  //   });
-  // } else {
-  //   resource.idPath.forEach((id, i) => {
-  //     permissionOwners.push({
-  //       permissionOwnerId: id,
-  //       permissionOwnerType: AppResourceType.Folder,
-  //     });
-  //   });
-  // }
 
   return permissionOwners.map((item, index) => ({...item, order: index}));
 }

@@ -20,7 +20,7 @@ export default function setupClientAssignedTokensRESTEndpoints(
   };
 
   app.post('/clientAssignedTokens/addToken', endpoints.addToken);
-  app.post('/clientAssignedTokens/deleteToken', endpoints.deleteToken);
+  app.delete('/clientAssignedTokens/deleteToken', endpoints.deleteToken);
   app.post(
     '/clientAssignedTokens/getWorkspaceTokens',
     endpoints.getWorkspaceTokens

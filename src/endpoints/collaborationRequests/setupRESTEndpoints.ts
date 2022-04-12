@@ -26,7 +26,7 @@ export default function setupCollaborationRequestsRESTEndpoints(
   };
 
   app.post('/requests/sendRequest', endpoints.sendRequest);
-  app.post('/requests/deleteRequest', endpoints.deleteRequest);
+  app.delete('/requests/deleteRequest', endpoints.deleteRequest);
   app.post('/requests/getWorkspaceRequests', endpoints.getWorkspaceRequests);
   app.post('/requests/getUserRequests', endpoints.getUserRequests);
   app.post('/requests/respondToRequest', endpoints.respondToRequest);

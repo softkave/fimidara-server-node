@@ -20,7 +20,7 @@ export default function setupFoldersRESTEndpoints(
   };
 
   app.post('/folders/addFolder', endpoints.addFolder);
-  app.post('/folders/deleteFolder', endpoints.deleteFolder);
+  app.delete('/folders/deleteFolder', endpoints.deleteFolder);
   app.post('/folders/getFolder', endpoints.getFolder);
   app.post('/folders/listFolderContent', endpoints.listFolderContent);
   app.post('/folders/updateFolder', endpoints.updateFolder);
