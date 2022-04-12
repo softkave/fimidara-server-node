@@ -25,8 +25,8 @@ describe('init app setup', () => {
 
   test('app not setup a second time', async () => {
     assertContext(context);
-    const orgId = context.appVariables.appOrganizationId;
-    const org = await setupApp(context);
-    expect(org.resourceId).toBe(orgId);
+    const workspaceId = context.appVariables.appWorkspaceId;
+    const workspace = await setupApp(context);
+    expect(workspace.resourceId).toBe(workspaceId);
   });
 });

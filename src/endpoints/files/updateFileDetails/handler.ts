@@ -58,8 +58,8 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     );
   }
 
-  const organization = await context.data.organization.assertGetItem(
-    EndpointReusableQueries.getById(file.organizationId)
+  const workspace = await context.data.workspace.assertGetItem(
+    EndpointReusableQueries.getById(file.workspaceId)
   );
 
   if (data.file.publicAccessAction) {
@@ -71,7 +71,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,
-      organization,
+      workspace,
       file.resourceId,
       AppResourceType.File,
       publicAccessOps,
@@ -82,7 +82,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     file.resourceId,
     AppResourceType.File,
     data.file,
@@ -91,7 +91,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
 
   file = await withAssignedPresetsAndTags(
     context,
-    file.organizationId,
+    file.workspaceId,
     file,
     AppResourceType.File
   );

@@ -7,7 +7,7 @@ import {
   getTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -33,17 +33,17 @@ afterAll(async () => {
 test('folder content returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       folderpath: folder01.namePath
         .concat(faker.lorem.word())
@@ -54,7 +54,7 @@ test('folder content returned', async () => {
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       filepath: folder01.namePath
         .concat(faker.lorem.word())
@@ -66,7 +66,7 @@ test('folder content returned', async () => {
     RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         folderpath: folder01.name,
       }
     );

@@ -27,7 +27,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  let {folder, organization} = await checkFolderAuthorization02(
+  let {folder, workspace} = await checkFolderAuthorization02(
     context,
     agent,
     getFolderMatcher(agent, data),
@@ -68,7 +68,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,
-      organization,
+      workspace,
       folder.resourceId,
       AppResourceType.Folder,
       publicAccessOps
@@ -78,7 +78,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     folder.resourceId,
     AppResourceType.Folder,
     data.folder,
@@ -87,7 +87,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
 
   folder = await withAssignedPresetsAndTags(
     context,
-    folder.organizationId,
+    folder.workspaceId,
     folder,
     AppResourceType.Folder
   );

@@ -4,9 +4,9 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExistsWithAgent} from '../../organizations/utils';
+import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {AddTagEndpoint} from './types';
 import {addTagJoiSchema} from './validation';
 import {tagExtractor} from '../utils';
@@ -15,25 +15,25 @@ import {checkTagNameExists} from '../checkTagNameExists';
 const addTag: AddTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, addTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExistsWithAgent(
+  const workspace = await checkWorkspaceExistsWithAgent(
     context,
     agent,
-    data.organizationId
+    data.workspaceId
   );
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.Tag,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
-  await checkTagNameExists(context, organization.resourceId, data.tag.name);
+  await checkTagNameExists(context, workspace.resourceId, data.tag.name);
   let tag = await context.data.tag.saveItem({
     ...data.tag,
-    organizationId: organization.resourceId,
+    workspaceId: workspace.resourceId,
     resourceId: getNewId(),
     createdAt: getDateString(),
     createdBy: {

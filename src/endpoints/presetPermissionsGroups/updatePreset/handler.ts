@@ -18,13 +18,12 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, updatePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    let {preset, organization} =
-      await checkPresetPermissionsGroupAuthorization03(
-        context,
-        agent,
-        data,
-        BasicCRUDActions.Update
-      );
+    let {preset, workspace} = await checkPresetPermissionsGroupAuthorization03(
+      context,
+      agent,
+      data,
+      BasicCRUDActions.Update
+    );
 
     const update: Partial<IPresetPermissionsGroup> = {
       ...omit(data.preset, 'presets'),
@@ -33,11 +32,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
     };
 
     if (update.name) {
-      await checkPresetNameExists(
-        context,
-        organization.resourceId,
-        update.name
-      );
+      await checkPresetNameExists(context, workspace.resourceId, update.name);
     }
 
     const item = await context.data.preset.assertUpdateItem(
@@ -48,7 +43,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
     await saveResourceAssignedItems(
       context,
       agent,
-      organization,
+      workspace,
       preset.resourceId,
       AppResourceType.PresetPermissionsGroup,
       data.preset
@@ -56,7 +51,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
 
     preset = await withAssignedPresetsAndTags(
       context,
-      preset.organizationId,
+      preset.workspaceId,
       preset,
       AppResourceType.PresetPermissionsGroup
     );

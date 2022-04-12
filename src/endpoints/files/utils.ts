@@ -12,11 +12,11 @@ import {
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
+import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {fileConstants} from './constants';
@@ -32,7 +32,7 @@ const fileFields = getFields<IPublicFile>({
   description: true,
   folderId: true,
   mimetype: true,
-  organizationId: true,
+  workspaceId: true,
   size: true,
   encoding: true,
   extension: true,
@@ -51,27 +51,24 @@ export async function checkFileAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    file.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, file.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: file,
     type: AppResourceType.File,
     permissionOwners: getFilePermissionOwners(
-      organization.resourceId,
+      workspace.resourceId,
       file,
       AppResourceType.File
     ),
   });
 
-  return {agent, file, organization};
+  return {agent, file, workspace};
 }
 
 export async function checkFileAuthorization03(
@@ -152,9 +149,9 @@ export function getFileName(file: IFile) {
 }
 
 export function getFileMatcher(agent: ISessionAgent, data: IFileMatcher) {
-  const organizationId = getOrganizationIdNoThrow(agent, data.organizationId);
+  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
   return {
     ...data,
-    organizationId,
+    workspaceId,
   };
 }

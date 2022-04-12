@@ -3,7 +3,7 @@ import {IAssignedTag} from './tag';
 
 export interface IFolder {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   idPath: string[];
   namePath: string[];
   parentId?: string;
@@ -21,7 +21,7 @@ export interface IFolder {
 
 export interface IPublicFolder {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   idPath: string[];
   namePath: string[];
   parentId?: string;
@@ -38,5 +38,5 @@ export interface IPublicFolder {
 export interface IFolderMatcher {
   folderpath?: string;
   folderId?: string;
-  organizationId?: string;
+  workspaceId?: string;
 }

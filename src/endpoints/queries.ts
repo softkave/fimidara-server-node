@@ -1,19 +1,15 @@
 import {DataProviderFilterValueOperator} from './contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from './contexts/data-providers/DataProviderFilterBuilder';
 
-function getByOrganizationId(id: string) {
-  return new DataProviderFilterBuilder<{organizationId: string}>()
-    .addItem('organizationId', id, DataProviderFilterValueOperator.Equal)
+function getByWorkspaceId(id: string) {
+  return new DataProviderFilterBuilder<{workspaceId: string}>()
+    .addItem('workspaceId', id, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getByOrganizationAndName(organizationId: string, name: string) {
-  return new DataProviderFilterBuilder<{organizationId: string; name: string}>()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+function getByWorkspaceAndName(workspaceId: string, name: string) {
+  return new DataProviderFilterBuilder<{workspaceId: string; name: string}>()
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'name',
       new RegExp(`^${name}$`, 'i'),
@@ -28,17 +24,13 @@ function getById(id: string) {
     .build();
 }
 
-function getByIdsAndOrgId(ids: string[], organizationId: string) {
+function getByIdsAndWorkspaceId(ids: string[], workspaceId: string) {
   return new DataProviderFilterBuilder<{
     resourceId: string;
-    organizationId: string;
+    workspaceId: string;
   }>()
     .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -50,40 +42,32 @@ function getByIds(ids: string[]) {
     .build();
 }
 
-function getByOrgIdAndIds(organizationId: string, ids: string[]) {
+function getByWorkspaceIdAndIds(workspaceId: string, ids: string[]) {
   return new DataProviderFilterBuilder<{
     resourceId: string;
-    organizationId: string;
+    workspaceId: string;
   }>()
     .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getByProvidedId(organizationId: string, id: string) {
+function getByProvidedId(workspaceId: string, id: string) {
   return new DataProviderFilterBuilder<{
     providedResourceId: string;
-    organizationId: string;
+    workspaceId: string;
   }>()
     .addItem('providedResourceId', id, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class EndpointReusableQueries {
-  static getByOrganizationId = getByOrganizationId;
-  static getByOrganizationAndName = getByOrganizationAndName;
+  static getByWorkspaceId = getByWorkspaceId;
+  static getByWorkspaceAndName = getByWorkspaceAndName;
   static getById = getById;
-  static getByIdsAndOrgId = getByIdsAndOrgId;
+  static getByIdsAndWorkspaceId = getByIdsAndWorkspaceId;
   static getByIds = getByIds;
   static getByProvidedId = getByProvidedId;
-  static getByOrgIdAndIds = getByOrgIdAndIds;
+  static getByWorkspaceIdAndIds = getByWorkspaceIdAndIds;
 }

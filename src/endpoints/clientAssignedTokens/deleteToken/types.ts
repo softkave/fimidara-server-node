@@ -4,7 +4,7 @@ import {Endpoint} from '../../types';
 export interface IDeleteClientAssignedTokenEndpointParams {
   tokenId?: string;
   providedResourceId?: string;
-  organizationId?: string;
+  workspaceId?: string;
   onReferenced?: boolean;
 }
 

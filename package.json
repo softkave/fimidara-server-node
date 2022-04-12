@@ -22,7 +22,7 @@
     "prepare": "npm.cmd run compile",
     "pretest": "npm.cmd run compile",
     "posttest": "npm.cmd run lint",
-    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/code/email-templates/index.js"
+    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/compiled-code/email-templates/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",

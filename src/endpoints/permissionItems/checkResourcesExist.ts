@@ -1,8 +1,8 @@
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getResources, IGetResourcesOptions} from '../resources/getResources';
-import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 interface IPermissionResource {
@@ -13,7 +13,7 @@ interface IPermissionResource {
 export default async function checkResourcesExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   items: Array<IPermissionResource>
 ) {
   /**
@@ -24,7 +24,7 @@ export default async function checkResourcesExist(
   let resources = await getResources({
     context,
     agent,
-    organization,
+    workspace,
     inputResources: items.reduce((list, item) => {
       if (item.itemResourceId) {
         list.push({
@@ -40,11 +40,11 @@ export default async function checkResourcesExist(
 
   resources = await resourceListWithAssignedItems(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     resources,
     [AppResourceType.User] // Limit to users only
   );
 
-  checkNotOrganizationResources(organization.resourceId, resources, true);
+  checkNotWorkspaceResources(workspace.resourceId, resources, true);
   return {resources};
 }

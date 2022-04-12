@@ -10,7 +10,7 @@ import {
   getUserToken,
   toLoginResult,
 } from '../login/utils';
-import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   context,
@@ -24,7 +24,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
     throw new EmailAddressVerifiedError();
   }
 
-  user = await withUserOrganizations(
+  user = await withUserWorkspaces(
     context,
     await context.data.user.assertUpdateItem(
       UserQueries.getById(user.resourceId),

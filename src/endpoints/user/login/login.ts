@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import {ServerError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {InvalidEmailOrPasswordError} from '../errors';
 import UserQueries from '../UserQueries';
@@ -38,11 +38,11 @@ const login: LoginEndpoint = async (context, instData) => {
     user.resourceId
   );
 
-  const userWithOrgs = await withUserOrganizations(context, user);
+  const userWithWorkspaces = await withUserWorkspaces(context, user);
 
   // Make the user token available to other requests
   // made with this request data
-  instData.agent = makeUserSessionAgent(userToken, userWithOrgs);
+  instData.agent = makeUserSessionAgent(userToken, userWithWorkspaces);
   return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 

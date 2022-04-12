@@ -4,11 +4,11 @@ import {
   ResourceWithPresetsAndTags,
 } from '../../definitions/assignedItem';
 import {AppResourceType, IResourceBase} from '../../definitions/system';
-import {IUser, IUserOrganization} from '../../definitions/user';
+import {IUser, IUserWorkspace} from '../../definitions/user';
 import {IBaseContext} from '../contexts/BaseContext';
 import AssignedItemQueries from './queries';
 import {
-  assignedItemsToAssignedOrgList,
+  assignedItemsToAssignedWorkspaceList,
   assignedItemsToAssignedPresetList,
   assignedItemsToAssignedTagList,
 } from './utils';
@@ -16,14 +16,14 @@ import {
 export async function getResourceAssignedItems(
   context: IBaseContext,
 
-  // Use empty string for fetching user organizations
-  organizationId: string,
+  // Use empty string for fetching user workspaces
+  workspaceId: string,
   resourceId: string,
   resourceType: AppResourceType
 ) {
   return await context.data.assignedItem.getManyItems(
     AssignedItemQueries.getByAssignedToResource(
-      organizationId,
+      workspaceId,
       resourceId,
       resourceType
     )
@@ -32,13 +32,13 @@ export async function getResourceAssignedItems(
 
 export async function getAssignableItemAssignedItems(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   assignedItemId: string,
   assignedItemType: AppResourceType
 ) {
   return await context.data.assignedItem.getManyItems(
     AssignedItemQueries.getByAssignedItem(
-      organizationId,
+      workspaceId,
       assignedItemId,
       assignedItemType
     )
@@ -48,14 +48,14 @@ export async function getAssignableItemAssignedItems(
 export async function getResourceAssignedItemsSorted(
   context: IBaseContext,
 
-  // Use empty string for fetching user organizations
-  organizationId: string,
+  // Use empty string for fetching user workspaces
+  workspaceId: string,
   resourceId: string,
   resourceType: AppResourceType
 ) {
   const items = await getResourceAssignedItems(
     context,
-    organizationId,
+    workspaceId,
     resourceId,
     resourceType
   );
@@ -72,13 +72,13 @@ export async function getResourceAssignedItemsSorted(
 
 export async function withAssignedPresetsAndTags<T extends IResourceBase>(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   resource: T,
   resourceType: AppResourceType
 ): Promise<ResourceWithPresetsAndTags<T>> {
   const sortedItems = await getResourceAssignedItemsSorted(
     context,
-    organizationId,
+    workspaceId,
     resource.resourceId,
     resourceType
   );
@@ -111,32 +111,33 @@ export async function resourceListWithAssignedPresetsAndTags<
   T extends IResourceBase
 >(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   resources: T[],
   type: AppResourceType
 ) {
   return await Promise.all(
     resources.map(resource =>
-      withAssignedPresetsAndTags(context, organizationId, resource, type)
+      withAssignedPresetsAndTags(context, workspaceId, resource, type)
     )
   );
 }
 
-export async function withUserOrganizations<T extends IUser>(
+export async function withUserWorkspaces<T extends IUser>(
   context: IBaseContext,
   resource: T
-): Promise<T & {organizations: IUserOrganization[]}> {
+): Promise<T & {workspaces: IUserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSorted(
     context,
-    '', // Empty string is used to fetch user organizations
+    '', // Empty string is used to fetch user workspaces
     resource.resourceId,
     AppResourceType.User
   );
 
-  const updatedResource: T & {organizations: IUserOrganization[]} =
-    resource as T & {organizations: IUserOrganization[]};
+  const updatedResource: T & {workspaces: IUserWorkspace[]} = resource as T & {
+    workspaces: IUserWorkspace[];
+  };
   let assignedPresetItems: IAssignedItem[] = [];
-  let assignedOrgItems: IAssignedItem[] = [];
+  let assignedWorkspaceItems: IAssignedItem[] = [];
 
   for (const type in sortedItems) {
     switch (type) {
@@ -145,32 +146,32 @@ export async function withUserOrganizations<T extends IUser>(
         break;
 
       case AppResourceType.Tag:
-        assignedOrgItems = sortedItems[type];
+        assignedWorkspaceItems = sortedItems[type];
         break;
     }
   }
 
   const assignedPresetsMap: Record<string, IAssignedItem[]> =
     assignedPresetItems.reduce((map, item) => {
-      const orgPresetItems = defaultTo(map[item.organizationId], []);
-      orgPresetItems.push(item);
-      map[item.organizationId] = orgPresetItems;
+      const workspacePresetItems = defaultTo(map[item.workspaceId], []);
+      workspacePresetItems.push(item);
+      map[item.workspaceId] = workspacePresetItems;
       return map;
     }, {} as Record<string, IAssignedItem[]>);
 
-  updatedResource.organizations = assignedItemsToAssignedOrgList(
-    assignedOrgItems,
+  updatedResource.workspaces = assignedItemsToAssignedWorkspaceList(
+    assignedWorkspaceItems,
     assignedPresetsMap
   );
 
   return updatedResource;
 }
 
-export async function userListWithOrganizations<T extends IUser>(
+export async function userListWithWorkspaces<T extends IUser>(
   context: IBaseContext,
   resources: T[]
 ) {
   return await Promise.all(
-    resources.map(resource => withUserOrganizations(context, resource))
+    resources.map(resource => withUserWorkspaces(context, resource))
   );
 }

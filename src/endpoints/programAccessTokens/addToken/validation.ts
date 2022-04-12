@@ -5,7 +5,7 @@ import tagValidationSchemas from '../../tags/validation';
 
 export const addProgramAccessTokenJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     token: Joi.object()
       .keys({
         name: validationSchemas.name.required(),

@@ -3,7 +3,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const removeCollaboratorJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     collaboratorId: validationSchemas.nanoid.required(),
   })
   .required();

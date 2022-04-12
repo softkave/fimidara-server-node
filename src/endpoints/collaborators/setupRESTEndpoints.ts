@@ -1,7 +1,7 @@
 import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
 import getCollaborator from './getCollaborator/handler';
-import getOrganizationCollaborators from './getOrganizationCollaborators/handler';
+import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler';
 import removeCollaborator from './removeCollaborator/handler';
 import updateCollaboratorPresets from './updateCollaboratorPresets/handler';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -12,18 +12,15 @@ export default function setupCollaboratorsRESTEndpoints(
 ) {
   const endpoints = {
     getCollaborator: wrapEndpointREST(getCollaborator, ctx),
-    getOrganizationCollaborators: wrapEndpointREST(
-      getOrganizationCollaborators,
-      ctx
-    ),
+    getWorkspaceCollaborators: wrapEndpointREST(getWorkspaceCollaborators, ctx),
     removeCollaborator: wrapEndpointREST(removeCollaborator, ctx),
     updateCollaboratorPresets: wrapEndpointREST(updateCollaboratorPresets, ctx),
   };
 
   app.post('/collaborators/getCollaborator', endpoints.getCollaborator);
   app.post(
-    '/collaborators/getOrganizationCollaborators',
-    endpoints.getOrganizationCollaborators
+    '/collaborators/getWorkspaceCollaborators',
+    endpoints.getWorkspaceCollaborators
   );
   app.post('/collaborators/removeCollaborator', endpoints.removeCollaborator);
   app.post(

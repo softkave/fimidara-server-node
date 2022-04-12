@@ -10,20 +10,20 @@ import {
 export interface ICollaborationRequestEmailProps {
   signupLink: string;
   loginLink: string;
-  organizationName: string;
+  workspaceName: string;
   isRecipientAUser: boolean;
   message?: string;
   expires?: string;
 }
 
-export function collaborationRequestEmailTitle(organizationName: string) {
-  return `Collaboration Request from ${organizationName}`;
+export function collaborationRequestEmailTitle(workspaceName: string) {
+  return `Collaboration Request from ${workspaceName}`;
 }
 
 export function collaborationRequestEmailHTML(
   props: ICollaborationRequestEmailProps
 ) {
-  const title = collaborationRequestEmailTitle(props.organizationName);
+  const title = collaborationRequestEmailTitle(props.workspaceName);
   return `
     <!DOCTYPE html>
     <html lang="en-US">
@@ -37,7 +37,7 @@ export function collaborationRequestEmailHTML(
         ${getCenteredContentHTML(`
         <p>
             You have a new collaboration request from <b>${
-              props.organizationName
+              props.workspaceName
             }</b>.
         </p>
         ${props.message ? `<p>Message - <br />${props.message}</p>` : ''}
@@ -65,7 +65,7 @@ export function collaborationRequestEmailText(
   props: ICollaborationRequestEmailProps
 ) {
   let linkText = '';
-  const title = collaborationRequestEmailTitle(props.organizationName);
+  const title = collaborationRequestEmailTitle(props.workspaceName);
 
   if (props.isRecipientAUser) {
     linkText = `
@@ -82,7 +82,7 @@ export function collaborationRequestEmailText(
   const txt = `
 ${getHeaderText(title)}
 -
-You have a new collaboration request from ${props.organizationName}.
+You have a new collaboration request from ${props.workspaceName}.
 ${props.message ? `Message - ${props.message}.` : ''}
 ${props.expires ? `Expires - ${formatDateTime(props.expires)}` : ''}
 -

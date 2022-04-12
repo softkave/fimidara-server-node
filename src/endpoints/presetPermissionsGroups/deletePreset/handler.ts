@@ -16,7 +16,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, deletePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {preset, organization} =
+    const {preset, workspace} =
       await checkPresetPermissionsGroupAuthorization03(
         context,
         agent,
@@ -24,9 +24,9 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
         BasicCRUDActions.Delete
       );
 
-    if (preset.resourceId === organization.publicPresetId) {
+    if (preset.resourceId === workspace.publicPresetId) {
       throw new InvalidRequestError(
-        "Cannot delete the organization's public public preset"
+        "Cannot delete the workspace's public public preset"
       );
     }
 
@@ -34,7 +34,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
       // Delete permission items that explicitly give access to this resource
       context.data.permissionItem.deleteManyItems(
         PermissionItemQueries.getByResource(
-          organization.resourceId,
+          workspace.resourceId,
           preset.resourceId,
           AppResourceType.PresetPermissionsGroup
         )
@@ -51,7 +51,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
       // Delete preset assigned items
       deleteResourceAssignedItems(
         context,
-        preset.organizationId,
+        preset.workspaceId,
         preset.resourceId,
         AppResourceType.PresetPermissionsGroup
       ),
@@ -59,7 +59,7 @@ const deletePresetPermissionsGroup: DeletePresetPermissionsGroupEndpoint =
       // Remove references where preset is assigned
       deleteAssignableItemAssignedItems(
         context,
-        preset.organizationId,
+        preset.workspaceId,
         preset.resourceId,
         AppResourceType.PresetPermissionsGroup
       ),

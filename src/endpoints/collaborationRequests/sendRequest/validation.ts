@@ -10,7 +10,7 @@ export const requestJoiSchema = Joi.object().keys({
 
 export const sendRequestJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     request: requestJoiSchema.required(),
   })
   .required();

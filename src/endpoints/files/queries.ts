@@ -20,40 +20,28 @@ function getFilesByParentId(parentId: string) {
     .build();
 }
 
-function getByNamePath(organizationId: string, namePath: string[]) {
+function getByNamePath(workspaceId: string, namePath: string[]) {
   return newFilter()
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 function getByNamePathAndExtention(
-  organizationId: string,
+  workspaceId: string,
   namePath: string[],
   extension: string
 ) {
   return newFilter()
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('extension', extension, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getRootFiles(organizationId: string) {
+function getRootFiles(workspaceId: string) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('folderId', null, DataProviderFilterValueOperator.Equal)
     .build();
 }
@@ -64,6 +52,6 @@ export default abstract class FileQueries {
   static getByNameAndFolderId = getByNameAndFolderId;
   static getByNamePath = getByNamePath;
   static getRootFiles = getRootFiles;
-  static getByMultipleIds = EndpointReusableQueries.getByIdsAndOrgId;
+  static getByMultipleIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
   static getByNamePathAndExtention = getByNamePathAndExtention;
 }

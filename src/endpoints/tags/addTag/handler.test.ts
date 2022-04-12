@@ -3,7 +3,7 @@ import {insertTagForTest} from '../../test-utils/helpers/tag';
 import {
   assertContext,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
 
@@ -21,7 +21,7 @@ describe('addTag', () => {
   test('tag added', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
-    await insertTagForTest(context, userToken, organization.resourceId);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    await insertTagForTest(context, userToken, workspace.resourceId);
   });
 });

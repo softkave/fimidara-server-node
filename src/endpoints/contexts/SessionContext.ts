@@ -9,7 +9,7 @@ import {
   publicAgent,
   SessionAgentType,
 } from '../../definitions/system';
-import {IUser, IUserWithOrganization} from '../../definitions/user';
+import {IUser, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
 import cast from '../../utilities/fns';
@@ -20,7 +20,7 @@ import {
 import singletonFunc from '../../utilities/singletonFunc';
 import {
   withAssignedPresetsAndTags,
-  withUserOrganizations,
+  withUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
@@ -77,7 +77,7 @@ export interface ISessionContext {
     ctx: IBaseContext,
     data: RequestData,
     audience?: TokenAudience | TokenAudience[]
-  ) => Promise<IUserWithOrganization>;
+  ) => Promise<IUserWithWorkspace>;
   decodeToken: (
     ctx: IBaseContext,
     token: string
@@ -112,7 +112,7 @@ export default class SessionContext implements ISessionContext {
       }
 
       let userToken: IUserToken | null = null;
-      let user: IUserWithOrganization | null = null;
+      let user: IUserWithWorkspace | null = null;
       let clientAssignedToken: ResourceWithPresetsAndTags<IClientAssignedToken> | null =
         null;
       let programAccessToken: ResourceWithPresetsAndTags<IProgramAccessToken> | null =
@@ -129,7 +129,7 @@ export default class SessionContext implements ISessionContext {
             ctx.session.tokenContainsAudience(ctx, userToken, audience);
           }
 
-          user = await withUserOrganizations(
+          user = await withUserWorkspaces(
             ctx,
             await ctx.data.user.assertGetItem(
               EndpointReusableQueries.getById(userToken.userId)
@@ -145,7 +145,7 @@ export default class SessionContext implements ISessionContext {
 
           programAccessToken = await withAssignedPresetsAndTags(
             ctx,
-            pgt.organizationId,
+            pgt.workspaceId,
             pgt,
             AppResourceType.ProgramAccessToken
           );
@@ -159,7 +159,7 @@ export default class SessionContext implements ISessionContext {
 
           clientAssignedToken = await withAssignedPresetsAndTags(
             ctx,
-            clt.organizationId,
+            clt.workspaceId,
             clt,
             AppResourceType.ClientAssignedToken
           );
@@ -312,7 +312,7 @@ export function makeProgramAccessTokenAgent(
 
 export function makeUserSessionAgent(
   userToken: IUserToken,
-  user: IUserWithOrganization
+  user: IUserWithWorkspace
 ): ISessionAgent {
   return {
     userToken,
@@ -330,33 +330,33 @@ export function makePublicSessionAgent(): ISessionAgent {
   };
 }
 
-export function getOrganizationIdNoThrow(
+export function getWorkspaceIdNoThrow(
   agent: ISessionAgent,
-  providedOrganizationId?: string
+  providedWorkspaceId?: string
 ) {
-  const organizationId = agent.clientAssignedToken
-    ? agent.clientAssignedToken.organizationId
+  const workspaceId = agent.clientAssignedToken
+    ? agent.clientAssignedToken.workspaceId
     : agent.programAccessToken
-    ? agent.programAccessToken.organizationId
-    : providedOrganizationId;
+    ? agent.programAccessToken.workspaceId
+    : providedWorkspaceId;
 
-  return organizationId;
+  return workspaceId;
 }
 
-export function getOrganizationId(
+export function getWorkspaceId(
   agent: ISessionAgent,
-  providedOrganizationId?: string
+  providedWorkspaceId?: string
 ) {
-  const organizationId = getClientAssignedTokenIdNoThrow(
+  const workspaceId = getClientAssignedTokenIdNoThrow(
     agent,
-    providedOrganizationId
+    providedWorkspaceId
   );
 
-  if (!organizationId) {
-    throw new InvalidRequestError('Organization ID not provided');
+  if (!workspaceId) {
+    throw new InvalidRequestError('Workspace ID not provided');
   }
 
-  return organizationId;
+  return workspaceId;
 }
 
 export function getClientAssignedTokenIdNoThrow(
@@ -424,16 +424,16 @@ export function assertIncomingToken(
   return true;
 }
 
-export function assertGetOrganizationIdFromAgent(agent: ISessionAgent) {
-  const organizationId = agent.clientAssignedToken
-    ? agent.clientAssignedToken.organizationId
+export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
+  const workspaceId = agent.clientAssignedToken
+    ? agent.clientAssignedToken.workspaceId
     : agent.programAccessToken
-    ? agent.programAccessToken.organizationId
+    ? agent.programAccessToken.workspaceId
     : null;
 
-  if (!organizationId) {
-    throw new InvalidRequestError('Organization ID not provided');
+  if (!workspaceId) {
+    throw new InvalidRequestError('Workspace ID not provided');
   }
 
-  return organizationId;
+  return workspaceId;
 }

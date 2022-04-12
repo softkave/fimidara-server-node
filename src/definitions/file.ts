@@ -3,7 +3,7 @@ import {IAssignedTag} from './tag';
 
 export interface IFile {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   folderId?: string;
   idPath: string[];
   namePath: string[];
@@ -28,5 +28,5 @@ export type IPublicFile = IFile & {tags: IAssignedTag[]};
 export interface IFileMatcher {
   filepath?: string;
   fileId?: string;
-  organizationId?: string;
+  workspaceId?: string;
 }

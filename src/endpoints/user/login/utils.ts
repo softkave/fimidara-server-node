@@ -46,15 +46,15 @@ export async function getUserClientAssignedToken(
   userId: string
 ) {
   appAssert(
-    context.appVariables.appOrganizationId,
+    context.appVariables.appWorkspaceId,
     new ServerError(),
-    'App organization ID not set'
+    'App workspace ID not set'
   );
 
   appAssert(
-    context.appVariables.appOrgsImageUploadPresetId,
+    context.appVariables.appWorkspacesImageUploadPresetId,
     new ServerError(),
-    'App orgs image upload preset ID not set'
+    'App workspaces image upload preset ID not set'
   );
 
   appAssert(
@@ -65,7 +65,7 @@ export async function getUserClientAssignedToken(
 
   let token = await context.data.clientAssignedToken.getItem(
     EndpointReusableQueries.getByProvidedId(
-      context.appVariables.appOrganizationId,
+      context.appVariables.appWorkspaceId,
       userId
     )
   );
@@ -76,7 +76,7 @@ export async function getUserClientAssignedToken(
       providedResourceId: userId,
       createdAt: getDateString(),
       createdBy: systemAgent,
-      organizationId: context.appVariables.appOrganizationId,
+      workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
     });
@@ -84,13 +84,13 @@ export async function getUserClientAssignedToken(
     addAssignedPresetList(
       context,
       systemAgent,
-      await context.data.organization.assertGetItem(
-        EndpointReusableQueries.getById(context.appVariables.appOrganizationId)
+      await context.data.workspace.assertGetItem(
+        EndpointReusableQueries.getById(context.appVariables.appWorkspaceId)
       ),
       [
         {
           order: 1,
-          presetId: context.appVariables.appOrgsImageUploadPresetId,
+          presetId: context.appVariables.appWorkspacesImageUploadPresetId,
         },
         {
           order: 2,

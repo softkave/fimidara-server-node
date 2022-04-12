@@ -8,11 +8,11 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import EndpointReusableQueries from '../queries';
 
@@ -29,7 +29,7 @@ const tagFields = getFields<IPublicTag>({
   resourceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
-  organizationId: true,
+  workspaceId: true,
   name: true,
   description: true,
   lastUpdatedAt: getDateStringIfPresent,
@@ -46,23 +46,20 @@ export async function checkTagAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    tag.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, tag.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: tag,
     type: AppResourceType.Tag,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  return {agent, tag, organization};
+  return {agent, tag, workspace};
 }
 
 export async function checkTagAuthorization02(

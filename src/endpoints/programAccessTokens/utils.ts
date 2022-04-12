@@ -12,12 +12,12 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import cast from '../../utilities/fns';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {TokenType} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
@@ -27,7 +27,7 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   resourceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
-  organizationId: true,
+  workspaceId: true,
   name: true,
   description: true,
   presets: assignedPresetsListExtractor,
@@ -52,23 +52,20 @@ export async function checkProgramAccessTokenAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    token.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, token.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: token,
     type: AppResourceType.ProgramAccessToken,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  return {agent, token, organization};
+  return {agent, token, workspace};
 }
 
 export async function checkProgramAccessTokenAuthorization02(

@@ -7,7 +7,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -31,11 +31,11 @@ afterAll(async () => {
 test('collaboration request updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const updateRequestInput: IUpdateCollaborationRequestInput = {

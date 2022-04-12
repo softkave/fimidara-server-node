@@ -12,7 +12,7 @@ import {
   getTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithUserToken,
@@ -36,17 +36,17 @@ describe('getFile', () => {
   test('file returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         filepath: file.name,
       }
     );
@@ -68,13 +68,13 @@ describe('getFile', () => {
   test('file resized', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const startWidth = 500;
     const startHeight = 500;
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       {},
       'png',
       {width: startWidth, height: startHeight}
@@ -85,7 +85,7 @@ describe('getFile', () => {
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         filepath: file.name,
         imageTranformation: {
           width: expectedWidth,
@@ -105,13 +105,13 @@ describe('getFile', () => {
   test('can read file from public folder', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
 
     // Make public folder
     const {folder} = await insertFolderForTest(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       {
         publicAccessOps: [
           {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
@@ -122,7 +122,7 @@ describe('getFile', () => {
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       {
         filepath: folder.namePath
           .concat([faker.lorem.word()])
@@ -133,7 +133,7 @@ describe('getFile', () => {
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         filepath: file.namePath.join(folderConstants.nameSeparator),
       }
     );
@@ -145,18 +145,18 @@ describe('getFile', () => {
   test('can read public file', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       {publicAccessAction: UploadFilePublicAccessActions.Read}
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         filepath: file.namePath.join(folderConstants.nameSeparator),
       }
     );
@@ -169,20 +169,17 @@ describe('getFile', () => {
     try {
       assertContext(context);
       const {userToken} = await insertUserForTest(context);
-      const {organization} = await insertOrganizationForTest(
-        context,
-        userToken
-      );
+      const {workspace} = await insertWorkspaceForTest(context, userToken);
       const {file} = await insertFileForTest(
         context,
         userToken,
-        organization.resourceId
+        workspace.resourceId
       );
 
       const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {
-          organizationId: organization.resourceId,
+          workspaceId: workspace.resourceId,
           filepath: file.namePath.join(folderConstants.nameSeparator),
         }
       );

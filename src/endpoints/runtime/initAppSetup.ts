@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {
   AppResourceType,
   APP_RUNTIME_STATE_DOC_ID,
@@ -10,7 +10,7 @@ import {getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
-import OrganizationQueries from '../organizations/queries';
+import WorkspaceQueries from '../workspaces/queries';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {
   IPermissionItem,
@@ -18,27 +18,27 @@ import {
 } from '../../definitions/permissionItem';
 import {IAppRuntimeVars} from '../../resources/appVariables';
 import {merge} from 'lodash';
-import internalCreateOrg from '../organizations/addOrganization/internalCreateOrg';
+import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {permissionItemIndexer} from '../permissionItems/utils';
 import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
 
 const folder01Path = '/files';
 const folder02Path = '/files/images';
 const appSetupVars = {
-  orgName: 'Files by softkave',
-  orgsFolder: '/files-prod/orgs',
-  orgImagesfolderpath: folder02Path + '/orgs',
+  workspaceName: 'Files by softkave',
+  workspacesFolder: '/files-prod/workspaces',
+  workspaceImagesfolderpath: folder02Path + '/workspaces',
   userImagesfolderpath: folder02Path + '/users',
-  orgsImageUploadPresetName: 'Files-orgs-image-upload',
+  workspacesImageUploadPresetName: 'Files-workspaces-image-upload',
   usersImageUploadPresetName: 'Files-users-image-upload',
 };
 
-async function setupOrg(context: IBaseContext, name: string) {
-  return await internalCreateOrg(
+async function setupWorkspace(context: IBaseContext, name: string) {
+  return await internalCreateWorkspace(
     context,
     {
       name,
-      description: "System-generated organization for Files's own operations",
+      description: "System-generated workspace for Files's own operations",
     },
     systemAgent
   );
@@ -46,7 +46,7 @@ async function setupOrg(context: IBaseContext, name: string) {
 
 async function setupDefaultUserCollaborationRequest(
   context: IBaseContext,
-  organization: IOrganization,
+  workspace: IWorkspace,
   userEmail: string,
   adminPresetId: string
 ) {
@@ -56,10 +56,10 @@ async function setupDefaultUserCollaborationRequest(
     createdBy: systemAgent,
     message:
       'System-generated collaboration request ' +
-      "to the system-generated organization that manages File's " +
+      "to the system-generated workspace that manages File's " +
       'own operations',
-    organizationName: organization.name,
-    organizationId: organization.resourceId,
+    workspaceName: workspace.name,
+    workspaceId: workspace.resourceId,
     recipientEmail: userEmail,
     statusHistory: [
       {
@@ -72,7 +72,7 @@ async function setupDefaultUserCollaborationRequest(
   await addAssignedPresetList(
     context,
     systemAgent,
-    organization,
+    workspace,
     [{order: 0, presetId: adminPresetId}],
     request.resourceId,
     AppResourceType.CollaborationRequest,
@@ -80,14 +80,11 @@ async function setupDefaultUserCollaborationRequest(
   );
 }
 
-async function setupFolders(
-  context: IBaseContext,
-  organization: IOrganization
-) {
+async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
   const folder01 = await createSingleFolder(
     context,
     systemAgent,
-    organization,
+    workspace,
     null,
     {folderpath: folder01Path}
   );
@@ -95,18 +92,18 @@ async function setupFolders(
   const folder02 = await createSingleFolder(
     context,
     systemAgent,
-    organization,
+    workspace,
     folder01,
     {folderpath: folder02Path}
   );
 
-  const orgImagesFolder = await createSingleFolder(
+  const workspaceImagesFolder = await createSingleFolder(
     context,
     systemAgent,
-    organization,
+    workspace,
     folder02,
     {
-      folderpath: appSetupVars.orgImagesfolderpath,
+      folderpath: appSetupVars.workspaceImagesfolderpath,
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],
@@ -116,7 +113,7 @@ async function setupFolders(
   const userImagesFolder = await createSingleFolder(
     context,
     systemAgent,
-    organization,
+    workspace,
     folder02,
     {
       folderpath: appSetupVars.userImagesfolderpath,
@@ -126,12 +123,12 @@ async function setupFolders(
     }
   );
 
-  return {folder01, folder02, orgImagesFolder, userImagesFolder};
+  return {folder01, folder02, workspaceImagesFolder, userImagesFolder};
 }
 
 async function setupImageUploadPermissionGroup(
   context: IBaseContext,
-  orgId: string,
+  workspaceId: string,
   name: string,
   description: string,
   folderId: string
@@ -140,7 +137,7 @@ async function setupImageUploadPermissionGroup(
     name,
     description,
     resourceId: getNewId(),
-    organizationId: orgId,
+    workspaceId: workspaceId,
     createdAt: getDateString(),
     createdBy: systemAgent,
   });
@@ -153,7 +150,7 @@ async function setupImageUploadPermissionGroup(
       action,
       hash: '',
       resourceId: getNewId(),
-      organizationId: orgId,
+      workspaceId: workspaceId,
       createdAt: getDateString(),
       createdBy: systemAgent,
       permissionOwnerId: folderId,
@@ -180,49 +177,53 @@ export async function setupApp(context: IBaseContext) {
 
   if (appRuntimeState) {
     const appRuntimeVars: IAppRuntimeVars = {
-      appOrganizationId: appRuntimeState.appOrganizationId,
-      appOrgsImageUploadPresetId: appRuntimeState.appOrgsImageUploadPresetId,
+      appWorkspaceId: appRuntimeState.appWorkspaceId,
+      appWorkspacesImageUploadPresetId:
+        appRuntimeState.appWorkspacesImageUploadPresetId,
       appUsersImageUploadPresetId: appRuntimeState.appUsersImageUploadPresetId,
     };
 
     merge(context.appVariables, appRuntimeVars);
-    return await context.data.organization.assertGetItem(
-      OrganizationQueries.getById(appRuntimeState.appOrganizationId)
+    return await context.data.workspace.assertGetItem(
+      WorkspaceQueries.getById(appRuntimeState.appWorkspaceId)
     );
   }
 
-  const {adminPreset, organization: org} = await setupOrg(
+  const {adminPreset, workspace: workspace} = await setupWorkspace(
     context,
-    appSetupVars.orgName
+    appSetupVars.workspaceName
   );
 
   await setupDefaultUserCollaborationRequest(
     context,
-    org,
+    workspace,
     context.appVariables.defaultUserEmailAddress,
     adminPreset.resourceId
   );
 
-  const {orgImagesFolder, userImagesFolder} = await setupFolders(context, org);
-  const appOrgsImageUploadPreset = await setupImageUploadPermissionGroup(
+  const {workspaceImagesFolder, userImagesFolder} = await setupFolders(
     context,
-    org.resourceId,
-    appSetupVars.orgsImageUploadPresetName,
-    'Auto-generated preset for uploading images to the organization images folder',
-    orgImagesFolder.resourceId
+    workspace
+  );
+  const appWorkspacesImageUploadPreset = await setupImageUploadPermissionGroup(
+    context,
+    workspace.resourceId,
+    appSetupVars.workspacesImageUploadPresetName,
+    'Auto-generated preset for uploading images to the workspace images folder',
+    workspaceImagesFolder.resourceId
   );
 
   const appUsersImageUploadPreset = await setupImageUploadPermissionGroup(
     context,
-    org.resourceId,
+    workspace.resourceId,
     appSetupVars.usersImageUploadPresetName,
     'Auto-generated preset for uploading images to the user images folder',
     userImagesFolder.resourceId
   );
 
   const appRuntimeVars: IAppRuntimeVars = {
-    appOrganizationId: org.resourceId,
-    appOrgsImageUploadPresetId: appOrgsImageUploadPreset.resourceId,
+    appWorkspaceId: workspace.resourceId,
+    appWorkspacesImageUploadPresetId: appWorkspacesImageUploadPreset.resourceId,
     appUsersImageUploadPresetId: appUsersImageUploadPreset.resourceId,
   };
 
@@ -233,5 +234,5 @@ export async function setupApp(context: IBaseContext) {
   });
 
   merge(context.appVariables, appRuntimeVars);
-  return org;
+  return workspace;
 }

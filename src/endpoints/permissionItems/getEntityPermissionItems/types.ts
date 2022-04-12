@@ -4,7 +4,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IGetEntityPermissionItemsEndpointParams {
-  organizationId: string;
+  workspaceId: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
 }

@@ -27,13 +27,9 @@ function getByName(name: string, parent?: IFolder) {
   return filter.build();
 }
 
-function folderExistsByNamePath(organizationId: string, namePath: string[]) {
+function folderExistsByNamePath(workspaceId: string, namePath: string[]) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
     .build();
 }
@@ -45,10 +41,10 @@ function getFoldersByParentId(parentId: string | null) {
 }
 
 // This returns all the folders that have the name path and possibly more
-function getFoldersWithNamePath(organizationId: string, path: string[]) {
+function getFoldersWithNamePath(workspaceId: string, path: string[]) {
   const filter = newFilter().addItem(
-    'organizationId',
-    organizationId,
+    'workspaceId',
+    workspaceId,
     DataProviderFilterValueOperator.Equal
   );
 
@@ -64,31 +60,23 @@ function getFoldersWithNamePath(organizationId: string, path: string[]) {
 }
 
 // This returns folders with the exact name path
-function getByNamePath(organizationId: string, namePath: string[]) {
+function getByNamePath(workspaceId: string, namePath: string[]) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getRootFolders(organizationId: string) {
+function getRootFolders(workspaceId: string) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('parentId', null, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class FolderQueries {
   static getById = EndpointReusableQueries.getById;
-  static getByMultipleIds = EndpointReusableQueries.getByIdsAndOrgId;
+  static getByMultipleIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
   static getByName = getByName;
   static getFoldersByParentId = getFoldersByParentId;
   static getByNamePath = getByNamePath;

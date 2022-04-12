@@ -2,7 +2,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPresetForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
@@ -27,11 +27,11 @@ afterAll(async () => {
 test('preset permissions group added', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const savedPreset = await context.data.preset.assertGetItem(

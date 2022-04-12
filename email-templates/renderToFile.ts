@@ -64,7 +64,7 @@ const collaborationRequestEmailTxtFile =
 
 export function renderCollaborationRequestMedia() {
   const props: ICollaborationRequestEmailProps = {
-    organizationName: 'Files by Softkave',
+    workspaceName: 'Files by Softkave',
     isRecipientAUser: true,
     loginLink: 'https://files.softkave.com/accounts/signup',
     signupLink: 'https://files.softkave.com/accounts/login',
@@ -88,7 +88,7 @@ const collaborationRequestRevokedEmailTxtFile =
 
 export function renderCollaborationRequestRevokedMedia() {
   const props: ICollaborationRequestRevokedEmailProps = {
-    organizationName: 'Files by Softkave',
+    workspaceName: 'Files by Softkave',
   };
 
   const renderedHTML = collaborationRequestRevokedEmailHTML(props);

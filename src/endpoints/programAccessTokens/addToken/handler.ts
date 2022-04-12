@@ -8,9 +8,9 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {programAccessTokenConstants} from '../constants';
 import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
@@ -25,23 +25,20 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, addProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.ProgramAccessToken,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
   await checkProgramTokenNameExists(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     data.token.name
   );
 
@@ -51,7 +48,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     await context.data.programAccessToken.saveItem({
       ...data.token,
       hash,
-      organizationId: data.organizationId,
+      workspaceId: data.workspaceId,
       resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
@@ -63,7 +60,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     token.resourceId,
     AppResourceType.ProgramAccessToken,
     data.token
@@ -71,7 +68,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ProgramAccessToken
   );

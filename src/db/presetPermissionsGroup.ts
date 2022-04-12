@@ -8,7 +8,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
   resourceId: {type: String},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   createdAt: {type: Date, default: getDate},
   createdBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},

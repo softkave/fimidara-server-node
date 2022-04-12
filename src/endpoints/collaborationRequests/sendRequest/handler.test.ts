@@ -6,7 +6,7 @@ import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
@@ -27,7 +27,7 @@ test('collaboration request sent', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const requestInput: ICollaborationRequestInput = {
     recipientEmail: user02.email,
     message: faker.lorem.paragraph(),
@@ -37,7 +37,7 @@ test('collaboration request sent', async () => {
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     requestInput
   );
 

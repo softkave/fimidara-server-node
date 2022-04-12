@@ -20,8 +20,8 @@ const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
     type: [collaborationRequestStatusHistorySchema],
     default: [],
   },
-  organizationId: {type: String, index: true},
-  organizationName: {type: String},
+  workspaceId: {type: String, index: true},
+  workspaceName: {type: String},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
 });

@@ -2,9 +2,9 @@ import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
@@ -21,29 +21,26 @@ const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint =
     );
 
     const agent = await context.session.getAgent(context, instData);
-    const organization = await checkOrganizationExists(
-      context,
-      data.organizationId
-    );
+    const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
-    await checkEntitiesExist(context, agent, organization, [
+    await checkEntitiesExist(context, agent, workspace, [
       {
         permissionEntityId: data.permissionEntityId,
         permissionEntityType: data.permissionEntityType,
       },
     ]);
 
-    await checkResourcesExist(context, agent, organization, data.items);
+    await checkResourcesExist(context, agent, workspace, data.items);
     await checkAuthorization({
       context,
       agent,
-      organization,
+      workspace,
       action: BasicCRUDActions.GrantPermission,
       type: AppResourceType.PermissionItem,
-      permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+      permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     });
 
-    await checkPermissionOwnersExist(context, agent, organization, data.items);
+    await checkPermissionOwnersExist(context, agent, workspace, data.items);
     const items = await internalReplacePermissionItemsByEntity(
       context,
       agent,

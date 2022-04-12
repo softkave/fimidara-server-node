@@ -3,7 +3,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPresetForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
@@ -30,23 +30,23 @@ afterAll(async () => {
 test('program access token added', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {token} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       presets: [
         {

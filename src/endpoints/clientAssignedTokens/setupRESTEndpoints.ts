@@ -1,7 +1,7 @@
 import {Express} from 'express';
 import addClientAssignedToken from './addToken/handler';
 import deleteClientAssignedToken from './deleteToken/handler';
-import getOrganizationClientAssignedTokens from './getOrganizationTokens/handler';
+import getWorkspaceClientAssignedTokens from './getWorkspaceTokens/handler';
 import getClientAssignedToken from './getToken/handler';
 import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -14,10 +14,7 @@ export default function setupClientAssignedTokensRESTEndpoints(
   const endpoints = {
     addToken: wrapEndpointREST(addClientAssignedToken, ctx),
     deleteToken: wrapEndpointREST(deleteClientAssignedToken, ctx),
-    getOrganizationTokens: wrapEndpointREST(
-      getOrganizationClientAssignedTokens,
-      ctx
-    ),
+    getWorkspaceTokens: wrapEndpointREST(getWorkspaceClientAssignedTokens, ctx),
     getToken: wrapEndpointREST(getClientAssignedToken, ctx),
     updateToken: wrapEndpointREST(updateClientAssignedToken, ctx),
   };
@@ -25,8 +22,8 @@ export default function setupClientAssignedTokensRESTEndpoints(
   app.post('/clientAssignedTokens/addToken', endpoints.addToken);
   app.post('/clientAssignedTokens/deleteToken', endpoints.deleteToken);
   app.post(
-    '/clientAssignedTokens/getOrganizationTokens',
-    endpoints.getOrganizationTokens
+    '/clientAssignedTokens/getWorkspaceTokens',
+    endpoints.getWorkspaceTokens
   );
   app.post('/clientAssignedTokens/getToken', endpoints.getToken);
   app.post('/clientAssignedTokens/updateToken', endpoints.updateToken);

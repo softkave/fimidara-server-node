@@ -1,5 +1,5 @@
 import {defaultTo, mapKeys} from 'lodash';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -32,7 +32,7 @@ export interface IGetResourcesOptions {
   throwOnFetchError?: boolean;
   checkAuth?: boolean;
   agent?: ISessionAgent | null;
-  organization?: IOrganization | null;
+  workspace?: IWorkspace | null;
   action?: BasicCRUDActions | null;
   nothrowOnCheckError?: boolean;
 }
@@ -42,7 +42,7 @@ export async function getResources(options: IGetResourcesOptions) {
     context,
     inputResources,
     agent,
-    organization,
+    workspace,
     nothrowOnCheckError,
     allowedTypes = [AppResourceType.All],
     action = BasicCRUDActions.Read,
@@ -80,10 +80,10 @@ export async function getResources(options: IGetResourcesOptions) {
   mapKeys(idsGroupedByType, (ids, type) => {
     const query = EndpointReusableQueries.getByIds(ids);
     switch (type) {
-      case AppResourceType.Organization:
+      case AppResourceType.Workspace:
         promises.push({
-          id: AppResourceType.Organization,
-          promise: context.data.organization.getManyItems(query),
+          id: AppResourceType.Workspace,
+          promise: context.data.workspace.getManyItems(query),
           resourceType: type,
         });
         break;
@@ -168,7 +168,7 @@ export async function getResources(options: IGetResourcesOptions) {
 
   const resources: Array<IResource> = [];
 
-  if (!checkAuth || !agent || !organization) {
+  if (!checkAuth || !agent || !workspace) {
     settledPromises.forEach(item => {
       if (item.resolved) {
         item.value?.forEach(resource => {
@@ -204,11 +204,11 @@ export async function getResources(options: IGetResourcesOptions) {
           const checkPromise = checkAuthorization({
             context,
             agent,
-            organization,
+            workspace,
             resource: resource,
             type: item.resourceType,
             permissionOwners: makeResourcePermissionOwnerList(
-              organization.resourceId,
+              workspace.resourceId,
               item.resourceType,
               resource
             ),

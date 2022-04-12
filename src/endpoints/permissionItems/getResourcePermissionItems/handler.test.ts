@@ -2,7 +2,7 @@ import faker = require('faker');
 import {
   AppResourceType,
   BasicCRUDActions,
-  getOrgActionList,
+  getWorkspaceActionList,
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
@@ -10,7 +10,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -39,31 +39,31 @@ describe('getResourcePermissionItems', () => {
   test('resource permission items returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {preset} = await insertPresetForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
-    const inputItems: INewPermissionItemInput[] = getOrgActionList().map(
+    const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(
       action => ({
         action: action as BasicCRUDActions,
         grantAccess: faker.datatype.boolean(),
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-        itemResourceType: AppResourceType.Organization,
+        itemResourceType: AppResourceType.Workspace,
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
-        permissionOwnerId: organization.resourceId,
-        permissionOwnerType: AppResourceType.Organization,
-        itemResourceId: organization.resourceId,
+        permissionOwnerId: workspace.resourceId,
+        permissionOwnerType: AppResourceType.Workspace,
+        itemResourceId: workspace.resourceId,
       })
     );
 
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
         mockExpressRequestWithUserToken(userToken),
-        {items: inputItems, organizationId: organization.resourceId}
+        {items: inputItems, workspaceId: workspace.resourceId}
       );
 
     const addPermissionItemsResult = await addPermissionItems(
@@ -76,9 +76,9 @@ describe('getResourcePermissionItems', () => {
       RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
         mockExpressRequestWithUserToken(userToken),
         {
-          organizationId: organization.resourceId,
-          itemResourceType: AppResourceType.Organization,
-          itemResourceId: organization.resourceId,
+          workspaceId: workspace.resourceId,
+          itemResourceType: AppResourceType.Workspace,
+          itemResourceId: workspace.resourceId,
         }
       );
 

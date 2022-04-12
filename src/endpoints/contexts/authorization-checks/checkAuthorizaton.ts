@@ -1,5 +1,5 @@
 import {flatten, last} from 'lodash';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {
   IPermissionItem,
   PermissionItemAppliesTo,
@@ -30,7 +30,7 @@ export interface IPermissionOwner {
 export interface ICheckAuthorizationParams {
   context: IBaseContext;
   agent: ISessionAgent;
-  organization: IOrganization;
+  workspace: IWorkspace;
   type: AppResourceType;
   itemResourceId?: string;
   permissionOwners: IPermissionOwner[];
@@ -57,7 +57,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const {
     context,
     agent,
-    organization,
+    workspace,
     type,
     permissionOwners,
     action,
@@ -80,7 +80,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     return new DataProviderFilterBuilder<IPermissionItem>();
   }
 
-  const agentPermissionEntities = getPermissionEntities(agent, organization);
+  const agentPermissionEntities = getPermissionEntities(agent, workspace);
   const authEntities = await fetchAndSortPresets(
     context,
     agentPermissionEntities
@@ -214,11 +214,11 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   return true;
 }
 
-export function makeOrgPermissionOwnerList(organizationId: string) {
+export function makeWorkspacePermissionOwnerList(workspaceId: string) {
   return [
     {
-      permissionOwnerId: organizationId,
-      permissionOwnerType: AppResourceType.Organization,
+      permissionOwnerId: workspaceId,
+      permissionOwnerType: AppResourceType.Workspace,
       order: 1,
     },
   ];
@@ -226,12 +226,12 @@ export function makeOrgPermissionOwnerList(organizationId: string) {
 
 // TODO: write a more performant function
 export function getFilePermissionOwners(
-  organizationId: string,
+  workspaceId: string,
   resource: {idPath: string[]},
   type: AppResourceType.Folder | AppResourceType.File
 ) {
   let permissionOwners: IPermissionOwner[] =
-    makeOrgPermissionOwnerList(organizationId);
+    makeWorkspacePermissionOwnerList(workspaceId);
 
   const folderIds =
     type === AppResourceType.File
@@ -281,13 +281,13 @@ export function getFilePermissionOwners(
 }
 
 export function makeResourcePermissionOwnerList(
-  organizationId: string,
+  workspaceId: string,
   type: AppResourceType,
   resource: any
 ) {
   if (type === AppResourceType.Folder || type === AppResourceType.File) {
-    return getFilePermissionOwners(organizationId, resource, type);
+    return getFilePermissionOwners(workspaceId, resource, type);
   }
 
-  return makeOrgPermissionOwnerList(organizationId);
+  return makeWorkspacePermissionOwnerList(workspaceId);
 }

@@ -5,7 +5,7 @@ import {
   assertContext,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPresetForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
@@ -24,23 +24,23 @@ afterAll(async () => {
 test('client assigned token added', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {preset: preset01} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {preset: preset02} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {token} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       presets: [
         {

@@ -5,6 +5,7 @@ import {
   TokenExpiredError,
 } from 'jsonwebtoken';
 import * as multer from 'multer';
+import {endpointConstants} from '../endpoints/constants';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,
@@ -29,9 +30,6 @@ export function resolveJWTError(err: Error) {
       return undefined;
   }
 }
-
-const kUnauthorizedStatusCode endpointConstants.httpStatusCode.badRequest;
-const kServerErrorStatusCode endpointConstants.httpStatusCode.badRequest;
 
 function getArg(name: 'err' | 'req' | 'res' | 'next', args: any[]) {
   switch (name) {
@@ -59,7 +57,7 @@ function handleErrors(...args: any[]) {
   const res: Response = getArg('res', args);
 
   if (!err) {
-    res.status(kServerErrorStatusCode).send({
+    res.status(endpointConstants.httpStatusCode.serverError).send({
       errors: [new ServerError()],
     });
 
@@ -72,15 +70,15 @@ function handleErrors(...args: any[]) {
   const JWTError = resolveJWTError(err);
 
   if (JWTError) {
-    res.status(kUnauthorizedStatusCode).json({
+    res.status(endpointConstants.httpStatusCode.unauthorized).json({
       errors: getPublicErrors([JWTError]),
     });
   } else if (err instanceof multer.MulterError) {
-    res.status(kServerErrorStatusCode).json({
+    res.status(endpointConstants.httpStatusCode.serverError).json({
       errors: getPublicErrors([new Error('Error handling file upload')]),
     });
   } else {
-    res.status(kServerErrorStatusCode).json({
+    res.status(endpointConstants.httpStatusCode.serverError).json({
       errors: getPublicErrors([new ServerError()]),
     });
   }

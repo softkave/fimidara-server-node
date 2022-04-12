@@ -4,11 +4,11 @@ import PresetPermissionsGroupQueries from './queries';
 
 export async function checkPresetNameExists(
   context: IBaseContext,
-  orgId: string,
+  workspaceId: string,
   name: string
 ) {
   const itemExists = await context.data.preset.checkItemExists(
-    PresetPermissionsGroupQueries.getByOrganizationAndName(orgId, name)
+    PresetPermissionsGroupQueries.getByWorkspaceAndName(workspaceId, name)
   );
 
   if (itemExists) {

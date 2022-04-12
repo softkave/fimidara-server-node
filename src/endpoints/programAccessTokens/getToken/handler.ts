@@ -30,7 +30,7 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ClientAssignedToken
   );

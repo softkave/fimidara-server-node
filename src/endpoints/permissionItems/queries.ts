@@ -24,14 +24,14 @@ function getByOwner(ownerId: string, ownerType: AppResourceType) {
 }
 
 function getByResource(
-  organizationId: string,
+  workspaceId: string,
   resourceId: string | undefined,
   resourceType: AppResourceType,
   includeWildcard = false
 ) {
   const filter = newFilter().addItem(
-    'organizationId',
-    organizationId,
+    'workspaceId',
+    workspaceId,
     DataProviderFilterValueOperator.Equal
   );
 
@@ -149,24 +149,20 @@ function getByPermissionEntityAndOwner(
     .build();
 }
 
-function getByHashList(organizationId: string, hashList: string[]) {
+function getByHashList(workspaceId: string, hashList: string[]) {
   return newFilter()
     .addItem('hash', hashList, DataProviderFilterValueOperator.In)
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class PermissionItemQueries {
   static getById = EndpointReusableQueries.getById;
-  static getByIds = EndpointReusableQueries.getByIdsAndOrgId;
+  static getByIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
   static getByOwner = getByOwner;
   static getByPermissionEntity = getByPermissionEntity;
   static getByResource = getByResource;
-  static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
+  static getByWorkspaceId = EndpointReusableQueries.getByWorkspaceId;
   static getByPermissionEntityAndOwner = getByPermissionEntityAndOwner;
   static getByOwnerAndResource = getByOwnerAndResource;
   static getByHashList = getByHashList;

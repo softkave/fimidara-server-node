@@ -43,19 +43,20 @@ describe('uploadFile', () => {
 
   test('file uploaded with public read access action', async () => {
     assertContext(context);
-    const {file, insertOrgResult} = await uploadFileWithPublicAccessActionTest(
-      context,
-      {publicAccessAction: UploadFilePublicAccessActions.Read},
-      /* expectedPublicAccessOpsCount */ 1,
-      [BasicCRUDActions.Read]
-    );
+    const {file, insertWorkspaceResult} =
+      await uploadFileWithPublicAccessActionTest(
+        context,
+        {publicAccessAction: UploadFilePublicAccessActions.Read},
+        /* expectedPublicAccessOpsCount */ 1,
+        [BasicCRUDActions.Read]
+      );
 
     const filepath = file.namePath.join(folderConstants.nameSeparator);
     await expectErrorThrown(async () => {
       assertContext(context);
       await assertCanDeletePublicFile(
         context,
-        insertOrgResult.organization.resourceId,
+        insertWorkspaceResult.workspace.resourceId,
         filepath
       );
     }, [PermissionDeniedError.name]);
@@ -64,7 +65,7 @@ describe('uploadFile', () => {
       assertContext(context);
       await assertCanUpdatePublicFile(
         context,
-        insertOrgResult.organization.resourceId,
+        insertWorkspaceResult.workspace.resourceId,
         filepath
       );
     }, [PermissionDeniedError.name]);
@@ -82,47 +83,48 @@ describe('uploadFile', () => {
 
   test('file uploaded with public read, update and delete access action', async () => {
     assertContext(context);
-    const {insertOrgResult, file} = await uploadFileWithPublicAccessActionTest(
-      context,
-      {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
-      /* expectedPublicAccessOpsCount */ 4,
-      [
-        BasicCRUDActions.Read,
-        BasicCRUDActions.Update,
-        BasicCRUDActions.Delete,
-        BasicCRUDActions.Create,
-      ]
-    );
+    const {insertWorkspaceResult, file} =
+      await uploadFileWithPublicAccessActionTest(
+        context,
+        {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
+        /* expectedPublicAccessOpsCount */ 4,
+        [
+          BasicCRUDActions.Read,
+          BasicCRUDActions.Update,
+          BasicCRUDActions.Delete,
+          BasicCRUDActions.Create,
+        ]
+      );
 
     const filepath = file.namePath.join(folderConstants.nameSeparator);
     await assertCanReadPublicFile(
       context,
-      insertOrgResult.organization.resourceId,
+      insertWorkspaceResult.workspace.resourceId,
       filepath
     );
 
     await assertCanUploadToPublicFile(
       context,
-      insertOrgResult.organization.resourceId,
+      insertWorkspaceResult.workspace.resourceId,
       filepath
     );
 
     await assertCanUpdatePublicFile(
       context,
-      insertOrgResult.organization.resourceId,
+      insertWorkspaceResult.workspace.resourceId,
       filepath
     );
 
     await assertCanDeletePublicFile(
       context,
-      insertOrgResult.organization.resourceId,
+      insertWorkspaceResult.workspace.resourceId,
       filepath
     );
   });
 
   test('file updated when new data uploaded', async () => {
     assertContext(context);
-    const {savedFile, insertUserResult, insertOrgResult} =
+    const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileEndpointParams> = {
       filepath: getFileName(savedFile),
@@ -136,7 +138,7 @@ describe('uploadFile', () => {
       [BasicCRUDActions.Read],
       /* type */ 'txt',
       insertUserResult,
-      insertOrgResult
+      insertWorkspaceResult
     );
 
     await assertFileUpdated(
@@ -149,7 +151,7 @@ describe('uploadFile', () => {
 
   test('public file updated and made non-public', async () => {
     assertContext(context);
-    const {savedFile, insertUserResult, insertOrgResult} =
+    const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileWithPublicAccessActionTest(
         context,
         {
@@ -176,7 +178,7 @@ describe('uploadFile', () => {
       /* expectedActions */ [],
       /* type */ 'txt',
       insertUserResult,
-      insertOrgResult
+      insertWorkspaceResult
     );
 
     await assertFileUpdated(
@@ -188,7 +190,7 @@ describe('uploadFile', () => {
 
     await assertPublicPermissionsDonotExistForOwner(
       context,
-      insertOrgResult.organization,
+      insertWorkspaceResult.workspace,
       savedFile.resourceId
     );
   });

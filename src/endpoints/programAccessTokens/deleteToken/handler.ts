@@ -32,7 +32,7 @@ const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        token.organizationId,
+        token.workspaceId,
         token.resourceId,
         AppResourceType.ProgramAccessToken
       )
@@ -49,7 +49,7 @@ const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (
     // Delete all assigned items
     deleteResourceAssignedItems(
       context,
-      token.organizationId,
+      token.workspaceId,
       token.resourceId,
       AppResourceType.ProgramAccessToken
     ),

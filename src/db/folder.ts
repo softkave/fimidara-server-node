@@ -5,7 +5,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const folderSchema = ensureTypeFields<IFolder>({
   resourceId: {type: String, unique: true, index: true},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   maxFileSizeInBytes: {type: Number},

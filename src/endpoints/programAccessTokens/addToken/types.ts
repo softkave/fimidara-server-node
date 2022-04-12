@@ -12,7 +12,7 @@ export interface INewProgramAccessTokenInput {
 }
 
 export interface IAddProgramAccessTokenEndpointParams {
-  organizationId: string;
+  workspaceId: string;
   token: INewProgramAccessTokenInput;
 }
 

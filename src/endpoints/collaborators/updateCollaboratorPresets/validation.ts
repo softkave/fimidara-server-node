@@ -4,7 +4,7 @@ import presetsValidationSchemas from '../../presetPermissionsGroups/validation';
 
 export const updateCollaboratorPresetsJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     collaboratorId: validationSchemas.nanoid.required(),
     presets: presetsValidationSchemas.assignedPresetsList.required(),
   })

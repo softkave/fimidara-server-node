@@ -4,7 +4,7 @@ import permissionItemValidationSchemas from '../validation';
 
 export const addPermissionItemsJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     items: permissionItemValidationSchemas.itemInputList.required(),
   })
   .required();

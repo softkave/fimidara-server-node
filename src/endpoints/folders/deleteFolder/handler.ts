@@ -57,7 +57,7 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
     // Delete folder assigned items like tags
     deleteResourceAssignedItems(
       context,
-      folder.organizationId,
+      folder.workspaceId,
       folder.resourceId,
       AppResourceType.Folder
     ),
@@ -73,7 +73,7 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
     // Delete permission items that explicitly give access to the folder
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        folder.organizationId,
+        folder.workspaceId,
         folder.resourceId,
         AppResourceType.Folder
       )

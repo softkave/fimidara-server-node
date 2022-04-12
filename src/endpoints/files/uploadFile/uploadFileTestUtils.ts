@@ -1,7 +1,7 @@
 import faker = require('faker');
 import assert = require('assert');
 import {IFile} from '../../../definitions/file';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {
   IPublicAccessOpInput,
   AppResourceType,
@@ -15,9 +15,9 @@ import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems
 import RequestData from '../../RequestData';
 import {
   IInsertUserForTestResult,
-  IInsertOrganizationForTestResult,
+  IInsertWorkspaceForTestResult,
   insertUserForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertFileForTest,
   mockExpressRequestWithUserToken,
   mockExpressRequestForPublicAgent,
@@ -42,17 +42,17 @@ export const uploadFileBaseTest = async (
   input: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
-  insertOrgResult =
-    insertOrgResult ||
-    (await insertOrganizationForTest(ctx, insertUserResult.userToken));
+  insertWorkspaceResult =
+    insertWorkspaceResult ||
+    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
 
   const {file, buffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
-    insertOrgResult.organization.resourceId,
+    insertWorkspaceResult.workspace.resourceId,
     input,
     type
   );
@@ -76,7 +76,7 @@ export const uploadFileBaseTest = async (
     file,
     savedFile,
     insertUserResult,
-    insertOrgResult,
+    insertWorkspaceResult,
   };
 };
 
@@ -84,7 +84,7 @@ export async function assertPublicAccessOps(
   ctx: IBaseContext,
   resource: {resourceId: string},
   insertUserResult: IInsertUserForTestResult,
-  insertOrgResult: IInsertOrganizationForTestResult,
+  insertWorkspaceResult: IInsertWorkspaceForTestResult,
   publicAccessOpsInput: IPublicAccessOpInput[],
   resourceType: AppResourceType
 ) {
@@ -112,11 +112,11 @@ export async function assertPublicAccessOps(
   //   });
   // });
 
-  assert(insertOrgResult.organization.publicPresetId);
+  assert(insertWorkspaceResult.workspace.publicPresetId);
   const publicPresetPermissionitems = (
     await ctx.data.permissionItem.getManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        insertOrgResult.organization.publicPresetId,
+        insertWorkspaceResult.workspace.publicPresetId,
         AppResourceType.PresetPermissionsGroup
       )
     )
@@ -139,21 +139,21 @@ export async function assertPublicAccessOps(
   expectItemsByEntityPresent(
     publicPresetPermissionitems,
     basePermissionItems,
-    insertOrgResult.organization.publicPresetId,
+    insertWorkspaceResult.workspace.publicPresetId,
     AppResourceType.PresetPermissionsGroup
   );
 }
 
 export async function assertPublicPermissionsDonotExistForOwner(
   ctx: IBaseContext,
-  organization: IOrganization,
+  workspace: IWorkspace,
   ownerId: string
 ) {
-  assert(organization.publicPresetId);
+  assert(workspace.publicPresetId);
   const publicPresetPermissionitems =
     await ctx.data.permissionItem.getManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        organization.publicPresetId,
+        workspace.publicPresetId,
         AppResourceType.PresetPermissionsGroup
       )
     );
@@ -172,25 +172,25 @@ export const uploadFileWithPublicAccessActionTest = async (
   expectedActions: BasicCRUDActions[],
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   const uploadResult = await uploadFileBaseTest(
     ctx,
     input,
     type,
     insertUserResult,
-    insertOrgResult
+    insertWorkspaceResult
   );
 
   const {savedFile} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
-  insertOrgResult = uploadResult.insertOrgResult;
+  insertWorkspaceResult = uploadResult.insertWorkspaceResult;
   // expect(savedFile.publicAccessOps).toHaveLength(expectedPublicAccessOpsCount);
   await assertPublicAccessOps(
     ctx,
     savedFile,
     insertUserResult,
-    insertOrgResult,
+    insertWorkspaceResult,
     expectedActions.map(action => {
       return {
         action,
@@ -229,12 +229,12 @@ export async function assertFileUpdated(
 
 export async function assertCanReadPublicFile(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, filepath: filepath}
+    {workspaceId, filepath: filepath}
   );
 
   const result = await getFile(ctx, instData);
@@ -243,18 +243,18 @@ export async function assertCanReadPublicFile(
 
 export async function assertCanUploadToPublicFile(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   filepath: string
 ) {
-  return await insertFileForTest(ctx, null, organizationId, {
-    organizationId,
+  return await insertFileForTest(ctx, null, workspaceId, {
+    workspaceId,
     filepath: filepath,
   });
 }
 
 export async function assertCanUpdatePublicFile(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   filepath: string
 ) {
   const updateInput: IUpdateFileDetailsInput = {
@@ -265,7 +265,7 @@ export async function assertCanUpdatePublicFile(
   const instData =
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, filepath: filepath, file: updateInput}
+      {workspaceId, filepath: filepath, file: updateInput}
     );
 
   const result = await updateFileDetails(ctx, instData);
@@ -274,12 +274,12 @@ export async function assertCanUpdatePublicFile(
 
 export async function assertCanDeletePublicFile(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, filepath: filepath}
+    {workspaceId, filepath: filepath}
   );
 
   const result = await deleteFile(ctx, instData);

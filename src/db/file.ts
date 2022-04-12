@@ -6,7 +6,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 const fileSchema = ensureTypeFields<IFile>({
   resourceId: {type: String, unique: true, index: true},
   mimetype: {type: String},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   size: {type: Number},

@@ -5,7 +5,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertFolderForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -25,17 +25,17 @@ afterAll(async () => {
 test('folder returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
       folderpath: folder01.name,
     }
   );

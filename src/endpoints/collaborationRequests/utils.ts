@@ -13,11 +13,11 @@ import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 
@@ -28,8 +28,8 @@ const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   createdBy: agentExtractor,
   createdAt: getDateString,
   expiresAt: getDateStringIfPresent,
-  organizationId: true,
-  organizationName: true,
+  workspaceId: true,
+  workspaceName: true,
   lastUpdatedAt: getDateStringIfPresent,
   lastUpdatedBy: agentExtractorIfPresent,
   readAt: getDateStringIfPresent,
@@ -54,23 +54,20 @@ export async function checkCollaborationRequestAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    request.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, request.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: request,
     type: AppResourceType.CollaborationRequest,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  return {agent, request, organization};
+  return {agent, request, workspace};
 }
 
 export async function checkCollaborationRequestAuthorization02(

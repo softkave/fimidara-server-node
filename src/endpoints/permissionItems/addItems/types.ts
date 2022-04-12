@@ -19,7 +19,7 @@ export interface INewPermissionItemInput {
 }
 
 export interface IAddPermissionItemsEndpointParams {
-  organizationId?: string;
+  workspaceId?: string;
   items: INewPermissionItemInput[];
 }
 

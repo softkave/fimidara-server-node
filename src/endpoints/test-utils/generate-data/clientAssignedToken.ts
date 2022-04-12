@@ -12,7 +12,7 @@ export function generateClientAssignedTokenForTest() {
       agentId: getNewId(),
       agentType: SessionAgentType.User,
     },
-    organizationId: getNewId(),
+    workspaceId: getNewId(),
     version: CURRENT_TOKEN_VERSION,
     issuedAt: getDateString(),
   };
@@ -21,9 +21,9 @@ export function generateClientAssignedTokenForTest() {
 }
 
 export function generateClientAssignedTokenListForTest(count = 20) {
-  const orgs: IClientAssignedToken[] = [];
+  const workspaces: IClientAssignedToken[] = [];
   for (let i = 0; i < count; i++) {
-    orgs.push(generateClientAssignedTokenForTest());
+    workspaces.push(generateClientAssignedTokenForTest());
   }
-  return orgs;
+  return workspaces;
 }

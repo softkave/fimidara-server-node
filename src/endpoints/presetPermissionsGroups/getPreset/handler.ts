@@ -23,7 +23,7 @@ const getPresetPermissionsGroup: GetPresetPermissionsGroupEndpoint = async (
 
   preset = await withAssignedPresetsAndTags(
     context,
-    preset.organizationId,
+    preset.workspaceId,
     preset,
     AppResourceType.PresetPermissionsGroup
   );

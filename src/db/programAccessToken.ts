@@ -8,7 +8,7 @@ const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   hash: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   name: {type: String},
   description: {type: String},
   lastUpdatedBy: {type: agentSchema},

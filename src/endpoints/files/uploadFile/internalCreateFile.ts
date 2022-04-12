@@ -1,5 +1,5 @@
 import {IFolder} from '../../../definitions/folder';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
@@ -13,14 +13,14 @@ import {IUploadFileEndpointParams} from './types';
 export async function internalCreateFile(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   pathWithDetails: ISplitfilepathWithDetails,
   data: IUploadFileEndpointParams,
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();
   const file = await context.data.file.saveItem({
-    organizationId: organization.resourceId,
+    workspaceId: workspace.resourceId,
     resourceId: fileId,
     extension: data.extension || pathWithDetails.extension || '',
     name: pathWithDetails.nameWithoutExtension,
@@ -48,7 +48,7 @@ export async function internalCreateFile(
   await replacePublicPresetAccessOpsByPermissionOwner(
     context,
     agent,
-    organization,
+    workspace,
     file.resourceId,
     AppResourceType.File,
     publicAccessOps,
@@ -58,7 +58,7 @@ export async function internalCreateFile(
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     file.resourceId,
     AppResourceType.File,
     data,

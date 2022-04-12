@@ -5,11 +5,11 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import getOrganizationClientAssignedTokens from './handler';
+import getWorkspaceClientAssignedTokens from './handler';
 import {IGetClientAssignedTokenEndpointParams} from './types';
 
 /**
@@ -30,11 +30,11 @@ afterAll(async () => {
 test('client assigned token returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token: token01} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData =
@@ -45,7 +45,7 @@ test('client assigned token returned', async () => {
       }
     );
 
-  const result = await getOrganizationClientAssignedTokens(context, instData);
+  const result = await getWorkspaceClientAssignedTokens(context, instData);
   assertEndpointResultOk(result);
   expect(result.token).toEqual(token01);
 });

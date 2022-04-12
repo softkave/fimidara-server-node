@@ -8,7 +8,7 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   providedResourceId: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   version: {type: Number},
   issuedAt: {type: Date, default: getDate},
   expires: {type: Date},

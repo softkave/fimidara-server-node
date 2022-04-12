@@ -4,7 +4,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -30,11 +30,11 @@ afterAll(async () => {
 test('referenced program access token returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token: token01} = await insertProgramAccessTokenForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData =

@@ -27,12 +27,12 @@ function handleGetFileResponse(
 }
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
-  const organizationId = req.query.orgId as string;
+  const workspaceId = req.query.workspaceId as string;
   const filepath = req.query.filepath as string;
   const width = req.query.w;
   const height = req.query.h;
   return {
-    organizationId,
+    workspaceId,
     filepath: filepath,
     imageTranformation:
       isNumber(width) && isNumber(height) ? {width, height} : undefined,
@@ -43,10 +43,10 @@ function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
 function extractUploadFilesParamsFromQuery(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
-  const organizationId = req.query.orgId as string;
+  const workspaceId = req.query.workspaceId as string;
   const filepath = req.query.p as string;
   return {
-    organizationId,
+    workspaceId,
     filepath: filepath,
   };
 }

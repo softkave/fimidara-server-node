@@ -4,7 +4,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPermissionItemsForTestByEntity,
   insertPresetForTest,
   insertUserForTest,
@@ -37,24 +37,24 @@ describe('replaceItemsByEntity', () => {
   test('permission items added', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {preset} = await insertPresetForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     await insertPermissionItemsForTestByEntity(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       {
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
       },
       {
-        permissionOwnerId: organization.resourceId,
-        permissionOwnerType: AppResourceType.Organization,
+        permissionOwnerId: workspace.resourceId,
+        permissionOwnerType: AppResourceType.Workspace,
       },
       {itemResourceType: AppResourceType.File}
     );
@@ -63,16 +63,16 @@ describe('replaceItemsByEntity', () => {
   test('permission items are not duplicated', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {preset} = await insertPresetForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const itemsOwner: ITestPermissionItemOwner = {
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
+      permissionOwnerId: workspace.resourceId,
+      permissionOwnerType: AppResourceType.Workspace,
     };
 
     const itemsBase: ITestPermissionItemByEntityBase = {
@@ -88,7 +88,7 @@ describe('replaceItemsByEntity', () => {
     await insertPermissionItemsForTestByEntity(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       entity,
       itemsOwner,
       itemsBase
@@ -99,7 +99,7 @@ describe('replaceItemsByEntity', () => {
     const result = await insertPermissionItemsForTestByEntity(
       context,
       userToken,
-      organization.resourceId,
+      workspace.resourceId,
       entity,
       itemsOwner,
       itemsBase

@@ -13,16 +13,16 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import cast from '../../utilities/fns';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {
-  assertGetOrganizationIdFromAgent,
+  assertGetWorkspaceIdFromAgent,
   getClientAssignedTokenIdNoThrow,
   TokenType,
 } from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {assignedTagListExtractor} from '../tags/utils';
@@ -34,7 +34,7 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   providedResourceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
-  organizationId: true,
+  workspaceId: true,
   issuedAt: getDateString,
   expires: getDateString,
   lastUpdatedAt: getDateStringIfPresent,
@@ -61,23 +61,20 @@ export async function checkClientAssignedTokenAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    token.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, token.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     resource: token,
     action,
     nothrow,
     type: AppResourceType.ClientAssignedToken,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  return {agent, token, organization};
+  return {agent, token, workspace};
 }
 
 export async function checkClientAssignedTokenAuthorization02(
@@ -106,7 +103,7 @@ export async function checkClientAssignedTokenAuthorization03(
   input: {
     tokenId?: string;
     providedResourceId?: string;
-    organizationId?: string;
+    workspaceId?: string;
     onReferenced?: boolean;
   },
   action: BasicCRUDActions,
@@ -131,12 +128,12 @@ export async function checkClientAssignedTokenAuthorization03(
       EndpointReusableQueries.getById(tokenId)
     );
   } else if (input.providedResourceId) {
-    const organizationId =
-      input.organizationId || assertGetOrganizationIdFromAgent(agent);
+    const workspaceId =
+      input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
 
     token = await context.data.clientAssignedToken.assertGetItem(
       EndpointReusableQueries.getByProvidedId(
-        organizationId,
+        workspaceId,
         input.providedResourceId
       )
     );

@@ -1,10 +1,10 @@
 import {format} from 'util';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {ISessionAgent, AppResourceType} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
-import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
 
 interface IPermissionOwner {
   permissionOwnerId: string;
@@ -12,14 +12,14 @@ interface IPermissionOwner {
 }
 
 const allowedTypes = new Map();
-allowedTypes.set(AppResourceType.Organization, true);
+allowedTypes.set(AppResourceType.Workspace, true);
 allowedTypes.set(AppResourceType.Folder, true);
 allowedTypes.set(AppResourceType.File, true);
 
 export default async function checkPermissionOwnersExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   items: Array<IPermissionOwner>
 ) {
   items.forEach(item => {
@@ -36,7 +36,7 @@ export default async function checkPermissionOwnersExist(
   const resources = await getResources({
     context,
     agent,
-    organization,
+    workspace,
     inputResources: items.map(item => ({
       resourceId: item.permissionOwnerId,
       resourceType: item.permissionOwnerType,
@@ -44,10 +44,10 @@ export default async function checkPermissionOwnersExist(
     checkAuth: true,
   });
 
-  checkNotOrganizationResources(
-    organization.resourceId,
+  checkNotWorkspaceResources(
+    workspace.resourceId,
     resources,
-    // We only use organizations, folders, and files in here
+    // We only use workspaces, folders, and files in here
     true
   );
 

@@ -3,29 +3,26 @@ import * as faker from 'faker';
 import {sortBy} from 'lodash';
 import {Connection, Model} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
-import {
-  getOrganizationModel,
-  IOrganizationDocument,
-} from '../../../../db/organization';
-import {IOrganization} from '../../../../definitions/organization';
+import {getWorkspaceModel, IWorkspaceDocument} from '../../../../db/workspace';
+import {IWorkspace} from '../../../../definitions/workspace';
 import {SessionAgentType} from '../../../../definitions/system';
 import {getDateString} from '../../../../utilities/dateFns';
 import getNewId from '../../../../utilities/getNewId';
 import {NotFoundError} from '../../../errors';
-import OrganizationQueries from '../../../organizations/queries';
+import WorkspaceQueries from '../../../workspaces/queries';
 import {
-  organizationExtractor,
-  organizationListExtractor,
-  throwOrganizationNotFound,
-} from '../../../organizations/utils';
+  workspaceExtractor,
+  workspaceListExtractor,
+  throwWorkspaceNotFound,
+} from '../../../workspaces/utils';
 import {
-  generateOrganization,
-  generateOrganizations,
-} from '../../../test-utils/generate-data/organization';
+  generateWorkspace,
+  generateWorkspaces,
+} from '../../../test-utils/generate-data/workspace';
 import {getTestVars} from '../../../test-utils/vars';
 import MongoDataProvider from '../MongoDataProvider';
 
-// Using organization for the tests
+// Using workspace for the tests
 
 let connection: Connection | null = null;
 
@@ -43,112 +40,116 @@ afterAll(async () => {
   await connection.close();
 });
 
-async function insertOrganizationMongo(
-  orgModel: Model<IOrganizationDocument>,
-  org?: IOrganization
+async function insertWorkspaceMongo(
+  workspaceModel: Model<IWorkspaceDocument>,
+  workspace?: IWorkspace
 ) {
-  org = org || generateOrganization();
-  const doc = new orgModel(org);
+  workspace = workspace || generateWorkspace();
+  const doc = new workspaceModel(workspace);
   await doc.save();
-  return org;
+  return workspace;
 }
 
-async function insertOrganizationsMongo(
-  orgModel: Model<IOrganizationDocument>,
+async function insertWorkspacesMongo(
+  workspaceModel: Model<IWorkspaceDocument>,
   count = 20,
-  orgs?: IOrganization[]
+  workspaces?: IWorkspace[]
 ) {
-  orgs = orgs || generateOrganizations(count);
-  await orgModel.insertMany(orgs);
-  return orgs;
+  workspaces = workspaces || generateWorkspaces(count);
+  await workspaceModel.insertMany(workspaces);
+  return workspaces;
 }
 
-export async function getOrgMongoProviderForTest() {
+export async function getWorkspaceMongoProviderForTest() {
   if (!connection) {
     throw new Error('Mongo connection not established');
   }
 
-  const orgModel = getOrganizationModel(connection);
-  const provider = new MongoDataProvider(orgModel, throwOrganizationNotFound);
-  return {provider, orgModel};
+  const workspaceModel = getWorkspaceModel(connection);
+  const provider = new MongoDataProvider(
+    workspaceModel,
+    throwWorkspaceNotFound
+  );
+  return {provider, workspaceModel};
 }
 
-async function getMatchedOrgsCount(
-  orgModel: Model<IOrganizationDocument>,
-  orgs: IOrganization[]
+async function getMatchedWorkspacesCount(
+  workspaceModel: Model<IWorkspaceDocument>,
+  workspaces: IWorkspace[]
 ) {
-  return await orgModel
+  return await workspaceModel
     .countDocuments({
-      resourceId: {$in: orgs.map(item => item.resourceId)},
+      resourceId: {$in: workspaces.map(item => item.resourceId)},
     })
     .exec();
 }
 
 describe('MongoDataProvider', () => {
   test('checkItemExists is true when item exists', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const org = await insertOrganizationMongo(orgModel);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspace = await insertWorkspaceMongo(workspaceModel);
     const exists = await provider.checkItemExists(
-      OrganizationQueries.getByName(org.name)
+      WorkspaceQueries.getByName(workspace.name)
     );
 
     expect(exists).toBeTruthy();
   });
 
   test('checkItemExists is false when item not found', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
 
     // Inserting data for blank tests so that we can know
     // definitely that it's returning blank because the filter matches nothing
     // and not because there's no data
-    await insertOrganizationMongo(orgModel);
+    await insertWorkspaceMongo(workspaceModel);
     const exists = await provider.checkItemExists(
-      OrganizationQueries.getById(getNewId())
+      WorkspaceQueries.getById(getNewId())
     );
 
     expect(exists).toBeFalsy();
   });
 
   test('getItem when item exists', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const org = await insertOrganizationMongo(orgModel);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspace = await insertWorkspaceMongo(workspaceModel);
     const result = await provider.getItem(
-      OrganizationQueries.getById(org.resourceId)
+      WorkspaceQueries.getById(workspace.resourceId)
     );
 
     assert(result);
-    expect(org).toMatchObject(organizationExtractor(result));
+    expect(workspace).toMatchObject(workspaceExtractor(result));
   });
 
   test('getItem when does not item exists', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationMongo(orgModel);
-    const result = await provider.getItem(
-      OrganizationQueries.getById(getNewId())
-    );
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspaceMongo(workspaceModel);
+    const result = await provider.getItem(WorkspaceQueries.getById(getNewId()));
 
     expect(result).toBeFalsy();
   });
 
   test('getManyItems returns items', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const org01 = await insertOrganizationMongo(orgModel);
-    const org02 = await insertOrganizationMongo(orgModel);
-    const org03 = await insertOrganizationMongo(orgModel);
-    const org04 = await insertOrganizationMongo(orgModel);
-    const org05 = await insertOrganizationMongo(orgModel);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspace01 = await insertWorkspaceMongo(workspaceModel);
+    const workspace02 = await insertWorkspaceMongo(workspaceModel);
+    const workspace03 = await insertWorkspaceMongo(workspaceModel);
+    const workspace04 = await insertWorkspaceMongo(workspaceModel);
+    const workspace05 = await insertWorkspaceMongo(workspaceModel);
     const result = await provider.getManyItems(
-      OrganizationQueries.getByIds([
-        org01.resourceId,
-        org02.resourceId,
-        org03.resourceId,
-        org04.resourceId,
-        org05.resourceId,
+      WorkspaceQueries.getByIds([
+        workspace01.resourceId,
+        workspace02.resourceId,
+        workspace03.resourceId,
+        workspace04.resourceId,
+        workspace05.resourceId,
       ])
     );
 
-    const s1 = sortBy(organizationListExtractor(result), ['resourceId']);
-    const s2 = sortBy([org01, org02, org03, org04, org05], ['resourceId']);
+    const s1 = sortBy(workspaceListExtractor(result), ['resourceId']);
+    const s2 = sortBy(
+      [workspace01, workspace02, workspace03, workspace04, workspace05],
+      ['resourceId']
+    );
     expect(result).toHaveLength(5);
     expect(s1[0]).toMatchObject(s2[0]);
     expect(s1[1]).toMatchObject(s2[1]);
@@ -158,42 +159,47 @@ describe('MongoDataProvider', () => {
   });
 
   test('getManyItems returns nothing', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationsMongo(orgModel);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspacesMongo(workspaceModel);
     const result = await provider.getManyItems(
-      OrganizationQueries.getByIds([getNewId(), getNewId()])
+      WorkspaceQueries.getByIds([getNewId(), getNewId()])
     );
 
     expect(result).toHaveLength(0);
   });
 
   test('deleteItem deleted correct items', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const [org01, ...orgs] = await insertOrganizationsMongo(orgModel, 10);
-    await provider.deleteItem(OrganizationQueries.getById(org01.resourceId));
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const [workspace01, ...workspaces] = await insertWorkspacesMongo(
+      workspaceModel,
+      10
+    );
+    await provider.deleteItem(WorkspaceQueries.getById(workspace01.resourceId));
 
-    expect(await getMatchedOrgsCount(orgModel, orgs)).toBe(9);
+    expect(await getMatchedWorkspacesCount(workspaceModel, workspaces)).toBe(9);
     expect(
       await provider.checkItemExists(
-        OrganizationQueries.getById(org01.resourceId)
+        WorkspaceQueries.getById(workspace01.resourceId)
       )
     ).toBeFalsy();
   });
 
   test('deleteItem deleted nothing', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const orgs = await insertOrganizationsMongo(orgModel, 10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspaces = await insertWorkspacesMongo(workspaceModel, 10);
     await provider.deleteItem(
-      OrganizationQueries.getByIds([getNewId(), getNewId()])
+      WorkspaceQueries.getByIds([getNewId(), getNewId()])
     );
 
-    expect(await getMatchedOrgsCount(orgModel, orgs)).toBe(10);
+    expect(await getMatchedWorkspacesCount(workspaceModel, workspaces)).toBe(
+      10
+    );
   });
 
   test('updateItem correct item', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const [org01] = await insertOrganizationsMongo(orgModel, 10);
-    const orgUpdate: Partial<IOrganization> = {
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const [workspace01] = await insertWorkspacesMongo(workspaceModel, 10);
+    const workspaceUpdate: Partial<IWorkspace> = {
       lastUpdatedBy: {
         agentId: getNewId(),
         agentType: SessionAgentType.User,
@@ -204,23 +210,23 @@ describe('MongoDataProvider', () => {
     };
 
     const result = await provider.updateItem(
-      OrganizationQueries.getById(org01.resourceId),
-      orgUpdate
+      WorkspaceQueries.getById(workspace01.resourceId),
+      workspaceUpdate
     );
 
-    const updatedOrg = await provider.assertGetItem(
-      OrganizationQueries.getById(org01.resourceId)
+    const updatedWorkspace = await provider.assertGetItem(
+      WorkspaceQueries.getById(workspace01.resourceId)
     );
 
-    expect(result).toEqual(updatedOrg);
-    expect(organizationExtractor(updatedOrg)).toMatchObject(orgUpdate);
+    expect(result).toEqual(updatedWorkspace);
+    expect(workspaceExtractor(updatedWorkspace)).toMatchObject(workspaceUpdate);
   });
 
   test('updateItem update nothing', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationsMongo(orgModel, 10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspacesMongo(workspaceModel, 10);
     const result = await provider.updateItem(
-      OrganizationQueries.getById('009'),
+      WorkspaceQueries.getById('009'),
       {}
     );
 
@@ -228,9 +234,12 @@ describe('MongoDataProvider', () => {
   });
 
   test('updateManyItems updated correct items', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const [org01, org02] = await insertOrganizationsMongo(orgModel, 10);
-    const orgUpdate: Partial<IOrganization> = {
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const [workspace01, workspace02] = await insertWorkspacesMongo(
+      workspaceModel,
+      10
+    );
+    const workspaceUpdate: Partial<IWorkspace> = {
       lastUpdatedBy: {
         agentId: getNewId(),
         agentType: SessionAgentType.User,
@@ -241,76 +250,91 @@ describe('MongoDataProvider', () => {
     };
 
     await provider.updateManyItems(
-      OrganizationQueries.getByIds([org01.resourceId, org02.resourceId]),
-      orgUpdate
+      WorkspaceQueries.getByIds([
+        workspace01.resourceId,
+        workspace02.resourceId,
+      ]),
+      workspaceUpdate
     );
 
-    const updatedOrgs = await provider.getManyItems(
-      OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
+    const updatedWorkspaces = await provider.getManyItems(
+      WorkspaceQueries.getByIds([
+        workspace01.resourceId,
+        workspace02.resourceId,
+      ])
     );
 
-    expect(organizationExtractor(updatedOrgs[0])).toMatchObject(orgUpdate);
-    expect(organizationExtractor(updatedOrgs[1])).toMatchObject(orgUpdate);
+    expect(workspaceExtractor(updatedWorkspaces[0])).toMatchObject(
+      workspaceUpdate
+    );
+    expect(workspaceExtractor(updatedWorkspaces[1])).toMatchObject(
+      workspaceUpdate
+    );
   });
 
   test('assertUpdateItem throws when item not found', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationsMongo(orgModel, 10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspacesMongo(workspaceModel, 10);
 
     try {
-      await provider.updateItem(OrganizationQueries.getById(getNewId()), {});
+      await provider.updateItem(WorkspaceQueries.getById(getNewId()), {});
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }
   });
 
   test('deleteManyItems', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const [org01, org02, ...orgs] = await insertOrganizationsMongo(
-      orgModel,
-      10
-    );
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const [workspace01, workspace02, ...workspaces] =
+      await insertWorkspacesMongo(workspaceModel, 10);
 
     await provider.deleteManyItems(
-      OrganizationQueries.getByIds([org01.resourceId, org02.resourceId])
+      WorkspaceQueries.getByIds([
+        workspace01.resourceId,
+        workspace02.resourceId,
+      ])
     );
 
-    expect(await getMatchedOrgsCount(orgModel, orgs)).toBe(8);
+    expect(await getMatchedWorkspacesCount(workspaceModel, workspaces)).toBe(8);
   });
 
   test('assertItemExists', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationsMongo(orgModel, 10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspacesMongo(workspaceModel, 10);
 
     try {
-      await provider.assertItemExists(OrganizationQueries.getById(getNewId()));
+      await provider.assertItemExists(WorkspaceQueries.getById(getNewId()));
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }
   });
 
   test('assertGetItem', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    await insertOrganizationsMongo(orgModel, 10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    await insertWorkspacesMongo(workspaceModel, 10);
 
     try {
-      await provider.assertGetItem(OrganizationQueries.getById(getNewId()));
+      await provider.assertGetItem(WorkspaceQueries.getById(getNewId()));
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }
   });
 
   test('saveItem', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const org = generateOrganization();
-    await provider.saveItem(org);
-    expect(await getMatchedOrgsCount(orgModel, [org])).toBe(1);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspace = generateWorkspace();
+    await provider.saveItem(workspace);
+    expect(await getMatchedWorkspacesCount(workspaceModel, [workspace])).toBe(
+      1
+    );
   });
 
   test('bulkSaveItems', async () => {
-    const {provider, orgModel} = await getOrgMongoProviderForTest();
-    const orgs = generateOrganizations(10);
-    await provider.bulkSaveItems(orgs);
-    expect(await getMatchedOrgsCount(orgModel, orgs)).toBe(10);
+    const {provider, workspaceModel} = await getWorkspaceMongoProviderForTest();
+    const workspaces = generateWorkspaces(10);
+    await provider.bulkSaveItems(workspaces);
+    expect(await getMatchedWorkspacesCount(workspaceModel, workspaces)).toBe(
+      10
+    );
   });
 });

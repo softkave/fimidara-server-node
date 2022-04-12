@@ -7,7 +7,7 @@ export const updateClientAssignedTokenPresetsJoiSchema = Joi.object()
   .keys({
     tokenId: validationSchemas.nanoid.allow(null),
     onReferenced: Joi.boolean().allow(null),
-    organizationId: validationSchemas.nanoid.allow(null),
+    workspaceId: validationSchemas.nanoid.allow(null),
     providedResourceId:
       clientAssignedTokenValidationSchemas.providedResourceId.allow(null),
     token: newClientAssignedTokenJoiSchema.required(),

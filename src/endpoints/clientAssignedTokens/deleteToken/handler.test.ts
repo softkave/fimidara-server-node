@@ -6,7 +6,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -31,11 +31,11 @@ afterAll(async () => {
 test('client assigned token deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token} = await insertClientAssignedTokenForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData =

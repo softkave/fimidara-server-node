@@ -23,7 +23,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ClientAssignedToken
   );

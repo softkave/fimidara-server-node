@@ -1,21 +1,21 @@
 import {uniqBy} from 'lodash';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getResources} from '../resources/getResources';
-import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
 
 export default async function checkTagsExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   items: Array<IAssignedTagInput>
 ) {
   const resources = await getResources({
     context,
     agent,
-    organization,
+    workspace,
     inputResources: uniqBy(items, 'tagId').map(({tagId}) => ({
       resourceId: tagId,
       resourceType: AppResourceType.Tag,
@@ -23,8 +23,8 @@ export default async function checkTagsExist(
     checkAuth: true,
   });
 
-  checkNotOrganizationResources(
-    organization.resourceId,
+  checkNotWorkspaceResources(
+    workspace.resourceId,
     resources,
     // Set to true, since we're only dealing with tags
     true

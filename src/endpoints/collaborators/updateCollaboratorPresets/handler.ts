@@ -1,12 +1,12 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
-import {getOrganizationId} from '../../contexts/SessionContext';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
-  removeOtherUserOrgs,
+  removeOtherUserWorkspaces,
 } from '../utils';
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
@@ -17,11 +17,11 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
 ) => {
   const data = validate(instData.data, updateCollaboratorPresetsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  let {collaborator, organization} = await checkCollaboratorAuthorization02(
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  let {collaborator, workspace} = await checkCollaboratorAuthorization02(
     context,
     agent,
-    organizationId,
+    workspaceId,
     data.collaboratorId,
     BasicCRUDActions.Update
   );
@@ -29,17 +29,17 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     collaborator.resourceId,
     AppResourceType.User,
     data,
     true
   );
 
-  collaborator = await withUserOrganizations(context, collaborator);
+  collaborator = await withUserWorkspaces(context, collaborator);
   const publicData = collaboratorExtractor(
-    removeOtherUserOrgs(collaborator, organizationId),
-    organizationId
+    removeOtherUserWorkspaces(collaborator, workspaceId),
+    workspaceId
   );
 
   return {

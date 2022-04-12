@@ -11,10 +11,10 @@ import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getOrganizationId} from '../../contexts/SessionContext';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
 import EndpointReusableQueries from '../../queries';
@@ -39,16 +39,16 @@ const listFolderContent: ListFolderContentEndpoint = async (
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const organization = await context.data.organization.assertGetItem(
-    EndpointReusableQueries.getById(organizationId)
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await context.data.workspace.assertGetItem(
+    EndpointReusableQueries.getById(workspaceId)
   );
 
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
 
   if (!data.folderpath && !data.folderId) {
-    const result = await fetchRootLevelContent(context, organizationId);
+    const result = await fetchRootLevelContent(context, workspaceId);
     fetchedFiles = result.files;
     fetchedFolders = result.folders;
   } else {
@@ -67,10 +67,10 @@ const listFolderContent: ListFolderContentEndpoint = async (
     checkAuthorization({
       context,
       agent,
-      organization,
+      workspace,
       resource: item,
       type: AppResourceType.Folder,
-      permissionOwners: makeOrgPermissionOwnerList(organizationId),
+      permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
       action: BasicCRUDActions.Read,
       nothrow: true,
     })
@@ -80,10 +80,10 @@ const listFolderContent: ListFolderContentEndpoint = async (
     checkAuthorization({
       context,
       agent,
-      organization,
+      workspace,
       resource: item,
       type: AppResourceType.File,
-      permissionOwners: makeOrgPermissionOwnerList(organizationId),
+      permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
       action: BasicCRUDActions.Read,
       nothrow: true,
     })
@@ -111,14 +111,14 @@ const listFolderContent: ListFolderContentEndpoint = async (
 
   allowedFolders = await resourceListWithAssignedPresetsAndTags(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     allowedFolders,
     AppResourceType.Folder
   );
 
   allowedFiles = await resourceListWithAssignedPresetsAndTags(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     allowedFiles,
     AppResourceType.File
   );
@@ -131,13 +131,11 @@ const listFolderContent: ListFolderContentEndpoint = async (
 
 async function fetchRootLevelContent(
   context: IBaseContext,
-  organizationId: string
+  workspaceId: string
 ) {
   const [folders, files] = await Promise.all([
-    context.data.folder.getManyItems(
-      FolderQueries.getRootFolders(organizationId)
-    ),
-    context.data.file.getManyItems(FileQueries.getRootFiles(organizationId)),
+    context.data.folder.getManyItems(FolderQueries.getRootFolders(workspaceId)),
+    context.data.file.getManyItems(FileQueries.getRootFiles(workspaceId)),
   ]);
 
   return {folders, files};

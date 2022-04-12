@@ -1,5 +1,5 @@
 import {IFile} from '../../../definitions/file';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -13,7 +13,7 @@ import {IUploadFileEndpointParams} from './types';
 export async function internalUpdateFile(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   pathWithDetails: ISplitfilepathWithDetails,
   existingFile: IFile,
   data: IUploadFileEndpointParams
@@ -42,7 +42,7 @@ export async function internalUpdateFile(
     await replacePublicPresetAccessOpsByPermissionOwner(
       context,
       agent,
-      organization,
+      workspace,
       file.resourceId,
       AppResourceType.File,
       publicAccessOps,
@@ -53,7 +53,7 @@ export async function internalUpdateFile(
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     file.resourceId,
     AppResourceType.File,
     data,

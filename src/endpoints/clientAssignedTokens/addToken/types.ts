@@ -14,7 +14,7 @@ export interface INewClientAssignedTokenInput {
 }
 
 export interface IAddClientAssignedTokenEndpointParams {
-  organizationId?: string;
+  workspaceId?: string;
   token: INewClientAssignedTokenInput;
 }
 
