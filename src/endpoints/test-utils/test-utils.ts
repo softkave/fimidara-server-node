@@ -3,22 +3,22 @@ import {add} from 'date-fns';
 import * as faker from 'faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
-import {IPublicOrganization} from '../../definitions/organization';
+import {IPublicWorkspace} from '../../definitions/workspace';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
-  getNonOrgActionList,
-  getOrgActionList,
+  getNonWorkspaceActionList,
+  getWorkspaceActionList,
 } from '../../definitions/system';
 import {
   IPublicUserData,
   IUser,
-  IUserWithOrganization,
+  IUserWithWorkspace,
 } from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import singletonFunc from '../../utilities/singletonFunc';
-import {withUserOrganizations} from '../assignedItems/getAssignedItems';
+import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
   IAddClientAssignedTokenEndpointParams,
@@ -48,8 +48,8 @@ import {
   INewFolderInput,
 } from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
-import addOrganization from '../organizations/addOrganization/handler';
-import {IAddOrganizationParams} from '../organizations/addOrganization/types';
+import addWorkspace from '../workspaces/addWorkspace/handler';
+import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
 import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
 import {
   IReplacePermissionItemsByEntityEndpointParams,
@@ -206,7 +206,7 @@ export function mockExpressRequestForPublicAgent() {
 }
 
 export interface IInsertUserForTestResult {
-  rawUser: IUserWithOrganization;
+  rawUser: IUserWithWorkspace;
   userToken: IUserToken;
   user: IPublicUserData;
   userTokenStr: string;
@@ -235,7 +235,7 @@ export async function insertUserForTest(
     UserTokenQueries.getById(tokenData.sub.id)
   );
 
-  const rawUser = await withUserOrganizations(
+  const rawUser = await withUserWorkspaces(
     context,
     await context.data.user.assertGetItem(
       EndpointReusableQueries.getById(result.user.resourceId)
@@ -251,42 +251,42 @@ export async function insertUserForTest(
   };
 }
 
-export interface IInsertOrganizationForTestResult {
-  organization: IPublicOrganization;
+export interface IInsertWorkspaceForTestResult {
+  workspace: IPublicWorkspace;
 }
 
-export async function insertOrganizationForTest(
+export async function insertWorkspaceForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  orgInput: Partial<IAddOrganizationParams> = {}
-): Promise<IInsertOrganizationForTestResult> {
-  const instData = RequestData.fromExpressRequest<IAddOrganizationParams>(
+  workspaceInput: Partial<IAddWorkspaceParams> = {}
+): Promise<IInsertWorkspaceForTestResult> {
+  const instData = RequestData.fromExpressRequest<IAddWorkspaceParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       name: faker.company.companyName(),
       description: faker.company.catchPhraseDescriptor(),
-      ...orgInput,
+      ...workspaceInput,
     }
   );
 
-  const result = await addOrganization(context, instData);
+  const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
   return {
-    organization: result.organization,
+    workspace: result.workspace,
   };
 }
 
 export async function insertPresetForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   presetInput: Partial<INewPresetPermissionsGroupInput> = {}
 ) {
   const instData =
     RequestData.fromExpressRequest<IAddPresetPermissionsGroupEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId,
+        workspaceId,
         preset: {
           name: faker.lorem.words(3),
           description: faker.lorem.words(10),
@@ -304,13 +304,13 @@ export async function insertPresetForTest(
 export async function insertRequestForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   requestInput: Partial<ICollaborationRequestInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<ISendRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId,
+      workspaceId,
       request: {
         recipientEmail: faker.internet.email(),
         message: faker.lorem.paragraph(),
@@ -328,14 +328,14 @@ export async function insertRequestForTest(
 export async function insertClientAssignedTokenForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   requestInput: Partial<INewClientAssignedTokenInput> = {}
 ) {
   const instData =
     RequestData.fromExpressRequest<IAddClientAssignedTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId,
+        workspaceId,
         token: {
           presets: [],
           expires: add(Date.now(), {days: 1}).toISOString(),
@@ -354,14 +354,14 @@ export async function insertClientAssignedTokenForTest(
 export async function insertProgramAccessTokenForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   tokenInput: Partial<INewProgramAccessTokenInput> = {}
 ) {
   const instData =
     RequestData.fromExpressRequest<IAddProgramAccessTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId,
+        workspaceId,
         token: {
           name: faker.lorem.words(2),
           description: faker.lorem.words(10),
@@ -390,10 +390,10 @@ export function makeTestPermissionItemByEntityInputs(
   base: ITestPermissionItemByEntityBase
 ) {
   const actionList =
-    base.itemResourceType === AppResourceType.Organization ||
+    base.itemResourceType === AppResourceType.Workspace ||
     base.itemResourceType === AppResourceType.All
-      ? getOrgActionList()
-      : getNonOrgActionList();
+      ? getWorkspaceActionList()
+      : getNonWorkspaceActionList();
 
   const items: INewPermissionItemInputByEntity[] = actionList.map(action => ({
     ...base,
@@ -409,7 +409,7 @@ export function makeTestPermissionItemByEntityInputs(
 export async function insertPermissionItemsForTestByEntity(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   entity: IPermissionEntity,
   owner: ITestPermissionItemOwner,
   base: ITestPermissionItemByEntityBase
@@ -420,7 +420,7 @@ export async function insertPermissionItemsForTestByEntity(
       mockExpressRequestWithUserToken(userToken),
       {
         ...entity,
-        organizationId: organizationId,
+        workspaceId: workspaceId,
         items: itemsInput,
       }
     );
@@ -440,7 +440,7 @@ export async function insertPermissionItemsForTestByEntity(
 export async function insertPermissionItemsForTestUsingItems(
   context: IBaseContext,
   userToken: IUserToken,
-  organizationId: string,
+  workspaceId: string,
   entity: IPermissionEntity,
   items: INewPermissionItemInputByEntity[]
 ) {
@@ -450,7 +450,7 @@ export async function insertPermissionItemsForTestUsingItems(
       {
         ...entity,
         items,
-        organizationId: organizationId,
+        workspaceId: workspaceId,
       }
     );
 
@@ -463,7 +463,7 @@ export async function insertPermissionItemsForTestUsingItems(
 export async function insertFolderForTest(
   context: IBaseContext,
   userToken: IUserToken | null,
-  organizationId: string,
+  workspaceId: string,
   folderInput: Partial<INewFolderInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<IAddFolderEndpointParams>(
@@ -471,7 +471,7 @@ export async function insertFolderForTest(
       ? mockExpressRequestWithUserToken(userToken)
       : mockExpressRequestForPublicAgent(),
     {
-      organizationId,
+      workspaceId,
       folder: {
         folderpath: [faker.lorem.word()].join(folderConstants.nameSeparator),
         description: faker.lorem.paragraph(),
@@ -514,13 +514,13 @@ export function generateTestTextFile() {
 export async function insertFileForTest(
   context: IBaseContext,
   userToken: IUserToken | null, // Pass null for public agent
-  organizationId: string,
+  workspaceId: string,
   fileInput: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
   const input: IUploadFileEndpointParams = {
-    organizationId,
+    workspaceId,
     filepath: [faker.lorem.word()].join(folderConstants.nameSeparator),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness

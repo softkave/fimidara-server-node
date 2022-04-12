@@ -4,7 +4,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -33,11 +33,11 @@ test("user's collaboration request returned", async () => {
     context
   );
 
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       recipientEmail: user02.email,
     }
@@ -46,7 +46,7 @@ test("user's collaboration request returned", async () => {
   const instData = RequestData.fromExpressRequest(
     mockExpressRequestWithUserToken(user02Token),
     {
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
     }
   );
 

@@ -2,7 +2,7 @@ import {CollaborationRequestStatusType} from '../../../definitions/collaboration
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {ServerStateConflictError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {addAssignedUserOrganization} from '../../assignedItems/addAssignedItems';
+import {addAssignedUserWorkspace} from '../../assignedItems/addAssignedItems';
 import {ExpiredError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
@@ -46,10 +46,10 @@ const respondToRequest: RespondToRequestEndpoint = async (
   );
 
   if (data.response === CollaborationRequestStatusType.Accepted) {
-    await addAssignedUserOrganization(
+    await addAssignedUserWorkspace(
       context,
       request.createdBy,
-      request.organizationId,
+      request.workspaceId,
       user
     );
   }

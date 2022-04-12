@@ -5,7 +5,7 @@ import {Endpoint} from '../../types';
 export interface IGetClientAssignedTokenEndpointParams {
   tokenId?: string;
   providedResourceId?: string;
-  organizationId?: string;
+  workspaceId?: string;
   onReferenced?: boolean;
 }
 

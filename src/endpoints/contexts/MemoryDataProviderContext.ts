@@ -1,7 +1,7 @@
 import {throwFolderNotFound} from '../folders/utils';
 import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';
 import {throwFileNotFound} from '../files/utils';
-import {throwOrganizationNotFound} from '../organizations/utils';
+import {throwWorkspaceNotFound} from '../workspaces/utils';
 import {throwPermissionItemNotFound} from '../permissionItems/utils';
 import {throwPresetPermissionsGroupNotFound} from '../presetPermissionsGroups/utils';
 import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
@@ -11,7 +11,7 @@ import {IBaseContextDataProviders} from './BaseContext';
 import MemoryDataProvider from './data-providers/MemoryDataProvider';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 import {IUserToken} from '../../definitions/userToken';
 import {IFile} from '../../definitions/file';
@@ -51,9 +51,9 @@ export default class MemoryDataProviderContext
     throwPresetPermissionsGroupNotFound
   );
 
-  public organization = new MemoryDataProvider<IOrganization>(
+  public workspace = new MemoryDataProvider<IWorkspace>(
     [],
-    throwOrganizationNotFound
+    throwWorkspaceNotFound
   );
 
   public collaborationRequest = new MemoryDataProvider<ICollaborationRequest>(

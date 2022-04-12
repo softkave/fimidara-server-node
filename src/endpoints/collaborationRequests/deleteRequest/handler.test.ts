@@ -5,7 +5,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -26,11 +26,11 @@ afterAll(async () => {
 test('collaboration request deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteRequestEndpointParams>(

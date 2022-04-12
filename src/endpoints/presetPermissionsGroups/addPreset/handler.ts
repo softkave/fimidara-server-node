@@ -4,9 +4,9 @@ import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {AddPresetPermissionsGroupEndpoint} from './types';
 import {addPresetPermissionsGroupJoiSchema} from './validation';
 import {checkPresetNameExists} from '../checkPresetNameExists';
@@ -20,25 +20,18 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
 ) => {
   const data = validate(instData.data, addPresetPermissionsGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.PresetPermissionsGroup,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
-  await checkPresetNameExists(
-    context,
-    organization.resourceId,
-    data.preset.name
-  );
+  await checkPresetNameExists(context, workspace.resourceId, data.preset.name);
 
   let preset = await context.data.preset.saveItem({
     ...data.preset,
@@ -48,13 +41,13 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
       agentId: agent.agentId,
       agentType: agent.agentType,
     },
-    organizationId: organization.resourceId,
+    workspaceId: workspace.resourceId,
   });
 
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     preset.resourceId,
     AppResourceType.PresetPermissionsGroup,
     data.preset
@@ -62,7 +55,7 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
 
   preset = await withAssignedPresetsAndTags(
     context,
-    preset.organizationId,
+    preset.workspaceId,
     preset,
     AppResourceType.PresetPermissionsGroup
   );

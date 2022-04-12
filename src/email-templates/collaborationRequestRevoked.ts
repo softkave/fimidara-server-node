@@ -7,19 +7,17 @@ import {
 } from './helpers';
 
 export interface ICollaborationRequestRevokedEmailProps {
-  organizationName: string;
+  workspaceName: string;
 }
 
-export function collaborationRequestRevokedEmailTitle(
-  organizationName: string
-) {
-  return `Collaboration Request from ${organizationName} Revoked`;
+export function collaborationRequestRevokedEmailTitle(workspaceName: string) {
+  return `Collaboration Request from ${workspaceName} Revoked`;
 }
 
 export function collaborationRequestRevokedEmailHTML(
   props: ICollaborationRequestRevokedEmailProps
 ) {
-  const title = collaborationRequestRevokedEmailTitle(props.organizationName);
+  const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
   return `
     <!DOCTYPE html>
     <html lang="en-US">
@@ -32,7 +30,7 @@ export function collaborationRequestRevokedEmailHTML(
         ${getHeaderHTML(title)}
         ${getCenteredContentHTML(`
         <p>
-            This is to notify you that the collaboration request sent from <b>${props.organizationName}</b> has been revoked.
+            This is to notify you that the collaboration request sent from <b>${props.workspaceName}</b> has been revoked.
         </p>
         `)}
         ${getFooterHTML()}
@@ -44,12 +42,12 @@ export function collaborationRequestRevokedEmailHTML(
 export function collaborationRequestRevokedEmailText(
   props: ICollaborationRequestRevokedEmailProps
 ) {
-  const title = collaborationRequestRevokedEmailTitle(props.organizationName);
+  const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
   const txt = `
 ${getHeaderText(title)}
 -
 This is to notify you that the collaboration request sent from ${
-    props.organizationName
+    props.workspaceName
   } has been revoked.
 `;
 

@@ -1,7 +1,7 @@
 import {NotFoundError} from '../errors';
 import {IAssignedPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
 import {IAssignedTag} from '../../definitions/tag';
-import {IUserOrganization} from '../../definitions/user';
+import {IUserWorkspace} from '../../definitions/user';
 import {defaultTo} from 'lodash';
 import {
   IAssignedItem,
@@ -52,26 +52,26 @@ export function assignedItemsToAssignedTagList(
   );
 }
 
-export function assignedItemToAssignedOrganization(
+export function assignedItemToAssignedWorkspace(
   item: IAssignedItem,
   presetItems: IAssignedItem[]
-): IUserOrganization {
+): IUserWorkspace {
   return {
-    organizationId: item.assignedItemId,
+    workspaceId: item.assignedItemId,
     joinedAt: item.assignedAt,
     presets: assignedItemsToAssignedPresetList(presetItems),
   };
 }
 
-export function assignedItemsToAssignedOrgList(
+export function assignedItemsToAssignedWorkspaceList(
   items: IAssignedItem[],
   itemsPresetMap: Record<string, IAssignedItem[]>
-): IUserOrganization[] {
+): IUserWorkspace[] {
   return (
     items
-      // .filter(item => item.assignedItemType === AppResourceType.Organization)
+      // .filter(item => item.assignedItemType === AppResourceType.Workspace)
       .map(item =>
-        assignedItemToAssignedOrganization(
+        assignedItemToAssignedWorkspace(
           item,
           defaultTo(itemsPresetMap[item.assignedItemId], [])
         )
@@ -85,7 +85,7 @@ export function throwAssignedItemNotFound() {
 
 export function assignedItemIndexer(item: IAssignedItemMainFieldsMatcher) {
   return makeKey([
-    item.organizationId,
+    item.workspaceId,
     item.assignedItemId,
     item.assignedItemType,
     item.assignedToItemId,

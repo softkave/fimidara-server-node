@@ -12,9 +12,9 @@ import {
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getOrganizationIdNoThrow} from '../contexts/SessionContext';
+import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {folderConstants} from './constants';
@@ -28,7 +28,7 @@ const folderFields = getFields<IPublicFolder>({
   lastUpdatedBy: agentExtractorIfPresent,
   lastUpdatedAt: getDateStringIfPresent,
   maxFileSizeInBytes: true,
-  organizationId: true,
+  workspaceId: true,
   parentId: true,
   name: true,
   description: true,
@@ -114,27 +114,24 @@ export async function checkFolderAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    folder.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, folder.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: folder,
     type: AppResourceType.Folder,
     permissionOwners: getFilePermissionOwners(
-      organization.resourceId,
+      workspace.resourceId,
       folder,
       AppResourceType.Folder
     ),
   });
 
-  return {agent, organization, folder};
+  return {agent, workspace, folder};
 }
 
 // With folder path
@@ -154,9 +151,9 @@ export function getFolderName(folder: IFolder) {
 }
 
 export function getFolderMatcher(agent: ISessionAgent, data: IFolderMatcher) {
-  const organizationId = getOrganizationIdNoThrow(agent, data.organizationId);
+  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
   return {
     ...data,
-    organizationId,
+    workspaceId,
   };
 }

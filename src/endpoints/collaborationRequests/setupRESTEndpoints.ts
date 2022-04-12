@@ -2,7 +2,7 @@ import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
 import sendRequest from './sendRequest/handler';
 import deleteRequest from './deleteRequest/handler';
-import getOrganizationRequests from './getOrganizationRequests/handler';
+import getWorkspaceRequests from './getWorkspaceRequests/handler';
 import getUserRequests from './getUserRequests/handler';
 import respondToRequest from './respondToRequest/handler';
 import revokeRequest from './revokeRequest/handler';
@@ -17,7 +17,7 @@ export default function setupCollaborationRequestsRESTEndpoints(
   const endpoints = {
     sendRequest: wrapEndpointREST(sendRequest, ctx),
     deleteRequest: wrapEndpointREST(deleteRequest, ctx),
-    getOrganizationRequests: wrapEndpointREST(getOrganizationRequests, ctx),
+    getWorkspaceRequests: wrapEndpointREST(getWorkspaceRequests, ctx),
     getUserRequests: wrapEndpointREST(getUserRequests, ctx),
     respondToRequest: wrapEndpointREST(respondToRequest, ctx),
     revokeRequest: wrapEndpointREST(revokeRequest, ctx),
@@ -27,10 +27,7 @@ export default function setupCollaborationRequestsRESTEndpoints(
 
   app.post('/requests/sendRequest', endpoints.sendRequest);
   app.post('/requests/deleteRequest', endpoints.deleteRequest);
-  app.post(
-    '/requests/getOrganizationRequests',
-    endpoints.getOrganizationRequests
-  );
+  app.post('/requests/getWorkspaceRequests', endpoints.getWorkspaceRequests);
   app.post('/requests/getUserRequests', endpoints.getUserRequests);
   app.post('/requests/respondToRequest', endpoints.respondToRequest);
   app.post('/requests/revokeRequest', endpoints.revokeRequest);

@@ -6,13 +6,13 @@ import {
 } from './helpers';
 
 export interface ICollaborationRequestExpiredEmailProps {
-  organizationName: string;
+  workspaceName: string;
 }
 
 export function collaborationRequestExpiredEmailHTML(
   props: ICollaborationRequestExpiredEmailProps
 ) {
-  const title = `Collaboration Request from ${props.organizationName} Expired`;
+  const title = `Collaboration Request from ${props.workspaceName} Expired`;
 
   return `
     <!DOCTYPE html>
@@ -26,7 +26,7 @@ export function collaborationRequestExpiredEmailHTML(
         ${getHeaderHTML(title)}
         <p>
             This is to notify you that the collaboration request sent from ${
-              props.organizationName
+              props.workspaceName
             } has been expired.
         </p>
         <p>
@@ -40,12 +40,12 @@ export function collaborationRequestExpiredEmailHTML(
 export function collaborationRequestExpiredEmailText(
   props: ICollaborationRequestExpiredEmailProps
 ) {
-  const title = `Collaboration Request from ${props.organizationName} Expired`;
+  const title = `Collaboration Request from ${props.workspaceName} Expired`;
   const txt = `
 ${getHeaderText(title)}
 -
 This is to notify you that the collaboration request sent from ${
-    props.organizationName
+    props.workspaceName
   } has been expired.
 `;
 

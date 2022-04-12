@@ -5,7 +5,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const assignedItemSchema = ensureTypeFields<IAssignedItem>({
   resourceId: {type: String},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   assignedAt: {type: Date, default: getDate},
   assignedBy: {type: agentSchema},
   assignedItemId: {type: String},

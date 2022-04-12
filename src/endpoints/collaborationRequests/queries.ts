@@ -6,16 +6,9 @@ function newFilter() {
   return new DataProviderFilterBuilder<ICollaborationRequest>();
 }
 
-function getByOrganizationIdAndUserEmail(
-  organizationId: string,
-  userEmail: string
-) {
+function getByWorkspaceIdAndUserEmail(workspaceId: string, userEmail: string) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'recipientEmail',
       new RegExp(`^${userEmail}$`, 'i'),
@@ -36,5 +29,5 @@ function getByUserEmail(userEmail: string) {
 
 export default abstract class CollaborationRequestQueries {
   static getByUserEmail = getByUserEmail;
-  static getByOrganizationIdAndUserEmail = getByOrganizationIdAndUserEmail;
+  static getByWorkspaceIdAndUserEmail = getByWorkspaceIdAndUserEmail;
 }

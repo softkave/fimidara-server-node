@@ -30,7 +30,7 @@ const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
 
   file = await withAssignedPresetsAndTags(
     context,
-    file.organizationId,
+    file.workspaceId,
     file,
     AppResourceType.File
   );

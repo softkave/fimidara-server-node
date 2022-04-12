@@ -3,7 +3,7 @@ import {IAssignedTag} from './tag';
 
 export interface IPresetPermissionsGroup {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   createdAt: Date | string;
   createdBy: IAgent;
   lastUpdatedAt?: Date | string;
@@ -24,12 +24,12 @@ export interface IAssignedPresetPermissionsGroup {
 export interface IPresetPermissionsGroupMatcher {
   presetId?: string;
   name?: string;
-  organizationId?: string;
+  workspaceId?: string;
 }
 
 export interface IPublicPresetPermissionsGroup {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   createdAt: string;
   createdBy: IAgent;
   lastUpdatedAt?: string;

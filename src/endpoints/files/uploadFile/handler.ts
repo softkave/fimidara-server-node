@@ -2,7 +2,7 @@ import assert = require('assert');
 import {first} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -15,7 +15,7 @@ import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
@@ -45,42 +45,42 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
   if (!file) {
     assert(
-      matcher.organizationId && matcher.filepath,
-      new ValidationError('Organization ID and or file path missing')
+      matcher.workspaceId && matcher.filepath,
+      new ValidationError('Workspace ID and or file path missing')
     );
 
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
-    const organization = await context.data.organization.assertGetItem(
-      EndpointReusableQueries.getById(matcher.organizationId)
+    const workspace = await context.data.workspace.assertGetItem(
+      EndpointReusableQueries.getById(matcher.workspaceId)
     );
 
     const parentFolder = await createFileParentFolders(
       context,
       agent,
-      organization,
+      workspace,
       pathWithDetails
     );
 
-    await checkUploadFileAuth(context, agent, organization, null, parentFolder);
+    await checkUploadFileAuth(context, agent, workspace, null, parentFolder);
     file = await internalCreateFile(
       context,
       agent,
-      organization,
+      workspace,
       pathWithDetails,
       data,
       parentFolder
     );
   } else {
-    const organization = await context.data.organization.assertGetItem(
-      EndpointReusableQueries.getById(file.organizationId)
+    const workspace = await context.data.workspace.assertGetItem(
+      EndpointReusableQueries.getById(file.workspaceId)
     );
 
-    await checkUploadFileAuth(context, agent, organization, file, null);
+    await checkUploadFileAuth(context, agent, workspace, file, null);
     const pathWithDetails = splitfilepathWithDetails(file.namePath);
     file = await internalUpdateFile(
       context,
       agent,
-      organization,
+      workspace,
       pathWithDetails,
       file,
       data
@@ -98,7 +98,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
   file = await withAssignedPresetsAndTags(
     context,
-    file.organizationId,
+    file.workspaceId,
     file,
     AppResourceType.File
   );
@@ -111,11 +111,11 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 async function createFileParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   pathWithDetails: ISplitfilepathWithDetails
 ) {
   if (pathWithDetails.hasParent) {
-    return await createFolderList(context, agent, organization, {
+    return await createFolderList(context, agent, workspace, {
       folderpath: pathWithDetails.parentPath,
     });
   }
@@ -126,7 +126,7 @@ async function createFileParentFolders(
 async function checkUploadFileAuth(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   file: IFile | null,
   closestExistingFolder: IFolder | null
 ) {
@@ -141,22 +141,22 @@ async function checkUploadFileAuth(
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.File,
     resource: file,
     permissionOwners: file
       ? getFilePermissionOwners(
-          organization.resourceId,
+          workspace.resourceId,
           file,
           AppResourceType.File
         )
       : closestExistingFolder
       ? getFilePermissionOwners(
-          organization.resourceId,
+          workspace.resourceId,
           closestExistingFolder,
           AppResourceType.Folder
         )
-      : makeOrgPermissionOwnerList(organization.resourceId),
+      : makeWorkspacePermissionOwnerList(workspace.resourceId),
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files

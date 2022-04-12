@@ -3,27 +3,24 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {
-  IPublicCollaborator,
-  IUserWithOrganization,
-} from '../../definitions/user';
-import {withUserOrganizations} from '../assignedItems/getAssignedItems';
+import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
+import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import EndpointReusableQueries from '../queries';
 
 export const collaboratorExtractor = (
-  item: IUserWithOrganization,
-  organizationId: string
+  item: IUserWithWorkspace,
+  workspaceId: string
 ) => {
-  const userOrg = getCollaboratorOrganization(item, organizationId);
+  const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
 
-  if (!userOrg) {
+  if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
 
@@ -32,59 +29,59 @@ export const collaboratorExtractor = (
     firstName: item.firstName,
     lastName: item.lastName,
     email: item.email,
-    joinedAt: userOrg.joinedAt,
-    organizationId: userOrg.organizationId,
-    presets: userOrg.presets,
+    joinedAt: userWorkspace.joinedAt,
+    workspaceId: userWorkspace.workspaceId,
+    presets: userWorkspace.presets,
   };
 
   return collaborator;
 };
 
 export const collaboratorListExtractor = (
-  items: IUserWithOrganization[],
-  organizationId: string
+  items: IUserWithWorkspace[],
+  workspaceId: string
 ) => {
-  return items.map(item => collaboratorExtractor(item, organizationId));
+  return items.map(item => collaboratorExtractor(item, workspaceId));
 };
 
 export async function checkCollaboratorAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
-  collaborator: IUserWithOrganization,
+  workspaceId: string,
+  collaborator: IUserWithWorkspace,
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const userOrg = getCollaboratorOrganization(collaborator, organizationId);
+  const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
 
-  if (!userOrg) {
+  if (!userWorkspace) {
     throwCollaboratorNotFound();
   }
 
-  const organization = await checkOrganizationExists(context, organizationId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: collaborator,
     type: AppResourceType.User,
-    permissionOwners: makeOrgPermissionOwnerList(organizationId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
   });
 
-  return {agent, collaborator, organization};
+  return {agent, collaborator, workspace};
 }
 
 export async function checkCollaboratorAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
-  organizationId: string,
+  workspaceId: string,
   collaboratorId: string,
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const collaborator = await withUserOrganizations(
+  const collaborator = await withUserWorkspaces(
     context,
     await context.data.user.assertGetItem(
       EndpointReusableQueries.getById(collaboratorId)
@@ -94,7 +91,7 @@ export async function checkCollaboratorAuthorization02(
   return checkCollaboratorAuthorization(
     context,
     agent,
-    organizationId,
+    workspaceId,
     collaborator,
     action,
     nothrow
@@ -105,23 +102,21 @@ export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
 }
 
-export function getCollaboratorOrganization(
-  user: IUserWithOrganization,
-  organizationId: string
+export function getCollaboratorWorkspace(
+  user: IUserWithWorkspace,
+  workspaceId: string
 ) {
-  return user.organizations.find(
-    item => item.organizationId === organizationId
-  );
+  return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
-export function removeOtherUserOrgs(
-  collaborator: IUserWithOrganization,
-  orgId: string
-): IUserWithOrganization {
+export function removeOtherUserWorkspaces(
+  collaborator: IUserWithWorkspace,
+  workspaceId: string
+): IUserWithWorkspace {
   return {
     ...collaborator,
-    organizations: collaborator.organizations.filter(
-      item => item.organizationId === orgId
+    workspaces: collaborator.workspaces.filter(
+      item => item.workspaceId === workspaceId
     ),
   };
 }

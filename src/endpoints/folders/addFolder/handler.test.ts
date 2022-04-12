@@ -45,9 +45,8 @@ describe('addFolder', () => {
 
   test('folder created with public access ops', async () => {
     assertContext(context);
-    const {folder, insertOrgResult} = await addFolderWithPublicAccessOpsTest(
-      context,
-      {
+    const {folder, insertWorkspaceResult} =
+      await addFolderWithPublicAccessOpsTest(context, {
         publicAccessOps: [
           {
             action: BasicCRUDActions.Create,
@@ -66,55 +65,58 @@ describe('addFolder', () => {
             resourceType: AppResourceType.Folder,
           },
         ],
-      }
-    );
+      });
 
     const folderpath = folder.namePath.join(folderConstants.nameSeparator);
-    const orgId = insertOrgResult.organization.resourceId;
+    const workspaceId = insertWorkspaceResult.workspace.resourceId;
     const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
       context,
-      orgId,
+      workspaceId,
       folderpath
     );
 
     const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
     const {file} = await assertCanUploadToPublicFile(
       context,
-      orgId,
+      workspaceId,
       folder02Path + '/' + faker.lorem.word()
     );
 
-    await assertCanListContentOfPublicFolder(context, orgId, folder02Path);
+    await assertCanListContentOfPublicFolder(
+      context,
+      workspaceId,
+      folder02Path
+    );
     const filepath = file.namePath.join(folderConstants.nameSeparator);
-    await assertCanReadPublicFile(context, orgId, filepath);
+    await assertCanReadPublicFile(context, workspaceId, filepath);
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFolder(context, orgId, folderpath);
+      await assertCanDeletePublicFolder(context, workspaceId, folderpath);
     }, [PermissionDeniedError.name]);
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFile(context, orgId, filepath);
+      await assertCanDeletePublicFile(context, workspaceId, filepath);
     }, [PermissionDeniedError.name]);
   });
 
   test('folder created with all public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertOrgResult} =
+    const {savedFolder, insertWorkspaceResult} =
       await addFolderWithPublicAccessOpsTest(context, {
         publicAccessOps: makeEveryFolderPublicAccessOp(),
       });
 
-    await assertPublicOps(context, savedFolder, insertOrgResult);
+    await assertPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 
   test('folder created with all public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertOrgResult} =
+    const {savedFolder, insertWorkspaceResult} =
       await addFolderWithPublicAccessOpsTest(context, {
         publicAccessOps: makeEveryFolderPublicAccessOp02(),
       });
 
-    await assertPublicOps(context, savedFolder, insertOrgResult);
+    await assertPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 });

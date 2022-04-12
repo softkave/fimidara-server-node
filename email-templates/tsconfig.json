@@ -6,7 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "es6",
     "moduleResolution": "node",
-    "outDir": "code",
+    "outDir": "compiled-code",
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true
   },

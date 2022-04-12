@@ -3,14 +3,14 @@ import {IUser} from '../../definitions/user';
 import {indexArray} from '../../utilities/indexArray';
 import {
   withAssignedPresetsAndTags,
-  withUserOrganizations,
+  withUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/BaseContext';
 import {IResource} from './types';
 
 export async function resourceWithAssignedItems(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   resource: IResource
 ) {
   switch (resource.resourceType) {
@@ -19,18 +19,18 @@ export async function resourceWithAssignedItems(
     case AppResourceType.File:
       resource.resource = await withAssignedPresetsAndTags(
         context,
-        organizationId,
+        workspaceId,
         resource.resource,
         resource.resourceType
       );
       return resource;
     case AppResourceType.User:
-      resource.resource = await withUserOrganizations(
+      resource.resource = await withUserWorkspaces(
         context,
         resource.resource as IUser
       );
       return resource;
-    case AppResourceType.Organization:
+    case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
     case AppResourceType.PermissionItem:
     case AppResourceType.ClientAssignedToken:
@@ -43,7 +43,7 @@ export async function resourceWithAssignedItems(
 
 export async function resourceListWithAssignedItems(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   resourceList: IResource[],
   forTypes: AppResourceType[] = Object.values(AppResourceType)
 ) {
@@ -51,7 +51,7 @@ export async function resourceListWithAssignedItems(
   return Promise.all(
     resourceList.map(item =>
       forTypesMap[item.resourceType]
-        ? resourceWithAssignedItems(context, organizationId, item)
+        ? resourceWithAssignedItems(context, workspaceId, item)
         : item
     )
   );

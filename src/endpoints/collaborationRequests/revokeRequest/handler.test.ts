@@ -6,7 +6,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -29,11 +29,11 @@ test('collaboration request revoked', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       recipientEmail: user02.email,
     }

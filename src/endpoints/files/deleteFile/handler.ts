@@ -40,7 +40,7 @@ export async function deleteFileAndArtifacts(
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByResource(
-        file.organizationId,
+        file.workspaceId,
         file.resourceId,
         AppResourceType.File
       )
@@ -54,7 +54,7 @@ export async function deleteFileAndArtifacts(
     // Delete assigned tags and presets
     deleteResourceAssignedItems(
       context,
-      file.organizationId,
+      file.workspaceId,
       file.resourceId,
       AppResourceType.File
     ),

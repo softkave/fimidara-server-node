@@ -11,7 +11,7 @@ export interface IProgramAccessToken {
   createdBy: IAgent;
   lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
-  organizationId: string;
+  workspaceId: string;
 
   // environmentId: string;
   // presets: IAssignedPresetPermissionsGroup[];
@@ -26,7 +26,7 @@ export interface IPublicProgramAccessToken {
   createdBy: IAgent;
   lastUpdatedAt?: string;
   lastUpdatedBy?: IAgent;
-  organizationId: string;
+  workspaceId: string;
   presets: IAssignedPresetPermissionsGroup[];
   tokenStr: string;
   tags: IAssignedTag[];

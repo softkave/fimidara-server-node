@@ -8,11 +8,11 @@ export enum PermissionItemAppliesTo {
 
 export interface IPermissionItem {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   createdAt: Date | string;
   createdBy: IAgent;
 
-  // Owners are file, folder and organization.
+  // Owners are file, folder and workspace.
   // The action defined in the permission item will affect
   // the permission owner, and it's children resources.
   permissionOwnerId: string;
@@ -33,7 +33,7 @@ export interface IPermissionItem {
 
 export interface IPublicPermissionItem {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   createdAt: string;
   createdBy: IAgent;
   permissionOwnerId: string;

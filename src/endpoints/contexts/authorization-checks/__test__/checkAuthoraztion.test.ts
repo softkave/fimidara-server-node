@@ -6,7 +6,7 @@ import RequestData from '../../../RequestData';
 import {
   getTestBaseContext,
   insertUserForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertFileForTest,
   mockExpressRequestWithUserToken,
   assertContext,
@@ -37,11 +37,11 @@ describe('checkAuthorization', () => {
   test('auth is granted when agent has permission', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const agent = await context.session.getAgent(
@@ -52,11 +52,11 @@ describe('checkAuthorization', () => {
     const permitted = await checkAuthorization({
       context,
       agent,
-      organization,
+      workspace,
       resource: file,
       type: AppResourceType.File,
       permissionOwners: getFilePermissionOwners(
-        organization.resourceId,
+        workspace.resourceId,
         file,
         AppResourceType.File
       ),
@@ -70,11 +70,11 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const agent02 = await context.session.getAgent(
@@ -86,12 +86,12 @@ describe('checkAuthorization', () => {
 
     const permitted = await checkAuthorization({
       context,
-      organization,
+      workspace,
       agent: agent02,
       resource: file,
       type: AppResourceType.File,
       permissionOwners: getFilePermissionOwners(
-        organization.resourceId,
+        workspace.resourceId,
         file,
         AppResourceType.File
       ),
@@ -106,11 +106,11 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const agent02 = await context.session.getAgent(
@@ -123,12 +123,12 @@ describe('checkAuthorization', () => {
     try {
       await checkAuthorization({
         context,
-        organization,
+        workspace,
         agent: agent02,
         resource: file,
         type: AppResourceType.File,
         permissionOwners: getFilePermissionOwners(
-          organization.resourceId,
+          workspace.resourceId,
           file,
           AppResourceType.File
         ),

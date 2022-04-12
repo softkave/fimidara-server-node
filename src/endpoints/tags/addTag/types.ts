@@ -8,7 +8,7 @@ export interface INewTagInput {
 }
 
 export interface IAddTagEndpointParams {
-  organizationId?: string;
+  workspaceId?: string;
   tag: INewTagInput;
 }
 

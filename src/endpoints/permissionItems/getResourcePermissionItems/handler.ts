@@ -6,9 +6,9 @@ import {
   checkAuthorization,
   getFilePermissionOwners,
   IPermissionOwner,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {IResource} from '../../resources/types';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
@@ -23,21 +23,18 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 ) => {
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  const {resources} = await checkResourcesExist(context, agent, organization, [
+  const {resources} = await checkResourcesExist(context, agent, workspace, [
     data,
   ]);
 
@@ -45,17 +42,12 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   const resource: IResource | undefined = first(resources);
 
   if (data.permissionOwnerId && data.permissionOwnerType) {
-    const result = await checkPermissionOwnersExist(
-      context,
-      agent,
-      organization,
-      [
-        {
-          permissionOwnerId: data.permissionOwnerId,
-          permissionOwnerType: data.permissionOwnerType,
-        },
-      ]
-    );
+    const result = await checkPermissionOwnersExist(context, agent, workspace, [
+      {
+        permissionOwnerId: data.permissionOwnerId,
+        permissionOwnerType: data.permissionOwnerType,
+      },
+    ]);
 
     permissionOwner = first(result.resources);
   }
@@ -68,7 +60,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
       resource.resourceType === AppResourceType.Folder)
   ) {
     permissionOwners = getFilePermissionOwners(
-      organization.resourceId,
+      workspace.resourceId,
       resource.resource as any,
       resource.resourceType
     );
@@ -78,12 +70,12 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
       permissionOwner.resourceType === AppResourceType.Folder)
   ) {
     permissionOwners = getFilePermissionOwners(
-      organization.resourceId,
+      workspace.resourceId,
       permissionOwner.resource as any,
       permissionOwner.resourceType
     );
   } else {
-    permissionOwners = makeOrgPermissionOwnerList(organization.resourceId);
+    permissionOwners = makeWorkspacePermissionOwnerList(workspace.resourceId);
   }
 
   const items2DList = await Promise.all(

@@ -5,7 +5,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPresetForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -25,11 +25,11 @@ afterAll(async () => {
 test('referenced preset returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData =

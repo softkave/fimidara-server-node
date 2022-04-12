@@ -8,13 +8,13 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
   CURRENT_TOKEN_VERSION,
-  getOrganizationId,
+  getWorkspaceId,
 } from '../../contexts/SessionContext';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {getPublicClientToken} from '../utils';
@@ -27,14 +27,14 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, addClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const organization = await checkOrganizationExists(context, organizationId);
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.ClientAssignedToken,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
@@ -43,7 +43,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   if (data.token.name) {
     await checkClientTokenNameExists(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       data.token.name
     );
   }
@@ -51,7 +51,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   if (data.token.providedResourceId) {
     token = await context.data.clientAssignedToken.getItem(
       EndpointReusableQueries.getByProvidedId(
-        organization.resourceId,
+        workspace.resourceId,
         data.token.providedResourceId
       )
     );
@@ -60,7 +60,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   if (!token) {
     token = await context.data.clientAssignedToken.saveItem({
       ...omit(data.token, 'presets', 'tags'),
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
       resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
@@ -87,7 +87,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     token.resourceId,
     AppResourceType.ClientAssignedToken,
     data.token
@@ -95,7 +95,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ClientAssignedToken
   );

@@ -8,7 +8,7 @@ export interface ITag {
   createdBy: IAgent;
   lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
-  organizationId: string;
+  workspaceId: string;
 }
 
 export interface IAssignedTagInput {

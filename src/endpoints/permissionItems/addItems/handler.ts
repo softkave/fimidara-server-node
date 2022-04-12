@@ -6,10 +6,10 @@ import {indexArray} from '../../../utilities/indexArray';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import PermissionItemQueries from '../queries';
 import {permissionItemIndexer, PermissionItemUtils} from '../utils';
 import {AddPermissionItemsEndpoint} from './types';
@@ -21,21 +21,21 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
 ) => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organizationId = await getOrganizationId(agent, data.organizationId);
-  const organization = await checkOrganizationExists(context, organizationId);
+  const workspaceId = await getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action: BasicCRUDActions.GrantPermission,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeOrgPermissionOwnerList(organizationId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
   });
 
   const hashList: string[] = [];
   const inputItems: IPermissionItem[] = data.items.map(input => {
     const item: IPermissionItem = {
-      organizationId,
+      workspaceId,
       ...input,
       resourceId: getNewId(),
       createdAt: getDate(),
@@ -52,7 +52,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
   });
 
   const existingItems = await context.data.permissionItem.getManyItems(
-    PermissionItemQueries.getByHashList(organizationId, hashList)
+    PermissionItemQueries.getByHashList(workspaceId, hashList)
   );
 
   const existingItemsMap = indexArray(existingItems, {path: 'hash'});

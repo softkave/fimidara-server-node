@@ -1,5 +1,5 @@
 import {uniqWith} from 'lodash';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {
   IPermissionItem,
   IPublicPermissionItem,
@@ -24,7 +24,7 @@ import {makeKey} from '../../utilities/fns';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   resourceId: true,
-  organizationId: true,
+  workspaceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   permissionOwnerId: true,
@@ -101,16 +101,16 @@ export function makePermissionItemInputsFromPublicAccessOps(
 export async function replacePublicPresetAccessOpsByPermissionOwner(
   context: IBaseContext,
   agent: IAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   permissionOwnerId: string,
   permissionOwnerType: AppResourceType,
   addOps: IPublicAccessOp[],
   itemResourceId?: string
 ) {
-  if (organization.publicPresetId) {
+  if (workspace.publicPresetId) {
     await context.data.permissionItem.deleteManyItems(
       PermissionItemQueries.getByPermissionEntityAndOwner(
-        organization.publicPresetId,
+        workspace.publicPresetId,
         AppResourceType.PresetPermissionsGroup,
         permissionOwnerId,
         permissionOwnerType
@@ -119,8 +119,8 @@ export async function replacePublicPresetAccessOpsByPermissionOwner(
 
     if (addOps.length > 0) {
       await internalReplacePermissionItemsByEntity(context, agent, {
-        organizationId: organization.resourceId,
-        permissionEntityId: organization.publicPresetId,
+        workspaceId: workspace.resourceId,
+        permissionEntityId: workspace.publicPresetId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
         items: makePermissionItemInputsFromPublicAccessOps(
           permissionOwnerId,

@@ -75,8 +75,8 @@ export interface IGetManyItemsOptions {
  * of having to write little queries. With it, we'd be able to query like so"
  * {
  *    userId: data.userId,
- *    organizations: matchInArray({
- *        organizationId: data.organizationId
+ *    workspaces: matchInArray({
+ *        workspaceId: data.workspaceId
  *    }),
  *    createdAt: matchInObject({
  *        agentId: data.agentId

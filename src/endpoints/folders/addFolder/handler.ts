@@ -1,6 +1,6 @@
 import {merge, omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -19,10 +19,10 @@ import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getOrganizationId} from '../../contexts/SessionContext';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
@@ -39,13 +39,13 @@ import {addFolderJoiSchema} from './validation';
 export async function createSingleFolder(
   context: IBaseContext,
   agent: IAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   parent: IFolder | null,
   input: INewFolderInput
 ) {
   const {splitPath, name} = splitPathWithDetails(input.folderpath);
   const existingFolder = await context.data.folder.getItem(
-    FolderQueries.folderExistsByNamePath(organization.resourceId, splitPath)
+    FolderQueries.folderExistsByNamePath(workspace.resourceId, splitPath)
   );
 
   if (existingFolder) {
@@ -55,7 +55,7 @@ export async function createSingleFolder(
   const folderId = getNewId();
   const savedFolder = await context.data.folder.saveItem({
     name,
-    organizationId: organization.resourceId,
+    workspaceId: workspace.resourceId,
     resourceId: folderId,
     parentId: parent?.resourceId,
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
@@ -79,7 +79,7 @@ export async function createSingleFolder(
   await replacePublicPresetAccessOpsByPermissionOwner(
     context,
     agent,
-    organization,
+    workspace,
     savedFolder.resourceId,
     AppResourceType.Folder,
     publicAccessOps
@@ -90,14 +90,14 @@ export async function createSingleFolder(
 
 export async function getClosestExistingFolder(
   context: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   splitParentPath: string[]
 ) {
   const existingFolders = await Promise.all(
     splitParentPath.map((p, i) => {
       return context.data.folder.getItem(
         FolderQueries.getByNamePath(
-          organizationId,
+          workspaceId,
           splitParentPath.slice(0, i + 1)
         )
       );
@@ -117,14 +117,14 @@ export async function getClosestExistingFolder(
 export async function createFolderList(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   input: INewFolderInput
 ) {
   const pathWithDetails = assertSplitPathWithDetails(input.folderpath);
   const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
     await getClosestExistingFolder(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       pathWithDetails.splitPath
     );
 
@@ -147,15 +147,15 @@ export async function createFolderList(
       await checkAuthorization({
         context,
         agent,
-        organization,
+        workspace,
         type: AppResourceType.Folder,
         permissionOwners: previousFolder
           ? getFilePermissionOwners(
-              organization.resourceId,
+              workspace.resourceId,
               previousFolder,
               AppResourceType.Folder
             )
-          : makeOrgPermissionOwnerList(organization.resourceId),
+          : makeWorkspacePermissionOwnerList(workspace.resourceId),
         action: BasicCRUDActions.Create,
       });
 
@@ -176,7 +176,7 @@ export async function createFolderList(
     previousFolder = await createSingleFolder(
       context,
       agent,
-      organization,
+      workspace,
       previousFolder,
       nextInput
     );
@@ -199,22 +199,17 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const organization = await context.data.organization.assertGetItem(
-    EndpointReusableQueries.getById(organizationId)
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await context.data.workspace.assertGetItem(
+    EndpointReusableQueries.getById(workspaceId)
   );
 
-  let folder = await createFolderList(
-    context,
-    agent,
-    organization,
-    data.folder
-  );
+  let folder = await createFolderList(context, agent, workspace, data.folder);
 
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     folder.resourceId,
     AppResourceType.Folder,
     data.folder,
@@ -223,7 +218,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
 
   folder = await withAssignedPresetsAndTags(
     context,
-    folder.organizationId,
+    folder.workspaceId,
     folder,
     AppResourceType.Folder
   );

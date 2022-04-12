@@ -30,7 +30,7 @@ const getFolder: GetFolderEndpoint = async (context, instData) => {
 
   folder = await withAssignedPresetsAndTags(
     context,
-    folder.organizationId,
+    folder.workspaceId,
     folder,
     AppResourceType.Folder
   );

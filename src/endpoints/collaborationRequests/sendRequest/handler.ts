@@ -10,15 +10,15 @@ import {sendRequestJoiSchema} from './validation';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {collabRequestExtractor} from '../utils';
 import {IUser} from '../../../definitions/user';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaboratorQueries from '../../collaborators/queries';
 import {ResourceExistsError} from '../../errors';
 import CollaborationRequestQueries from '../queries';
-import {getCollaboratorOrganization} from '../../collaborators/utils';
+import {getCollaboratorWorkspace} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {
@@ -27,22 +27,19 @@ import {
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
-import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     type: AppResourceType.CollaborationRequest,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
@@ -52,14 +49,14 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   );
 
   if (existingUser) {
-    const existingUserWithOrgs = await withUserOrganizations(
+    const existingUserWithWorkspaces = await withUserWorkspaces(
       context,
       existingUser
     );
 
     collaboratorExists = !!(
       existingUser &&
-      getCollaboratorOrganization(existingUserWithOrgs, data.organizationId)
+      getCollaboratorWorkspace(existingUserWithWorkspaces, data.workspaceId)
     );
   }
 
@@ -70,8 +67,8 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   }
 
   const existingRequest = await context.data.collaborationRequest.getItem(
-    CollaborationRequestQueries.getByOrganizationIdAndUserEmail(
-      data.organizationId,
+    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(
+      data.workspaceId,
       data.request.recipientEmail
     )
   );
@@ -97,8 +94,8 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
       agentType: agent.agentType,
     },
     message: data.request.message,
-    organizationName: organization.name,
-    organizationId: organization.resourceId,
+    workspaceName: workspace.name,
+    workspaceId: workspace.resourceId,
     recipientEmail: data.request.recipientEmail,
     expiresAt: data.request.expires,
     statusHistory: [
@@ -121,7 +118,7 @@ async function sendEmail(
   toUser: IUser | null
 ) {
   const emailProps: ICollaborationRequestEmailProps = {
-    organizationName: request.organizationName,
+    workspaceName: request.workspaceName,
     isRecipientAUser: !!toUser,
     loginLink: context.appVariables.clientLoginLink,
     signupLink: context.appVariables.clientSignupLink,
@@ -132,7 +129,7 @@ async function sendEmail(
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);
   await context.email.sendEmail(context, {
-    subject: collaborationRequestEmailTitle(request.organizationName),
+    subject: collaborationRequestEmailTitle(request.workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
     source: context.appVariables.appDefaultEmailAddressFrom,

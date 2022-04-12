@@ -11,7 +11,7 @@ export interface IClientAssignedToken {
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: Date | string;
-  organizationId: string;
+  workspaceId: string;
   version: number;
 
   // not same as iat in token, may be a litte bit behind or after
@@ -35,7 +35,7 @@ export interface IPublicClientAssignedToken {
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;
   lastUpdatedAt?: string;
-  organizationId: string;
+  workspaceId: string;
   presets: IAssignedPresetPermissionsGroup[];
   issuedAt: string;
   expires?: string;

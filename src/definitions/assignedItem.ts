@@ -4,7 +4,7 @@ import {IAssignedTag} from './tag';
 
 export interface IAssignedItem<Meta extends object = object> {
   resourceId: string;
-  organizationId: string;
+  workspaceId: string;
   assignedItemId: string;
   assignedItemType: AppResourceType;
   assignedToItemId: string;
@@ -20,7 +20,7 @@ export type IAssignedItemMainFieldsMatcher = Pick<
   | 'assignedItemType'
   | 'assignedToItemId'
   | 'assignedToItemType'
-  | 'organizationId'
+  | 'workspaceId'
 >;
 
 export interface IAssignedPresetMeta {

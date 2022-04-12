@@ -3,7 +3,7 @@ import {IAppRuntimeVars} from '../resources/appVariables';
 import {ResourceWithPresetsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {IProgramAccessToken} from './programAccessToken';
-import {IUserWithOrganization} from './user';
+import {IUserWithWorkspace} from './user';
 import {IUserToken} from './userToken';
 
 export enum SessionAgentType {
@@ -46,7 +46,7 @@ export interface ISessionAgent {
   userToken?: IUserToken;
   programAccessToken?: ResourceWithPresetsAndTags<IProgramAccessToken>;
   clientAssignedToken?: ResourceWithPresetsAndTags<IClientAssignedToken>;
-  user?: IUserWithOrganization;
+  user?: IUserWithWorkspace;
 }
 
 export interface IAgent {
@@ -56,7 +56,7 @@ export interface IAgent {
 
 export enum AppResourceType {
   All = '*',
-  Organization = 'organization',
+  Workspace = 'workspace',
   CollaborationRequest = 'collaboration-request',
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
@@ -82,7 +82,7 @@ export enum BasicCRUDActions {
   GrantPermission = 'grant-permission',
 }
 
-export function getOrgActionList() {
+export function getWorkspaceActionList() {
   return [
     BasicCRUDActions.Create,
     BasicCRUDActions.Read,
@@ -92,7 +92,7 @@ export function getOrgActionList() {
   ];
 }
 
-export function getNonOrgActionList() {
+export function getNonWorkspaceActionList() {
   return [
     BasicCRUDActions.Create,
     BasicCRUDActions.Read,

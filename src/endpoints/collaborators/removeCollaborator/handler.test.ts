@@ -7,7 +7,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -34,12 +34,12 @@ afterAll(async () => {
 test('collaborator removed', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const instData =
     RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         collaboratorId: user.resourceId,
       }
     );
@@ -48,14 +48,14 @@ test('collaborator removed', async () => {
   assertEndpointResultOk(result);
   const assignedItems = await getResourceAssignedItems(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     user.resourceId,
     AppResourceType.User
   );
 
   expect(
     assignedItems.findIndex(
-      item => item.assignedToItemId === organization.resourceId
+      item => item.assignedToItemId === workspace.resourceId
     )
   ).toBe(-1);
 

@@ -27,7 +27,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     data.onReferenced
   );
 
-  let {organization, token} = await checkProgramAccessTokenAuthorization02(
+  let {workspace, token} = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
     tokenId,
@@ -46,7 +46,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   if (tokenUpdate.name) {
     await checkProgramTokenNameExists(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       tokenUpdate.name
     );
   }
@@ -59,7 +59,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     token.resourceId,
     AppResourceType.ProgramAccessToken,
     data.token
@@ -67,7 +67,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ProgramAccessToken
   );

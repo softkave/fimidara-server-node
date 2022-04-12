@@ -14,7 +14,7 @@
 - [ ] Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
 - [ ] add index to fields to be indexed for mongo
-- [ ] org ID should be be conditional in inputs like for the tokens
+- [ ] workspace ID should be be conditional in inputs like for the tokens
 - [ ] delete permission items when entity, owner, or resource is deleted
 - [ ] public access ops and similar inputs should be replace
 - [ ] check file size when uploading
@@ -32,20 +32,18 @@
 - [ ] maybe have a separate db for testing mongodataprovider and teardown after test or move away from data providers quickly
 - [ ] set multer limits and config
 - [ ] Send notification to the sender that the user has responded to their collaboration request
-- [ ] make organization ID not required for most APIs since it can be deduced from the tokens. Remove it all together in the JS sdk.
+- [ ] make workspace ID not required for most APIs since it can be deduced from the tokens. Remove it all together in the JS sdk.
 - [ ] ensure that all children data are deleted
 - [ ] set limits and file filter
 - [ ] should we gate who can see who's permissions
-- [ ] check that resources belong to the org in getResources
+- [ ] check that resources belong to the workspace in getResources
 - [ ] find all the places where server error is thrown and the error shouldn't be public and make them InternalError
-- [ ] change orgId in getFile to organizationId
 - [ ] swagger API
 - [ ] API compatibility layer between Igeeks and ours
-- [ ] use tags and update the names when org names or user names changes
+- [ ] use tags and update the names when workspace names or user names changes
 - [ ] add tag tests
 - [ ] client token name and description
 - [ ] free flowing tags
-- [ ] rename organization to workspace
-- [ ] implement 404 when not found
+- [ ] rename workspace to workspace
 - [ ] sort data by date by default
 - [ ] chage delete endpoints to use DELETE

@@ -1,4 +1,4 @@
-import {withUserOrganizations} from '../../assignedItems/getAssignedItems';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -6,7 +6,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -27,12 +27,12 @@ afterAll(async () => {
 test('collaborator returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const instData =
     RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         collaboratorId: user.resourceId,
       }
     );
@@ -41,13 +41,13 @@ test('collaborator returned', async () => {
   assertEndpointResultOk(result);
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(
-      await withUserOrganizations(
+      await withUserWorkspaces(
         context,
         await context.data.user.assertGetItem(
           EndpointReusableQueries.getById(user.resourceId)
         )
       ),
-      organization.resourceId
+      workspace.resourceId
     )
   );
 });

@@ -5,7 +5,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertPermissionItemsForTestByEntity,
   insertPresetForTest,
   insertUserForTest,
@@ -28,24 +28,24 @@ afterAll(async () => {
 test('permission items deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {preset} = await insertPresetForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const {items} = await insertPermissionItemsForTestByEntity(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       permissionEntityId: preset.resourceId,
       permissionEntityType: AppResourceType.PresetPermissionsGroup,
     },
     {
-      permissionOwnerId: organization.resourceId,
-      permissionOwnerType: AppResourceType.Organization,
+      permissionOwnerId: workspace.resourceId,
+      permissionOwnerType: AppResourceType.Workspace,
     },
     {itemResourceType: AppResourceType.File}
   );
@@ -55,7 +55,7 @@ test('permission items deleted', async () => {
     RequestData.fromExpressRequest<IDeletePermissionItemsByEntityEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         permissionEntityId: preset.resourceId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
         itemIds: itemIds,
@@ -65,7 +65,7 @@ test('permission items deleted', async () => {
   const result = await deletePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   const deletedItems = await context.data.permissionItem.getManyItems(
-    PermissionItemQueries.getByIds(itemIds, organization.resourceId)
+    PermissionItemQueries.getByIds(itemIds, workspace.resourceId)
   );
 
   expect(deletedItems.length).toEqual(0);

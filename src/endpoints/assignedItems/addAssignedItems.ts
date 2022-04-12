@@ -4,7 +4,7 @@ import {
   IAssignedItemMainFieldsMatcher,
   IAssignedPresetMeta,
 } from '../../definitions/assignedItem';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {IPresetInput} from '../../definitions/presetPermissionsGroup';
 import {AppResourceType, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
@@ -49,7 +49,7 @@ export async function addAssignedItemList(
 export async function addAssignedPresetList(
   context: IBaseContext,
   agent: IAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   presets: IPresetInput[],
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
@@ -58,14 +58,14 @@ export async function addAssignedPresetList(
   if (deleteExisting) {
     await deleteResourceAssignedItems(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
       AppResourceType.PresetPermissionsGroup
     );
   }
 
-  await checkPresetsExist(context, agent, organization, presets);
+  await checkPresetsExist(context, agent, workspace, presets);
   const items = presets.map(preset => {
     const meta: IAssignedPresetMeta = {order: preset.order};
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
@@ -75,7 +75,7 @@ export async function addAssignedPresetList(
       resourceId: getNewId(),
       assignedItemId: preset.presetId,
       assignedItemType: AppResourceType.PresetPermissionsGroup,
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
     };
 
     return withAssignedAgent(agent, baseItem);
@@ -87,7 +87,7 @@ export async function addAssignedPresetList(
 export async function addAssignedTagList(
   context: IBaseContext,
   agent: IAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   tags: IAssignedTagInput[],
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
@@ -96,14 +96,14 @@ export async function addAssignedTagList(
   if (deleteExisting) {
     await deleteResourceAssignedItems(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
       AppResourceType.Tag
     );
   }
 
-  await checkTagsExist(context, agent, organization, tags);
+  await checkTagsExist(context, agent, workspace, tags);
   const items = tags.map(tag => {
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
       assignedToItemId,
@@ -112,7 +112,7 @@ export async function addAssignedTagList(
       resourceId: getNewId(),
       assignedItemId: tag.tagId,
       assignedItemType: AppResourceType.PresetPermissionsGroup,
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
     };
 
     return withAssignedAgent(agent, baseItem);
@@ -124,7 +124,7 @@ export async function addAssignedTagList(
 export async function saveResourceAssignedItems(
   context: IBaseContext,
   agent: IAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   resourceId: string,
   resourceType: AppResourceType,
   data: {tags?: IAssignedTagInput[]; presets?: IPresetInput[]},
@@ -134,7 +134,7 @@ export async function saveResourceAssignedItems(
     await addAssignedPresetList(
       context,
       agent,
-      organization,
+      workspace,
       data.presets,
       resourceId,
       resourceType,
@@ -146,7 +146,7 @@ export async function saveResourceAssignedItems(
     await addAssignedTagList(
       context,
       agent,
-      organization,
+      workspace,
       data.tags,
       resourceId,
       resourceType,
@@ -155,20 +155,20 @@ export async function saveResourceAssignedItems(
   }
 }
 
-export async function addAssignedUserOrganization(
+export async function addAssignedUserWorkspace(
   context: IBaseContext,
   agent: IAgent,
-  organizationId: string,
+  workspaceId: string,
   user: IUser
 ) {
   const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
-    organizationId,
+    workspaceId,
     assignedToItemId: user.resourceId,
     assignedToItemType: AppResourceType.User,
     meta: {},
     resourceId: getNewId(),
-    assignedItemId: organizationId,
-    assignedItemType: AppResourceType.Organization,
+    assignedItemId: workspaceId,
+    assignedItemType: AppResourceType.Workspace,
   };
 
   const items: IAssignedItem[] = [withAssignedAgent(agent, baseItem)];

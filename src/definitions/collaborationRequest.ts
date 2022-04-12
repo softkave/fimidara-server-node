@@ -34,8 +34,8 @@ export interface ICollaborationRequest {
   createdBy: IAgent;
   createdAt: Date | string;
   expiresAt?: string;
-  organizationName: string;
-  organizationId: string;
+  workspaceName: string;
+  workspaceId: string;
   lastUpdatedAt?: Date | string;
   lastUpdatedBy?: IAgent;
   readAt?: Date | string;
@@ -49,8 +49,8 @@ export interface IPublicCollaborationRequest {
   createdBy: IAgent;
   createdAt: string;
   expiresAt?: string;
-  organizationId: string;
-  organizationName: string;
+  workspaceId: string;
+  workspaceName: string;
   lastUpdatedAt?: string;
   lastUpdatedBy?: IAgent;
   readAt?: string;

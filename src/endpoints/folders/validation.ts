@@ -17,7 +17,7 @@ const folderpath = Joi.string()
 const folderMatcherParts = {
   folderpath,
   folderId: validationSchemas.nanoid,
-  organizationId: validationSchemas.nanoid,
+  workspaceId: validationSchemas.nanoid,
 };
 
 const folderValidationSchemas = {folderpath, folderMatcherParts};

@@ -11,7 +11,7 @@ function newFilter() {
 }
 
 function getByAssignedItem(
-  organizationId: string,
+  workspaceId: string,
   assignedItemId: string,
   assignedItemType: AppResourceType
 ) {
@@ -26,18 +26,14 @@ function getByAssignedItem(
       assignedItemType,
       DataProviderFilterValueOperator.Equal
     )
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    );
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
 
   return filter.build();
 }
 
 function getByAssignedToResource(
-  // Use empty string for fetching user organizations
-  organizationId: string,
+  // Use empty string for fetching user workspaces
+  workspaceId: string,
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
   assignedItemType?: AppResourceType
@@ -62,10 +58,10 @@ function getByAssignedToResource(
     );
   }
 
-  if (organizationId !== '') {
+  if (workspaceId !== '') {
     filter.addItem(
-      'organizationId',
-      organizationId,
+      'workspaceId',
+      workspaceId,
       DataProviderFilterValueOperator.Equal
     );
   }
@@ -96,8 +92,8 @@ function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
       DataProviderFilterValueOperator.Equal
     )
     .addItem(
-      'organizationId',
-      matcher.organizationId,
+      'workspaceId',
+      matcher.workspaceId,
       DataProviderFilterValueOperator.Equal
     );
 

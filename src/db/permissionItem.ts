@@ -5,7 +5,7 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   resourceId: {type: String, index: true, unique: true},
-  organizationId: {type: String},
+  workspaceId: {type: String},
   createdAt: {type: Date, default: getDate},
   createdBy: {type: agentSchema},
   permissionOwnerId: {type: String},

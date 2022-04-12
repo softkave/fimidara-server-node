@@ -1,6 +1,6 @@
 import {Connection} from 'mongoose';
 import {getUserModel, IUserModel} from '../../db/user';
-import {getOrganizationModel, IOrganizationModel} from '../../db/organization';
+import {getWorkspaceModel, IWorkspaceModel} from '../../db/workspace';
 import {getFileModel, IFileModel} from '../../db/file';
 import {
   getProgramAccessTokenModel,
@@ -23,7 +23,7 @@ import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
@@ -37,7 +37,7 @@ import {
 } from '../../db/presetPermissionsGroup';
 import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';
 import {throwFileNotFound} from '../files/utils';
-import {throwOrganizationNotFound} from '../organizations/utils';
+import {throwWorkspaceNotFound} from '../workspaces/utils';
 import {throwPermissionItemNotFound} from '../permissionItems/utils';
 import {throwPresetPermissionsGroupNotFound} from '../presetPermissionsGroups/utils';
 import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
@@ -61,7 +61,7 @@ import {getAssignedItemModel, IAssignedItemModel} from '../../db/assignedItem';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
-  organization: IOrganizationModel;
+  workspace: IWorkspaceModel;
   file: IFileModel;
   programAccessToken: IProgramAccessTokenModel;
   clientAssignedToken: IClientAssignedTokenModel;
@@ -87,7 +87,7 @@ export default class MongoDBDataProviderContext
   public programAccessToken: IDataProvider<IProgramAccessToken>;
   public permissionItem: IDataProvider<IPermissionItem>;
   public preset: IDataProvider<IPresetPermissionsGroup>;
-  public organization: IDataProvider<IOrganization>;
+  public workspace: IDataProvider<IWorkspace>;
   public collaborationRequest: IDataProvider<ICollaborationRequest>;
   public user: IDataProvider<IUser>;
   public userToken: IDataProvider<IUserToken>;
@@ -99,7 +99,7 @@ export default class MongoDBDataProviderContext
     this.connection = connection;
     this.db = {
       user: getUserModel(connection),
-      organization: getOrganizationModel(connection),
+      workspace: getWorkspaceModel(connection),
       file: getFileModel(connection),
       programAccessToken: getProgramAccessTokenModel(connection),
       clientAssignedToken: getClientAssignedTokenModel(connection),
@@ -135,9 +135,9 @@ export default class MongoDBDataProviderContext
       throwPresetPermissionsGroupNotFound
     );
 
-    this.organization = new MongoDataProvider(
-      this.db.organization,
-      throwOrganizationNotFound
+    this.workspace = new MongoDataProvider(
+      this.db.workspace,
+      throwWorkspaceNotFound
     );
 
     this.collaborationRequest = new MongoDataProvider(

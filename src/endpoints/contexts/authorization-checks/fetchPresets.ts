@@ -113,7 +113,7 @@ async function fetchPresets(
         if (preset) {
           return withAssignedPresetsAndTags(
             context,
-            preset.organizationId,
+            preset.workspaceId,
             preset,
             AppResourceType.PresetPermissionsGroup
           );

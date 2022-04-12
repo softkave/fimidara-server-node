@@ -5,7 +5,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -26,11 +26,11 @@ describe('getTag', () => {
   test('tag returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const instData = RequestData.fromExpressRequest<IGetTagEndpointParams>(

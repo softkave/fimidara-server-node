@@ -6,7 +6,7 @@ import folderValidationSchemas from '../validation';
 
 export const addFolderJoiSchema = Joi.object()
   .keys({
-    organizationId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid.required(),
     folder: Joi.object()
       .keys({
         folderpath: folderValidationSchemas.folderpath.required(),

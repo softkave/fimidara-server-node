@@ -59,7 +59,7 @@ const signup: SignupEndpoint = async (context, instData) => {
   // made with this request data
   instData.agent = makeUserSessionAgent(userToken, {
     ...user,
-    organizations: [],
+    workspaces: [],
   });
 
   instData.works.push({

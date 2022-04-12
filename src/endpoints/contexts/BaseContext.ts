@@ -6,7 +6,7 @@ import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
@@ -24,7 +24,7 @@ export interface IBaseContextDataProviders {
   programAccessToken: IDataProvider<IProgramAccessToken>;
   permissionItem: IDataProvider<IPermissionItem>;
   preset: IDataProvider<IPresetPermissionsGroup>;
-  organization: IDataProvider<IOrganization>;
+  workspace: IDataProvider<IWorkspace>;
   collaborationRequest: IDataProvider<ICollaborationRequest>;
   user: IDataProvider<IUser>;
   userToken: IDataProvider<IUserToken>;

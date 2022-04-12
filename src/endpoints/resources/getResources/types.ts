@@ -3,7 +3,7 @@ import {Endpoint} from '../../types';
 import {IFetchResourceItem, IResource} from '../types';
 
 export interface IGetResourcesEndpointParams {
-  organizationId?: string;
+  workspaceId?: string;
   resources: IFetchResourceItem[];
 }
 

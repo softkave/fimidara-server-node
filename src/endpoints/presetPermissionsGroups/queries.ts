@@ -7,13 +7,9 @@ function newFilter() {
   return new DataProviderFilterBuilder<IPresetPermissionsGroup>();
 }
 
-function getByOrganizationAndName(organizationId: string, name: string) {
+function getByWorkspaceAndName(workspaceId: string, name: string) {
   return newFilter()
-    .addItem(
-      'organizationId',
-      organizationId,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'name',
       new RegExp(`^${name}$`, 'i'),
@@ -23,8 +19,8 @@ function getByOrganizationAndName(organizationId: string, name: string) {
 }
 
 export default abstract class PresetPermissionsGroupQueries {
-  static getByOrganizationId = EndpointReusableQueries.getByOrganizationId;
-  static getByOrganizationAndName = getByOrganizationAndName;
+  static getByWorkspaceId = EndpointReusableQueries.getByWorkspaceId;
+  static getByWorkspaceAndName = getByWorkspaceAndName;
   static getById = EndpointReusableQueries.getById;
-  static getByIds = EndpointReusableQueries.getByIdsAndOrgId;
+  static getByIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
 }

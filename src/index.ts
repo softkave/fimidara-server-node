@@ -14,7 +14,7 @@ import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRe
 import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
-import setupOrganizationsRESTEndpoints from './endpoints/organizations/setupRESTEndpoints';
+import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
@@ -83,8 +83,8 @@ async function setup() {
     appVariables
   );
 
-  const defaultOrg = await setupApp(ctx);
-  console.log(`Default organization ID - ${defaultOrg.resourceId}`);
+  const defaultWorkspace = await setupApp(ctx);
+  console.log(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
   setupClientAssignedTokensRESTEndpoints(ctx, app);
@@ -92,7 +92,7 @@ async function setup() {
   setupCollaboratorsRESTEndpoints(ctx, app);
   setupFilesRESTEndpoints(ctx, app, upload);
   setupFoldersRESTEndpoints(ctx, app);
-  setupOrganizationsRESTEndpoints(ctx, app);
+  setupWorkspacesRESTEndpoints(ctx, app);
   setupPermissionItemsRESTEndpoints(ctx, app);
   setupPresetPermissionsGroupsRESTEndpoints(ctx, app);
   setupProgramAccessTokensRESTEndpoints(ctx, app);

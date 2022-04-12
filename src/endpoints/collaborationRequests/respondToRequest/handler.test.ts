@@ -6,7 +6,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertRequestForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
@@ -37,11 +37,11 @@ test('collaboration request declined', async () => {
     context
   );
 
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(
     context,
     userToken,
-    organization.resourceId,
+    workspace.resourceId,
     {
       recipientEmail: user02.email,
     }

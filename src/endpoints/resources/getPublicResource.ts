@@ -5,16 +5,16 @@ import {collabRequestExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
 import {fileExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
-import {organizationExtractor} from '../organizations/utils';
+import {workspaceExtractor} from '../workspaces/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
 import {presetPermissionsGroupExtractor} from '../presetPermissionsGroups/utils';
 import {programAccessTokenExtractor} from '../programAccessTokens/utils';
 import {IResource} from './types';
 
-export function getPublicResource(resource: IResource, organizationId: string) {
+export function getPublicResource(resource: IResource, workspaceId: string) {
   switch (resource.resourceType) {
-    case AppResourceType.Organization:
-      return organizationExtractor(resource.resource);
+    case AppResourceType.Workspace:
+      return workspaceExtractor(resource.resource);
     case AppResourceType.CollaborationRequest:
       return collabRequestExtractor(resource.resource);
     case AppResourceType.ProgramAccessToken:
@@ -32,7 +32,7 @@ export function getPublicResource(resource: IResource, organizationId: string) {
     case AppResourceType.File:
       return fileExtractor(resource.resource);
     case AppResourceType.User:
-      return collaboratorExtractor(resource.resource as any, organizationId);
+      return collaboratorExtractor(resource.resource as any, workspaceId);
     default:
       throw new ServerError('Resource type not implemented');
   }
@@ -40,10 +40,10 @@ export function getPublicResource(resource: IResource, organizationId: string) {
 
 export function getPublicResourceList(
   resources: IResource[],
-  organizationId: string
+  workspaceId: string
 ) {
   return resources.map(item => {
-    item.resource = getPublicResource(item, organizationId);
+    item.resource = getPublicResource(item, workspaceId);
     return item;
   });
 }

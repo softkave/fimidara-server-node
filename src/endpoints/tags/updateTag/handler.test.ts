@@ -7,7 +7,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -29,11 +29,11 @@ describe('updateTag', () => {
   test('tag updated', async () => {
     assertContext(context);
     const {userToken, user} = await insertUserForTest(context);
-    const {organization} = await insertOrganizationForTest(context, userToken);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(
       context,
       userToken,
-      organization.resourceId
+      workspace.resourceId
     );
 
     const tagUpdateInput: IUpdateTagInput = {

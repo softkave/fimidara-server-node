@@ -28,7 +28,7 @@ export async function internalReplacePermissionItemsByEntity(
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      organizationId: data.organizationId,
+      workspaceId: data.workspaceId,
       permissionEntityId: data.permissionEntityId,
       permissionEntityType: data.permissionEntityType,
       hash: '',

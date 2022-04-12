@@ -18,17 +18,17 @@ export async function getFilesWithMatcher(
     );
 
     return [file];
-  } else if (matcher.filepath && matcher.organizationId) {
+  } else if (matcher.filepath && matcher.workspaceId) {
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
     const files = await context.data.file.getManyItems(
       pathWithDetails.extension
         ? FileQueries.getByNamePathAndExtention(
-            matcher.organizationId,
+            matcher.workspaceId,
             pathWithDetails.splitPathWithoutExtension,
             pathWithDetails.extension
           )
         : FileQueries.getByNamePath(
-            matcher.organizationId,
+            matcher.workspaceId,
             pathWithDetails.splitPathWithoutExtension
           )
     );

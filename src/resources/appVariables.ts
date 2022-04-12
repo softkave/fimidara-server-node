@@ -72,11 +72,11 @@ export enum AppEnvVariables {
   AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
   AWS_REGION = 'AWS_REGION',
-  FILES_ORGANIZATION_ID = 'FILES_ORGANIZATION_ID',
+  FILES_WORKSPACE_ID = 'FILES_WORKSPACE_ID',
   DEFAULT_USER_EMAIL_ADDRESS = 'DEFAULT_USER_EMAIL_ADDRESS',
-  // DEFAULT_ORGANIZATION_NAME = 'DEFAULT_ORGANIZATION_NAME',
+  // DEFAULT_WORKSPACE_NAME = 'DEFAULT_WORKSPACE_NAME',
   // DEFAULT_USERS_IMAGES_FOLDER = 'DEFAULT_USERS_IMAGES_FOLDER',
-  // DEFAULT_ORGS_IMAGES_FOLDER = 'DEFAULT_ORGS_IMAGES_FOLDER',
+  // DEFAULT_WORKSPACES_IMAGES_FOLDER = 'DEFAULT_WORKSPACES_IMAGES_FOLDER',
 }
 
 interface ISuppliedVariables {
@@ -91,9 +91,9 @@ interface ISuppliedVariables {
   awsSecretAccessKey: string;
   awsRegion: string;
   defaultUserEmailAddress: string;
-  // defaultOrganizationName: string;
+  // defaultWorkspaceName: string;
   // defaultUsersImagesFolder: string;
-  // defaultOrgsImagesFolder: string;
+  // defaultWorkspacesImagesFolder: string;
 }
 
 interface IStaticVariables {
@@ -109,8 +109,8 @@ interface IStaticVariables {
 
 // Added after the app initialization phase.
 export interface IAppRuntimeVars {
-  appOrganizationId: string;
-  appOrgsImageUploadPresetId: string;
+  appWorkspaceId: string;
+  appWorkspacesImageUploadPresetId: string;
   appUsersImageUploadPresetId: string;
 }
 
@@ -176,17 +176,17 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
     required: true,
   },
-  // defaultOrganizationName: {
-  //   name: AppEnvVariables.DEFAULT_ORGANIZATION_NAME,
+  // defaultWorkspaceName: {
+  //   name: AppEnvVariables.DEFAULT_WORKSPACE_NAME,
   //   defaultValue: 'files-by-softkave',
   // },
   // defaultUsersImagesFolder: {
   //   name: AppEnvVariables.DEFAULT_USERS_IMAGES_FOLDER,
   //   defaultValue: 'files/images/users',
   // },
-  // defaultOrgsImagesFolder: {
-  //   name: AppEnvVariables.DEFAULT_ORGS_IMAGES_FOLDER,
-  //   defaultValue: 'files/images/orgs',
+  // defaultWorkspacesImagesFolder: {
+  //   name: AppEnvVariables.DEFAULT_WORKSPACES_IMAGES_FOLDER,
+  //   defaultValue: 'files/images/workspaces',
   // },
 };
 
@@ -256,8 +256,8 @@ export function extractEnvVariables(
     clientSignupLink: `${envVariables.clientDomain}/account/signup`,
 
     // Added after the app initialization phase
-    appOrganizationId: '',
-    appOrgsImageUploadPresetId: '',
+    appWorkspaceId: '',
+    appWorkspacesImageUploadPresetId: '',
     appUsersImageUploadPresetId: '',
 
     ...base,

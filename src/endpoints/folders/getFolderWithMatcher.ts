@@ -13,10 +13,10 @@ export async function getFolderWithMatcher(
     return await context.data.folder.getItem(
       EndpointReusableQueries.getById(matcher.folderId)
     );
-  } else if (matcher.folderpath && matcher.organizationId) {
+  } else if (matcher.folderpath && matcher.workspaceId) {
     const splitPath = assertSplitfolderpath(matcher.folderpath);
     const folder = await context.data.folder.assertGetItem(
-      FolderQueries.getByNamePath(matcher.organizationId, splitPath)
+      FolderQueries.getByNamePath(matcher.workspaceId, splitPath)
     );
 
     return folder;

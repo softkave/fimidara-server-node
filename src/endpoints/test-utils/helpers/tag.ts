@@ -13,7 +13,7 @@ import {
 export async function insertTagForTest(
   context: IBaseContext,
   userToken: IUserToken | null,
-  organizationId: string,
+  workspaceId: string,
   tagInput: Partial<INewTagInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<IAddTagEndpointParams>(
@@ -21,7 +21,7 @@ export async function insertTagForTest(
       ? mockExpressRequestWithUserToken(userToken)
       : mockExpressRequestForPublicAgent(),
     {
-      organizationId,
+      workspaceId,
       tag: {
         name: faker.random.word(),
         description: faker.lorem.paragraph(),

@@ -68,7 +68,7 @@
 - [ ] Add control data to your tests to make sure only intended action happens
 - [ ] Match returned values for memory and mongo data providers and
       write test for . notation for arrays
-- [ ] Test that users or agents in organizations don't have access to
+- [ ] Test that users or agents in workspaces don't have access to
       what they shouldn't
 - [ ] change API passed ids to resource ID
 - [ ] Test time diff supplied that the full value is saved

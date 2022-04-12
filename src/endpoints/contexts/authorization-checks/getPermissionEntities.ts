@@ -1,11 +1,11 @@
-import {IOrganization} from '../../../definitions/organization';
+import {IWorkspace} from '../../../definitions/workspace';
 import {IAssignedPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {
   AppResourceType,
   ISessionAgent,
   SessionAgentType,
 } from '../../../definitions/system';
-import {getCollaboratorOrganization} from '../../collaborators/utils';
+import {getCollaboratorWorkspace} from '../../collaborators/utils';
 
 export interface IPermissionEntity {
   permissionEntityId: string;
@@ -23,7 +23,7 @@ function extractPresetsData(presets: IAssignedPresetPermissionsGroup[]) {
 
 export function getPermissionEntities(
   agent: ISessionAgent,
-  organization: IOrganization
+  workspace: IWorkspace
 ): Array<IPermissionEntity> {
   let permissionEntities: Array<IPermissionEntity> = [];
 
@@ -38,7 +38,7 @@ export function getPermissionEntities(
           },
         ].concat(
           extractPresetsData(
-            getCollaboratorOrganization(agent.user, organization.resourceId)
+            getCollaboratorWorkspace(agent.user, workspace.resourceId)
               ?.presets || []
           )
         );
@@ -73,10 +73,10 @@ export function getPermissionEntities(
     }
   }
 
-  if (organization.publicPresetId) {
+  if (workspace.publicPresetId) {
     permissionEntities = permissionEntities.concat([
       {
-        permissionEntityId: organization.publicPresetId,
+        permissionEntityId: workspace.publicPresetId,
         permissionEntityType: AppResourceType.PresetPermissionsGroup,
       },
     ]);

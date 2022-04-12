@@ -1,10 +1,10 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicResourceList} from '../getPublicResource';
 import {getResources as fetchResources} from '../getResources';
-import {getResourcesPartOfOrg} from '../isPartOfOrganization';
+import {getResourcesPartOfWorkspace} from '../isPartOfWorkspace';
 import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
@@ -12,12 +12,12 @@ import {getResourcesJoiSchema} from './validation';
 const getResources: GetResourcesEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcesJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organizationId = getOrganizationId(agent, data.organizationId);
-  const organization = await checkOrganizationExists(context, organizationId);
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   let resources = await fetchResources({
     context,
     agent,
-    organization,
+    workspace,
     inputResources: data.resources,
     checkAuth: true,
     action: BasicCRUDActions.Read,
@@ -26,13 +26,13 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
 
   resources = await resourceListWithAssignedItems(
     context,
-    organizationId,
+    workspaceId,
     resources
   );
 
-  resources = getResourcesPartOfOrg(organizationId, resources, true);
+  resources = getResourcesPartOfWorkspace(workspaceId, resources, true);
   return {
-    resources: getPublicResourceList(resources, organizationId),
+    resources: getPublicResourceList(resources, workspaceId),
   };
 };
 

@@ -3,7 +3,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IGetCollaboratorEndpointParams {
-  organizationId: string;
+  workspaceId: string;
   collaboratorId: string;
 }
 

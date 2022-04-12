@@ -2,10 +2,10 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getOrganizationId} from '../../contexts/SessionContext';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';
@@ -16,19 +16,19 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (
 ) => {
   const data = validate(instData.data, deletePermissionItemsByIdJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organizationId = await getOrganizationId(agent, data.organizationId);
-  const organization = await checkOrganizationExists(context, organizationId);
+  const workspaceId = await getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action: BasicCRUDActions.GrantPermission,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeOrgPermissionOwnerList(organizationId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
   });
 
   await context.data.permissionItem.deleteManyItems(
-    EndpointReusableQueries.getByOrgIdAndIds(organizationId, data.itemIds)
+    EndpointReusableQueries.getByWorkspaceIdAndIds(workspaceId, data.itemIds)
   );
 };
 

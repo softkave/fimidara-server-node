@@ -12,7 +12,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
-import OrganizationQueries from '../../organizations/queries';
+import WorkspaceQueries from '../../workspaces/queries';
 import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization02,
@@ -45,12 +45,12 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
       }
     );
 
-    const organization = await context.data.organization.getItem(
-      OrganizationQueries.getById(request.organizationId)
+    const workspace = await context.data.workspace.getItem(
+      WorkspaceQueries.getById(request.workspaceId)
     );
 
-    if (organization) {
-      fireAndForgetPromise(sendEmail(context, request, organization.name));
+    if (workspace) {
+      fireAndForgetPromise(sendEmail(context, request, workspace.name));
     }
   }
 
@@ -62,18 +62,18 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
 async function sendEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
-  organizationName: string
+  workspaceName: string
 ) {
   const html = collaborationRequestRevokedEmailHTML({
-    organizationName,
+    workspaceName,
   });
 
   const text = collaborationRequestRevokedEmailText({
-    organizationName,
+    workspaceName,
   });
 
   await context.email.sendEmail(context, {
-    subject: collaborationRequestRevokedEmailTitle(organizationName),
+    subject: collaborationRequestRevokedEmailTitle(workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
     source: context.appVariables.appDefaultEmailAddressFrom,

@@ -10,7 +10,7 @@ export interface IUpdateClientAssignedTokenEndpointParams {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;
-  organizationId?: string;
+  workspaceId?: string;
   token: IUpdateClientAssignedTokenInput;
 }
 

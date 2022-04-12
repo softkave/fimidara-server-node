@@ -11,7 +11,7 @@ import {checkTagNameExists} from '../checkTagNameExists';
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {tag, organization} = await checkTagAuthorization02(
+  let {tag, workspace} = await checkTagAuthorization02(
     context,
     agent,
     data.tagId,
@@ -28,7 +28,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
   };
 
   if (tagUpdate.name) {
-    await checkTagNameExists(context, organization.resourceId, tagUpdate.name);
+    await checkTagNameExists(context, workspace.resourceId, tagUpdate.name);
   }
 
   tag = await context.data.tag.assertUpdateItem(

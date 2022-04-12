@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {
   IAssignedPresetPermissionsGroup,
   IPresetInput,
@@ -18,12 +18,12 @@ import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {indexArray} from '../../utilities/indexArray';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {assertGetOrganizationIdFromAgent} from '../contexts/SessionContext';
+import {assertGetWorkspaceIdFromAgent} from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {checkOrganizationExists} from '../organizations/utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor, agentExtractorIfPresent} from '../utils';
 import {PresetPermissionsGroupDoesNotExistError} from './errors';
@@ -43,7 +43,7 @@ export const assignedPresetsListExtractor = makeListExtract(
 
 const presetPermissionsGroupFields = getFields<IPublicPresetPermissionsGroup>({
   resourceId: true,
-  organizationId: true,
+  workspaceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
   lastUpdatedAt: getDateStringIfPresent,
@@ -69,23 +69,20 @@ export async function checkPresetPermissionsGroupAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const organization = await checkOrganizationExists(
-    context,
-    preset.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, preset.workspaceId);
 
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action,
     nothrow,
     resource: preset,
     type: AppResourceType.PresetPermissionsGroup,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  return {agent, preset, organization};
+  return {agent, preset, workspace};
 }
 
 export async function checkPresetPermissionsGroupAuthorization02(
@@ -126,12 +123,12 @@ export async function checkPresetPermissionsGroupAuthorization03(
       PresetPermissionsGroupQueries.getById(input.presetId)
     );
   } else if (input.name) {
-    const organizationId =
-      input.organizationId || assertGetOrganizationIdFromAgent(agent);
+    const workspaceId =
+      input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
 
     preset = await context.data.preset.assertGetItem(
-      PresetPermissionsGroupQueries.getByOrganizationAndName(
-        organizationId,
+      PresetPermissionsGroupQueries.getByWorkspaceAndName(
+        workspaceId,
         input.name
       )
     );
@@ -150,7 +147,7 @@ export async function checkPresetPermissionsGroupAuthorization03(
 export async function checkPresetsExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   presetInputs: IPresetInput[]
 ) {
   const presets = await Promise.all(
@@ -166,10 +163,12 @@ export async function checkPresetsExist(
       checkAuthorization({
         context,
         agent,
-        organization,
+        workspace,
         resource: item,
         type: AppResourceType.PresetPermissionsGroup,
-        permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+        permissionOwners: makeWorkspacePermissionOwnerList(
+          workspace.resourceId
+        ),
         action: BasicCRUDActions.Read,
       })
     )

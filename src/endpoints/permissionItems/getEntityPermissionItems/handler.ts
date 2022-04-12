@@ -2,9 +2,9 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
-  makeOrgPermissionOwnerList,
+  makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkOrganizationExists} from '../../organizations/utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
@@ -17,19 +17,16 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
 ) => {
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const organization = await checkOrganizationExists(
-    context,
-    data.organizationId
-  );
+  const workspace = await checkWorkspaceExists(context, data.workspaceId);
 
-  await checkEntitiesExist(context, agent, organization, [data]);
+  await checkEntitiesExist(context, agent, workspace, [data]);
   await checkAuthorization({
     context,
     agent,
-    organization,
+    workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeOrgPermissionOwnerList(organization.resourceId),
+    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
   const items = await context.data.permissionItem.getManyItems(

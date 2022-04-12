@@ -1,10 +1,10 @@
 import {format} from 'util';
-import {IOrganization} from '../../definitions/organization';
+import {IWorkspace} from '../../definitions/workspace';
 import {ISessionAgent, AppResourceType} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
-import {checkNotOrganizationResources} from '../resources/isPartOfOrganization';
+import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 /**
@@ -22,7 +22,7 @@ allowedTypes.set(AppResourceType.User, true);
 export default async function checkEntitiesExist(
   context: IBaseContext,
   agent: ISessionAgent,
-  organization: IOrganization,
+  workspace: IWorkspace,
   entities: Array<{
     permissionEntityId: string;
     permissionEntityType: AppResourceType;
@@ -42,7 +42,7 @@ export default async function checkEntitiesExist(
   let resources = await getResources({
     context,
     agent,
-    organization,
+    workspace,
     inputResources: entities.map(item => ({
       resourceId: item.permissionEntityId,
       resourceType: item.permissionEntityType,
@@ -52,10 +52,10 @@ export default async function checkEntitiesExist(
 
   resources = await resourceListWithAssignedItems(
     context,
-    organization.resourceId,
+    workspace.resourceId,
     resources,
     [AppResourceType.User] // Limit to users only
   );
 
-  checkNotOrganizationResources(organization.resourceId, resources, true);
+  checkNotWorkspaceResources(workspace.resourceId, resources, true);
 }

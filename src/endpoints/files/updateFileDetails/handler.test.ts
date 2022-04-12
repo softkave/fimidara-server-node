@@ -6,7 +6,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -31,11 +31,11 @@ afterAll(async () => {
 test('file updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const updateInput: IUpdateFileDetailsInput = {
@@ -47,7 +47,7 @@ test('file updated', async () => {
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        organizationId: organization.resourceId,
+        workspaceId: workspace.resourceId,
         filepath: file.name,
         file: updateInput,
       }

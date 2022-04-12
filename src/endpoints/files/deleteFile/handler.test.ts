@@ -6,7 +6,7 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
@@ -34,17 +34,17 @@ async function assertFileDeleted(context: IBaseContext, id: string) {
 test('file deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {organization} = await insertOrganizationForTest(context, userToken);
+  const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(
     context,
     userToken,
-    organization.resourceId
+    workspace.resourceId
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      organizationId: organization.resourceId,
+      workspaceId: workspace.resourceId,
       filepath: file.name,
     }
   );

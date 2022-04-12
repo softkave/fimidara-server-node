@@ -2,7 +2,7 @@ import faker = require('faker');
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
-  getNonOrgActionList,
+  getNonWorkspaceActionList,
   IPublicAccessOpInput,
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -15,9 +15,9 @@ import {
 import RequestData from '../../RequestData';
 import {
   IInsertUserForTestResult,
-  IInsertOrganizationForTestResult,
+  IInsertWorkspaceForTestResult,
   insertUserForTest,
-  insertOrganizationForTest,
+  insertWorkspaceForTest,
   insertFolderForTest,
   mockExpressRequestForPublicAgent,
   assertEndpointResultOk,
@@ -42,17 +42,17 @@ export const addFolderBaseTest = async (
   ctx: IBaseContext,
   input: Partial<INewFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
-  insertOrgResult =
-    insertOrgResult ||
-    (await insertOrganizationForTest(ctx, insertUserResult.userToken));
+  insertWorkspaceResult =
+    insertWorkspaceResult ||
+    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
 
   const {folder} = await insertFolderForTest(
     ctx,
     insertUserResult.userToken,
-    insertOrgResult.organization.resourceId,
+    insertWorkspaceResult.workspace.resourceId,
     input
   );
 
@@ -61,24 +61,24 @@ export const addFolderBaseTest = async (
   );
 
   expect(folder).toMatchObject(folderExtractor(savedFolder));
-  return {folder, savedFolder, insertUserResult, insertOrgResult};
+  return {folder, savedFolder, insertUserResult, insertWorkspaceResult};
 };
 
 export const addFolderWithPublicAccessOpsTest = async (
   ctx: IBaseContext,
   input: Partial<INewFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
-  insertOrgResult?: IInsertOrganizationForTestResult
+  insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   const uploadResult = await addFolderBaseTest(ctx, input);
   const {savedFolder} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
-  insertOrgResult = uploadResult.insertOrgResult;
+  insertWorkspaceResult = uploadResult.insertWorkspaceResult;
   await assertPublicAccessOps(
     ctx,
     savedFolder,
     insertUserResult,
-    insertOrgResult,
+    insertWorkspaceResult,
     input.publicAccessOps || [],
     AppResourceType.Folder
   );
@@ -88,22 +88,22 @@ export const addFolderWithPublicAccessOpsTest = async (
 
 export async function assertCanCreateFolderInPublicFolder(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   folderpath: string
 ) {
-  return await insertFolderForTest(ctx, null, organizationId, {
+  return await insertFolderForTest(ctx, null, workspaceId, {
     folderpath: folderpath,
   });
 }
 
 export async function assertCanReadPublicFolder(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, folderpath: folderpath}
+    {workspaceId, folderpath: folderpath}
   );
 
   const result = await getFolder(ctx, instData);
@@ -113,7 +113,7 @@ export async function assertCanReadPublicFolder(
 
 export async function assertCanUpdatePublicFolder(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   folderpath: string
 ) {
   const updateInput: IUpdateFolderInput = {
@@ -124,7 +124,7 @@ export async function assertCanUpdatePublicFolder(
   const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
-      organizationId,
+      workspaceId,
       folderpath: folderpath,
       folder: updateInput,
     }
@@ -136,13 +136,13 @@ export async function assertCanUpdatePublicFolder(
 
 export async function assertCanListContentOfPublicFolder(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   folderpath: string
 ) {
   const instData =
     RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {organizationId, folderpath: folderpath}
+      {workspaceId, folderpath: folderpath}
     );
 
   const result = await listFolderContent(ctx, instData);
@@ -151,12 +151,12 @@ export async function assertCanListContentOfPublicFolder(
 
 export async function assertCanDeletePublicFolder(
   ctx: IBaseContext,
-  organizationId: string,
+  workspaceId: string,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {organizationId, folderpath: folderpath}
+    {workspaceId, folderpath: folderpath}
   );
 
   const result = await deleteFolder(ctx, instData);
@@ -166,36 +166,36 @@ export async function assertCanDeletePublicFolder(
 export async function assertPublicOps(
   ctx: IBaseContext,
   folder: IFolder,
-  insertOrgResult: IInsertOrganizationForTestResult
+  insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
   const folderpath = folder.namePath.join(folderConstants.nameSeparator);
-  const orgId = insertOrgResult.organization.resourceId;
+  const workspaceId = insertWorkspaceResult.workspace.resourceId;
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
     ctx,
-    orgId,
+    workspaceId,
     folderpath
   );
 
   const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
   const {file} = await assertCanUploadToPublicFile(
     ctx,
-    orgId,
+    workspaceId,
     folder02Path + '/' + faker.lorem.word()
   );
 
-  await assertCanListContentOfPublicFolder(ctx, orgId, folder02Path);
-  await assertCanUpdatePublicFolder(ctx, orgId, folder02Path);
-  await assertCanReadPublicFolder(ctx, orgId, folder02Path);
+  await assertCanListContentOfPublicFolder(ctx, workspaceId, folder02Path);
+  await assertCanUpdatePublicFolder(ctx, workspaceId, folder02Path);
+  await assertCanReadPublicFolder(ctx, workspaceId, folder02Path);
 
   const filepath = file.namePath.join(folderConstants.nameSeparator);
-  await assertCanReadPublicFile(ctx, orgId, filepath);
-  await assertCanUpdatePublicFile(ctx, orgId, filepath);
-  await assertCanUploadToPublicFile(ctx, orgId, filepath);
-  await assertCanDeletePublicFolder(ctx, orgId, folderpath);
+  await assertCanReadPublicFile(ctx, workspaceId, filepath);
+  await assertCanUpdatePublicFile(ctx, workspaceId, filepath);
+  await assertCanUploadToPublicFile(ctx, workspaceId, filepath);
+  await assertCanDeletePublicFolder(ctx, workspaceId, folderpath);
 }
 
 export function makeEveryFolderPublicAccessOp() {
-  return getNonOrgActionList().reduce((list, action) => {
+  return getNonWorkspaceActionList().reduce((list, action) => {
     return list.concat(
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,
@@ -206,7 +206,7 @@ export function makeEveryFolderPublicAccessOp() {
 }
 
 export function makeEveryFolderPublicAccessOp02() {
-  return getNonOrgActionList().reduce((list, action) => {
+  return getNonWorkspaceActionList().reduce((list, action) => {
     return list.concat(
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,

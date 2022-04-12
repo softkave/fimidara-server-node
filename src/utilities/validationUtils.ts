@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {
   appResourceTypesList as systemAppResourceTypesList,
-  getOrgActionList,
+  getWorkspaceActionList,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import {permissionItemConstants} from '../endpoints/permissionItems/constants';
@@ -53,7 +53,7 @@ const nanoid = Joi.string().trim().length(21);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
-const crudAction = Joi.string().valid(...getOrgActionList());
+const crudAction = Joi.string().valid(...getWorkspaceActionList());
 const publicAccessOp = Joi.object().keys({
   action: crudAction.required(),
   resourceType: resourceType.required(),

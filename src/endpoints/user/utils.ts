@@ -1,17 +1,19 @@
-import {IPublicUserData, IUserOrganization} from '../../definitions/user';
+import {IPublicUserData, IUserWorkspace} from '../../definitions/user';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {NotFoundError} from '../errors';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 
-const publicUserOrgFields = getFields<IUserOrganization>({
-  organizationId: true,
+const publicUserWorkspaceFields = getFields<IUserWorkspace>({
+  workspaceId: true,
   joinedAt: getDateString,
   presets: assignedPresetsListExtractor,
 });
 
-export const userOrgExtractor = makeExtract(publicUserOrgFields);
-export const userOrgListExtractor = makeListExtract(publicUserOrgFields);
+export const userWorkspaceExtractor = makeExtract(publicUserWorkspaceFields);
+export const userWorkspaceListExtractor = makeListExtract(
+  publicUserWorkspaceFields
+);
 
 const publicUserFields = getFields<IPublicUserData>({
   resourceId: true,
@@ -23,7 +25,7 @@ const publicUserFields = getFields<IPublicUserData>({
   isEmailVerified: true,
   emailVerifiedAt: getDateStringIfPresent,
   emailVerificationEmailSentAt: getDateStringIfPresent,
-  organizations: userOrgListExtractor,
+  workspaces: userWorkspaceListExtractor,
   passwordLastChangedAt: getDateString,
 });
 

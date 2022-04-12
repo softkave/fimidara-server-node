@@ -1,7 +1,7 @@
 == Architecture 01
 
 - user accounts
-- organizations OR workspaces
+- workspaces OR workspaces
   - collaborators
   - #environments [there is a default environment] with auth URL
     - #buckets with auth URL

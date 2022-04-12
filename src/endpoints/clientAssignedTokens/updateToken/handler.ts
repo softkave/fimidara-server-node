@@ -24,7 +24,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   const agent = await context.session.getAgent(context, instData);
-  let {organization, token} = await checkClientAssignedTokenAuthorization03(
+  let {workspace, token} = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
     data,
@@ -34,7 +34,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   if (data.token.name) {
     await checkClientTokenNameExists(
       context,
-      organization.resourceId,
+      workspace.resourceId,
       data.token.name
     );
   }
@@ -56,7 +56,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   await saveResourceAssignedItems(
     context,
     agent,
-    organization,
+    workspace,
     token.resourceId,
     AppResourceType.ClientAssignedToken,
     data.token
@@ -64,7 +64,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
 
   token = await withAssignedPresetsAndTags(
     context,
-    token.organizationId,
+    token.workspaceId,
     token,
     AppResourceType.ClientAssignedToken
   );
