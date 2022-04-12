@@ -14,7 +14,8 @@ export default class OperationError extends Error {
   // recommended action for the client
   public action?: string;
   public value?: string;
-  public isPublic = true;
+  public statusCode?: number;
+  public isPublicError = true;
 
   constructor(props?: IOperationErrorParameters | string) {
     super();

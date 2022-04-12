@@ -15,7 +15,7 @@ import PermissionItemQueries from '../queries';
 
 /**
  * TODO:
- * [Low] - Test that hanlder fails if entity does not exist
+ * [Low] - Test that hanlder fails if entity not found
  * [Medium] - Test for collaborator entity
  * [Medium] - Test for program access token entity
  * [Medium] - Test for client assigned token entity

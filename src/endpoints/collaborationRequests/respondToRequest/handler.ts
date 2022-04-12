@@ -1,5 +1,6 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
+import {ServerStateConflictError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
 import {addAssignedUserOrganization} from '../../assignedItems/addAssignedItems';
 import {ExpiredError} from '../../errors';
@@ -29,8 +30,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
     request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
 
   if (isExpired) {
-    throw new ExpiredError(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    throw new ServerStateConflictError(
       `Collaboration request expired on ${formatDate(request.expiresAt!)}`
     );
   }

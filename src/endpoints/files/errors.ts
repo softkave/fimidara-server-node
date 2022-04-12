@@ -1,11 +1,23 @@
-import OperationError from '../../utilities/OperationError';
+import OperationError, {
+  getErrorMessageFromParams,
+  IOperationErrorParameters,
+} from '../../utilities/OperationError';
+import {endpointConstants} from '../constants';
 
 export class FileExistsError extends OperationError {
   public name = 'FileExistsError';
-  public message = 'File exists';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  constructor(props?: IOperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, 'File exists');
+  }
 }
 
 export class FileDoesNotExistError extends OperationError {
   public name = 'FileDoesNotExistError';
-  public message = 'File does not exist';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  constructor(props?: IOperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, 'File not found');
+  }
 }

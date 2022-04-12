@@ -1,11 +1,26 @@
-import OperationError from '../../utilities/OperationError';
+import OperationError, {
+  getErrorMessageFromParams,
+  IOperationErrorParameters,
+} from '../../utilities/OperationError';
+import {endpointConstants} from '../constants';
 
 export class PermissionItemExistsError extends OperationError {
   public name = 'PermissionItemExistsError';
-  public message = 'Permission item exists';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  constructor(props?: IOperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, 'Permission item exists');
+  }
 }
 
 export class PermissionItemDoesNotExistError extends OperationError {
   public name = 'PermissionItemDoesNotExistError';
-  public message = 'Permission item does not exist';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  constructor(props?: IOperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'Permission item not found'
+    );
+  }
 }

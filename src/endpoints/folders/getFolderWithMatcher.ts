@@ -32,7 +32,7 @@ export async function assertGetFolderWithMatcher(
   const folder = await getFolderWithMatcher(context, matcher);
 
   if (!folder) {
-    throw new NotFoundError('Folder does not exist');
+    throw new NotFoundError('Folder not found');
   }
 
   return folder;

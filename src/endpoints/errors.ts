@@ -2,9 +2,11 @@ import OperationError, {
   getErrorMessageFromParams,
   IOperationErrorParameters,
 } from '../utilities/OperationError';
+import {endpointConstants} from './constants';
 
 export class InvalidRequestError extends OperationError {
   public name = 'InvalidRequestError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -14,6 +16,7 @@ export class InvalidRequestError extends OperationError {
 
 export class RateLimitError extends OperationError {
   public name = 'RateLimitError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -24,20 +27,9 @@ export class RateLimitError extends OperationError {
   }
 }
 
-export class MalformedRequestError extends OperationError {
-  public name = 'MalformedRequestError';
-
-  constructor(props?: IOperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Provided input is malformed'
-    );
-  }
-}
-
 export class ExpiredError extends OperationError {
   public name = 'ExpiredError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -47,15 +39,17 @@ export class ExpiredError extends OperationError {
 
 export class NotFoundError extends OperationError {
   public name = 'NotFoundError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Resource does not exist');
+    this.message = getErrorMessageFromParams(props, 'Resource not found');
   }
 }
 
 export class ResourceExistsError extends OperationError {
   public name = 'ResourceExistsError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
