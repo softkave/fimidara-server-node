@@ -6,6 +6,8 @@ import {Endpoint} from '../../types';
 
 export interface INewClientAssignedTokenInput {
   providedResourceId?: string;
+  name?: string;
+  description?: string;
   expires?: string;
   presets?: IPresetInput[];
   tags?: IAssignedTagInput[];

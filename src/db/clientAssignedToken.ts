@@ -14,6 +14,8 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   expires: {type: Date},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
+  name: {type: String},
+  description: {type: String},
 });
 
 export type IClientAssignedTokenDocument = Document<IClientAssignedToken>;

@@ -1,6 +1,7 @@
+import {omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
+import {getDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -15,6 +16,7 @@ import {
 } from '../../contexts/SessionContext';
 import {checkOrganizationExists} from '../../organizations/utils';
 import EndpointReusableQueries from '../../queries';
+import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
@@ -38,6 +40,14 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   let token: IClientAssignedToken | null = null;
 
+  if (data.token.name) {
+    await checkClientTokenNameExists(
+      context,
+      organization.resourceId,
+      data.token.name
+    );
+  }
+
   if (data.token.providedResourceId) {
     token = await context.data.clientAssignedToken.getItem(
       EndpointReusableQueries.getByProvidedId(
@@ -49,10 +59,9 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
 
   if (!token) {
     token = await context.data.clientAssignedToken.saveItem({
-      expires: data.token.expires,
+      ...omit(data.token, 'presets', 'tags'),
       organizationId: organization.resourceId,
       resourceId: getNewId(),
-      providedResourceId: data.token.providedResourceId,
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
@@ -61,6 +70,18 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
     });
+  } else {
+    token = await context.data.clientAssignedToken.assertUpdateItem(
+      EndpointReusableQueries.getById(token.resourceId),
+      {
+        ...omit(data.token, 'presets', 'tags'),
+        lastUpdatedAt: getDate(),
+        lastUpdatedBy: {
+          agentId: agent.agentId,
+          agentType: agent.agentType,
+        },
+      }
+    );
   }
 
   await saveResourceAssignedItems(

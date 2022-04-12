@@ -24,7 +24,6 @@ import {throwNotFound} from '../utils';
 import {ITag} from '../../definitions/tag';
 import {throwTagNotFound} from '../tags/utils';
 import {IAssignedItem} from '../../definitions/assignedItem';
-import {IDataProvider} from './data-providers/DataProvider';
 import {throwAssignedItemNotFound} from '../assignedItems/utils';
 
 export default class MemoryDataProviderContext

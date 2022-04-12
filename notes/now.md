@@ -46,3 +46,6 @@
 - [ ] client token name and description
 - [ ] free flowing tags
 - [ ] rename organization to workspace
+- [ ] implement 404 when not found
+- [ ] sort data by date by default
+- [ ] chage delete endpoints to use DELETE
