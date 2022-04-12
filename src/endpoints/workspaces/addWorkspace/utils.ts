@@ -227,7 +227,8 @@ export async function addWorkspaceToUserAndAssignAdminPreset(
       [{presetId: adminPreset.resourceId, order: 0}],
       user.resourceId,
       AppResourceType.User,
-      false
+      /** deleteExisting */ false,
+      /** skipPresetsCheck */ true
     ),
   ]);
 

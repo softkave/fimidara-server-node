@@ -23,7 +23,7 @@ export default function setupPresetPermissionsGroupsRESTEndpoints(
   };
 
   app.post('/presetPermissionsGroups/addPreset', endpoints.addPreset);
-  app.post('/presetPermissionsGroups/deletePreset', endpoints.deletePreset);
+  app.delete('/presetPermissionsGroups/deletePreset', endpoints.deletePreset);
   app.post(
     '/presetPermissionsGroups/getWorkspacePresets',
     endpoints.getWorkspacePresets

@@ -37,7 +37,7 @@ export default function setupPermissionItemsRESTEndpoints(
   );
 
   app.post('/permissionItems/addItems', endpoints.addItems);
-  app.post('/permissionItems/deleteItemsById', endpoints.deleteItemsById);
+  app.delete('/permissionItems/deleteItemsById', endpoints.deleteItemsById);
   app.post(
     '/permissionItems/getResourcePermissionItems',
     endpoints.getResourcePermissionItems

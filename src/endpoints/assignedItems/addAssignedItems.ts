@@ -53,7 +53,8 @@ export async function addAssignedPresetList(
   presets: IPresetInput[],
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
-  deleteExisting: boolean
+  deleteExisting: boolean,
+  skipPresetsCheck = false
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -65,7 +66,10 @@ export async function addAssignedPresetList(
     );
   }
 
-  await checkPresetsExist(context, agent, workspace, presets);
+  if (!skipPresetsCheck) {
+    await checkPresetsExist(context, agent, workspace, presets);
+  }
+
   const items = presets.map(preset => {
     const meta: IAssignedPresetMeta = {order: preset.order};
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {

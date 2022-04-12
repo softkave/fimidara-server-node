@@ -23,7 +23,7 @@ export default function setupProgramAccessTokensRESTEndpoints(
   };
 
   app.post('/programAccessTokens/addToken', endpoints.addProgramAccessToken);
-  app.post(
+  app.delete(
     '/programAccessTokens/deleteToken',
     endpoints.deleteProgramAccessToken
   );
