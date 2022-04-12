@@ -41,7 +41,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     persistedFile.body && (await getBodyFromStream(persistedFile.body));
 
   if (!buffer) {
-    throw new NotFoundError('File does not exist');
+    throw new NotFoundError('File not found');
   }
 
   if (data.imageTranformation) {

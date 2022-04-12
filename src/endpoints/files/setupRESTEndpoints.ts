@@ -11,6 +11,7 @@ import {fileConstants} from './constants';
 import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
 import {isNumber, merge} from 'lodash';
 import {IUploadFileEndpointParams} from './uploadFile/types';
+import {endpointConstants} from '../constants';
 
 function handleGetFileResponse(
   res: Response,
@@ -21,7 +22,7 @@ function handleGetFileResponse(
       'Content-Length': result.buffer.length,
       'Content-Type': result.mimetype,
     })
-    .status(200)
+    .status(endpointConstants.httpStatusCode.ok)
     .send(result.buffer);
 }
 

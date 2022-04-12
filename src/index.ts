@@ -24,6 +24,7 @@ import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersist
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
+import {endpointConstants} from './endpoints/constants';
 
 console.log('server initialization');
 
@@ -40,7 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const corsOption: cors.CorsOptions = {
   origin: whiteListedCorsOrigins,
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: endpointConstants.httpStatusCode.ok,
   credentials: true,
 };
 

@@ -30,8 +30,8 @@ export function resolveJWTError(err: Error) {
   }
 }
 
-const kUnauthorizedStatusCode = 401;
-const kServerErrorStatusCode = 500;
+const kUnauthorizedStatusCode endpointConstants.httpStatusCode.badRequest;
+const kServerErrorStatusCode endpointConstants.httpStatusCode.badRequest;
 
 function getArg(name: 'err' | 'req' | 'res' | 'next', args: any[]) {
   switch (name) {

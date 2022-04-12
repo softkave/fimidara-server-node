@@ -1,3 +1,4 @@
+import {endpointConstants} from '../endpoints/constants';
 import OperationError, {
   getErrorMessageFromParams,
   IOperationErrorParameters,
@@ -5,6 +6,7 @@ import OperationError, {
 
 export class ServerError extends OperationError {
   public name = 'ServerError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -14,9 +16,16 @@ export class ServerError extends OperationError {
 
 export class ValidationError extends OperationError {
   public name = 'ValidationError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
+}
+
+export class ServerStateConflictError extends OperationError {
+  public name = 'ServerStateConflictError';
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 }
 
 export class InternalError extends OperationError {
   public name = 'InternalError';
-  public isPublic = false;
+  public isPublicError = false;
+  public statusCode = endpointConstants.httpStatusCode.badRequest;
 }

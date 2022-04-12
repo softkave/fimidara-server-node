@@ -8,6 +8,7 @@ import {
   makeListExtract,
 } from '../utilities/extract';
 import OperationError from '../utilities/OperationError';
+import {endpointConstants} from './constants';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
@@ -20,7 +21,9 @@ export function getPublicErrors(inputError: any) {
   // We are mapping errors cause some values don't show if we don't
   // or was it errors, not sure anymore, this is old code.
   // TODO: Feel free to look into it, cause it could help performance.
-  const preppedErrors: Omit<OperationError, 'isPublic'>[] = [];
+  const preppedErrors: Omit<OperationError, 'isPublicError' | 'statusCode'>[] =
+    [];
+
   errors.forEach(
     errorItem =>
       errorItem?.isPublic &&
@@ -60,19 +63,24 @@ export const wrapEndpointREST = <
       if (handleResponse) {
         handleResponse(res, result);
       } else {
-        res.status(200).json(result || {});
+        res.status(endpointConstants.httpStatusCode.ok).json(result || {});
       }
     } catch (error) {
       console.error(error);
-      console.log(); // for spacing
+      console.log('-- END');
 
+      let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);
       const result = {
         errors: preppedErrors,
       };
 
-      res.status(500).json(result);
+      if (errors.length > 0 && errors[0].statusCode) {
+        statusCode = errors[0].statusCode;
+      }
+
+      res.status(statusCode).json(result);
     }
   };
 };

@@ -56,7 +56,7 @@ export async function assertGetFilesWithMatcher(
   const files = await getFilesWithMatcher(context, matcher, count);
 
   if (files.length === 0) {
-    throw new NotFoundError('File does not exist');
+    throw new NotFoundError('File not found');
   }
 
   return files;
@@ -70,7 +70,7 @@ export async function assertGetSingleFileWithMatcher(
   const file = first(files);
 
   if (!file) {
-    throw new NotFoundError('File does not exist');
+    throw new NotFoundError('File not found');
   }
 
   return file;

@@ -9,6 +9,7 @@ import {
 import {Readable} from 'stream';
 import {IAppVariables} from '../../resources/appVariables';
 import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {endpointConstants} from '../constants';
 
 export interface IFilePersistenceUploadFileParams {
   bucket: string;
@@ -102,8 +103,8 @@ export class S3FilePersistenceProviderContext
       });
 
       const response = await this.s3.send(command);
-      const exists = 200;
-      const notFound = 404;
+      const exists = endpointConstants.httpStatusCode.ok;
+      const notFound = endpointConstants.httpStatusCode.notFound;
 
       if (response.$metadata.httpStatusCode === exists) {
         return;

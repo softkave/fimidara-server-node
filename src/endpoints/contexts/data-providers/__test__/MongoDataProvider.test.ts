@@ -95,7 +95,7 @@ describe('MongoDataProvider', () => {
     expect(exists).toBeTruthy();
   });
 
-  test('checkItemExists is false when item does not exist', async () => {
+  test('checkItemExists is false when item not found', async () => {
     const {provider, orgModel} = await getOrgMongoProviderForTest();
 
     // Inserting data for blank tests so that we can know
