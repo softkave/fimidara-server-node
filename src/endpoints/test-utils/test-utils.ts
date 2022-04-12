@@ -339,6 +339,8 @@ export async function insertClientAssignedTokenForTest(
         token: {
           presets: [],
           expires: add(Date.now(), {days: 1}).toISOString(),
+          name: faker.lorem.words(3),
+          description: faker.lorem.words(10),
           ...requestInput,
         },
       }

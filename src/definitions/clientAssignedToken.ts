@@ -5,6 +5,8 @@ import {IAssignedTag} from './tag';
 export interface IClientAssignedToken {
   resourceId: string;
   providedResourceId?: string;
+  name?: string;
+  description?: string;
   createdAt: Date | string;
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;
@@ -27,6 +29,8 @@ export interface IClientAssignedToken {
 export interface IPublicClientAssignedToken {
   resourceId: string;
   providedResourceId?: string;
+  name?: string;
+  description?: string;
   createdAt: string;
   createdBy: IAgent;
   lastUpdatedBy?: IAgent;

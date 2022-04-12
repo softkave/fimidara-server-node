@@ -42,6 +42,8 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   presets: assignedPresetsListExtractor,
   tokenStr: true,
   tags: assignedTagListExtractor,
+  name: true,
+  description: true,
 });
 
 export const clientAssignedTokenExtractor = makeExtract(

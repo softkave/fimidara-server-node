@@ -6,6 +6,7 @@ import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
+import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {
   checkClientAssignedTokenAuthorization03,
   getPublicClientToken,
@@ -29,6 +30,14 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
     data,
     BasicCRUDActions.Update
   );
+
+  if (data.token.name) {
+    await checkClientTokenNameExists(
+      context,
+      organization.resourceId,
+      data.token.name
+    );
+  }
 
   const update: Partial<IClientAssignedToken> = {
     ...omit(data.token, 'presets', 'tags'),
