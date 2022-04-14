@@ -4,21 +4,21 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import WorkspaceQueries from './queries';
 
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
-  lastUpdatedBy: agentExtractorIfPresent,
-  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateString,
   name: true,
   description: true,
   publicPresetId: true,

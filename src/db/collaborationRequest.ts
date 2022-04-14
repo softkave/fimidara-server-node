@@ -11,6 +11,8 @@ const collaborationRequestStatusHistorySchema = {
 const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
   resourceId: {type: String, unique: true, index: true},
   recipientEmail: {type: String, index: true},
+  workspaceId: {type: String, index: true},
+  workspaceName: {type: String},
   message: {type: String},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: () => getDate()},
@@ -20,8 +22,6 @@ const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
     type: [collaborationRequestStatusHistorySchema],
     default: [],
   },
-  workspaceId: {type: String, index: true},
-  workspaceName: {type: String},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
 });

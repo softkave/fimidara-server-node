@@ -4,7 +4,7 @@ import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getResources} from '../resources/getResources';
-import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
+import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
 
 export default async function checkTagsExist(
   context: IBaseContext,

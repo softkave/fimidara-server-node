@@ -1,13 +1,9 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {
-  checkCollaboratorAuthorization02,
-  collaboratorExtractor,
-  removeOtherUserWorkspaces,
-} from '../utils';
+import {extractCollaborator} from '../extractCollaborator';
+import {checkCollaboratorAuthorization02} from '../utils';
 import {UpdateCollaboratorPresetsEndpoint} from './types';
 import {updateCollaboratorPresetsJoiSchema} from './validation';
 
@@ -18,7 +14,7 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
   const data = validate(instData.data, updateCollaboratorPresetsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  let {collaborator, workspace} = await checkCollaboratorAuthorization02(
+  const {collaborator, workspace} = await checkCollaboratorAuthorization02(
     context,
     agent,
     workspaceId,
@@ -36,14 +32,8 @@ const updateCollaboratorPresets: UpdateCollaboratorPresetsEndpoint = async (
     true
   );
 
-  collaborator = await withUserWorkspaces(context, collaborator);
-  const publicData = collaboratorExtractor(
-    removeOtherUserWorkspaces(collaborator, workspaceId),
-    workspaceId
-  );
-
   return {
-    collaborator: publicData,
+    collaborator: await extractCollaborator(context, collaborator, workspaceId),
   };
 };
 

@@ -6,9 +6,9 @@ import {ensureTypeFields} from './utils';
 
 const userSchema = ensureTypeFields<IUser>({
   resourceId: {type: String, unique: true, index: true},
-  firstName: {type: String},
-  lastName: {type: String},
   email: {type: String, unique: true, index: true, lowercase: true},
+  firstName: {type: String, index: true},
+  lastName: {type: String, index: true},
   hash: {type: String},
   createdAt: {type: Date, default: getDate},
   lastUpdatedAt: {type: Date},

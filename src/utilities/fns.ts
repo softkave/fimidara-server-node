@@ -1,6 +1,6 @@
 import {compact, isString} from 'lodash';
 import OperationError from './OperationError';
-import {AnyFn} from './types';
+import {AnyFn, AnyObject} from './types';
 
 export default function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
@@ -84,6 +84,6 @@ export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
   return fields.join(separator);
 }
 
-export function objectHasData(data: object) {
+export function objectHasData(data: AnyObject) {
   return Object.keys(data).length > 0;
 }

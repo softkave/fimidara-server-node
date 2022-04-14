@@ -9,8 +9,8 @@ export interface IClientAssignedToken {
   description?: string;
   createdAt: Date | string;
   createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   workspaceId: string;
   version: number;
 
@@ -33,8 +33,8 @@ export interface IPublicClientAssignedToken {
   description?: string;
   createdAt: string;
   createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: string;
   workspaceId: string;
   presets: IAssignedPresetPermissionsGroup[];
   issuedAt: string;

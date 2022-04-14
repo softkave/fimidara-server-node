@@ -4,7 +4,7 @@ import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicResourceList} from '../getPublicResource';
 import {getResources as fetchResources} from '../getResources';
-import {getResourcesPartOfWorkspace} from '../isPartOfWorkspace';
+import {getResourcesPartOfWorkspace} from '../isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';

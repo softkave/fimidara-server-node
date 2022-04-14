@@ -21,7 +21,7 @@ const publicUserFields = getFields<IPublicUserData>({
   lastName: true,
   email: true,
   createdAt: getDateString,
-  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedAt: getDateString,
   isEmailVerified: true,
   emailVerifiedAt: getDateStringIfPresent,
   emailVerificationEmailSentAt: getDateStringIfPresent,

@@ -4,7 +4,7 @@ import {ISessionAgent, AppResourceType} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
-import {checkNotWorkspaceResources} from '../resources/isPartOfWorkspace';
+import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 /**

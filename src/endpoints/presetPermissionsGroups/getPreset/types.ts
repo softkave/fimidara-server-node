@@ -5,8 +5,8 @@ import {
   IPublicPresetPermissionsGroup,
 } from '../../../definitions/presetPermissionsGroup';
 
-export interface IGetPresetPermissionsGroupEndpointParams
-  extends IPresetPermissionsGroupMatcher {}
+export type IGetPresetPermissionsGroupEndpointParams =
+  IPresetPermissionsGroupMatcher;
 
 export interface IGetPresetPermissionsGroupEndpointResult {
   preset: IPublicPresetPermissionsGroup;

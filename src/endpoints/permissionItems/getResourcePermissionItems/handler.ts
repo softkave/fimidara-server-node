@@ -16,6 +16,7 @@ import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
 import {getResourcePermissionItemsJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   context,
@@ -23,8 +24,8 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 ) => {
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,

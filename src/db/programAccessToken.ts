@@ -6,10 +6,10 @@ import {agentSchema, ensureTypeFields} from './utils';
 const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
   resourceId: {type: String, unique: true, index: true},
   hash: {type: String, index: true},
+  workspaceId: {type: String, index: true},
+  name: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
-  workspaceId: {type: String},
-  name: {type: String},
   description: {type: String},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},

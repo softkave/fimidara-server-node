@@ -6,7 +6,7 @@ import {INewWorkspaceInput} from '../addWorkspace/types';
 export type IUpdateWorkspaceInput = Partial<INewWorkspaceInput>;
 
 export interface IUpdateWorkspaceEndpointParams {
-  workspaceId: string;
+  workspaceId?: string;
   workspace: IUpdateWorkspaceInput;
 }
 

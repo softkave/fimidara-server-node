@@ -20,7 +20,11 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+} from '../../../definitions/system';
 import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
@@ -28,11 +32,13 @@ import {
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
 import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
 
   await checkAuthorization({
     context,
@@ -56,7 +62,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
 
     collaboratorExists = !!(
       existingUser &&
-      getCollaboratorWorkspace(existingUserWithWorkspaces, data.workspaceId)
+      getCollaboratorWorkspace(existingUserWithWorkspaces, workspaceId)
     );
   }
 
@@ -68,7 +74,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
 
   const existingRequest = await context.data.collaborationRequest.getItem(
     CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(
-      data.workspaceId,
+      workspaceId,
       data.request.recipientEmail
     )
   );
@@ -86,13 +92,18 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     }
   }
 
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
+
   const request = await context.data.collaborationRequest.saveItem({
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    createdAt: getDateString(),
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
     message: data.request.message,
     workspaceName: workspace.name,
     workspaceId: workspace.resourceId,
@@ -101,7 +112,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
-        date: getDateString(),
+        date: createdAt,
       },
     ],
   });

@@ -1,5 +1,5 @@
 import {isEqual, isArray, get} from 'lodash';
-import {ServerError} from '../../../utilities/errors';
+import {InternalError, ServerError} from '../../../utilities/errors';
 import cast from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
@@ -91,8 +91,7 @@ function matches(
     };
 
     if (fields.length > 2) {
-      console.error('Max depth for dot separated fields is 2');
-      throw new ServerError();
+      throw new InternalError('Max depth for dot separated fields is 2');
     }
 
     switch (v.queryOp) {

@@ -8,7 +8,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import cast from '../../utilities/fns';
 import {
@@ -26,7 +26,7 @@ import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import {ClientAssignedTokenDoesNotExistError} from './errors';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
@@ -37,8 +37,8 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   workspaceId: true,
   issuedAt: getDateString,
   expires: getDateString,
-  lastUpdatedAt: getDateStringIfPresent,
-  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
   presets: assignedPresetsListExtractor,
   tokenStr: true,
   tags: assignedTagListExtractor,

@@ -53,15 +53,23 @@ export async function createSingleFolder(
   }
 
   const folderId = getNewId();
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
+
   const savedFolder = await context.data.folder.saveItem({
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     name,
     workspaceId: workspace.resourceId,
     resourceId: folderId,
     parentId: parent?.resourceId,
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
     namePath: parent ? parent.namePath.concat(name) : [name],
-    createdAt: getDateString(),
-    createdBy: agent,
     description: input.description,
     maxFileSizeInBytes:
       input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,

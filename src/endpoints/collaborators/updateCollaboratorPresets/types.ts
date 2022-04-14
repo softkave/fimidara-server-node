@@ -4,7 +4,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IUpdateCollaboratorPresetsEndpointParams {
-  workspaceId: string;
+  workspaceId?: string;
   collaboratorId: string;
   presets: IPresetInput[];
 }

@@ -1,7 +1,11 @@
 import * as crypto from 'crypto';
 import * as argon2 from 'argon2';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
@@ -18,6 +22,7 @@ import {addProgramAccessTokenJoiSchema} from './validation';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   context,
@@ -25,8 +30,8 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, addProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
@@ -44,17 +49,22 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
 
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
+
   let token: IProgramAccessToken =
     await context.data.programAccessToken.saveItem({
       ...data.token,
+      createdAt,
+      createdBy,
+      lastUpdatedAt: createdAt,
+      lastUpdatedBy: createdBy,
       hash,
-      workspaceId: data.workspaceId,
+      workspaceId: workspaceId,
       resourceId: getNewId(),
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
     });
 
   await saveResourceAssignedItems(
@@ -86,7 +96,7 @@ function generateSecretKey() {
     return key;
   } catch (error) {
     console.error(error);
-    throw new ServerError();
+    throw new ServerError('Error generating secret key');
   }
 }
 

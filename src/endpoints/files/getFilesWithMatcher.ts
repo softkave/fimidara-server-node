@@ -1,7 +1,9 @@
 import {first} from 'lodash';
 import {format} from 'util';
 import {IFile, IFileMatcher} from '../../definitions/file';
+import {ISessionAgent} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
+import {getWorkspaceId} from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import FileQueries from './queries';
@@ -9,26 +11,29 @@ import {getFileName, splitfilepathWithDetails} from './utils';
 
 export async function getFilesWithMatcher(
   context: IBaseContext,
+  agent: ISessionAgent,
   matcher: IFileMatcher,
   count?: number
 ) {
+  const workspaceId = getWorkspaceId(agent, matcher.workspaceId);
+
   if (matcher.fileId) {
     const file = await context.data.file.getItem(
       EndpointReusableQueries.getById(matcher.fileId)
     );
 
     return [file];
-  } else if (matcher.filepath && matcher.workspaceId) {
+  } else if (matcher.filepath && workspaceId) {
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
     const files = await context.data.file.getManyItems(
       pathWithDetails.extension
         ? FileQueries.getByNamePathAndExtention(
-            matcher.workspaceId,
+            workspaceId,
             pathWithDetails.splitPathWithoutExtension,
             pathWithDetails.extension
           )
         : FileQueries.getByNamePath(
-            matcher.workspaceId,
+            workspaceId,
             pathWithDetails.splitPathWithoutExtension
           )
     );
@@ -50,10 +55,11 @@ export async function getFilesWithMatcher(
 
 export async function assertGetFilesWithMatcher(
   context: IBaseContext,
+  agent: ISessionAgent,
   matcher: IFileMatcher,
   count?: number
 ) {
-  const files = await getFilesWithMatcher(context, matcher, count);
+  const files = await getFilesWithMatcher(context, agent, matcher, count);
 
   if (files.length === 0) {
     throw new NotFoundError('File not found');
@@ -64,9 +70,10 @@ export async function assertGetFilesWithMatcher(
 
 export async function assertGetSingleFileWithMatcher(
   context: IBaseContext,
+  agent: ISessionAgent,
   matcher: IFileMatcher
 ): Promise<IFile> {
-  const files = await getFilesWithMatcher(context, matcher, 1);
+  const files = await getFilesWithMatcher(context, agent, matcher, 1);
   const file = first(files);
 
   if (!file) {

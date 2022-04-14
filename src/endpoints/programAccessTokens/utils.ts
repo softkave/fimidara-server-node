@@ -7,7 +7,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import cast from '../../utilities/fns';
 import {
@@ -20,7 +20,7 @@ import {NotFoundError} from '../errors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
 import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import ProgramAccessTokenQueries from './queries';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
@@ -31,8 +31,8 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   name: true,
   description: true,
   presets: assignedPresetsListExtractor,
-  lastUpdatedAt: getDateStringIfPresent,
-  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
   tokenStr: true,
   tags: assignedTagListExtractor,
 });
@@ -53,7 +53,6 @@ export async function checkProgramAccessTokenAuthorization(
   nothrow = false
 ) {
   const workspace = await checkWorkspaceExists(context, token.workspaceId);
-
   await checkAuthorization({
     context,
     agent,

@@ -18,9 +18,12 @@ const internalCreateWorkspace = async (
   user?: IUser
 ) => {
   await checkWorkspaceNameExists(context, data.name);
+  const createdAt = getDateString();
   let workspace = await context.data.workspace.saveItem({
-    createdAt: getDateString(),
+    createdAt,
     createdBy: agent,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: agent,
     name: data.name,
     resourceId: getNewId(),
     description: data.description,

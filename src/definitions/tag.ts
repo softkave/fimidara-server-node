@@ -6,8 +6,8 @@ export interface ITag {
   description?: string;
   createdAt: Date | string;
   createdBy: IAgent;
-  lastUpdatedAt?: Date | string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   workspaceId: string;
 }
 

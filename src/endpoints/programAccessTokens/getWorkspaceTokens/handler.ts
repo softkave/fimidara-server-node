@@ -11,6 +11,7 @@ import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken} from '../utils';
 import {GetWorkspaceProgramAccessTokenEndpoint} from './types';
 import {getWorkspaceProgramAccessTokenJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint =
   async (context, instData) => {
@@ -20,10 +21,10 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint =
     );
 
     const agent = await context.session.getAgent(context, instData);
-    const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+    const workspaceId = getWorkspaceId(agent, data.workspaceId);
+    const workspace = await checkWorkspaceExists(context, workspaceId);
     const tokens = await context.data.programAccessToken.getManyItems(
-      ProgramAccessTokenQueries.getByWorkspaceId(data.workspaceId)
+      ProgramAccessTokenQueries.getByWorkspaceId(workspaceId)
     );
 
     // TODO: can we do this together, so that we don't waste compute

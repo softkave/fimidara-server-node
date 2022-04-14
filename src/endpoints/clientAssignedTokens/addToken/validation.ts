@@ -10,6 +10,8 @@ export const newClientAssignedTokenJoiSchema = Joi.object().keys({
     clientAssignedTokenValidationSchemas.providedResourceId.allow(null),
   tags: tagsValidationSchemas.assignedTagsList.allow(null),
   presets: presetsValidationSchemas.assignedPresetsList.allow(null),
+  name: validationSchemas.name.allow(null),
+  description: validationSchemas.description.allow(null),
 });
 
 export const addClientAssignedTokenJoiSchema = Joi.object()

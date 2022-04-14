@@ -9,8 +9,8 @@ export interface IProgramAccessToken {
   hash: string;
   createdAt: Date | string;
   createdBy: IAgent;
-  lastUpdatedAt?: Date | string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   workspaceId: string;
 
   // environmentId: string;
@@ -24,8 +24,8 @@ export interface IPublicProgramAccessToken {
   description?: string;
   createdAt: string;
   createdBy: IAgent;
-  lastUpdatedAt?: string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: string;
   workspaceId: string;
   presets: IAssignedPresetPermissionsGroup[];
   tokenStr: string;

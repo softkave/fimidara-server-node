@@ -35,7 +35,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
       await checkPresetNameExists(context, workspace.resourceId, update.name);
     }
 
-    const item = await context.data.preset.assertUpdateItem(
+    preset = await context.data.preset.assertUpdateItem(
       PresetPermissionsGroupQueries.getById(preset.resourceId),
       update
     );
@@ -57,7 +57,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
     );
 
     return {
-      preset: presetPermissionsGroupExtractor(item),
+      preset: presetPermissionsGroupExtractor(preset),
     };
   };
 
