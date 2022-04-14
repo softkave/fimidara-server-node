@@ -6,7 +6,7 @@ import {
   BasicCRUDActions,
   systemAgent,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
+import {getDate, getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
@@ -50,9 +50,12 @@ async function setupDefaultUserCollaborationRequest(
   userEmail: string,
   adminPresetId: string
 ) {
+  const createdAt = getDate();
   const request = await context.data.collaborationRequest.saveItem({
+    createdAt,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: systemAgent,
     resourceId: getNewId(),
-    createdAt: getDateString(),
     createdBy: systemAgent,
     message:
       'System-generated collaboration request ' +
@@ -64,7 +67,7 @@ async function setupDefaultUserCollaborationRequest(
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
-        date: getDateString(),
+        date: createdAt,
       },
     ],
   });
@@ -134,12 +137,15 @@ async function setupImageUploadPermissionGroup(
   description: string,
   folderId: string
 ) {
+  const createdAt = getDate();
   const imageUploadPreset = await context.data.preset.saveItem({
     name,
     description,
+    createdAt,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: systemAgent,
     resourceId: getNewId(),
     workspaceId: workspaceId,
-    createdAt: getDateString(),
     createdBy: systemAgent,
   });
 

@@ -3,6 +3,7 @@ import {IAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../queries';
 import {compactPermissionItems, permissionItemIndexer} from '../utils';
 import {IReplacePermissionItemsByEntityEndpointParams} from './types';
@@ -19,16 +20,17 @@ export async function internalReplacePermissionItemsByEntity(
     )
   );
 
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
   let items: IPermissionItem[] = data.items.map(input => {
     const item: IPermissionItem = {
       ...input,
+      workspaceId,
       resourceId: getNewId(),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      workspaceId: data.workspaceId,
       permissionEntityId: data.permissionEntityId,
       permissionEntityType: data.permissionEntityType,
       hash: '',

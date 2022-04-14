@@ -1,17 +1,22 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {SessionAgentType} from '../../../definitions/system';
+import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {CURRENT_TOKEN_VERSION} from '../../contexts/SessionContext';
 
 export function generateClientAssignedTokenForTest() {
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: getNewId(),
+    agentType: SessionAgentType.User,
+  };
+
   const token: IClientAssignedToken = {
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    createdAt: getDateString(),
-    createdBy: {
-      agentId: getNewId(),
-      agentType: SessionAgentType.User,
-    },
     workspaceId: getNewId(),
     version: CURRENT_TOKEN_VERSION,
     issuedAt: getDateString(),

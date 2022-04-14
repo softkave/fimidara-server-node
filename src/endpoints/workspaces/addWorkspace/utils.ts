@@ -159,10 +159,13 @@ export async function setupDefaultWorkspacePresets(
   agent: IAgent,
   workspace: IWorkspace
 ) {
+  const createdAt = getDateString();
   const adminPreset: IPresetPermissionsGroup = {
+    createdAt,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
-    createdAt: getDateString(),
     createdBy: agent,
     name: DEFAULT_ADMIN_PRESET_NAME,
     description:
@@ -170,9 +173,11 @@ export async function setupDefaultWorkspacePresets(
   };
 
   const publicPreset: IPresetPermissionsGroup = {
+    createdAt,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
-    createdAt: getDateString(),
     createdBy: agent,
     name: DEFAULT_PUBLIC_PRESET_NAME,
     description:
@@ -180,9 +185,11 @@ export async function setupDefaultWorkspacePresets(
   };
 
   const collaboratorPreset: IPresetPermissionsGroup = {
+    createdAt,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
-    createdAt: getDateString(),
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PRESET_NAME,
     description: 'Auto-generated preset for collaborators.',

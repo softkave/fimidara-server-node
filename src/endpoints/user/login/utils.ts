@@ -71,10 +71,13 @@ export async function getUserClientAssignedToken(
   );
 
   if (!token) {
+    const createdAt = getDateString();
     token = await context.data.clientAssignedToken.saveItem({
+      createdAt,
+      lastUpdatedAt: createdAt,
+      lastUpdatedBy: systemAgent,
       resourceId: getNewId(),
       providedResourceId: userId,
-      createdAt: getDateString(),
       createdBy: systemAgent,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
