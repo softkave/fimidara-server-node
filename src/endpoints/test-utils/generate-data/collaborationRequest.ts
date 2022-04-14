@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {SessionAgentType} from '../../../definitions/system';
+import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {
@@ -10,13 +10,18 @@ import {
 } from './utils';
 
 export function generateCollaborationRequestForTest() {
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: getNewId(),
+    agentType: SessionAgentType.User,
+  };
+
   const item: ICollaborationRequest = {
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    createdAt: getDateString(),
-    createdBy: {
-      agentId: getNewId(),
-      agentType: SessionAgentType.User,
-    },
     workspaceName: faker.company.companyName(),
     workspaceId: getNewId(),
     recipientEmail: faker.internet.email(),

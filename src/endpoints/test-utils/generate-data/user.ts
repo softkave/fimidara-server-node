@@ -9,9 +9,11 @@ import {
 } from './utils';
 
 export function generateUserForTest() {
+  const createdAt = getDateString();
   const item: IUser = {
     resourceId: getNewId(),
-    createdAt: getDateString(),
+    createdAt,
+    lastUpdatedAt: createdAt,
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: faker.internet.email(),

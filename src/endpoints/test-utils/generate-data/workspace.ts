@@ -1,17 +1,22 @@
 import faker = require('faker');
 import {IWorkspace} from '../../../definitions/workspace';
-import {SessionAgentType} from '../../../definitions/system';
+import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 
 export function generateWorkspace() {
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: getNewId(),
+    agentType: SessionAgentType.User,
+  };
+
   const workspace: IWorkspace = {
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    createdBy: {
-      agentId: getNewId(),
-      agentType: SessionAgentType.User,
-    },
-    createdAt: getDateString(),
     name: faker.lorem.word(),
   };
 
