@@ -41,7 +41,9 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   );
 
   const matcher = getFileMatcher(agent, data);
-  let file = first(await getFilesWithMatcher(context, matcher, /* count */ 1));
+  let file = first(
+    await getFilesWithMatcher(context, agent, matcher, /* count */ 1)
+  );
 
   if (!file) {
     assert(

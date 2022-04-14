@@ -44,10 +44,10 @@ function extractUploadFilesParamsFromQuery(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
   const workspaceId = req.query.workspaceId as string;
-  const filepath = req.query.p as string;
+  const filepath = req.query.filepath as string;
   return {
     workspaceId,
-    filepath: filepath,
+    filepath,
   };
 }
 

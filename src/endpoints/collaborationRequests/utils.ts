@@ -19,7 +19,7 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import EndpointReusableQueries from '../queries';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 
 const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   resourceId: true,
@@ -30,8 +30,8 @@ const collaborationRequestFields = getFields<IPublicCollaborationRequest>({
   expiresAt: getDateStringIfPresent,
   workspaceId: true,
   workspaceName: true,
-  lastUpdatedAt: getDateStringIfPresent,
-  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
   readAt: getDateStringIfPresent,
   statusHistory: makeListExtract(
     getFields<ICollaborationRequestStatus>({

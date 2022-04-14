@@ -47,6 +47,7 @@ const signup: SignupEndpoint = async (context, instData) => {
     createdAt: now,
     passwordLastChangedAt: now,
     isEmailVerified: false,
+    lastUpdatedAt: now,
   });
 
   const userToken = await getUserToken(context, user);

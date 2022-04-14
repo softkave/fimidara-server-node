@@ -128,16 +128,16 @@ export async function withUserWorkspaces<T extends IUser>(
 ): Promise<T & {workspaces: IUserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSorted(
     context,
-    '', // Empty string is used to fetch user workspaces
+    /** workspaceId */ '', // Empty string is used to fetch user workspaces
     resource.resourceId,
     AppResourceType.User
   );
 
+  let assignedPresetItems: IAssignedItem[] = [];
+  let assignedWorkspaceItems: IAssignedItem[] = [];
   const updatedResource: T & {workspaces: IUserWorkspace[]} = resource as T & {
     workspaces: IUserWorkspace[];
   };
-  let assignedPresetItems: IAssignedItem[] = [];
-  let assignedWorkspaceItems: IAssignedItem[] = [];
 
   for (const type in sortedItems) {
     switch (type) {
@@ -145,7 +145,7 @@ export async function withUserWorkspaces<T extends IUser>(
         assignedPresetItems = sortedItems[type];
         break;
 
-      case AppResourceType.Tag:
+      case AppResourceType.Workspace:
         assignedWorkspaceItems = sortedItems[type];
         break;
     }

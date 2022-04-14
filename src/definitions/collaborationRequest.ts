@@ -36,8 +36,8 @@ export interface ICollaborationRequest {
   expiresAt?: string;
   workspaceName: string;
   workspaceId: string;
-  lastUpdatedAt?: Date | string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   readAt?: Date | string;
   statusHistory: ICollaborationRequestStatus[];
 }
@@ -51,8 +51,8 @@ export interface IPublicCollaborationRequest {
   expiresAt?: string;
   workspaceId: string;
   workspaceName: string;
-  lastUpdatedAt?: string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: string;
   readAt?: string;
   statusHistory: ICollaborationRequestStatus[];
   sentEmailHistory: ICollaborationRequestSentEmailHistoryItem[];

@@ -5,11 +5,11 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const workspaceSchema = ensureTypeFields<IWorkspace>({
   resourceId: {type: String, unique: true, index: true},
+  name: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
-  name: {type: String},
   description: {type: String},
   publicPresetId: {type: String},
 });

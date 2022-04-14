@@ -5,20 +5,20 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const fileSchema = ensureTypeFields<IFile>({
   resourceId: {type: String, unique: true, index: true},
-  mimetype: {type: String},
-  workspaceId: {type: String},
+  idPath: {type: [String], default: [], index: true},
+  namePath: {type: [String], default: [], index: true},
+  workspaceId: {type: String, index: true},
+  folderId: {type: String, index: true},
+  name: {type: String, index: true},
+  extension: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   size: {type: Number},
-  folderId: {type: String},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
   description: {type: String},
-  name: {type: String},
-  extension: {type: String},
   encoding: {type: String},
-  idPath: {type: [String], default: []},
-  namePath: {type: [String], default: []},
+  mimetype: {type: String},
 });
 
 export type IFileDocument = Document<IFile>;

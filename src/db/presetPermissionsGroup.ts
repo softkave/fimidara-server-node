@@ -1,19 +1,16 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {
-  IAssignedPresetPermissionsGroup,
-  IPresetPermissionsGroup,
-} from '../definitions/presetPermissionsGroup';
+import {IPresetPermissionsGroup} from '../definitions/presetPermissionsGroup';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const presetPermissionsSchema = ensureTypeFields<IPresetPermissionsGroup>({
-  resourceId: {type: String},
-  workspaceId: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  workspaceId: {type: String, index: true},
+  name: {type: String, index: true},
   createdAt: {type: Date, default: getDate},
   createdBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
-  name: {type: String},
   description: {type: String},
 });
 

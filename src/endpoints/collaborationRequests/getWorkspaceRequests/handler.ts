@@ -10,6 +10,7 @@ import {PermissionDeniedError} from '../../user/errors';
 import {collabRequestListExtractor} from '../utils';
 import {GetWorkspaceRequestsEndpoint} from './types';
 import {getWorkspaceRequestsJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
   context,
@@ -17,10 +18,10 @@ const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
 ) => {
   const data = validate(instData.data, getWorkspaceRequestsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   const requests = await context.data.collaborationRequest.getManyItems(
-    EndpointReusableQueries.getByWorkspaceId(data.workspaceId)
+    EndpointReusableQueries.getByWorkspaceId(workspaceId)
   );
 
   // TODO: can we do this together, so that we don't waste compute

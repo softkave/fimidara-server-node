@@ -16,7 +16,7 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
 
   // checkCollaboratorAuthorization fills in the user workspaces
-  let {collaborator} = await checkCollaboratorAuthorization02(
+  const {collaborator} = await checkCollaboratorAuthorization02(
     context,
     agent,
     workspaceId,

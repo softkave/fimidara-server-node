@@ -6,8 +6,8 @@ export interface IPresetPermissionsGroup {
   workspaceId: string;
   createdAt: Date | string;
   createdBy: IAgent;
-  lastUpdatedAt?: Date | string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   name: string;
   description?: string;
 
@@ -32,8 +32,8 @@ export interface IPublicPresetPermissionsGroup {
   workspaceId: string;
   createdAt: string;
   createdBy: IAgent;
-  lastUpdatedAt?: string;
-  lastUpdatedBy?: IAgent;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: string;
   name: string;
   description?: string;
   presets: IAssignedPresetPermissionsGroup[];

@@ -1,4 +1,8 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -13,6 +17,7 @@ import {checkPresetNameExists} from '../checkPresetNameExists';
 import {presetPermissionsGroupExtractor} from '../utils';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   context,
@@ -20,8 +25,8 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
 ) => {
   const data = validate(instData.data, addPresetPermissionsGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
@@ -32,15 +37,19 @@ const addPresetPermissionsGroup: AddPresetPermissionsGroupEndpoint = async (
   });
 
   await checkPresetNameExists(context, workspace.resourceId, data.preset.name);
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
 
   let preset = await context.data.preset.saveItem({
     ...data.preset,
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    createdAt: getDateString(),
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
     workspaceId: workspace.resourceId,
   });
 

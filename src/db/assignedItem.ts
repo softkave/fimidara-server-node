@@ -4,15 +4,15 @@ import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const assignedItemSchema = ensureTypeFields<IAssignedItem>({
-  resourceId: {type: String},
-  workspaceId: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  workspaceId: {type: String, index: true},
+  assignedItemId: {type: String, index: true},
+  assignedItemType: {type: String, index: true},
+  assignedToItemId: {type: String, index: true},
+  assignedToItemType: {type: String, index: true},
+  meta: {type: SchemaTypes.Map},
   assignedAt: {type: Date, default: getDate},
   assignedBy: {type: agentSchema},
-  assignedItemId: {type: String},
-  assignedItemType: {type: String},
-  assignedToItemId: {type: String},
-  assignedToItemType: {type: String},
-  meta: {type: SchemaTypes.Map},
 });
 
 export type IAssignedItemDocument = Document<IAssignedItem>;

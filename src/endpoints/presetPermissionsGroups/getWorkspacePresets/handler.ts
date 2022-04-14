@@ -11,6 +11,7 @@ import PresetPermissionsGroupQueries from '../queries';
 import {presetPermissionsGroupListExtractor} from '../utils';
 import {GetWorkspacePresetPermissionsGroupsEndpoint} from './types';
 import {getWorkspacePresetPermissionsGroupsJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspacePresetPermissionsGroups: GetWorkspacePresetPermissionsGroupsEndpoint =
   async (context, instData) => {
@@ -20,10 +21,10 @@ const getWorkspacePresetPermissionsGroups: GetWorkspacePresetPermissionsGroupsEn
     );
 
     const agent = await context.session.getAgent(context, instData);
-    const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+    const workspaceId = getWorkspaceId(agent, data.workspaceId);
+    const workspace = await checkWorkspaceExists(context, workspaceId);
     const items = await context.data.preset.getManyItems(
-      PresetPermissionsGroupQueries.getByWorkspaceId(data.workspaceId)
+      PresetPermissionsGroupQueries.getByWorkspaceId(workspaceId)
     );
 
     // TODO: can we do this together, so that we don't waste compute

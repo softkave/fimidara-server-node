@@ -1,6 +1,7 @@
 import {Response, Request} from 'express';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utilities/dateFns';
+import {ServerError} from '../utilities/errors';
 import {
   getFields,
   makeExtract,
@@ -8,6 +9,7 @@ import {
   makeListExtract,
 } from '../utilities/extract';
 import OperationError from '../utilities/OperationError';
+import {AnyObject} from '../utilities/types';
 import {endpointConstants} from './constants';
 import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
@@ -16,7 +18,9 @@ import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataWork} from './types';
 
 export function getPublicErrors(inputError: any) {
-  const errors = Array.isArray(inputError) ? inputError : [inputError];
+  const errors: OperationError[] = Array.isArray(inputError)
+    ? inputError
+    : [inputError];
 
   // We are mapping errors cause some values don't show if we don't
   // or was it errors, not sure anymore, this is old code.
@@ -26,7 +30,7 @@ export function getPublicErrors(inputError: any) {
 
   errors.forEach(
     errorItem =>
-      errorItem?.isPublic &&
+      errorItem?.isPublicError &&
       preppedErrors.push({
         name: errorItem.name,
         message: errorItem.message,
@@ -34,6 +38,11 @@ export function getPublicErrors(inputError: any) {
         field: errorItem.field,
       })
   );
+
+  if (preppedErrors.length === 0) {
+    const serverError = new ServerError();
+    preppedErrors.push({name: serverError.name, message: serverError.message});
+  }
 
   return preppedErrors;
 }
@@ -124,7 +133,7 @@ export type IResourceWithoutAssignedAgent<T> = Omit<
   'assignedAt' | 'assignedBy'
 >;
 
-export function withAssignedAgent<T extends object>(
+export function withAssignedAgent<T extends AnyObject>(
   agent: IAgent,
   item: T
 ): T & {assignedBy: IAgent; assignedAt: string} {
@@ -138,7 +147,7 @@ export function withAssignedAgent<T extends object>(
   };
 }
 
-export function withAssignedAgentList<T extends object>(
+export function withAssignedAgentList<T extends AnyObject>(
   agent: IAgent,
   items: T[] = []
 ): Array<T & {assignedBy: IAgent; assignedAt: string}> {

@@ -1,16 +1,16 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IAssignedTag, ITag} from '../definitions/tag';
+import {ITag} from '../definitions/tag';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const tagSchema = ensureTypeFields<ITag>({
-  resourceId: {type: String},
-  workspaceId: {type: String},
+  resourceId: {type: String, unique: true, index: true},
+  workspaceId: {type: String, index: true},
+  name: {type: String, index: true},
   createdAt: {type: Date, default: getDate},
   createdBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
-  name: {type: String},
   description: {type: String},
 });
 

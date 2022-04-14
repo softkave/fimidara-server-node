@@ -14,7 +14,7 @@ export interface INewPresetPermissionsGroupInput {
 }
 
 export interface IAddPresetPermissionsGroupEndpointParams {
-  workspaceId: string;
+  workspaceId?: string;
   preset: INewPresetPermissionsGroupInput;
 }
 

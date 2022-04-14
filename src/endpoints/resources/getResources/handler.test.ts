@@ -6,6 +6,7 @@ import {
   getWorkspaceActionList,
   IResourceBase,
 } from '../../../definitions/system';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/BaseContext';
 import addPermissionItems from '../../permissionItems/addItems/handler';
@@ -90,7 +91,10 @@ describe('getResources', () => {
     addResource(workspace, AppResourceType.Workspace);
     addResource(preset, AppResourceType.PresetPermissionsGroup);
     addResource(
-      collaboratorExtractor(rawUser, workspace.resourceId),
+      collaboratorExtractor(
+        await withUserWorkspaces(context, rawUser),
+        workspace.resourceId
+      ),
       AppResourceType.User
     );
 

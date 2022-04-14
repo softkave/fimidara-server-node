@@ -5,19 +5,19 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   resourceId: {type: String, index: true, unique: true},
-  workspaceId: {type: String},
+  workspaceId: {type: String, index: true},
+  permissionOwnerId: {type: String, index: true},
+  permissionOwnerType: {type: String, index: true},
+  permissionEntityId: {type: String, index: true},
+  permissionEntityType: {type: String, index: true},
+  itemResourceId: {type: String, index: true},
+  itemResourceType: {type: String, index: true},
+  grantAccess: {type: Boolean, index: true},
+  appliesTo: {type: String, index: true},
+  action: {type: String, index: true},
+  hash: {type: String, index: true},
   createdAt: {type: Date, default: getDate},
   createdBy: {type: agentSchema},
-  permissionOwnerId: {type: String},
-  permissionOwnerType: {type: String},
-  permissionEntityId: {type: String},
-  permissionEntityType: {type: String},
-  itemResourceId: {type: String},
-  itemResourceType: {type: String},
-  action: {type: String},
-  grantAccess: {type: Boolean},
-  appliesTo: {type: String},
-  hash: {type: String, index: true},
 });
 
 export type IPermissionItemDocument = Document<IPermissionItem>;

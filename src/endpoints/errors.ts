@@ -16,7 +16,7 @@ export class InvalidRequestError extends OperationError {
 
 export class RateLimitError extends OperationError {
   public name = 'RateLimitError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.tooManyRequests;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -29,7 +29,7 @@ export class RateLimitError extends OperationError {
 
 export class ExpiredError extends OperationError {
   public name = 'ExpiredError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.conflict;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -39,7 +39,7 @@ export class ExpiredError extends OperationError {
 
 export class NotFoundError extends OperationError {
   public name = 'NotFoundError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.notFound;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -49,7 +49,7 @@ export class NotFoundError extends OperationError {
 
 export class ResourceExistsError extends OperationError {
   public name = 'ResourceExistsError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.conflict;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);

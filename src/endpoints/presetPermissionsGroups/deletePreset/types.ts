@@ -2,8 +2,8 @@ import {IPresetPermissionsGroupMatcher} from '../../../definitions/presetPermiss
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export interface IDeletePresetPermissionsGroupEndpointParams
-  extends IPresetPermissionsGroupMatcher {}
+export type IDeletePresetPermissionsGroupEndpointParams =
+  IPresetPermissionsGroupMatcher;
 
 export type DeletePresetPermissionsGroupEndpoint = Endpoint<
   IBaseContext,

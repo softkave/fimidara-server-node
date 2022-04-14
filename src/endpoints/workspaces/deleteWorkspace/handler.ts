@@ -8,12 +8,10 @@ import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {internalDeleteFolderList} from '../../folders/deleteFolder/handler';
 import FolderQueries from '../../folders/queries';
-import PermissionItemQueries from '../../permissionItems/queries';
-import PresetPermissionsGroupQueries from '../../presetPermissionsGroups/queries';
 import ProgramAccessTokenQueries from '../../programAccessTokens/queries';
 import EndpointReusableQueries from '../../queries';
 import WorkspaceQueries from '../queries';
@@ -27,10 +25,11 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     SessionAgentType.User,
   ]);
 
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    data.workspaceId,
+    workspaceId,
     BasicCRUDActions.Delete
   );
 

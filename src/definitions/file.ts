@@ -12,8 +12,8 @@ export interface IFile {
   size: number;
   createdBy: IAgent;
   createdAt: Date | string;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   name: string;
   extension: string;
   description?: string;

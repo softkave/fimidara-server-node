@@ -11,11 +11,7 @@ import {
   getNonWorkspaceActionList,
   getWorkspaceActionList,
 } from '../../definitions/system';
-import {
-  IPublicUserData,
-  IUser,
-  IUserWithWorkspace,
-} from '../../definitions/user';
+import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import singletonFunc from '../../utilities/singletonFunc';
 import {withUserWorkspaces} from '../assignedItems/getAssignedItems';

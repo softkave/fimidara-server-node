@@ -1,44 +1,24 @@
+- [ ] Send email and notification to removed collaborators
+- [ ] Send notification to the sender that the user has responded to their collaboration request
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
 - [ ] Preset weight, not order
 - [ ] unit tests
-- [ ] API translator with igeeks image
-- [ ] use EAV for assigned items
 - [ ] pagination
 - [ ] free flow tags and meta
-- [ ] Delete assigned presets when presets are deleted
-- [ ] confirm what error is returned when file is not found
-- [ ] Validate that client assigned token provided resource ID is unique, and add it to the other endpoints, and write unit tests for it
-- [ ] Change token expiry to ISO string
-- [ ] Send email and notification to removed collaborators
+- [ ] add provided resource ID to all the resources
 - [ ] Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
-- [ ] add index to fields to be indexed for mongo
-- [ ] workspace ID should be be conditional in inputs like for the tokens
 - [ ] delete permission items when entity, owner, or resource is deleted
-- [ ] public access ops and similar inputs should be replace
-- [ ] check file size when uploading
-- [ ] add endpoints for adding, updating, and deleting public access ops and similar items
-- [ ] allow every resource to have provided resource ID
-- [ ] don't sepearate extension from file name
-- [ ] add the right http errors and status text to http responses
-- [ ] add error message in constructor to all errors
+- [ ] specify multer limits for files and config
 - [ ] write more auth check tests, particularly for ones that shouldn't grant access
-- [ ] better name your APIs, the REST urls
-- [ ] add /api to your urls
 - [ ] differentiate between user and collaborator
-- [ ] remove exclusion on re-allow, and compact
 - [ ] increase the length of nanoids
 - [ ] maybe have a separate db for testing mongodataprovider and teardown after test or move away from data providers quickly
-- [ ] set multer limits and config
-- [ ] Send notification to the sender that the user has responded to their collaboration request
 - [ ] make workspace ID not required for most APIs since it can be deduced from the tokens. Remove it all together in the JS sdk.
-- [ ] ensure that all children data are deleted
-- [ ] set limits and file filter
 - [ ] should we gate who can see who's permissions
-- [ ] check that resources belong to the workspace in getResources
-- [ ] find all the places where server error is thrown and the error shouldn't be public and make them InternalError
 - [ ] swagger API documentation
 - [ ] use tags and update the names when workspace names or user names changes
 - [ ] free flowing tags
 - [ ] sort data by date by default
+- [ ] Use extension when file matching so that users can upload files with the same name but with different extensions and test that it works

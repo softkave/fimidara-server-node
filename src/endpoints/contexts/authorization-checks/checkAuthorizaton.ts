@@ -9,7 +9,7 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../../definitions/system';
-import {ServerError} from '../../../utilities/errors';
+import {InternalError} from '../../../utilities/errors';
 import {indexArray} from '../../../utilities/indexArray';
 import {PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
@@ -20,7 +20,6 @@ import {
   getPermissionEntities,
   IPermissionEntity,
 } from './getPermissionEntities';
-import {formatWithOptions} from 'util';
 
 export interface IPermissionOwner {
   permissionOwnerId: string;
@@ -73,8 +72,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     params.itemResourceId &&
     resource.resourceId !== params.itemResourceId
   ) {
-    // TODO: throw invalid argument error instead
-    throw new ServerError();
+    throw new InternalError("Resource ID doesn't match item resource ID");
   }
 
   function newFilter() {
@@ -85,13 +83,6 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const authEntities = await fetchAndSortPresets(
     context,
     agentPermissionEntities
-  );
-
-  console.log(
-    formatWithOptions(
-      {depth: 10},
-      {authEntities, agent, agentPermissionEntities}
-    )
   );
 
   const queries = authEntities.map(item => {
@@ -130,8 +121,15 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     indexer: getPermissionOwnerKey,
   });
 
+  const getEntityKey = (item: IPermissionEntity) =>
+    `${item.permissionEntityId}-${item.permissionEntityType}`;
+
+  const entitiesMap = indexArray(authEntities, {
+    indexer: getEntityKey,
+  });
+
   const getPermissionOwnerOrder = (item: IPermissionOwner) =>
-    entitiesMap[getPermissionOwnerKey(item)]?.order ?? 99;
+    entitiesMap[getPermissionOwnerKey(item)]?.order ?? authEntities.length * 2;
 
   const hasPermissionOwners = permissionOwners.length > 0;
   const items = flatten(permissionItemsList).filter(item => {
@@ -160,13 +158,6 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     [AppResourceType.ProgramAccessToken]: 3,
     [AppResourceType.PresetPermissionsGroup]: 4,
   };
-
-  const getEntityKey = (item: IPermissionEntity) =>
-    `${item.permissionEntityId}-${item.permissionEntityType}`;
-
-  const entitiesMap = indexArray(authEntities, {
-    indexer: getEntityKey,
-  });
 
   const lowerPriorityWeight = items.length * 2;
   const higherPriorityWeight = lowerPriorityWeight * -1;

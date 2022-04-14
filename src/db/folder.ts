@@ -5,17 +5,17 @@ import {agentSchema, ensureTypeFields} from './utils';
 
 const folderSchema = ensureTypeFields<IFolder>({
   resourceId: {type: String, unique: true, index: true},
-  workspaceId: {type: String},
+  workspaceId: {type: String, index: true},
+  idPath: {type: [String], default: [], index: true},
+  namePath: {type: [String], default: [], index: true},
+  parentId: {type: String, index: true},
+  name: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   maxFileSizeInBytes: {type: Number},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
-  parentId: {type: String},
-  name: {type: String, index: true},
   description: {type: String},
-  idPath: {type: [String], default: []},
-  namePath: {type: [String], default: []},
 });
 
 export type IFolderDocument = Document<IFolder>;

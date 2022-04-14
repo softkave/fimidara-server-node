@@ -11,6 +11,7 @@ import {PermissionDeniedError} from '../../user/errors';
 import {getPublicClientToken} from '../utils';
 import {GetWorkspaceClientAssignedTokenEndpoint} from './types';
 import {getWorkspaceClientAssignedTokenJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint =
   async (context, instData) => {
@@ -20,10 +21,10 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
     );
 
     const agent = await context.session.getAgent(context, instData);
-    const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+    const workspaceId = getWorkspaceId(agent, data.workspaceId);
+    const workspace = await checkWorkspaceExists(context, workspaceId);
     const tokens = await context.data.clientAssignedToken.getManyItems(
-      EndpointReusableQueries.getByWorkspaceId(data.workspaceId)
+      EndpointReusableQueries.getByWorkspaceId(workspaceId)
     );
 
     // TODO: can we do this together, so that we don't waste compute

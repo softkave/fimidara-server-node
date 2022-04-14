@@ -3,7 +3,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IGetWorkspaceEndpointParams {
-  workspaceId: string;
+  workspaceId?: string;
 }
 
 export interface IGetWorkspaceEndpointResult {

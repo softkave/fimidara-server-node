@@ -4,7 +4,7 @@ import {
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -13,7 +13,7 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {checkWorkspaceExists} from '../workspaces/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import EndpointReusableQueries from '../queries';
 
 const assignedTagFields = getFields<IAssignedTag>({
@@ -32,8 +32,8 @@ const tagFields = getFields<IPublicTag>({
   workspaceId: true,
   name: true,
   description: true,
-  lastUpdatedAt: getDateStringIfPresent,
-  lastUpdatedBy: agentExtractorIfPresent,
+  lastUpdatedAt: getDateString,
+  lastUpdatedBy: agentExtractor,
 });
 
 export const tagExtractor = makeExtract(tagFields);

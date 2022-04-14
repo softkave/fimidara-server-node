@@ -10,8 +10,8 @@ export interface IFolder {
   createdBy: IAgent;
   createdAt: Date | string;
   maxFileSizeInBytes: number;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   name: string;
   description?: string;
 
@@ -28,8 +28,8 @@ export interface IPublicFolder {
   createdBy: IAgent;
   createdAt: Date | string;
   maxFileSizeInBytes: number;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: string;
   name: string;
   description?: string;
   tags: IAssignedTag[];

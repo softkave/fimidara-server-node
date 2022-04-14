@@ -9,7 +9,7 @@ export interface ICollaborationRequestInput {
 }
 
 export interface ISendRequestEndpointParams {
-  workspaceId: string;
+  workspaceId?: string;
   request: ICollaborationRequestInput;
 }
 

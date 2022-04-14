@@ -3,7 +3,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const updateRequestInputJoiSchema = Joi.object().keys({
   message: validationSchemas.description.allow(null),
-  expiresAt: validationSchemas.time.allow(null),
+  expires: validationSchemas.time.allow(null),
 });
 
 export const updateRequestJoiSchema = Joi.object()

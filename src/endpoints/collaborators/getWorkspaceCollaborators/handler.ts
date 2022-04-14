@@ -11,6 +11,7 @@ import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor, removeOtherUserWorkspaces} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   context,
@@ -18,10 +19,10 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
 ) => {
   const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExists(context, data.workspaceId);
-
+  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
   const collaborators = await context.data.user.getManyItems(
-    CollaboratorQueries.getByWorkspaceId(data.workspaceId)
+    CollaboratorQueries.getByWorkspaceId(workspaceId)
   );
 
   // TODO: can we do this together, so that we don't waste compute

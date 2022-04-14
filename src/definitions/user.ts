@@ -13,7 +13,7 @@ export interface IUser {
   email: string;
   hash: string;
   createdAt: Date | string;
-  lastUpdatedAt?: Date | string;
+  lastUpdatedAt: Date | string;
   passwordLastChangedAt: Date | string;
 
   // email verification
@@ -32,7 +32,7 @@ export interface IPublicUserData {
   lastName: string;
   email: string;
   createdAt: string;
-  lastUpdatedAt?: string;
+  lastUpdatedAt: string;
   passwordLastChangedAt: string;
   isEmailVerified: boolean;
   emailVerifiedAt?: string | null;

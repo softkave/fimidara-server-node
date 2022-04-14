@@ -6,7 +6,7 @@ import {endpointConstants} from '../constants';
 
 export class PresetPermissionsGroupExistsError extends OperationError {
   public name = 'PresetPermissionsGroupExistsError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -18,7 +18,7 @@ export class PresetPermissionsGroupExistsError extends OperationError {
 
 export class PresetPermissionsGroupDoesNotExistError extends OperationError {
   public name = 'PresetPermissionsGroupDoesNotExistError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(

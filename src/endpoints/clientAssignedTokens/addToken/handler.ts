@@ -1,6 +1,10 @@
 import {omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+} from '../../../definitions/system';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -58,17 +62,22 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   }
 
   if (!token) {
+    const createdAt = getDate();
+    const createdBy: IAgent = {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    };
+
     token = await context.data.clientAssignedToken.saveItem({
       ...omit(data.token, 'presets', 'tags'),
+      createdAt,
+      createdBy,
       workspaceId: workspace.resourceId,
       resourceId: getNewId(),
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
+      lastUpdatedAt: createdAt,
+      lastUpdatedBy: createdBy,
     });
   } else {
     token = await context.data.clientAssignedToken.assertUpdateItem(

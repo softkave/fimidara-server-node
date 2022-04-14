@@ -1,6 +1,10 @@
 import {IFolder} from '../../../definitions/folder';
 import {IWorkspace} from '../../../definitions/workspace';
-import {AppResourceType, ISessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  IAgent,
+  ISessionAgent,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -19,7 +23,17 @@ export async function internalCreateFile(
   parentFolder: IFolder | null
 ) {
   const fileId = getNewId();
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
+
   const file = await context.data.file.saveItem({
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     workspaceId: workspace.resourceId,
     resourceId: fileId,
     extension: data.extension || pathWithDetails.extension || '',
@@ -31,11 +45,6 @@ export async function internalCreateFile(
     folderId: parentFolder?.resourceId,
     mimetype: data.mimetype,
     size: data.data.length,
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
-    createdAt: getDateString(),
     description: data.description,
     encoding: data.encoding,
   });

@@ -6,7 +6,7 @@ import {endpointConstants} from '../constants';
 
 export class ClientAssignedTokenExistsError extends OperationError {
   public name = 'ClientAssignedTokenExistsError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.conflict;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -19,7 +19,7 @@ export class ClientAssignedTokenExistsError extends OperationError {
 
 export class ClientAssignedTokenDoesNotExistError extends OperationError {
   public name = 'ClientAssignedTokenDoesNotExistError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  public statusCode = endpointConstants.httpStatusCode.notFound;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);

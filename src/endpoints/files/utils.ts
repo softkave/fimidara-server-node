@@ -4,7 +4,7 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {ValidationError} from '../../utilities/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
@@ -18,7 +18,7 @@ import {folderConstants} from '../folders/constants';
 import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher} from './getFilesWithMatcher';
 
@@ -26,8 +26,8 @@ const fileFields = getFields<IPublicFile>({
   resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
-  lastUpdatedBy: agentExtractorIfPresent,
-  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateString,
   name: true,
   description: true,
   folderId: true,
@@ -78,7 +78,7 @@ export async function checkFileAuthorization03(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const file = await assertGetSingleFileWithMatcher(context, matcher);
+  const file = await assertGetSingleFileWithMatcher(context, agent, matcher);
   return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 

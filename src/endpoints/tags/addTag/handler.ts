@@ -1,4 +1,8 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
@@ -31,15 +35,20 @@ const addTag: AddTagEndpoint = async (context, instData) => {
   });
 
   await checkTagNameExists(context, workspace.resourceId, data.tag.name);
-  let tag = await context.data.tag.saveItem({
+  const createdAt = getDateString();
+  const createdBy: IAgent = {
+    agentId: agent.agentId,
+    agentType: agent.agentType,
+  };
+
+  const tag = await context.data.tag.saveItem({
     ...data.tag,
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     workspaceId: workspace.resourceId,
     resourceId: getNewId(),
-    createdAt: getDateString(),
-    createdBy: {
-      agentId: agent.agentId,
-      agentType: agent.agentType,
-    },
   });
 
   return {

@@ -5,7 +5,7 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {
   checkAuthorization,
@@ -16,7 +16,7 @@ import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor, agentExtractorIfPresent} from '../utils';
+import {agentExtractor} from '../utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
@@ -25,8 +25,8 @@ const folderFields = getFields<IPublicFolder>({
   resourceId: true,
   createdBy: agentExtractor,
   createdAt: getDateString,
-  lastUpdatedBy: agentExtractorIfPresent,
-  lastUpdatedAt: getDateStringIfPresent,
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateString,
   maxFileSizeInBytes: true,
   workspaceId: true,
   parentId: true,

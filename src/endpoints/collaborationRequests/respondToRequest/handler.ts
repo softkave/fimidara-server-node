@@ -1,9 +1,14 @@
+import {IAssignedPresetMeta} from '../../../definitions/assignedItem';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {ServerStateConflictError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {addAssignedUserWorkspace} from '../../assignedItems/addAssignedItems';
-import {ExpiredError} from '../../errors';
+import {
+  addAssignedPresetList,
+  addAssignedUserWorkspace,
+} from '../../assignedItems/addAssignedItems';
+import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import {collabRequestExtractor} from '../utils';
@@ -52,6 +57,36 @@ const respondToRequest: RespondToRequestEndpoint = async (
       request.workspaceId,
       user
     );
+
+    const presetsOnAccept = await getResourceAssignedItems(
+      context,
+      request.workspaceId,
+      request.resourceId,
+      AppResourceType.CollaborationRequest
+    );
+
+    if (presetsOnAccept.length > 0) {
+      const workspace = await context.data.workspace.assertGetItem(
+        EndpointReusableQueries.getById(request.workspaceId)
+      );
+
+      await addAssignedPresetList(
+        context,
+        {
+          agentId: user.resourceId,
+          agentType: SessionAgentType.User,
+        },
+        workspace,
+        presetsOnAccept.map(item => ({
+          presetId: item.assignedItemId,
+          order: (item.meta as IAssignedPresetMeta)?.order || 1,
+        })),
+        user.resourceId,
+        AppResourceType.User,
+        /** deleteExisting */ false,
+        /** skipPresetsCheck */ true
+      );
+    }
   }
 
   return {

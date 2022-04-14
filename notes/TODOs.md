@@ -9,7 +9,6 @@
 - [ ] Pagination
 - [ ] File versioning
 - [ ] Byte range
-- [ ] Use extension when file matching so that users can upload files with the same name but with different extensions
 - [ ] Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning presets.
 - [ ] Implement folder upload and not requiring file name but generating one when not provided
 - [ ] For public resources, determine what data parts public actions affect, like a folder can be public, but a public agent can't change it from public to private
@@ -18,16 +17,14 @@
 - [ ] Implement real time updates
 - [ ] Update accepted collaboration requests to include the user ID of the recipient for better info in case the user changes their email address
 - [ ] Write end-to-end tests
-- [ ] Implement stae-whie-revalidate and other http headers and options
-- [ ] Implement file versioning, and versioning for other reosurces
+- [ ] Implement stale-while-revalidate and other http headers and options
+- [ ] Implement file versioning, and versioning for other resources
 - [ ] Filter out presets not found, instead of erroring out
 - [ ] Do we really need buckets?
 - [ ] Listening on files, compressing files, version, integrity, etags,
       mirror OS file APIs as much as possible, maybe searching and indexing the files and it's content
 - [ ] Look into using mdb groups-like system for users and tokens
-- [ ] Improve the API parameters of the endpoints
 - [ ] Look into the TODOs in the project
-- [ ] What fields should be indexed in MongoDB?
 - [ ] Short links for files
 - [ ] Move from the data provider model to special functions for accessing and operating on data in data providers, primarily so that we can implement a caching mechanism using it. If we can implement the same on top of the current system, that is fine too.
 - [ ] Skip filenames and generate new ones or appending random strings to filenames
@@ -37,7 +34,6 @@
 - [ ] Consider use cases like uploading folders
 - [ ] Does the user want to override a file or throw an exception if the file exists
 - [ ] Confirm the places that should be assert split path
-- [ ] Delete artifacts on resources on delete
 - [ ] A public page for sharing files and folders
 - [ ] Error message descriptions
 - [ ] How do you prevent cyclic preset dependencies among preset permissions?
@@ -47,7 +43,6 @@
 - [ ] Check that update data has data before saving to db
 - [ ] Validate that endpoints that define their own name char length should use it in their schemas
 - [ ] Add nice design to email templates
-- [ ] Add 404 to NotFoundErrors and appropriate status codes for other error types
 - [ ] Render error messages if the request requests for it, rather thank just json
 - [ ] Implement payment, rate limiting, etc.
 - [ ] Implement moving files and folders accross directories
@@ -70,7 +65,6 @@
       write test for . notation for arrays
 - [ ] Test that users or agents in workspaces don't have access to
       what they shouldn't
-- [ ] change API passed ids to resource ID
 - [ ] Test time diff supplied that the full value is saved
 - [ ] Let users paya for special/configurable memory caching space
 - [ ] Filesystem file provider
