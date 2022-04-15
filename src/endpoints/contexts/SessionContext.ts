@@ -9,7 +9,7 @@ import {
   publicAgent,
   SessionAgentType,
 } from '../../definitions/system';
-import {IUser, IUserWithWorkspace} from '../../definitions/user';
+import {IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
 import cast from '../../utilities/fns';

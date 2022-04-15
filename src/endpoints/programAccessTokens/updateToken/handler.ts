@@ -27,13 +27,15 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     data.onReferenced
   );
 
-  let {workspace, token} = await checkProgramAccessTokenAuthorization02(
+  const checkResult = await checkProgramAccessTokenAuthorization02(
     context,
     agent,
     tokenId,
     BasicCRUDActions.Read
   );
 
+  const workspace = checkResult.workspace;
+  let token = checkResult.token;
   const tokenUpdate: Partial<IProgramAccessToken> = {
     ...omit(data.token, 'presets'),
     lastUpdatedAt: getDateString(),

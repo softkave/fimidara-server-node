@@ -6,31 +6,6 @@ function newFilter() {
   return new DataProviderFilterBuilder<IUser>();
 }
 
-function getByWorkspaceId(workspaceId: string) {
-  return newFilter()
-    .addItemWithStringKey(
-      'workspaces.workspaceId',
-      workspaceId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .build();
-}
-
-function getByWorkspaceIdAndUserEmail(workspaceId: string, userEmail: string) {
-  return newFilter()
-    .addItemWithStringKey(
-      'workspaces.workspaceId',
-      workspaceId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'email',
-      new RegExp(`^${userEmail}$`, 'i'),
-      DataProviderFilterValueOperator.Regex
-    )
-    .build();
-}
-
 function getByUserEmail(userEmail: string) {
   return newFilter()
     .addItem(
@@ -41,20 +16,13 @@ function getByUserEmail(userEmail: string) {
     .build();
 }
 
-function getByIds(ids: string[], workspaceId: string) {
+function getByIds(ids: string[]) {
   return newFilter()
     .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
-    .addItemWithStringKey(
-      'workspaces.workspaceId',
-      workspaceId,
-      DataProviderFilterValueOperator.Equal
-    )
     .build();
 }
 
 export default abstract class CollaboratorQueries {
-  static getByWorkspaceId = getByWorkspaceId;
-  static getByWorkspaceIdAndUserEmail = getByWorkspaceIdAndUserEmail;
   static getByUserEmail = getByUserEmail;
   static getByIds = getByIds;
 }

@@ -1,4 +1,5 @@
-import {SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -12,7 +13,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {clientAssignedTokenExtractor} from '../utils';
+import {clientAssignedTokenExtractor, getPublicClientToken} from '../utils';
 import updateClientAssignedToken from './handler';
 import {IUpdateClientAssignedTokenEndpointParams} from './types';
 
@@ -76,9 +77,16 @@ test('client assigned token presets updated', async () => {
 
   const result = await updateClientAssignedToken(context, instData);
   assertEndpointResultOk(result);
-
-  const updatedToken = await context.data.clientAssignedToken.assertGetItem(
-    EndpointReusableQueries.getById(token01.resourceId)
+  const updatedToken = getPublicClientToken(
+    context,
+    await withAssignedPresetsAndTags(
+      context,
+      workspace.resourceId,
+      await context.data.clientAssignedToken.assertGetItem(
+        EndpointReusableQueries.getById(token01.resourceId)
+      ),
+      AppResourceType.ClientAssignedToken
+    )
   );
 
   expect(clientAssignedTokenExtractor(updatedToken)).toMatchObject(

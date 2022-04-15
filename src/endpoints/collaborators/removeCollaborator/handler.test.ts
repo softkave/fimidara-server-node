@@ -11,7 +11,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import UserQueries from '../../user/UserQueries';
 import getCollaborator from '../getCollaborator/handler';
 import removeCollaborator from './handler';
 import {IRemoveCollaboratorEndpointParams} from './types';

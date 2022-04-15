@@ -1,5 +1,5 @@
 import {Document, Model} from 'mongoose';
-import {IUser, IUserWorkspace} from '../definitions/user';
+import {IUser} from '../definitions/user';
 import {Schema, Connection} from 'mongoose';
 import {getDate} from '../utilities/dateFns';
 import {ensureTypeFields} from './utils';

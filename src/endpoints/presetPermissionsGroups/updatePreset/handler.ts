@@ -18,13 +18,15 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
   async (context, instData) => {
     const data = validate(instData.data, updatePresetPermissionsGroupJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    let {preset, workspace} = await checkPresetPermissionsGroupAuthorization03(
+    const checkResult = await checkPresetPermissionsGroupAuthorization03(
       context,
       agent,
       data,
       BasicCRUDActions.Update
     );
 
+    const workspace = checkResult.workspace;
+    let preset = checkResult.preset;
     const update: Partial<IPresetPermissionsGroup> = {
       ...omit(data.preset, 'presets'),
       lastUpdatedAt: getDateString(),

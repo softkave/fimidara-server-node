@@ -11,7 +11,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {collaboratorExtractor} from '../utils';
-import getCollaborator from './handler';
+import getWorkspaceCollaborators from './handler';
 import {IGetWorkspaceCollaboratorsEndpointParams} from './types';
 
 /**
@@ -41,7 +41,7 @@ test('workspace collaborators returned', async () => {
       }
     );
 
-  const result = await getCollaborator(context, instData);
+  const result = await getWorkspaceCollaborators(context, instData);
   assertEndpointResultOk(result);
   const updatedUser = await withUserWorkspaces(
     context,

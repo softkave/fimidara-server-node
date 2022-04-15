@@ -58,6 +58,7 @@ import {throwTagNotFound} from '../tags/utils';
 import {IAssignedItem} from '../../definitions/assignedItem';
 import {throwAssignedItemNotFound} from '../assignedItems/utils';
 import {getAssignedItemModel, IAssignedItemModel} from '../../db/assignedItem';
+import {AnyObject} from '../../utilities/types';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;
@@ -93,7 +94,7 @@ export default class MongoDBDataProviderContext
   public userToken: IDataProvider<IUserToken>;
   public appRuntimeState: IDataProvider<IAppRuntimeState>;
   public tag: IDataProvider<ITag>;
-  public assignedItem: IDataProvider<IAssignedItem<object>>;
+  public assignedItem: IDataProvider<IAssignedItem<AnyObject>>;
 
   constructor(connection: Connection) {
     this.connection = connection;

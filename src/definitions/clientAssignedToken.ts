@@ -4,7 +4,7 @@ import {IAssignedTag} from './tag';
 
 export interface IClientAssignedToken {
   resourceId: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
   name?: string;
   description?: string;
   createdAt: Date | string;
@@ -28,7 +28,7 @@ export interface IClientAssignedToken {
 
 export interface IPublicClientAssignedToken {
   resourceId: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
   name?: string;
   description?: string;
   createdAt: string;

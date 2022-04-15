@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -43,8 +44,11 @@ test('user data updated', async () => {
   const result = await updateUser(context, instData);
   assertEndpointResultOk(result);
 
-  const savedUser = await context.data.user.assertGetItem(
-    UserQueries.getById(result.user.resourceId)
+  const savedUser = await withUserWorkspaces(
+    context,
+    await context.data.user.assertGetItem(
+      UserQueries.getById(result.user.resourceId)
+    )
   );
 
   expect(userExtractor(savedUser)).toMatchObject(result.user);

@@ -34,9 +34,9 @@ const respondToRequest: RespondToRequestEndpoint = async (
   const isExpired =
     request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
 
-  if (isExpired) {
+  if (isExpired && request.expiresAt) {
     throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt!)}`
+      `Collaboration request expired on ${formatDate(request.expiresAt)}`
     );
   }
 

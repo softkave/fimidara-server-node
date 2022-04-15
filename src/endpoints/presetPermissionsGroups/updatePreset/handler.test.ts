@@ -1,5 +1,6 @@
 import * as faker from 'faker';
-import {SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -83,8 +84,13 @@ test('preset updated', async () => {
   const result = await updatePresetPermissionsGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedPreset = await context.data.preset.assertGetItem(
-    PresetPermissionsGroupQueries.getById(preset00.resourceId)
+  const updatedPreset = await withAssignedPresetsAndTags(
+    context,
+    workspace.resourceId,
+    await context.data.preset.assertGetItem(
+      PresetPermissionsGroupQueries.getById(preset00.resourceId)
+    ),
+    AppResourceType.PresetPermissionsGroup
   );
 
   expect(presetPermissionsGroupExtractor(updatedPreset)).toMatchObject(

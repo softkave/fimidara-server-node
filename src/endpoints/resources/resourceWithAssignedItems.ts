@@ -17,6 +17,8 @@ export async function resourceWithAssignedItems(
     case AppResourceType.ProgramAccessToken:
     case AppResourceType.Folder:
     case AppResourceType.File:
+    case AppResourceType.ClientAssignedToken:
+    case AppResourceType.PresetPermissionsGroup:
       resource.resource = await withAssignedPresetsAndTags(
         context,
         workspaceId,
@@ -33,8 +35,6 @@ export async function resourceWithAssignedItems(
     case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
     case AppResourceType.PermissionItem:
-    case AppResourceType.ClientAssignedToken:
-    case AppResourceType.PresetPermissionsGroup:
     case AppResourceType.UserToken:
     default:
       return resource;

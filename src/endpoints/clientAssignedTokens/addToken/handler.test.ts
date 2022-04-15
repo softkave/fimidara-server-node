@@ -1,4 +1,5 @@
-import {SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -9,7 +10,7 @@ import {
   insertPresetForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
-import {clientAssignedTokenExtractor} from '../utils';
+import {clientAssignedTokenExtractor, getPublicClientToken} from '../utils';
 
 let context: IBaseContext | null = null;
 
@@ -55,8 +56,16 @@ test('client assigned token added', async () => {
     }
   );
 
-  const savedToken = await context.data.clientAssignedToken.assertGetItem(
-    EndpointReusableQueries.getById(token.resourceId)
+  const savedToken = getPublicClientToken(
+    context,
+    await withAssignedPresetsAndTags(
+      context,
+      workspace.resourceId,
+      await context.data.clientAssignedToken.assertGetItem(
+        EndpointReusableQueries.getById(token.resourceId)
+      ),
+      AppResourceType.ClientAssignedToken
+    )
   );
 
   expect(clientAssignedTokenExtractor(savedToken)).toMatchObject(token);

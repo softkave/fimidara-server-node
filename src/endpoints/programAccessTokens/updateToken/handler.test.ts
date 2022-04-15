@@ -1,5 +1,6 @@
 import * as faker from 'faker';
-import {SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -13,7 +14,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import ClientAssignedTokenQueries from '../queries';
-import {programAccessTokenExtractor} from '../utils';
+import {getPublicProgramToken, programAccessTokenExtractor} from '../utils';
 import updateProgramAccessToken from './handler';
 import {IUpdateProgramAccessTokenEndpointParams} from './types';
 
@@ -82,8 +83,16 @@ test('program access token updated', async () => {
   const result = await updateProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedToken = await context.data.programAccessToken.assertGetItem(
-    ClientAssignedTokenQueries.getById(token01.resourceId)
+  const updatedToken = getPublicProgramToken(
+    context,
+    await withAssignedPresetsAndTags(
+      context,
+      workspace.resourceId,
+      await context.data.programAccessToken.assertGetItem(
+        ClientAssignedTokenQueries.getById(token01.resourceId)
+      ),
+      AppResourceType.ProgramAccessToken
+    )
   );
 
   expect(programAccessTokenExtractor(updatedToken)).toMatchObject(result.token);

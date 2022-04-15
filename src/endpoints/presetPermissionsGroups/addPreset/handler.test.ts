@@ -1,3 +1,5 @@
+import {AppResourceType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
@@ -34,8 +36,13 @@ test('preset permissions group added', async () => {
     workspace.resourceId
   );
 
-  const savedPreset = await context.data.preset.assertGetItem(
-    PresetPermissionsGroupQueries.getById(preset.resourceId)
+  const savedPreset = await withAssignedPresetsAndTags(
+    context,
+    workspace.resourceId,
+    await context.data.preset.assertGetItem(
+      PresetPermissionsGroupQueries.getById(preset.resourceId)
+    ),
+    AppResourceType.PresetPermissionsGroup
   );
 
   expect(presetPermissionsGroupExtractor(savedPreset)).toMatchObject(preset);
