@@ -111,7 +111,6 @@ describe('getResources', () => {
     const result = await getResources(context, instData);
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
-
     result.resources.forEach(resource => {
       expect(resource.resource).toMatchObject(
         resourcesMap[getKey(resource.resource, resource.resourceType)]

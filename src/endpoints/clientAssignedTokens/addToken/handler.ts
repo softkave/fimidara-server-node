@@ -1,4 +1,4 @@
-import {omit} from 'lodash';
+import {defaultTo, omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {
   AppResourceType,
@@ -72,6 +72,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       ...omit(data.token, 'presets', 'tags'),
       createdAt,
       createdBy,
+      providedResourceId: defaultTo(data.token.providedResourceId, null),
       workspaceId: workspace.resourceId,
       resourceId: getNewId(),
       version: CURRENT_TOKEN_VERSION,

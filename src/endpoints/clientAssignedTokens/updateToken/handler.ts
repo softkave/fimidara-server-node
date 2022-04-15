@@ -24,12 +24,15 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   const agent = await context.session.getAgent(context, instData);
-  let {workspace, token} = await checkClientAssignedTokenAuthorization03(
+  const checkResult = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
     data,
     BasicCRUDActions.Update
   );
+
+  const workspace = checkResult.workspace;
+  let token = checkResult.token;
 
   if (data.token.name) {
     await checkClientTokenNameExists(

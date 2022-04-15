@@ -1,8 +1,9 @@
+import {AnyObject} from '../utilities/types';
 import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
 import {AppResourceType, IAgent} from './system';
 import {IAssignedTag} from './tag';
 
-export interface IAssignedItem<Meta extends object = object> {
+export interface IAssignedItem<Meta extends AnyObject = AnyObject> {
   resourceId: string;
   workspaceId: string;
   assignedItemId: string;

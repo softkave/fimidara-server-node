@@ -1,4 +1,5 @@
-import {SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
@@ -9,7 +10,7 @@ import {
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
-import {programAccessTokenExtractor} from '../utils';
+import {getPublicProgramToken, programAccessTokenExtractor} from '../utils';
 
 /**
  * TODO:
@@ -61,8 +62,16 @@ test('program access token added', async () => {
     }
   );
 
-  const savedToken = await context.data.programAccessToken.assertGetItem(
-    ProgramAccessTokenQueries.getById(token.resourceId)
+  const savedToken = getPublicProgramToken(
+    context,
+    await withAssignedPresetsAndTags(
+      context,
+      workspace.resourceId,
+      await context.data.programAccessToken.assertGetItem(
+        ProgramAccessTokenQueries.getById(token.resourceId)
+      ),
+      AppResourceType.ProgramAccessToken
+    )
   );
 
   expect(programAccessTokenExtractor(savedToken)).toMatchObject(token);

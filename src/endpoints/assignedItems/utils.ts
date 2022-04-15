@@ -9,7 +9,6 @@ import {
   IAssignedPresetMeta,
 } from '../../definitions/assignedItem';
 import {makeKey} from '../../utilities/fns';
-import {AppResourceType} from '../../definitions/system';
 
 export function assignedItemToAssignedPreset(
   item: IAssignedItem

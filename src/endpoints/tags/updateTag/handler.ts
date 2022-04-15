@@ -11,13 +11,15 @@ import {checkTagNameExists} from '../checkTagNameExists';
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {tag, workspace} = await checkTagAuthorization02(
+  const checkResult = await checkTagAuthorization02(
     context,
     agent,
     data.tagId,
     BasicCRUDActions.Read
   );
 
+  const workspace = checkResult.workspace;
+  let tag = checkResult.tag;
   const tagUpdate: Partial<ITag> = {
     ...data.tag,
     lastUpdatedAt: getDateString(),

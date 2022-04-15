@@ -6,7 +6,6 @@ import {
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
-import CollaboratorQueries from '../../collaborators/queries';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
@@ -36,7 +35,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   await waitOnPromises([
     // Collaboration requests
     context.data.collaborationRequest.deleteManyItems(
-      CollaboratorQueries.getByWorkspaceId(workspace.resourceId)
+      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
     ),
 
     // Program tokens

@@ -27,13 +27,15 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  let {folder, workspace} = await checkFolderAuthorization02(
+  const checkResult = await checkFolderAuthorization02(
     context,
     agent,
     getFolderMatcher(agent, data),
     BasicCRUDActions.Update
   );
 
+  let folder = checkResult.folder;
+  const workspace = checkResult.workspace;
   const incomingPublicAccessOps = data.folder.publicAccessOps || [];
   const update: Partial<IFolder> = {
     ...omit(data.folder, 'publicAccessOps'),

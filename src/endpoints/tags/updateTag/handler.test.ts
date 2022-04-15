@@ -28,7 +28,7 @@ afterAll(async () => {
 describe('updateTag', () => {
   test('tag updated', async () => {
     assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(
       context,

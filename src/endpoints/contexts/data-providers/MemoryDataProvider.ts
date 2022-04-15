@@ -1,5 +1,5 @@
 import {isEqual, isArray, get} from 'lodash';
-import {InternalError, ServerError} from '../../../utilities/errors';
+import {InternalError} from '../../../utilities/errors';
 import cast from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
 import {wrapFireAndThrowError} from '../../../utilities/promiseFns';

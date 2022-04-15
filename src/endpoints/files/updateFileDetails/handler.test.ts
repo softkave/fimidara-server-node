@@ -1,4 +1,6 @@
 import * as faker from 'faker';
+import {AppResourceType} from '../../../definitions/system';
+import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -58,8 +60,11 @@ test('file updated', async () => {
   expect(result.file.resourceId).toEqual(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
-  const updatedFile = await context.data.file.assertGetItem(
-    FileQueries.getById(file.resourceId)
+  const updatedFile = await withAssignedPresetsAndTags(
+    context,
+    workspace.resourceId,
+    await context.data.file.assertGetItem(FileQueries.getById(file.resourceId)),
+    AppResourceType.File
   );
 
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);

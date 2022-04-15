@@ -4,11 +4,7 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {
-  checkFileAuthorization03,
-  fileExtractor,
-  getFileMatcher,
-} from '../utils';
+import {checkFileAuthorization03, getFileMatcher} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 import {NotFoundError} from '../../errors';

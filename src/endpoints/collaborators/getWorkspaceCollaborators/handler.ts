@@ -12,6 +12,8 @@ import {collaboratorListExtractor, removeOtherUserWorkspaces} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {formatWithOptions} from 'util';
+import AssignedItemQueries from '../../assignedItems/queries';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   context,
@@ -21,8 +23,17 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
+  const assignedItems = await context.data.assignedItem.getManyItems(
+    AssignedItemQueries.getByAssignedItem(
+      workspace.resourceId,
+      workspace.resourceId,
+      AppResourceType.Workspace
+    )
+  );
+
+  const userIdList = assignedItems.map(item => item.assignedToItemId);
   const collaborators = await context.data.user.getManyItems(
-    CollaboratorQueries.getByWorkspaceId(workspaceId)
+    CollaboratorQueries.getByIds(userIdList)
   );
 
   // TODO: can we do this together, so that we don't waste compute
@@ -54,6 +65,10 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   const usersWithWorkspaces = await userListWithWorkspaces(
     context,
     allowedCollaborators
+  );
+
+  console.log(
+    formatWithOptions({depth: 10}, {usersWithWorkspaces, workspaceId})
   );
 
   return {

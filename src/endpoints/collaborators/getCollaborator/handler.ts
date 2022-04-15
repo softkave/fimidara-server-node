@@ -1,6 +1,5 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {
   checkCollaboratorAuthorization02,
