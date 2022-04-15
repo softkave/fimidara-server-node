@@ -132,8 +132,7 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
   clientDomain: {
     required: false,
     name: AppEnvVariables.CLIENT_DOMAIN,
-    // defaultValue: 'https://www.files-by-softkave.com',
-    defaultValue: 'https://files.softkave.com',
+    defaultValue: 'https://www.fimidara.com',
   },
   mongoDbURI: {
     required: true,
@@ -192,7 +191,7 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
 
 export const defaultStaticVars = {
   appName: 'Files by Softkave',
-  appDefaultEmailAddressFrom: 'Hello@files.softkave.com',
+  appDefaultEmailAddressFrom: 'Hello@fimidara.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
   changePasswordPath: '/account/change-password',
