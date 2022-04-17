@@ -10,7 +10,8 @@
   "license": "Apache-2.0",
   "keywords": [],
   "engines": {
-    "node": "16.x"
+    "node": "16.x",
+    "npm": "8.x"
   },
   "scripts": {
     "test": "env-cmd -f \".env.test\" jest --config=jest.config.test.ts --detectOpenHandles",
@@ -19,9 +20,9 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "prepare": "npm.cmd run compile",
-    "pretest": "npm.cmd run compile",
-    "posttest": "npm.cmd run lint",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint",
     "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/compiled-code/email-templates/index.js"
   },
   "dependencies": {
