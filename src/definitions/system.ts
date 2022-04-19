@@ -16,7 +16,7 @@ export enum SessionAgentType {
   Public = 'public',
 
   // Reserved for system only operations, use sparingly
-  System = 'files-system',
+  System = 'fimidara-system',
 }
 
 export const systemAgent: IAgent = {

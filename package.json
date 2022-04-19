@@ -1,5 +1,5 @@
 {
-  "name": "file-server-node",
+  "name": "fimidara-server-node",
   "version": "0.0.0",
   "description": "",
   "main": "build/src/index.js",

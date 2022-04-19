@@ -19,7 +19,7 @@ export async function setupMongoDb(
 
   if (useMongoDataProvider && !dbName) {
     const formattedDate = format(new Date(), 'MMM-d-YYY');
-    dbName = `files-node-${testType}-${formattedDate}`;
+    dbName = `fimidara-node-${testType}-${formattedDate}`;
     vars.mongoDbDatabaseName = dbName;
     process.env[AppEnvVariables.MONGODB_DATABASE_NAME] = dbName;
     vars.isUsingAddedMongoDatabase = true;

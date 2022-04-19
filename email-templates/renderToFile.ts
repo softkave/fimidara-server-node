@@ -29,7 +29,7 @@ const confirmEmailAddressTxtFile =
 export function renderConfirmEmailAddressMedia() {
   const props: IConfirmEmailAddressEmailProps = {
     firstName: 'Abayomi',
-    link: 'https://files.softkave.com/accounts/confirm-email-address?t=jwt-token',
+    link: 'https://fimidara.com/accounts/confirm-email-address?t=jwt-token',
   };
 
   const renderedHTML = confirmEmailAddressEmailHTML(props);
@@ -47,7 +47,7 @@ const forgotPasswordEmailTxtFile =
 export function renderForgotPasswordMedia() {
   const props: IForgotPasswordEmailProps = {
     expiration: new Date(),
-    link: 'https://files.softkave.com/accounts/forgot-password?t=jwt-token',
+    link: 'https://fimidara.com/accounts/forgot-password?t=jwt-token',
   };
 
   const renderedHTML = forgotPasswordEmailHTML(props);
@@ -64,10 +64,10 @@ const collaborationRequestEmailTxtFile =
 
 export function renderCollaborationRequestMedia() {
   const props: ICollaborationRequestEmailProps = {
-    workspaceName: 'Files by Softkave',
+    workspaceName: 'Fimidara',
     isRecipientAUser: true,
-    loginLink: 'https://files.softkave.com/accounts/signup',
-    signupLink: 'https://files.softkave.com/accounts/login',
+    loginLink: 'https://fimidara.com/accounts/signup',
+    signupLink: 'https://fimidara.com/accounts/login',
     expires: new Date().toISOString(),
     message:
       'Test collaboration request message. ' +
@@ -88,7 +88,7 @@ const collaborationRequestRevokedEmailTxtFile =
 
 export function renderCollaborationRequestRevokedMedia() {
   const props: ICollaborationRequestRevokedEmailProps = {
-    workspaceName: 'Files by Softkave',
+    workspaceName: 'Fimidara',
   };
 
   const renderedHTML = collaborationRequestRevokedEmailHTML(props);
