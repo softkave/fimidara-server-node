@@ -25,12 +25,11 @@ import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
 const folder01Path = '/files';
 const folder02Path = '/files/images';
 const appSetupVars = {
-  workspaceName: 'Files by softkave',
-  workspacesFolder: '/files-prod/workspaces',
+  workspaceName: 'Fimidara',
   workspaceImagesfolderpath: folder02Path + '/workspaces',
   userImagesfolderpath: folder02Path + '/users',
-  workspacesImageUploadPresetName: 'Files-workspaces-image-upload',
-  usersImageUploadPresetName: 'Files-users-image-upload',
+  workspacesImageUploadPresetName: 'Fimidara-workspaces-image-upload',
+  usersImageUploadPresetName: 'Fimidara-users-image-upload',
 };
 
 async function setupWorkspace(context: IBaseContext, name: string) {
@@ -38,7 +37,7 @@ async function setupWorkspace(context: IBaseContext, name: string) {
     context,
     {
       name,
-      description: "System-generated workspace for Files's own operations",
+      description: "System-generated workspace for Fimidara's own operations",
     },
     systemAgent
   );

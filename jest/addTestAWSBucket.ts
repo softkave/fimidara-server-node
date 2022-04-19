@@ -8,7 +8,7 @@ export function addTestAWSBucket(vars: IFilesNodeJestVars, testType = 'test') {
 
   if (useS3FileProvider && !bucketName) {
     const formattedDate = format(new Date(), 'MMM-d-YYY');
-    bucketName = `files-node-${testType}-${formattedDate}`;
+    bucketName = `fimidara-node-${testType}-${formattedDate}`;
     vars.S3Bucket = bucketName;
     process.env[AppEnvVariables.S3_BUCKET] = bucketName;
     vars.isUsingAddedS3Bucket = true;

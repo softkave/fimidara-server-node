@@ -1,4 +1,4 @@
-# FILES - ITERATION 02
+# Fimidara - ITERATION 02
 
 ## Goals
 

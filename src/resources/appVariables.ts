@@ -175,22 +175,10 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
     required: true,
   },
-  // defaultWorkspaceName: {
-  //   name: AppEnvVariables.DEFAULT_WORKSPACE_NAME,
-  //   defaultValue: 'files-by-softkave',
-  // },
-  // defaultUsersImagesFolder: {
-  //   name: AppEnvVariables.DEFAULT_USERS_IMAGES_FOLDER,
-  //   defaultValue: 'files/images/users',
-  // },
-  // defaultWorkspacesImagesFolder: {
-  //   name: AppEnvVariables.DEFAULT_WORKSPACES_IMAGES_FOLDER,
-  //   defaultValue: 'files/images/workspaces',
-  // },
 };
 
 export const defaultStaticVars = {
-  appName: 'Files by Softkave',
+  appName: 'Fimidara',
   appDefaultEmailAddressFrom: 'Hello@fimidara.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',

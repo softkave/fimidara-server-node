@@ -1,7 +1,7 @@
 import {defaultStaticVars} from '../resources/appVariables';
 
 const maxWidth = '700px';
-const classNamePrefix = 'fbs'; // files by softkave
+const classNamePrefix = 'fimidara';
 export const emailTemplateConstants = {
   maxWidth,
   classNamePrefix,

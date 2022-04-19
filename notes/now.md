@@ -1,5 +1,10 @@
 - [ ] Send email and notification to removed collaborators
 - [ ] Send notification to the sender that the user has responded to their collaboration request
+- [ ] Singular interface
+- [ ] Pagination
+- [ ] Logs and retries
+- [ ] Transactions
+- [ ] Billing
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
 - [ ] Preset weight, not order
