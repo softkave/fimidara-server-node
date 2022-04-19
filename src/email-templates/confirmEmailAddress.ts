@@ -1,7 +1,6 @@
 import {
   emailTemplateConstants,
   emailTemplateStyles,
-  getDoNotReplyHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
@@ -32,11 +31,10 @@ export function confirmEmailAddressEmailHTML(
       <p>
         Hi ${
           props.firstName
-        }, follow the link below to verify your email address.
+        }, click the link below to verify your email address.
         <br />
         <a href="${props.link}">${props.link}</a>
       </p>
-      ${getDoNotReplyHTML()}
     </div>
   </div>
   ${getFooterHTML()}

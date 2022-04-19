@@ -38,10 +38,10 @@ export function collaborationRequestEmailHTML(
   <p>
     You have a new collaboration request from <b>${props.workspaceName}</b>.
   </p>
-  ${props.message ? `<p>Message - <br />${props.message}</p>` : ''}
+  ${props.message ? `<p>Message: <br />${props.message}</p>` : ''}
   ${
     props.expires
-      ? `<p>Expires - <br />${formatDateTime(props.expires)}</p>`
+      ? `<p>Expires: <br />${formatDateTime(props.expires)}</p>`
       : ''
   }
   <p>
@@ -75,8 +75,8 @@ export function collaborationRequestEmailText(
 ${getHeaderText(title)}
 -
 You have a new collaboration request from ${props.workspaceName}.
-${props.message ? `Message - ${props.message}.` : ''}
-${props.expires ? `Expires - ${formatDateTime(props.expires)}` : ''}
+${props.message ? `Message: ${props.message}.` : ''}
+${props.expires ? `Expires: ${formatDateTime(props.expires)}` : ''}
 -
 To respond to this request, ${linkText}
   `;
