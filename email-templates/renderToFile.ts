@@ -89,6 +89,8 @@ const collaborationRequestRevokedEmailTxtFile =
 export function renderCollaborationRequestRevokedMedia() {
   const props: ICollaborationRequestRevokedEmailProps = {
     workspaceName: 'Fimidara',
+    signupLink: 'https://fimidara.com/accounts/signup',
+    loginLink: 'https://fimidara.com/accounts/login',
   };
 
   const renderedHTML = collaborationRequestRevokedEmailHTML(props);

@@ -29,8 +29,6 @@ export function collaborationRequestExpiredEmailHTML(
       props.workspaceName
     } has been expired.
   </p>
-  <p>
-  </p>
   ${getFooterHTML()}
 </body>
 </html>

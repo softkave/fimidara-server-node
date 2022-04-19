@@ -35,7 +35,7 @@ export function forgotPasswordEmailHTML(
       </p>
       <p>- OR -</p>
       <p>
-        Copy the following link, and visit in your browser:-<br />
+        Copy the following link, and visit in your browser: <br />
         <a href="${props.link}">${props.link}</a>
       </p>
       <p>
