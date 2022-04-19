@@ -70,6 +70,18 @@ export class EmailAddressVerifiedError extends OperationError {
   }
 }
 
+export class EmailAddressNotVerifiedError extends OperationError {
+  public name = 'EmailAddressNotVerifiedError';
+  public statusCode = endpointConstants.httpStatusCode.forbidden;
+  constructor(props?: IOperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'Only read-related actions are permitted for unverified email addresses'
+    );
+  }
+}
+
 export class IncorrectPasswordError extends OperationError {
   public name = 'IncorrectPasswordError';
   public statusCode = endpointConstants.httpStatusCode.unauthorized;
