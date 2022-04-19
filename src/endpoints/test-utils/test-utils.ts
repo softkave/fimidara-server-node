@@ -75,6 +75,7 @@ import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
+import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
   if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
@@ -211,7 +212,8 @@ export interface IInsertUserForTestResult {
 
 export async function insertUserForTest(
   context: IBaseContext,
-  userInput: Partial<ISignupParams> = {}
+  userInput: Partial<ISignupParams> = {},
+  skipAutoVerifyEmail = false // Tests that mutate data will fail otherwise
 ): Promise<IInsertUserForTestResult> {
   const instData = RequestData.fromExpressRequest<ISignupParams>(
     mockExpressRequest(),
@@ -226,22 +228,28 @@ export async function insertUserForTest(
 
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
+  let rawUser: IUserWithWorkspace;
+
+  if (!skipAutoVerifyEmail) {
+    rawUser = await internalConfirmEmailAddress(context, result.user);
+  } else {
+    rawUser = await withUserWorkspaces(
+      context,
+      await context.data.user.assertGetItem(
+        EndpointReusableQueries.getById(result.user.resourceId)
+      )
+    );
+  }
+
   const tokenData = context.session.decodeToken(context, result.token);
   const userToken = await context.data.userToken.assertGetItem(
     UserTokenQueries.getById(tokenData.sub.id)
   );
 
-  const rawUser = await withUserWorkspaces(
-    context,
-    await context.data.user.assertGetItem(
-      EndpointReusableQueries.getById(result.user.resourceId)
-    )
-  );
-
   return {
     rawUser,
     userToken,
-    user: result.user,
+    user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
     userTokenStr: result.token,
     reqData: instData,
   };

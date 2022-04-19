@@ -40,7 +40,7 @@ afterAll(async () => {
   await getTestBaseContext.release();
 });
 
-test('password changed with token', async () => {
+async function changePasswordWithTokenTest() {
   assertContext(context);
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {
@@ -84,4 +84,16 @@ test('password changed with token', async () => {
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
   expect(loginResult.user).toMatchObject(userExtractor(updatedUser));
+  return loginResult;
+}
+
+describe('changePasswordWithToken', () => {
+  test('password changed with token', async () => {
+    await changePasswordWithTokenTest();
+  });
+
+  test('user email verified if password change is successful', async () => {
+    const {user} = await changePasswordWithTokenTest();
+    expect(user.isEmailVerified).toBe(true);
+  });
 });

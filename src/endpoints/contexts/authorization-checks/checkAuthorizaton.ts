@@ -11,7 +11,10 @@ import {
 } from '../../../definitions/system';
 import {InternalError} from '../../../utilities/errors';
 import {indexArray} from '../../../utilities/indexArray';
-import {PermissionDeniedError} from '../../user/errors';
+import {
+  EmailAddressNotVerifiedError,
+  PermissionDeniedError,
+} from '../../user/errors';
 import {IBaseContext} from '../BaseContext';
 import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
 import DataProviderFilterBuilder from '../data-providers/DataProviderFilterBuilder';
@@ -64,6 +67,15 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     nothrow,
     resource,
   } = params;
+
+  if (
+    agent.user &&
+    action !== BasicCRUDActions.Read &&
+    !agent.user.isEmailVerified
+  ) {
+    // Reject request if user is not verified and action is not read
+    throw new EmailAddressNotVerifiedError();
+  }
 
   const itemResourceId = params.resource?.resourceId || params.itemResourceId;
 
@@ -129,7 +141,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   });
 
   const getPermissionOwnerOrder = (item: IPermissionOwner) =>
-    entitiesMap[getPermissionOwnerKey(item)]?.order ?? authEntities.length * 2;
+    entitiesMap[getPermissionOwnerKey(item)]?.order ?? Number.MAX_SAFE_INTEGER;
 
   const hasPermissionOwners = permissionOwners.length > 0;
   const items = flatten(permissionItemsList).filter(item => {
@@ -159,13 +171,13 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     [AppResourceType.PresetPermissionsGroup]: 4,
   };
 
-  const lowerPriorityWeight = items.length * 2;
-  const higherPriorityWeight = lowerPriorityWeight * -1;
+  const LOWER_PRIORITY_WEIGHT = Number.MAX_SAFE_INTEGER;
+  const HIGHER_PRIORITY_WEIGHT = Number.MIN_SAFE_INTEGER;
   const getEntityOrder = (item: IPermissionEntity) =>
-    entitiesMap[getEntityKey(item)]?.order ?? lowerPriorityWeight;
+    entitiesMap[getEntityKey(item)]?.order ?? LOWER_PRIORITY_WEIGHT;
 
   const getEntityWeight = (item: IPermissionEntity) =>
-    entityTypeWeight[item.permissionEntityType] ?? lowerPriorityWeight;
+    entityTypeWeight[item.permissionEntityType] ?? LOWER_PRIORITY_WEIGHT;
 
   const isForOwner = (item: IPermissionItem) =>
     resource &&
@@ -175,9 +187,9 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
       if (isForOwner(item1)) {
-        return higherPriorityWeight;
+        return HIGHER_PRIORITY_WEIGHT;
       } else if (isForOwner(item2)) {
-        return lowerPriorityWeight;
+        return LOWER_PRIORITY_WEIGHT;
       }
 
       return getPermissionOwnerOrder(item1) - getPermissionOwnerOrder(item2);

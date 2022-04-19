@@ -4,18 +4,11 @@ import {SendEmailVerificationCodeEndpoint} from './types';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
-import {stringify} from 'querystring';
-import getNewId from '../../../utilities/getNewId';
-import {
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
 import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import UserQueries from '../UserQueries';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {IUserToken} from '../../../definitions/userToken';
+import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
   context,
@@ -45,15 +38,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     }
   }
 
-  const token = await context.data.userToken.saveItem({
-    audience: [TokenAudience.ConfirmEmailAddress],
-    issuedAt: getDateString(),
-    resourceId: getNewId(),
-    userId: user.resourceId,
-    version: CURRENT_TOKEN_VERSION,
-  });
-
-  const link = getConfirmEmailLink(context, token);
+  const link = await getConfirmEmailLink(context, user);
   await sendConfirmEmailAddressEmail(context, {
     link,
     emailAddress: user.email,
@@ -69,17 +54,13 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
 
 export default sendEmailVerificationCode;
 
-export function getConfirmEmailLink(context: IBaseContext, token: IUserToken) {
-  const encodedToken = context.session.encodeToken(
+export async function getConfirmEmailLink(
+  context: IBaseContext,
+  user: {resourceId: string; isEmailVerified: boolean}
+) {
+  return await withConfirmEmailAddressToken(
     context,
-    token.resourceId,
-    TokenType.UserToken,
-    token.expires
+    user,
+    `${context.appVariables.clientDomain}${context.appVariables.verifyEmailPath}`
   );
-
-  return `${context.appVariables.clientDomain}${
-    context.appVariables.verifyEmailPath
-  }?${stringify({
-    [userConstants.defaultTokenQueryParam]: encodedToken,
-  })}`;
 }

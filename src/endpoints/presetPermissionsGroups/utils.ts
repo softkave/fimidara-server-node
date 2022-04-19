@@ -188,6 +188,7 @@ export function mergePresetsWithInput(
     .concat(
       input.map(preset => ({
         ...preset,
+        order: preset.order || Number.MAX_SAFE_INTEGER,
         assignedAt: getDateString(),
         assignedBy: {
           agentId: agent.agentId,

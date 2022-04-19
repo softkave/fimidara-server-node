@@ -6,9 +6,11 @@ import {
 } from '../../contexts/SessionContext';
 import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
+import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
+import {userExtractor} from '../utils';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
@@ -45,7 +47,7 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
     UserQueries.getById(userToken.userId)
   );
 
-  // Allow other endpoints called with this request to use the fetched user data
+  // Make user available to changePassword endpoint called in completeChangePassword
   instData.user = user;
   const {result} = await completeChangePassword(
     context,
@@ -53,6 +55,11 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
     data.password
   );
 
+  // Verify user email address since the only way to change password
+  // with token is to use the link sent to the user email address
+  result.user = userExtractor(
+    await internalConfirmEmailAddress(context, result.user)
+  );
   return result;
 };
 
