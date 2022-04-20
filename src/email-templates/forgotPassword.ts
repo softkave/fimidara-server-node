@@ -18,46 +18,46 @@ export function forgotPasswordEmailHTML(
   props: IForgotPasswordEmailProps
 ): string {
   return `
-    <!DOCTYPE html>
-    <html lang="en-US">
-    <head>
-      <meta charset="utf-8" />
-      <title>${getHeaderText(forgotPasswordEmailTitle)}</title>
-      ${emailTemplateStyles}
-    </head>
-    <body>
-      ${getHeaderHTML(forgotPasswordEmailTitle)}
-      <div class="${emailTemplateConstants.classNamePrefix}-body">
-        <div class="${emailTemplateConstants.classNamePrefix}-content-center">
-          <p>
-            To change your password,
-            <a href="${props.link}">click here</a>.
-          </p>
-          <p>- OR -</p>
-          <p>
-            Copy the following link, and visit in your browser:-<br />
-            <a href="${props.link}">${props.link}</a>
-          </p>
-          <p>
-            <strong>
-              This link expires in ${formatDistance(
-                props.expiration,
-                new Date()
-              )}, on ${format(props.expiration, 'MM/dd/yyyy hh:mm aaa')}.
-            </strong>
-          </p>
-          <p>
-            If you did not request a change of password, please ignore this
-            mail.
-            <br />
-            Do not share this link with anybody, as they will be able to
-            change your password with it.
-          </p>
-        </div>
-      </div>
-      ${getFooterHTML()}
-    </body>
-    </html>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <title>${getHeaderText(forgotPasswordEmailTitle)}</title>
+  ${emailTemplateStyles}
+</head>
+<body>
+  ${getHeaderHTML(forgotPasswordEmailTitle)}
+  <div class="${emailTemplateConstants.classNamePrefix}-body">
+    <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+      <p>
+        To change your password,
+        <a href="${props.link}">click here</a>.
+      </p>
+      <p>- OR -</p>
+      <p>
+        Copy the following link, and visit in your browser: <br />
+        <a href="${props.link}">${props.link}</a>
+      </p>
+      <p>
+        <strong>
+          This link expires in ${formatDistance(
+            props.expiration,
+            new Date()
+          )}, on ${format(props.expiration, 'MM/dd/yyyy hh:mm aaa')}.
+        </strong>
+      </p>
+      <p>
+        If you did not request a change of password, please ignore this
+        mail.
+        <br />
+        Do not share this link with anybody, as they will be able to
+        change your password with it.
+      </p>
+    </div>
+  </div>
+  ${getFooterHTML()}
+</body>
+</html>
   `;
 }
 

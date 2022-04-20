@@ -1,7 +1,6 @@
 import {
   emailTemplateConstants,
   emailTemplateStyles,
-  getDoNotReplyHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
@@ -18,30 +17,29 @@ export function confirmEmailAddressEmailHTML(
   props: IConfirmEmailAddressEmailProps
 ): string {
   return `
-    <!DOCTYPE html>
-    <html lang="en-US">
-    <head>
-      <meta charset="utf-8" />
-      <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
-      ${emailTemplateStyles}
-    </head>
-    <body>
-      ${getHeaderHTML(confirmEmailAddressEmailTitle)}
-      <div class="${emailTemplateConstants.classNamePrefix}-body">
-        <div class="${emailTemplateConstants.classNamePrefix}-content-center">
-          <p>
-            Hi ${
-              props.firstName
-            }, follow the link below to verify your email address.
-            <br />
-            <a href="${props.link}">${props.link}</a>
-          </p>
-          ${getDoNotReplyHTML()}
-        </div>
-      </div>
-      ${getFooterHTML()}
-    </body>
-    </html>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
+  ${emailTemplateStyles}
+</head>
+<body>
+  ${getHeaderHTML(confirmEmailAddressEmailTitle)}
+  <div class="${emailTemplateConstants.classNamePrefix}-body">
+    <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+      <p>
+        Hi ${
+          props.firstName
+        }, click the link below to verify your email address.
+        <br />
+        <a href="${props.link}">${props.link}</a>
+      </p>
+    </div>
+  </div>
+  ${getFooterHTML()}
+</body>
+</html>
   `;
 }
 

@@ -42,5 +42,5 @@ export interface IPublicPresetPermissionsGroup {
 
 export interface IPresetInput {
   presetId: string;
-  order: number;
+  order?: number;
 }

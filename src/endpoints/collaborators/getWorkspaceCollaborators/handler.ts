@@ -12,7 +12,6 @@ import {collaboratorListExtractor, removeOtherUserWorkspaces} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {formatWithOptions} from 'util';
 import AssignedItemQueries from '../../assignedItems/queries';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
@@ -65,10 +64,6 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   const usersWithWorkspaces = await userListWithWorkspaces(
     context,
     allowedCollaborators
-  );
-
-  console.log(
-    formatWithOptions({depth: 10}, {usersWithWorkspaces, workspaceId})
   );
 
   return {

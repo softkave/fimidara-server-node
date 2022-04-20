@@ -64,12 +64,18 @@ async function sendEmail(
   request: ICollaborationRequest,
   workspaceName: string
 ) {
+  const signupLink = context.appVariables.clientSignupLink;
+  const loginLink = context.appVariables.clientLoginLink;
   const html = collaborationRequestRevokedEmailHTML({
     workspaceName,
+    signupLink,
+    loginLink,
   });
 
   const text = collaborationRequestRevokedEmailText({
     workspaceName,
+    signupLink,
+    loginLink,
   });
 
   await context.email.sendEmail(context, {
