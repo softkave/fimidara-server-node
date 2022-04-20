@@ -1,4 +1,5 @@
 import {defaultStaticVars} from '../resources/appVariables';
+import {IBaseEmailTemplateProps} from './types';
 
 const maxWidth = '700px';
 const classNamePrefix = 'fimidara';
@@ -46,42 +47,57 @@ body {
 </style>
 `;
 
-export function getFooterHTML() {
+export function getFooterHTML(withDonotReply = true): string {
   return `
-    <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
-      &copy; - ${defaultStaticVars.appName} - ${new Date().getFullYear()}
-    </footer>
+<footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
+  ${withDonotReply ? `Auto-generated email, do not reply. <br />` : ''}
+  &copy; - ${defaultStaticVars.appName} - ${new Date().getFullYear()}
+</footer>
     `;
 }
 
 export function getHeaderHTML(title: string) {
   return `
-    <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-      <h1>${defaultStaticVars.appName} - <br /> ${title}</h1>
-    </header>
+<header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
+  <h1>${defaultStaticVars.appName} - <br /> ${title}</h1>
+</header>
     `;
 }
 
-export function getDoNotReplyHTML() {
-  return `
-    <p>
-      Do not reply. This is an auto-generated email.
-    </p>
-    `;
-}
-
-export function getCenteredContentHTML(content: string, withDoNotReply = true) {
+export function getCenteredContentHTML(content: string) {
   return `
 <div class="${emailTemplateConstants.classNamePrefix}-body">
   <div class="${emailTemplateConstants.classNamePrefix}-content-center">
     ${content}
-    ${withDoNotReply ? getDoNotReplyHTML() : ''}
   </div>
 </div>
     `;
 }
 
+export function getDoNotReplyHTML() {
+  return getCenteredContentHTML(
+    'This is an auto-generated email, do not reply.'
+  );
+}
+
+export function getLoginSectionHTML(props: IBaseEmailTemplateProps) {
+  return `
+<div class="${emailTemplateConstants.classNamePrefix}-body">
+  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+    <a href="${props.loginLink}">Login to your account here</a> - OR -<br />
+    <a href="${props.signupLink}">Signup here</a>
+  </div>
+</div>
+    `;
+}
+
+export function getLoginSectionText(props: IBaseEmailTemplateProps) {
+  return `-
+Login to your account here - ${props.loginLink} - OR -
+Signup here - ${props.signupLink}
+`;
+}
+
 export function getHeaderText(title: string) {
-  return `${defaultStaticVars.appName} - 
-${title}`;
+  return `${defaultStaticVars.appName} - ${title}`;
 }

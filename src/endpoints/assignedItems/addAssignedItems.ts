@@ -71,7 +71,9 @@ export async function addAssignedPresetList(
   }
 
   const items = presets.map(preset => {
-    const meta: IAssignedPresetMeta = {order: preset.order};
+    const meta: IAssignedPresetMeta = {
+      order: preset.order || Number.MAX_SAFE_INTEGER,
+    };
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
       assignedToItemId,
       assignedToItemType,

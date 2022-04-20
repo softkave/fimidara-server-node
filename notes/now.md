@@ -1,3 +1,4 @@
+- [ ] Verification email not sent
 - [ ] Send email and notification to removed collaborators
 - [ ] Send notification to the sender that the user has responded to their collaboration request
 - [ ] Singular interface
@@ -5,6 +6,8 @@
 - [ ] Logs and retries
 - [ ] Transactions
 - [ ] Billing
+- [ ] Require email verification
+- [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
 - [ ] Preset weight, not order

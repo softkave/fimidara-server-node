@@ -5,6 +5,7 @@ export const userConstants = {
   maxPasswordLength: 45,
   changePasswordTokenExpDurationInDays: 2,
   defaultTokenQueryParam: 't',
+  confirmEmailTokenQueryParam: 'cet',
   phoneVerificationCodeExpirationDurationInMins: 10,
   emailVerificationCodeExpirationDurationInMins: 30,
   verificationCodeRateLimitInMins: 1,

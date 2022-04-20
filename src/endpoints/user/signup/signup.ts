@@ -16,6 +16,7 @@ import {
   getUserToken,
   toLoginResult,
 } from '../login/utils';
+import {merge} from 'lodash';
 
 async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
   const sendEmailReqData = RequestData.clone(reqData, reqData.data);
@@ -58,10 +59,10 @@ const signup: SignupEndpoint = async (context, instData) => {
 
   // Make the user token available to other requests
   // made with this request data
-  instData.agent = makeUserSessionAgent(userToken, {
-    ...user,
-    workspaces: [],
-  });
+  instData.agent = makeUserSessionAgent(
+    userToken,
+    merge(user, {workspaces: []})
+  );
 
   instData.works.push({
     id: 'callComfirmEmail',

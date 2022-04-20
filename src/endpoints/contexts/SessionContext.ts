@@ -30,9 +30,6 @@ import {CredentialsExpiredError, PermissionDeniedError} from '../user/errors';
 import UserTokenQueries from '../user/UserTokenQueries';
 import {IBaseContext} from './BaseContext';
 
-// TODO: when retrieving cached tokens from the session agent,
-// check that the token contains the input JWTEndpoints
-
 export const CURRENT_TOKEN_VERSION = 1;
 
 export enum TokenType {
@@ -58,7 +55,6 @@ export interface IBaseTokenData<
   version: number;
   sub: Sub;
   iat: number;
-  // aud: string[];
   exp?: number;
 }
 

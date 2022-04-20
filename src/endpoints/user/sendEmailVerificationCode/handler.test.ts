@@ -5,7 +5,6 @@ import {
   IConfirmEmailAddressEmailProps,
 } from '../../../email-templates/confirmEmailAddress';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {TokenAudience} from '../../contexts/SessionContext';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -16,7 +15,6 @@ import {
 } from '../../test-utils/test-utils';
 import {waitForWorks} from '../../utils';
 import UserQueries from '../UserQueries';
-import UserTokenQueries from '../UserTokenQueries';
 import sendEmailVerificationCode, {getConfirmEmailLink} from './handler';
 
 /**
@@ -41,7 +39,11 @@ test('email verification code sent', async () => {
     user,
     userToken,
     reqData: insertUserReqData,
-  } = await insertUserForTest(context);
+  } = await insertUserForTest(
+    context,
+    /**userInput */ {},
+    /**skipAutoVerifyEmail */ true
+  );
 
   await waitForWorks(insertUserReqData.works);
   const instData = RequestData.fromExpressRequest(
@@ -55,17 +57,11 @@ test('email verification code sent', async () => {
 
   const result = await sendEmailVerificationCode(context, instData);
   assertEndpointResultOk(result);
-  const confirmEmailToken = await context.data.userToken.assertGetItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.ConfirmEmailAddress
-    )
-  );
 
   // confirm sendEmail was called
   const confirmEmailProps: IConfirmEmailAddressEmailProps = {
     firstName: user.firstName,
-    link: getConfirmEmailLink(context, confirmEmailToken),
+    link: await getConfirmEmailLink(context, user),
   };
 
   const html = confirmEmailAddressEmailHTML(confirmEmailProps);

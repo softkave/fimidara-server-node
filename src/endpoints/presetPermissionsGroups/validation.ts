@@ -5,7 +5,7 @@ import {presetPermissionsGroupConstants} from './constants';
 
 const assignedPreset = Joi.object().keys({
   presetId: validationSchemas.nanoid.required(),
-  order: Joi.number().required(),
+  order: Joi.number(),
 });
 
 const assignedPresetsList = Joi.array()
