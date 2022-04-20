@@ -77,7 +77,8 @@ export class EmailAddressNotVerifiedError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'Only read-related actions are permitted for unverified email addresses'
+      'Only read-related actions are permitted for unverified email addresses. ' +
+        'Please login and go to the Settings page to verify your email address.'
     );
   }
 }

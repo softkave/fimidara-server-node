@@ -179,7 +179,7 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
 
 export const defaultStaticVars = {
   appName: 'Fimidara',
-  appDefaultEmailAddressFrom: 'Hello@fimidara.com',
+  appDefaultEmailAddressFrom: 'Fimidara@fimidara.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
   changePasswordPath: '/account/change-password',
