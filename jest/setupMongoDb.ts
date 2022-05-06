@@ -1,11 +1,13 @@
 import {format} from 'date-fns';
 import * as mongoose from 'mongoose';
-import {TestDataProviderType} from '../src/endpoints/test-utils/vars';
+import {
+  ITestVariables,
+  TestDataProviderType,
+} from '../src/endpoints/test-utils/vars';
 import {AppEnvVariables} from '../src/resources/appVariables';
-import {IFilesNodeJestVars} from './types';
 
 export async function setupMongoDb(
-  vars: IFilesNodeJestVars,
+  vars: Partial<ITestVariables>,
   testType = 'test'
 ) {
   let dbName = vars.mongoDbDatabaseName;
@@ -22,7 +24,6 @@ export async function setupMongoDb(
     dbName = `fimidara-node-${testType}-${formattedDate}`;
     vars.mongoDbDatabaseName = dbName;
     process.env[AppEnvVariables.MONGODB_DATABASE_NAME] = dbName;
-    vars.isUsingAddedMongoDatabase = true;
 
     const mongoClient = new mongoose.mongo.MongoClient(mongoDbURI);
     await mongoClient.connect();

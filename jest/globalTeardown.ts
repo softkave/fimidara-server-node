@@ -6,7 +6,6 @@ import {
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
-import {IFilesNodeJestVars} from './types';
 import {
   ExtractEnvSchema,
   extractProdEnvsSchema,
@@ -45,7 +44,7 @@ async function dropMongoCollections(globals: ITestVariables) {
   await connection.close();
 }
 
-async function deleteAWSBucketObjects(globals: IFilesNodeJestVars) {
+async function deleteAWSBucketObjects(globals: ITestVariables) {
   const accessKeyId = globals.awsAccessKeyId;
   const secretAccessKey = globals.awsSecretAccessKey;
   const region = globals.awsRegion;

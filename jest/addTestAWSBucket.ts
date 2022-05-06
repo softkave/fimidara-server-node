@@ -1,8 +1,8 @@
 import {format} from 'date-fns';
+import {ITestVariables} from '../src/endpoints/test-utils/vars';
 import {AppEnvVariables} from '../src/resources/appVariables';
-import {IFilesNodeJestVars} from './types';
 
-export function addTestAWSBucket(vars: IFilesNodeJestVars, testType = 'test') {
+export function addTestAWSBucket(vars: ITestVariables, testType = 'test') {
   let bucketName = vars.S3Bucket;
   const useS3FileProvider = vars.useS3FileProvider;
 
@@ -11,6 +11,5 @@ export function addTestAWSBucket(vars: IFilesNodeJestVars, testType = 'test') {
     bucketName = `fimidara-node-${testType}-${formattedDate}`;
     vars.S3Bucket = bucketName;
     process.env[AppEnvVariables.S3_BUCKET] = bucketName;
-    vars.isUsingAddedS3Bucket = true;
   }
 }

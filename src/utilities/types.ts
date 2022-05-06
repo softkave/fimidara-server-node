@@ -1,3 +1,5 @@
+import {IUser} from '../definitions/user';
+
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IUpdateItemById<T> {
   id: string;
