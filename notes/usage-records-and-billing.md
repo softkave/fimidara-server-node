@@ -17,9 +17,16 @@ We want to be able to track usage records, so that we can display usage statisti
 ```typescript
 /**
  * TODO:
- * - How do we capture file deletion and change?
- * - How do we capture db object deletion?
- * - What's the price for db objects?
+ * - Define usage thresholds data context, provider and sync method
+ * - How to confirm each usage record is summed up in the overall usage?
+ * - Should we track requests with metadata, like IP address, user agent, status code, etc?
+ * - Track the full bandwidth in and out and use those for billing.
+ * - Access control for usage records, billing, and setting usage thresholds.
+ */
+
+/**
+ * Side Notes
+ * - We may need to implement a proxy to get the full bandwidth sent out by the server or find a clever way to get it from Node.js
  */
 
 export enum UsageRecordLabel {
@@ -39,6 +46,7 @@ export enum UsageRecordArtifactType {
 export interface IUsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
+  action?: BasicCRUDActions;
 
   /**
    * File ID when type is File
@@ -48,20 +56,455 @@ export interface IUsageRecordArtifact {
   artifact: any;
 }
 
+enum UsageRecordSummationLevel {
+  // individual usage records
+  One = 1,
+  // usage records grouped by billing period
+  Two = 2,
+}
+
+enum UsageRecordFulfillmentStatus {
+  // usage record has not been fulfilled
+  Unfulfilled = 0,
+  // usage record has been fulfilled
+  Fulfilled = 1,
+}
+
 export interface IUsageRecord {
   resourceId: string;
   createdAt: Date | string;
   createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: Date | string;
   workspaceId: string;
   label: UsageRecordLabel;
   usage: number;
   artifacts: IUsageRecordArtifact[];
+  summationLevel: UsageRecordSummationLevel;
+  fulfillmentStatus: UsageRecordFulfillmentStatus;
 }
+
+interface IUsageRecordDataProvider {
+  insert(usageRecord: IUsageRecord): Promise<IUsageRecord>;
+  updateSummationTwoById(
+    id: string,
+    count: number,
+    increment?: boolean // default to true
+  ): Promise<void>;
+  getRecord(
+    workspaceId: string,
+    label: UsageRecordLabel,
+    summationLevel: UsageRecordSummationLevel
+  ): Promise<IUsageRecord>;
+}
+
+interface IUsageRecordLogicProvider {
+  // private cache of usage records summation level 2
+  // we'll be using this to guard against excess usage
+  // when limit is exceeded, so need quick access to the usage records.
+  usageRecords: Record<string, IUsageRecord>;
+
+  /**
+   * - if summationLevel 2 usage is not exceeded
+   *   - insert usage record
+   *   - increment summation level 2 usage
+   * - else
+   *   - insert unfufilled usage record
+   *   - notify workspace that usage is exceeded
+   *   - notify workspace after a back-off period with unfulfilled usage records count*
+   */
+  insert(usageRecord: IUsageRecord): Promise<boolean>;
+}
+
+// Artifact types
+interface IFileUsageRecordArtifact {
+  fileId: string;
+  filepath: string;
+  oldFileSize?: number;
+}
+
+interface IBandwidthUsageRecordArtifact {
+  // bytes: number;
+  // direction: 'in' | 'out';
+
+  fileId: 'file-id';
+  filepath: '/path/to/file';
+}
+
+interface IRequestUsageRecordArtifact {
+  // method: string;
+  // statusCode: number;
+  // userAgent: string;
+  // ipAddress: string;
+
+  requestId: string;
+  url: '/files/getFile';
+}
+
+interface IDatabaseObjectUsageRecordArtifact {
+  resourceId: string;
+
+  // resourceType: AppResourceType;
+  // action: BasicCRUDActions;
+}
+
+interface IUsageThresholdByLabel {
+  resourceId: string;
+  createdAt: Date | string;
+  createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: Date | string;
+  workspaceId: string;
+  label: UsageRecordLabel;
+  usage: number;
+  price: number;
+  pricePerUnit: number;
+}
+
+interface ITotalUsageThreshold {
+  resourceId: string;
+  createdAt: Date | string;
+  createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: Date | string;
+  workspaceId: string;
+  price: number;
+}
+
+enum WorkspaceUsageStatus {
+  Normal = 0,
+  UsageExceeded = 1,
+  GracePeriod = 2,
+  Locked = 3,
+}
+
+interface IWorkspace {
+  usageStatusAssignedAt?: Date | string;
+  usageStatus: WorkspaceUsageStatus;
+  totalUsageThreshold?: ITotalUsageThreshold;
+  usageThresholds: IUsageThresholdByLabel[];
+}
+
+class RequestData {
+  requestId: string;
+}
+```
+
+### Summation Strategy
+
+- Storage
+  - New files are added by bytes
+  - Increase in delta of updated files is added by bytes
+- BandwidthIn
+  - Incremented by bytes
+- BandwidthOut
+  - Incremented by bytes
+- Request
+  - Incremented by count
+- DatabaseObject
+  - Incremented by count
+
+### Storage
+
+For every file stored, updated, and deleted, we want to track the size of the file in the number of bytes stored.
+
+```typescript
+const fileStoredRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Storage,
+  usage: 12345, // bytes
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.File,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Create,
+      artifact: {
+        fileId: 'file-id',
+        filepath: '/path/to/file',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+const fileUpdatedRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Storage,
+  usage: 54321, // bytes
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.File,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Update,
+      artifact: {
+        fileId: 'file-id',
+        filepath: '/path/to/file',
+        oldFileSize: 12345,
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+const fileDeletedRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Storage,
+  usage: -54321, // file size in bytes
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.File,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Delete,
+      artifact: {
+        fileId: 'file-id',
+        filepath: '/path/to/file',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// usage record summation level 2
+const storageRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Storage,
+  usage: 54321, // file size in bytes per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+```
+
+### BandwidthIn
+
+```typescript
+const bandwidthInRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.BandwidthIn,
+  usage: 12345, // bytes
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.File,
+      resourceType: AppResourceType.File,
+      artifact: {
+        fileId: 'file-id',
+        filepath: '/path/to/file',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// usage record summation level 2
+const bandwidthInRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.BandwidthIn,
+  usage: 54321, // file size in bytes per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+```
+
+### BandwidthOut
+
+```typescript
+const bandwidthOutRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.BandwidthOut,
+  usage: 12345, // bytes
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.File,
+      resourceType: AppResourceType.File,
+      artifact: {
+        fileId: 'file-id',
+        filepath: '/path/to/file',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// usage record summation level 2
+const bandwidthOutRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.BandwidthOut,
+  usage: 54321, // file size in bytes per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+```
+
+### Request
+
+```typescript
+const requestRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Request,
+  usage: 1, // count
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.Request,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Read,
+      artifact: {
+        url: '/files/getFile',
+        requestId: 'request-id',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// usage record summation level 2
+const requestRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Request,
+  usage: 500, // count per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// unfulfilled usage record, since we'll only have unfulfilled records for requests as it gates other record types
+const requestRecordUnfulfilled: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Storage,
+  usage: 0,
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.Request,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Read,
+      artifact: {
+        requestPath: '/files/getFile',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Unfulfilled,
+};
+
+// usage record summation level 2 for unfulfilled usage records
+const requestRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.Request,
+  usage: 500, // count per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Unfulfilled,
+};
+```
+
+### DatabaseObject
+
+```typescript
+const dbObjectRecord: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.DatabaseObject,
+  usage: 1, // count
+  artifacts: [
+    {
+      type: UsageRecordArtifactType.DatabaseObject,
+      resourceType: AppResourceType.File,
+      action: BasicCRUDActions.Create, // or Delete
+      artifact: {
+        resourceId: 'file-id',
+      },
+    },
+  ],
+  summationLevel: UsageRecordSummationLevel.One,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
+
+// usage record summation level 2
+const dbObjectRecordLevel2: IUsageRecord = {
+  resourceId: 'record-id',
+  createdAt: new Date(),
+  createdBy: {
+    /* agent */
+  },
+  workspaceId: 'workspace-id',
+  label: UsageRecordLabel.DatabaseObject,
+  usage: 500, // count per billing period
+  summationLevel: UsageRecordSummationLevel.Two,
+  fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+};
 ```
 
 ## How do we monetize these metrics?
 
-Every metric will be collected and summed up by a separate job. The summation will acocunt for file deletion and change, and database object deletion. Database objects will be priced statically for all object types, meaning one price for all objects. On a set date, the job will run, sum up all the metrics, and then bill the users for the usage by reporting them to Stripe. Coupons will also be applied to the usage if they have any. The job will also report the summation to our db for record keeping. From the frontend, we can navigate the users to a Stripe hosted payment page, where they can pay for the usage. If they do not pay, the workspace will be locked for a month, with recurring notifications to the workspace owner. Locked workspaces will not accept requests, except payment requests. After a month if they don't pay, the workspace will be deleted with notifaction to the workspace owner.
+Every metric will be collected, stored, and summed up in an intermediate metric (a summation metric by label by workspace, per billing period). If limits are set for labels, it'll be applied to the summation metric. The summation metrics will then be summed up into a final metric (a final summation metric by label by workspace, per billing period). The final metric will be used to calculate the cost of usage.
+
+At the end of the billing period, we will report the cost to Stripe, apply discounts, and send an invoice to the user. A grace period will be set for payment, after which the invoice will be marked as unpaid and the user will be notified. After another grace period, the workspace will stop accepting requests with notifying the user.
 
 ### Usage pricing
 
@@ -84,7 +527,9 @@ Not every spending is listed here, but we are currently thinking of:
 
 - $0.005
 
-**Development Costs**
+**Mongo DB**
+
+- 0.0005 per mongo object
 
 **Profit**
 
@@ -99,10 +544,37 @@ Not every spending is listed here, but we are currently thinking of:
 - 0.18 per gb in
 - 0.27 per gb out
 - 0.053 per request
-- 0.023 per mongo object/operation
+- 0.0005 per mongo object
+
+## Algorithm
+
+- Every billing period, we will:
+
+  - Collect all usage records for the current billing period
+  - Sum up the usage records
+  - Apply limits to the summation metrics
+    - If usage is exceeded, we will lock the workspace, and mark incoming requests as unfulfilled
+    - Notify the workspace owner of the lock and count of unfulfilled requests
+  - Report usage to Stripe and apply discounts
+  - Put the workspace in a grace period
+    - When the grace period ends, we will:
+      - Mark the workspace as not accepting requests
+      - Notify the workspace owner of the lock and count of unfulfilled requests
+    - Remove the workspace from the grace period when payment is received
+
+- Backgound job will:
+  - Will sum up overall usage for visualization
+  - Will send info to Stripe
+  - Will send notification if usage is above threshold
+  - Will send notification if bill is overdue
+  - Will disable account if bill is overdue after X days
 
 ## Additional notes
 
 We will allow the workspace to specify a max price to spend on usage. If the workspace has a max price, we will not allow the workspace to exceed that price. If the workspace has no max price, we will allow the workspace to spend as much as they want.
 
 We could also allow a more granular pricing model, where the workspace can specify max usage for the individual metrics. For example, if the workspace has a max usage of 100 GB for storage, we will not allow the workspace to exceed that.
+
+```
+
+```
