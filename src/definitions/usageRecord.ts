@@ -1,4 +1,4 @@
-import {IAgent} from './system';
+import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 
 export enum UsageRecordLabel {
   Storage = 'storage',
@@ -16,6 +16,8 @@ export enum UsageRecordArtifactType {
 
 export interface IUsageRecordArtifact {
   type: UsageRecordArtifactType;
+  resourceType?: AppResourceType;
+  action?: BasicCRUDActions;
 
   /**
    * File ID when type is File
@@ -25,12 +27,52 @@ export interface IUsageRecordArtifact {
   artifact: any;
 }
 
+export enum UsageRecordSummationLevel {
+  // individual usage records
+  One = 1,
+  // usage records grouped by billing period
+  Two = 2,
+}
+
+export enum UsageRecordFulfillmentStatus {
+  // usage record has not been fulfilled
+  Unfulfilled = 0,
+  // usage record has been fulfilled
+  Fulfilled = 1,
+}
+
 export interface IUsageRecord {
   resourceId: string;
   createdAt: Date | string;
   createdBy: IAgent;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: Date | string;
   workspaceId: string;
   label: UsageRecordLabel;
   usage: number;
   artifacts: IUsageRecordArtifact[];
+  summationLevel: UsageRecordSummationLevel;
+  fulfillmentStatus: UsageRecordFulfillmentStatus;
 }
+
+export interface IFileUsageRecordArtifact {
+  fileId: string;
+  filepath: string;
+  oldFileSize?: number;
+}
+
+export interface IBandwidthUsageRecordArtifact {
+  fileId: 'file-id';
+  filepath: '/path/to/file';
+}
+
+export interface IRequestUsageRecordArtifact {
+  requestId: string;
+  url: '/files/getFile';
+}
+
+export interface IDatabaseObjectUsageRecordArtifact {
+  resourceId: string;
+}
+
+export type IPublicUsageRecord = IUsageRecord;
