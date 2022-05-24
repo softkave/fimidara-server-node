@@ -1,6 +1,6 @@
 import {getFields, makeExtract} from '../../../utilities/extract';
 import {validate} from '../../../utilities/validate';
-import WorkspaceQueries from '../queries';
+import {assertWorkspace} from '../utils';
 import {GetRequestWorkspaceEndpoint, IPublicRequestWorkspace} from './types';
 import {getRequestWorkspaceJoiSchema} from './validation';
 
@@ -16,10 +16,11 @@ const getRequestWorkspace: GetRequestWorkspaceEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, getRequestWorkspaceJoiSchema);
-  const workspace = await context.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(data.workspaceId)
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    data.workspaceId
   );
-
+  assertWorkspace(workspace);
   return {
     workspace: requestWorkspaceExtractor(workspace),
   };

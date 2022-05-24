@@ -1,7 +1,26 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IWorkspace} from '../definitions/workspace';
+import {
+  ITotalUsageThreshold,
+  IUsageThresholdByLabel,
+  IWorkspace,
+} from '../definitions/workspace';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
+
+const totalUsageThresholdSchema = ensureTypeFields<ITotalUsageThreshold>({
+  lastUpdatedBy: {type: agentSchema},
+  lastUpdatedAt: {type: Date},
+  price: {type: Number},
+});
+
+const usageThresholdSchema = ensureTypeFields<IUsageThresholdByLabel>({
+  lastUpdatedBy: {type: agentSchema},
+  lastUpdatedAt: {type: Date},
+  label: {type: String},
+  usage: {type: Number},
+  price: {type: Number},
+  pricePerUnit: {type: Number},
+});
 
 const workspaceSchema = ensureTypeFields<IWorkspace>({
   resourceId: {type: String, unique: true, index: true},
@@ -12,6 +31,10 @@ const workspaceSchema = ensureTypeFields<IWorkspace>({
   lastUpdatedAt: {type: Date},
   description: {type: String},
   publicPresetId: {type: String},
+  usageStatusAssignedAt: {type: Date},
+  usageStatus: {type: Number},
+  totalUsageThreshold: {type: totalUsageThresholdSchema},
+  usageThresholds: {type: [usageThresholdSchema]},
 });
 
 export type IWorkspaceDocument = Document<IWorkspace>;
@@ -21,13 +44,8 @@ const modelName = 'workspace';
 const collectionName = 'workspaces';
 
 export function getWorkspaceModel(connection: Connection) {
-  const model = connection.model<IWorkspaceDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+  const model = connection.model<IWorkspace>(modelName, schema, collectionName);
   return model;
 }
 
-export type IWorkspaceModel = Model<IWorkspaceDocument>;
+export type IWorkspaceModel = Model<IWorkspace>;

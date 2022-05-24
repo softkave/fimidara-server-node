@@ -59,11 +59,13 @@ export interface IFileUsageRecordArtifact {
   fileId: string;
   filepath: string;
   oldFileSize?: number;
+  requestId: string;
 }
 
 export interface IBandwidthUsageRecordArtifact {
   fileId: 'file-id';
   filepath: '/path/to/file';
+  requestId: string;
 }
 
 export interface IRequestUsageRecordArtifact {
@@ -73,6 +75,7 @@ export interface IRequestUsageRecordArtifact {
 
 export interface IDatabaseObjectUsageRecordArtifact {
   resourceId: string;
+  requestId: string;
 }
 
 export type IPublicUsageRecord = IUsageRecord;

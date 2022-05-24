@@ -1,3 +1,4 @@
+import {UsageRecordLabel} from '../../../definitions/usageRecord';
 import {IPublicWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
@@ -5,6 +6,12 @@ import {Endpoint} from '../../types';
 export interface INewWorkspaceInput {
   name: string;
   description?: string;
+  totalUsageThreshold?: {price: number};
+  usageThresholds?: Array<{
+    label: UsageRecordLabel;
+    usage?: number;
+    price?: number;
+  }>;
 }
 
 export type IAddWorkspaceParams = INewWorkspaceInput;

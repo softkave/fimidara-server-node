@@ -19,7 +19,6 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
-import EndpointReusableQueries from '../../queries';
 import {getFilesWithMatcher} from '../getFilesWithMatcher';
 import {
   fileExtractor,
@@ -31,6 +30,7 @@ import {internalCreateFile} from './internalCreateFile';
 import {internalUpdateFile} from './internalUpdateFile';
 import {UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
+import {assertWorkspace} from '../../workspaces/utils';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
@@ -52,10 +52,11 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
 
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
-    const workspace = await context.data.workspace.assertGetItem(
-      EndpointReusableQueries.getById(matcher.workspaceId)
+    const workspace = await context.cacheProviders.workspace.getById(
+      context,
+      matcher.workspaceId
     );
-
+    assertWorkspace(workspace);
     const parentFolder = await createFileParentFolders(
       context,
       agent,
@@ -73,10 +74,11 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       parentFolder
     );
   } else {
-    const workspace = await context.data.workspace.assertGetItem(
-      EndpointReusableQueries.getById(file.workspaceId)
+    const workspace = await context.cacheProviders.workspace.getById(
+      context,
+      file.workspaceId
     );
-
+    assertWorkspace(workspace);
     await checkUploadFileAuth(context, agent, workspace, file, null);
     const pathWithDetails = splitfilepathWithDetails(file.namePath);
     file = await internalUpdateFile(

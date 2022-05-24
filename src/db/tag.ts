@@ -21,13 +21,9 @@ const modelName = 'tag';
 const collectionName = 'tags';
 
 export function getTagModel(connection: Connection) {
-  const model = connection.model<ITagDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<ITag>(modelName, schema, collectionName);
 
   return model;
 }
 
-export type ITagModel = Model<ITagDocument>;
+export type ITagModel = Model<ITag>;

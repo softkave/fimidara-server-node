@@ -25,7 +25,6 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
-import EndpointReusableQueries from '../../queries';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
@@ -35,6 +34,7 @@ import {
 } from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
+import {assertWorkspace} from '../../workspaces/utils';
 
 export async function createSingleFolder(
   context: IBaseContext,
@@ -208,12 +208,12 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
   );
 
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await context.data.workspace.assertGetItem(
-    EndpointReusableQueries.getById(workspaceId)
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    workspaceId
   );
-
+  assertWorkspace(workspace);
   let folder = await createFolderList(context, agent, workspace, data.folder);
-
   await saveResourceAssignedItems(
     context,
     agent,

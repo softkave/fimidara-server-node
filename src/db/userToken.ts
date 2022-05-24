@@ -18,16 +18,9 @@ const schema = new Schema<IUserToken>(userTokenMongoSchema);
 const modelName = 'user-token';
 const collectionName = 'user-tokens';
 
-export function getUserTokenModel(
-  connection: Connection
-): Model<IUserTokenDocument> {
-  const model = connection.model<IUserTokenDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+export function getUserTokenModel(connection: Connection) {
+  const model = connection.model<IUserToken>(modelName, schema, collectionName);
   return model;
 }
 
-export type IUserTokenModel = Model<IUserTokenDocument>;
+export type IUserTokenModel = Model<IUserToken>;

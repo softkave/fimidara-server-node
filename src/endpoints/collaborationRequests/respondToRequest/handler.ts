@@ -11,6 +11,7 @@ import {
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
+import {assertWorkspace} from '../../workspaces/utils';
 import {collabRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
 import {respondToRequestJoiSchema} from './validation';
@@ -66,10 +67,11 @@ const respondToRequest: RespondToRequestEndpoint = async (
     );
 
     if (presetsOnAccept.length > 0) {
-      const workspace = await context.data.workspace.assertGetItem(
-        EndpointReusableQueries.getById(request.workspaceId)
+      const workspace = await context.cacheProviders.workspace.getById(
+        context,
+        request.workspaceId
       );
-
+      assertWorkspace(workspace);
       await addAssignedPresetList(
         context,
         {

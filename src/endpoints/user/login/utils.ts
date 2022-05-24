@@ -14,6 +14,7 @@ import {
   TokenType,
 } from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
+import {assertWorkspace} from '../../workspaces/utils';
 import UserTokenQueries from '../UserTokenQueries';
 import {userExtractor} from '../utils';
 import {ILoginResult} from './types';
@@ -84,12 +85,15 @@ export async function getUserClientAssignedToken(
       issuedAt: getDateString(),
     });
 
+    const workspace = await context.cacheProviders.workspace.getById(
+      context,
+      context.appVariables.appWorkspaceId
+    );
+    assertWorkspace(workspace);
     addAssignedPresetList(
       context,
       systemAgent,
-      await context.data.workspace.assertGetItem(
-        EndpointReusableQueries.getById(context.appVariables.appWorkspaceId)
-      ),
+      workspace,
       [
         {
           order: 1,

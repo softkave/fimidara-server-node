@@ -11,17 +11,17 @@ import {
 
 export interface IMongoDataProvider<T extends {[key: string]: any}>
   extends IDataProvider<T> {
-  model: Model<Document<T>>;
+  model: Model<T>;
   throwNotFound?: () => void;
 }
 
 export default class MongoDataProvider<T extends {[key: string]: any}>
   implements IMongoDataProvider<T>
 {
-  public model: Model<Document<T>>;
+  public model: Model<T>;
   public throwNotFound?: () => void;
 
-  constructor(model: Model<Document<T>>, throwNotFound?: () => void) {
+  constructor(model: Model<T>, throwNotFound?: () => void) {
     this.model = model;
     this.throwNotFound = throwNotFound;
   }

@@ -83,7 +83,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.Workspace:
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.data.workspace.getManyItems(query),
+          promise: context.cacheProviders.workspace.getByIds(context, ids),
           resourceType: type,
         });
         break;

@@ -21,7 +21,7 @@ const modelName = 'preset-permissions-group';
 const collectionName = 'preset-permissions-groups';
 
 export function getPresetPermissionsModel(connection: Connection) {
-  const model = connection.model<IPresetPermissionsItemDocument>(
+  const model = connection.model<IPresetPermissionsGroup>(
     modelName,
     schema,
     collectionName
@@ -30,4 +30,4 @@ export function getPresetPermissionsModel(connection: Connection) {
   return model;
 }
 
-export type IPresetPermissionsItemModel = Model<IPresetPermissionsItemDocument>;
+export type IPresetPermissionsItemModel = Model<IPresetPermissionsGroup>;

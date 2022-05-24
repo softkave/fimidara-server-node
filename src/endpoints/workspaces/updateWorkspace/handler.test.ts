@@ -9,7 +9,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import WorkspaceQueries from '../queries';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceInput, IUpdateWorkspaceEndpointParams} from './types';
 
@@ -43,9 +42,9 @@ test('workspace updated', async () => {
   const result = await updateWorkspace(context, instData);
   assertEndpointResultOk(result);
   expect(result.workspace).toMatchObject(workspaceUpdateInput);
-
-  const updatedWorkspace = await context.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(workspace.resourceId)
+  const updatedWorkspace = await context.cacheProviders.workspace.getById(
+    context,
+    workspace.resourceId
   );
   expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);
 });
