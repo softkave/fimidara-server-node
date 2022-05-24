@@ -2,25 +2,17 @@ import {IAgent} from './system';
 import {UsageRecordLabel} from './usageRecord';
 
 export interface IUsageThresholdByLabel {
-  resourceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
-  workspaceId: string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   label: UsageRecordLabel;
-  usage: number;
-  price: number;
+  usage?: number;
+  price?: number;
   pricePerUnit: number;
 }
 
 export interface ITotalUsageThreshold {
-  resourceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
-  workspaceId: string;
+  lastUpdatedBy: IAgent;
+  lastUpdatedAt: Date | string;
   price: number;
 }
 

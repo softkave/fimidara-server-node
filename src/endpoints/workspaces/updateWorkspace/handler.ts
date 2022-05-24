@@ -3,8 +3,11 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
-import WorkspaceQueries from '../queries';
-import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
+import {
+  assertWorkspace,
+  checkWorkspaceAuthorization02,
+  workspaceExtractor,
+} from '../utils';
 import {UpdateWorkspaceEndpoint} from './types';
 import {updateWorkspaceJoiSchema} from './validation';
 
@@ -23,8 +26,9 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     await checkWorkspaceNameExists(context, data.workspace.name);
   }
 
-  const updatedWorkspace = await context.data.workspace.assertUpdateItem(
-    WorkspaceQueries.getById(workspace.resourceId),
+  const updatedWorkspace = await context.cacheProviders.workspace.updateById(
+    context,
+    workspace.resourceId,
     {
       ...data.workspace,
       lastUpdatedAt: getDateString(),
@@ -35,6 +39,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     }
   );
 
+  assertWorkspace(updatedWorkspace);
   return {workspace: workspaceExtractor(updatedWorkspace)};
 };
 

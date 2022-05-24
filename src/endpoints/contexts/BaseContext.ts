@@ -16,6 +16,8 @@ import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext'
 import {IAppRuntimeState} from '../../definitions/system';
 import {ITag} from '../../definitions/tag';
 import {IAssignedItem} from '../../definitions/assignedItem';
+import {IWorkspaceDataProvider} from './data-providers/WorkspaceDataProvider';
+import {IWorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -44,6 +46,14 @@ export interface IBaseContext<
   data: T;
   email: E;
   fileBackend: F;
+
+  dataProviders: {
+    workspace: IWorkspaceDataProvider;
+  };
+
+  cacheProviders: {
+    workspace: IWorkspaceCacheProvider;
+  };
 }
 
 export default class BaseContext<
@@ -57,13 +67,24 @@ export default class BaseContext<
   public email: E;
   public fileBackend: F;
   public appVariables: V;
+  public dataProviders: IBaseContext['dataProviders'];
+  public cacheProviders: IBaseContext['cacheProviders'];
 
   public session: ISessionContext = getSessionContext();
 
-  constructor(data: T, emailProvider: E, fileBackend: F, appVariables: V) {
+  constructor(
+    data: T,
+    emailProvider: E,
+    fileBackend: F,
+    appVariables: V,
+    dataProviders: IBaseContext['dataProviders'],
+    cacheProviders: IBaseContext['cacheProviders']
+  ) {
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
     this.appVariables = appVariables;
+    this.dataProviders = dataProviders;
+    this.cacheProviders = cacheProviders;
   }
 }

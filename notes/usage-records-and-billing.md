@@ -22,6 +22,13 @@ We want to be able to track usage records, so that we can display usage statisti
  * - Should we track requests with metadata, like IP address, user agent, status code, etc?
  * - Track the full bandwidth in and out and use those for billing.
  * - Access control for usage records, billing, and setting usage thresholds.
+ * - Setup accounts for new workspaces in Stripe.
+ * - Setup acocunts for existing workspaces in Stripe.
+ * - Setup products and prices in Stripe.
+ * - Setup the subscription model in Stripe.
+ * - Add the workspace Stripe accounts to the subscription model.
+ * - Client-side visualizations of usage records.
+ * - Client-side setting of usage thresholds.
  */
 
 /**
@@ -105,13 +112,17 @@ interface IUsageRecordLogicProvider {
   usageRecords: Record<string, IUsageRecord>;
 
   /**
+   * - if sum level 2 doesn't exist, create it
+   * - increment sum level 2
    * - if summationLevel 2 usage is not exceeded
-   *   - insert usage record
-   *   - increment summation level 2 usage
+   *   - queue insert usage record
+   *   - queue update summation level 2
+   *   - return true
    * - else
-   *   - insert unfufilled usage record
-   *   - notify workspace that usage is exceeded
-   *   - notify workspace after a back-off period with unfulfilled usage records count*
+   *   - queue insert unfufilled usage record
+   *   - queue notify workspace that usage is exceeded
+   *   - queue update summation level 2
+   *   - return false
    */
   insert(usageRecord: IUsageRecord): Promise<boolean>;
 }
@@ -121,6 +132,7 @@ interface IFileUsageRecordArtifact {
   fileId: string;
   filepath: string;
   oldFileSize?: number;
+  requestId: string;
 }
 
 interface IBandwidthUsageRecordArtifact {
@@ -129,6 +141,7 @@ interface IBandwidthUsageRecordArtifact {
 
   fileId: 'file-id';
   filepath: '/path/to/file';
+  requestId: string;
 }
 
 interface IRequestUsageRecordArtifact {
@@ -143,6 +156,7 @@ interface IRequestUsageRecordArtifact {
 
 interface IDatabaseObjectUsageRecordArtifact {
   resourceId: string;
+  requestId: string;
 
   // resourceType: AppResourceType;
   // action: BasicCRUDActions;

@@ -22,7 +22,7 @@ const modelName = 'assigned-item';
 const collectionName = 'assigned-items';
 
 export function getAssignedItemModel(connection: Connection) {
-  const model = connection.model<IAssignedItemDocument>(
+  const model = connection.model<IAssignedItem>(
     modelName,
     schema,
     collectionName
@@ -31,4 +31,4 @@ export function getAssignedItemModel(connection: Connection) {
   return model;
 }
 
-export type IAssignedItemModel = Model<IAssignedItemDocument>;
+export type IAssignedItemModel = Model<IAssignedItem>;
