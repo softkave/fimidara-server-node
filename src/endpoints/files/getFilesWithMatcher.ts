@@ -82,3 +82,17 @@ export async function assertGetSingleFileWithMatcher(
 
   return file;
 }
+
+export async function tryGetSingleFileWithMatcher(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  matcher: IFileMatcher
+) {
+  const matchedFiles = await getFilesWithMatcher(
+    context,
+    agent,
+    matcher,
+    /* count */ 1
+  );
+  return first(matchedFiles);
+}

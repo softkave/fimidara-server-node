@@ -84,14 +84,14 @@ export interface IFileUsageRecordArtifact {
 }
 
 export interface IBandwidthUsageRecordArtifact {
-  fileId: 'file-id';
-  filepath: '/path/to/file';
+  fileId: string;
+  filepath: string;
   requestId: string;
 }
 
 export interface IRequestUsageRecordArtifact {
   requestId: string;
-  url: '/files/getFile';
+  url: string;
 }
 
 export interface IDatabaseObjectUsageRecordArtifact {

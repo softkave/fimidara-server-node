@@ -36,6 +36,22 @@ We want to be able to track usage records, so that we can display usage statisti
  * - usage check short circuit
  * - sum up dropped usage records
  * - don't save upper sum levels if usage is dropped
+ *
+ * - use gb not bytes when calculating usage or should we use gb to store?
+ * - storage & db objects is overall, not just monthly created
+ * - only storage and bandwidth for now
+ * - limit client tokens and push reusing tokens
+ * - use and check workspace locks
+ * 
+Monthly usage
+Bill usage = prev + current month
+Prev = prev + current month - deleted
+
+month usage - pipeline
+bill usage - server
+prev - pipeline
+next bill usage - server
+ *
  */
 
 /**

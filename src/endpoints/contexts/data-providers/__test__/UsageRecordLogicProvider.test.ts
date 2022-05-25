@@ -18,7 +18,7 @@ import RequestData from '../../../RequestData';
 import {generateWorkspace} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
 import {getTestVars} from '../../../test-utils/vars';
-import {getUsageForCost} from '../../../usageRecords/costs';
+import {costConstants, getUsageForCost} from '../../../usageRecords/costs';
 import BaseContext, {IBaseContext} from '../../BaseContext';
 import {
   IUsageRecordInput,
@@ -132,8 +132,7 @@ describe('UsageRecordLogicProvider', () => {
     const costLimit =
       workspace.usageThresholds[UsageRecordCategory.Storage]?.price || 1000;
     const usagePrice =
-      costLimit +
-      costLimit * UsageRecordLogicProvider.costThresholdBufferPercent;
+      costLimit + costLimit * costConstants.costThresholdBufferPercent;
     const usage = getUsageForCost(UsageRecordCategory.Storage, usagePrice);
     const input: IUsageRecordInput = {
       usage,
