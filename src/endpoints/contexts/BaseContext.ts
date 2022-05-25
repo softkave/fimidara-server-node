@@ -1,3 +1,4 @@
+import {Connection} from 'mongoose';
 import {IAppVariables} from '../../resources/appVariables';
 import {getSessionContext, ISessionContext} from './SessionContext';
 import {IFolder} from '../../definitions/folder';
@@ -16,9 +17,18 @@ import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext'
 import {IAppRuntimeState} from '../../definitions/system';
 import {ITag} from '../../definitions/tag';
 import {IAssignedItem} from '../../definitions/assignedItem';
-import {IWorkspaceDataProvider} from './data-providers/WorkspaceDataProvider';
-import {IWorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
-import {IUsageRecordDataProvider} from './data-providers/UsageRecordDataProvider';
+import {
+  IWorkspaceDataProvider,
+  WorkspaceMongoDataProvider,
+} from './data-providers/WorkspaceDataProvider';
+import {
+  IWorkspaceCacheProvider,
+  WorkspaceCacheProvider,
+} from './data-providers/WorkspaceCacheProvider';
+import {
+  IUsageRecordDataProvider,
+  UsageRecordMongoDataProvider,
+} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 
 export interface IBaseContextDataProviders {
@@ -108,5 +118,26 @@ export default class BaseContext<
 
   public dispose = async () => {
     this.cacheProviders.workspace.dispose();
+  };
+}
+
+export function getDataProviders(
+  connection: Connection
+): IBaseContext['dataProviders'] {
+  return {
+    usageRecord: new UsageRecordMongoDataProvider(connection),
+    workspace: new WorkspaceMongoDataProvider(connection),
+  };
+}
+
+export function getCacheProviders(): IBaseContext['cacheProviders'] {
+  return {
+    workspace: new WorkspaceCacheProvider(),
+  };
+}
+
+export function getLogicProviders(): IBaseContext['logicProviders'] {
+  return {
+    usageRecord: new UsageRecordLogicProvider(),
   };
 }
