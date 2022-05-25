@@ -13,9 +13,9 @@ import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionIte
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
+import {IFile} from '../../../definitions/file';
 
-export async function internalCreateFile(
-  context: IBaseContext,
+export function getNewFile(
   agent: ISessionAgent,
   workspace: IWorkspace,
   pathWithDetails: ISplitfilepathWithDetails,
@@ -29,7 +29,7 @@ export async function internalCreateFile(
     agentType: agent.agentType,
   };
 
-  const file = await context.data.file.saveItem({
+  const file = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -47,8 +47,18 @@ export async function internalCreateFile(
     size: data.data.length,
     description: data.description,
     encoding: data.encoding,
-  });
+  };
 
+  return file;
+}
+
+export async function internalCreateFile(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  workspace: IWorkspace,
+  data: IUploadFileEndpointParams,
+  file: IFile
+) {
   const publicAccessOps = makeFilePublicAccessOps(
     agent,
     data.publicAccessAction

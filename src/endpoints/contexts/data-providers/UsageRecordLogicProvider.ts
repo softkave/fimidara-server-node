@@ -14,7 +14,7 @@ import {makeKey} from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import RequestData from '../../RequestData';
-import {getCost} from '../../usageRecords/costs';
+import {costConstants, getCost} from '../../usageRecords/costs';
 import {IBaseContext} from '../BaseContext';
 
 export interface IUsageRecordInput {
@@ -26,10 +26,6 @@ export interface IUsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  // We leave some wiggle room for requests that slightly exceed the threshold
-  // Threshold buffer is 1% of the threshold
-  public static costThresholdBufferPercent = 0.1;
-
   private usageRecords: Record<string, IUsageRecord> = {};
 
   public insert = async (
@@ -155,8 +151,7 @@ export class UsageRecordLogicProvider {
       return UsageRecordDropReason.UsageExceeded;
     }
 
-    const costBuffer =
-      costLimit * UsageRecordLogicProvider.costThresholdBufferPercent;
+    const costBuffer = costLimit * costConstants.costThresholdBufferPercent;
     if (cost > costLimit + costBuffer) {
       return UsageRecordDropReason.ExceedsRemaining;
     }

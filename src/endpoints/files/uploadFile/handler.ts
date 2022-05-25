@@ -1,5 +1,4 @@
 import assert = require('assert');
-import {first} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IWorkspace} from '../../../definitions/workspace';
@@ -19,18 +18,19 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
-import {getFilesWithMatcher} from '../getFilesWithMatcher';
+import {tryGetSingleFileWithMatcher} from '../getFilesWithMatcher';
 import {
   fileExtractor,
   getFileMatcher,
+  getWorkspaceFromFileOrMatcher,
   ISplitfilepathWithDetails,
   splitfilepathWithDetails,
 } from '../utils';
-import {internalCreateFile} from './internalCreateFile';
+import {getNewFile, internalCreateFile} from './internalCreateFile';
 import {internalUpdateFile} from './internalUpdateFile';
 import {UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
-import {assertWorkspace} from '../../workspaces/utils';
+import {insertStorageUsageRecordInput} from '../../usageRecords/utils';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
@@ -41,22 +41,13 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   );
 
   const matcher = getFileMatcher(agent, data);
-  let file = first(
-    await getFilesWithMatcher(context, agent, matcher, /* count */ 1)
-  );
+  let file = await tryGetSingleFileWithMatcher(context, agent, matcher);
+  const isNewFile = !file;
+  const workspace = await getWorkspaceFromFileOrMatcher(context, matcher, file);
 
   if (!file) {
-    assert(
-      matcher.workspaceId && matcher.filepath,
-      new ValidationError('Workspace ID and or file path missing')
-    );
-
+    assert(matcher.filepath, new ValidationError('File path missing'));
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      matcher.workspaceId
-    );
-    assertWorkspace(workspace);
     const parentFolder = await createFileParentFolders(
       context,
       agent,
@@ -65,21 +56,22 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
 
     await checkUploadFileAuth(context, agent, workspace, null, parentFolder);
-    file = await internalCreateFile(
-      context,
-      agent,
-      workspace,
-      pathWithDetails,
-      data,
-      parentFolder
-    );
+    file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
   } else {
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      file.workspaceId
-    );
-    assertWorkspace(workspace);
     await checkUploadFileAuth(context, agent, workspace, file, null);
+  }
+
+  await insertStorageUsageRecordInput(
+    context,
+    instData,
+    file,
+    isNewFile ? BasicCRUDActions.Create : BasicCRUDActions.Update,
+    isNewFile ? undefined : {oldFileSize: file.size}
+  );
+
+  if (isNewFile) {
+    file = await internalCreateFile(context, agent, workspace, data, file);
+  } else {
     const pathWithDetails = splitfilepathWithDetails(file.namePath);
     file = await internalUpdateFile(
       context,

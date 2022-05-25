@@ -2,6 +2,10 @@ import {UsageRecordCategory} from '../../definitions/usageRecord';
 
 export const costConstants = {
   defaultTotalThresholdInUSD: 1000,
+
+  // We leave some wiggle room for requests that slightly exceed the threshold
+  // Threshold buffer is 1% of the threshold
+  costThresholdBufferPercent: 0.1,
 };
 
 // price is in USD
