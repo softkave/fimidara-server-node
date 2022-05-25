@@ -42,6 +42,13 @@ We want to be able to track usage records, so that we can display usage statisti
  * - only storage and bandwidth for now
  * - limit client tokens and push reusing tokens
  * - use and check workspace locks
+ * - how to prevent too much client tokens created
+ * - delete unused client tokens after a while
+ * - how to implement bandwidth in before the file comes in
+ *   - OPTIONS header
+ *   - Content-Length header before the file comes in
+ *   - proxy
+ *   - negotiate before sending the file, and add the negotiation ID to the file when it comes in
  * 
 Monthly usage
 Bill usage = prev + current month
