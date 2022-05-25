@@ -1,15 +1,13 @@
 import Joi = require('joi');
-import {UsageRecordLabel} from '../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../definitions/usageRecord';
 
 const price = Joi.number().min(0).precision(2);
 const totalUsageThreshold = Joi.object().keys({
   price: price.required(),
 });
 
-const label = Joi.string().valid(...Object.values(UsageRecordLabel));
-const usage = Joi.number().min(0).integer();
+const label = Joi.string().valid(...Object.values(UsageRecordCategory));
 const usageThreshold = Joi.object().keys({
-  usage,
   price,
   label: label.required(),
 });
@@ -17,7 +15,7 @@ const usageThreshold = Joi.object().keys({
 const usageThresholdList = Joi.array()
   .items(usageThreshold)
   .unique('label')
-  .max(Object.keys(UsageRecordLabel).length);
+  .max(Object.keys(UsageRecordCategory).length);
 
 const workspaceValidationSchemas = {
   usageThreshold,

@@ -86,3 +86,9 @@ export const wrapFireAndThrowErrorNoAsync = <
 export const wrapFireAndDontThrow: typeof wrapFireAndThrowError = fn => {
   return wrapFireAndThrowError(fn, false);
 };
+
+export async function waitOnPromisesAndLogErrors(promises: Promise<any>[]) {
+  (await Promise.allSettled(promises)).forEach(
+    result => result.status === 'rejected' && console.error(result.reason)
+  );
+}

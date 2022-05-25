@@ -1,7 +1,7 @@
 import {
   IWorkspace,
   IPublicWorkspace,
-  IUsageThresholdByLabel,
+  IUsageThreshold,
   ITotalUsageThreshold,
 } from '../../definitions/workspace';
 import {
@@ -32,10 +32,10 @@ const totalUsageThresholdExtractor = makeExtractIfPresent(
   totalUsageThresholdFields
 );
 
-const usageThresholdSchema = getFields<IUsageThresholdByLabel>({
+const usageThresholdSchema = getFields<IUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: getDateString,
-  label: true,
+  category: true,
   usage: true,
   price: true,
   pricePerUnit: true,
@@ -53,8 +53,8 @@ const workspaceFields = getFields<IPublicWorkspace>({
   publicPresetId: true,
   totalUsageThreshold: totalUsageThresholdExtractor,
   usageThresholds: usageThresholdListExtractor,
-  usageStatus: true,
-  usageStatusAssignedAt: getDateString,
+  billStatus: true,
+  billStatusAssignedAt: getDateString,
 });
 
 export const workspaceExtractor = makeExtract(workspaceFields);

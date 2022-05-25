@@ -18,6 +18,8 @@ import {ITag} from '../../definitions/tag';
 import {IAssignedItem} from '../../definitions/assignedItem';
 import {IWorkspaceDataProvider} from './data-providers/WorkspaceDataProvider';
 import {IWorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
+import {IUsageRecordDataProvider} from './data-providers/UsageRecordDataProvider';
+import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -49,11 +51,19 @@ export interface IBaseContext<
 
   dataProviders: {
     workspace: IWorkspaceDataProvider;
+    usageRecord: IUsageRecordDataProvider;
   };
 
   cacheProviders: {
     workspace: IWorkspaceCacheProvider;
   };
+
+  logicProviders: {
+    usageRecord: UsageRecordLogicProvider;
+  };
+
+  init: () => Promise<void>;
+  dispose: () => Promise<void>;
 }
 
 export default class BaseContext<
@@ -69,6 +79,7 @@ export default class BaseContext<
   public appVariables: V;
   public dataProviders: IBaseContext['dataProviders'];
   public cacheProviders: IBaseContext['cacheProviders'];
+  public logicProviders: IBaseContext['logicProviders'];
 
   public session: ISessionContext = getSessionContext();
 
@@ -78,7 +89,8 @@ export default class BaseContext<
     fileBackend: F,
     appVariables: V,
     dataProviders: IBaseContext['dataProviders'],
-    cacheProviders: IBaseContext['cacheProviders']
+    cacheProviders: IBaseContext['cacheProviders'],
+    logicProviders: IBaseContext['logicProviders']
   ) {
     this.data = data;
     this.email = emailProvider;
@@ -86,5 +98,15 @@ export default class BaseContext<
     this.appVariables = appVariables;
     this.dataProviders = dataProviders;
     this.cacheProviders = cacheProviders;
+    this.logicProviders = logicProviders;
   }
+
+  public init = async () => {
+    await this.cacheProviders.workspace.init(this);
+    await this.logicProviders.usageRecord.init(this);
+  };
+
+  public dispose = async () => {
+    this.cacheProviders.workspace.dispose();
+  };
 }

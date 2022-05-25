@@ -1,9 +1,6 @@
 import {IWorkspace} from '../../../definitions/workspace';
-import {IAppVariables} from '../../../resources/appVariables';
 import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
-import {IBaseContext, IBaseContextDataProviders} from '../BaseContext';
-import {IEmailProviderContext} from '../EmailProviderContext';
-import {IFilePersistenceProviderContext} from '../FilePersistenceProviderContext';
+import {IBaseContext} from '../BaseContext';
 
 export interface IWorkspaceCacheProvider {
   insert: (context: IBaseContext, workspace: IWorkspace) => Promise<IWorkspace>;
@@ -25,9 +22,14 @@ export interface IWorkspaceCacheProvider {
   dispose: () => Promise<void>;
 }
 
-export class WorkspaceDCacherovider implements IWorkspaceCacheProvider {
+export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
   private workspaces: Record<string, IWorkspace> = {};
-  private intervalHandle: NodeJS.Timeout | null = null;
+  private refreshIntervalHandle: NodeJS.Timeout | null = null;
+  private refreshIntervalMs: number;
+
+  constructor(refreshIntervalMs: number = 1000 * 60 * 10 /* 10 minutes */) {
+    this.refreshIntervalMs = refreshIntervalMs;
+  }
 
   public insert = wrapFireAndThrowError(
     async (ctx: IBaseContext, workspace: IWorkspace) => {
@@ -86,19 +88,22 @@ export class WorkspaceDCacherovider implements IWorkspaceCacheProvider {
   );
 
   public init = async (ctx: IBaseContext) => {
+    this.dispose();
     const workspaces = await ctx.dataProviders.workspace.getAll();
     workspaces.forEach(w => {
       this.workspaces[w.resourceId] = w;
     });
 
-    const refreshInterval = 1000 * 60 * 10; // 10 minutes
-    this.intervalHandle = setInterval(this.init, refreshInterval, ctx);
+    this.refreshIntervalHandle = setInterval(
+      this.init,
+      this.refreshIntervalMs,
+      ctx
+    );
   };
 
   public dispose = async () => {
-    this.workspaces = {};
-    if (this.intervalHandle) {
-      clearInterval(this.intervalHandle);
+    if (this.refreshIntervalHandle) {
+      clearInterval(this.refreshIntervalHandle);
     }
   };
 }

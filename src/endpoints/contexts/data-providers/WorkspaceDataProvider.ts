@@ -18,7 +18,7 @@ export interface IWorkspaceDataProvider {
   deleteById: (id: string) => Promise<void>;
 }
 
-export class WorkspaceDataProvider implements IWorkspaceDataProvider {
+export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
   private model: Model<IWorkspace>;
 
   constructor(connection: Connection) {
