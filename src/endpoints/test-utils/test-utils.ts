@@ -26,8 +26,12 @@ import {
   ISendRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
-import BaseContext, {IBaseContext} from '../contexts/BaseContext';
-import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+  IBaseContext,
+} from '../contexts/BaseContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -77,19 +81,6 @@ import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 import {generateUsageThresholdMap} from './generate-data/workspace';
-
-async function getTestDataProvider(appVariables: ITestVariables) {
-  if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
-    const connection = await getMongoConnection(
-      appVariables.mongoDbURI,
-      appVariables.mongoDbDatabaseName
-    );
-
-    return new MongoDBDataProviderContext(connection);
-  } else {
-    return new MemoryDataProviderContext();
-  }
-}
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
@@ -142,11 +133,19 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
+
   const ctx = new BaseContext(
-    await getTestDataProvider(appVariables),
+    new MongoDBDataProviderContext(connection),
     getTestEmailProvider(appVariables),
     await getTestFileProvider(appVariables),
-    appVariables
+    appVariables,
+    getDataProviders(connection),
+    getCacheProviders(),
+    getLogicProviders()
   );
 
   await setupApp(ctx);
