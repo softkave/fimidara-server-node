@@ -1,5 +1,9 @@
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 
+export const costConstants = {
+  defaultTotalThresholdInUSD: 1000,
+};
+
 // price is in USD
 export const usageCosts = {
   [UsageRecordCategory.Storage]: 0.046,

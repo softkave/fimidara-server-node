@@ -6,7 +6,6 @@ export const addWorkspaceJoiSchema = Joi.object()
   .keys({
     name: validationSchemas.name.required(),
     description: validationSchemas.description.allow(null),
-    totalUsageThreshold: workspaceValidationSchemas.totalUsageThreshold,
-    usageThresholds: workspaceValidationSchemas.usageThresholdList,
+    usageThresholds: workspaceValidationSchemas.usageThresholdMap,
   })
   .required();

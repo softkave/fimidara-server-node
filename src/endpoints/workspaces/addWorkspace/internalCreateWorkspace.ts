@@ -1,15 +1,11 @@
 import {IAgent} from '../../../definitions/system';
+import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
-import {
-  ITotalUsageThreshold,
-  IUsageThreshold,
-  IWorkspace,
-  WorkspaceBillStatus,
-} from '../../../definitions/workspace';
-import {getDateString} from '../../../utilities/dateFns';
+import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {getDate, getDateString} from '../../../utilities/dateFns';
+import cast from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {usageCosts} from '../../usageRecords/costs';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
@@ -17,6 +13,22 @@ import {
   setupDefaultWorkspacePresets,
   addWorkspaceToUserAndAssignAdminPreset,
 } from './utils';
+
+export function transformUsageThresholInput(
+  agent: IAgent,
+  input: Required<INewWorkspaceInput>['usageThresholds']
+) {
+  const usageThresholds: IWorkspace['usageThresholds'] = {};
+  cast<UsageThresholdCategory[]>(Object.keys(input)).forEach(category => {
+    const usageThreshold = input[category]!;
+    usageThresholds[category] = {
+      ...usageThreshold,
+      lastUpdatedBy: agent,
+      lastUpdatedAt: getDate(),
+    };
+  });
+  return usageThresholds;
+}
 
 const internalCreateWorkspace = async (
   context: IBaseContext,
@@ -26,33 +38,14 @@ const internalCreateWorkspace = async (
 ) => {
   await checkWorkspaceNameExists(context, data.name);
   const createdAt = getDateString();
-  let totalUsageThreshold: ITotalUsageThreshold | undefined = undefined;
-  let usageThresholdList: IUsageThreshold[] = [];
-
-  if (data.totalUsageThreshold) {
-    totalUsageThreshold = {
-      ...data.totalUsageThreshold,
-      lastUpdatedAt: createdAt,
-      lastUpdatedBy: agent,
-    };
-  }
-
-  if (data.usageThresholds) {
-    // TODO: validate that price or usage exists
-    // TODO: do same and update in updateWorkspace endpoint
-    usageThresholdList = data.usageThresholds.map(threshold => ({
-      ...threshold,
-      lastUpdatedAt: createdAt,
-      lastUpdatedBy: agent,
-      pricePerUnit: usageCosts[threshold.label],
-    }));
-  }
-
+  const usageThresholds = transformUsageThresholInput(
+    agent,
+    data.usageThresholds || {}
+  );
   let workspace: IWorkspace | null =
     await context.cacheProviders.workspace.insert(context, {
       createdAt,
-      totalUsageThreshold,
-      usageThresholds: usageThresholdList,
+      usageThresholds,
       createdBy: agent,
       lastUpdatedAt: createdAt,
       lastUpdatedBy: agent,
@@ -61,6 +54,7 @@ const internalCreateWorkspace = async (
       description: data.description,
       billStatus: WorkspaceBillStatus.Ok,
       billStatusAssignedAt: createdAt,
+      usageThresholdLocks: {},
     });
 
   const {adminPreset, publicPreset} = await setupDefaultWorkspacePresets(

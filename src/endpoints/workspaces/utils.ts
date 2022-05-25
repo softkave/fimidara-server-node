@@ -2,7 +2,6 @@ import {
   IWorkspace,
   IPublicWorkspace,
   IUsageThreshold,
-  ITotalUsageThreshold,
 } from '../../definitions/workspace';
 import {
   ISessionAgent,
@@ -21,27 +20,32 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-
-const totalUsageThresholdFields = getFields<ITotalUsageThreshold>({
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  price: true,
-});
-
-const totalUsageThresholdExtractor = makeExtractIfPresent(
-  totalUsageThresholdFields
-);
+import {
+  UsageRecordCategory,
+  UsageThresholdCategory,
+} from '../../definitions/usageRecord';
 
 const usageThresholdSchema = getFields<IUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: getDateString,
   category: true,
-  usage: true,
   price: true,
-  pricePerUnit: true,
 });
 
-const usageThresholdListExtractor = makeListExtract(usageThresholdSchema);
+const usageThresholdIfExistExtractor =
+  makeExtractIfPresent(usageThresholdSchema);
+const usageThresholdMapSchema = getFields<
+  Partial<Record<UsageThresholdCategory, IUsageThreshold>>
+>({
+  [UsageRecordCategory.Storage]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.BandwidthIn]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.BandwidthOut]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.Request]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.DatabaseObject]: usageThresholdIfExistExtractor,
+  ['total']: usageThresholdIfExistExtractor,
+});
+
+const usageThresholdMapExtractor = makeExtract(usageThresholdMapSchema);
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
   createdBy: agentExtractor,
@@ -51,9 +55,8 @@ const workspaceFields = getFields<IPublicWorkspace>({
   name: true,
   description: true,
   publicPresetId: true,
-  totalUsageThreshold: totalUsageThresholdExtractor,
-  usageThresholds: usageThresholdListExtractor,
   billStatus: true,
+  usageThresholds: usageThresholdMapExtractor,
   billStatusAssignedAt: getDateString,
 });
 
