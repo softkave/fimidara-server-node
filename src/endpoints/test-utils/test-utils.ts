@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {add} from 'date-fns';
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
 import {IPublicWorkspace} from '../../definitions/workspace';

@@ -113,7 +113,6 @@ export default class BaseContext<
 
   public init = async () => {
     await this.cacheProviders.workspace.init(this);
-    await this.logicProviders.usageRecord.init(this);
   };
 
   public dispose = async () => {

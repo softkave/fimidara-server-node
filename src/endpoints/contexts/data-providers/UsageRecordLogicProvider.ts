@@ -6,15 +6,13 @@ import {
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
   UsageRecordCategory,
-  UsageRecordSummationLevel,
+  UsageRecordSummationType,
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
-import {makeKey} from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import RequestData from '../../RequestData';
-import {costConstants, getCost} from '../../usageRecords/costs';
 import {IBaseContext} from '../BaseContext';
 
 export interface IUsageRecordInput {
@@ -26,8 +24,6 @@ export interface IUsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  private usageRecords: Record<string, IUsageRecord> = {};
-
   public insert = async (
     ctx: IBaseContext,
     reqData: RequestData,
@@ -51,83 +47,19 @@ export class UsageRecordLogicProvider {
       return false;
     }
 
-    const totalUsageThresholdExcceeded = await this.checkTotalThresholdExceeded(
+    const UsageExceeded = await this.checkWorkspaceUsageLocks(
       ctx,
       reqData,
-      agent,
       record,
       workspace
     );
 
-    if (totalUsageThresholdExcceeded) {
-      return false;
-    }
-
-    const labelThresholdExceeded = await this.checkLabelThresholdExceeded(
-      ctx,
-      reqData,
-      agent,
-      record,
-      workspace
-    );
-
-    if (labelThresholdExceeded) {
+    if (UsageExceeded) {
       return false;
     }
 
     this.fulfillRecord(ctx, reqData, record);
     return true;
-  };
-
-  public init = async (ctx: IBaseContext) => {
-    const usageRecords = await ctx.dataProviders.usageRecord.getAll();
-    usageRecords.forEach(record => {
-      this.usageRecords[this.getRecordKey(record)] = record;
-    });
-  };
-
-  private getRecordKey = (
-    record: IUsageRecord,
-    sumLevel?: UsageRecordSummationLevel,
-    fulfillmentStatus?: UsageRecordFulfillmentStatus
-  ) => {
-    return makeKey([
-      record.workspaceId,
-      record.category,
-      sumLevel || record.summationLevel,
-      fulfillmentStatus || record.fulfillmentStatus,
-    ]);
-  };
-
-  private getRecord = async (
-    ctx: IBaseContext,
-    agent: IAgent,
-    record: IUsageRecord,
-    sumLevel: UsageRecordSummationLevel,
-    fulfillmentStatus: UsageRecordFulfillmentStatus
-  ) => {
-    const key = this.getRecordKey(record, sumLevel, fulfillmentStatus);
-    let sumLevelRecord = this.usageRecords[key];
-    if (!sumLevelRecord) {
-      sumLevelRecord = {
-        fulfillmentStatus,
-        resourceId: getNewId(),
-        createdAt: getDate(),
-        createdBy: agent,
-        workspaceId: record.workspaceId,
-        category: record.category,
-        usage: 0,
-        artifacts: [],
-        summationLevel: sumLevel,
-      };
-
-      this.usageRecords[key] = sumLevelRecord;
-      fireAndForgetPromise(
-        ctx.dataProviders.usageRecord.insert(sumLevelRecord)
-      );
-    }
-
-    return sumLevelRecord;
   };
 
   private makeLevel1Record = async (
@@ -139,24 +71,11 @@ export class UsageRecordLogicProvider {
       resourceId: input.resourceId || getNewId(),
       createdAt: getDate(),
       createdBy: agent,
-      summationLevel: UsageRecordSummationLevel.One,
+      summationType: UsageRecordSummationType.One,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
       artifacts: defaultTo(input.artifacts, []),
     };
     return record;
-  };
-
-  private getDropReasonFromCost = (cost: number, costLimit: number) => {
-    if (cost > costLimit) {
-      return UsageRecordDropReason.UsageExceeded;
-    }
-
-    const costBuffer = costLimit * costConstants.costThresholdBufferPercent;
-    if (cost > costLimit + costBuffer) {
-      return UsageRecordDropReason.ExceedsRemaining;
-    }
-
-    return null;
   };
 
   private checkWorkspaceBillStatus = async (
@@ -179,36 +98,38 @@ export class UsageRecordLogicProvider {
     return false;
   };
 
-  private checkTotalThresholdExceeded = async (
+  private checkWorkspaceUsageLocks = async (
     ctx: IBaseContext,
     reqData: RequestData,
-    agent: IAgent,
     record: IUsageRecord,
     workspace: IWorkspace | null
   ) => {
-    if (workspace && workspace.usageThresholds['total']) {
-      const sumLevel3 = await this.getRecord(
-        ctx,
-        agent,
-        record,
-        UsageRecordSummationLevel.Three,
-        UsageRecordFulfillmentStatus.Fulfilled
-      );
-      const recordCost = getCost(record.category, record.usage);
-      sumLevel3.usage += recordCost;
-      reqData.pushNamelessPendingPromise(
-        fireAndForgetPromise(
-          ctx.dataProviders.usageRecord.updateById(
-            sumLevel3.resourceId,
-            sumLevel3
-          )
-        )
-      );
+    if (workspace) {
+      if (
+        workspace.usageThresholdLocks['total'] &&
+        workspace.usageThresholdLocks['total'].locked
+      ) {
+        this.dropRecord(
+          ctx,
+          reqData,
+          record,
+          UsageRecordDropReason.UsageExceeded,
+          'total'
+        );
+        return true;
+      }
 
-      const costLimit = workspace.usageThresholds['total'].price;
-      const dropReason = this.getDropReasonFromCost(sumLevel3.usage, costLimit);
-      if (dropReason) {
-        this.dropRecord(ctx, reqData, record, dropReason, 'total');
+      if (
+        workspace.usageThresholdLocks[record.category] &&
+        workspace.usageThresholdLocks[record.category]!.locked
+      ) {
+        this.dropRecord(
+          ctx,
+          reqData,
+          record,
+          UsageRecordDropReason.UsageExceeded,
+          record.category
+        );
         return true;
       }
     }
@@ -216,54 +137,17 @@ export class UsageRecordLogicProvider {
     return false;
   };
 
-  private checkLabelThresholdExceeded = async (
-    ctx: IBaseContext,
-    reqData: RequestData,
-    agent: IAgent,
-    record: IUsageRecord,
-    workspace: IWorkspace | null
-  ) => {
-    const sumLevel2 = await this.getRecord(
-      ctx,
-      agent,
-      record,
-      UsageRecordSummationLevel.Two,
-      UsageRecordFulfillmentStatus.Fulfilled
-    );
-    sumLevel2.usage += record.usage;
-    reqData.pushNamelessPendingPromise(
-      fireAndForgetPromise(
-        ctx.dataProviders.usageRecord.updateById(
-          sumLevel2.resourceId,
-          sumLevel2
-        )
-      )
-    );
-
-    if (workspace && workspace.usageThresholds[record.category]) {
-      const costLimit = workspace.usageThresholds[record.category]!.price;
-      const sumLevel2Cost = getCost(record.category, sumLevel2.usage);
-      const dropReason = this.getDropReasonFromCost(sumLevel2Cost, costLimit);
-      if (dropReason) {
-        this.dropRecord(ctx, reqData, record, dropReason, record.category);
-        return true;
-      }
-    }
-
-    return true;
-  };
-
   private dropRecord = async (
     ctx: IBaseContext,
     reqData: RequestData,
     record: IUsageRecord,
     dropReason: UsageRecordDropReason,
-    dropLabel: IUsageRecord['dropLabel'],
+    dropLabel: IUsageRecord['dropCategory'],
     dropMessage?: string
   ) => {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
     record.dropReason = dropReason;
-    record.dropLabel = dropLabel;
+    record.dropCategory = dropLabel;
     record.dropMessage = dropMessage;
     reqData.pushNamelessPendingPromise(
       fireAndForgetPromise(

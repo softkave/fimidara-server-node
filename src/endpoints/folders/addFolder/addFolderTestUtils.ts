@@ -1,4 +1,4 @@
-import faker = require('faker');
+import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,

@@ -33,7 +33,9 @@ export interface IWorkspace {
   billStatusAssignedAt: Date | string;
   billStatus: WorkspaceBillStatus;
   usageThresholds: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
-  usageThresholdLocks: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
+  usageThresholdLocks: Partial<
+    Record<UsageThresholdCategory, IUsageThresholdLock>
+  >;
 }
 
 export type IPublicWorkspace = Omit<IWorkspace, 'usageThresholdLocks'>;

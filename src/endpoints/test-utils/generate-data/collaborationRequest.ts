@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';

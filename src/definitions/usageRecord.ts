@@ -28,7 +28,7 @@ export interface IUsageRecordArtifact {
   artifact: any;
 }
 
-export enum UsageRecordSummationLevel {
+export enum UsageRecordSummationType {
   // individual usage records
   One = 1,
   // usage records grouped by billing period
@@ -67,11 +67,11 @@ export interface IUsageRecord {
   // usage is bytes for storage, bandwidth in, and bandwidth out
   usage: number;
   artifacts: IUsageRecordArtifact[];
-  summationLevel: UsageRecordSummationLevel;
+  summationType: UsageRecordSummationType;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
   dropReason?: UsageRecordDropReason;
   dropMessage?: string;
-  dropLabel?: UsageThresholdCategory;
+  dropCategory?: UsageThresholdCategory;
 }
 
 export type IPublicUsageRecord = IUsageRecord;
