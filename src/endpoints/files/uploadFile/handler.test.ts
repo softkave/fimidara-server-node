@@ -1,6 +1,12 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {assertContext, getTestBaseContext} from '../../test-utils/test-utils';
+import {
+  assertContext,
+  getTestBaseContext,
+  insertFileForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../test-utils/test-utils';
 import {
   IUploadFileEndpointParams,
   UploadFilePublicAccessActions,
@@ -19,6 +25,9 @@ import {
   uploadFileWithPublicAccessActionTest,
 } from './uploadFileTestUtils';
 import {getFileName} from '../utils';
+import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {UsageLimitExceeded} from '../../usageRecords/errors';
 
 /**
  * TODO:
@@ -192,6 +201,21 @@ describe('uploadFile', () => {
       context,
       insertWorkspaceResult.workspace,
       savedFile.resourceId
+    );
+  });
+
+  test('file not saved if storage usage is exceeded', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    // Update usage locks
+    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
+      UsageRecordCategory.Storage,
+    ]);
+    await expectErrorThrown(
+      async () =>
+        await insertFileForTest(context!, userToken, workspace.resourceId),
+      [UsageLimitExceeded.name]
     );
   });
 });

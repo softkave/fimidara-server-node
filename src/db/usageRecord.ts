@@ -24,14 +24,14 @@ const usageRecordSchema = ensureTypeFields<IUsageRecord>({
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},
-  summationLevel: {type: Number},
+  summationType: {type: Number},
   fulfillmentStatus: {
     type: Number,
     default: UsageRecordFulfillmentStatus.Undecided,
   },
   dropMessage: {type: String},
   dropReason: {type: String},
-  dropLabel: {type: String},
+  dropCategory: {type: String},
 });
 
 export type IUsageRecordDocument = Document<IUsageRecord>;
