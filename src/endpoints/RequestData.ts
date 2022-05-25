@@ -3,7 +3,7 @@ import {IUser} from '../definitions/user';
 import getNewId from '../utilities/getNewId';
 import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
-import {IRequestDataWork} from './types';
+import {IRequestDataPendingPromise} from './types';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
@@ -11,7 +11,7 @@ export interface IRequestContructorParams<T = any> {
   incomingTokenData?: IBaseTokenData | null;
   agent?: ISessionAgent | null;
   user?: IUser | null;
-  pendingWorks?: IRequestDataWork[];
+  pendingPromises?: IRequestDataPendingPromise[];
 }
 
 export default class RequestData<T = any> {
@@ -38,7 +38,7 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      pendingWorks: from.pendingWorks,
+      pendingPromises: from.pendingPromises,
     });
   }
 
@@ -49,7 +49,7 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      pendingWorks: from.pendingWorks.concat(to.pendingWorks),
+      pendingPromises: from.pendingPromises.concat(to.pendingPromises),
     });
   }
 
@@ -59,7 +59,7 @@ export default class RequestData<T = any> {
   public incomingTokenData?: IBaseTokenData | null;
   public user?: IUser | null;
   public agent?: ISessionAgent | null;
-  public pendingWorks: IRequestDataWork[] = [];
+  public pendingPromises: IRequestDataPendingPromise[] = [];
 
   public constructor(arg?: IRequestContructorParams<T>) {
     this.requestId = getNewId();
@@ -74,8 +74,8 @@ export default class RequestData<T = any> {
     this.agent = arg.agent;
     this.user = arg.user;
 
-    if (arg.pendingWorks) {
-      this.pendingWorks = arg.pendingWorks;
+    if (arg.pendingPromises) {
+      this.pendingPromises = arg.pendingPromises;
     }
   }
 
@@ -95,5 +95,16 @@ export default class RequestData<T = any> {
     }
 
     return null;
+  }
+
+  pushPendingPromise(pendingPromise: IRequestDataPendingPromise) {
+    this.pendingPromises.push(pendingPromise);
+  }
+
+  pushNamelessPendingPromise(pendingPromise: Promise<any>) {
+    this.pendingPromises.push({
+      promise: pendingPromise,
+      id: Date.now(),
+    });
   }
 }

@@ -4,8 +4,8 @@ import {
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
-  getLoginSectionHTML,
-  getLoginSectionText,
+  getAccountAccessSectionHTML,
+  getAccountAccessSectionText,
 } from './helpers';
 import {IBaseEmailTemplateProps} from './types';
 
@@ -38,7 +38,7 @@ export function collaborationRequestRevokedEmailHTML(
     ${props.workspaceName}</b> has been revoked.
   </p>
   `)}
-  ${getLoginSectionHTML(props)}
+  ${getAccountAccessSectionHTML(props)}
   ${getFooterHTML()}
 </body>
 </html>
@@ -55,7 +55,7 @@ ${getHeaderText(title)}
 This is to notify you that the collaboration request sent from ${
     props.workspaceName
   } has been revoked.
-${getLoginSectionText(props)}
+${getAccountAccessSectionText(props)}
 `;
 
   return txt;

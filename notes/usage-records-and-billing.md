@@ -29,6 +29,13 @@ We want to be able to track usage records, so that we can display usage statisti
  * - Add the workspace Stripe accounts to the subscription model.
  * - Client-side visualizations of usage records.
  * - Client-side setting of usage thresholds.
+ *
+ * - workspace lock by usage label
+ * - reached vs exceeded, and exceeded by what count?
+ * - send email of usage dropped and why
+ * - usage check short circuit
+ * - sum up dropped usage records
+ * - don't save upper sum levels if usage is dropped
  */
 
 /**

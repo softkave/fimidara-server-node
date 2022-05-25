@@ -1,26 +1,24 @@
 import {IAgent} from './system';
-import {UsageRecordLabel} from './usageRecord';
+import {UsageThresholdCategory} from './usageRecord';
 
-export interface IUsageThresholdByLabel {
+export interface IUsageThreshold {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
-  label: UsageRecordLabel;
-  usage?: number;
-  price?: number;
-  pricePerUnit: number;
+  category: UsageThresholdCategory;
+  price: number; // price in USD
 }
 
-export interface ITotalUsageThreshold {
+export interface IUsageThresholdLock {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
-  price: number;
+  category: UsageThresholdCategory;
+  locked: boolean;
 }
 
-export enum WorkspaceUsageStatus {
-  Normal = 0,
-  UsageExceeded = 1,
+export enum WorkspaceBillStatus {
+  Ok = 0,
   GracePeriod = 2,
-  Locked = 3,
+  BillOverdue = 3,
 }
 
 export interface IWorkspace {
@@ -32,10 +30,10 @@ export interface IWorkspace {
   name: string;
   description?: string;
   publicPresetId?: string;
-  usageStatusAssignedAt?: Date | string;
-  usageStatus: WorkspaceUsageStatus;
-  totalUsageThreshold?: ITotalUsageThreshold;
-  usageThresholds: IUsageThresholdByLabel[];
+  billStatusAssignedAt: Date | string;
+  billStatus: WorkspaceBillStatus;
+  usageThresholds: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
+  usageThresholdLocks: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
 }
 
 export type IPublicWorkspace = IWorkspace;

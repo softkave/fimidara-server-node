@@ -1,10 +1,20 @@
-import {UsageRecordLabel} from '../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../definitions/usageRecord';
 
-// TODO: fill in
+// price is in USD
 export const usageCosts = {
-  [UsageRecordLabel.Storage]: 0,
-  [UsageRecordLabel.BandwidthIn]: 0,
-  [UsageRecordLabel.BandwidthOut]: 0,
-  [UsageRecordLabel.Request]: 0,
-  [UsageRecordLabel.DatabaseObject]: 0,
+  [UsageRecordCategory.Storage]: 0.046,
+  [UsageRecordCategory.BandwidthIn]: 0.18,
+  [UsageRecordCategory.BandwidthOut]: 0.27,
+  [UsageRecordCategory.Request]: 0.053,
+  [UsageRecordCategory.DatabaseObject]: 0.0005,
 };
+
+export const getCost = (label: UsageRecordCategory, usage: number) => {
+  const costPerUnit = usageCosts[label];
+  return costPerUnit ? costPerUnit * usage : 0;
+};
+
+export function getUsageForCost(label: UsageRecordCategory, cost: number) {
+  const costPerUnit = usageCosts[label];
+  return costPerUnit ? cost / costPerUnit : 0;
+}

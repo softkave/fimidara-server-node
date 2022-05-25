@@ -1,4 +1,4 @@
-import {UsageRecordLabel} from '../../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IPublicWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
@@ -8,7 +8,7 @@ export interface INewWorkspaceInput {
   description?: string;
   totalUsageThreshold?: {price: number};
   usageThresholds?: Array<{
-    label: UsageRecordLabel;
+    label: UsageRecordCategory;
     usage?: number;
     price?: number;
   }>;

@@ -87,3 +87,7 @@ export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
 export function objectHasData(data: AnyObject) {
   return Object.keys(data).length > 0;
 }
+
+export function waitTimeout(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

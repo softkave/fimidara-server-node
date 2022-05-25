@@ -2,9 +2,9 @@ import {IAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
   ITotalUsageThreshold,
-  IUsageThresholdByLabel,
+  IUsageThreshold,
   IWorkspace,
-  WorkspaceUsageStatus,
+  WorkspaceBillStatus,
 } from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
@@ -27,7 +27,7 @@ const internalCreateWorkspace = async (
   await checkWorkspaceNameExists(context, data.name);
   const createdAt = getDateString();
   let totalUsageThreshold: ITotalUsageThreshold | undefined = undefined;
-  let usageThresholdList: IUsageThresholdByLabel[] = [];
+  let usageThresholdList: IUsageThreshold[] = [];
 
   if (data.totalUsageThreshold) {
     totalUsageThreshold = {
@@ -38,6 +38,8 @@ const internalCreateWorkspace = async (
   }
 
   if (data.usageThresholds) {
+    // TODO: validate that price or usage exists
+    // TODO: do same and update in updateWorkspace endpoint
     usageThresholdList = data.usageThresholds.map(threshold => ({
       ...threshold,
       lastUpdatedAt: createdAt,
@@ -57,8 +59,8 @@ const internalCreateWorkspace = async (
       name: data.name,
       resourceId: getNewId(),
       description: data.description,
-      usageStatus: WorkspaceUsageStatus.Normal,
-      usageStatusAssignedAt: createdAt,
+      billStatus: WorkspaceBillStatus.Ok,
+      billStatusAssignedAt: createdAt,
     });
 
   const {adminPreset, publicPreset} = await setupDefaultWorkspacePresets(
