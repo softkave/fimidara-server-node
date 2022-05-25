@@ -31,7 +31,6 @@ test('workspace created', async () => {
   };
 
   const result = await insertWorkspaceForTest(context, userToken, companyInput);
-
   expect(result.workspace).toMatchObject(companyInput);
   expect(result.workspace.publicPresetId).toBeTruthy();
   const workspace = await context.cacheProviders.workspace.getById(

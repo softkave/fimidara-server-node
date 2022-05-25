@@ -4,6 +4,40 @@ import {IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
+import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
+import {costConstants} from '../../usageRecords/costs';
+
+export function generateUsageThresholdMap(
+  threshold = costConstants.defaultTotalThresholdInUSD
+): Required<INewWorkspaceInput>['usageThresholds'] {
+  return {
+    [UsageRecordCategory.Storage]: {
+      category: UsageRecordCategory.Storage,
+      price: threshold,
+    },
+    [UsageRecordCategory.Request]: {
+      category: UsageRecordCategory.Request,
+      price: threshold,
+    },
+    [UsageRecordCategory.BandwidthIn]: {
+      category: UsageRecordCategory.BandwidthIn,
+      price: threshold,
+    },
+    [UsageRecordCategory.BandwidthOut]: {
+      category: UsageRecordCategory.BandwidthOut,
+      price: threshold,
+    },
+    [UsageRecordCategory.DatabaseObject]: {
+      category: UsageRecordCategory.DatabaseObject,
+      price: threshold,
+    },
+    ['total']: {
+      category: 'total',
+      price: threshold * Object.keys(UsageRecordCategory).length,
+    },
+  };
+}
 
 export function generateWorkspace() {
   const createdAt = getDateString();
@@ -21,47 +55,12 @@ export function generateWorkspace() {
     resourceId: getNewId(),
     name: faker.lorem.word(),
     description: faker.lorem.sentence(),
-    publicPresetId: getNewId(),
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
-    usageThresholds: {
-      [UsageRecordCategory.Storage]: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: UsageRecordCategory.Storage,
-        price: threshold,
-      },
-      [UsageRecordCategory.Request]: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: UsageRecordCategory.Request,
-        price: threshold,
-      },
-      [UsageRecordCategory.BandwidthIn]: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: UsageRecordCategory.BandwidthIn,
-        price: threshold,
-      },
-      [UsageRecordCategory.BandwidthOut]: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: UsageRecordCategory.BandwidthOut,
-        price: threshold,
-      },
-      [UsageRecordCategory.DatabaseObject]: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: UsageRecordCategory.DatabaseObject,
-        price: threshold,
-      },
-      ['total']: {
-        lastUpdatedBy: createdBy,
-        lastUpdatedAt: createdAt,
-        category: 'total',
-        price: threshold * 4,
-      },
-    },
+    usageThresholds: transformUsageThresholInput(
+      createdBy,
+      generateUsageThresholdMap()
+    ),
     usageThresholdLocks: {},
   };
 

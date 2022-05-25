@@ -1,7 +1,10 @@
+import {omit} from 'lodash';
 import {BasicCRUDActions} from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {transformUsageThresholInput} from '../addWorkspace/internalCreateWorkspace';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {
   assertWorkspace,
@@ -26,17 +29,26 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     await checkWorkspaceNameExists(context, data.workspace.name);
   }
 
+  const update: Partial<IWorkspace> = {
+    ...omit(data.workspace, ['usageThresholds']),
+    lastUpdatedAt: getDateString(),
+    lastUpdatedBy: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+    },
+  };
+
+  if (data.workspace.usageThresholds) {
+    update.usageThresholds = transformUsageThresholInput(
+      agent,
+      data.workspace.usageThresholds
+    );
+  }
+
   const updatedWorkspace = await context.cacheProviders.workspace.updateById(
     context,
     workspace.resourceId,
-    {
-      ...data.workspace,
-      lastUpdatedAt: getDateString(),
-      lastUpdatedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-    }
+    update
   );
 
   assertWorkspace(updatedWorkspace);

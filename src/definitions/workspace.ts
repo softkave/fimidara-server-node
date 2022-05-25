@@ -36,4 +36,4 @@ export interface IWorkspace {
   usageThresholdLocks: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
 }
 
-export type IPublicWorkspace = IWorkspace;
+export type IPublicWorkspace = Omit<IWorkspace, 'usageThresholdLocks'>;

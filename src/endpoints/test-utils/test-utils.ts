@@ -76,6 +76,7 @@ import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
+import {generateUsageThresholdMap} from './generate-data/workspace';
 
 async function getTestDataProvider(appVariables: ITestVariables) {
   if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
@@ -269,6 +270,7 @@ export async function insertWorkspaceForTest(
     {
       name: faker.company.companyName(),
       description: faker.company.catchPhraseDescriptor(),
+      usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,
     }
   );

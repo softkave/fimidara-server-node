@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
+import {generateUsageThresholdMap} from '../../test-utils/generate-data/workspace';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -29,6 +30,7 @@ test('workspace updated', async () => {
   const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
     name: faker.company.companyName(),
     description: faker.company.catchPhraseDescriptor(),
+    usageThresholds: generateUsageThresholdMap(500),
   };
   const instData =
     RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
