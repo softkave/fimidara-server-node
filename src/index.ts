@@ -6,7 +6,12 @@ import * as multer from 'multer';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {getMongoConnection} from './db/connection';
-import BaseContext, {IBaseContext} from './endpoints/contexts/BaseContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+  IBaseContext,
+} from './endpoints/contexts/BaseContext';
 import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
@@ -80,7 +85,10 @@ async function setup() {
     mongoDBDataProvider,
     emailProvider,
     fileProvider,
-    appVariables
+    appVariables,
+    getDataProviders(connection),
+    getCacheProviders(),
+    getLogicProviders()
   );
 
   const defaultWorkspace = await setupApp(ctx);
