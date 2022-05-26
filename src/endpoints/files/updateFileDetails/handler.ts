@@ -10,7 +10,7 @@ import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
-import EndpointReusableQueries from '../../queries';
+import {assertWorkspace} from '../../workspaces/utils';
 import FileQueries from '../queries';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
 import {
@@ -58,9 +58,11 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     );
   }
 
-  const workspace = await context.data.workspace.assertGetItem(
-    EndpointReusableQueries.getById(file.workspaceId)
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    file.workspaceId
   );
+  assertWorkspace(workspace);
 
   if (data.file.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(

@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {IWorkspace} from '../../../../definitions/workspace';
 import {SessionAgentType} from '../../../../definitions/system';

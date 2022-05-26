@@ -1,3 +1,4 @@
+import {Connection} from 'mongoose';
 import {IAppVariables} from '../../resources/appVariables';
 import {getSessionContext, ISessionContext} from './SessionContext';
 import {IFolder} from '../../definitions/folder';
@@ -16,6 +17,19 @@ import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext'
 import {IAppRuntimeState} from '../../definitions/system';
 import {ITag} from '../../definitions/tag';
 import {IAssignedItem} from '../../definitions/assignedItem';
+import {
+  IWorkspaceDataProvider,
+  WorkspaceMongoDataProvider,
+} from './data-providers/WorkspaceDataProvider';
+import {
+  IWorkspaceCacheProvider,
+  WorkspaceCacheProvider,
+} from './data-providers/WorkspaceCacheProvider';
+import {
+  IUsageRecordDataProvider,
+  UsageRecordMongoDataProvider,
+} from './data-providers/UsageRecordDataProvider';
+import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -44,6 +58,22 @@ export interface IBaseContext<
   data: T;
   email: E;
   fileBackend: F;
+
+  dataProviders: {
+    workspace: IWorkspaceDataProvider;
+    usageRecord: IUsageRecordDataProvider;
+  };
+
+  cacheProviders: {
+    workspace: IWorkspaceCacheProvider;
+  };
+
+  logicProviders: {
+    usageRecord: UsageRecordLogicProvider;
+  };
+
+  init: () => Promise<void>;
+  dispose: () => Promise<void>;
 }
 
 export default class BaseContext<
@@ -57,13 +87,56 @@ export default class BaseContext<
   public email: E;
   public fileBackend: F;
   public appVariables: V;
+  public dataProviders: IBaseContext['dataProviders'];
+  public cacheProviders: IBaseContext['cacheProviders'];
+  public logicProviders: IBaseContext['logicProviders'];
 
   public session: ISessionContext = getSessionContext();
 
-  constructor(data: T, emailProvider: E, fileBackend: F, appVariables: V) {
+  constructor(
+    data: T,
+    emailProvider: E,
+    fileBackend: F,
+    appVariables: V,
+    dataProviders: IBaseContext['dataProviders'],
+    cacheProviders: IBaseContext['cacheProviders'],
+    logicProviders: IBaseContext['logicProviders']
+  ) {
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
     this.appVariables = appVariables;
+    this.dataProviders = dataProviders;
+    this.cacheProviders = cacheProviders;
+    this.logicProviders = logicProviders;
   }
+
+  public init = async () => {
+    await this.cacheProviders.workspace.init(this);
+  };
+
+  public dispose = async () => {
+    this.cacheProviders.workspace.dispose();
+  };
+}
+
+export function getDataProviders(
+  connection: Connection
+): IBaseContext['dataProviders'] {
+  return {
+    usageRecord: new UsageRecordMongoDataProvider(connection),
+    workspace: new WorkspaceMongoDataProvider(connection),
+  };
+}
+
+export function getCacheProviders(): IBaseContext['cacheProviders'] {
+  return {
+    workspace: new WorkspaceCacheProvider(),
+  };
+}
+
+export function getLogicProviders(): IBaseContext['logicProviders'] {
+  return {
+    usageRecord: new UsageRecordLogicProvider(),
+  };
 }

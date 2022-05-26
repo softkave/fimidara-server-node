@@ -8,7 +8,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import WorkspaceQueries from '../queries';
+import {assertWorkspace} from '../utils';
 import deleteWorkspace from './handler';
 import {IDeleteWorkspaceParams} from './types';
 
@@ -40,9 +40,10 @@ test('workspace deleted', async () => {
 
   const result = await deleteWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.data.workspace.getItem(
-    WorkspaceQueries.getById(workspace.resourceId)
+  const savedWorkspace = await context.cacheProviders.workspace.getById(
+    context,
+    workspace.resourceId
   );
-
+  assertWorkspace(savedWorkspace);
   expect(savedWorkspace).toBeFalsy();
 });

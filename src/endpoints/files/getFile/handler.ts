@@ -9,6 +9,10 @@ import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
 import {NotFoundError} from '../../errors';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
+
+// TODO: implement accept ranges, cache control, etags, etc.
+// see aws s3 sdk getObject function
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
@@ -25,9 +29,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  // TODO: implement accept ranges, cache control, etags, etc.
-  // see aws s3 sdk getObject function
-
+  await insertBandwidthOutUsageRecordInput(context, instData, file);
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,
     key: file.resourceId,

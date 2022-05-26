@@ -1,8 +1,9 @@
 import {ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
+import getNewId from '../utilities/getNewId';
 import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
-import {IRequestDataWork} from './types';
+import {IRequestDataPendingPromise} from './types';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
@@ -10,7 +11,7 @@ export interface IRequestContructorParams<T = any> {
   incomingTokenData?: IBaseTokenData | null;
   agent?: ISessionAgent | null;
   user?: IUser | null;
-  works?: IRequestDataWork[];
+  pendingPromises?: IRequestDataPendingPromise[];
 }
 
 export default class RequestData<T = any> {
@@ -37,7 +38,7 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      works: from.works,
+      pendingPromises: from.pendingPromises,
     });
   }
 
@@ -48,18 +49,21 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      works: from.works.concat(to.works),
+      pendingPromises: from.pendingPromises.concat(to.pendingPromises),
     });
   }
 
+  public requestId: string;
   public req?: IServerRequest | null;
   public data?: T;
   public incomingTokenData?: IBaseTokenData | null;
   public user?: IUser | null;
   public agent?: ISessionAgent | null;
-  public works: IRequestDataWork[] = [];
+  public pendingPromises: IRequestDataPendingPromise[] = [];
 
   public constructor(arg?: IRequestContructorParams<T>) {
+    this.requestId = getNewId();
+
     if (!arg) {
       return;
     }
@@ -70,8 +74,8 @@ export default class RequestData<T = any> {
     this.agent = arg.agent;
     this.user = arg.user;
 
-    if (arg.works) {
-      this.works = arg.works;
+    if (arg.pendingPromises) {
+      this.pendingPromises = arg.pendingPromises;
     }
   }
 
@@ -91,5 +95,16 @@ export default class RequestData<T = any> {
     }
 
     return null;
+  }
+
+  pushPendingPromise(pendingPromise: IRequestDataPendingPromise) {
+    this.pendingPromises.push(pendingPromise);
+  }
+
+  pushNamelessPendingPromise(pendingPromise: Promise<any>) {
+    this.pendingPromises.push({
+      promise: pendingPromise,
+      id: Date.now(),
+    });
   }
 }

@@ -64,7 +64,7 @@ const signup: SignupEndpoint = async (context, instData) => {
     merge(user, {workspaces: []})
   );
 
-  instData.works.push({
+  instData.pendingPromises.push({
     id: 'callComfirmEmail',
     promise: fireAndForgetPromise(callComfirmEmail(context, instData)),
   });

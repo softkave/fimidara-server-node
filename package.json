@@ -14,8 +14,8 @@
     "npm": "8.x"
   },
   "scripts": {
-    "test": "env-cmd -f \".env.test\" jest --config=jest.config.test.ts --detectOpenHandles",
-    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
+    "test": "env-cmd -f \".env.test\" jest --config=jest/jest.config.test.ts --detectOpenHandles",
+    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest/jest.config.integration-test.ts --detectOpenHandles",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -24,7 +24,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/compiled-code/email-templates/index.js"
+    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/build/email-templates/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",
@@ -42,10 +42,12 @@
     "multer": "^1.4.4",
     "nanoid": "^3.1.20",
     "sharp": "^0.27.0",
+    "stripe": "^8.222.0",
     "validator": "^13.5.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.1.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.9",
     "@types/express-jwt": "^6.0.0",
@@ -54,11 +56,10 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/lodash": "^4.14.165",
     "@types/multer": "^1.4.5",
-    "@types/node": "^16.11.25",
+    "@types/node": "^16.11.36",
     "@types/sharp": "^0.26.1",
     "@types/validator": "^13.1.2",
     "env-cmd": "^10.1.0",
-    "faker": "^5.5.3",
     "gts": "^3.1.0",
     "jest": "^27.4.5",
     "ts-jest": "^27.1.2",

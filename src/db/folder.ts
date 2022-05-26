@@ -25,13 +25,9 @@ const modelName = 'folder';
 const collectionName = 'folders';
 
 export function getFolderDatabaseModel(connection: Connection) {
-  const model = connection.model<IFolderDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<IFolder>(modelName, schema, collectionName);
 
   return model;
 }
 
-export type IFolderDatabaseModel = Model<IFolderDocument>;
+export type IFolderDatabaseModel = Model<IFolder>;

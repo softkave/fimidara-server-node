@@ -45,7 +45,7 @@ test('email verification code sent', async () => {
     /**skipAutoVerifyEmail */ true
   );
 
-  await waitForWorks(insertUserReqData.works);
+  await waitForWorks(insertUserReqData.pendingPromises);
   const instData = RequestData.fromExpressRequest(
     mockExpressRequestWithUserToken(userToken)
   );

@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import FileQueries from '../../files/queries';
 import RequestData from '../../RequestData';

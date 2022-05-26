@@ -29,7 +29,7 @@ export class RateLimitError extends OperationError {
 
 export class ExpiredError extends OperationError {
   public name = 'ExpiredError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  public statusCode = endpointConstants.httpStatusCode.forbidden;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);

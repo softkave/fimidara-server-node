@@ -17,8 +17,8 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
-import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
+import {assertWorkspace} from '../../workspaces/utils';
 import FolderQueries from '../queries';
 import {
   checkFolderAuthorization02,
@@ -40,9 +40,11 @@ const listFolderContent: ListFolderContentEndpoint = async (
   );
 
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await context.data.workspace.assertGetItem(
-    EndpointReusableQueries.getById(workspaceId)
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    workspaceId
   );
+  assertWorkspace(workspace);
 
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];

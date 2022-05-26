@@ -24,14 +24,9 @@ const schema = new Schema<IUser>(userSchema);
 const modelName = 'user';
 const collectionName = 'users';
 
-export function getUserModel(connection: Connection): Model<IUserDocument> {
-  const model = connection.model<IUserDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+export function getUserModel(connection: Connection) {
+  const model = connection.model<IUser>(modelName, schema, collectionName);
   return model;
 }
 
-export type IUserModel = Model<IUserDocument>;
+export type IUserModel = Model<IUser>;

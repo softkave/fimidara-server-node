@@ -1,7 +1,51 @@
-import {Connection, Document, Model, Schema} from 'mongoose';
-import {IWorkspace} from '../definitions/workspace';
+import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {
+  UsageRecordCategory,
+  UsageThresholdCategory,
+} from '../definitions/usageRecord';
+import {
+  IUsageThreshold,
+  IUsageThresholdLock,
+  IWorkspace,
+} from '../definitions/workspace';
 import {getDate} from '../utilities/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
+
+const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
+  lastUpdatedBy: {type: agentSchema},
+  lastUpdatedAt: {type: Date, default: getDate},
+  category: {type: String},
+  price: {type: Number},
+});
+
+const usageThresholdMapSchema = ensureTypeFields<
+  Record<UsageThresholdCategory, IUsageThreshold>
+>({
+  [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
+  [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+  [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
+  [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
+  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
+  ['total']: {type: usageThresholdSchema},
+});
+
+const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
+  lastUpdatedBy: {type: agentSchema},
+  lastUpdatedAt: {type: Date, default: getDate},
+  category: {type: String},
+  locked: {type: Boolean},
+});
+
+const usageThresholdLockMapSchema = ensureTypeFields<
+  Record<UsageThresholdCategory, IUsageThreshold>
+>({
+  [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
+  [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
+  [UsageRecordCategory.BandwidthIn]: {type: usageThresholdLockSchema},
+  [UsageRecordCategory.BandwidthOut]: {type: usageThresholdLockSchema},
+  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
+  ['total']: {type: usageThresholdLockSchema},
+});
 
 const workspaceSchema = ensureTypeFields<IWorkspace>({
   resourceId: {type: String, unique: true, index: true},
@@ -12,6 +56,18 @@ const workspaceSchema = ensureTypeFields<IWorkspace>({
   lastUpdatedAt: {type: Date},
   description: {type: String},
   publicPresetId: {type: String},
+  billStatusAssignedAt: {type: Date},
+  billStatus: {type: Number},
+  usageThresholds: {
+    type: usageThresholdMapSchema,
+    default: {},
+    // of: new Schema<IUsageThreshold>(usageThresholdSchema),
+  },
+  usageThresholdLocks: {
+    type: usageThresholdLockMapSchema,
+    default: {},
+    // of: new Schema<IUsageThreshold>(usageThresholdLockSchema),
+  },
 });
 
 export type IWorkspaceDocument = Document<IWorkspace>;
@@ -21,13 +77,8 @@ const modelName = 'workspace';
 const collectionName = 'workspaces';
 
 export function getWorkspaceModel(connection: Connection) {
-  const model = connection.model<IWorkspaceDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+  const model = connection.model<IWorkspace>(modelName, schema, collectionName);
   return model;
 }
 
-export type IWorkspaceModel = Model<IWorkspaceDocument>;
+export type IWorkspaceModel = Model<IWorkspace>;

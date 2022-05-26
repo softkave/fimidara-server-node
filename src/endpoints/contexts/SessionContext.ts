@@ -5,6 +5,7 @@ import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
   AppResourceType,
+  IAgent,
   ISessionAgent,
   publicAgent,
   SessionAgentType,
@@ -432,4 +433,15 @@ export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
   }
 
   return workspaceId;
+}
+
+export function getActionAgentFromSessionAgent(
+  sessionAgent: ISessionAgent
+): IAgent {
+  const agent = {
+    agentId: sessionAgent.agentId,
+    agentType: sessionAgent.agentType,
+  };
+
+  return agent;
 }

@@ -80,7 +80,7 @@ export function getDoNotReplyHTML() {
   );
 }
 
-export function getLoginSectionHTML(props: IBaseEmailTemplateProps) {
+export function getAccountAccessSectionHTML(props: IBaseEmailTemplateProps) {
   return `
 <div class="${emailTemplateConstants.classNamePrefix}-body">
   <div class="${emailTemplateConstants.classNamePrefix}-content-center">
@@ -91,10 +91,30 @@ export function getLoginSectionHTML(props: IBaseEmailTemplateProps) {
     `;
 }
 
-export function getLoginSectionText(props: IBaseEmailTemplateProps) {
+export function getAccountAccessSectionText(props: IBaseEmailTemplateProps) {
   return `-
 Login to your account here - ${props.loginLink} - OR -
 Signup here - ${props.signupLink}
+`;
+}
+
+export function getLoginSectionHTML(
+  props: Pick<IBaseEmailTemplateProps, 'loginLink'>
+) {
+  return `
+<div class="${emailTemplateConstants.classNamePrefix}-body">
+  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+    <a href="${props.loginLink}">Login to your account here</a>
+  </div>
+</div>
+    `;
+}
+
+export function getLoginSectionText(
+  props: Pick<IBaseEmailTemplateProps, 'loginLink'>
+) {
+  return `-
+Login to your account here - ${props.loginLink}
 `;
 }
 

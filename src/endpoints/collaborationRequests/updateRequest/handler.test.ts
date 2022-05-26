@@ -1,5 +1,5 @@
 import {add} from 'date-fns';
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
