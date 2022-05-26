@@ -1,4 +1,4 @@
-import faker = require('faker');
+import {faker} from '@faker-js/faker';
 import assert = require('assert');
 import {IFile} from '../../../definitions/file';
 import {IWorkspace} from '../../../definitions/workspace';
@@ -146,7 +146,7 @@ export async function assertPublicAccessOps(
 
 export async function assertPublicPermissionsDonotExistForOwner(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'publicPresetId'>,
   ownerId: string
 ) {
   assert(workspace.publicPresetId);

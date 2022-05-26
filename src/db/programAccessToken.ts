@@ -22,7 +22,7 @@ const modelName = 'program-access-token';
 const collectionName = 'program-access-tokens';
 
 export function getProgramAccessTokenModel(connection: Connection) {
-  const model = connection.model<IProgramAccessTokenDocument>(
+  const model = connection.model<IProgramAccessToken>(
     modelName,
     schema,
     collectionName
@@ -31,4 +31,4 @@ export function getProgramAccessTokenModel(connection: Connection) {
   return model;
 }
 
-export type IProgramAccessTokenModel = Model<IProgramAccessTokenDocument>;
+export type IProgramAccessTokenModel = Model<IProgramAccessToken>;

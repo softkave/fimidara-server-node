@@ -1,4 +1,4 @@
-import faker = require('faker');
+import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,

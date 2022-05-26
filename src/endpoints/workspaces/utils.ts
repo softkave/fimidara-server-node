@@ -1,18 +1,51 @@
-import {IWorkspace, IPublicWorkspace} from '../../definitions/workspace';
+import {
+  IWorkspace,
+  IPublicWorkspace,
+  IUsageThreshold,
+} from '../../definitions/workspace';
 import {
   ISessionAgent,
   BasicCRUDActions,
   AppResourceType,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {
+  getFields,
+  makeExtract,
+  makeListExtract,
+  makeExtractIfPresent,
+} from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import WorkspaceQueries from './queries';
+import {
+  UsageRecordCategory,
+  UsageThresholdCategory,
+} from '../../definitions/usageRecord';
 
+const usageThresholdSchema = getFields<IUsageThreshold>({
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: getDateString,
+  category: true,
+  price: true,
+});
+
+const usageThresholdIfExistExtractor =
+  makeExtractIfPresent(usageThresholdSchema);
+const usageThresholdMapSchema = getFields<
+  Partial<Record<UsageThresholdCategory, IUsageThreshold>>
+>({
+  [UsageRecordCategory.Storage]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.BandwidthIn]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.BandwidthOut]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.Request]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.DatabaseObject]: usageThresholdIfExistExtractor,
+  ['total']: usageThresholdIfExistExtractor,
+});
+
+const usageThresholdMapExtractor = makeExtract(usageThresholdMapSchema);
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
   createdBy: agentExtractor,
@@ -22,6 +55,9 @@ const workspaceFields = getFields<IPublicWorkspace>({
   name: true,
   description: true,
   publicPresetId: true,
+  billStatus: true,
+  usageThresholds: usageThresholdMapExtractor,
+  billStatusAssignedAt: getDateString,
 });
 
 export const workspaceExtractor = makeExtract(workspaceFields);
@@ -31,13 +67,21 @@ export function throwWorkspaceNotFound() {
   throw new NotFoundError('Workspace not found');
 }
 
+export function assertWorkspace(
+  workspace: IWorkspace | null | undefined
+): asserts workspace {
+  if (!workspace) {
+    throwWorkspaceNotFound();
+  }
+}
+
 export async function checkWorkspaceExists(
   ctx: IBaseContext,
   workspaceId: string
 ) {
-  return await ctx.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(workspaceId)
-  );
+  const w = await ctx.cacheProviders.workspace.getById(ctx, workspaceId);
+  assertWorkspace(w);
+  return w;
 }
 
 export async function checkWorkspaceExistsWithAgent(
@@ -49,9 +93,7 @@ export async function checkWorkspaceExistsWithAgent(
     workspaceId = getWorkspaceId(agent, workspaceId);
   }
 
-  return await ctx.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(workspaceId)
-  );
+  return checkWorkspaceExists(ctx, workspaceId);
 }
 
 export async function checkWorkspaceAuthorization(
@@ -91,10 +133,7 @@ export async function checkWorkspaceAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const workspace = await context.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(id)
-  );
-
+  const workspace = await checkWorkspaceExists(context, id);
   return checkWorkspaceAuthorization(
     context,
     agent,

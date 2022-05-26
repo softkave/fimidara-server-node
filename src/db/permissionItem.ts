@@ -27,7 +27,7 @@ const modelName = 'permission-item';
 const collectionName = 'permission-items';
 
 export function getPermissionItemModel(connection: Connection) {
-  const model = connection.model<IPermissionItemDocument>(
+  const model = connection.model<IPermissionItem>(
     modelName,
     schema,
     collectionName
@@ -36,4 +36,4 @@ export function getPermissionItemModel(connection: Connection) {
   return model;
 }
 
-export type IPermissionItemModel = Model<IPermissionItemDocument>;
+export type IPermissionItemModel = Model<IPermissionItem>;

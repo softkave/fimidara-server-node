@@ -25,7 +25,7 @@ const modelName = 'client-assigned-token';
 const collectionName = 'client-assigned-tokens';
 
 export function getClientAssignedTokenModel(connection: Connection) {
-  const model = connection.model<IClientAssignedTokenDocument>(
+  const model = connection.model<IClientAssignedToken>(
     modelName,
     schema,
     collectionName
@@ -34,4 +34,4 @@ export function getClientAssignedTokenModel(connection: Connection) {
   return model;
 }
 
-export type IClientAssignedTokenModel = Model<IClientAssignedTokenDocument>;
+export type IClientAssignedTokenModel = Model<IClientAssignedToken>;

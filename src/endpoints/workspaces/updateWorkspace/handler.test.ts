@@ -1,6 +1,7 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
+import {generateUsageThresholdMap} from '../../test-utils/generate-data/workspace';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -9,7 +10,6 @@ import {
   insertUserForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import WorkspaceQueries from '../queries';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceInput, IUpdateWorkspaceEndpointParams} from './types';
 
@@ -30,6 +30,7 @@ test('workspace updated', async () => {
   const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
     name: faker.company.companyName(),
     description: faker.company.catchPhraseDescriptor(),
+    usageThresholds: generateUsageThresholdMap(500),
   };
   const instData =
     RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
@@ -43,9 +44,9 @@ test('workspace updated', async () => {
   const result = await updateWorkspace(context, instData);
   assertEndpointResultOk(result);
   expect(result.workspace).toMatchObject(workspaceUpdateInput);
-
-  const updatedWorkspace = await context.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(workspace.resourceId)
+  const updatedWorkspace = await context.cacheProviders.workspace.getById(
+    context,
+    workspace.resourceId
   );
   expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);
 });

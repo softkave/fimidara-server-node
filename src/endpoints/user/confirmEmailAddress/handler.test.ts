@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';

@@ -1,5 +1,9 @@
 import {getMongoConnection} from '../src/db/connection';
-import BaseContext from '../src/endpoints/contexts/BaseContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+} from '../src/endpoints/contexts/BaseContext';
 import {S3FilePersistenceProviderContext} from '../src/endpoints/contexts/FilePersistenceProviderContext';
 import MongoDBDataProviderContext from '../src/endpoints/contexts/MongoDBDataProviderContext';
 import {setupApp} from '../src/endpoints/runtime/initAppSetup';
@@ -17,7 +21,10 @@ async function integrationTestGlobalSetup() {
     new MongoDBDataProviderContext(connection),
     new NoopEmailProviderContext(),
     new S3FilePersistenceProviderContext(appVariables.awsRegion),
-    appVariables
+    appVariables,
+    getDataProviders(connection),
+    getCacheProviders(),
+    getLogicProviders()
   );
 
   await setupApp(ctx);

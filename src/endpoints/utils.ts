@@ -15,7 +15,7 @@ import {IBaseContext} from './contexts/BaseContext';
 import {IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import RequestData from './RequestData';
-import {Endpoint, IPublicAgent, IRequestDataWork} from './types';
+import {Endpoint, IPublicAgent, IRequestDataPendingPromise} from './types';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError)
@@ -116,7 +116,7 @@ export const publicAccessOpExtractorIfPresent =
 export const publicAccessOpListExtractor =
   makeListExtract(publicAccessOpFields);
 
-export async function waitForWorks(works: IRequestDataWork[]) {
+export async function waitForWorks(works: IRequestDataPendingPromise[]) {
   await Promise.all(
     works.map(item => {
       return item.promise;

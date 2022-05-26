@@ -10,7 +10,6 @@ import {getDate, getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
 import {IBaseContext} from '../contexts/BaseContext';
 import EndpointReusableQueries from '../queries';
-import WorkspaceQueries from '../workspaces/queries';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {
   IPermissionItem,
@@ -21,6 +20,7 @@ import {merge} from 'lodash';
 import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {permissionItemIndexer} from '../permissionItems/utils';
 import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
+import {assertWorkspace} from '../workspaces/utils';
 
 const folder01Path = '/files';
 const folder02Path = '/files/images';
@@ -190,9 +190,12 @@ export async function setupApp(context: IBaseContext) {
     };
 
     merge(context.appVariables, appRuntimeVars);
-    return await context.data.workspace.assertGetItem(
-      WorkspaceQueries.getById(appRuntimeState.appWorkspaceId)
+    const workspace = await context.cacheProviders.workspace.getById(
+      context,
+      appRuntimeState.appWorkspaceId
     );
+    assertWorkspace(workspace);
+    return workspace;
   }
 
   const {adminPreset, workspace: workspace} = await setupWorkspace(

@@ -1,10 +1,17 @@
-import {IPublicWorkspace} from '../../../definitions/workspace';
+import {UsageThresholdCategory} from '../../../definitions/usageRecord';
+import {
+  IPublicWorkspace,
+  IUsageThreshold,
+} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface INewWorkspaceInput {
   name: string;
   description?: string;
+  usageThresholds?: Partial<
+    Record<UsageThresholdCategory, Pick<IUsageThreshold, 'category' | 'price'>>
+  >;
 }
 
 export type IAddWorkspaceParams = INewWorkspaceInput;

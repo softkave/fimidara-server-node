@@ -1,9 +1,9 @@
 import assert = require('assert');
 import {add} from 'date-fns';
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
-import {IPublicWorkspace} from '../../definitions/workspace';
+import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -26,8 +26,12 @@ import {
   ISendRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
-import BaseContext, {IBaseContext} from '../contexts/BaseContext';
-import MemoryDataProviderContext from '../contexts/MemoryDataProviderContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+  IBaseContext,
+} from '../contexts/BaseContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -76,19 +80,7 @@ import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
-
-async function getTestDataProvider(appVariables: ITestVariables) {
-  if (appVariables.dataProviderType === TestDataProviderType.Mongo) {
-    const connection = await getMongoConnection(
-      appVariables.mongoDbURI,
-      appVariables.mongoDbDatabaseName
-    );
-
-    return new MongoDBDataProviderContext(connection);
-  } else {
-    return new MemoryDataProviderContext();
-  }
-}
+import {generateUsageThresholdMap} from './generate-data/workspace';
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
@@ -141,11 +133,19 @@ async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
+
   const ctx = new BaseContext(
-    await getTestDataProvider(appVariables),
+    new MongoDBDataProviderContext(connection),
     getTestEmailProvider(appVariables),
     await getTestFileProvider(appVariables),
-    appVariables
+    appVariables,
+    getDataProviders(connection),
+    getCacheProviders(),
+    getLogicProviders()
   );
 
   await setupApp(ctx);
@@ -256,7 +256,7 @@ export async function insertUserForTest(
 }
 
 export interface IInsertWorkspaceForTestResult {
-  workspace: IPublicWorkspace;
+  workspace: IWorkspace;
 }
 
 export async function insertWorkspaceForTest(
@@ -269,15 +269,19 @@ export async function insertWorkspaceForTest(
     {
       name: faker.company.companyName(),
       description: faker.company.catchPhraseDescriptor(),
+      usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,
     }
   );
 
   const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
-  return {
-    workspace: result.workspace,
-  };
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    result.workspace.resourceId
+  );
+  assert(workspace);
+  return {workspace};
 }
 
 export async function insertPresetForTest(

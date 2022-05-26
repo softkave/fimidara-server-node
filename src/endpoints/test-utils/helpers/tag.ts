@@ -1,4 +1,4 @@
-import faker = require('faker');
+import {faker} from '@faker-js/faker';
 import {IUserToken} from '../../../definitions/userToken';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';

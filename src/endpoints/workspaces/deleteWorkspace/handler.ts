@@ -13,7 +13,6 @@ import {internalDeleteFolderList} from '../../folders/deleteFolder/handler';
 import FolderQueries from '../../folders/queries';
 import ProgramAccessTokenQueries from '../../programAccessTokens/queries';
 import EndpointReusableQueries from '../../queries';
-import WorkspaceQueries from '../queries';
 import {checkWorkspaceAuthorization02} from '../utils';
 import {DeleteWorkspaceEndpoint} from './types';
 import {deleteWorkspaceJoiSchema} from './validation';
@@ -80,9 +79,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     updateCollaborators(context, workspace.resourceId),
 
     //  Delete the workspace
-    context.data.workspace.deleteItem(
-      WorkspaceQueries.getById(workspace.resourceId)
-    ),
+    context.cacheProviders.workspace.deleteById(context, workspace.resourceId),
   ]);
 };
 

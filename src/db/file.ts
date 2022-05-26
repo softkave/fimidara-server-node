@@ -28,13 +28,9 @@ const modelName = 'file';
 const collectionName = 'files';
 
 export function getFileModel(connection: Connection) {
-  const model = connection.model<IFileDocument>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<IFile>(modelName, schema, collectionName);
 
   return model;
 }
 
-export type IFileModel = Model<IFileDocument>;
+export type IFileModel = Model<IFile>;

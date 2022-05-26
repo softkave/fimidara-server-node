@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
@@ -8,8 +8,7 @@ import {
   insertWorkspaceForTest,
   insertUserForTest,
 } from '../../test-utils/test-utils';
-import WorkspaceQueries from '../queries';
-import {workspaceExtractor} from '../utils';
+import {assertWorkspace, workspaceExtractor} from '../utils';
 import {IAddWorkspaceParams} from './types';
 import {DEFAULT_ADMIN_PRESET_NAME, DEFAULT_PUBLIC_PRESET_NAME} from './utils';
 
@@ -32,25 +31,25 @@ test('workspace created', async () => {
   };
 
   const result = await insertWorkspaceForTest(context, userToken, companyInput);
-
   expect(result.workspace).toMatchObject(companyInput);
   expect(result.workspace.publicPresetId).toBeTruthy();
-  const savedCompany = await context.data.workspace.assertGetItem(
-    WorkspaceQueries.getById(result.workspace.resourceId)
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    result.workspace.resourceId
   );
-
-  expect(workspaceExtractor(savedCompany)).toMatchObject(result.workspace);
+  assertWorkspace(workspace);
+  expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
   const adminPreset = await context.data.preset.assertGetItem(
     EndpointReusableQueries.getByWorkspaceAndName(
-      savedCompany.resourceId,
+      workspace.resourceId,
       DEFAULT_ADMIN_PRESET_NAME
     )
   );
 
   await context.data.preset.assertGetItem(
     EndpointReusableQueries.getByWorkspaceAndName(
-      savedCompany.resourceId,
+      workspace.resourceId,
       DEFAULT_PUBLIC_PRESET_NAME
     )
   );
@@ -63,7 +62,7 @@ test('workspace created', async () => {
   );
 
   const userWorkspace = user.workspaces.find(
-    item => item.workspaceId === savedCompany.resourceId
+    item => item.workspaceId === workspace.resourceId
   );
 
   expect(userWorkspace).toBeTruthy();

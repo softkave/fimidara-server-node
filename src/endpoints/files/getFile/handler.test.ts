@@ -1,5 +1,5 @@
 import assert = require('assert');
-import faker = require('faker');
+import {faker} from '@faker-js/faker';
 import sharp = require('sharp');
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -21,6 +21,10 @@ import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
+import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {UsageLimitExceeded} from '../../usageRecords/errors';
 
 let context: IBaseContext | null = null;
 
@@ -188,5 +192,33 @@ describe('getFile', () => {
     } catch (error: any) {
       expect(error?.name).toBe(PermissionDeniedError.name);
     }
+  });
+
+  test('file not returned if bandwidth usage is exceeded', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {file} = await insertFileForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
+
+    // Update usage locks
+    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
+      UsageRecordCategory.BandwidthOut,
+    ]);
+    const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        filepath: file.name,
+      }
+    );
+
+    await expectErrorThrown(
+      async () => await getFile(context!, reqData),
+      [UsageLimitExceeded.name]
+    );
   });
 });

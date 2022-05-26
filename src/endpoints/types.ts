@@ -26,7 +26,7 @@ export interface IPublicAgent {
   agentType: SessionAgentType;
 }
 
-export interface IRequestDataWork {
-  id: string;
+export interface IRequestDataPendingPromise {
+  id: string | number;
   promise: Promise<any>;
 }

@@ -12,7 +12,6 @@ import {getDateString} from '../../../utilities/dateFns';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
-import WorkspaceQueries from '../../workspaces/queries';
 import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization02,
@@ -20,6 +19,7 @@ import {
 } from '../utils';
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
+import {assertWorkspace} from '../../workspaces/utils';
 
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
@@ -45,10 +45,11 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
       }
     );
 
-    const workspace = await context.data.workspace.getItem(
-      WorkspaceQueries.getById(request.workspaceId)
+    const workspace = await context.cacheProviders.workspace.getById(
+      context,
+      request.workspaceId
     );
-
+    assertWorkspace(workspace);
     if (workspace) {
       fireAndForgetPromise(sendEmail(context, request, workspace.name));
     }
