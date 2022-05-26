@@ -3,7 +3,7 @@ import {add} from 'date-fns';
 import {faker} from '@faker-js/faker';
 import sharp = require('sharp');
 import {getMongoConnection} from '../../db/connection';
-import {IPublicWorkspace} from '../../definitions/workspace';
+import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -256,7 +256,7 @@ export async function insertUserForTest(
 }
 
 export interface IInsertWorkspaceForTestResult {
-  workspace: IPublicWorkspace;
+  workspace: IWorkspace;
 }
 
 export async function insertWorkspaceForTest(
@@ -276,9 +276,12 @@ export async function insertWorkspaceForTest(
 
   const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
-  return {
-    workspace: result.workspace,
-  };
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    result.workspace.resourceId
+  );
+  assert(workspace);
+  return {workspace};
 }
 
 export async function insertPresetForTest(
