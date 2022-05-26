@@ -17,7 +17,6 @@ We want to be able to track usage records, so that we can display usage statisti
 ```typescript
 /**
  * TODO:
- * - Define usage thresholds data context, provider and sync method
  * - How to confirm each usage record is summed up in the overall usage?
  * - Should we track requests with metadata, like IP address, user agent, status code, etc?
  * - Track the full bandwidth in and out and use those for billing.
