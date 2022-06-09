@@ -29,7 +29,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     },
   };
 
-  if (tagUpdate.name) {
+  if (tagUpdate.name && tagUpdate.name !== tag.name) {
     await checkTagNameExists(context, workspace.resourceId, tagUpdate.name);
   }
 

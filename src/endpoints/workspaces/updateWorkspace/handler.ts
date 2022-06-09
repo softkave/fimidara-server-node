@@ -25,7 +25,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     BasicCRUDActions.Update
   );
 
-  if (data.workspace.name) {
+  if (data.workspace.name && data.workspace.name !== workspace.name) {
     await checkWorkspaceNameExists(context, data.workspace.name);
   }
 
