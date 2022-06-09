@@ -45,7 +45,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     },
   };
 
-  if (tokenUpdate.name) {
+  if (tokenUpdate.name && tokenUpdate.name !== token.name) {
     await checkProgramTokenNameExists(
       context,
       workspace.resourceId,

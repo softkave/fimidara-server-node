@@ -34,7 +34,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   const workspace = checkResult.workspace;
   let token = checkResult.token;
 
-  if (data.token.name) {
+  if (data.token.name && data.token.name !== token.name) {
     await checkClientTokenNameExists(
       context,
       workspace.resourceId,

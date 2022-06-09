@@ -33,7 +33,7 @@ const updatePresetPermissionsGroup: UpdatePresetPermissionsGroupEndpoint =
       lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
     };
 
-    if (update.name) {
+    if (update.name && update.name !== preset.name) {
       await checkPresetNameExists(context, workspace.resourceId, update.name);
     }
 
