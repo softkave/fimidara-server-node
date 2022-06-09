@@ -1,4 +1,3 @@
-import {assert} from 'console';
 import {IFile} from '../../definitions/file';
 import {AppResourceType, BasicCRUDActions} from '../../definitions/system';
 import {
@@ -11,26 +10,27 @@ import {
 } from '../../definitions/usageRecord';
 import {IBaseContext} from '../contexts/BaseContext';
 import {IUsageRecordInput} from '../contexts/data-providers/UsageRecordLogicProvider';
-import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
-import {UsageLimitExceeded} from './errors';
 
 async function insertRecord(
   ctx: IBaseContext,
   reqData: RequestData,
   input: IUsageRecordInput
 ) {
-  const agent = getActionAgentFromSessionAgent(
-    await ctx.session.getAgent(ctx, reqData)
-  );
-  const allowed = await ctx.logicProviders.usageRecord.insert(
-    ctx,
-    reqData,
-    agent,
-    input
-  );
-  assert(allowed, new UsageLimitExceeded());
+  // not yet ready
+  return;
+
+  // const agent = getActionAgentFromSessionAgent(
+  //   await ctx.session.getAgent(ctx, reqData)
+  // );
+  // const allowed = await ctx.logicProviders.usageRecord.insert(
+  //   ctx,
+  //   reqData,
+  //   agent,
+  //   input
+  // );
+  // assert(allowed, new UsageLimitExceeded());
 }
 
 export async function insertStorageUsageRecordInput(
