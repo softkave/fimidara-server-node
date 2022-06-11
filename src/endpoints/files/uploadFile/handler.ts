@@ -1,13 +1,13 @@
 import assert = require('assert');
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {IWorkspace} from '../../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {ValidationError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
 import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
@@ -18,6 +18,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
+import {insertStorageUsageRecordInput} from '../../usageRecords/utils';
 import {tryGetSingleFileWithMatcher} from '../getFilesWithMatcher';
 import {
   fileExtractor,
@@ -30,7 +31,6 @@ import {getNewFile, internalCreateFile} from './internalCreateFile';
 import {internalUpdateFile} from './internalUpdateFile';
 import {UploadFileEndpoint} from './types';
 import {uploadFileJoiSchema} from './validation';
-import {insertStorageUsageRecordInput} from '../../usageRecords/utils';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);

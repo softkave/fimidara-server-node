@@ -3,33 +3,33 @@ import * as express from 'express';
 import * as expressJwt from 'express-jwt';
 import * as http from 'http';
 import * as multer from 'multer';
-import handleErrors from './middlewares/handleErrors';
-import httpToHttps from './middlewares/httpToHttps';
 import {getMongoConnection} from './db/connection';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getLogicProviders,
-  IBaseContext,
-} from './endpoints/contexts/BaseContext';
-import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
-import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
 import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
+import {endpointConstants} from './endpoints/constants';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getFileProvider,
+  getLogicProviders,
+  IBaseContext,
+} from './endpoints/contexts/BaseContext';
+import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
+import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
-import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
-import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
-import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {S3FilePersistenceProviderContext} from './endpoints/contexts/FilePersistenceProviderContext';
-import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
+import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
-import {endpointConstants} from './endpoints/constants';
+import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
+import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
+import handleErrors from './middlewares/handleErrors';
+import httpToHttps from './middlewares/httpToHttps';
+import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
 
 console.log('server initialization');
 
@@ -76,15 +76,11 @@ async function setup() {
   );
 
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
-  const fileProvider = new S3FilePersistenceProviderContext(
-    appVariables.awsRegion
-  );
-
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
     mongoDBDataProvider,
     emailProvider,
-    fileProvider,
+    getFileProvider(appVariables),
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),

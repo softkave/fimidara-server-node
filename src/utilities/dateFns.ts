@@ -12,16 +12,16 @@ export function getDate(initial?: any) {
 export function getDateString(initial?: any) {
   if (initial) {
     const date = new Date(initial);
-    return date.toUTCString();
+    return date.toISOString();
   }
 
-  return new Date().toUTCString();
+  return new Date().toISOString();
 }
 
 export function getDateStringIfPresent(initial?: any) {
   if (initial) {
     const date = new Date(initial);
-    return date.toUTCString();
+    return date.toISOString();
   }
 
   return undefined;

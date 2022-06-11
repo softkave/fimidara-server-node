@@ -344,11 +344,7 @@ export function getWorkspaceId(
   agent: ISessionAgent,
   providedWorkspaceId?: string
 ) {
-  const workspaceId = getClientAssignedTokenIdNoThrow(
-    agent,
-    providedWorkspaceId
-  );
-
+  const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
   }

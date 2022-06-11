@@ -1,35 +1,39 @@
 import {Connection} from 'mongoose';
-import {IAppVariables} from '../../resources/appVariables';
-import {getSessionContext, ISessionContext} from './SessionContext';
-import {IFolder} from '../../definitions/folder';
-import {IFile} from '../../definitions/file';
+import {IAssignedItem} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
+import {ICollaborationRequest} from '../../definitions/collaborationRequest';
+import {IFile} from '../../definitions/file';
+import {IFolder} from '../../definitions/folder';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IWorkspace} from '../../definitions/workspace';
-import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {IUser} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
-import {IDataProvider} from './data-providers/DataProvider';
-import {IEmailProviderContext} from './EmailProviderContext';
-import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {IAppRuntimeState} from '../../definitions/system';
 import {ITag} from '../../definitions/tag';
-import {IAssignedItem} from '../../definitions/assignedItem';
-import {
-  IWorkspaceDataProvider,
-  WorkspaceMongoDataProvider,
-} from './data-providers/WorkspaceDataProvider';
-import {
-  IWorkspaceCacheProvider,
-  WorkspaceCacheProvider,
-} from './data-providers/WorkspaceCacheProvider';
+import {IUser} from '../../definitions/user';
+import {IUserToken} from '../../definitions/userToken';
+import {IWorkspace} from '../../definitions/workspace';
+import {FileBackendType, IAppVariables} from '../../resources/appVariables';
+import {IDataProvider} from './data-providers/DataProvider';
 import {
   IUsageRecordDataProvider,
   UsageRecordMongoDataProvider,
 } from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
+import {
+  IWorkspaceCacheProvider,
+  WorkspaceCacheProvider,
+} from './data-providers/WorkspaceCacheProvider';
+import {
+  IWorkspaceDataProvider,
+  WorkspaceMongoDataProvider,
+} from './data-providers/WorkspaceDataProvider';
+import {IEmailProviderContext} from './EmailProviderContext';
+import {
+  IFilePersistenceProviderContext,
+  S3FilePersistenceProviderContext,
+} from './FilePersistenceProviderContext';
+import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
+import {getSessionContext, ISessionContext} from './SessionContext';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -139,4 +143,12 @@ export function getLogicProviders(): IBaseContext['logicProviders'] {
   return {
     usageRecord: new UsageRecordLogicProvider(),
   };
+}
+
+export function getFileProvider(appVariables: IAppVariables) {
+  if (appVariables.fileBackend === FileBackendType.S3) {
+    return new S3FilePersistenceProviderContext(appVariables.awsRegion);
+  } else {
+    return new MemoryFilePersistenceProviderContext();
+  }
 }

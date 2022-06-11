@@ -1,46 +1,25 @@
-import {Readable} from 'stream';
-import {noopAsync} from '../../../utilities/fns';
-import {
-  IFilePersistenceUploadFileParams,
-  IFilePersistenceGetFileParams,
-  IFilePersistenceDeleteFilesParams,
-} from '../../contexts/FilePersistenceProviderContext';
+import MemoryFilePersistenceProviderContext from '../../contexts/MemoryFilePersistenceProviderContext';
 import {ITestFilePersistenceProviderContext} from './types';
 
 export default class TestMemoryFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext
 {
-  public files: Record<string, IFilePersistenceUploadFileParams> = {};
+  private client: MemoryFilePersistenceProviderContext;
 
-  public uploadFile = jest
-    .fn(async (params: IFilePersistenceUploadFileParams) => {
-      this.files[params.bucket + '-' + params.key] = params;
-    })
-    .mockName('uploadFile');
+  uploadFile: ITestFilePersistenceProviderContext['uploadFile'];
+  getFile: ITestFilePersistenceProviderContext['getFile'];
+  deleteFiles: ITestFilePersistenceProviderContext['deleteFiles'];
+  ensureBucketReady: ITestFilePersistenceProviderContext['ensureBucketReady'];
+  close: ITestFilePersistenceProviderContext['close'];
 
-  public getFile = jest
-    .fn(async (params: IFilePersistenceGetFileParams) => {
-      const file = this.files[params.bucket + '-' + params.key];
-
-      if (file) {
-        const readable = new Readable();
-        readable.push(file.body);
-        readable.push(null);
-        return {body: readable};
-      }
-
-      return {body: undefined};
-    })
-    .mockName('getFile');
-
-  public deleteFiles = jest
-    .fn(async (params: IFilePersistenceDeleteFilesParams) => {
-      params.keys.forEach(key => {
-        delete this.files[params.bucket + '-' + key];
-      });
-    })
-    .mockName('deleteFiles');
-
-  public ensureBucketReady = jest.fn(noopAsync);
-  public close = jest.fn(noopAsync);
+  constructor() {
+    this.client = new MemoryFilePersistenceProviderContext();
+    this.uploadFile = jest.fn(this.client.uploadFile).mockName('uploadFile');
+    this.getFile = jest.fn(this.client.getFile).mockName('getFile');
+    this.deleteFiles = jest.fn(this.client.deleteFiles).mockName('deleteFiles');
+    this.ensureBucketReady = jest
+      .fn(this.client.ensureBucketReady)
+      .mockName('ensureBucketReady');
+    this.close = jest.fn(this.client.close).mockName('close');
+  }
 }

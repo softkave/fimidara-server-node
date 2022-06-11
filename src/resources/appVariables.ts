@@ -74,9 +74,12 @@ export enum AppEnvVariables {
   AWS_REGION = 'AWS_REGION',
   FILES_WORKSPACE_ID = 'FILES_WORKSPACE_ID',
   DEFAULT_USER_EMAIL_ADDRESS = 'DEFAULT_USER_EMAIL_ADDRESS',
-  // DEFAULT_WORKSPACE_NAME = 'DEFAULT_WORKSPACE_NAME',
-  // DEFAULT_USERS_IMAGES_FOLDER = 'DEFAULT_USERS_IMAGES_FOLDER',
-  // DEFAULT_WORKSPACES_IMAGES_FOLDER = 'DEFAULT_WORKSPACES_IMAGES_FOLDER',
+  FILE_BACKEND = 'FILE_BACKEND',
+}
+
+export enum FileBackendType {
+  S3 = 's3',
+  Memory = 'memory',
 }
 
 interface ISuppliedVariables {
@@ -91,9 +94,7 @@ interface ISuppliedVariables {
   awsSecretAccessKey: string;
   awsRegion: string;
   defaultUserEmailAddress: string;
-  // defaultWorkspaceName: string;
-  // defaultUsersImagesFolder: string;
-  // defaultWorkspacesImagesFolder: string;
+  fileBackend: FileBackendType;
 }
 
 interface IStaticVariables {
@@ -175,6 +176,11 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
     required: true,
   },
+  fileBackend: {
+    required: true,
+    name: AppEnvVariables.FILE_BACKEND,
+    defaultValue: FileBackendType.S3,
+  },
 };
 
 export const defaultStaticVars = {
@@ -233,7 +239,7 @@ export function extractEnvVariables(
 
     // TODO: validate the type or write/find a library for
     // extracting and validating env variables
-    accumulator[key as keyof ISuppliedVariables] = variable as string;
+    accumulator[key as keyof ISuppliedVariables] = variable as any;
     return accumulator;
   }, {} as ISuppliedVariables);
 
