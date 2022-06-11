@@ -2,44 +2,43 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
-import {validate} from '../../../utilities/validate';
-import {SendRequestEndpoint} from './types';
-import {sendRequestJoiSchema} from './validation';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {collabRequestExtractor} from '../utils';
-import {IUser} from '../../../definitions/user';
-import {checkWorkspaceExists} from '../../workspaces/utils';
-import CollaboratorQueries from '../../collaborators/queries';
-import {ResourceExistsError} from '../../errors';
-import CollaborationRequestQueries from '../queries';
-import {getCollaboratorWorkspace} from '../../collaborators/utils';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {
   AppResourceType,
   BasicCRUDActions,
   IAgent,
 } from '../../../definitions/system';
+import {IUser} from '../../../definitions/user';
 import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
+import {formatDate, getDateString} from '../../../utilities/dateFns';
+import getNewId from '../../../utilities/getNewId';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {validate} from '../../../utilities/validate';
 import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import CollaboratorQueries from '../../collaborators/queries';
+import {getCollaboratorWorkspace} from '../../collaborators/utils';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionOwnerList,
+} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {ResourceExistsError} from '../../errors';
+import {checkWorkspaceExists} from '../../workspaces/utils';
+import CollaborationRequestQueries from '../queries';
+import {collabRequestExtractor} from '../utils';
+import {SendRequestEndpoint} from './types';
+import {sendRequestJoiSchema} from './validation';
 
 const sendRequest: SendRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-
   await checkAuthorization({
     context,
     agent,

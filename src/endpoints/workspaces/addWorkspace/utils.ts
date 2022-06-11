@@ -1,17 +1,17 @@
-import {IWorkspace} from '../../../definitions/workspace';
 import {
   IPermissionItem,
   PermissionItemAppliesTo,
 } from '../../../definitions/permissionItem';
 import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {
-  SessionAgentType,
   AppResourceType,
   BasicCRUDActions,
-  IAgent,
   getWorkspaceActionList,
+  IAgent,
+  SessionAgentType,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {
@@ -206,7 +206,6 @@ export async function setupDefaultWorkspacePresets(
     workspace,
     adminPreset
   ).concat(makeCollaboratorPermissions(agent, workspace, collaboratorPreset));
-
   await context.data.permissionItem.bulkSaveItems(permissionItems);
   return {adminPreset, publicPreset, collaboratorPreset};
 }

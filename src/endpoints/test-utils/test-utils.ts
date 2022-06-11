@@ -1,9 +1,7 @@
 import assert = require('assert');
-import {add} from 'date-fns';
 import {faker} from '@faker-js/faker';
-import sharp = require('sharp');
+import {add} from 'date-fns';
 import {getMongoConnection} from '../../db/connection';
-import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -13,6 +11,7 @@ import {
 } from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
+import {IWorkspace} from '../../definitions/workspace';
 import singletonFunc from '../../utilities/singletonFunc';
 import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
@@ -48,12 +47,10 @@ import {
   INewFolderInput,
 } from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
-import addWorkspace from '../workspaces/addWorkspace/handler';
-import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
 import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
 import {
-  IReplacePermissionItemsByEntityEndpointParams,
   INewPermissionItemInputByEntity,
+  IReplacePermissionItemsByEntityEndpointParams,
 } from '../permissionItems/replaceItemsByEntity/types';
 import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
 import {
@@ -69,18 +66,21 @@ import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
+import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
+import addWorkspace from '../workspaces/addWorkspace/handler';
+import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
-import {expectItemsByEntityPresent} from './helpers/permissionItem';
-import {getTestVars, ITestVariables, TestDataProviderType} from './vars';
-import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 import {generateUsageThresholdMap} from './generate-data/workspace';
+import {expectItemsByEntityPresent} from './helpers/permissionItem';
+import {getTestVars, ITestVariables} from './vars';
+import sharp = require('sharp');
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {

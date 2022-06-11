@@ -58,7 +58,7 @@ function getByAssignedToResource(
     );
   }
 
-  if (workspaceId !== '') {
+  if (workspaceId && workspaceId !== '') {
     filter.addItem(
       'workspaceId',
       workspaceId,

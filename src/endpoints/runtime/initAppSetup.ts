@@ -1,25 +1,25 @@
+import {merge} from 'lodash';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {IWorkspace} from '../../definitions/workspace';
+import {
+  IPermissionItem,
+  PermissionItemAppliesTo,
+} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   APP_RUNTIME_STATE_DOC_ID,
   BasicCRUDActions,
   systemAgent,
 } from '../../definitions/system';
+import {IWorkspace} from '../../definitions/workspace';
+import {IAppRuntimeVars} from '../../resources/appVariables';
 import {getDate, getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
-import {IBaseContext} from '../contexts/BaseContext';
-import EndpointReusableQueries from '../queries';
-import {createSingleFolder} from '../folders/addFolder/handler';
-import {
-  IPermissionItem,
-  PermissionItemAppliesTo,
-} from '../../definitions/permissionItem';
-import {IAppRuntimeVars} from '../../resources/appVariables';
-import {merge} from 'lodash';
-import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
-import {permissionItemIndexer} from '../permissionItems/utils';
 import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
+import {IBaseContext} from '../contexts/BaseContext';
+import {createSingleFolder} from '../folders/addFolder/handler';
+import {permissionItemIndexer} from '../permissionItems/utils';
+import EndpointReusableQueries from '../queries';
+import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
 const folder01Path = '/files';

@@ -10,7 +10,7 @@ export const workspaceInputJoiSchema = Joi.object().keys({
 
 export const updateWorkspaceJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid,
     workspace: workspaceInputJoiSchema.required(),
   })
   .required();

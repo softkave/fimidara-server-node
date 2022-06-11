@@ -6,11 +6,13 @@ import presetsValidationSchemas from '../validation';
 export const updatePresetPermissionsGroupJoiSchema = Joi.object()
   .keys({
     presetId: validationSchemas.nanoid.required(),
-    preset: Joi.object().keys({
-      name: validationSchemas.name.allow(null),
-      description: validationSchemas.description.allow(null),
-      presets: presetsValidationSchemas.assignedPresetsList.allow(null),
-      tags: tagValidationSchemas.assignedTagsList.allow(null),
-    }),
+    preset: Joi.object()
+      .keys({
+        name: validationSchemas.name,
+        description: validationSchemas.description.allow(null),
+        presets: presetsValidationSchemas.assignedPresetsList.allow(null),
+        tags: tagValidationSchemas.assignedTagsList.allow(null),
+      })
+      .required(),
   })
   .required();

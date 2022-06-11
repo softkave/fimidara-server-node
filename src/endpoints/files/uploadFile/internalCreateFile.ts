@@ -1,10 +1,11 @@
+import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {IWorkspace} from '../../../definitions/workspace';
 import {
   AppResourceType,
   IAgent,
   ISessionAgent,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -13,7 +14,6 @@ import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionIte
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
-import {IFile} from '../../../definitions/file';
 
 export function getNewFile(
   agent: ISessionAgent,
@@ -59,6 +59,7 @@ export async function internalCreateFile(
   data: IUploadFileEndpointParams,
   file: IFile
 ) {
+  await context.data.file.saveItem(file);
   const publicAccessOps = makeFilePublicAccessOps(
     agent,
     data.publicAccessAction

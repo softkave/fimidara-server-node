@@ -1,4 +1,4 @@
-import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,

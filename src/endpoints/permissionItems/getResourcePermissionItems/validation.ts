@@ -3,7 +3,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const getResourcePermissionItemsJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.nanoid,
     itemResourceId: validationSchemas.nanoid.allow(null),
     itemResourceType: validationSchemas.resourceType.required(),
     permissionOwnerId: validationSchemas.nanoid.allow(null),

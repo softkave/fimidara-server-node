@@ -24,7 +24,9 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/build/email-templates/index.js"
+    "email-templates": "tsc --project email-templates/tsconfig.json && node email-templates/build/email-templates/index.js",
+    "dev-debug": "tsc && env-cmd -f \".env\" npm start",
+    "local-debug": "tsc && env-cmd -f \".env.local\" npm start"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",

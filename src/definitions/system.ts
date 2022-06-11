@@ -79,6 +79,10 @@ export enum BasicCRUDActions {
   Update = 'update',
   Delete = 'delete',
 
+  // For workspace resource only, for now
+  // i.e.it can only be assigned to permission items affecting
+  // workspaces. It grants the bearer access to grant others
+  // permissions
   GrantPermission = 'grant-permission',
 }
 
