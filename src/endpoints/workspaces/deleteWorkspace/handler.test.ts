@@ -4,11 +4,10 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {assertWorkspace} from '../utils';
 import deleteWorkspace from './handler';
 import {IDeleteWorkspaceParams} from './types';
 
@@ -44,6 +43,5 @@ test('workspace deleted', async () => {
     context,
     workspace.resourceId
   );
-  assertWorkspace(savedWorkspace);
   expect(savedWorkspace).toBeFalsy();
 });

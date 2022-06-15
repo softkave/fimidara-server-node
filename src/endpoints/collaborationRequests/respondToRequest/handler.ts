@@ -1,11 +1,11 @@
-import {IAssignedPresetMeta} from '../../../definitions/assignedItem';
+import {IAssignedPermissionGroupMeta} from '../../../definitions/assignedItem';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {ServerStateConflictError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
 import {
-  addAssignedPresetList,
+  addAssignedPermissionGroupList,
   addAssignedUserWorkspace,
 } from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
@@ -59,34 +59,34 @@ const respondToRequest: RespondToRequestEndpoint = async (
       user
     );
 
-    const presetsOnAccept = await getResourceAssignedItems(
+    const permissionGroupsOnAccept = await getResourceAssignedItems(
       context,
       request.workspaceId,
       request.resourceId,
       AppResourceType.CollaborationRequest
     );
 
-    if (presetsOnAccept.length > 0) {
+    if (permissionGroupsOnAccept.length > 0) {
       const workspace = await context.cacheProviders.workspace.getById(
         context,
         request.workspaceId
       );
       assertWorkspace(workspace);
-      await addAssignedPresetList(
+      await addAssignedPermissionGroupList(
         context,
         {
           agentId: user.resourceId,
           agentType: SessionAgentType.User,
         },
         workspace,
-        presetsOnAccept.map(item => ({
-          presetId: item.assignedItemId,
-          order: (item.meta as IAssignedPresetMeta)?.order || 1,
+        permissionGroupsOnAccept.map(item => ({
+          permissionGroupId: item.assignedItemId,
+          order: (item.meta as IAssignedPermissionGroupMeta)?.order || 1,
         })),
         user.resourceId,
         AppResourceType.User,
         /** deleteExisting */ false,
-        /** skipPresetsCheck */ true
+        /** skipPermissionGroupsCheck */ true
       );
     }
   }

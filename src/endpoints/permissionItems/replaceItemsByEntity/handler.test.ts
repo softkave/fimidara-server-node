@@ -4,10 +4,10 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
   getTestBaseContext,
-  insertWorkspaceForTest,
+  insertPermissionGroupForTest,
   insertPermissionItemsForTestByEntity,
-  insertPresetForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   ITestPermissionItemByEntityBase,
   ITestPermissionItemOwner,
 } from '../../test-utils/test-utils';
@@ -38,19 +38,20 @@ describe('replaceItemsByEntity', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       workspace.resourceId,
       {
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
         permissionOwnerId: workspace.resourceId,
@@ -64,11 +65,12 @@ describe('replaceItemsByEntity', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const itemsOwner: ITestPermissionItemOwner = {
       permissionOwnerId: workspace.resourceId,
@@ -80,8 +82,8 @@ describe('replaceItemsByEntity', () => {
     };
 
     const entity: IPermissionEntity = {
-      permissionEntityId: preset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      permissionEntityId: permissionGroup.resourceId,
+      permissionEntityType: AppResourceType.PermissionGroup,
     };
 
     // First insert
@@ -105,14 +107,13 @@ describe('replaceItemsByEntity', () => {
       itemsBase
     );
 
-    const presetPermissionItems =
-      await context.data.permissionItem.getManyItems(
-        PermissionItemQueries.getByPermissionEntity(
-          entity.permissionEntityId,
-          entity.permissionEntityType
-        )
-      );
+    const permissionGroupItems = await context.data.permissionItem.getManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        entity.permissionEntityId,
+        entity.permissionEntityType
+      )
+    );
 
-    expect(presetPermissionItems.length).toBe(result.items.length);
+    expect(permissionGroupItems.length).toBe(result.items.length);
   });
 });

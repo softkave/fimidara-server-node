@@ -1,5 +1,5 @@
 import {AnyObject} from '../utilities/types';
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
+import {IAssignedPermissionGroup} from './permissionGroups';
 import {AppResourceType, IAgent} from './system';
 import {IAssignedTag} from './tag';
 
@@ -24,11 +24,11 @@ export type IAssignedItemMainFieldsMatcher = Pick<
   | 'workspaceId'
 >;
 
-export interface IAssignedPresetMeta {
+export interface IAssignedPermissionGroupMeta {
   order: number;
 }
 
-export type ResourceWithPresetsAndTags<T> = T & {
-  presets: IAssignedPresetPermissionsGroup[];
+export type ResourceWithPermissionGroupsAndTags<T> = T & {
+  permissionGroups: IAssignedPermissionGroup[];
   tags: IAssignedTag[];
 };

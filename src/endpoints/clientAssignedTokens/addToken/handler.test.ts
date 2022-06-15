@@ -1,16 +1,16 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertWorkspaceForTest,
-  insertPresetForTest,
+  insertPermissionGroupForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
-import {clientAssignedTokenExtractor, getPublicClientToken} from '../utils';
+import {getPublicClientToken} from '../utils';
 
 let context: IBaseContext | null = null;
 
@@ -26,30 +26,32 @@ test('client assigned token added', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {preset: preset01} = await insertPresetForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
+  const {permissionGroup: permissionGroup01} =
+    await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
-  const {preset: preset02} = await insertPresetForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
+  const {permissionGroup: permissionGroup02} =
+    await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
   const {token} = await insertClientAssignedTokenForTest(
     context,
     userToken,
     workspace.resourceId,
     {
-      presets: [
+      permissionGroups: [
         {
-          presetId: preset01.resourceId,
+          permissionGroupId: permissionGroup01.resourceId,
           order: 1,
         },
         {
-          presetId: preset02.resourceId,
+          permissionGroupId: permissionGroup02.resourceId,
           order: 2,
         },
       ],
@@ -58,7 +60,7 @@ test('client assigned token added', async () => {
 
   const savedToken = getPublicClientToken(
     context,
-    await withAssignedPresetsAndTags(
+    await withAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.clientAssignedToken.assertGetItem(
@@ -68,16 +70,16 @@ test('client assigned token added', async () => {
     )
   );
 
-  expect(clientAssignedTokenExtractor(savedToken)).toMatchObject(token);
-  expect(token.presets).toHaveLength(2);
-  expect(token.presets[0]).toMatchObject({
-    presetId: preset01.resourceId,
+  expect(savedToken).toMatchObject(token);
+  expect(token.permissionGroups).toHaveLength(2);
+  expect(token.permissionGroups[0]).toMatchObject({
+    permissionGroupId: permissionGroup01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(token.presets[1]).toMatchObject({
-    presetId: preset02.resourceId,
+  expect(token.permissionGroups[1]).toMatchObject({
+    permissionGroupId: permissionGroup02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,
   });

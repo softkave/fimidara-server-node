@@ -1,29 +1,29 @@
 import {
-  IWorkspace,
+  AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
+} from '../../definitions/system';
+import {
+  UsageRecordCategory,
+  UsageThresholdCategory,
+} from '../../definitions/usageRecord';
+import {
   IPublicWorkspace,
   IUsageThreshold,
+  IWorkspace,
 } from '../../definitions/workspace';
-import {
-  ISessionAgent,
-  BasicCRUDActions,
-  AppResourceType,
-} from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {
   getFields,
   makeExtract,
-  makeListExtract,
   makeExtractIfPresent,
+  makeListExtract,
 } from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import {
-  UsageRecordCategory,
-  UsageThresholdCategory,
-} from '../../definitions/usageRecord';
 
 const usageThresholdSchema = getFields<IUsageThreshold>({
   lastUpdatedBy: agentExtractor,
@@ -54,7 +54,7 @@ const workspaceFields = getFields<IPublicWorkspace>({
   lastUpdatedAt: getDateString,
   name: true,
   description: true,
-  publicPresetId: true,
+  publicPermissionGroupId: true,
   billStatus: true,
   usageThresholds: usageThresholdMapExtractor,
   billStatusAssignedAt: getDateString,

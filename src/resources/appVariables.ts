@@ -111,8 +111,8 @@ interface IStaticVariables {
 // Added after the app initialization phase.
 export interface IAppRuntimeVars {
   appWorkspaceId: string;
-  appWorkspacesImageUploadPresetId: string;
-  appUsersImageUploadPresetId: string;
+  appWorkspacesImageUploadPermissionGroupId: string;
+  appUsersImageUploadPermissionGroupId: string;
 }
 
 export interface IAppVariables
@@ -250,8 +250,8 @@ export function extractEnvVariables(
 
     // Added after the app initialization phase
     appWorkspaceId: '',
-    appWorkspacesImageUploadPresetId: '',
-    appUsersImageUploadPresetId: '',
+    appWorkspacesImageUploadPermissionGroupId: '',
+    appUsersImageUploadPermissionGroupId: '',
 
     ...base,
     ...envVariables,

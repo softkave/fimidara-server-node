@@ -1,10 +1,10 @@
 import {IFile} from '../../../definitions/file';
-import {IWorkspace} from '../../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
@@ -39,7 +39,7 @@ export async function internalUpdateFile(
       data.publicAccessAction
     );
 
-    await replacePublicPresetAccessOpsByPermissionOwner(
+    await replacePublicPermissionGroupAccessOpsByPermissionOwner(
       context,
       agent,
       workspace,

@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -6,16 +7,16 @@ import {
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
+import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
-  insertPresetForTest,
+  insertPermissionGroupForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
 import addPermissionItems from '../addItems/handler';
 import {
   IAddPermissionItemsEndpointParams,
@@ -23,7 +24,6 @@ import {
 } from '../addItems/types';
 import getEntityPermissionItems from './handler';
 import {IGetResourcePermissionItemsEndpointParams} from './types';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 
 let context: IBaseContext | null = null;
 
@@ -40,11 +40,12 @@ describe('getResourcePermissionItems', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(
       action => ({
@@ -52,8 +53,8 @@ describe('getResourcePermissionItems', () => {
         grantAccess: faker.datatype.boolean(),
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Workspace,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
         itemResourceId: workspace.resourceId,

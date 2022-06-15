@@ -1,6 +1,6 @@
 import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
-import {ResourceWithPresetsAndTags} from '../../definitions/assignedItem';
+import {ResourceWithPermissionGroupsAndTags} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
@@ -20,7 +20,7 @@ import {
 } from '../../utilities/promiseFns';
 import singletonFunc from '../../utilities/singletonFunc';
 import {
-  withAssignedPresetsAndTags,
+  withAssignedPermissionGroupsAndTags,
   withUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
@@ -88,7 +88,8 @@ export interface ISessionContext {
     ctx: IBaseContext,
     tokenId: string,
     tokenType: TokenType,
-    expires?: number
+    expires?: string | Date | number | null,
+    issuedAt?: string | Date | number | null
   ) => string;
 }
 
@@ -110,9 +111,9 @@ export default class SessionContext implements ISessionContext {
 
       let userToken: IUserToken | null = null;
       let user: IUserWithWorkspace | null = null;
-      let clientAssignedToken: ResourceWithPresetsAndTags<IClientAssignedToken> | null =
+      let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null =
         null;
-      let programAccessToken: ResourceWithPresetsAndTags<IProgramAccessToken> | null =
+      let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null =
         null;
       const incomingTokenData = data.incomingTokenData;
 
@@ -140,7 +141,7 @@ export default class SessionContext implements ISessionContext {
             ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
           );
 
-          programAccessToken = await withAssignedPresetsAndTags(
+          programAccessToken = await withAssignedPermissionGroupsAndTags(
             ctx,
             pgt.workspaceId,
             pgt,
@@ -154,7 +155,7 @@ export default class SessionContext implements ISessionContext {
             EndpointReusableQueries.getById(incomingTokenData.sub.id)
           );
 
-          clientAssignedToken = await withAssignedPresetsAndTags(
+          clientAssignedToken = await withAssignedPermissionGroupsAndTags(
             ctx,
             clt.workspaceId,
             clt,
@@ -262,9 +263,10 @@ export default class SessionContext implements ISessionContext {
       ctx: IBaseContext,
       tokenId: string,
       tokenType: TokenType,
-      expires?: number
+      expires?: string | Date | number | null,
+      issuedAt?: string | Date | number | null
     ) => {
-      const payload: Omit<IBaseTokenData, 'iat'> = {
+      const payload: Omit<IBaseTokenData, 'iat'> & {iat?: number} = {
         version: CURRENT_TOKEN_VERSION,
         sub: {
           id: tokenId,
@@ -272,8 +274,15 @@ export default class SessionContext implements ISessionContext {
         },
       };
 
+      const msInSec = 1000;
       if (expires) {
-        payload.exp = expires / 1000; // exp is in seconds
+        const expNumericDate = new Date(expires).getTime();
+        payload.exp = expNumericDate / msInSec; // exp is in seconds
+      }
+
+      if (issuedAt) {
+        const iatNumericDate = new Date(issuedAt).getTime();
+        payload.iat = iatNumericDate / msInSec; // iat is in seconds
       }
 
       return jwt.sign(payload, ctx.appVariables.jwtSecret);
@@ -284,7 +293,7 @@ export default class SessionContext implements ISessionContext {
 export const getSessionContext = singletonFunc(() => new SessionContext());
 
 export function makeClientAssignedTokenAgent(
-  clientAssignedToken: ResourceWithPresetsAndTags<IClientAssignedToken>
+  clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>
 ): ISessionAgent {
   return {
     clientAssignedToken,
@@ -296,7 +305,7 @@ export function makeClientAssignedTokenAgent(
 }
 
 export function makeProgramAccessTokenAgent(
-  programAccessToken: ResourceWithPresetsAndTags<IProgramAccessToken>
+  programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>
 ): ISessionAgent {
   return {
     programAccessToken,

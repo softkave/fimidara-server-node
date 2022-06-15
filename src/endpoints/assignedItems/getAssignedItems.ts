@@ -1,16 +1,16 @@
 import {defaultTo} from 'lodash';
 import {
   IAssignedItem,
-  ResourceWithPresetsAndTags,
+  ResourceWithPermissionGroupsAndTags,
 } from '../../definitions/assignedItem';
 import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
 import {IBaseContext} from '../contexts/BaseContext';
 import AssignedItemQueries from './queries';
 import {
-  assignedItemsToAssignedWorkspaceList,
-  assignedItemsToAssignedPresetList,
+  assignedItemsToAssignedPermissionGroupList,
   assignedItemsToAssignedTagList,
+  assignedItemsToAssignedWorkspaceList,
 } from './utils';
 
 export async function getResourceAssignedItems(
@@ -70,12 +70,14 @@ export async function getResourceAssignedItemsSorted(
   return sortedItems;
 }
 
-export async function withAssignedPresetsAndTags<T extends IResourceBase>(
+export async function withAssignedPermissionGroupsAndTags<
+  T extends IResourceBase
+>(
   context: IBaseContext,
   workspaceId: string,
   resource: T,
   resourceType: AppResourceType
-): Promise<ResourceWithPresetsAndTags<T>> {
+): Promise<ResourceWithPermissionGroupsAndTags<T>> {
   const sortedItems = await getResourceAssignedItemsSorted(
     context,
     workspaceId,
@@ -83,17 +85,16 @@ export async function withAssignedPresetsAndTags<T extends IResourceBase>(
     resourceType
   );
 
-  const updatedResource: ResourceWithPresetsAndTags<T> =
-    resource as ResourceWithPresetsAndTags<T>;
-  updatedResource.presets = [];
+  const updatedResource: ResourceWithPermissionGroupsAndTags<T> =
+    resource as ResourceWithPermissionGroupsAndTags<T>;
+  updatedResource.permissionGroups = [];
   updatedResource.tags = [];
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceType.PresetPermissionsGroup:
-        updatedResource.presets = assignedItemsToAssignedPresetList(
-          sortedItems[type]
-        );
+      case AppResourceType.PermissionGroup:
+        updatedResource.permissionGroups =
+          assignedItemsToAssignedPermissionGroupList(sortedItems[type]);
         break;
 
       case AppResourceType.Tag:
@@ -107,7 +108,7 @@ export async function withAssignedPresetsAndTags<T extends IResourceBase>(
   return updatedResource;
 }
 
-export async function resourceListWithAssignedPresetsAndTags<
+export async function resourceListWithAssignedPermissionGroupsAndTags<
   T extends IResourceBase
 >(
   context: IBaseContext,
@@ -117,7 +118,7 @@ export async function resourceListWithAssignedPresetsAndTags<
 ) {
   return await Promise.all(
     resources.map(resource =>
-      withAssignedPresetsAndTags(context, workspaceId, resource, type)
+      withAssignedPermissionGroupsAndTags(context, workspaceId, resource, type)
     )
   );
 }
@@ -133,7 +134,7 @@ export async function withUserWorkspaces<T extends IUser>(
     AppResourceType.User
   );
 
-  let assignedPresetItems: IAssignedItem[] = [];
+  let assignedPermissionGroupItems: IAssignedItem[] = [];
   let assignedWorkspaceItems: IAssignedItem[] = [];
   const updatedResource: T & {workspaces: IUserWorkspace[]} = resource as T & {
     workspaces: IUserWorkspace[];
@@ -141,8 +142,8 @@ export async function withUserWorkspaces<T extends IUser>(
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceType.PresetPermissionsGroup:
-        assignedPresetItems = sortedItems[type];
+      case AppResourceType.PermissionGroup:
+        assignedPermissionGroupItems = sortedItems[type];
         break;
 
       case AppResourceType.Workspace:
@@ -151,17 +152,20 @@ export async function withUserWorkspaces<T extends IUser>(
     }
   }
 
-  const assignedPresetsMap: Record<string, IAssignedItem[]> =
-    assignedPresetItems.reduce((map, item) => {
-      const workspacePresetItems = defaultTo(map[item.workspaceId], []);
-      workspacePresetItems.push(item);
-      map[item.workspaceId] = workspacePresetItems;
+  const assignedPermissionGroupsMap: Record<string, IAssignedItem[]> =
+    assignedPermissionGroupItems.reduce((map, item) => {
+      const workspacePermissionGroupItems = defaultTo(
+        map[item.workspaceId],
+        []
+      );
+      workspacePermissionGroupItems.push(item);
+      map[item.workspaceId] = workspacePermissionGroupItems;
       return map;
     }, {} as Record<string, IAssignedItem[]>);
 
   updatedResource.workspaces = assignedItemsToAssignedWorkspaceList(
     assignedWorkspaceItems,
-    assignedPresetsMap
+    assignedPermissionGroupsMap
   );
 
   return updatedResource;

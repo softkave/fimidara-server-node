@@ -1,4 +1,4 @@
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
+import {IAssignedPermissionGroup} from './permissionGroups';
 import {IAgent} from './system';
 import {IAssignedTag} from './tag';
 
@@ -23,7 +23,7 @@ export interface IClientAssignedToken {
   // meta?: Record<string, string | number | boolean | null>;
   // authURL: string;
   // tags: IAssignedTag[];
-  // presets: IAssignedPresetPermissionsGroup[];
+  // permissionGroups: IAssignedPermissionGroup[];
 }
 
 export interface IPublicClientAssignedToken {
@@ -36,7 +36,7 @@ export interface IPublicClientAssignedToken {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: string;
   workspaceId: string;
-  presets: IAssignedPresetPermissionsGroup[];
+  permissionGroups: IAssignedPermissionGroup[];
   issuedAt: string;
   expires?: string;
   tokenStr: string;

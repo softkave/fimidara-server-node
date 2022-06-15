@@ -5,12 +5,15 @@ import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   getTestBaseContext,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {assertWorkspace, workspaceExtractor} from '../utils';
 import {IAddWorkspaceParams} from './types';
-import {DEFAULT_ADMIN_PRESET_NAME, DEFAULT_PUBLIC_PRESET_NAME} from './utils';
+import {
+  DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+  DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
+} from './utils';
 
 let context: IBaseContext | null = null;
 
@@ -32,7 +35,7 @@ test('workspace created', async () => {
 
   const result = await insertWorkspaceForTest(context, userToken, companyInput);
   expect(result.workspace).toMatchObject(companyInput);
-  expect(result.workspace.publicPresetId).toBeTruthy();
+  expect(result.workspace.publicPermissionGroupId).toBeTruthy();
   const workspace = await context.cacheProviders.workspace.getById(
     context,
     result.workspace.resourceId
@@ -40,17 +43,17 @@ test('workspace created', async () => {
   assertWorkspace(workspace);
   expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
-  const adminPreset = await context.data.preset.assertGetItem(
+  const adminPermissionGroup = await context.data.permissiongroup.assertGetItem(
     EndpointReusableQueries.getByWorkspaceAndName(
       workspace.resourceId,
-      DEFAULT_ADMIN_PRESET_NAME
+      DEFAULT_ADMIN_PERMISSION_GROUP_NAME
     )
   );
 
-  await context.data.preset.assertGetItem(
+  await context.data.permissiongroup.assertGetItem(
     EndpointReusableQueries.getByWorkspaceAndName(
       workspace.resourceId,
-      DEFAULT_PUBLIC_PRESET_NAME
+      DEFAULT_PUBLIC_PERMISSION_GROUP_NAME
     )
   );
 
@@ -66,9 +69,9 @@ test('workspace created', async () => {
   );
 
   expect(userWorkspace).toBeTruthy();
-  const assignedAdminPreset = userWorkspace?.presets.find(
-    item => item.presetId === adminPreset.resourceId
+  const assignedAdminPermissionGroup = userWorkspace?.permissionGroups.find(
+    item => item.permissionGroupId === adminPermissionGroup.resourceId
   );
 
-  expect(assignedAdminPreset).toBeTruthy();
+  expect(assignedAdminPermissionGroup).toBeTruthy();
 });

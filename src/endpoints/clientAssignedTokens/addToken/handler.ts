@@ -9,7 +9,7 @@ import {getDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -18,8 +18,8 @@ import {
   CURRENT_TOKEN_VERSION,
   getWorkspaceId,
 } from '../../contexts/SessionContext';
-import {checkWorkspaceExists} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
@@ -69,7 +69,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     };
 
     token = await context.data.clientAssignedToken.saveItem({
-      ...omit(data.token, 'presets', 'tags'),
+      ...omit(data.token, 'permissionGroups', 'tags'),
       createdAt,
       createdBy,
       providedResourceId: defaultTo(data.token.providedResourceId, null),
@@ -84,7 +84,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     token = await context.data.clientAssignedToken.assertUpdateItem(
       EndpointReusableQueries.getById(token.resourceId),
       {
-        ...omit(data.token, 'presets', 'tags'),
+        ...omit(data.token, 'permissionGroups', 'tags'),
         lastUpdatedAt: getDate(),
         lastUpdatedBy: {
           agentId: agent.agentId,
@@ -103,7 +103,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     data.token
   );
 
-  token = await withAssignedPresetsAndTags(
+  const tokenWithAssignedItems = await withAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,
@@ -111,7 +111,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   );
 
   return {
-    token: getPublicClientToken(context, token),
+    token: getPublicClientToken(context, tokenWithAssignedItems),
   };
 };
 

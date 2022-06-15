@@ -5,9 +5,5 @@
     "outDir": "build",
     "lib": ["dom"]
   },
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts",
-    "jest/**/*.ts"
-  ]
+  "include": ["src/**/*.ts", "test/**/*.ts", "jest/**/*.ts"]
 }

@@ -29,7 +29,7 @@ export interface IWorkspace {
   lastUpdatedAt: Date | string;
   name: string;
   description?: string;
-  publicPresetId?: string;
+  publicPermissionGroupId?: string;
   billStatusAssignedAt: Date | string;
   billStatus: WorkspaceBillStatus;
   usageThresholds: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;

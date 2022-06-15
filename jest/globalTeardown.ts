@@ -1,19 +1,19 @@
-import * as _ from 'lodash';
-import * as mongoose from 'mongoose';
 import {
-  ObjectIdentifier,
   DeleteObjectsCommand,
   ListObjectsV2Command,
+  ObjectIdentifier,
   S3Client,
 } from '@aws-sdk/client-s3';
-import {
-  ExtractEnvSchema,
-  extractProdEnvsSchema,
-} from '../src/resources/appVariables';
+import * as _ from 'lodash';
+import * as mongoose from 'mongoose';
 import {
   getTestVarsInternalFn,
   ITestVariables,
 } from '../src/endpoints/test-utils/vars';
+import {
+  ExtractEnvSchema,
+  extractProdEnvsSchema,
+} from '../src/resources/appVariables';
 
 async function waitOnPromises(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
@@ -98,10 +98,9 @@ async function jestGlobalTeardown() {
   }, {} as ExtractEnvSchema);
 
   const vars = getTestVarsInternalFn(envSchema);
-  await waitOnPromises([
-    dropMongoCollections(vars),
-    deleteAWSBucketObjects(vars),
-  ]);
+  const dropMongoPromise = dropMongoCollections(vars);
+  const dropAWSBucketsPromise = deleteAWSBucketObjects(vars);
+  await waitOnPromises([dropMongoPromise, dropAWSBucketsPromise]);
 }
 
 module.exports = jestGlobalTeardown;

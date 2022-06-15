@@ -1,35 +1,35 @@
-import {NotFoundError} from '../errors';
-import {IAssignedPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IAssignedTag} from '../../definitions/tag';
-import {IUserWorkspace} from '../../definitions/user';
 import {defaultTo} from 'lodash';
 import {
   IAssignedItem,
   IAssignedItemMainFieldsMatcher,
-  IAssignedPresetMeta,
+  IAssignedPermissionGroupMeta,
 } from '../../definitions/assignedItem';
+import {IAssignedPermissionGroup} from '../../definitions/permissionGroups';
+import {IAssignedTag} from '../../definitions/tag';
+import {IUserWorkspace} from '../../definitions/user';
 import {makeKey} from '../../utilities/fns';
+import {NotFoundError} from '../errors';
 
-export function assignedItemToAssignedPreset(
+export function assignedItemToAssignedPermissionGroup(
   item: IAssignedItem
-): IAssignedPresetPermissionsGroup {
+): IAssignedPermissionGroup {
   return {
-    presetId: item.assignedItemId,
+    permissionGroupId: item.assignedItemId,
     assignedAt: item.assignedAt,
     assignedBy: item.assignedBy,
-    order: (item.meta as IAssignedPresetMeta).order,
+    order: (item.meta as IAssignedPermissionGroupMeta).order,
   };
 }
 
-export function assignedItemsToAssignedPresetList(
+export function assignedItemsToAssignedPermissionGroupList(
   items: IAssignedItem[]
-): IAssignedPresetPermissionsGroup[] {
+): IAssignedPermissionGroup[] {
   return (
     items
       // .filter(
-      //   item => item.assignedItemType === AppResourceType.PresetPermissionsGroup
+      //   item => item.assignedItemType === AppResourceType.PermissionGroup
       // )
-      .map(assignedItemToAssignedPreset)
+      .map(assignedItemToAssignedPermissionGroup)
   );
 }
 
@@ -53,18 +53,19 @@ export function assignedItemsToAssignedTagList(
 
 export function assignedItemToAssignedWorkspace(
   item: IAssignedItem,
-  presetItems: IAssignedItem[]
+  permissionGroupItems: IAssignedItem[]
 ): IUserWorkspace {
   return {
     workspaceId: item.assignedItemId,
     joinedAt: item.assignedAt,
-    presets: assignedItemsToAssignedPresetList(presetItems),
+    permissionGroups:
+      assignedItemsToAssignedPermissionGroupList(permissionGroupItems),
   };
 }
 
 export function assignedItemsToAssignedWorkspaceList(
   items: IAssignedItem[],
-  itemsPresetMap: Record<string, IAssignedItem[]>
+  itemsPermissionGroupMap: Record<string, IAssignedItem[]>
 ): IUserWorkspace[] {
   return (
     items
@@ -72,7 +73,7 @@ export function assignedItemsToAssignedWorkspaceList(
       .map(item =>
         assignedItemToAssignedWorkspace(
           item,
-          defaultTo(itemsPresetMap[item.assignedItemId], [])
+          defaultTo(itemsPermissionGroupMap[item.assignedItemId], [])
         )
       )
   );

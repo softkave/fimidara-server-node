@@ -2,7 +2,7 @@ import {AppResourceType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {indexArray} from '../../utilities/indexArray';
 import {
-  withAssignedPresetsAndTags,
+  withAssignedPermissionGroupsAndTags,
   withUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -18,8 +18,8 @@ export async function resourceWithAssignedItems(
     case AppResourceType.Folder:
     case AppResourceType.File:
     case AppResourceType.ClientAssignedToken:
-    case AppResourceType.PresetPermissionsGroup:
-      resource.resource = await withAssignedPresetsAndTags(
+    case AppResourceType.PermissionGroup:
+      resource.resource = await withAssignedPermissionGroupsAndTags(
         context,
         workspaceId,
         resource.resource,

@@ -1,5 +1,9 @@
 import {BasicCRUDActions} from '../../../definitions/system';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {folderConstants} from '../../folders/constants';
+import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
   assertContext,
   getTestBaseContext,
@@ -7,13 +11,13 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
+import {UsageLimitExceededError} from '../../usageRecords/errors';
+import {PermissionDeniedError} from '../../user/errors';
+import {getFileName} from '../utils';
 import {
   IUploadFileEndpointParams,
   UploadFilePublicAccessActions,
 } from './types';
-import {folderConstants} from '../../folders/constants';
-import {PermissionDeniedError} from '../../user/errors';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertCanDeletePublicFile,
   assertCanReadPublicFile,
@@ -24,10 +28,6 @@ import {
   uploadFileBaseTest,
   uploadFileWithPublicAccessActionTest,
 } from './uploadFileTestUtils';
-import {getFileName} from '../utils';
-import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {UsageLimitExceeded} from '../../usageRecords/errors';
 
 /**
  * TODO:
@@ -215,7 +215,7 @@ describe('uploadFile', () => {
     await expectErrorThrown(
       async () =>
         await insertFileForTest(context!, userToken, workspace.resourceId),
-      [UsageLimitExceeded.name]
+      [UsageLimitExceededError.name]
     );
   });
 });

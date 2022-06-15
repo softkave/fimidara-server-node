@@ -1,7 +1,7 @@
 import {
-  ISessionAgent,
-  BasicCRUDActions,
   AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
 } from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
@@ -11,8 +11,8 @@ import {
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
-import {checkWorkspaceExists} from '../workspaces/utils';
 import EndpointReusableQueries from '../queries';
+import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (
   item: IUserWithWorkspace,
@@ -31,7 +31,7 @@ export const collaboratorExtractor = (
     email: item.email,
     joinedAt: userWorkspace.joinedAt,
     workspaceId: userWorkspace.workspaceId,
-    presets: userWorkspace.presets,
+    permissionGroups: userWorkspace.permissionGroups,
   };
 
   return collaborator;

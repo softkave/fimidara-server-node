@@ -3,9 +3,9 @@ import {IAgent} from '../../../definitions/system';
 import {
   IUsageRecord,
   IUsageRecordArtifact,
+  UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
-  UsageRecordCategory,
   UsageRecordSummationType,
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
@@ -47,14 +47,14 @@ export class UsageRecordLogicProvider {
       return false;
     }
 
-    const UsageExceeded = await this.checkWorkspaceUsageLocks(
+    const usageExceeded = await this.checkWorkspaceUsageLocks(
       ctx,
       reqData,
       record,
       workspace
     );
 
-    if (UsageExceeded) {
+    if (usageExceeded) {
       return false;
     }
 

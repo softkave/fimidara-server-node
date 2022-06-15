@@ -6,7 +6,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import {appAssert} from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
-import {addAssignedPresetList} from '../../assignedItems/addAssignedItems';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -53,15 +53,15 @@ export async function getUserClientAssignedToken(
   );
 
   appAssert(
-    context.appVariables.appWorkspacesImageUploadPresetId,
+    context.appVariables.appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
-    'App workspaces image upload preset ID not set'
+    'App workspaces image upload permission group ID not set'
   );
 
   appAssert(
-    context.appVariables.appUsersImageUploadPresetId,
+    context.appVariables.appUsersImageUploadPermissionGroupId,
     new ServerError(),
-    'App users image upload preset ID not set'
+    'App users image upload permission group ID not set'
   );
 
   let token = await context.data.clientAssignedToken.getItem(
@@ -90,24 +90,26 @@ export async function getUserClientAssignedToken(
       context.appVariables.appWorkspaceId
     );
     assertWorkspace(workspace);
-    addAssignedPresetList(
+    addAssignedPermissionGroupList(
       context,
       systemAgent,
       workspace,
       [
         {
           order: 1,
-          presetId: context.appVariables.appWorkspacesImageUploadPresetId,
+          permissionGroupId:
+            context.appVariables.appWorkspacesImageUploadPermissionGroupId,
         },
         {
           order: 2,
-          presetId: context.appVariables.appUsersImageUploadPresetId,
+          permissionGroupId:
+            context.appVariables.appUsersImageUploadPermissionGroupId,
         },
       ],
       token.resourceId,
       AppResourceType.ClientAssignedToken,
       /** deleteExisting */ false,
-      /** skipPresetsCheck */ true
+      /** skipPermissionGroupsCheck */ true
     );
   }
 

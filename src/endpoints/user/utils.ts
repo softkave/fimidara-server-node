@@ -2,12 +2,12 @@ import {IPublicUserData, IUserWorkspace} from '../../definitions/user';
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {NotFoundError} from '../errors';
-import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
+import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 
 const publicUserWorkspaceFields = getFields<IUserWorkspace>({
   workspaceId: true,
   joinedAt: getDateString,
-  presets: assignedPresetsListExtractor,
+  permissionGroups: assignedPermissionGroupsListExtractor,
 });
 
 export const userWorkspaceExtractor = makeExtract(publicUserWorkspaceFields);

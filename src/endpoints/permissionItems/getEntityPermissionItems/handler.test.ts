@@ -5,10 +5,10 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
+  insertPermissionGroupForTest,
   insertPermissionItemsForTestByEntity,
-  insertPresetForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getEntityPermissionItems from './handler';
@@ -29,19 +29,20 @@ describe('getEntityPermissionitems', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const {items} = await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       workspace.resourceId,
       {
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
         permissionOwnerId: workspace.resourceId,
@@ -55,8 +56,8 @@ describe('getEntityPermissionitems', () => {
         mockExpressRequestWithUserToken(userToken),
         {
           workspaceId: workspace.resourceId,
-          permissionEntityId: preset.resourceId,
-          permissionEntityType: AppResourceType.PresetPermissionsGroup,
+          permissionEntityId: permissionGroup.resourceId,
+          permissionEntityType: AppResourceType.PermissionGroup,
         }
       );
 

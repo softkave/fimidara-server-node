@@ -1,4 +1,4 @@
-import {IPresetInput} from '../../../definitions/presetPermissionsGroup';
+import {IPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -7,7 +7,7 @@ import {Endpoint} from '../../types';
 export interface INewProgramAccessTokenInput {
   name: string;
   description?: string;
-  presets?: IPresetInput[];
+  permissionGroups?: IPermissionGroupInput[];
   tags?: IAssignedTagInput[];
 }
 

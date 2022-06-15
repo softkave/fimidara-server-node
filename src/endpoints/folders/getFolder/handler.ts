@@ -4,7 +4,7 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkFolderAuthorization02,
   folderExtractor,
@@ -28,7 +28,7 @@ const getFolder: GetFolderEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  folder = await withAssignedPresetsAndTags(
+  folder = await withAssignedPermissionGroupsAndTags(
     context,
     folder.workspaceId,
     folder,

@@ -47,8 +47,8 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
       EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
     ),
 
-    // Presets
-    context.data.preset.deleteManyItems(
+    // PermissionGroups
+    context.data.permissiongroup.deleteManyItems(
       EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
     ),
 

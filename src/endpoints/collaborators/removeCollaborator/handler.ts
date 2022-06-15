@@ -52,7 +52,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
       )
     ),
 
-    // Delete all presets, and user workspace data assigned
+    // Delete all permissionGroups, and user workspace data assigned
     deleteResourceAssignedItems(
       context,
       workspaceId,

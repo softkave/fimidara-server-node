@@ -9,7 +9,7 @@
 - [ ] Pagination
 - [ ] File versioning
 - [ ] Byte range
-- [ ] Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning presets.
+- [ ] Change order to weight and it does not have to be unique or provided. We'll have 5 default weights. Lowest will be assigned when one is not provided when assigning permission groups.
 - [ ] Implement folder upload and not requiring file name but generating one when not provided
 - [ ] For public resources, determine what data parts public actions affect, like a folder can be public, but a public agent can't change it from public to private
 - [ ] Use the endpoints instead of directly saving to db
@@ -19,7 +19,7 @@
 - [ ] Write end-to-end tests
 - [ ] Implement stale-while-revalidate and other http headers and options
 - [ ] Implement file versioning, and versioning for other resources
-- [ ] Filter out presets not found, instead of erroring out
+- [ ] Filter out permission groups not found, instead of erroring out
 - [ ] Do we really need buckets?
 - [ ] Listening on files, compressing files, version, integrity, etags,
       mirror OS file APIs as much as possible, maybe searching and indexing the files and it's content
@@ -36,7 +36,7 @@
 - [ ] Confirm the places that should be assert split path
 - [ ] A public page for sharing files and folders
 - [ ] Error message descriptions
-- [ ] How do you prevent cyclic preset dependencies among preset permissions?
+- [ ] How do you prevent cyclic permission group dependencies among permission group permissions?
 - [ ] Remove unique from schemas and make data unique in handlers
 - [ ] Make sure that when permission items are being saved, the type matches the resource id,
       and other such checks
@@ -69,7 +69,7 @@
 - [ ] Let users paya for special/configurable memory caching space
 - [ ] Filesystem file provider
 - [ ] Cache control for files
-- [ ] Better action types, so that you can allow people to create tokens but some presets will not be available
+- [ ] Better action types, so that you can allow people to create tokens but some permission groups will not be available
 - [ ] Use the right HTTP errors instead of server error for everything
 - [ ] use dash instead of camel case for APIs?
 - [ ] look through other file platforms providers for features to implement
@@ -77,7 +77,7 @@
 - [ ] implement performance logging
 - [ ] Send email to the recipient of the change in collaboration request
 - [ ] show time code expires in emails
-- [ ] allow setting default presets on accept collaboration requests
+- [ ] allow setting default permission groups on accept collaboration requests
 - [ ] implement limit capping based on folder, tag, token, etc
 - [ ] audit logs
 - [ ] rich filter system

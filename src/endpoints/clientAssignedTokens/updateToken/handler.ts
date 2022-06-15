@@ -4,7 +4,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {
@@ -12,7 +12,7 @@ import {
   getPublicClientToken,
 } from '../utils';
 import {UpdateClientAssignedTokenEndpoint} from './types';
-import {updateClientAssignedTokenPresetsJoiSchema} from './validation';
+import {updateClientAssignedTokenPermissionGroupsJoiSchema} from './validation';
 
 const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   context,
@@ -20,7 +20,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(
     instData.data,
-    updateClientAssignedTokenPresetsJoiSchema
+    updateClientAssignedTokenPermissionGroupsJoiSchema
   );
 
   const agent = await context.session.getAgent(context, instData);
@@ -43,7 +43,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   }
 
   const update: Partial<IClientAssignedToken> = {
-    ...omit(data.token, 'presets', 'tags'),
+    ...omit(data.token, 'permissionGroups', 'tags'),
     lastUpdatedAt: getDate(),
     lastUpdatedBy: {
       agentId: agent.agentId,
@@ -65,7 +65,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
     data.token
   );
 
-  token = await withAssignedPresetsAndTags(
+  const tokenWithAssignedItems = await withAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,
@@ -73,7 +73,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
   );
 
   return {
-    token: getPublicClientToken(context, token),
+    token: getPublicClientToken(context, tokenWithAssignedItems),
   };
 };
 

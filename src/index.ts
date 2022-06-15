@@ -19,8 +19,8 @@ import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
+import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
-import setupPresetPermissionsGroupsRESTEndpoints from './endpoints/presetPermissionsGroups/setupRESTEndpoints';
 import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 import {setupApp} from './endpoints/runtime/initAppSetup';
@@ -98,7 +98,7 @@ async function setup() {
   setupFoldersRESTEndpoints(ctx, app);
   setupWorkspacesRESTEndpoints(ctx, app);
   setupPermissionItemsRESTEndpoints(ctx, app);
-  setupPresetPermissionsGroupsRESTEndpoints(ctx, app);
+  setupPermissionGroupsRESTEndpoints(ctx, app);
   setupProgramAccessTokensRESTEndpoints(ctx, app);
   setupAccountRESTEndpoints(ctx, app);
   setupResourcesRESTEndpoints(ctx, app);
