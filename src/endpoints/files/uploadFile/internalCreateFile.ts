@@ -10,7 +10,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
@@ -65,7 +65,7 @@ export async function internalCreateFile(
     data.publicAccessAction
   );
 
-  await replacePublicPresetAccessOpsByPermissionOwner(
+  await replacePublicPermissionGroupAccessOpsByPermissionOwner(
     context,
     agent,
     workspace,

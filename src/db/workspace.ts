@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Document, Model, Schema} from 'mongoose';
 import {
   UsageRecordCategory,
   UsageThresholdCategory,
@@ -55,7 +55,7 @@ const workspaceSchema = ensureTypeFields<IWorkspace>({
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   description: {type: String},
-  publicPresetId: {type: String},
+  publicPermissionGroupId: {type: String},
   billStatusAssignedAt: {type: Date},
   billStatus: {type: Number},
   usageThresholds: {

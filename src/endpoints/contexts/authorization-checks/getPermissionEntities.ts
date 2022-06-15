@@ -1,10 +1,10 @@
-import {IWorkspace} from '../../../definitions/workspace';
-import {IAssignedPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
+import {IAssignedPermissionGroup} from '../../../definitions/permissionGroups';
 import {
   AppResourceType,
   ISessionAgent,
   SessionAgentType,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
 
 export interface IPermissionEntity {
@@ -13,10 +13,12 @@ export interface IPermissionEntity {
   order?: number;
 }
 
-function extractPresetsData(presets: IAssignedPresetPermissionsGroup[]) {
-  return presets.map(item => ({
-    permissionEntityId: item.presetId,
-    permissionEntityType: AppResourceType.PresetPermissionsGroup,
+function extractPermissionGroupsData(
+  permissionGroups: IAssignedPermissionGroup[]
+) {
+  return permissionGroups.map(item => ({
+    permissionEntityId: item.permissionGroupId,
+    permissionEntityType: AppResourceType.PermissionGroup,
     order: item.order,
   }));
 }
@@ -37,9 +39,9 @@ export function getPermissionEntities(
             order: 1,
           },
         ].concat(
-          extractPresetsData(
+          extractPermissionGroupsData(
             getCollaboratorWorkspace(agent.user, workspace.resourceId)
-              ?.presets || []
+              ?.permissionGroups || []
           )
         );
       }
@@ -54,7 +56,11 @@ export function getPermissionEntities(
             permissionEntityType: AppResourceType.ClientAssignedToken,
             order: 1,
           },
-        ].concat(extractPresetsData(agent.clientAssignedToken.presets));
+        ].concat(
+          extractPermissionGroupsData(
+            agent.clientAssignedToken.permissionGroups
+          )
+        );
       }
       break;
     }
@@ -67,17 +73,19 @@ export function getPermissionEntities(
             permissionEntityType: AppResourceType.ProgramAccessToken,
             order: 1,
           },
-        ].concat(extractPresetsData(agent.programAccessToken.presets));
+        ].concat(
+          extractPermissionGroupsData(agent.programAccessToken.permissionGroups)
+        );
       }
       break;
     }
   }
 
-  if (workspace.publicPresetId) {
+  if (workspace.publicPermissionGroupId) {
     permissionEntities = permissionEntities.concat([
       {
-        permissionEntityId: workspace.publicPresetId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: workspace.publicPermissionGroupId,
+        permissionEntityType: AppResourceType.PermissionGroup,
       },
     ]);
   }

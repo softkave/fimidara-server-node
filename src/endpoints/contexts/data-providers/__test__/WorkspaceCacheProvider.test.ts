@@ -15,10 +15,10 @@ import {WorkspaceMongoDataProvider} from '../WorkspaceDataProvider';
 
 let connection: Connection | null = null;
 
+jest.setTimeout(50000); // 50 seconds
 beforeAll(async () => {
   const testVars = getTestVars();
   const dbName = `test-db-workspace-cache-${getNewId()}`;
-  testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
 });
 
@@ -52,7 +52,7 @@ describe('WorkspaceCacheProvider', () => {
     await provider.init(context);
 
     let ws = await provider.getById(context, workspaces[0].resourceId);
-    model
+    await model
       .updateOne(
         {resourceId: ws.resourceId},
         {

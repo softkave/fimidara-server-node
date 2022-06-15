@@ -8,8 +8,8 @@ import {getDateString} from '../../../utilities/dateFns';
 import {objectHasData} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import FileQueries from '../queries';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
@@ -70,7 +70,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
       data.file.publicAccessAction
     );
 
-    await replacePublicPresetAccessOpsByPermissionOwner(
+    await replacePublicPermissionGroupAccessOpsByPermissionOwner(
       context,
       agent,
       workspace,
@@ -91,7 +91,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     true
   );
 
-  file = await withAssignedPresetsAndTags(
+  file = await withAssignedPermissionGroupsAndTags(
     context,
     file.workspaceId,
     file,

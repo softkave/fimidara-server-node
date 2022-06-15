@@ -1,5 +1,4 @@
 import {flatten, last} from 'lodash';
-import {IWorkspace} from '../../../definitions/workspace';
 import {
   IPermissionItem,
   PermissionItemAppliesTo,
@@ -9,6 +8,7 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {InternalError} from '../../../utilities/errors';
 import {indexArray} from '../../../utilities/indexArray';
 import {
@@ -18,7 +18,7 @@ import {
 import {IBaseContext} from '../BaseContext';
 import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
 import DataProviderFilterBuilder from '../data-providers/DataProviderFilterBuilder';
-import {fetchAndSortPresets} from './fetchPresets';
+import {fetchAndSortPermissionGroups} from './fetchPermissionGroups';
 import {
   getPermissionEntities,
   IPermissionEntity,
@@ -92,7 +92,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   }
 
   const agentPermissionEntities = getPermissionEntities(agent, workspace);
-  const authEntities = await fetchAndSortPresets(
+  const authEntities = await fetchAndSortPermissionGroups(
     context,
     agentPermissionEntities
   );
@@ -168,7 +168,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
     [AppResourceType.User]: 1,
     [AppResourceType.ClientAssignedToken]: 2,
     [AppResourceType.ProgramAccessToken]: 3,
-    [AppResourceType.PresetPermissionsGroup]: 4,
+    [AppResourceType.PermissionGroup]: 4,
   };
 
   const LOWER_PRIORITY_WEIGHT = Number.MAX_SAFE_INTEGER;

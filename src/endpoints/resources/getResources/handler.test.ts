@@ -19,9 +19,9 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
-  insertPresetForTest,
+  insertPermissionGroupForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {IFetchResourceItem} from '../types';
@@ -45,11 +45,12 @@ describe('getResources', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(
       action => ({
@@ -57,8 +58,8 @@ describe('getResources', () => {
         grantAccess: faker.datatype.boolean(),
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Workspace,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
         itemResourceId: workspace.resourceId,
@@ -89,7 +90,7 @@ describe('getResources', () => {
     };
 
     addResource(workspace, AppResourceType.Workspace);
-    addResource(preset, AppResourceType.PresetPermissionsGroup);
+    addResource(permissionGroup, AppResourceType.PermissionGroup);
     addResource(
       collaboratorExtractor(
         await withUserWorkspaces(context, rawUser),

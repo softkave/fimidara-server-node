@@ -1,11 +1,11 @@
 import OperationError, {
-  IOperationErrorParameters,
   getErrorMessageFromParams,
+  IOperationErrorParameters,
 } from '../../utilities/OperationError';
 import {endpointConstants} from '../constants';
 
-export class UsageLimitExceeded extends OperationError {
-  public name = 'UsageLimitExceeded';
+export class UsageLimitExceededError extends OperationError {
+  public name = 'UsageLimitExceededError';
   public statusCode = endpointConstants.httpStatusCode.forbidden;
 
   constructor(props?: IOperationErrorParameters | string) {

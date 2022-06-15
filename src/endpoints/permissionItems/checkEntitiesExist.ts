@@ -1,6 +1,6 @@
 import {format} from 'util';
+import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {ISessionAgent, AppResourceType} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
@@ -16,7 +16,7 @@ import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedIt
 const allowedTypes = new Map();
 allowedTypes.set(AppResourceType.ClientAssignedToken, true);
 allowedTypes.set(AppResourceType.ProgramAccessToken, true);
-allowedTypes.set(AppResourceType.PresetPermissionsGroup, true);
+allowedTypes.set(AppResourceType.PermissionGroup, true);
 allowedTypes.set(AppResourceType.User, true);
 
 export default async function checkEntitiesExist(

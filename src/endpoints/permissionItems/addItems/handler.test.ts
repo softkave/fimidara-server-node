@@ -12,9 +12,9 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
-  insertPresetForTest,
+  insertPermissionGroupForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
@@ -39,11 +39,12 @@ describe('addItems', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const items: INewPermissionItemInput[] = getWorkspaceActionList().map(
       action => ({
@@ -51,8 +52,8 @@ describe('addItems', () => {
         grantAccess: faker.datatype.boolean(),
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Workspace,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
         itemResourceId: workspace.resourceId,
@@ -74,11 +75,12 @@ describe('addItems', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const items: INewPermissionItemInput[] = getWorkspaceActionList().map(
       action => ({
@@ -86,8 +88,8 @@ describe('addItems', () => {
         grantAccess: faker.datatype.boolean(),
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
         itemResourceType: AppResourceType.Workspace,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
         itemResourceId: workspace.resourceId,
@@ -109,14 +111,13 @@ describe('addItems', () => {
     assertEndpointResultOk(result);
     expectItemsPresent(result.items, items);
 
-    const presetPermissionItems =
-      await context.data.permissionItem.getManyItems(
-        PermissionItemQueries.getByPermissionEntity(
-          preset.resourceId,
-          AppResourceType.PresetPermissionsGroup
-        )
-      );
+    const permissionGroupItems = await context.data.permissionItem.getManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        permissionGroup.resourceId,
+        AppResourceType.PermissionGroup
+      )
+    );
 
-    expect(presetPermissionItems.length).toBe(result.items.length);
+    expect(permissionGroupItems.length).toBe(result.items.length);
   });
 });

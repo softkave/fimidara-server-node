@@ -1,9 +1,9 @@
-import {IAssignedPresetPermissionsGroup} from './presetPermissionsGroup';
+import {IAssignedPermissionGroup} from './permissionGroups';
 
 export interface IUserWorkspace {
   workspaceId: string;
   joinedAt: Date | string;
-  presets: IAssignedPresetPermissionsGroup[];
+  permissionGroups: IAssignedPermissionGroup[];
 }
 
 export interface IUser {

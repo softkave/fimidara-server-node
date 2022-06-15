@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import assert = require('assert');
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {
@@ -15,6 +14,10 @@ import {
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import cast from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
+import {
+  throwFirstRejectedPromiseWithId,
+  waitOnPromisesWithId,
+} from '../../../../utilities/waitOnPromises';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
 import {generateWorkspace} from '../../../test-utils/generate-data/workspace';
@@ -27,6 +30,7 @@ import {
 } from '../UsageRecordLogicProvider';
 import {WorkspaceCacheProvider} from '../WorkspaceCacheProvider';
 import {WorkspaceMongoDataProvider} from '../WorkspaceDataProvider';
+import assert = require('assert');
 
 let connection: Connection | null = null;
 let context: IBaseContext | null = null;
@@ -86,7 +90,9 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-
+    throwFirstRejectedPromiseWithId(
+      await waitOnPromisesWithId(reqData.pendingPromises)
+    );
     expect(status).toBe(true);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -113,7 +119,9 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-
+    throwFirstRejectedPromiseWithId(
+      await waitOnPromisesWithId(reqData.pendingPromises)
+    );
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -135,7 +143,9 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-
+    throwFirstRejectedPromiseWithId(
+      await waitOnPromisesWithId(reqData.pendingPromises)
+    );
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -159,7 +169,9 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-
+    throwFirstRejectedPromiseWithId(
+      await waitOnPromisesWithId(reqData.pendingPromises)
+    );
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);

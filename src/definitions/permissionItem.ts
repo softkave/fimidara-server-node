@@ -19,7 +19,7 @@ export interface IPermissionItem {
   permissionOwnerType: AppResourceType;
 
   // Entities are user token, client assigned token,
-  // program access token and preset permission groups.
+  // program access token and permissionGroup permission groups.
   // It's the entity this permission item was created for.
   permissionEntityId: string;
   permissionEntityType: AppResourceType;

@@ -1,5 +1,10 @@
+import assert = require('assert');
 import {IFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  publicPermissibleEndpointAgents,
+} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IDatabaseObjectUsageRecordArtifact,
@@ -10,8 +15,10 @@ import {
 } from '../../definitions/usageRecord';
 import {IBaseContext} from '../contexts/BaseContext';
 import {IUsageRecordInput} from '../contexts/data-providers/UsageRecordLogicProvider';
+import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
+import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(
   ctx: IBaseContext,
@@ -19,18 +26,18 @@ async function insertRecord(
   input: IUsageRecordInput
 ) {
   // not yet ready
-  return;
+  // return;
 
-  // const agent = getActionAgentFromSessionAgent(
-  //   await ctx.session.getAgent(ctx, reqData)
-  // );
-  // const allowed = await ctx.logicProviders.usageRecord.insert(
-  //   ctx,
-  //   reqData,
-  //   agent,
-  //   input
-  // );
-  // assert(allowed, new UsageLimitExceeded());
+  const agent = getActionAgentFromSessionAgent(
+    await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
+  );
+  const allowed = await ctx.logicProviders.usageRecord.insert(
+    ctx,
+    reqData,
+    agent,
+    input
+  );
+  assert(allowed, new UsageLimitExceededError());
 }
 
 export async function insertStorageUsageRecordInput(

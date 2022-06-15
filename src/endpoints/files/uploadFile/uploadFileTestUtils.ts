@@ -1,27 +1,27 @@
 import {faker} from '@faker-js/faker';
-import assert = require('assert');
 import {IFile} from '../../../definitions/file';
-import {IWorkspace} from '../../../definitions/workspace';
 import {
-  IPublicAccessOpInput,
   AppResourceType,
   BasicCRUDActions,
+  IPublicAccessOpInput,
 } from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
+import {IWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import RequestData from '../../RequestData';
+import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
 import {
+  assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  insertFileForTest,
-  mockExpressRequestWithUserToken,
   mockExpressRequestForPublicAgent,
-  assertEndpointResultOk,
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteFile from '../deleteFile/handler';
 import {IDeleteFileEndpointParams} from '../deleteFile/types';
@@ -30,12 +30,12 @@ import {IGetFileEndpointParams} from '../getFile/types';
 import FileQueries from '../queries';
 import updateFileDetails from '../updateFileDetails/handler';
 import {
-  IUpdateFileDetailsInput,
   IUpdateFileDetailsEndpointParams,
+  IUpdateFileDetailsInput,
 } from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {IUploadFileEndpointParams} from './types';
-import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
+import assert = require('assert');
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,
@@ -112,12 +112,12 @@ export async function assertPublicAccessOps(
   //   });
   // });
 
-  assert(insertWorkspaceResult.workspace.publicPresetId);
-  const publicPresetPermissionitems = (
+  assert(insertWorkspaceResult.workspace.publicPermissionGroupId);
+  const publicPermissionGroupPermissionitems = (
     await ctx.data.permissionItem.getManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        insertWorkspaceResult.workspace.publicPresetId,
-        AppResourceType.PresetPermissionsGroup
+        insertWorkspaceResult.workspace.publicPermissionGroupId,
+        AppResourceType.PermissionGroup
       )
     )
   ).map(item => {
@@ -137,28 +137,28 @@ export async function assertPublicAccessOps(
   );
 
   expectItemsByEntityPresent(
-    publicPresetPermissionitems,
+    publicPermissionGroupPermissionitems,
     basePermissionItems,
-    insertWorkspaceResult.workspace.publicPresetId,
-    AppResourceType.PresetPermissionsGroup
+    insertWorkspaceResult.workspace.publicPermissionGroupId,
+    AppResourceType.PermissionGroup
   );
 }
 
 export async function assertPublicPermissionsDonotExistForOwner(
   ctx: IBaseContext,
-  workspace: Pick<IWorkspace, 'publicPresetId'>,
+  workspace: Pick<IWorkspace, 'publicPermissionGroupId'>,
   ownerId: string
 ) {
-  assert(workspace.publicPresetId);
-  const publicPresetPermissionitems =
+  assert(workspace.publicPermissionGroupId);
+  const publicPermissionGroupPermissionitems =
     await ctx.data.permissionItem.getManyItems(
       PermissionItemQueries.getByPermissionEntity(
-        workspace.publicPresetId,
-        AppResourceType.PresetPermissionsGroup
+        workspace.publicPermissionGroupId,
+        AppResourceType.PermissionGroup
       )
     );
 
-  const items = publicPresetPermissionitems.filter(
+  const items = publicPermissionGroupPermissionitems.filter(
     item => item.permissionOwnerId === ownerId
   );
 

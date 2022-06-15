@@ -5,10 +5,10 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
+  insertPermissionGroupForTest,
   insertPermissionItemsForTestByEntity,
-  insertPresetForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
@@ -29,7 +29,7 @@ test('permission items deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {preset} = await insertPresetForTest(
+  const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
@@ -40,8 +40,8 @@ test('permission items deleted', async () => {
     userToken,
     workspace.resourceId,
     {
-      permissionEntityId: preset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      permissionEntityId: permissionGroup.resourceId,
+      permissionEntityType: AppResourceType.PermissionGroup,
     },
     {
       permissionOwnerId: workspace.resourceId,
@@ -56,8 +56,8 @@ test('permission items deleted', async () => {
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId: workspace.resourceId,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         itemIds: itemIds,
       }
     );

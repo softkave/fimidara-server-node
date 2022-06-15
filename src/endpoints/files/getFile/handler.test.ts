@@ -1,30 +1,30 @@
 import assert = require('assert');
 import {faker} from '@faker-js/faker';
-import sharp = require('sharp');
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {folderConstants} from '../../folders/constants';
 import RequestData from '../../RequestData';
+import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {UsageLimitExceeded} from '../../usageRecords/errors';
+import sharp = require('sharp');
 
 let context: IBaseContext | null = null;
 
@@ -218,7 +218,7 @@ describe('getFile', () => {
 
     await expectErrorThrown(
       async () => await getFile(context!, reqData),
-      [UsageLimitExceeded.name]
+      [UsageLimitExceededError.name]
     );
   });
 });

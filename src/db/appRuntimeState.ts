@@ -6,8 +6,8 @@ const appRuntimeStateSchema = ensureTypeFields<IAppRuntimeState>({
   resourceId: {type: String, unique: true, index: true},
   isAppSetup: {type: Boolean, default: false},
   appWorkspaceId: {type: String},
-  appWorkspacesImageUploadPresetId: {type: String},
-  appUsersImageUploadPresetId: {type: String},
+  appWorkspacesImageUploadPermissionGroupId: {type: String},
+  appUsersImageUploadPermissionGroupId: {type: String},
 });
 
 export type IAppRuntimeStateDocument = Document<IAppRuntimeState>;

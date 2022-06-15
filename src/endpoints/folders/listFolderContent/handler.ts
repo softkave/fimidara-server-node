@@ -8,7 +8,7 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {resourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -111,14 +111,14 @@ const listFolderContent: ListFolderContentEndpoint = async (
     throw new PermissionDeniedError();
   }
 
-  allowedFolders = await resourceListWithAssignedPresetsAndTags(
+  allowedFolders = await resourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     allowedFolders,
     AppResourceType.Folder
   );
 
-  allowedFiles = await resourceListWithAssignedPresetsAndTags(
+  allowedFiles = await resourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     allowedFiles,

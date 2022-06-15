@@ -1,5 +1,5 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -8,9 +8,9 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertWorkspaceForTest,
-  insertPresetForTest,
+  insertPermissionGroupForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {clientAssignedTokenExtractor, getPublicClientToken} from '../utils';
@@ -19,7 +19,7 @@ import {IUpdateClientAssignedTokenEndpointParams} from './types';
 
 /**
  * TODO:
- * - [Low] Test that hanlder fails if preset doesn't exist
+ * - [Low] Test that hanlder fails if permissionGroup doesn't exist
  * - Test updating other fields
  */
 
@@ -33,7 +33,7 @@ afterAll(async () => {
   await getTestBaseContext.release();
 });
 
-test('client assigned token presets updated', async () => {
+test('client assigned token permission groups updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
@@ -43,17 +43,19 @@ test('client assigned token presets updated', async () => {
     workspace.resourceId
   );
 
-  const {preset: preset01} = await insertPresetForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
+  const {permissionGroup: permissionGroup01} =
+    await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
-  const {preset: preset02} = await insertPresetForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
+  const {permissionGroup: permissionGroup02} =
+    await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
   const instData =
     RequestData.fromExpressRequest<IUpdateClientAssignedTokenEndpointParams>(
@@ -61,13 +63,13 @@ test('client assigned token presets updated', async () => {
       {
         tokenId: token01.resourceId,
         token: {
-          presets: [
+          permissionGroups: [
             {
-              presetId: preset01.resourceId,
+              permissionGroupId: permissionGroup01.resourceId,
               order: 1,
             },
             {
-              presetId: preset02.resourceId,
+              permissionGroupId: permissionGroup02.resourceId,
               order: 2,
             },
           ],
@@ -79,7 +81,7 @@ test('client assigned token presets updated', async () => {
   assertEndpointResultOk(result);
   const updatedToken = getPublicClientToken(
     context,
-    await withAssignedPresetsAndTags(
+    await withAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.clientAssignedToken.assertGetItem(
@@ -93,15 +95,15 @@ test('client assigned token presets updated', async () => {
     result.token
   );
 
-  expect(result.token.presets.length).toEqual(2);
-  expect(result.token.presets[0]).toMatchObject({
-    presetId: preset01.resourceId,
+  expect(result.token.permissionGroups.length).toEqual(2);
+  expect(result.token.permissionGroups[0]).toMatchObject({
+    permissionGroupId: permissionGroup01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(result.token.presets[1]).toMatchObject({
-    presetId: preset02.resourceId,
+  expect(result.token.permissionGroups[1]).toMatchObject({
+    permissionGroupId: permissionGroup02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,
   });

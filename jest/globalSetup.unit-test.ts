@@ -4,7 +4,7 @@ import BaseContext, {
   getDataProviders,
   getLogicProviders,
 } from '../src/endpoints/contexts/BaseContext';
-import MemoryDataProviderContext from '../src/endpoints/contexts/MemoryDataProviderContext';
+import MongoDBDataProviderContext from '../src/endpoints/contexts/MongoDBDataProviderContext';
 import {setupApp} from '../src/endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../src/endpoints/test-utils/context/NoopEmailProviderContext';
 import NoopFilePersistenceProviderContext from '../src/endpoints/test-utils/context/NoopFilePersistenceProviderContext';
@@ -18,7 +18,7 @@ async function testGlobalSetup() {
   );
 
   const ctx = new BaseContext(
-    new MemoryDataProviderContext(),
+    new MongoDBDataProviderContext(connection),
     new NoopEmailProviderContext(),
     new NoopFilePersistenceProviderContext(),
     appVariables,

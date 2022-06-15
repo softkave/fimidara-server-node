@@ -2,11 +2,11 @@
 - [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
-- [ ] Preset weight, not order
+- [ ] permission group weight, not order
 - [ ] unit tests
 - [ ] free flow tags and meta
 - [ ] add provided resource ID to all the resources
-- [ ] Add to public preset description what it's for and that it cannot be deleted. Add similar information to admin preset and that deleting it may lock the admin out of the app
+- [ ] Add to public permission group description what it's for and that it cannot be deleted. Add similar information to admin permission group and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
 - [ ] delete permission items when entity, owner, or resource is deleted
 - [ ] write more auth check tests, particularly for ones that shouldn't grant access

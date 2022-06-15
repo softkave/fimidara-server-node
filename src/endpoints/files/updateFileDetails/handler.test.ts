@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -8,8 +8,8 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import FileQueries from '../queries';
@@ -60,7 +60,7 @@ test('file updated', async () => {
   expect(result.file.resourceId).toEqual(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
-  const updatedFile = await withAssignedPresetsAndTags(
+  const updatedFile = await withAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     await context.data.file.assertGetItem(FileQueries.getById(file.resourceId)),

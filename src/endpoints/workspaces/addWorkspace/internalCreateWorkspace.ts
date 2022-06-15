@@ -10,8 +10,8 @@ import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
 import {
-  setupDefaultWorkspacePresets,
-  addWorkspaceToUserAndAssignAdminPreset,
+  addWorkspaceToUserAndAssignAdminPermissionGroup,
+  setupDefaultWorkspacePermissionGroups,
 } from './utils';
 
 export function transformUsageThresholInput(
@@ -57,29 +57,26 @@ const internalCreateWorkspace = async (
       usageThresholdLocks: {},
     });
 
-  const {adminPreset, publicPreset} = await setupDefaultWorkspacePresets(
-    context,
-    agent,
-    workspace
-  );
+  const {adminPermissionGroup, publicPermissionGroup} =
+    await setupDefaultWorkspacePermissionGroups(context, agent, workspace);
 
   workspace = await context.cacheProviders.workspace.updateById(
     context,
     workspace.resourceId,
-    {publicPresetId: publicPreset.resourceId}
+    {publicPermissionGroupId: publicPermissionGroup.resourceId}
   );
   assertWorkspace(workspace);
 
   if (user) {
-    await addWorkspaceToUserAndAssignAdminPreset(
+    await addWorkspaceToUserAndAssignAdminPermissionGroup(
       context,
       user,
       workspace,
-      adminPreset
+      adminPermissionGroup
     );
   }
 
-  return {workspace, adminPreset, publicPreset};
+  return {workspace, adminPermissionGroup, publicPermissionGroup};
 };
 
 export default internalCreateWorkspace;

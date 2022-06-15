@@ -4,7 +4,7 @@ import {IUserWithWorkspace} from '../../definitions/user';
 import {InternalError} from '../../utilities/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {InvalidRequestError} from '../errors';
-import {IWorkspaceResource, IResource} from './types';
+import {IResource, IWorkspaceResource} from './types';
 
 export function isResourcePartOfWorkspace(
   workspaceId: string,
@@ -17,7 +17,7 @@ export function isResourcePartOfWorkspace(
     case AppResourceType.CollaborationRequest:
     case AppResourceType.ProgramAccessToken:
     case AppResourceType.ClientAssignedToken:
-    case AppResourceType.PresetPermissionsGroup:
+    case AppResourceType.PermissionGroup:
     case AppResourceType.PermissionItem:
     case AppResourceType.Folder:
     case AppResourceType.File:

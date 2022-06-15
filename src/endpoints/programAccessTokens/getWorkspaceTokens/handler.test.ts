@@ -4,9 +4,9 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getWorkspaceProgramAccessTokens from './handler';
@@ -41,9 +41,7 @@ test("workspace's program access token returned", async () => {
   const instData =
     RequestData.fromExpressRequest<IGetWorkspaceProgramAccessTokensEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-      }
+      {workspaceId: workspace.resourceId}
     );
 
   const result = await getWorkspaceProgramAccessTokens(context, instData);

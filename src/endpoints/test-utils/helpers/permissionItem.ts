@@ -11,13 +11,13 @@ export function expectItemsPresent(
   items: IPermissionItemBase[],
   expected: INewPermissionItemInput[]
 ) {
-  const publicPresetPermissionitemsMap = indexArray(items, {
+  const publicPermissionGroupPermissionitemsMap = indexArray(items, {
     indexer: permissionItemIndexer,
   });
 
   expected.forEach(item => {
     expect(
-      publicPresetPermissionitemsMap[permissionItemIndexer(item)]
+      publicPermissionGroupPermissionitemsMap[permissionItemIndexer(item)]
     ).toMatchObject(item);
   });
 }
@@ -40,13 +40,13 @@ export function expectItemsByEntityPresent(
   permissionEntityId: string,
   permissionEntityType: AppResourceType
 ) {
-  const publicPresetPermissionitemsMap = indexArray(expectedItems, {
+  const publicPermissionGroupPermissionitemsMap = indexArray(expectedItems, {
     indexer: permissionItemIndexer,
   });
 
   matches.forEach(item => {
     expect(
-      publicPresetPermissionitemsMap[
+      publicPermissionGroupPermissionitemsMap[
         permissionItemIndexer(
           inputByEntityToItem(item, permissionEntityId, permissionEntityType)
         )

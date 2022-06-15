@@ -51,7 +51,7 @@ export async function deleteFileAndArtifacts(
       PermissionItemQueries.getByOwner(file.resourceId, AppResourceType.File)
     ),
 
-    // Delete assigned tags and presets
+    // Delete assigned tags and permissionGroups
     deleteResourceAssignedItems(
       context,
       file.workspaceId,

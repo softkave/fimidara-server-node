@@ -1,6 +1,6 @@
 import {TokenType} from '../endpoints/contexts/SessionContext';
 import {IAppRuntimeVars} from '../resources/appVariables';
-import {ResourceWithPresetsAndTags} from './assignedItem';
+import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {IProgramAccessToken} from './programAccessToken';
 import {IUserWithWorkspace} from './user';
@@ -44,8 +44,8 @@ export interface ISessionAgent {
 
   // One of the following, depending on the agentType
   userToken?: IUserToken;
-  programAccessToken?: ResourceWithPresetsAndTags<IProgramAccessToken>;
-  clientAssignedToken?: ResourceWithPresetsAndTags<IClientAssignedToken>;
+  programAccessToken?: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>;
+  clientAssignedToken?: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>;
   user?: IUserWithWorkspace;
 }
 
@@ -61,7 +61,7 @@ export enum AppResourceType {
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
   UserToken = 'user-token',
-  PresetPermissionsGroup = 'preset-permissions-group',
+  PermissionGroup = 'permissionGroup-permissions-group',
   PermissionItem = 'permission-item',
   Folder = 'folder',
   File = 'file',

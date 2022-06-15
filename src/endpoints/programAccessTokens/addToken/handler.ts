@@ -1,5 +1,5 @@
-import * as crypto from 'crypto';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {
   AppResourceType,
@@ -10,19 +10,19 @@ import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
+import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import {programAccessTokenConstants} from '../constants';
 import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {addProgramAccessTokenJoiSchema} from './validation';
-import {checkProgramTokenNameExists} from '../checkProgramNameExists';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
   context,
@@ -76,7 +76,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
     data.token
   );
 
-  token = await withAssignedPresetsAndTags(
+  token = await withAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,

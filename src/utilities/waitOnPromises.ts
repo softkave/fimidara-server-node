@@ -68,3 +68,10 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   const mappedPromises = promises.map(wrapPromise);
   return Promise.all(mappedPromises);
 };
+
+export function throwFirstRejectedPromiseWithId(p: ISettledPromiseWithId[]) {
+  const rejected = p.filter(p => p.rejected);
+  if (rejected.length > 0) {
+    throw rejected[0].reason;
+  }
+}

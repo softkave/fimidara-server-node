@@ -14,7 +14,7 @@ import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/appVariables';
 import {getDate, getDateString} from '../../utilities/dateFns';
 import getNewId from '../../utilities/getNewId';
-import {addAssignedPresetList} from '../assignedItems/addAssignedItems';
+import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext} from '../contexts/BaseContext';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {permissionItemIndexer} from '../permissionItems/utils';
@@ -28,8 +28,8 @@ const appSetupVars = {
   workspaceName: 'Fimidara',
   workspaceImagesfolderpath: folder02Path + '/workspaces',
   userImagesfolderpath: folder02Path + '/users',
-  workspacesImageUploadPresetName: 'Fimidara-workspaces-image-upload',
-  usersImageUploadPresetName: 'Fimidara-users-image-upload',
+  workspacesImageUploadPermissionGroupName: 'Fimidara-workspaces-image-upload',
+  usersImageUploadPermissionGroupName: 'Fimidara-users-image-upload',
 };
 
 async function setupWorkspace(context: IBaseContext, name: string) {
@@ -47,7 +47,7 @@ async function setupDefaultUserCollaborationRequest(
   context: IBaseContext,
   workspace: IWorkspace,
   userEmail: string,
-  adminPresetId: string
+  adminPermissionGroupId: string
 ) {
   const createdAt = getDate();
   const request = await context.data.collaborationRequest.saveItem({
@@ -71,15 +71,15 @@ async function setupDefaultUserCollaborationRequest(
     ],
   });
 
-  await addAssignedPresetList(
+  await addAssignedPermissionGroupList(
     context,
     systemAgent,
     workspace,
-    [{order: 0, presetId: adminPresetId}],
+    [{order: 0, permissionGroupId: adminPermissionGroupId}],
     request.resourceId,
     AppResourceType.CollaborationRequest,
     /** deleteExisting */ false,
-    /** skipPresetsCheck */ true
+    /** skipPermissionGroupsCheck */ true
   );
 }
 
@@ -137,16 +137,17 @@ async function setupImageUploadPermissionGroup(
   folderId: string
 ) {
   const createdAt = getDate();
-  const imageUploadPreset = await context.data.preset.saveItem({
-    name,
-    description,
-    createdAt,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: systemAgent,
-    resourceId: getNewId(),
-    workspaceId: workspaceId,
-    createdBy: systemAgent,
-  });
+  const imageUploadPermissionGroup =
+    await context.data.permissiongroup.saveItem({
+      name,
+      description,
+      createdAt,
+      lastUpdatedAt: createdAt,
+      lastUpdatedBy: systemAgent,
+      resourceId: getNewId(),
+      workspaceId: workspaceId,
+      createdBy: systemAgent,
+    });
 
   const permissionItems: IPermissionItem[] = [
     BasicCRUDActions.Create,
@@ -161,8 +162,8 @@ async function setupImageUploadPermissionGroup(
       createdBy: systemAgent,
       permissionOwnerId: folderId,
       permissionOwnerType: AppResourceType.Folder,
-      permissionEntityId: imageUploadPreset.resourceId,
-      permissionEntityType: AppResourceType.PresetPermissionsGroup,
+      permissionEntityId: imageUploadPermissionGroup.resourceId,
+      permissionEntityType: AppResourceType.PermissionGroup,
       itemResourceType: AppResourceType.File,
       grantAccess: true,
       appliesTo: PermissionItemAppliesTo.Children,
@@ -173,7 +174,7 @@ async function setupImageUploadPermissionGroup(
   });
 
   await context.data.permissionItem.bulkSaveItems(permissionItems);
-  return imageUploadPreset;
+  return imageUploadPermissionGroup;
 }
 
 export async function setupApp(context: IBaseContext) {
@@ -184,9 +185,10 @@ export async function setupApp(context: IBaseContext) {
   if (appRuntimeState) {
     const appRuntimeVars: IAppRuntimeVars = {
       appWorkspaceId: appRuntimeState.appWorkspaceId,
-      appWorkspacesImageUploadPresetId:
-        appRuntimeState.appWorkspacesImageUploadPresetId,
-      appUsersImageUploadPresetId: appRuntimeState.appUsersImageUploadPresetId,
+      appWorkspacesImageUploadPermissionGroupId:
+        appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
+      appUsersImageUploadPermissionGroupId:
+        appRuntimeState.appUsersImageUploadPermissionGroupId,
     };
 
     merge(context.appVariables, appRuntimeVars);
@@ -198,7 +200,7 @@ export async function setupApp(context: IBaseContext) {
     return workspace;
   }
 
-  const {adminPreset, workspace: workspace} = await setupWorkspace(
+  const {adminPermissionGroup, workspace: workspace} = await setupWorkspace(
     context,
     appSetupVars.workspaceName
   );
@@ -207,33 +209,37 @@ export async function setupApp(context: IBaseContext) {
     context,
     workspace,
     context.appVariables.defaultUserEmailAddress,
-    adminPreset.resourceId
+    adminPermissionGroup.resourceId
   );
 
   const {workspaceImagesFolder, userImagesFolder} = await setupFolders(
     context,
     workspace
   );
-  const appWorkspacesImageUploadPreset = await setupImageUploadPermissionGroup(
-    context,
-    workspace.resourceId,
-    appSetupVars.workspacesImageUploadPresetName,
-    'Auto-generated preset for uploading images to the workspace images folder',
-    workspaceImagesFolder.resourceId
-  );
+  const appWorkspacesImageUploadPermissionGroup =
+    await setupImageUploadPermissionGroup(
+      context,
+      workspace.resourceId,
+      appSetupVars.workspacesImageUploadPermissionGroupName,
+      'Auto-generated permission group for uploading images to the workspace images folder',
+      workspaceImagesFolder.resourceId
+    );
 
-  const appUsersImageUploadPreset = await setupImageUploadPermissionGroup(
-    context,
-    workspace.resourceId,
-    appSetupVars.usersImageUploadPresetName,
-    'Auto-generated preset for uploading images to the user images folder',
-    userImagesFolder.resourceId
-  );
+  const appUsersImageUploadPermissionGroup =
+    await setupImageUploadPermissionGroup(
+      context,
+      workspace.resourceId,
+      appSetupVars.usersImageUploadPermissionGroupName,
+      'Auto-generated permission group for uploading images to the user images folder',
+      userImagesFolder.resourceId
+    );
 
   const appRuntimeVars: IAppRuntimeVars = {
     appWorkspaceId: workspace.resourceId,
-    appWorkspacesImageUploadPresetId: appWorkspacesImageUploadPreset.resourceId,
-    appUsersImageUploadPresetId: appUsersImageUploadPreset.resourceId,
+    appWorkspacesImageUploadPermissionGroupId:
+      appWorkspacesImageUploadPermissionGroup.resourceId,
+    appUsersImageUploadPermissionGroupId:
+      appUsersImageUploadPermissionGroup.resourceId,
   };
 
   await context.data.appRuntimeState.saveItem({

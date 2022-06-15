@@ -3,9 +3,9 @@ import {
   IPublicProgramAccessToken,
 } from '../../definitions/programAccessToken';
 import {
-  ISessionAgent,
-  BasicCRUDActions,
   AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
@@ -17,10 +17,10 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {TokenType} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
-import {checkWorkspaceExists} from '../workspaces/utils';
-import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
+import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import ProgramAccessTokenQueries from './queries';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
@@ -30,7 +30,7 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   workspaceId: true,
   name: true,
   description: true,
-  presets: assignedPresetsListExtractor,
+  permissionGroups: assignedPermissionGroupsListExtractor,
   lastUpdatedAt: getDateString,
   lastUpdatedBy: agentExtractor,
   tokenStr: true,
@@ -98,7 +98,9 @@ export function getPublicProgramToken(
   const tokenStr = context.session.encodeToken(
     context,
     token.resourceId,
-    TokenType.ProgramAccessToken
+    TokenType.ProgramAccessToken,
+    null,
+    token.createdAt
   );
 
   cast<IPublicProgramAccessToken>(token).tokenStr = tokenStr;

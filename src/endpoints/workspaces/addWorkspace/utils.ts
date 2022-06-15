@@ -1,8 +1,8 @@
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {
   IPermissionItem,
   PermissionItemAppliesTo,
 } from '../../../definitions/permissionItem';
-import {IPresetPermissionsGroup} from '../../../definitions/presetPermissionsGroup';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -15,21 +15,21 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {
-  addAssignedPresetList,
+  addAssignedPermissionGroupList,
   addAssignedUserWorkspace,
 } from '../../assignedItems/addAssignedItems';
 import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {permissionItemIndexer} from '../../permissionItems/utils';
 
-export const DEFAULT_ADMIN_PRESET_NAME = 'Admin';
-export const DEFAULT_PUBLIC_PRESET_NAME = 'Public';
-export const DEFAULT_COLLABORATOR_PRESET_NAME = 'Collaborator';
+export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
+export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
+export const DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME = 'Collaborator';
 
 function makeAdminPermissions(
   agent: IAgent,
   workspace: IWorkspace,
-  adminPreset: IPresetPermissionsGroup
+  adminPermissionGroup: IPermissionGroup
 ) {
   const permissionItems: IPermissionItem[] = getWorkspaceActionList().map(
     action => {
@@ -44,8 +44,8 @@ function makeAdminPermissions(
         },
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
-        permissionEntityId: adminPreset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: adminPermissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         itemResourceType: AppResourceType.All,
         hash: '',
         appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
@@ -63,7 +63,7 @@ function makeAdminPermissions(
 function makeCollaboratorPermissions(
   agent: IAgent,
   workspace: IWorkspace,
-  preset: IPresetPermissionsGroup
+  permissiongroup: IPermissionGroup
 ) {
   function makePermission(
     actions: BasicCRUDActions[],
@@ -86,8 +86,8 @@ function makeCollaboratorPermissions(
         },
         permissionOwnerId: workspace.resourceId,
         permissionOwnerType: AppResourceType.Workspace,
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissiongroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
         hash: '',
         grantAccess: true,
       };
@@ -154,67 +154,73 @@ function makeCollaboratorPermissions(
   return permissionItems;
 }
 
-export async function setupDefaultWorkspacePresets(
+export async function setupDefaultWorkspacePermissionGroups(
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace
 ) {
   const createdAt = getDateString();
-  const adminPreset: IPresetPermissionsGroup = {
+  const adminPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
     createdBy: agent,
-    name: DEFAULT_ADMIN_PRESET_NAME,
+    name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
     description:
-      'Auto-generated preset that can access and perform every and all actions on all resources',
+      'Auto-generated permission group that can access and perform every and all actions on all resources',
   };
 
-  const publicPreset: IPresetPermissionsGroup = {
+  const publicPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
     createdBy: agent,
-    name: DEFAULT_PUBLIC_PRESET_NAME,
+    name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
     description:
-      'Auto-generated preset for accessing and performing public operations.',
+      'Auto-generated permission group for accessing and performing public operations.',
   };
 
-  const collaboratorPreset: IPresetPermissionsGroup = {
+  const collaboratorPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
     resourceId: getNewId(),
     workspaceId: workspace.resourceId,
     createdBy: agent,
-    name: DEFAULT_COLLABORATOR_PRESET_NAME,
-    description: 'Auto-generated preset for collaborators.',
+    name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,
+    description: 'Auto-generated permission group for collaborators.',
   };
 
-  await context.data.preset.bulkSaveItems([
-    adminPreset,
-    publicPreset,
-    collaboratorPreset,
+  await context.data.permissiongroup.bulkSaveItems([
+    adminPermissionGroup,
+    publicPermissionGroup,
+    collaboratorPermissionGroup,
   ]);
 
   const permissionItems: IPermissionItem[] = makeAdminPermissions(
     agent,
     workspace,
-    adminPreset
-  ).concat(makeCollaboratorPermissions(agent, workspace, collaboratorPreset));
+    adminPermissionGroup
+  ).concat(
+    makeCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
+  );
   await context.data.permissionItem.bulkSaveItems(permissionItems);
-  return {adminPreset, publicPreset, collaboratorPreset};
+  return {
+    adminPermissionGroup,
+    publicPermissionGroup,
+    collaboratorPermissionGroup,
+  };
 }
 
-export async function addWorkspaceToUserAndAssignAdminPreset(
+export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
   context: IBaseContext,
   user: IUser,
   workspace: IWorkspace,
-  adminPreset: IPresetPermissionsGroup
+  adminPermissionGroup: IPermissionGroup
 ) {
   const agent: IAgent = {
     agentId: user.resourceId,
@@ -225,16 +231,16 @@ export async function addWorkspaceToUserAndAssignAdminPreset(
     // Assign workspace to user
     addAssignedUserWorkspace(context, agent, workspace.resourceId, user),
 
-    // Assign admin preset to user
-    addAssignedPresetList(
+    // Assign admin permission group to user
+    addAssignedPermissionGroupList(
       context,
       agent,
       workspace,
-      [{presetId: adminPreset.resourceId, order: 0}],
+      [{permissionGroupId: adminPermissionGroup.resourceId, order: 0}],
       user.resourceId,
       AppResourceType.User,
       /** deleteExisting */ false,
-      /** skipPresetsCheck */ true
+      /** skipPermissionGroupsCheck */ true
     ),
   ]);
 

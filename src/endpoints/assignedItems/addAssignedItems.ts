@@ -2,17 +2,17 @@ import {compact} from 'lodash';
 import {
   IAssignedItem,
   IAssignedItemMainFieldsMatcher,
-  IAssignedPresetMeta,
+  IAssignedPermissionGroupMeta,
 } from '../../definitions/assignedItem';
-import {IWorkspace} from '../../definitions/workspace';
-import {IPresetInput} from '../../definitions/presetPermissionsGroup';
+import {IPermissionGroupInput} from '../../definitions/permissionGroups';
 import {AppResourceType, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
+import {IWorkspace} from '../../definitions/workspace';
 import getNewId from '../../utilities/getNewId';
 import {indexArray} from '../../utilities/indexArray';
 import {IBaseContext} from '../contexts/BaseContext';
-import {checkPresetsExist} from '../presetPermissionsGroups/utils';
+import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
 import {IResourceWithoutAssignedAgent, withAssignedAgent} from '../utils';
 import {deleteResourceAssignedItems} from './deleteAssignedItems';
@@ -46,15 +46,15 @@ export async function addAssignedItemList(
   return items;
 }
 
-export async function addAssignedPresetList(
+export async function addAssignedPermissionGroupList(
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace,
-  presets: IPresetInput[],
+  permissionGroups: IPermissionGroupInput[],
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
   deleteExisting: boolean,
-  skipPresetsCheck = false
+  skipPermissionGroupsCheck = false
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -62,25 +62,30 @@ export async function addAssignedPresetList(
       workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
-      AppResourceType.PresetPermissionsGroup
+      AppResourceType.PermissionGroup
     );
   }
 
-  if (!skipPresetsCheck) {
-    await checkPresetsExist(context, agent, workspace, presets);
+  if (!skipPermissionGroupsCheck) {
+    await checkPermissionGroupsExist(
+      context,
+      agent,
+      workspace,
+      permissionGroups
+    );
   }
 
-  const items = presets.map(preset => {
-    const meta: IAssignedPresetMeta = {
-      order: preset.order || Number.MAX_SAFE_INTEGER,
+  const items = permissionGroups.map(permissionGroup => {
+    const meta: IAssignedPermissionGroupMeta = {
+      order: permissionGroup.order || Number.MAX_SAFE_INTEGER,
     };
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
       assignedToItemId,
       assignedToItemType,
       meta,
       resourceId: getNewId(),
-      assignedItemId: preset.presetId,
-      assignedItemType: AppResourceType.PresetPermissionsGroup,
+      assignedItemId: permissionGroup.permissionGroupId,
+      assignedItemType: AppResourceType.PermissionGroup,
       workspaceId: workspace.resourceId,
     };
 
@@ -117,7 +122,7 @@ export async function addAssignedTagList(
       meta: {},
       resourceId: getNewId(),
       assignedItemId: tag.tagId,
-      assignedItemType: AppResourceType.PresetPermissionsGroup,
+      assignedItemType: AppResourceType.PermissionGroup,
       workspaceId: workspace.resourceId,
     };
 
@@ -133,15 +138,18 @@ export async function saveResourceAssignedItems(
   workspace: IWorkspace,
   resourceId: string,
   resourceType: AppResourceType,
-  data: {tags?: IAssignedTagInput[]; presets?: IPresetInput[]},
+  data: {
+    tags?: IAssignedTagInput[];
+    permissionGroups?: IPermissionGroupInput[];
+  },
   deleteExisting = true
 ) {
-  if (data.presets) {
-    await addAssignedPresetList(
+  if (data.permissionGroups) {
+    await addAssignedPermissionGroupList(
       context,
       agent,
       workspace,
-      data.presets,
+      data.permissionGroups,
       resourceId,
       resourceType,
       deleteExisting

@@ -4,9 +4,9 @@ import {
   IPublicClientAssignedToken,
 } from '../../definitions/clientAssignedToken';
 import {
-  ISessionAgent,
-  BasicCRUDActions,
   AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
@@ -22,11 +22,11 @@ import {
   TokenType,
 } from '../contexts/SessionContext';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {checkWorkspaceExists} from '../workspaces/utils';
-import {assignedPresetsListExtractor} from '../presetPermissionsGroups/utils';
+import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {ClientAssignedTokenDoesNotExistError} from './errors';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
@@ -39,7 +39,7 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   expires: getDateString,
   lastUpdatedAt: getDateString,
   lastUpdatedBy: agentExtractor,
-  presets: assignedPresetsListExtractor,
+  permissionGroups: assignedPermissionGroupsListExtractor,
   tokenStr: true,
   tags: assignedTagListExtractor,
   name: true,
@@ -160,7 +160,9 @@ export function getPublicClientToken(
   const tokenStr = context.session.encodeToken(
     context,
     token.resourceId,
-    TokenType.ProgramAccessToken
+    TokenType.ClientAssignedToken,
+    token.expires,
+    token.issuedAt
   );
 
   cast<IPublicClientAssignedToken>(token).tokenStr = tokenStr;

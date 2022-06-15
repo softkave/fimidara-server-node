@@ -1,17 +1,17 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {resourceListWithAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {resourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {PermissionDeniedError} from '../../user/errors';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken} from '../utils';
 import {GetWorkspaceProgramAccessTokenEndpoint} from './types';
 import {getWorkspaceProgramAccessTokenJoiSchema} from './validation';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint =
   async (context, instData) => {
@@ -51,7 +51,7 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint =
       throw new PermissionDeniedError();
     }
 
-    allowedTokens = await resourceListWithAssignedPresetsAndTags(
+    allowedTokens = await resourceListWithAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       allowedTokens,

@@ -5,10 +5,10 @@ import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
-  insertWorkspaceForTest,
+  insertPermissionGroupForTest,
   insertPermissionItemsForTestByEntity,
-  insertPresetForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
@@ -30,19 +30,20 @@ describe('deleteItemsById', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {preset} = await insertPresetForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(
+        context,
+        userToken,
+        workspace.resourceId
+      );
 
     const {items} = await insertPermissionItemsForTestByEntity(
       context,
       userToken,
       workspace.resourceId,
       {
-        permissionEntityId: preset.resourceId,
-        permissionEntityType: AppResourceType.PresetPermissionsGroup,
+        permissionEntityId: permissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
         permissionOwnerId: workspace.resourceId,
@@ -63,14 +64,13 @@ describe('deleteItemsById', () => {
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
 
-    const presetPermissionItems =
-      await context.data.permissionItem.getManyItems(
-        PermissionItemQueries.getByPermissionEntity(
-          preset.resourceId,
-          AppResourceType.PresetPermissionsGroup
-        )
-      );
+    const permissionGroupItems = await context.data.permissionItem.getManyItems(
+      PermissionItemQueries.getByPermissionEntity(
+        permissionGroup.resourceId,
+        AppResourceType.PermissionGroup
+      )
+    );
 
-    expect(presetPermissionItems.length).toBe(0);
+    expect(permissionGroupItems.length).toBe(0);
   });
 });

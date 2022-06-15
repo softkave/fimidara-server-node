@@ -1,30 +1,30 @@
-import {throwFolderNotFound} from '../folders/utils';
-import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';
-import {throwFileNotFound} from '../files/utils';
-import {throwWorkspaceNotFound} from '../workspaces/utils';
-import {throwPermissionItemNotFound} from '../permissionItems/utils';
-import {throwPresetPermissionsGroupNotFound} from '../presetPermissionsGroups/utils';
-import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
-import {throwProgramAccessTokenNotFound} from '../programAccessTokens/utils';
-import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';
-import {IBaseContextDataProviders} from './BaseContext';
-import MemoryDataProvider from './data-providers/MemoryDataProvider';
+import {IAssignedItem} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {IPresetPermissionsGroup} from '../../definitions/presetPermissionsGroup';
-import {IWorkspace} from '../../definitions/workspace';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {IUserToken} from '../../definitions/userToken';
 import {IFile} from '../../definitions/file';
 import {IFolder} from '../../definitions/folder';
+import {IPermissionGroup} from '../../definitions/permissionGroups';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {IUser} from '../../definitions/user';
 import {IAppRuntimeState} from '../../definitions/system';
-import {throwNotFound} from '../utils';
 import {ITag} from '../../definitions/tag';
-import {throwTagNotFound} from '../tags/utils';
-import {IAssignedItem} from '../../definitions/assignedItem';
+import {IUser} from '../../definitions/user';
+import {IUserToken} from '../../definitions/userToken';
+import {IWorkspace} from '../../definitions/workspace';
 import {throwAssignedItemNotFound} from '../assignedItems/utils';
+import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';
+import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';
+import {throwFileNotFound} from '../files/utils';
+import {throwFolderNotFound} from '../folders/utils';
+import {throwPermissionGroupNotFound} from '../permissionGroups/utils';
+import {throwPermissionItemNotFound} from '../permissionItems/utils';
+import {throwProgramAccessTokenNotFound} from '../programAccessTokens/utils';
+import {throwTagNotFound} from '../tags/utils';
+import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
+import {throwNotFound} from '../utils';
+import {throwWorkspaceNotFound} from '../workspaces/utils';
+import {IBaseContextDataProviders} from './BaseContext';
+import MemoryDataProvider from './data-providers/MemoryDataProvider';
 
 export default class MemoryDataProviderContext
   implements IBaseContextDataProviders
@@ -46,9 +46,9 @@ export default class MemoryDataProviderContext
     throwPermissionItemNotFound
   );
 
-  public preset = new MemoryDataProvider<IPresetPermissionsGroup>(
+  public permissiongroup = new MemoryDataProvider<IPermissionGroup>(
     [],
-    throwPresetPermissionsGroupNotFound
+    throwPermissionGroupNotFound
   );
 
   public workspace = new MemoryDataProvider<IWorkspace>(

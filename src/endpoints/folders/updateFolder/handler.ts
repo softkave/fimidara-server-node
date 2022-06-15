@@ -8,8 +8,8 @@ import {
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
 import {
   checkFolderAuthorization02,
@@ -67,7 +67,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
       publicAccessOps = [];
     }
 
-    await replacePublicPresetAccessOpsByPermissionOwner(
+    await replacePublicPermissionGroupAccessOpsByPermissionOwner(
       context,
       agent,
       workspace,
@@ -87,7 +87,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     true
   );
 
-  folder = await withAssignedPresetsAndTags(
+  folder = await withAssignedPermissionGroupsAndTags(
     context,
     folder.workspaceId,
     folder,

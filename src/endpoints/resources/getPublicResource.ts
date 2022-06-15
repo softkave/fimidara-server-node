@@ -5,10 +5,10 @@ import {collabRequestExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
 import {fileExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
-import {workspaceExtractor} from '../workspaces/utils';
+import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
-import {presetPermissionsGroupExtractor} from '../presetPermissionsGroups/utils';
 import {programAccessTokenExtractor} from '../programAccessTokens/utils';
+import {workspaceExtractor} from '../workspaces/utils';
 import {IResource} from './types';
 
 export function getPublicResource(resource: IResource, workspaceId: string) {
@@ -23,8 +23,8 @@ export function getPublicResource(resource: IResource, workspaceId: string) {
       return clientAssignedTokenExtractor(resource.resource);
     case AppResourceType.UserToken:
       return resource.resource;
-    case AppResourceType.PresetPermissionsGroup:
-      return presetPermissionsGroupExtractor(resource.resource);
+    case AppResourceType.PermissionGroup:
+      return permissionGroupExtractor(resource.resource);
     case AppResourceType.PermissionItem:
       return permissionItemExtractor(resource.resource);
     case AppResourceType.Folder:

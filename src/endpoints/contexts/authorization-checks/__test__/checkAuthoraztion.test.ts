@@ -13,12 +13,12 @@ import {
 } from '../../../permissionItems/addItems/types';
 import RequestData from '../../../RequestData';
 import {
+  assertContext,
   getTestBaseContext,
+  insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  insertFileForTest,
   mockExpressRequestWithUserToken,
-  assertContext,
 } from '../../../test-utils/test-utils';
 import {
   EmailAddressNotVerifiedError,
@@ -77,11 +77,11 @@ describe('checkAuthorization', () => {
   test('auth is granted when agent has permission', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {rawWorkspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      rawWorkspace.resourceId
     );
 
     const agent = await context.session.getAgent(
@@ -92,15 +92,15 @@ describe('checkAuthorization', () => {
     const permitted = await checkAuthorization({
       context,
       agent,
-      workspace,
       resource: file,
       type: AppResourceType.File,
       permissionOwners: getFilePermissionOwners(
-        workspace.resourceId,
+        rawWorkspace.resourceId,
         file,
         AppResourceType.File
       ),
       action: BasicCRUDActions.Read,
+      workspace: rawWorkspace,
     });
 
     expect(permitted).toBeTruthy();
@@ -110,7 +110,10 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(
+      context,
+      userToken
+    );
     const {file} = await insertFileForTest(
       context,
       userToken,
@@ -146,7 +149,10 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {userToken: userToken02} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(
+      context,
+      userToken
+    );
     const {file} = await insertFileForTest(
       context,
       userToken,
@@ -189,7 +195,10 @@ describe('checkAuthorization', () => {
       /** skipAutoVerifyEmail */ true
     );
 
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(
+      context,
+      userToken
+    );
     const {file} = await insertFileForTest(
       context,
       userToken,
@@ -230,7 +239,10 @@ describe('checkAuthorization', () => {
       /** userInput */ {},
       /** skipAutoVerifyEmail */ true
     );
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(
+      context,
+      userToken
+    );
     const {file} = await insertFileForTest(
       context,
       userToken,

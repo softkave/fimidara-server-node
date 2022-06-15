@@ -11,7 +11,7 @@ import {
 } from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
-import {IWorkspace} from '../../definitions/workspace';
+import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import singletonFunc from '../../utilities/singletonFunc';
 import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
@@ -47,16 +47,16 @@ import {
   INewFolderInput,
 } from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
+import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
+import {
+  IAddPermissionGroupEndpointParams,
+  INewPermissionGroupInput,
+} from '../permissionGroups/addPermissionGroup/types';
 import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
 import {
   INewPermissionItemInputByEntity,
   IReplacePermissionItemsByEntityEndpointParams,
 } from '../permissionItems/replaceItemsByEntity/types';
-import addPresetPermissionsGroup from '../presetPermissionsGroups/addPreset/handler';
-import {
-  IAddPresetPermissionsGroupEndpointParams,
-  INewPresetPermissionsGroupInput,
-} from '../presetPermissionsGroups/addPreset/types';
 import addProgramAccessToken from '../programAccessTokens/addToken/handler';
 import {
   IAddProgramAccessTokenEndpointParams,
@@ -256,7 +256,8 @@ export async function insertUserForTest(
 }
 
 export interface IInsertWorkspaceForTestResult {
-  workspace: IWorkspace;
+  workspace: IPublicWorkspace;
+  rawWorkspace: IWorkspace;
 }
 
 export async function insertWorkspaceForTest(
@@ -276,35 +277,35 @@ export async function insertWorkspaceForTest(
 
   const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const workspace = await context.cacheProviders.workspace.getById(
+  const rawWorkspace = await context.cacheProviders.workspace.getById(
     context,
     result.workspace.resourceId
   );
-  assert(workspace);
-  return {workspace};
+  assert(rawWorkspace);
+  return {rawWorkspace, workspace: result.workspace};
 }
 
-export async function insertPresetForTest(
+export async function insertPermissionGroupForTest(
   context: IBaseContext,
   userToken: IUserToken,
   workspaceId: string,
-  presetInput: Partial<INewPresetPermissionsGroupInput> = {}
+  permissionGroupInput: Partial<INewPermissionGroupInput> = {}
 ) {
   const instData =
-    RequestData.fromExpressRequest<IAddPresetPermissionsGroupEndpointParams>(
+    RequestData.fromExpressRequest<IAddPermissionGroupEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId,
-        preset: {
+        permissionGroup: {
           name: faker.lorem.words(3),
           description: faker.lorem.words(10),
-          presets: [],
-          ...presetInput,
+          permissionGroups: [],
+          ...permissionGroupInput,
         },
       }
     );
 
-  const result = await addPresetPermissionsGroup(context, instData);
+  const result = await addPermissionGroup(context, instData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -345,7 +346,7 @@ export async function insertClientAssignedTokenForTest(
       {
         workspaceId,
         token: {
-          presets: [],
+          permissionGroups: [],
           expires: add(Date.now(), {days: 1}).toISOString(),
           name: faker.lorem.words(3),
           description: faker.lorem.words(10),

@@ -1,11 +1,11 @@
 import {defaultTo, mapKeys} from 'lodash';
-import {IWorkspace} from '../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
   IResourceBase,
   ISessionAgent,
 } from '../../definitions/system';
+import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utilities/fns';
 import {indexArray} from '../../utilities/indexArray';
 import {
@@ -120,10 +120,10 @@ export async function getResources(options: IGetResourcesOptions) {
         });
         break;
 
-      case AppResourceType.PresetPermissionsGroup:
+      case AppResourceType.PermissionGroup:
         promises.push({
-          id: AppResourceType.PresetPermissionsGroup,
-          promise: context.data.preset.getManyItems(query),
+          id: AppResourceType.PermissionGroup,
+          promise: context.data.permissiongroup.getManyItems(query),
           resourceType: type,
         });
         break;

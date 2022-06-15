@@ -1,6 +1,5 @@
 import {merge, omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
-import {IWorkspace} from '../../../definitions/workspace';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -10,12 +9,13 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
+import {IWorkspace} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPresetsAndTags} from '../../assignedItems/getAssignedItems';
+import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -24,7 +24,8 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
-import {replacePublicPresetAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {assertWorkspace} from '../../workspaces/utils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
@@ -34,7 +35,6 @@ import {
 } from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
-import {assertWorkspace} from '../../workspaces/utils';
 
 export async function createSingleFolder(
   context: IBaseContext,
@@ -84,7 +84,7 @@ export async function createSingleFolder(
     : [];
 
   publicAccessOps = compactPublicAccessOps(publicAccessOps);
-  await replacePublicPresetAccessOpsByPermissionOwner(
+  await replacePublicPermissionGroupAccessOpsByPermissionOwner(
     context,
     agent,
     workspace,
@@ -224,7 +224,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     false
   );
 
-  folder = await withAssignedPresetsAndTags(
+  folder = await withAssignedPermissionGroupsAndTags(
     context,
     folder.workspaceId,
     folder,
