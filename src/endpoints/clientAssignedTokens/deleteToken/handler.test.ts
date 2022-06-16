@@ -6,8 +6,8 @@ import {
   assertEndpointResultOk,
   getTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteClientAssignedToken from './handler';
@@ -41,9 +41,7 @@ test('client assigned token deleted', async () => {
   const instData =
     RequestData.fromExpressRequest<IDeleteClientAssignedTokenEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {
-        tokenId: token.resourceId,
-      }
+      {tokenId: token.resourceId}
     );
 
   const result = await deleteClientAssignedToken(context, instData);

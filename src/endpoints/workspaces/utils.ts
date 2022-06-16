@@ -12,7 +12,7 @@ import {
   IUsageThreshold,
   IWorkspace,
 } from '../../definitions/workspace';
-import {getDateString} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {
   getFields,
   makeExtract,
@@ -45,7 +45,9 @@ const usageThresholdMapSchema = getFields<
   ['total']: usageThresholdIfExistExtractor,
 });
 
-const usageThresholdMapExtractor = makeExtract(usageThresholdMapSchema);
+const usageThresholdMapExtractorIfExist = makeExtractIfPresent(
+  usageThresholdMapSchema
+);
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
   createdBy: agentExtractor,
@@ -56,8 +58,8 @@ const workspaceFields = getFields<IPublicWorkspace>({
   description: true,
   publicPermissionGroupId: true,
   billStatus: true,
-  usageThresholds: usageThresholdMapExtractor,
-  billStatusAssignedAt: getDateString,
+  usageThresholds: usageThresholdMapExtractorIfExist,
+  billStatusAssignedAt: getDateStringIfPresent,
 });
 
 export const workspaceExtractor = makeExtract(workspaceFields);

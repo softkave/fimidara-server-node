@@ -59,19 +59,23 @@ export function findItemWithField<T>(
 }
 
 export function appAssert(
-  condition: any,
-  response: string | Error | AnyFn,
-  log?: string
-) {
-  if (!condition) {
-    console.error(log);
+  value: any,
+  response?: string | Error | AnyFn,
+  logMessage?: string
+): asserts value {
+  if (!value) {
+    if (logMessage) {
+      console.error(logMessage);
+    }
 
     if (isString(response)) {
       throw new OperationError(response);
     } else if (response instanceof Error) {
       throw response;
-    } else {
+    } else if (response) {
       response();
+    } else {
+      throw new Error('Assertion failed');
     }
   }
 }

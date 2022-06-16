@@ -7,6 +7,7 @@ import {
 import {getDateString} from '../../utilities/dateFns';
 import {ValidationError} from '../../utilities/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {appAssert} from '../../utilities/fns';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -167,7 +168,7 @@ export async function getWorkspaceFromFileOrMatcher(
     assertWorkspace(workspace);
     return workspace;
   } else {
-    assert(
+    appAssert(
       matcher.workspaceId && matcher.filepath,
       new ValidationError('Workspace ID and or file path missing')
     );

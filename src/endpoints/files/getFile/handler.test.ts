@@ -7,6 +7,7 @@ import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {folderConstants} from '../../folders/constants';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
   assertContext,
@@ -41,7 +42,7 @@ describe('getFile', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -57,7 +58,6 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-
     const savedFile = await context.fileBackend.getFile({
       bucket: context.appVariables.S3Bucket,
       key: file.resourceId,
@@ -67,6 +67,8 @@ describe('getFile', () => {
       savedFile.body && (await getBodyFromStream(savedFile.body));
     assert(savedBuffer);
     expect(result.buffer.equals(savedBuffer)).toBe(true);
+    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(instData);
   });
 
   test('file resized', async () => {
@@ -75,7 +77,7 @@ describe('getFile', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const startWidth = 500;
     const startHeight = 500;
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId,
@@ -100,10 +102,11 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-
     const fileMetadata = await sharp(result.buffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
     expect(fileMetadata.height).toEqual(expectedHeight);
+    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(instData);
   });
 
   test('can read file from public folder', async () => {
@@ -123,7 +126,7 @@ describe('getFile', () => {
       }
     );
 
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId,
@@ -144,13 +147,15 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
+    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(instData);
   });
 
   test('can read public file', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId,
@@ -167,20 +172,23 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
+    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(instData);
   });
 
   test('cannot read private file', async () => {
-    try {
-      assertContext(context);
-      const {userToken} = await insertUserForTest(context);
-      const {workspace} = await insertWorkspaceForTest(context, userToken);
-      const {file} = await insertFileForTest(
-        context,
-        userToken,
-        workspace.resourceId
-      );
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {file, reqData} = await insertFileForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
-      const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    let instData: RequestData | null = null;
+    try {
+      instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {
           workspaceId: workspace.resourceId,
@@ -191,6 +199,9 @@ describe('getFile', () => {
       await getFile(context, instData);
     } catch (error: any) {
       expect(error?.name).toBe(PermissionDeniedError.name);
+    } finally {
+      await waitForRequestPendingJobs(reqData);
+      instData && (await waitForRequestPendingJobs(instData));
     }
   });
 
@@ -198,7 +209,7 @@ describe('getFile', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(
+    const {file, reqData: insertFileReqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -220,5 +231,7 @@ describe('getFile', () => {
       async () => await getFile(context!, reqData),
       [UsageLimitExceededError.name]
     );
+    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(insertFileReqData);
   });
 });

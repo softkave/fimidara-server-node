@@ -13,6 +13,8 @@ import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IWorkspace} from '../../definitions/workspace';
 import {FileBackendType, IAppVariables} from '../../resources/appVariables';
+import {throwRejectedPromisesWithStatus} from '../../utilities/waitOnPromises';
+import {ContextPendingJobs, IContextPendingJobs} from './ContextPendingJobs';
 import {IDataProvider} from './data-providers/DataProvider';
 import {
   IUsageRecordDataProvider,
@@ -49,6 +51,7 @@ export interface IBaseContextDataProviders {
   appRuntimeState: IDataProvider<IAppRuntimeState>;
   tag: IDataProvider<ITag>;
   assignedItem: IDataProvider<IAssignedItem>;
+  close: () => Promise<void>;
 }
 
 export interface IBaseContext<
@@ -62,7 +65,7 @@ export interface IBaseContext<
   data: T;
   email: E;
   fileBackend: F;
-
+  jobs: IContextPendingJobs;
   dataProviders: {
     workspace: IWorkspaceDataProvider;
     usageRecord: IUsageRecordDataProvider;
@@ -94,8 +97,8 @@ export default class BaseContext<
   public dataProviders: IBaseContext['dataProviders'];
   public cacheProviders: IBaseContext['cacheProviders'];
   public logicProviders: IBaseContext['logicProviders'];
-
   public session: ISessionContext = getSessionContext();
+  public jobs = new ContextPendingJobs();
 
   constructor(
     data: T,
@@ -120,7 +123,15 @@ export default class BaseContext<
   };
 
   public dispose = async () => {
-    this.cacheProviders.workspace.dispose();
+    await this.jobs.waitOnJobs();
+    const promises = [
+      this.cacheProviders.workspace.dispose(),
+      this.fileBackend.close(),
+      this.email.close(),
+      this.data.close(),
+    ];
+
+    throwRejectedPromisesWithStatus(await Promise.allSettled(promises));
   };
 }
 

@@ -1,5 +1,6 @@
 import assert = require('assert');
 import {BasicCRUDActions} from '../../../definitions/system';
+import {appAssert} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
 import {NotFoundError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
@@ -17,8 +18,7 @@ const getRequest: GetRequestEndpoint = async (context, instData) => {
     EndpointReusableQueries.getById(data.requestId)
   );
 
-  assert(request, new NotFoundError('Collaboration request not found'));
-
+  appAssert(request, new NotFoundError('Collaboration request not found'));
   if (request.recipientEmail === agent.user?.email) {
     // Request sent to user
     return {request: collabRequestExtractor(request)};

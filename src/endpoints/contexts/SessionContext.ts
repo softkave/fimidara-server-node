@@ -13,7 +13,7 @@ import {
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {ServerError} from '../../utilities/errors';
-import cast from '../../utilities/fns';
+import cast, {appAssert} from '../../utilities/fns';
 import {
   wrapFireAndThrowError,
   wrapFireAndThrowErrorNoAsync,
@@ -187,7 +187,7 @@ export default class SessionContext implements ISessionContext {
       }
 
       if (userToken) {
-        assert(user, new ServerError());
+        appAssert(user, new ServerError());
         const agent: ISessionAgent = makeUserSessionAgent(userToken, user);
         data.agent = agent;
         return agent;
@@ -222,7 +222,7 @@ export default class SessionContext implements ISessionContext {
         audience
       );
 
-      assert(agent.user, new ServerError());
+      appAssert(agent.user, new ServerError());
       return agent.user;
     }
   );
@@ -340,11 +340,13 @@ export function getWorkspaceIdNoThrow(
   agent: ISessionAgent,
   providedWorkspaceId?: string
 ) {
-  const workspaceId = agent.clientAssignedToken
+  const workspaceId = providedWorkspaceId
+    ? providedWorkspaceId
+    : agent.clientAssignedToken
     ? agent.clientAssignedToken.workspaceId
     : agent.programAccessToken
     ? agent.programAccessToken.workspaceId
-    : providedWorkspaceId;
+    : undefined;
 
   return workspaceId;
 }

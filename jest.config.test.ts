@@ -1,5 +1,6 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-module.exports = {
+import {InitialOptionsTsJest} from 'ts-jest/dist/types';
+
+const config: InitialOptionsTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testPathIgnorePatterns: [
@@ -8,6 +9,9 @@ module.exports = {
     '/jest/',
     '/build/',
   ],
+  testTimeout: 30000,
   globalTeardown: './jest/globalTeardown.ts',
   globalSetup: './jest/globalSetup.unit-test.ts',
 };
+
+module.exports = config;

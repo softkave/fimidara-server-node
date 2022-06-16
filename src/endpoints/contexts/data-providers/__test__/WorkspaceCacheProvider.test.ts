@@ -49,8 +49,8 @@ describe('WorkspaceCacheProvider', () => {
       /** cacheProviders */ {workspace: provider},
       /** logicProviders */ emptyObject
     );
-    await provider.init(context);
 
+    await provider.init(context);
     let ws = await provider.getById(context, workspaces[0].resourceId);
     await model
       .updateOne(
@@ -64,7 +64,7 @@ describe('WorkspaceCacheProvider', () => {
       )
       .exec();
 
-    await waitTimeout(refreshIntervalMs);
+    await waitTimeout(refreshIntervalMs + 100); // wait for the refresh interval + 100ms
     ws = await provider.getById(context, workspaces[0].resourceId);
     expect(ws.billStatus).toBe(WorkspaceBillStatus.BillOverdue);
   });

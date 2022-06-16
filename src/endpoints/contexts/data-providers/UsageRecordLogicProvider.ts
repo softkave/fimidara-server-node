@@ -105,10 +105,8 @@ export class UsageRecordLogicProvider {
     workspace: IWorkspace | null
   ) => {
     if (workspace) {
-      if (
-        workspace.usageThresholdLocks['total'] &&
-        workspace.usageThresholdLocks['total'].locked
-      ) {
+      const usageLocks = workspace.usageThresholdLocks || {};
+      if (usageLocks['total'] && usageLocks['total'].locked) {
         this.dropRecord(
           ctx,
           reqData,
@@ -119,10 +117,7 @@ export class UsageRecordLogicProvider {
         return true;
       }
 
-      if (
-        workspace.usageThresholdLocks[record.category] &&
-        workspace.usageThresholdLocks[record.category]!.locked
-      ) {
+      if (usageLocks[record.category] && usageLocks[record.category]!.locked) {
         this.dropRecord(
           ctx,
           reqData,
@@ -149,7 +144,8 @@ export class UsageRecordLogicProvider {
     record.dropReason = dropReason;
     record.dropCategory = dropLabel;
     record.dropMessage = dropMessage;
-    reqData.pushNamelessPendingPromise(
+    ctx.jobs.addJob(
+      reqData,
       fireAndForgetPromise(
         ctx.dataProviders.usageRecord.updateById(record.resourceId, record)
       )
@@ -162,7 +158,8 @@ export class UsageRecordLogicProvider {
     record: IUsageRecord
   ) => {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Fulfilled;
-    reqData.pushNamelessPendingPromise(
+    ctx.jobs.addJob(
+      reqData,
       fireAndForgetPromise(
         ctx.dataProviders.usageRecord.updateById(record.resourceId, record)
       )

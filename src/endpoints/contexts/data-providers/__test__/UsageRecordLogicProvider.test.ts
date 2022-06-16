@@ -14,22 +14,22 @@ import {
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import cast from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
-import {
-  throwFirstRejectedPromiseWithId,
-  waitOnPromisesWithId,
-} from '../../../../utilities/waitOnPromises';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
 import {generateWorkspace} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
+import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
 import {getTestVars} from '../../../test-utils/vars';
-import BaseContext, {IBaseContext} from '../../BaseContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+  IBaseContext,
+} from '../../BaseContext';
 import {
   IUsageRecordInput,
   UsageRecordLogicProvider,
 } from '../UsageRecordLogicProvider';
-import {WorkspaceCacheProvider} from '../WorkspaceCacheProvider';
-import {WorkspaceMongoDataProvider} from '../WorkspaceDataProvider';
 import assert = require('assert');
 
 let connection: Connection | null = null;
@@ -48,11 +48,9 @@ beforeAll(async () => {
     /** emailProvider */ emptyObject,
     /** fileBackend */ emptyObject,
     /** appVariables */ emptyObject,
-    /** dataProviders */ cast({
-      workspace: new WorkspaceMongoDataProvider(connection),
-    }),
-    /** cacheProviders */ {workspace: new WorkspaceCacheProvider()},
-    /** logicProviders */ {usageRecord: provider}
+    /** dataProviders */ await getDataProviders(connection),
+    /** cacheProviders */ getCacheProviders(),
+    /** logicProviders */ getLogicProviders()
   );
 });
 
@@ -90,9 +88,7 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    throwFirstRejectedPromiseWithId(
-      await waitOnPromisesWithId(reqData.pendingPromises)
-    );
+    await waitForRequestPendingJobs(reqData);
     expect(status).toBe(true);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -100,7 +96,7 @@ describe('UsageRecordLogicProvider', () => {
     expect(record.fulfillmentStatus).toBe(
       UsageRecordFulfillmentStatus.Fulfilled
     );
-    expect(input).toMatchObject(record);
+    expect(record).toMatchObject(input);
   });
 
   test('record dropped cause bill is overdue', async () => {
@@ -110,8 +106,6 @@ describe('UsageRecordLogicProvider', () => {
     await context.cacheProviders.workspace.insert(context, workspace);
     const recordId = getNewId();
     const reqData = new RequestData();
-    const price =
-      workspace.usageThresholds[UsageRecordCategory.Storage]?.price || 1000;
     const input: IUsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -119,15 +113,13 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    throwFirstRejectedPromiseWithId(
-      await waitOnPromisesWithId(reqData.pendingPromises)
-    );
+    await waitForRequestPendingJobs(reqData);
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
     expect(record.summationType).toBe(UsageRecordSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
-    expect(input).toMatchObject(record);
+    expect(record).toMatchObject(input);
   });
 
   test('record dropped cause total threshold is exceeded', async () => {
@@ -143,15 +135,13 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    throwFirstRejectedPromiseWithId(
-      await waitOnPromisesWithId(reqData.pendingPromises)
-    );
+    await waitForRequestPendingJobs(reqData);
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
     expect(record.summationType).toBe(UsageRecordSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
-    expect(input).toMatchObject(record);
+    expect(record).toMatchObject(input);
   });
 
   test('record dropped cause category threshold is exceeded', async () => {
@@ -169,14 +159,12 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    throwFirstRejectedPromiseWithId(
-      await waitOnPromisesWithId(reqData.pendingPromises)
-    );
     expect(status).toBe(false);
+    await waitForRequestPendingJobs(reqData);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
     expect(record.summationType).toBe(UsageRecordSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
-    expect(input).toMatchObject(record);
+    expect(record).toMatchObject(input);
   });
 });

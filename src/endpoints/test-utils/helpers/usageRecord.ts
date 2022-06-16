@@ -1,9 +1,6 @@
 import {defaultTo} from 'lodash';
 import {systemAgent} from '../../../definitions/system';
-import {
-  UsageRecordCategory,
-  UsageThresholdCategory,
-} from '../../../definitions/usageRecord';
+import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -26,12 +23,7 @@ export async function updateTestWorkspaceUsageLocks(
     };
   });
   workspace = await context.cacheProviders.workspace.updateById(context, id, {
-    [`usageThresholdLocks.${UsageRecordCategory.Storage}`]: {
-      category: UsageRecordCategory.Storage,
-      locked: true,
-      lastUpdatedBy: systemAgent,
-      lastUpdatedAt: getDate(),
-    },
+    usageThresholdLocks,
   });
   return {workspace};
 }
