@@ -37,7 +37,10 @@ async function insertRecord(
     agent,
     input
   );
-  assert(allowed, new UsageLimitExceededError());
+
+  if (!allowed) {
+    throw new UsageLimitExceededError();
+  }
 }
 
 export async function insertStorageUsageRecordInput(

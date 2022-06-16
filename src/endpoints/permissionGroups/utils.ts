@@ -15,6 +15,7 @@ import {
 import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {appAssert} from '../../utilities/fns';
 import {indexArray} from '../../utilities/indexArray';
 import {
   checkAuthorization,
@@ -134,7 +135,7 @@ export async function checkPermissionGroupAuthorization03(
     );
   }
 
-  assert(permissionGroup, new PermissionGroupDoesNotExistError());
+  appAssert(permissionGroup, new PermissionGroupDoesNotExistError());
   return checkPermissionGroupAuthorization(
     context,
     agent,

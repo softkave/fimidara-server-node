@@ -96,15 +96,4 @@ export default class RequestData<T = any> {
 
     return null;
   }
-
-  pushPendingPromise(pendingPromise: IRequestDataPendingPromise) {
-    this.pendingPromises.push(pendingPromise);
-  }
-
-  pushNamelessPendingPromise(pendingPromise: Promise<any>) {
-    this.pendingPromises.push({
-      promise: pendingPromise,
-      id: Date.now(),
-    });
-  }
 }

@@ -1,10 +1,10 @@
 import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectsCommand,
-  HeadBucketCommand,
   CreateBucketCommand,
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  HeadBucketCommand,
+  PutObjectCommand,
+  S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import {IAppVariables} from '../../resources/appVariables';

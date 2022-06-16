@@ -30,10 +30,10 @@ export interface IWorkspace {
   name: string;
   description?: string;
   publicPermissionGroupId?: string;
-  billStatusAssignedAt: Date | string;
-  billStatus: WorkspaceBillStatus;
-  usageThresholds: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
-  usageThresholdLocks: Partial<
+  billStatusAssignedAt?: Date | string;
+  billStatus?: WorkspaceBillStatus;
+  usageThresholds?: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
+  usageThresholdLocks?: Partial<
     Record<UsageThresholdCategory, IUsageThresholdLock>
   >;
 }

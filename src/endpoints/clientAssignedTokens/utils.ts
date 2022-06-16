@@ -10,7 +10,7 @@ import {
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import cast from '../../utilities/fns';
+import cast, {appAssert} from '../../utilities/fns';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -139,7 +139,7 @@ export async function checkClientAssignedTokenAuthorization03(
     );
   }
 
-  assert(token, new ClientAssignedTokenDoesNotExistError());
+  appAssert(token, new ClientAssignedTokenDoesNotExistError());
   return checkClientAssignedTokenAuthorization(
     context,
     agent,

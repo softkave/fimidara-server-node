@@ -11,6 +11,7 @@ import {ITag} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IWorkspace} from '../../definitions/workspace';
+import {noopAsync} from '../../utilities/fns';
 import {throwAssignedItemNotFound} from '../assignedItems/utils';
 import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';
 import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';
@@ -77,4 +78,6 @@ export default class MemoryDataProviderContext
     [],
     throwAssignedItemNotFound
   );
+
+  public close = noopAsync;
 }

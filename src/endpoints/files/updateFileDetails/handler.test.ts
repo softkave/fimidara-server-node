@@ -3,6 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
+import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -34,7 +35,7 @@ test('file updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file} = await insertFileForTest(
+  const {file, reqData} = await insertFileForTest(
     context,
     userToken,
     workspace.resourceId
@@ -69,4 +70,5 @@ test('file updated', async () => {
 
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
+  await waitForRequestPendingJobs(reqData);
 });

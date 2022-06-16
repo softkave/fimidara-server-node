@@ -164,7 +164,7 @@ export default class MongoDBDataProviderContext
     );
   }
 
-  async closeConnection() {
+  async close() {
     await this.connection.close();
   }
 }

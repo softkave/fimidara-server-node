@@ -12,6 +12,7 @@ import {
   INewPermissionItemInput,
 } from '../../../permissionItems/addItems/types';
 import RequestData from '../../../RequestData';
+import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
 import {
   assertContext,
   getTestBaseContext,
@@ -78,7 +79,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {rawWorkspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       rawWorkspace.resourceId
@@ -104,6 +105,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeTruthy();
+    await waitForRequestPendingJobs(reqData);
   });
 
   test('auth fails when agent does not have permission', async () => {
@@ -114,7 +116,7 @@ describe('checkAuthorization', () => {
       context,
       userToken
     );
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -143,6 +145,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeFalsy();
+    await waitForRequestPendingJobs(reqData);
   });
 
   test('should throw error when nothrow is turned off', async () => {
@@ -153,7 +156,7 @@ describe('checkAuthorization', () => {
       context,
       userToken
     );
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -183,6 +186,8 @@ describe('checkAuthorization', () => {
       });
     } catch (error: any) {
       expect(error instanceof PermissionDeniedError).toBeTruthy();
+    } finally {
+      await waitForRequestPendingJobs(reqData);
     }
   });
 
@@ -199,7 +204,7 @@ describe('checkAuthorization', () => {
       context,
       userToken
     );
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -229,6 +234,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeTruthy();
+    await waitForRequestPendingJobs(reqData);
   });
 
   test('auth fails if action is not read and user is not email verified', async () => {
@@ -243,7 +249,7 @@ describe('checkAuthorization', () => {
       context,
       userToken
     );
-    const {file} = await insertFileForTest(
+    const {file, reqData} = await insertFileForTest(
       context,
       userToken,
       workspace.resourceId
@@ -274,6 +280,8 @@ describe('checkAuthorization', () => {
       });
     } catch (error: any) {
       expect(error instanceof EmailAddressNotVerifiedError).toBeTruthy();
+    } finally {
+      await waitForRequestPendingJobs(reqData);
     }
   });
 });

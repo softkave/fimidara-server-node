@@ -1,12 +1,13 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
+import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
   getTestBaseContext,
   insertFileForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getFileDetails from './handler';
@@ -26,7 +27,7 @@ test('file details returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file} = await insertFileForTest(
+  const {file, reqData} = await insertFileForTest(
     context,
     userToken,
     workspace.resourceId
@@ -44,4 +45,5 @@ test('file details returned', async () => {
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);
   expect(result.file).toEqual(file);
+  await waitForRequestPendingJobs(reqData);
 });

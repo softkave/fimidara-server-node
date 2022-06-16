@@ -7,6 +7,7 @@ import {
 } from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
 import {IWorkspace} from '../../../definitions/workspace';
+import {appAssert} from '../../../utilities/fns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import PermissionItemQueries from '../../permissionItems/queries';
@@ -65,7 +66,7 @@ export const uploadFileBaseTest = async (
   const savedBuffer =
     persistedFile.body && (await getBodyFromStream(persistedFile.body));
 
-  assert(savedBuffer);
+  appAssert(savedBuffer);
   expect(buffer.equals(savedBuffer)).toBe(true);
   const savedFile = await ctx.data.file.assertGetItem(
     FileQueries.getById(file.resourceId)

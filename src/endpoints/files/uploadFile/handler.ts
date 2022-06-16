@@ -9,6 +9,7 @@ import {
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {ValidationError} from '../../../utilities/errors';
+import {appAssert} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
@@ -46,7 +47,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const workspace = await getWorkspaceFromFileOrMatcher(context, matcher, file);
 
   if (!file) {
-    assert(matcher.filepath, new ValidationError('File path missing'));
+    appAssert(matcher.filepath, new ValidationError('File path missing'));
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
     const parentFolder = await createFileParentFolders(
       context,

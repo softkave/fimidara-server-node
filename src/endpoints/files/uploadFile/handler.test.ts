@@ -36,6 +36,7 @@ import {
 
 let context: IBaseContext | null = null;
 
+jest.setTimeout(30000); // 30 seconds
 beforeAll(async () => {
   context = await getTestBaseContext();
 });

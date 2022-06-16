@@ -102,33 +102,9 @@ async function getTestFileProvider(appVariables: ITestVariables) {
   }
 }
 
-async function waitForCleanup(promises: Promise<any>[]) {
-  const result = await Promise.allSettled(promises);
-  result.forEach(item => {
-    if (item.status === 'rejected') {
-      console.error(item.reason);
-    }
-  });
-}
-
 async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
   const ctx = await ctxPromise;
-  const promises: Promise<any>[] = [];
-
-  if (ctx.data instanceof MongoDBDataProviderContext) {
-    promises.push(ctx.data.closeConnection());
-  }
-
-  if (ctx.fileBackend instanceof TestS3FilePersistenceProviderContext) {
-    // promises.push(ctx.fileBackend.cleanupBucket(ctx.appVariables.S3Bucket));
-    promises.push(ctx.fileBackend.close());
-  }
-
-  if (ctx.email instanceof TestSESEmailProviderContext) {
-    ctx.email.close();
-  }
-
-  await waitForCleanup(promises);
+  await ctx.dispose();
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
@@ -268,7 +244,7 @@ export async function insertWorkspaceForTest(
   const instData = RequestData.fromExpressRequest<IAddWorkspaceParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      name: faker.company.companyName(),
+      name: faker.lorem.words(6),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,
@@ -567,5 +543,5 @@ export async function insertFileForTest(
 
   const result = await uploadFile(context, instData);
   assertEndpointResultOk(result);
-  return {...result, buffer: input.data};
+  return {...result, buffer: input.data, reqData: instData};
 }
