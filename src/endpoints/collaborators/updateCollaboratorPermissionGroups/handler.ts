@@ -30,7 +30,7 @@ const updateCollaboratorPermissionGroups: UpdateCollaboratorPermissionGroupsEndp
       collaborator.resourceId,
       AppResourceType.User,
       data,
-      true
+      /** deleteExisting */ true
     );
 
     return {
