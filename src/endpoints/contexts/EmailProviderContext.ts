@@ -58,7 +58,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     }
   );
 
-  public close = wrapFireAndThrowErrorNoAsync(() => {
-    this.ses.destroy();
+  public close = wrapFireAndThrowErrorNoAsync(async () => {
+    await this.ses.destroy();
   });
 }

@@ -1,7 +1,7 @@
 {
   "name": "fimidara-server-node",
   "version": "0.0.0",
-  "description": "",
+  "description": "Fimidara file storage service server Node.js",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
