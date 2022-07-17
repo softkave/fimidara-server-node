@@ -26,17 +26,23 @@ const folder01Path = '/files';
 const folder02Path = '/files/images';
 const appSetupVars = {
   workspaceName: 'Fimidara',
+  rootname: 'fimidara',
   workspaceImagesfolderpath: folder02Path + '/workspaces',
   userImagesfolderpath: folder02Path + '/users',
   workspacesImageUploadPermissionGroupName: 'Fimidara-workspaces-image-upload',
   usersImageUploadPermissionGroupName: 'Fimidara-users-image-upload',
 };
 
-async function setupWorkspace(context: IBaseContext, name: string) {
+async function setupWorkspace(
+  context: IBaseContext,
+  name: string,
+  rootname: string
+) {
   return await internalCreateWorkspace(
     context,
     {
       name,
+      rootname,
       description: "System-generated workspace for Fimidara's own operations",
     },
     systemAgent
@@ -202,7 +208,8 @@ export async function setupApp(context: IBaseContext) {
 
   const {adminPermissionGroup, workspace: workspace} = await setupWorkspace(
     context,
-    appSetupVars.workspaceName
+    appSetupVars.workspaceName,
+    appSetupVars.rootname
   );
 
   await setupDefaultUserCollaborationRequest(

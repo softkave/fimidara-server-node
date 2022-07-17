@@ -1,20 +1,17 @@
 import {IWorkspace} from '../../../definitions/workspace';
-import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
 import {IBaseContext} from '../BaseContext';
 
 export interface IWorkspaceCacheProvider {
   insert: (context: IBaseContext, workspace: IWorkspace) => Promise<IWorkspace>;
-
   getById: (ctx: IBaseContext, id: string) => Promise<IWorkspace | null>;
   getByIds: (ctx: IBaseContext, ids: string[]) => Promise<IWorkspace[]>;
   existsByName: (ctx: IBaseContext, name: string) => Promise<boolean>;
-
+  existsByRootName: (ctx: IBaseContext, name: string) => Promise<boolean>;
   updateById: (
     ctx: IBaseContext,
     id: string,
     update: Partial<IWorkspace>
   ) => Promise<IWorkspace | null>;
-
   deleteById: (ctx: IBaseContext, id: string) => Promise<void>;
 
   // call and wait for the promise to resolve before using the provider
@@ -31,61 +28,57 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     this.refreshIntervalMs = refreshIntervalMs;
   }
 
-  public insert = wrapFireAndThrowError(
-    async (ctx: IBaseContext, workspace: IWorkspace) => {
-      workspace = this.workspaces[workspace.resourceId] =
-        await ctx.dataProviders.workspace.insert(workspace);
-      return workspace;
+  public insert = async (ctx: IBaseContext, workspace: IWorkspace) => {
+    workspace = this.workspaces[workspace.resourceId] =
+      await ctx.dataProviders.workspace.insert(workspace);
+    return workspace;
+  };
+
+  public getById = async (ctx: IBaseContext, id: string) => {
+    let w: IWorkspace | null =
+      this.workspaces[id] || (await ctx.dataProviders.workspace.getById(id));
+
+    if (w) {
+      this.workspaces[id] = w;
     }
-  );
 
-  public getById = wrapFireAndThrowError(
-    async (ctx: IBaseContext, id: string) => {
-      let w: IWorkspace | null =
-        this.workspaces[id] || (await ctx.dataProviders.workspace.getById(id));
+    return w;
+  };
 
-      if (w) {
-        this.workspaces[id] = w;
-      }
-
-      return w;
+  public getByIds = async (ctx: IBaseContext, ids: string[]) => {
+    const ws = await ctx.dataProviders.workspace.getByIds(ids);
+    for (const w of ws) {
+      this.workspaces[w.resourceId] = w;
     }
-  );
 
-  public getByIds = wrapFireAndThrowError(
-    async (ctx: IBaseContext, ids: string[]) => {
-      const ws = await ctx.dataProviders.workspace.getByIds(ids);
-      for (const w of ws) {
-        this.workspaces[w.resourceId] = w;
-      }
+    return ws;
+  };
 
-      return ws;
+  public existsByName = async (ctx: IBaseContext, name: string) => {
+    return await ctx.dataProviders.workspace.existsByName(name);
+  };
+
+  public existsByRootName = async (ctx: IBaseContext, name: string) => {
+    return await ctx.dataProviders.workspace.existsByRootName(name);
+  };
+
+  public updateById = async (
+    ctx: IBaseContext,
+    id: string,
+    update: Partial<IWorkspace>
+  ) => {
+    const w = await ctx.dataProviders.workspace.updateById(id, update);
+    if (w) {
+      this.workspaces[id] = w;
     }
-  );
 
-  public existsByName = wrapFireAndThrowError(
-    async (ctx: IBaseContext, name: string) => {
-      return await ctx.dataProviders.workspace.existsByName(name);
-    }
-  );
+    return w;
+  };
 
-  public updateById = wrapFireAndThrowError(
-    async (ctx: IBaseContext, id: string, update: Partial<IWorkspace>) => {
-      const w = await ctx.dataProviders.workspace.updateById(id, update);
-      if (w) {
-        this.workspaces[id] = w;
-      }
-
-      return w;
-    }
-  );
-
-  public deleteById = wrapFireAndThrowError(
-    async (ctx: IBaseContext, id: string) => {
-      await ctx.dataProviders.workspace.deleteById(id);
-      delete this.workspaces[id];
-    }
-  );
+  public deleteById = async (ctx: IBaseContext, id: string) => {
+    await ctx.dataProviders.workspace.deleteById(id);
+    delete this.workspaces[id];
+  };
 
   public init = async (ctx: IBaseContext) => {
     this.dispose();

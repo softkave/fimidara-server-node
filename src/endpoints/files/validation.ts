@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {fileConstants} from '../files/constants';
 import {folderConstants} from '../folders/constants';
+import folderValidationSchemas from '../folders/validation';
 import {UploadFilePublicAccessActions} from './uploadFile/types';
 
 const fileSizeInBytes = Joi.number()
@@ -14,11 +15,10 @@ const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
 const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
 const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
 const filepath = Joi.string()
-  // eslint-disable-next-line no-useless-escape
-  .regex(/[A-Za-z0-9\/._-]+/)
+  .regex(folderValidationSchemas.pathRegex)
   .min(folderConstants.minFolderNameLength)
   .max(
-    folderConstants.maxFolderNameLength * folderConstants.maxFolderDepth +
+    folderConstants.maxFolderNameLength * (folderConstants.maxFolderDepth + 1) +
       fileConstants.maxExtensionCharLength
   );
 

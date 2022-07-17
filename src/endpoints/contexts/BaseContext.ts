@@ -90,15 +90,16 @@ export default class BaseContext<
   V extends IAppVariables
 > implements IBaseContext<T>
 {
-  public data: T;
-  public email: E;
-  public fileBackend: F;
-  public appVariables: V;
-  public dataProviders: IBaseContext['dataProviders'];
-  public cacheProviders: IBaseContext['cacheProviders'];
-  public logicProviders: IBaseContext['logicProviders'];
-  public session: ISessionContext = getSessionContext();
-  public jobs = new ContextPendingJobs();
+  data: T;
+  email: E;
+  fileBackend: F;
+  appVariables: V;
+  dataProviders: IBaseContext['dataProviders'];
+  cacheProviders: IBaseContext['cacheProviders'];
+  logicProviders: IBaseContext['logicProviders'];
+  disposeFn?: () => Promise<void>;
+  session: ISessionContext = getSessionContext();
+  jobs = new ContextPendingJobs();
 
   constructor(
     data: T,
@@ -107,7 +108,8 @@ export default class BaseContext<
     appVariables: V,
     dataProviders: IBaseContext['dataProviders'],
     cacheProviders: IBaseContext['cacheProviders'],
-    logicProviders: IBaseContext['logicProviders']
+    logicProviders: IBaseContext['logicProviders'],
+    disposeFn?: () => Promise<void>
   ) {
     this.data = data;
     this.email = emailProvider;
@@ -116,13 +118,14 @@ export default class BaseContext<
     this.dataProviders = dataProviders;
     this.cacheProviders = cacheProviders;
     this.logicProviders = logicProviders;
+    this.disposeFn = disposeFn;
   }
 
-  public init = async () => {
+  init = async () => {
     await this.cacheProviders.workspace.init(this);
   };
 
-  public dispose = async () => {
+  dispose = async () => {
     await this.jobs.waitOnJobs();
     const promises = [
       this.cacheProviders.workspace.dispose(),
@@ -130,6 +133,10 @@ export default class BaseContext<
       this.email.close(),
       this.data.close(),
     ];
+
+    if (this.disposeFn) {
+      promises.push(this.disposeFn());
+    }
 
     throwRejectedPromisesWithStatus(await Promise.allSettled(promises));
   };

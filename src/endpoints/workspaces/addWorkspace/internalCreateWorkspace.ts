@@ -6,7 +6,10 @@ import {getDate, getDateString} from '../../../utilities/dateFns';
 import cast from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
+import {
+  checkWorkspaceNameExists,
+  checkWorkspaceRootNameExists,
+} from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
 import {
@@ -36,12 +39,16 @@ const internalCreateWorkspace = async (
   agent: IAgent,
   user?: IUser
 ) => {
-  await checkWorkspaceNameExists(context, data.name);
+  await Promise.all([
+    checkWorkspaceNameExists(context, data.name),
+    checkWorkspaceRootNameExists(context, data.rootname),
+  ]);
   const createdAt = getDateString();
   const usageThresholds = transformUsageThresholInput(
     agent,
     data.usageThresholds || {}
   );
+
   let workspace: IWorkspace | null =
     await context.cacheProviders.workspace.insert(context, {
       createdAt,
@@ -50,6 +57,7 @@ const internalCreateWorkspace = async (
       lastUpdatedAt: createdAt,
       lastUpdatedBy: agent,
       name: data.name,
+      rootname: data.rootname,
       resourceId: getNewId(),
       description: data.description,
       billStatus: WorkspaceBillStatus.Ok,

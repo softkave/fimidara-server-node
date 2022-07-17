@@ -50,6 +50,7 @@ const usageThresholdLockMapSchema = ensureTypeFields<
 const workspaceSchema = ensureTypeFields<IWorkspace>({
   resourceId: {type: String, unique: true, index: true},
   name: {type: String, index: true},
+  rootname: {type: String, index: true},
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   lastUpdatedBy: {type: agentSchema},

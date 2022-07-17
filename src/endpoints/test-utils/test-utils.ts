@@ -72,6 +72,7 @@ import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import addWorkspace from '../workspaces/addWorkspace/handler';
 import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
+import {getRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
@@ -121,7 +122,8 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),
-    getLogicProviders()
+    getLogicProviders(),
+    () => connection.close()
   );
 
   await setupApp(ctx);
@@ -241,10 +243,12 @@ export async function insertWorkspaceForTest(
   userToken: IUserToken,
   workspaceInput: Partial<IAddWorkspaceParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
+  const companyName = faker.lorem.words(6);
   const instData = RequestData.fromExpressRequest<IAddWorkspaceParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      name: faker.lorem.words(6),
+      name: companyName,
+      rootname: getRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,

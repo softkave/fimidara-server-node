@@ -5,8 +5,8 @@ import OperationError, {
 import {endpointConstants} from './constants';
 
 export class InvalidRequestError extends OperationError {
-  public name = 'InvalidRequestError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  name = 'InvalidRequestError';
+  statusCode = endpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -15,8 +15,8 @@ export class InvalidRequestError extends OperationError {
 }
 
 export class RateLimitError extends OperationError {
-  public name = 'RateLimitError';
-  public statusCode = endpointConstants.httpStatusCode.tooManyRequests;
+  name = 'RateLimitError';
+  statusCode = endpointConstants.httpStatusCode.tooManyRequests;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -28,8 +28,8 @@ export class RateLimitError extends OperationError {
 }
 
 export class ExpiredError extends OperationError {
-  public name = 'ExpiredError';
-  public statusCode = endpointConstants.httpStatusCode.forbidden;
+  name = 'ExpiredError';
+  statusCode = endpointConstants.httpStatusCode.forbidden;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -38,8 +38,8 @@ export class ExpiredError extends OperationError {
 }
 
 export class NotFoundError extends OperationError {
-  public name = 'NotFoundError';
-  public statusCode = endpointConstants.httpStatusCode.notFound;
+  name = 'NotFoundError';
+  statusCode = endpointConstants.httpStatusCode.notFound;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -48,8 +48,8 @@ export class NotFoundError extends OperationError {
 }
 
 export class ResourceExistsError extends OperationError {
-  public name = 'ResourceExistsError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  name = 'ResourceExistsError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);

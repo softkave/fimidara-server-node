@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
-import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {IAgent, SessionAgentType} from '../../../definitions/system';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
-import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {costConstants} from '../../usageRecords/costs';
+import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
+import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
 
 export function generateUsageThresholdMap(
   threshold = costConstants.defaultTotalThresholdInUSD
@@ -46,7 +46,6 @@ export function generateWorkspace() {
     agentType: SessionAgentType.User,
   };
 
-  const threshold = 1000;
   const workspace: IWorkspace = {
     createdAt,
     createdBy,
@@ -54,6 +53,7 @@ export function generateWorkspace() {
     lastUpdatedBy: createdBy,
     resourceId: getNewId(),
     name: faker.lorem.word(),
+    rootname: faker.lorem.words().split(' ').join('-'),
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
