@@ -27,7 +27,12 @@ export interface IWorkspace {
   createdAt: Date | string;
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
+
+  // Human readable name of the workspace
   name: string;
+
+  // URL compatible name of the workspace
+  rootname: string;
   description?: string;
   publicPermissionGroupId?: string;
   billStatusAssignedAt?: Date | string;

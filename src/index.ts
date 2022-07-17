@@ -84,7 +84,8 @@ async function setup() {
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),
-    getLogicProviders()
+    getLogicProviders(),
+    () => connection.close()
   );
 
   const defaultWorkspace = await setupApp(ctx);

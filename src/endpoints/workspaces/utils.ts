@@ -55,6 +55,7 @@ const workspaceFields = getFields<IPublicWorkspace>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: getDateString,
   name: true,
+  rootname: true,
   description: true,
   publicPermissionGroupId: true,
   billStatus: true,
