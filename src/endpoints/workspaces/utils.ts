@@ -156,5 +156,6 @@ export abstract class WorkspaceUtils {
 export function getRootnameFromName(name: string): string {
   return name
     .replace(folderValidationSchemas.notNameRegex, '')
-    .replace(/\s/g, '-');
+    .replace(/\s/g, '-')
+    .toLowerCase();
 }
