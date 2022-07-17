@@ -10,7 +10,11 @@ import {
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {WorkspaceExistsError, WorkspaceRootNameExistsError} from '../errors';
-import {assertWorkspace, workspaceExtractor} from '../utils';
+import {
+  assertWorkspace,
+  getRootnameFromName,
+  workspaceExtractor,
+} from '../utils';
 import {IAddWorkspaceParams} from './types';
 import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -31,9 +35,10 @@ describe('addWorkspace', () => {
   test('workspace created', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
+    const companyName = faker.company.companyName();
     const companyInput: IAddWorkspaceParams = {
-      name: faker.company.companyName(),
-      rootname: faker.lorem.words().split(' ').join('-'),
+      name: companyName,
+      rootname: getRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
     };
 

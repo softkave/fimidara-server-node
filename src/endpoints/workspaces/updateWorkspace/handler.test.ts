@@ -12,6 +12,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {WorkspaceExistsError, WorkspaceRootNameExistsError} from '../errors';
+import {getRootnameFromName} from '../utils';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
 
@@ -30,9 +31,10 @@ describe('updateWorkspce', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const companyName = faker.company.companyName();
     const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
-      name: faker.company.companyName(),
-      rootname: faker.lorem.words().split(' ').join('-'),
+      name: companyName,
+      rootname: getRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(500),
     };

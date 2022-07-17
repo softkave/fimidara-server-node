@@ -23,6 +23,7 @@ import {checkAuthorization} from '../contexts/authorization-checks/checkAuthoriz
 import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
+import folderValidationSchemas from '../folders/validation';
 import {agentExtractor} from '../utils';
 
 const usageThresholdSchema = getFields<IUsageThreshold>({
@@ -150,4 +151,10 @@ export abstract class WorkspaceUtils {
   static getPublicWorkspace = workspaceExtractor;
   static getPublicWorkspaceList = workspaceListExtractor;
   static throwWorkspaceNotFound = throwWorkspaceNotFound;
+}
+
+export function getRootnameFromName(name: string): string {
+  return name
+    .replace(folderValidationSchemas.notNameRegex, '')
+    .replace(/\s/g, '-');
 }
