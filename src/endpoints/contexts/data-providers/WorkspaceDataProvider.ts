@@ -4,17 +4,15 @@ import {IWorkspace} from '../../../definitions/workspace';
 
 export interface IWorkspaceDataProvider {
   insert: (workspace: IWorkspace) => Promise<IWorkspace>;
-
   getById: (id: string) => Promise<IWorkspace | null>;
   getByIds: (ids: string[]) => Promise<IWorkspace[]>;
   getAll: () => Promise<IWorkspace[]>;
   existsByName: (name: string) => Promise<boolean>;
-
+  existsByRootName: (rootname: string) => Promise<boolean>;
   updateById: (
     id: string,
     update: Partial<IWorkspace>
   ) => Promise<IWorkspace | null>;
-
   deleteById: (id: string) => Promise<void>;
 }
 
@@ -52,6 +50,20 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
           name: {
             $regex: new RegExp(`^${name}$`, 'i'),
           },
+        },
+        '_id'
+      )
+      .lean()
+      .exec();
+
+    return w !== null;
+  };
+
+  public existsByRootName = async (rootname: string) => {
+    const w = await this.model
+      .findOne(
+        {
+          rootname: {$regex: new RegExp(`^${rootname}$`, 'i')},
         },
         '_id'
       )

@@ -30,6 +30,7 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
+import {script_AddRootNameToWorkspaces} from './scripts/addRootNameToWorkspaces';
 
 console.log('server initialization');
 
@@ -75,6 +76,10 @@ async function setup() {
     appVariables.mongoDbDatabaseName
   );
 
+  // Run scripts here
+  await script_AddRootNameToWorkspaces(connection);
+  // End of scripts
+
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
@@ -84,7 +89,8 @@ async function setup() {
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),
-    getLogicProviders()
+    getLogicProviders(),
+    () => connection.close()
   );
 
   const defaultWorkspace = await setupApp(ctx);

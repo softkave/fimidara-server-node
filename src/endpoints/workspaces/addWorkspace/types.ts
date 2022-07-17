@@ -8,6 +8,7 @@ import {Endpoint} from '../../types';
 
 export interface INewWorkspaceInput {
   name: string;
+  rootname: string;
   description?: string;
   usageThresholds?: Partial<
     Record<UsageThresholdCategory, Pick<IUsageThreshold, 'category' | 'price'>>

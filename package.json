@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "env-cmd -f \".env.test\" jest --config=jest.config.test.ts --detectOpenHandles",
-    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
+    "integration-test": "env-cmd -f \".env.test\" -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",

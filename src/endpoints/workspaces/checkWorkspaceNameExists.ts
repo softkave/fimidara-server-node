@@ -1,5 +1,5 @@
 import {IBaseContext} from '../contexts/BaseContext';
-import {WorkspaceExistsError} from './errors';
+import {WorkspaceExistsError, WorkspaceRootNameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(
   context: IBaseContext,
@@ -12,5 +12,17 @@ export async function checkWorkspaceNameExists(
 
   if (workspaceExists) {
     throw new WorkspaceExistsError();
+  }
+}
+
+export async function checkWorkspaceRootNameExists(
+  context: IBaseContext,
+  rootname: string
+) {
+  const workspaceExists =
+    await context.cacheProviders.workspace.existsByRootName(context, rootname);
+
+  if (workspaceExists) {
+    throw new WorkspaceRootNameExistsError();
   }
 }
