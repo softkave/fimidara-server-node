@@ -121,7 +121,8 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),
-    getLogicProviders()
+    getLogicProviders(),
+    () => connection.close()
   );
 
   await setupApp(ctx);
@@ -245,6 +246,7 @@ export async function insertWorkspaceForTest(
     mockExpressRequestWithUserToken(userToken),
     {
       name: faker.lorem.words(6),
+      rootname: faker.lorem.words().split(' ').join('-'),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,

@@ -17,7 +17,7 @@ export interface ISendEmailParams {
 
 export interface IEmailProviderContext {
   sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
-  close: () => void;
+  close: () => void | Promise<void>;
 }
 
 export class SESEmailProviderContext implements IEmailProviderContext {
