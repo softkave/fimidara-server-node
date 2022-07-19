@@ -8,12 +8,13 @@ import {
   getTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
+import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
 import {IDeleteFolderEndpointParams} from './types';
 
@@ -70,16 +71,14 @@ test('folder deleted', async () => {
     }
   );
 
-  const {file} = await insertFileForTest(
-    context,
-    userToken,
-    workspace.resourceId,
-    {
-      filepath: folder01.namePath
+  const {file} = await insertFileForTest(context, userToken, workspace, {
+    filepath: addRootnameToPath(
+      folder01.namePath
         .concat(faker.lorem.word())
         .join(folderConstants.nameSeparator),
-    }
-  );
+      workspace.rootname
+    ),
+  });
 
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),

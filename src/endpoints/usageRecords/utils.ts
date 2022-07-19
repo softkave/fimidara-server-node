@@ -52,7 +52,7 @@ export async function insertStorageUsageRecordInput(
 ) {
   const artifactMeta: IFileUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: file.namePath.join(fileConstants.separator),
+    filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
     ...artifactMetaInput,
   };
@@ -80,7 +80,7 @@ export async function insertBandwidthInUsageRecordInput(
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: file.namePath.join(fileConstants.separator),
+    filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
   const input: IUsageRecordInput = {
@@ -107,7 +107,7 @@ export async function insertBandwidthOutUsageRecordInput(
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: file.namePath.join(fileConstants.separator),
+    filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
   const input: IUsageRecordInput = {

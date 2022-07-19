@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
@@ -38,7 +39,7 @@ test('file updated', async () => {
   const {file, reqData} = await insertFileForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const updateInput: IUpdateFileDetailsInput = {
@@ -50,8 +51,7 @@ test('file updated', async () => {
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
+        filepath: addRootnameToPath(workspace.rootname, file.name),
         file: updateInput,
       }
     );

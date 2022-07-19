@@ -7,7 +7,7 @@ import {getWorkspaceId} from '../../contexts/SessionContext';
 import {transformUsageThresholInput} from '../addWorkspace/internalCreateWorkspace';
 import {
   checkWorkspaceNameExists,
-  checkWorkspaceRootNameExists,
+  checkWorkspaceRootnameExists,
 } from '../checkWorkspaceNameExists';
 import {
   assertWorkspace,
@@ -36,7 +36,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     data.workspace.rootname &&
     data.workspace.rootname !== workspace.rootname
   ) {
-    await checkWorkspaceRootNameExists(context, data.workspace.rootname);
+    await checkWorkspaceRootnameExists(context, data.workspace.rootname);
   }
 
   const update: Partial<IWorkspace> = {

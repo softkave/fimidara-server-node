@@ -11,7 +11,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {WorkspaceExistsError, WorkspaceRootNameExistsError} from '../errors';
+import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {getRootnameFromName} from '../utils';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
@@ -93,6 +93,6 @@ describe('updateWorkspce', () => {
         );
 
       await updateWorkspace(context, instData);
-    }, [WorkspaceRootNameExistsError.name]);
+    }, [WorkspaceRootnameExistsError.name]);
   });
 });

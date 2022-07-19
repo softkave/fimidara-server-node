@@ -5,6 +5,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {folderConstants} from '../../folders/constants';
+import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
@@ -45,15 +46,12 @@ describe('getFile', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
-      }
+      {filepath: addRootnameToPath(workspace.rootname, file.name)}
     );
 
     const result = await getFile(context, instData);
@@ -80,7 +78,7 @@ describe('getFile', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId,
+      workspace,
       {},
       'png',
       {width: startWidth, height: startHeight}
@@ -91,8 +89,7 @@ describe('getFile', () => {
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
+        filepath: addRootnameToPath(workspace.rootname, file.name),
         imageTranformation: {
           width: expectedWidth,
           height: expectedHeight,
@@ -129,19 +126,24 @@ describe('getFile', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId,
+      workspace,
       {
-        filepath: folder.namePath
-          .concat([faker.lorem.word()])
-          .join(folderConstants.nameSeparator),
+        filepath: addRootnameToPath(
+          folder.namePath
+            .concat([faker.lorem.word()])
+            .join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
       }
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
-        workspaceId: workspace.resourceId,
-        filepath: file.namePath.join(folderConstants.nameSeparator),
+        filepath: addRootnameToPath(
+          file.namePath.join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
       }
     );
 
@@ -158,15 +160,17 @@ describe('getFile', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId,
+      workspace,
       {publicAccessAction: UploadFilePublicAccessActions.Read}
     );
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
-        workspaceId: workspace.resourceId,
-        filepath: file.namePath.join(folderConstants.nameSeparator),
+        filepath: addRootnameToPath(
+          file.namePath.join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
       }
     );
 
@@ -183,7 +187,7 @@ describe('getFile', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     let instData: RequestData | null = null;
@@ -191,8 +195,10 @@ describe('getFile', () => {
       instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {
-          workspaceId: workspace.resourceId,
-          filepath: file.namePath.join(folderConstants.nameSeparator),
+          filepath: addRootnameToPath(
+            file.namePath.join(folderConstants.nameSeparator),
+            workspace.rootname
+          ),
         }
       );
 
@@ -212,7 +218,7 @@ describe('getFile', () => {
     const {file, reqData: insertFileReqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     // Update usage locks
@@ -221,10 +227,7 @@ describe('getFile', () => {
     ]);
     const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
-      }
+      {filepath: addRootnameToPath(workspace.rootname, file.name)}
     );
 
     await expectErrorThrown(

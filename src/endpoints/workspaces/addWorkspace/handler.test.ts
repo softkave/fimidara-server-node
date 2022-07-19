@@ -9,7 +9,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
-import {WorkspaceExistsError, WorkspaceRootNameExistsError} from '../errors';
+import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {
   assertWorkspace,
   getRootnameFromName,
@@ -111,6 +111,6 @@ describe('addWorkspace', () => {
       await insertWorkspaceForTest(context, userToken, {
         rootname: result.workspace.rootname,
       });
-    }, [WorkspaceRootNameExistsError.name]);
+    }, [WorkspaceRootnameExistsError.name]);
   });
 });

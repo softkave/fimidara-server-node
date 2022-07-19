@@ -10,6 +10,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utilities/fns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import RequestData from '../../RequestData';
@@ -53,7 +54,7 @@ export const uploadFileBaseTest = async (
   const {file, buffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
-    insertWorkspaceResult.workspace.resourceId,
+    insertWorkspaceResult.workspace,
     input,
     type
   );
@@ -230,12 +231,12 @@ export async function assertFileUpdated(
 
 export async function assertCanReadPublicFile(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {workspaceId, filepath: filepath}
+    {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
   const result = await getFile(ctx, instData);
@@ -244,18 +245,17 @@ export async function assertCanReadPublicFile(
 
 export async function assertCanUploadToPublicFile(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   filepath: string
 ) {
-  return await insertFileForTest(ctx, null, workspaceId, {
-    workspaceId,
-    filepath: filepath,
+  return await insertFileForTest(ctx, null, workspace, {
+    filepath: addRootnameToPath(filepath, workspace.rootname),
   });
 }
 
 export async function assertCanUpdatePublicFile(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   filepath: string
 ) {
   const updateInput: IUpdateFileDetailsInput = {
@@ -266,7 +266,10 @@ export async function assertCanUpdatePublicFile(
   const instData =
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {workspaceId, filepath: filepath, file: updateInput}
+      {
+        filepath: addRootnameToPath(filepath, workspace.rootname),
+        file: updateInput,
+      }
     );
 
   const result = await updateFileDetails(ctx, instData);
@@ -275,12 +278,12 @@ export async function assertCanUpdatePublicFile(
 
 export async function assertCanDeletePublicFile(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {workspaceId, filepath: filepath}
+    {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
   const result = await deleteFile(ctx, instData);

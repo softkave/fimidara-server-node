@@ -13,8 +13,8 @@ export class WorkspaceExistsError extends OperationError {
   }
 }
 
-export class WorkspaceRootNameExistsError extends OperationError {
-  name = 'WorkspaceRootNameExistsError';
+export class WorkspaceRootnameExistsError extends OperationError {
+  name = 'WorkspaceRootnameExistsError';
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);

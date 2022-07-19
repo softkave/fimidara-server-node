@@ -8,8 +8,8 @@ import {
   logScriptSuccessful,
 } from './utils';
 
-export async function script_AddRootNameToWorkspaces(connection: Connection) {
-  logScriptStarted(script_AddRootNameToWorkspaces);
+export async function script_AddRootnameToWorkspaces(connection: Connection) {
+  logScriptStarted(script_AddRootnameToWorkspaces);
   try {
     const model = getWorkspaceModel(connection);
     const docs = await model.find({rootname: null}).lean().exec();
@@ -26,11 +26,11 @@ export async function script_AddRootNameToWorkspaces(connection: Connection) {
     );
 
     logScriptMessage(
-      script_AddRootNameToWorkspaces,
+      script_AddRootnameToWorkspaces,
       `Added rootname to ${docs.length} workspaces`
     );
-    logScriptSuccessful(script_AddRootNameToWorkspaces);
+    logScriptSuccessful(script_AddRootnameToWorkspaces);
   } catch (error: any) {
-    logScriptFailed(script_AddRootNameToWorkspaces, error);
+    logScriptFailed(script_AddRootnameToWorkspaces, error);
   }
 }

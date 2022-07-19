@@ -1,98 +1,52 @@
-import {first} from 'lodash';
-import {format} from 'util';
 import {IFile, IFileMatcher} from '../../definitions/file';
-import {ISessionAgent} from '../../definitions/system';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getWorkspaceId} from '../contexts/SessionContext';
-import {InvalidRequestError, NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
+import {assertWorkspace} from '../workspaces/utils';
 import FileQueries from './queries';
-import {getFileName, splitfilepathWithDetails} from './utils';
+import {assertFile, splitfilepathWithDetails} from './utils';
 
-export async function getFilesWithMatcher(
+export async function getFileWithMatcher(
   context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFileMatcher,
-  count?: number
+  matcher: IFileMatcher
 ) {
-  const workspaceId = getWorkspaceId(agent, matcher.workspaceId);
-
   if (matcher.fileId) {
     const file = await context.data.file.getItem(
       EndpointReusableQueries.getById(matcher.fileId)
     );
 
-    return [file];
-  } else if (matcher.filepath && workspaceId) {
+    return file;
+  } else if (matcher.filepath) {
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
-    const files = await context.data.file.getManyItems(
+    const workspace = await context.cacheProviders.workspace.getByRootname(
+      context,
+      pathWithDetails.workspaceRootname
+    );
+
+    assertWorkspace(workspace);
+    const file = await context.data.file.getItem(
       pathWithDetails.extension
         ? FileQueries.getByNamePathAndExtention(
-            workspaceId,
+            workspace.resourceId,
             pathWithDetails.splitPathWithoutExtension,
             pathWithDetails.extension
           )
         : FileQueries.getByNamePath(
-            workspaceId,
+            workspace.resourceId,
             pathWithDetails.splitPathWithoutExtension
           )
     );
 
-    if (count && files.length > count) {
-      const message = format(
-        'Multiple files found matching request %o',
-        files.map(file => getFileName(file))
-      );
-
-      throw new InvalidRequestError(message);
-    }
-
-    return files;
+    return file;
   }
 
-  return [];
-}
-
-export async function assertGetFilesWithMatcher(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFileMatcher,
-  count?: number
-) {
-  const files = await getFilesWithMatcher(context, agent, matcher, count);
-
-  if (files.length === 0) {
-    throw new NotFoundError('File not found');
-  }
-
-  return files;
+  return null;
 }
 
 export async function assertGetSingleFileWithMatcher(
   context: IBaseContext,
-  agent: ISessionAgent,
   matcher: IFileMatcher
 ): Promise<IFile> {
-  const files = await getFilesWithMatcher(context, agent, matcher, 1);
-  const file = first(files);
-
-  if (!file) {
-    throw new NotFoundError('File not found');
-  }
-
+  const file = await getFileWithMatcher(context, matcher);
+  assertFile(file);
   return file;
-}
-
-export async function tryGetSingleFileWithMatcher(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFileMatcher
-) {
-  const matchedFiles = await getFilesWithMatcher(
-    context,
-    agent,
-    matcher,
-    /* count */ 1
-  );
-  return first(matchedFiles);
 }

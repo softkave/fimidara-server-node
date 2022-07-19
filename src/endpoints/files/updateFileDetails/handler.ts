@@ -13,11 +13,7 @@ import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../perm
 import {assertWorkspace} from '../../workspaces/utils';
 import FileQueries from '../queries';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
-import {
-  checkFileAuthorization03,
-  fileExtractor,
-  getFileMatcher,
-} from '../utils';
+import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -40,7 +36,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
   let {file} = await checkFileAuthorization03(
     context,
     agent,
-    getFileMatcher(agent, data),
+    data,
     BasicCRUDActions.Update
   );
 
@@ -62,8 +58,8 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (
     context,
     file.workspaceId
   );
-  assertWorkspace(workspace);
 
+  assertWorkspace(workspace);
   if (data.file.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(
       agent,

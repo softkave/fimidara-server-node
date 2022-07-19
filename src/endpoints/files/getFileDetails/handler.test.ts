@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/BaseContext';
+import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
@@ -30,16 +31,13 @@ test('file details returned', async () => {
   const {file, reqData} = await insertFileForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const instData =
     RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
-      }
+      {filepath: addRootnameToPath(workspace.rootname, file.name)}
     );
 
   const result = await getFileDetails(context, instData);

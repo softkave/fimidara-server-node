@@ -1,5 +1,6 @@
 import {IBaseContext} from '../../contexts/BaseContext';
 import FileQueries from '../../files/queries';
+import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
@@ -39,15 +40,12 @@ test('file deleted', async () => {
   const {file, reqData} = await insertFileForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
-    {
-      workspaceId: workspace.resourceId,
-      filepath: file.name,
-    }
+    {filepath: addRootnameToPath(workspace.rootname, file.name)}
   );
 
   const result = await deleteFile(context, instData);
