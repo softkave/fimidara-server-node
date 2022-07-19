@@ -8,7 +8,7 @@ import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   checkWorkspaceNameExists,
-  checkWorkspaceRootNameExists,
+  checkWorkspaceRootnameExists,
 } from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
@@ -41,7 +41,7 @@ const internalCreateWorkspace = async (
 ) => {
   await Promise.all([
     checkWorkspaceNameExists(context, data.name),
-    checkWorkspaceRootNameExists(context, data.rootname),
+    checkWorkspaceRootnameExists(context, data.rootname),
   ]);
   const createdAt = getDateString();
   const usageThresholds = transformUsageThresholInput(

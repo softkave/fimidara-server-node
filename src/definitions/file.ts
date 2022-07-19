@@ -26,7 +26,7 @@ export interface IFile {
 export type IPublicFile = IFile & {tags: IAssignedTag[]};
 
 export interface IFileMatcher {
+  // file path with workspace root name
   filepath?: string;
   fileId?: string;
-  workspaceId?: string;
 }

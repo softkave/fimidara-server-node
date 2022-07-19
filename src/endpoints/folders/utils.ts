@@ -1,4 +1,4 @@
-import {defaultTo, isArray, last} from 'lodash';
+import {defaultTo, first, isArray, last} from 'lodash';
 import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
 import {
   AppResourceType,
@@ -14,9 +14,9 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
-import {checkWorkspaceExists} from '../workspaces/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
+import {checkWorkspaceExists} from '../workspaces/utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
@@ -50,7 +50,6 @@ export function splitfolderpath(path: string | string[]) {
   }
 
   const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
-
   if (p.length > folderConstants.maxFolderDepth) {
     throw new Error('Path depth exceeds max path depth (10)');
   }
@@ -60,7 +59,6 @@ export function splitfolderpath(path: string | string[]) {
 
 export function assertSplitfolderpath(path: string) {
   const splitPath = splitfolderpath(path);
-
   if (splitPath.length === 0) {
     throw new InvalidRequestError('Path is empty');
   }
@@ -75,14 +73,21 @@ export interface IfolderpathWithDetails {
   splitParentPath: string[];
   parentPath: string;
   hasParent: boolean;
+  workspaceRootname: string;
 }
 
 export function splitPathWithDetails(
   providedPath: string | string[]
 ): IfolderpathWithDetails {
   const splitPath = splitfolderpath(providedPath);
+  const workspaceRootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');
-  const splitParentPath = splitPath.slice(0, -1);
+  assertWorkspaceRootname(workspaceRootname);
+  assertFileOrFolderName(name);
+  const splitParentPath = splitPath.slice(
+    /* workspace rootname is 0 */ 1,
+    /* file or folder name is last item */ -1
+  );
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
   const hasParent = splitParentPath.length > 0;
   return {
@@ -92,6 +97,7 @@ export function splitPathWithDetails(
     name,
     parentPath,
     providedPath,
+    workspaceRootname,
   };
 }
 
@@ -99,7 +105,6 @@ export function assertSplitPathWithDetails(
   path: string
 ): IfolderpathWithDetails {
   const result = splitPathWithDetails(path);
-
   if (result.splitPath.length === 0) {
     throw new InvalidRequestError('Path is empty');
   }
@@ -115,7 +120,6 @@ export async function checkFolderAuthorization(
   nothrow = false
 ) {
   const workspace = await checkWorkspaceExists(context, folder.workspaceId);
-
   await checkAuthorization({
     context,
     agent,
@@ -156,4 +160,34 @@ export function getFolderMatcher(agent: ISessionAgent, data: IFolderMatcher) {
     ...data,
     workspaceId,
   };
+}
+
+export function assertWorkspaceRootname(
+  workspaceRootname?: string | null
+): asserts workspaceRootname {
+  if (workspaceRootname) {
+    throw new InvalidRequestError(`Workspace rootname not provided`);
+  }
+}
+
+export function assertFileOrFolderName(
+  fileOrFolderName?: string | null
+): asserts fileOrFolderName {
+  if (fileOrFolderName) {
+    throw new InvalidRequestError(`File or folder name not provided`);
+  }
+}
+
+export function addRootnameToPath<
+  T extends string | string[] = string | string[]
+>(path: T, workspaceRootname: string | string[]): T {
+  const rootname = isArray(workspaceRootname)
+    ? last(workspaceRootname)
+    : workspaceRootname;
+
+  if (isArray(path)) {
+    return <T>[rootname, ...path];
+  }
+
+  return <T>`${rootname}${folderConstants.nameSeparator}${path}`;
 }

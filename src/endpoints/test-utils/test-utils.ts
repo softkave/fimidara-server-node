@@ -47,6 +47,7 @@ import {
   INewFolderInput,
 } from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
+import {addRootnameToPath} from '../folders/utils';
 import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
 import {
   IAddPermissionGroupEndpointParams,
@@ -503,14 +504,16 @@ export function generateTestTextFile() {
 export async function insertFileForTest(
   context: IBaseContext,
   userToken: IUserToken | null, // Pass null for public agent
-  workspaceId: string,
+  workspace: IWorkspace,
   fileInput: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
   const input: IUploadFileEndpointParams = {
-    workspaceId,
-    filepath: [faker.lorem.word()].join(folderConstants.nameSeparator),
+    filepath: addRootnameToPath(
+      [faker.lorem.word()].join(folderConstants.nameSeparator),
+      workspace.rootname
+    ),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',
@@ -518,7 +521,6 @@ export async function insertFileForTest(
   };
 
   assert(input.filepath);
-
   if (!fileInput.data) {
     if (type === 'png') {
       input.data = await generateTestImage(imageProps);
@@ -533,7 +535,6 @@ export async function insertFileForTest(
   }
 
   const pathWithDetails = splitfilepathWithDetails(input.filepath);
-
   if (!pathWithDetails.extension) {
     input.filepath = input.filepath + '.' + input.extension;
   }

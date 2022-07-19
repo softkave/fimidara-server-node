@@ -82,7 +82,7 @@ describe('checkAuthorization', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      rawWorkspace.resourceId
+      rawWorkspace
     );
 
     const agent = await context.session.getAgent(
@@ -119,7 +119,7 @@ describe('checkAuthorization', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     const agent02 = await context.session.getAgent(
@@ -159,7 +159,7 @@ describe('checkAuthorization', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     const agent02 = await context.session.getAgent(
@@ -207,7 +207,7 @@ describe('checkAuthorization', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     const agent02 = await context.session.getAgent(
@@ -252,7 +252,7 @@ describe('checkAuthorization', () => {
     const {file, reqData} = await insertFileForTest(
       context,
       userToken,
-      workspace.resourceId
+      workspace
     );
 
     await grantEveryPermission(workspace, userToken, userToken02.userId);

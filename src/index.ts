@@ -30,7 +30,7 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
-import {script_AddRootNameToWorkspaces} from './scripts/addRootNameToWorkspaces';
+import {script_AddRootnameToWorkspaces} from './scripts/addRootnameToWorkspaces';
 
 console.log('server initialization');
 
@@ -77,7 +77,7 @@ async function setup() {
   );
 
   // Run scripts here
-  await script_AddRootNameToWorkspaces(connection);
+  await script_AddRootnameToWorkspaces(connection);
   // End of scripts
 
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);

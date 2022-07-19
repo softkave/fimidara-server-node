@@ -4,16 +4,15 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
+import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utilities/dateFns';
 import {ValidationError} from '../../utilities/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {appAssert} from '../../utilities/fns';
 import {
   checkAuthorization,
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
@@ -21,7 +20,7 @@ import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
-import {assertGetSingleFileWithMatcher} from './getFilesWithMatcher';
+import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
 import assert = require('assert');
 
 const fileFields = getFields<IPublicFile>({
@@ -54,7 +53,6 @@ export async function checkFileAuthorization(
   nothrow = false
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId);
-
   await checkAuthorization({
     context,
     agent,
@@ -80,7 +78,7 @@ export async function checkFileAuthorization03(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const file = await assertGetSingleFileWithMatcher(context, agent, matcher);
+  const file = await assertGetFileWithMatcher(context, matcher);
   return checkFileAuthorization(context, agent, file, action, nothrow);
 }
 
@@ -93,11 +91,11 @@ export interface ISplitFilenameWithDetails {
 export function splitFilenameWithDetails(
   providedName: string
 ): ISplitFilenameWithDetails {
-  const splitStr = providedName.split(fileConstants.separator);
+  const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
   let nameWithoutExtension = splitStr[0];
   let extension: string | undefined = splitStr
     .slice(1)
-    .join(fileConstants.separator);
+    .join(fileConstants.nameExtensionSeparator);
 
   if (extension && !nameWithoutExtension) {
     nameWithoutExtension = extension;
@@ -141,42 +139,47 @@ export function throwFileNotFound() {
   throw new NotFoundError('File not found');
 }
 
-export function getFileName(file: IFile) {
+export function getFilePathWithoutRootname(file: IFile) {
   return `${file.namePath.join(folderConstants.nameSeparator)}${
-    fileConstants.separator
+    fileConstants.nameExtensionSeparator
   }${file.extension}`;
 }
 
-export function getFileMatcher(agent: ISessionAgent, data: IFileMatcher) {
-  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
-  return {
-    ...data,
-    workspaceId,
-  };
+export async function getWorkspaceFromFilepath(
+  context: IBaseContext,
+  filepath: string
+) {
+  const pathWithDetails = splitfilepathWithDetails(filepath);
+  const workspace = await context.cacheProviders.workspace.getByRootname(
+    context,
+    pathWithDetails.workspaceRootname
+  );
+
+  assertWorkspace(workspace);
+  return workspace;
 }
 
-export async function getWorkspaceFromFileOrMatcher(
+export async function getWorkspaceFromFileOrFilepath(
   context: IBaseContext,
-  matcher: IFileMatcher,
-  file?: IFile | null
+  file?: IFile | null,
+  filepath?: string
 ) {
+  let workspace: IWorkspace | null = null;
   if (file) {
-    const workspace = await context.cacheProviders.workspace.getById(
+    workspace = await context.cacheProviders.workspace.getById(
       context,
       file.workspaceId
     );
-    assertWorkspace(workspace);
-    return workspace;
-  } else {
-    appAssert(
-      matcher.workspaceId && matcher.filepath,
-      new ValidationError('Workspace ID and or file path missing')
-    );
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      matcher.workspaceId
-    );
-    assertWorkspace(workspace);
-    return workspace;
+  } else if (filepath) {
+    workspace = await getWorkspaceFromFilepath(context, filepath);
+  }
+
+  assertWorkspace(workspace);
+  return workspace;
+}
+
+export function assertFile(file: IFile | null | undefined): asserts file {
+  if (!file) {
+    throwFileNotFound();
   }
 }
