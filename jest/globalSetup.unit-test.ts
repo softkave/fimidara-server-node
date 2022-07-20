@@ -28,6 +28,7 @@ async function testGlobalSetup() {
   );
 
   await setupApp(ctx);
+  await connection.close();
 }
 
 module.exports = testGlobalSetup;

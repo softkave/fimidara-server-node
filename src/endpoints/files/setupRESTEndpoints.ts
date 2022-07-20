@@ -1,17 +1,17 @@
-import {Response, Request, Express} from 'express';
+import {Express, Request, Response} from 'express';
+import {isNumber, merge} from 'lodash';
 import * as multer from 'multer';
+import {endpointConstants} from '../constants';
+import {IBaseContext} from '../contexts/BaseContext';
 import {wrapEndpointREST} from '../utils';
+import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
 import getFile from './getFile/handler';
+import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
 import getFileDetails from './getFileDetails/handler';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
-import {IBaseContext} from '../contexts/BaseContext';
-import {fileConstants} from './constants';
-import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
-import {isNumber, merge} from 'lodash';
 import {IUploadFileEndpointParams} from './uploadFile/types';
-import {endpointConstants} from '../constants';
 
 function handleGetFileResponse(
   res: Response,
@@ -27,12 +27,10 @@ function handleGetFileResponse(
 }
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
-  const workspaceId = req.query.workspaceId as string;
   const filepath = req.query.filepath as string;
   const width = req.query.w;
   const height = req.query.h;
   return {
-    workspaceId,
     filepath: filepath,
     imageTranformation:
       isNumber(width) && isNumber(height) ? {width, height} : undefined,
@@ -43,12 +41,8 @@ function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
 function extractUploadFilesParamsFromQuery(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
-  const workspaceId = req.query.workspaceId as string;
   const filepath = req.query.filepath as string;
-  return {
-    workspaceId,
-    filepath,
-  };
+  return {filepath};
 }
 
 function extractUploadFilesParamsFromFormData(

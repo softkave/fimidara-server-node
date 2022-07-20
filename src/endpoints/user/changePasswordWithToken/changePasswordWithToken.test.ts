@@ -11,7 +11,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithUserToken,
@@ -33,11 +33,11 @@ import changePasswordWithToken from './changePasswordWithToken';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function changePasswordWithTokenTest() {

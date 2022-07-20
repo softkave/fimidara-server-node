@@ -15,7 +15,7 @@ import {
 import {getFileModel, IFileModel} from '../../db/file';
 import {getFolderDatabaseModel, IFolderDatabaseModel} from '../../db/folder';
 import {
-  getPermissionGroupPermissionsModel,
+  getPermissionGroupModel,
   IPermissionGroupPermissionsItemModel,
 } from '../../db/permissionGroups';
 import {
@@ -108,7 +108,7 @@ export default class MongoDBDataProviderContext
       collaborationRequest: getCollaborationRequestModel(connection),
       folder: getFolderDatabaseModel(connection),
       permissionItem: getPermissionItemModel(connection),
-      permissionGroup: getPermissionGroupPermissionsModel(connection),
+      permissionGroup: getPermissionGroupModel(connection),
       appRuntimeState: getAppRuntimeStateModel(connection),
       tag: getTagModel(connection),
       assignedItem: getAssignedItemModel(connection),

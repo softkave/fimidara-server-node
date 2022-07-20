@@ -37,8 +37,8 @@ const usageRecordSchema = ensureTypeFields<IUsageRecord>({
 export type IUsageRecordDocument = Document<IUsageRecord>;
 
 const schema = new Schema<IUsageRecord>(usageRecordSchema);
-const modelName = 'usagerecord';
-const collectionName = 'usagerecords';
+const modelName = 'usage-record';
+const collectionName = 'usage-records';
 
 export function getUsageRecordModel(connection: Connection) {
   const model = connection.model<IUsageRecord>(

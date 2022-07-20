@@ -2,12 +2,13 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -24,11 +25,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('file updated', async () => {
@@ -38,7 +39,7 @@ test('file updated', async () => {
   const {file, reqData} = await insertFileForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const updateInput: IUpdateFileDetailsInput = {
@@ -50,8 +51,7 @@ test('file updated', async () => {
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        workspaceId: workspace.resourceId,
-        filepath: file.name,
+        filepath: addRootnameToPath(file.name, workspace.rootname),
         file: updateInput,
       }
     );

@@ -4,7 +4,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
 } from '../../test-utils/test-utils';
@@ -14,11 +14,11 @@ import {IUserExistsParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('returns true if user exists', async () => {

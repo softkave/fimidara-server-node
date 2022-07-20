@@ -6,7 +6,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertClientAssignedTokenForTest,
   insertPermissionGroupForTest,
   insertUserForTest,
@@ -26,11 +26,11 @@ import {IUpdateClientAssignedTokenEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('client assigned token permission groups updated', async () => {

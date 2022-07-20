@@ -10,7 +10,7 @@ import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedIte
 import {IBaseContext} from '../../contexts/BaseContext';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FileQueries from '../queries';
-import {checkFileAuthorization03, getFileMatcher} from '../utils';
+import {checkFileAuthorization03} from '../utils';
 import {DeleteFileEndpoint} from './types';
 import {deleteFileJoiSchema} from './validation';
 
@@ -25,7 +25,7 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const {file} = await checkFileAuthorization03(
     context,
     agent,
-    getFileMatcher(agent, data),
+    data,
     BasicCRUDActions.Delete
   );
 

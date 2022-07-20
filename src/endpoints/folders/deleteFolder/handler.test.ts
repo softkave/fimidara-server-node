@@ -5,15 +5,16 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
+import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
 import {IDeleteFolderEndpointParams} from './types';
 
@@ -26,11 +27,11 @@ import {IDeleteFolderEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
@@ -56,36 +57,36 @@ test('folder deleted', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId,
+    workspace,
     {
-      folderpath: folder01.namePath
-        .concat(faker.lorem.word())
-        .join(folderConstants.nameSeparator),
+      folderpath: addRootnameToPath(
+        folder01.namePath
+          .concat(faker.lorem.word())
+          .join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
     }
   );
 
-  const {file} = await insertFileForTest(
-    context,
-    userToken,
-    workspace.resourceId,
-    {
-      filepath: folder01.namePath
+  const {file} = await insertFileForTest(context, userToken, workspace, {
+    filepath: addRootnameToPath(
+      folder01.namePath
         .concat(faker.lorem.word())
         .join(folderConstants.nameSeparator),
-    }
-  );
+      workspace.rootname
+    ),
+  });
 
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      workspaceId: workspace.resourceId,
-      folderpath: folder01.name,
+      folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }
   );
 

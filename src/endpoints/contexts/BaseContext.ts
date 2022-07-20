@@ -35,7 +35,7 @@ import {
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
-import {getSessionContext, ISessionContext} from './SessionContext';
+import SessionContext, {ISessionContext} from './SessionContext';
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -98,8 +98,8 @@ export default class BaseContext<
   cacheProviders: IBaseContext['cacheProviders'];
   logicProviders: IBaseContext['logicProviders'];
   disposeFn?: () => Promise<void>;
-  session: ISessionContext = getSessionContext();
-  jobs = new ContextPendingJobs();
+  session: ISessionContext = new SessionContext();
+  jobs: IContextPendingJobs;
 
   constructor(
     data: T,
@@ -119,6 +119,7 @@ export default class BaseContext<
     this.cacheProviders = cacheProviders;
     this.logicProviders = logicProviders;
     this.disposeFn = disposeFn;
+    this.jobs = new ContextPendingJobs(this.appVariables.nodeEnv !== 'test');
   }
 
   init = async () => {

@@ -6,24 +6,24 @@ import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {WorkspaceExistsError, WorkspaceRootNameExistsError} from '../errors';
-import {getRootnameFromName} from '../utils';
+import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
+import {makeRootnameFromName} from '../utils';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('updateWorkspce', () => {
@@ -34,7 +34,7 @@ describe('updateWorkspce', () => {
     const companyName = faker.company.companyName();
     const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
       name: companyName,
-      rootname: getRootnameFromName(companyName),
+      rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(500),
     };
@@ -93,6 +93,6 @@ describe('updateWorkspce', () => {
         );
 
       await updateWorkspace(context, instData);
-    }, [WorkspaceRootNameExistsError.name]);
+    }, [WorkspaceRootnameExistsError.name]);
   });
 });

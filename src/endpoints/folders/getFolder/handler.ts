@@ -5,11 +5,7 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {
-  checkFolderAuthorization02,
-  folderExtractor,
-  getFolderMatcher,
-} from '../utils';
+import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {GetFolderEndpoint} from './types';
 import {getFolderJoiSchema} from './validation';
 
@@ -24,7 +20,7 @@ const getFolder: GetFolderEndpoint = async (context, instData) => {
   let {folder} = await checkFolderAuthorization02(
     context,
     agent,
-    getFolderMatcher(agent, data),
+    data,
     BasicCRUDActions.Read
   );
 

@@ -4,9 +4,13 @@ import {IBaseContext} from '../BaseContext';
 export interface IWorkspaceCacheProvider {
   insert: (context: IBaseContext, workspace: IWorkspace) => Promise<IWorkspace>;
   getById: (ctx: IBaseContext, id: string) => Promise<IWorkspace | null>;
+  getByRootname: (
+    ctx: IBaseContext,
+    rootname: string
+  ) => Promise<IWorkspace | null>;
   getByIds: (ctx: IBaseContext, ids: string[]) => Promise<IWorkspace[]>;
   existsByName: (ctx: IBaseContext, name: string) => Promise<boolean>;
-  existsByRootName: (ctx: IBaseContext, name: string) => Promise<boolean>;
+  existsByRootname: (ctx: IBaseContext, name: string) => Promise<boolean>;
   updateById: (
     ctx: IBaseContext,
     id: string,
@@ -35,7 +39,7 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
   };
 
   public getById = async (ctx: IBaseContext, id: string) => {
-    let w: IWorkspace | null =
+    const w: IWorkspace | null =
       this.workspaces[id] || (await ctx.dataProviders.workspace.getById(id));
 
     if (w) {
@@ -54,12 +58,17 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     return ws;
   };
 
+  public getByRootname = async (ctx: IBaseContext, rootname: string) => {
+    // TODO: implement caching by rootname
+    return await ctx.dataProviders.workspace.getByRootname(rootname);
+  };
+
   public existsByName = async (ctx: IBaseContext, name: string) => {
     return await ctx.dataProviders.workspace.existsByName(name);
   };
 
-  public existsByRootName = async (ctx: IBaseContext, name: string) => {
-    return await ctx.dataProviders.workspace.existsByRootName(name);
+  public existsByRootname = async (ctx: IBaseContext, name: string) => {
+    return await ctx.dataProviders.workspace.existsByRootname(name);
   };
 
   public updateById = async (

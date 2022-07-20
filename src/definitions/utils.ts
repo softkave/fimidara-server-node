@@ -1,8 +1,8 @@
 import {uniqWith} from 'lodash';
 import {
-  IPublicAccessOp,
   AppResourceType,
   BasicCRUDActions,
+  IPublicAccessOp,
   IPublicAccessOpInput,
 } from './system';
 

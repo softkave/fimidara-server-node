@@ -6,6 +6,7 @@ import {
   ISessionAgent,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {resourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
@@ -14,7 +15,6 @@ import {
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
 import {PermissionDeniedError} from '../../user/errors';
@@ -23,7 +23,7 @@ import FolderQueries from '../queries';
 import {
   checkFolderAuthorization02,
   folderListExtractor,
-  getFolderMatcher,
+  getRootname,
 } from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
@@ -39,57 +39,63 @@ const listFolderContent: ListFolderContentEndpoint = async (
     publicPermissibleEndpointAgents
   );
 
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await context.cacheProviders.workspace.getById(
-    context,
-    workspaceId
-  );
-  assertWorkspace(workspace);
-
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
+  let workspace: IWorkspace | null = null;
+  let opCompleted = false;
+  if (data.folderpath) {
+    const rootname = getRootname(data.folderpath);
+    if (rootname === data.folderpath) {
+      workspace = await context.cacheProviders.workspace.getByRootname(
+        context,
+        rootname
+      );
 
-  if (!data.folderpath && !data.folderId) {
-    const result = await fetchRootLevelContent(context, workspaceId);
-    fetchedFiles = result.files;
-    fetchedFolders = result.folders;
-  } else {
-    const result = await fetchFolderContent(
-      context,
-      agent,
-      getFolderMatcher(agent, data)
-    );
-
-    fetchedFiles = result.files;
-    fetchedFolders = result.folders;
+      assertWorkspace(workspace);
+      const result = await fetchRootLevelContent(context, workspace.resourceId);
+      fetchedFiles = result.files;
+      fetchedFolders = result.folders;
+      opCompleted = true;
+    }
   }
 
+  if (!opCompleted) {
+    const result = await fetchFolderContent(context, agent, data);
+    fetchedFiles = result.files;
+    fetchedFolders = result.folders;
+    workspace = result.workspace;
+  }
+
+  assertWorkspace(workspace);
+
   // TODO: can we do this together, so that we don't waste compute
-  const checkFoldersPermissionQueue = fetchedFolders.map(item =>
-    checkAuthorization({
+  const checkFoldersPermissionQueue = fetchedFolders.map(item => {
+    const w = workspace as IWorkspace;
+    return checkAuthorization({
       context,
       agent,
-      workspace,
+      workspace: w,
       resource: item,
       type: AppResourceType.Folder,
-      permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
+      permissionOwners: makeWorkspacePermissionOwnerList(w.resourceId),
       action: BasicCRUDActions.Read,
       nothrow: true,
-    })
-  );
+    });
+  });
 
-  const checkFilesPermissionQueue = fetchedFiles.map(item =>
-    checkAuthorization({
+  const checkFilesPermissionQueue = fetchedFiles.map(item => {
+    const w = workspace as IWorkspace;
+    return checkAuthorization({
       context,
       agent,
-      workspace,
+      workspace: w,
       resource: item,
       type: AppResourceType.File,
-      permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
+      permissionOwners: makeWorkspacePermissionOwnerList(w.resourceId),
       action: BasicCRUDActions.Read,
       nothrow: true,
-    })
-  );
+    });
+  });
 
   const folderPermittedReads = await waitOnPromises(
     checkFoldersPermissionQueue
@@ -148,7 +154,7 @@ async function fetchFolderContent(
   agent: ISessionAgent,
   matcher: IFolderMatcher
 ) {
-  const {folder} = await checkFolderAuthorization02(
+  const {folder, workspace} = await checkFolderAuthorization02(
     context,
     agent,
     matcher,
@@ -164,7 +170,7 @@ async function fetchFolderContent(
     ),
   ]);
 
-  return {folders, files};
+  return {folders, files, workspace};
 }
 
 export default listFolderContent;

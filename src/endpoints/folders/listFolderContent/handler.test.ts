@@ -4,14 +4,15 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
+import {addRootnameToPath} from '../utils';
 import listFolderContent from './handler';
 import {IListFolderContentEndpointParams} from './types';
 
@@ -23,11 +24,11 @@ import {IListFolderContentEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('folder content returned', async () => {
@@ -37,37 +38,37 @@ test('folder content returned', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId,
+    workspace,
     {
-      folderpath: folder01.namePath
-        .concat(faker.lorem.word())
-        .join(folderConstants.nameSeparator),
+      folderpath: addRootnameToPath(
+        folder01.namePath
+          .concat(faker.lorem.word())
+          .join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
     }
   );
 
-  const {file} = await insertFileForTest(
-    context,
-    userToken,
-    workspace.resourceId,
-    {
-      filepath: folder01.namePath
+  const {file} = await insertFileForTest(context, userToken, workspace, {
+    filepath: addRootnameToPath(
+      folder01.namePath
         .concat(faker.lorem.word())
         .join(folderConstants.nameSeparator),
-    }
-  );
+      workspace.rootname
+    ),
+  });
 
   const instData =
     RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        workspaceId: workspace.resourceId,
-        folderpath: folder01.name,
+        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
       }
     );
 

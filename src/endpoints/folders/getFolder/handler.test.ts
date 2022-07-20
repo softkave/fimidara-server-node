@@ -3,23 +3,24 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
+import {addRootnameToPath} from '../utils';
 import getFolder from './handler';
 import {IGetFolderEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('folder returned', async () => {
@@ -29,14 +30,13 @@ test('folder returned', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      workspaceId: workspace.resourceId,
-      folderpath: folder01.name,
+      folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }
   );
 

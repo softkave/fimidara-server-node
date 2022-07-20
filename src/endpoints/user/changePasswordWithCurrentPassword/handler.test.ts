@@ -5,7 +5,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithUserToken,
@@ -16,18 +16,14 @@ import {userExtractor} from '../utils';
 import changePasswordWithCurrentPassword from './handler';
 import {IChangePasswordWithCurrentPasswordEndpointParams} from './types';
 
-/**
- * TODO:
- */
-
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('password changed with current password', async () => {

@@ -1,4 +1,3 @@
-import assert = require('assert');
 import * as jwt from 'jsonwebtoken';
 import {ResourceWithPermissionGroupsAndTags} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
@@ -18,7 +17,6 @@ import {
   wrapFireAndThrowError,
   wrapFireAndThrowErrorNoAsync,
 } from '../../utilities/promiseFns';
-import singletonFunc from '../../utilities/singletonFunc';
 import {
   withAssignedPermissionGroupsAndTags,
   withUserWorkspaces,
@@ -289,8 +287,6 @@ export default class SessionContext implements ISessionContext {
     }
   );
 }
-
-export const getSessionContext = singletonFunc(() => new SessionContext());
 
 export function makeClientAssignedTokenAgent(
   clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>

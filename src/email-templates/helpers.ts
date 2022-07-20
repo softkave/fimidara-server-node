@@ -50,7 +50,7 @@ body {
 export function getFooterHTML(withDonotReply = true): string {
   return `
 <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
-  ${withDonotReply ? `Auto-generated email, do not reply. <br />` : ''}
+  ${withDonotReply ? 'Auto-generated email, do not reply. <br />' : ''}
   &copy; - ${defaultStaticVars.appName} - ${new Date().getFullYear()}
 </footer>
     `;

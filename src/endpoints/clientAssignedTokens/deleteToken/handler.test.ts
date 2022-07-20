@@ -4,7 +4,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertClientAssignedTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -21,11 +21,11 @@ import {IDeleteClientAssignedTokenEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('client assigned token deleted', async () => {

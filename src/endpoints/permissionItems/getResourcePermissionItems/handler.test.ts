@@ -11,7 +11,7 @@ import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -28,11 +28,11 @@ import {IGetResourcePermissionItemsEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('getResourcePermissionItems', () => {

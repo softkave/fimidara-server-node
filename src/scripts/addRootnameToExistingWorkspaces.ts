@@ -1,6 +1,6 @@
 import {Connection} from 'mongoose';
 import {getWorkspaceModel} from '../db/workspace';
-import {getRootnameFromName} from '../endpoints/workspaces/utils';
+import {makeRootnameFromName} from '../endpoints/workspaces/utils';
 import {
   logScriptFailed,
   logScriptMessage,
@@ -8,8 +8,8 @@ import {
   logScriptSuccessful,
 } from './utils';
 
-export async function script_AddRootNameToWorkspaces(connection: Connection) {
-  logScriptStarted(script_AddRootNameToWorkspaces);
+export async function script_AddRootnameToWorkspaces(connection: Connection) {
+  logScriptStarted(script_AddRootnameToWorkspaces);
   try {
     const model = getWorkspaceModel(connection);
     const docs = await model.find({rootname: null}).lean().exec();
@@ -18,7 +18,7 @@ export async function script_AddRootNameToWorkspaces(connection: Connection) {
         return {
           updateOne: {
             filter: {_id: doc._id},
-            update: {$set: {rootname: getRootnameFromName(doc.name)}},
+            update: {$set: {rootname: makeRootnameFromName(doc.name)}},
             upsert: true,
           },
         };
@@ -26,11 +26,11 @@ export async function script_AddRootNameToWorkspaces(connection: Connection) {
     );
 
     logScriptMessage(
-      script_AddRootNameToWorkspaces,
+      script_AddRootnameToWorkspaces,
       `Added rootname to ${docs.length} workspaces`
     );
-    logScriptSuccessful(script_AddRootNameToWorkspaces);
+    logScriptSuccessful(script_AddRootnameToWorkspaces);
   } catch (error: any) {
-    logScriptFailed(script_AddRootNameToWorkspaces, error);
+    logScriptFailed(script_AddRootnameToWorkspaces, error);
   }
 }

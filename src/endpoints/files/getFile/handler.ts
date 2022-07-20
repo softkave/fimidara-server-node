@@ -4,12 +4,12 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {checkFileAuthorization03, getFileMatcher} from '../utils';
+import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {NotFoundError} from '../../errors';
+import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
+import {checkFileAuthorization03} from '../utils';
 import {GetFileEndpoint} from './types';
 import {getFileJoiSchema} from './validation';
-import {NotFoundError} from '../../errors';
-import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
-import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
 
 // TODO: implement accept ranges, cache control, etags, etc.
 // see aws s3 sdk getObject function
@@ -25,7 +25,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
   const {file} = await checkFileAuthorization03(
     context,
     agent,
-    getFileMatcher(agent, data),
+    data,
     BasicCRUDActions.Read
   );
 
