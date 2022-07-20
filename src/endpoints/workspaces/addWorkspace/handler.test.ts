@@ -5,14 +5,14 @@ import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {
   assertWorkspace,
-  getRootnameFromName,
+  makeRootnameFromName,
   workspaceExtractor,
 } from '../utils';
 import {IAddWorkspaceParams} from './types';
@@ -24,11 +24,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('addWorkspace', () => {
@@ -38,7 +38,7 @@ describe('addWorkspace', () => {
     const companyName = faker.company.companyName();
     const companyInput: IAddWorkspaceParams = {
       name: companyName,
-      rootname: getRootnameFromName(companyName),
+      rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
     };
 

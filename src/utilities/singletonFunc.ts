@@ -22,7 +22,6 @@ export default function singletonFunc<Data>(
   // singleton function
   const fn = () => {
     refs++;
-    console.log('singletonFunc: refs++ ', refs);
     if (isUndefined(data)) {
       data = init();
     }
@@ -36,7 +35,6 @@ export default function singletonFunc<Data>(
 
   const release = async () => {
     refs--;
-    console.log('singletonFunc: refs-- ', refs);
     if (refs === 0 && !isUndefined(data)) {
       await disposeFn(data);
       data = undefined;

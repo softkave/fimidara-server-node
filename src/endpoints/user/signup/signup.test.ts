@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
 } from '../../test-utils/test-utils';
 import UserQueries from '../UserQueries';
@@ -16,11 +16,11 @@ import UserQueries from '../UserQueries';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('user signup successful with token creation', async () => {

@@ -21,9 +21,9 @@ function isRequestDataPendingPromise(
 
 export class ContextPendingJobs implements IContextPendingJobs {
   private jobs: Record<string, IRequestDataPendingPromise> = {};
-  private disableJobsQueue: boolean = false;
+  private disableJobsQueue = false;
 
-  constructor(disableJobsQueue: boolean = false) {
+  constructor(disableJobsQueue = false) {
     this.disableJobsQueue = disableJobsQueue;
   }
 

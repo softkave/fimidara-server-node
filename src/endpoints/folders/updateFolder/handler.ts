@@ -11,11 +11,7 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
-import {
-  checkFolderAuthorization02,
-  folderExtractor,
-  getFolderMatcher,
-} from '../utils';
+import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {UpdateFolderEndpoint} from './types';
 import {updateFolderJoiSchema} from './validation';
 
@@ -30,7 +26,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   const checkResult = await checkFolderAuthorization02(
     context,
     agent,
-    getFolderMatcher(agent, data),
+    data,
     BasicCRUDActions.Update
   );
 

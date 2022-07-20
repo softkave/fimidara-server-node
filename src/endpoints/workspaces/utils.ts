@@ -153,7 +153,7 @@ export abstract class WorkspaceUtils {
   static throwWorkspaceNotFound = throwWorkspaceNotFound;
 }
 
-export function getRootnameFromName(name: string): string {
+export function makeRootnameFromName(name: string): string {
   return name
     .replace(folderValidationSchemas.notNameRegex, '')
     .replace(/\s/g, '-')

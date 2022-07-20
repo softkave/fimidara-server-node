@@ -1,3 +1,4 @@
+import assert = require('assert');
 import {IAgent} from '../../../definitions/system';
 import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -23,7 +24,8 @@ export function transformUsageThresholInput(
 ) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
   cast<UsageThresholdCategory[]>(Object.keys(input)).forEach(category => {
-    const usageThreshold = input[category]!;
+    const usageThreshold = input[category];
+    assert(usageThreshold);
     usageThresholds[category] = {
       ...usageThreshold,
       lastUpdatedBy: agent,

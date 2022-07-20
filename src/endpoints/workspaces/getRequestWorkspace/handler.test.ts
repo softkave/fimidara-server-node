@@ -3,23 +3,22 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
-  insertWorkspaceForTest,
+  initTestBaseContext,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import getRequestWorkspace from './handler';
-import {requestWorkspaceExtractor} from './handler';
+import getRequestWorkspace, {requestWorkspaceExtractor} from './handler';
 import {IGetRequestWorkspaceEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('request workspace returned', async () => {

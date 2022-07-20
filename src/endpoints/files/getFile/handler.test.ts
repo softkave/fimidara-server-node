@@ -13,7 +13,7 @@ import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecor
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
   insertUserForTest,
@@ -30,12 +30,13 @@ import sharp = require('sharp');
 
 let context: IBaseContext | null = null;
 
+jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('getFile', () => {
@@ -51,7 +52,7 @@ describe('getFile', () => {
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {filepath: addRootnameToPath(workspace.rootname, file.name)}
+      {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
 
     const result = await getFile(context, instData);
@@ -89,7 +90,7 @@ describe('getFile', () => {
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        filepath: addRootnameToPath(workspace.rootname, file.name),
+        filepath: addRootnameToPath(file.name, workspace.rootname),
         imageTranformation: {
           width: expectedWidth,
           height: expectedHeight,
@@ -112,16 +113,11 @@ describe('getFile', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
 
     // Make public folder
-    const {folder} = await insertFolderForTest(
-      context,
-      userToken,
-      workspace.resourceId,
-      {
-        publicAccessOps: [
-          {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
-        ],
-      }
-    );
+    const {folder} = await insertFolderForTest(context, userToken, workspace, {
+      publicAccessOps: [
+        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+      ],
+    });
 
     const {file, reqData} = await insertFileForTest(
       context,
@@ -227,13 +223,13 @@ describe('getFile', () => {
     ]);
     const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {filepath: addRootnameToPath(workspace.rootname, file.name)}
+      {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
 
-    await expectErrorThrown(
-      async () => await getFile(context!, reqData),
-      [UsageLimitExceededError.name]
-    );
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await getFile(context, reqData);
+    }, [UsageLimitExceededError.name]);
     await waitForRequestPendingJobs(reqData);
     await waitForRequestPendingJobs(insertFileReqData);
   });

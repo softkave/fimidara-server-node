@@ -7,7 +7,7 @@ import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -37,13 +37,13 @@ import {
 
 let context: IBaseContext | null = null;
 
-jest.setTimeout(30000); // 30 seconds
+jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('uploadFile', () => {
@@ -220,9 +220,9 @@ describe('uploadFile', () => {
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
       UsageRecordCategory.Storage,
     ]);
-    await expectErrorThrown(
-      async () => await insertFileForTest(context!, userToken, workspace),
-      [UsageLimitExceededError.name]
-    );
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await insertFileForTest(context, userToken, workspace);
+    }, [UsageLimitExceededError.name]);
   });
 });

@@ -61,7 +61,7 @@ export enum AppResourceType {
   ProgramAccessToken = 'program-access-token',
   ClientAssignedToken = 'client-assigned-token',
   UserToken = 'user-token',
-  PermissionGroup = 'permissionGroup-permissions-group',
+  PermissionGroup = 'permission-group',
   PermissionItem = 'permission-item',
   Folder = 'folder',
   File = 'file',

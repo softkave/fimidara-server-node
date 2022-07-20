@@ -1,6 +1,6 @@
 import {Connection} from 'mongoose';
 import {getWorkspaceModel} from '../db/workspace';
-import {getRootnameFromName} from '../endpoints/workspaces/utils';
+import {makeRootnameFromName} from '../endpoints/workspaces/utils';
 import {
   logScriptFailed,
   logScriptMessage,
@@ -18,7 +18,7 @@ export async function script_AddRootnameToWorkspaces(connection: Connection) {
         return {
           updateOne: {
             filter: {_id: doc._id},
-            update: {$set: {rootname: getRootnameFromName(doc.name)}},
+            update: {$set: {rootname: makeRootnameFromName(doc.name)}},
             upsert: true,
           },
         };

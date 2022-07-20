@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {IFile} from '../../definitions/file';
 import {
   AppResourceType,

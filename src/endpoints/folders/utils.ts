@@ -12,7 +12,6 @@ import {
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/BaseContext';
-import {getWorkspaceIdNoThrow} from '../contexts/SessionContext';
 import {InvalidRequestError} from '../errors';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
@@ -44,7 +43,7 @@ export function throwFolderNotFound() {
   throw new FolderNotFoundError();
 }
 
-export function splitfolderpath(path: string | string[]) {
+export function splitFolderpath(path: string | string[]) {
   if (isArray(path)) {
     return path;
   }
@@ -57,8 +56,8 @@ export function splitfolderpath(path: string | string[]) {
   return p;
 }
 
-export function assertSplitfolderpath(path: string) {
-  const splitPath = splitfolderpath(path);
+export function assertSplitFolderpath(path: string) {
+  const splitPath = splitFolderpath(path);
   if (splitPath.length === 0) {
     throw new InvalidRequestError('Path is empty');
   }
@@ -66,10 +65,15 @@ export function assertSplitfolderpath(path: string) {
   return splitPath;
 }
 
-export interface IfolderpathWithDetails {
+export interface IFolderpathWithDetails {
   providedPath: string | string[];
   name: string;
-  splitPath: string[];
+
+  // includes workspace rootname
+  completeSplitPath: string[];
+
+  // does not include workspace rootname
+  itemSplitPath: string[];
   splitParentPath: string[];
   parentPath: string;
   hasParent: boolean;
@@ -78,8 +82,8 @@ export interface IfolderpathWithDetails {
 
 export function splitPathWithDetails(
   providedPath: string | string[]
-): IfolderpathWithDetails {
-  const splitPath = splitfolderpath(providedPath);
+): IFolderpathWithDetails {
+  const splitPath = splitFolderpath(providedPath);
   const workspaceRootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');
   assertWorkspaceRootname(workspaceRootname);
@@ -88,28 +92,27 @@ export function splitPathWithDetails(
     /* workspace rootname is 0 */ 1,
     /* file or folder name is last item */ -1
   );
+
+  const itemSplitPath = splitPath.slice(/* workspace rootname is 0 */ 1);
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
   const hasParent = splitParentPath.length > 0;
   return {
     hasParent,
     splitParentPath,
-    splitPath,
     name,
     parentPath,
     providedPath,
     workspaceRootname,
+    itemSplitPath,
+    completeSplitPath: splitPath,
   };
 }
 
-export function assertSplitPathWithDetails(
-  path: string
-): IfolderpathWithDetails {
-  const result = splitPathWithDetails(path);
-  if (result.splitPath.length === 0) {
-    throw new InvalidRequestError('Path is empty');
-  }
-
-  return result;
+export function getRootname(providedPath: string | string[]) {
+  const splitPath = splitFolderpath(providedPath);
+  const workspaceRootname = defaultTo(first(splitPath), '');
+  assertWorkspaceRootname(workspaceRootname);
+  return workspaceRootname;
 }
 
 export async function checkFolderAuthorization(
@@ -154,27 +157,19 @@ export function getFolderName(folder: IFolder) {
   return folder.namePath.join(folderConstants.nameSeparator);
 }
 
-export function getFolderMatcher(agent: ISessionAgent, data: IFolderMatcher) {
-  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
-  return {
-    ...data,
-    workspaceId,
-  };
-}
-
 export function assertWorkspaceRootname(
   workspaceRootname?: string | null
 ): asserts workspaceRootname {
-  if (workspaceRootname) {
-    throw new InvalidRequestError(`Workspace rootname not provided`);
+  if (!workspaceRootname) {
+    throw new InvalidRequestError('Workspace rootname not provided');
   }
 }
 
 export function assertFileOrFolderName(
   fileOrFolderName?: string | null
 ): asserts fileOrFolderName {
-  if (fileOrFolderName) {
-    throw new InvalidRequestError(`File or folder name not provided`);
+  if (!fileOrFolderName) {
+    throw new InvalidRequestError('File or folder name not provided');
   }
 }
 
@@ -190,4 +185,12 @@ export function addRootnameToPath<
   }
 
   return <T>`${rootname}${folderConstants.nameSeparator}${path}`;
+}
+
+export function assertFolder(
+  folder: IFolder | null | undefined
+): asserts folder {
+  if (!folder) {
+    throwFolderNotFound();
+  }
 }

@@ -15,13 +15,12 @@ import {
 import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {IfolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
+import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
-import assert = require('assert');
 
 const fileFields = getFields<IPublicFile>({
   resourceId: true,
@@ -115,7 +114,7 @@ export function splitFilenameWithDetails(
 
 export interface ISplitfilepathWithDetails
   extends ISplitFilenameWithDetails,
-    IfolderpathWithDetails {
+    IFolderpathWithDetails {
   splitPathWithoutExtension: string[];
 }
 
@@ -124,7 +123,7 @@ export function splitfilepathWithDetails(
 ): ISplitfilepathWithDetails {
   const pathWithDetails = splitPathWithDetails(path);
   const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
-  const splitPathWithoutExtension = [...pathWithDetails.splitPath];
+  const splitPathWithoutExtension = [...pathWithDetails.itemSplitPath];
   splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
     fileNameWithDetails.nameWithoutExtension;
 

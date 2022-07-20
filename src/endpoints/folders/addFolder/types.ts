@@ -5,6 +5,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface INewFolderInput {
+  // folder path should include the workspace rootname
   folderpath: string;
   description?: string;
   maxFileSizeInBytes?: number;
@@ -17,7 +18,6 @@ export interface INewFolderInput {
 }
 
 export interface IAddFolderEndpointParams {
-  workspaceId?: string;
   folder: INewFolderInput;
 }
 

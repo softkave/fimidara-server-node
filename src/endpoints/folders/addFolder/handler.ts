@@ -1,4 +1,4 @@
-import {merge, omit} from 'lodash';
+import {merge} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
@@ -22,14 +22,13 @@ import {
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 import {fileConstants} from '../../files/constants';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {
-  assertSplitPathWithDetails,
+  addRootnameToPath,
   folderExtractor,
   splitPathWithDetails,
 } from '../utils';
@@ -43,7 +42,10 @@ export async function createSingleFolder(
   parent: IFolder | null,
   input: INewFolderInput
 ) {
-  const {splitPath, name} = splitPathWithDetails(input.folderpath);
+  const {itemSplitPath: splitPath, name} = splitPathWithDetails(
+    input.folderpath
+  );
+
   const existingFolder = await context.data.folder.getItem(
     FolderQueries.folderExistsByNamePath(workspace.resourceId, splitPath)
   );
@@ -128,12 +130,12 @@ export async function createFolderList(
   workspace: IWorkspace,
   input: INewFolderInput
 ) {
-  const pathWithDetails = assertSplitPathWithDetails(input.folderpath);
+  const pathWithDetails = splitPathWithDetails(input.folderpath);
   const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
     await getClosestExistingFolder(
       context,
       workspace.resourceId,
-      pathWithDetails.splitPath
+      pathWithDetails.itemSplitPath
     );
 
   let previousFolder = closestExistingFolder;
@@ -142,7 +144,7 @@ export async function createFolderList(
   // TODO: create folders in a transaction and revert if there's an error
   for (
     let i = closestExistingFolderIndex + 1;
-    i < pathWithDetails.splitPath.length;
+    i < pathWithDetails.itemSplitPath.length;
     i++
   ) {
     if (existingFolders[i]) {
@@ -171,14 +173,17 @@ export async function createFolderList(
     }
 
     // The main folder we want to create
-    const isMainFolder = i === pathWithDetails.splitPath.length - 1;
-    const nextInputPath = pathWithDetails.splitPath.slice(0, i + 1);
+    const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
+    const nextInputPath = pathWithDetails.itemSplitPath.slice(0, i + 1);
     const nextInput: INewFolderInput = {
-      folderpath: nextInputPath.join(folderConstants.nameSeparator),
+      folderpath: addRootnameToPath(
+        nextInputPath.join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
     };
 
     if (isMainFolder) {
-      merge(nextInput, omit(input, 'path', 'tags'));
+      merge(nextInput, input);
     }
 
     previousFolder = await createSingleFolder(
@@ -207,11 +212,12 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await context.cacheProviders.workspace.getById(
+  const pathWithDetails = splitPathWithDetails(data.folder.folderpath);
+  const workspace = await context.cacheProviders.workspace.getByRootname(
     context,
-    workspaceId
+    pathWithDetails.workspaceRootname
   );
+
   assertWorkspace(workspace);
   let folder = await createFolderList(context, agent, workspace, data.folder);
   await saveResourceAssignedItems(

@@ -14,7 +14,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
 ) => {
   const data = validate(instData.data, getClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {token} = await checkClientAssignedTokenAuthorization03(
+  const {token} = await checkClientAssignedTokenAuthorization03(
     context,
     agent,
     data,
