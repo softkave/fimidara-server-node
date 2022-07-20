@@ -6,7 +6,7 @@ import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -18,11 +18,11 @@ import {IDeleteFileEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
@@ -45,7 +45,7 @@ test('file deleted', async () => {
 
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
-    {filepath: addRootnameToPath(workspace.rootname, file.name)}
+    {filepath: addRootnameToPath(file.name, workspace.rootname)}
   );
 
   const result = await deleteFile(context, instData);

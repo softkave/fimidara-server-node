@@ -5,7 +5,7 @@ import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -17,11 +17,11 @@ import {IGetFileDetailsEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('file details returned', async () => {
@@ -37,7 +37,7 @@ test('file details returned', async () => {
   const instData =
     RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {filepath: addRootnameToPath(workspace.rootname, file.name)}
+      {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
 
   const result = await getFileDetails(context, instData);

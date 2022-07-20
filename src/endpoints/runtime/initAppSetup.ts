@@ -17,6 +17,7 @@ import getNewId from '../../utilities/getNewId';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext} from '../contexts/BaseContext';
 import {createSingleFolder} from '../folders/addFolder/handler';
+import {addRootnameToPath} from '../folders/utils';
 import {permissionItemIndexer} from '../permissionItems/utils';
 import EndpointReusableQueries from '../queries';
 import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
@@ -95,7 +96,7 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     systemAgent,
     workspace,
     null,
-    {folderpath: folder01Path}
+    {folderpath: addRootnameToPath(folder01Path, workspace.rootname)}
   );
 
   const folder02 = await createSingleFolder(
@@ -103,7 +104,7 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     systemAgent,
     workspace,
     folder01,
-    {folderpath: folder02Path}
+    {folderpath: addRootnameToPath(folder02Path, workspace.rootname)}
   );
 
   const workspaceImagesFolder = await createSingleFolder(
@@ -112,7 +113,10 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     workspace,
     folder02,
     {
-      folderpath: appSetupVars.workspaceImagesfolderpath,
+      folderpath: addRootnameToPath(
+        appSetupVars.workspaceImagesfolderpath,
+        workspace.rootname
+      ),
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],
@@ -125,7 +129,10 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     workspace,
     folder02,
     {
-      folderpath: appSetupVars.userImagesfolderpath,
+      folderpath: addRootnameToPath(
+        appSetupVars.userImagesfolderpath,
+        workspace.rootname
+      ),
       publicAccessOps: [
         {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
       ],

@@ -39,7 +39,7 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
   };
 
   public getById = async (ctx: IBaseContext, id: string) => {
-    let w: IWorkspace | null =
+    const w: IWorkspace | null =
       this.workspaces[id] || (await ctx.dataProviders.workspace.getById(id));
 
     if (w) {

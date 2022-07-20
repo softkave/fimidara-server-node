@@ -1,15 +1,15 @@
-import {add} from 'date-fns';
 import {faker} from '@faker-js/faker';
+import {add} from 'date-fns';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
-  insertWorkspaceForTest,
+  initTestBaseContext,
   insertRequestForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import updateRequest from './handler';
@@ -21,11 +21,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('collaboration request updated', async () => {

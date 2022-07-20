@@ -25,7 +25,6 @@ async function dropMongoCollections(globals: ITestVariables) {
   const mongoURI = globals.mongoDbURI;
   const dbName = globals.mongoDbDatabaseName;
   const useMongoDataProvider = globals.dataProviderType === 'mongo';
-
   if (!mongoURI || !useMongoDataProvider) {
     return;
   }
@@ -50,7 +49,6 @@ async function deleteAWSBucketObjects(globals: ITestVariables) {
   const region = globals.awsRegion;
   const bucketName = globals.S3Bucket;
   const useS3FileProvider = globals.useS3FileProvider;
-
   if (
     !accessKeyId ||
     !secretAccessKey ||
@@ -64,7 +62,6 @@ async function deleteAWSBucketObjects(globals: ITestVariables) {
   console.log(`-- AWS - deleting bucket ${bucketName} objects --`);
   const s3 = new S3Client({region: globals.awsRegion});
   let continuationToken: string | undefined;
-
   do {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
@@ -74,7 +71,6 @@ async function deleteAWSBucketObjects(globals: ITestVariables) {
     const response = await s3.send(command);
     continuationToken = response.ContinuationToken;
     const contents = response.Contents;
-
     if (contents) {
       const keys: ObjectIdentifier[] = [];
       contents.forEach(item => item.Key && keys.push({Key: item.Key}));

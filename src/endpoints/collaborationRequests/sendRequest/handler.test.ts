@@ -1,14 +1,14 @@
-import {add} from 'date-fns';
 import {faker} from '@faker-js/faker';
+import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
-  getTestBaseContext,
-  insertWorkspaceForTest,
+  initTestBaseContext,
   insertRequestForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {collabRequestExtractor} from '../utils';
 import {ICollaborationRequestInput} from './types';
@@ -16,11 +16,11 @@ import {ICollaborationRequestInput} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('collaboration request sent', async () => {

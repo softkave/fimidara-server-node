@@ -15,7 +15,7 @@ import RequestData from '../../../RequestData';
 import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -39,11 +39,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function grantEveryPermission(

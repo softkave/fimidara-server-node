@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {
@@ -19,6 +18,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
+import {addRootnameToPath} from '../../folders/utils';
 import {insertStorageUsageRecordInput} from '../../usageRecords/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
@@ -115,7 +115,10 @@ async function createFileParentFolders(
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, workspace, {
-      folderpath: pathWithDetails.parentPath,
+      folderpath: addRootnameToPath(
+        pathWithDetails.parentPath,
+        workspace.rootname
+      ),
     });
   }
 

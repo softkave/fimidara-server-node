@@ -5,22 +5,23 @@ import {
   getNonWorkspaceActionList,
   IPublicAccessOpInput,
 } from '../../../definitions/system';
+import {IWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
-  assertPublicAccessOps,
-  assertCanUploadToPublicFile,
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
+  assertCanUploadToPublicFile,
+  assertPublicAccessOps,
 } from '../../files/uploadFile/uploadFileTestUtils';
 import RequestData from '../../RequestData';
 import {
+  assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  insertFolderForTest,
   mockExpressRequestForPublicAgent,
-  assertEndpointResultOk,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
@@ -32,10 +33,10 @@ import {IListFolderContentEndpointParams} from '../listFolderContent/types';
 import FolderQueries from '../queries';
 import updateFolder from '../updateFolder/handler';
 import {
-  IUpdateFolderInput,
   IUpdateFolderEndpointParams,
+  IUpdateFolderInput,
 } from '../updateFolder/types';
-import {folderExtractor} from '../utils';
+import {addRootnameToPath, folderExtractor} from '../utils';
 import {INewFolderInput} from './types';
 
 export const addFolderBaseTest = async (
@@ -52,7 +53,7 @@ export const addFolderBaseTest = async (
   const {folder} = await insertFolderForTest(
     ctx,
     insertUserResult.userToken,
-    insertWorkspaceResult.workspace.resourceId,
+    insertWorkspaceResult.workspace,
     input
   );
 
@@ -88,22 +89,22 @@ export const addFolderWithPublicAccessOpsTest = async (
 
 export async function assertCanCreateFolderInPublicFolder(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderpath: string
 ) {
-  return await insertFolderForTest(ctx, null, workspaceId, {
-    folderpath: folderpath,
+  return await insertFolderForTest(ctx, null, workspace, {
+    folderpath: addRootnameToPath(folderpath, workspace.rootname),
   });
 }
 
 export async function assertCanReadPublicFolder(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {workspaceId, folderpath: folderpath}
+    {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
   const result = await getFolder(ctx, instData);
@@ -113,7 +114,7 @@ export async function assertCanReadPublicFolder(
 
 export async function assertCanUpdatePublicFolder(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderpath: string
 ) {
   const updateInput: IUpdateFolderInput = {
@@ -124,8 +125,7 @@ export async function assertCanUpdatePublicFolder(
   const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
-      workspaceId,
-      folderpath: folderpath,
+      folderpath: addRootnameToPath(folderpath, workspace.rootname),
       folder: updateInput,
     }
   );
@@ -136,13 +136,13 @@ export async function assertCanUpdatePublicFolder(
 
 export async function assertCanListContentOfPublicFolder(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderpath: string
 ) {
   const instData =
     RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {workspaceId, folderpath: folderpath}
+      {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
     );
 
   const result = await listFolderContent(ctx, instData);
@@ -151,12 +151,12 @@ export async function assertCanListContentOfPublicFolder(
 
 export async function assertCanDeletePublicFolder(
   ctx: IBaseContext,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {workspaceId, folderpath: folderpath}
+    {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
   const result = await deleteFolder(ctx, instData);
@@ -169,29 +169,56 @@ export async function assertPublicOps(
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
   const folderpath = folder.namePath.join(folderConstants.nameSeparator);
-  const workspaceId = insertWorkspaceResult.workspace.resourceId;
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
     ctx,
-    workspaceId,
+    insertWorkspaceResult.workspace,
     folderpath
   );
 
   const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
   const {file} = await assertCanUploadToPublicFile(
     ctx,
-    workspaceId,
-    folder02Path + '/' + faker.lorem.word()
+    insertWorkspaceResult.workspace,
+    folder02Path + folderConstants.nameSeparator + faker.lorem.word()
   );
 
-  await assertCanListContentOfPublicFolder(ctx, workspaceId, folder02Path);
-  await assertCanUpdatePublicFolder(ctx, workspaceId, folder02Path);
-  await assertCanReadPublicFolder(ctx, workspaceId, folder02Path);
+  await assertCanListContentOfPublicFolder(
+    ctx,
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
+
+  await assertCanUpdatePublicFolder(
+    ctx,
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
+
+  await assertCanReadPublicFolder(
+    ctx,
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
 
   const filepath = file.namePath.join(folderConstants.nameSeparator);
-  await assertCanReadPublicFile(ctx, workspaceId, filepath);
-  await assertCanUpdatePublicFile(ctx, workspaceId, filepath);
-  await assertCanUploadToPublicFile(ctx, workspaceId, filepath);
-  await assertCanDeletePublicFolder(ctx, workspaceId, folderpath);
+  await assertCanReadPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
+  await assertCanUpdatePublicFile(
+    ctx,
+    insertWorkspaceResult.workspace,
+    filepath
+  );
+
+  await assertCanUploadToPublicFile(
+    ctx,
+    insertWorkspaceResult.workspace,
+    filepath
+  );
+
+  await assertCanDeletePublicFolder(
+    ctx,
+    insertWorkspaceResult.workspace,
+    folderpath
+  );
 }
 
 export function makeEveryFolderPublicAccessOp() {

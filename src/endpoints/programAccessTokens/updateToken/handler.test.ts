@@ -6,7 +6,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertPermissionGroupForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
@@ -27,11 +27,11 @@ import {IUpdateProgramAccessTokenEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('program access token updated', async () => {

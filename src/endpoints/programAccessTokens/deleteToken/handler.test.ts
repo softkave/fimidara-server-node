@@ -3,10 +3,10 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
-  insertWorkspaceForTest,
+  initTestBaseContext,
   insertProgramAccessTokenForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import ProgramAccessTokenQueries from '../queries';
@@ -21,11 +21,11 @@ import {IDeleteProgramAccessTokenEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('program access token deleted', async () => {

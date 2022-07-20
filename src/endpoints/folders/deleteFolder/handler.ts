@@ -12,7 +12,7 @@ import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
 import FileQueries from '../../files/queries';
 import PermissionItemQueries from '../../permissionItems/queries';
 import FolderQueries from '../queries';
-import {checkFolderAuthorization02, getFolderMatcher} from '../utils';
+import {checkFolderAuthorization02} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
@@ -104,7 +104,7 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const {folder} = await checkFolderAuthorization02(
     context,
     agent,
-    getFolderMatcher(agent, data),
+    data,
     BasicCRUDActions.Delete
   );
 

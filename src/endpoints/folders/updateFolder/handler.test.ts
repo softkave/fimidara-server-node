@@ -11,12 +11,12 @@ import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
-  IInsertWorkspaceForTestResult,
   IInsertUserForTestResult,
+  IInsertWorkspaceForTestResult,
+  initTestBaseContext,
   insertFolderForTest,
-  insertWorkspaceForTest,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
@@ -26,18 +26,18 @@ import {
 } from '../addFolder/addFolderTestUtils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
-import {folderExtractor} from '../utils';
+import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
-import {IUpdateFolderInput, IUpdateFolderEndpointParams} from './types';
+import {IUpdateFolderEndpointParams, IUpdateFolderInput} from './types';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function updateFolderBaseTest(
@@ -57,7 +57,7 @@ async function updateFolderBaseTest(
     : await insertFolderForTest(
         ctx,
         insertUserResult.userToken,
-        insertWorkspaceResult.workspace.resourceId
+        insertWorkspaceResult.workspace
       );
 
   const updateInput: IUpdateFolderInput = {
@@ -69,8 +69,10 @@ async function updateFolderBaseTest(
   const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
     mockExpressRequestWithUserToken(insertUserResult.userToken),
     {
-      workspaceId: insertWorkspaceResult.workspace.resourceId,
-      folderpath: folder.namePath.join(folderConstants.nameSeparator),
+      folderpath: addRootnameToPath(
+        folder.namePath.join(folderConstants.nameSeparator),
+        insertWorkspaceResult.workspace.rootname
+      ),
       folder: updateInput,
     }
   );

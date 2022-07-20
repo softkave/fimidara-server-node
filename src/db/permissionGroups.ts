@@ -14,14 +14,13 @@ const permissionGroupsSchema = ensureTypeFields<IPermissionGroup>({
   description: {type: String},
 });
 
-export type IPermissionGroupPermissionsItemDocument =
-  Document<IPermissionGroup>;
+export type IPermissionGroupDocument = Document<IPermissionGroup>;
 
 const schema = new Schema<IPermissionGroup>(permissionGroupsSchema);
 const modelName = 'permission-group';
 const collectionName = 'permission-groups';
 
-export function getPermissionGroupPermissionsModel(connection: Connection) {
+export function getPermissionGroupModel(connection: Connection) {
   const model = connection.model<IPermissionGroup>(
     modelName,
     schema,

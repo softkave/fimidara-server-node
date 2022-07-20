@@ -7,17 +7,17 @@ import {
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {assertContext, getTestBaseContext} from '../../test-utils/test-utils';
+import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
 import {folderConstants} from '../constants';
 import {
   addFolderBaseTest,
   addFolderWithPublicAccessOpsTest,
   assertCanCreateFolderInPublicFolder,
-  assertCanListContentOfPublicFolder,
   assertCanDeletePublicFolder,
-  makeEveryFolderPublicAccessOp,
+  assertCanListContentOfPublicFolder,
   assertPublicOps,
+  makeEveryFolderPublicAccessOp,
   makeEveryFolderPublicAccessOp02,
 } from './addFolderTestUtils';
 
@@ -30,11 +30,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('addFolder', () => {
@@ -68,35 +68,46 @@ describe('addFolder', () => {
       });
 
     const folderpath = folder.namePath.join(folderConstants.nameSeparator);
-    const workspaceId = insertWorkspaceResult.workspace.resourceId;
     const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
       context,
-      workspaceId,
+      insertWorkspaceResult.workspace,
       folderpath
     );
 
     const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
     const {file} = await assertCanUploadToPublicFile(
       context,
-      workspaceId,
+      insertWorkspaceResult.workspace,
       folder02Path + '/' + faker.lorem.word()
     );
 
     await assertCanListContentOfPublicFolder(
       context,
-      workspaceId,
+      insertWorkspaceResult.workspace,
       folder02Path
     );
     const filepath = file.namePath.join(folderConstants.nameSeparator);
-    await assertCanReadPublicFile(context, workspaceId, filepath);
+    await assertCanReadPublicFile(
+      context,
+      insertWorkspaceResult.workspace,
+      filepath
+    );
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFolder(context, workspaceId, folderpath);
+      await assertCanDeletePublicFolder(
+        context,
+        insertWorkspaceResult.workspace,
+        folderpath
+      );
     }, [PermissionDeniedError.name]);
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFile(context, workspaceId, filepath);
+      await assertCanDeletePublicFile(
+        context,
+        insertWorkspaceResult.workspace,
+        filepath
+      );
     }, [PermissionDeniedError.name]);
   });
 

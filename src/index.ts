@@ -30,7 +30,8 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
-import {script_AddRootnameToWorkspaces} from './scripts/addRootnameToWorkspaces';
+import {script_AddRootnameToWorkspaces} from './scripts/addRootnameToExistingWorkspaces';
+import {script_ChangePermissionGroupResourceTypeLabel} from './scripts/changePermissionGroupResourceTypeLabel';
 
 console.log('server initialization');
 
@@ -78,6 +79,7 @@ async function setup() {
 
   // Run scripts here
   await script_AddRootnameToWorkspaces(connection);
+  await script_ChangePermissionGroupResourceTypeLabel(connection);
   // End of scripts
 
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);

@@ -5,7 +5,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
   insertUserForTest,
@@ -27,11 +27,11 @@ import {IDeleteFolderEndpointParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
@@ -57,17 +57,20 @@ test('folder deleted', async () => {
   const {folder: folder01} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId
+    workspace
   );
 
   const {folder: folder02} = await insertFolderForTest(
     context,
     userToken,
-    workspace.resourceId,
+    workspace,
     {
-      folderpath: folder01.namePath
-        .concat(faker.lorem.word())
-        .join(folderConstants.nameSeparator),
+      folderpath: addRootnameToPath(
+        folder01.namePath
+          .concat(faker.lorem.word())
+          .join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
     }
   );
 
@@ -83,8 +86,7 @@ test('folder deleted', async () => {
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
-      workspaceId: workspace.resourceId,
-      folderpath: folder01.name,
+      folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }
   );
 

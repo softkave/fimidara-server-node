@@ -8,7 +8,7 @@ import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -25,11 +25,11 @@ import {
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('file updated', async () => {
@@ -51,7 +51,7 @@ test('file updated', async () => {
     RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
-        filepath: addRootnameToPath(workspace.rootname, file.name),
+        filepath: addRootnameToPath(file.name, workspace.rootname),
         file: updateInput,
       }
     );

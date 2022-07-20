@@ -10,3 +10,4 @@ Path with workspace rootname namespacing
 ## TODOs
 
 - [ ] Add the workspace root name to the path when the file or folder's path is copied on the frontend.
+- [ ] Update sdk doc for file and folder paths to include the workspace root name.
