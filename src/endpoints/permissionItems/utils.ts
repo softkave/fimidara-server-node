@@ -19,8 +19,8 @@ import {IBaseContext} from '../contexts/BaseContext';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
 import PermissionItemQueries from './queries';
-import {internalReplacePermissionItemsByEntity} from './replaceItemsByEntity/internalReplaceItemsByEntity';
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
+import {internalAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   resourceId: true,
@@ -118,7 +118,7 @@ export async function replacePublicPermissionGroupAccessOpsByPermissionOwner(
     );
 
     if (addOps.length > 0) {
-      await internalReplacePermissionItemsByEntity(context, agent, {
+      await internalAddPermissionItemsByEntity(context, agent, {
         workspaceId: workspace.resourceId,
         permissionEntityId: workspace.publicPermissionGroupId,
         permissionEntityType: AppResourceType.PermissionGroup,

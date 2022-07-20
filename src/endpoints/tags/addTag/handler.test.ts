@@ -2,19 +2,19 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {insertTagForTest} from '../../test-utils/helpers/tag';
 import {
   assertContext,
-  getTestBaseContext,
-  insertWorkspaceForTest,
+  initTestBaseContext,
   insertUserForTest,
+  insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('addTag', () => {

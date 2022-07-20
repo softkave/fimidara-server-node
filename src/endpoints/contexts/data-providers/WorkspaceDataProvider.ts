@@ -6,9 +6,10 @@ export interface IWorkspaceDataProvider {
   insert: (workspace: IWorkspace) => Promise<IWorkspace>;
   getById: (id: string) => Promise<IWorkspace | null>;
   getByIds: (ids: string[]) => Promise<IWorkspace[]>;
+  getByRootname: (rootname: string) => Promise<IWorkspace | null>;
   getAll: () => Promise<IWorkspace[]>;
   existsByName: (name: string) => Promise<boolean>;
-  existsByRootName: (rootname: string) => Promise<boolean>;
+  existsByRootname: (rootname: string) => Promise<boolean>;
   updateById: (
     id: string,
     update: Partial<IWorkspace>
@@ -43,6 +44,15 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
       .exec();
   };
 
+  public getByRootname = async (rootname: string) => {
+    return await this.model
+      .findOne({
+        rootname: {$regex: new RegExp(`^${rootname}$`, 'i')},
+      })
+      .lean()
+      .exec();
+  };
+
   public existsByName = async (name: string) => {
     const w = await this.model
       .findOne(
@@ -59,7 +69,7 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
     return w !== null;
   };
 
-  public existsByRootName = async (rootname: string) => {
+  public existsByRootname = async (rootname: string) => {
     const w = await this.model
       .findOne(
         {

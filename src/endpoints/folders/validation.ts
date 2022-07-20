@@ -9,7 +9,7 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
  */
 
 const nameRegex = /^[a-zA-Z0-9._-]+$/;
-const pathRegex = /[A-Za-z0-9\/._-]+/;
+const pathRegex = /[A-Za-z0-9/._-]+/;
 const notNameRegex = /[^a-zA-Z0-9._-]/;
 const folderpath = Joi.string()
   .regex(pathRegex)

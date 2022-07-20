@@ -3,22 +3,22 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
-  TokenAudience,
   CURRENT_TOKEN_VERSION,
+  TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
-import {assertContext, getTestBaseContext} from '../../test-utils/test-utils';
+import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 async function createTestEmailVerificationToken(userId: string) {

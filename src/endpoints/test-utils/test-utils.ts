@@ -12,7 +12,6 @@ import {
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
-import singletonFunc from '../../utilities/singletonFunc';
 import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
@@ -47,6 +46,7 @@ import {
   INewFolderInput,
 } from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
+import {addRootnameToPath} from '../folders/utils';
 import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
 import {
   IAddPermissionGroupEndpointParams,
@@ -72,7 +72,7 @@ import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import addWorkspace from '../workspaces/addWorkspace/handler';
 import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
-import {getRootnameFromName} from '../workspaces/utils';
+import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
@@ -103,11 +103,6 @@ async function getTestFileProvider(appVariables: ITestVariables) {
   }
 }
 
-async function disposeTestBaseContext(ctxPromise: Promise<IBaseContext>) {
-  const ctx = await ctxPromise;
-  await ctx.dispose();
-}
-
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = getTestVars();
   const connection = await getMongoConnection(
@@ -129,11 +124,6 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
   await setupApp(ctx);
   return ctx;
 }
-
-export const getTestBaseContext = singletonFunc(
-  initTestBaseContext,
-  disposeTestBaseContext
-);
 
 export function assertContext(ctx: any): asserts ctx is IBaseContext {
   assert(ctx, 'Context is not yet initialized.');
@@ -248,7 +238,7 @@ export async function insertWorkspaceForTest(
     mockExpressRequestWithUserToken(userToken),
     {
       name: companyName,
-      rootname: getRootnameFromName(companyName),
+      rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       usageThresholds: generateUsageThresholdMap(),
       ...workspaceInput,
@@ -452,7 +442,7 @@ export async function insertPermissionItemsForTestUsingItems(
 export async function insertFolderForTest(
   context: IBaseContext,
   userToken: IUserToken | null,
-  workspaceId: string,
+  workspace: IWorkspace,
   folderInput: Partial<INewFolderInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<IAddFolderEndpointParams>(
@@ -460,9 +450,11 @@ export async function insertFolderForTest(
       ? mockExpressRequestWithUserToken(userToken)
       : mockExpressRequestForPublicAgent(),
     {
-      workspaceId,
       folder: {
-        folderpath: [faker.lorem.word()].join(folderConstants.nameSeparator),
+        folderpath: addRootnameToPath(
+          [faker.lorem.word()].join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
         description: faker.lorem.paragraph(),
         maxFileSizeInBytes: 1_000_000_000,
         ...folderInput,
@@ -503,14 +495,16 @@ export function generateTestTextFile() {
 export async function insertFileForTest(
   context: IBaseContext,
   userToken: IUserToken | null, // Pass null for public agent
-  workspaceId: string,
+  workspace: IWorkspace,
   fileInput: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
   const input: IUploadFileEndpointParams = {
-    workspaceId,
-    filepath: [faker.lorem.word()].join(folderConstants.nameSeparator),
+    filepath: addRootnameToPath(
+      [faker.lorem.word()].join(folderConstants.nameSeparator),
+      workspace.rootname
+    ),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',
@@ -518,7 +512,6 @@ export async function insertFileForTest(
   };
 
   assert(input.filepath);
-
   if (!fileInput.data) {
     if (type === 'png') {
       input.data = await generateTestImage(imageProps);
@@ -533,7 +526,6 @@ export async function insertFileForTest(
   }
 
   const pathWithDetails = splitfilepathWithDetails(input.filepath);
-
   if (!pathWithDetails.extension) {
     input.filepath = input.filepath + '.' + input.extension;
   }

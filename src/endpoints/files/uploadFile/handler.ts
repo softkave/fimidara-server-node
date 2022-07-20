@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {
@@ -19,12 +18,12 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {createFolderList} from '../../folders/addFolder/handler';
+import {addRootnameToPath} from '../../folders/utils';
 import {insertStorageUsageRecordInput} from '../../usageRecords/utils';
-import {tryGetSingleFileWithMatcher} from '../getFilesWithMatcher';
+import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
   fileExtractor,
-  getFileMatcher,
-  getWorkspaceFromFileOrMatcher,
+  getWorkspaceFromFileOrFilepath,
   ISplitfilepathWithDetails,
   splitfilepathWithDetails,
 } from '../utils';
@@ -41,14 +40,17 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     publicPermissibleEndpointAgents
   );
 
-  const matcher = getFileMatcher(agent, data);
-  let file = await tryGetSingleFileWithMatcher(context, agent, matcher);
+  let file = await getFileWithMatcher(context, data);
   const isNewFile = !file;
-  const workspace = await getWorkspaceFromFileOrMatcher(context, matcher, file);
+  const workspace = await getWorkspaceFromFileOrFilepath(
+    context,
+    file,
+    data.filepath
+  );
 
   if (!file) {
-    appAssert(matcher.filepath, new ValidationError('File path missing'));
-    const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
+    appAssert(data.filepath, new ValidationError('File path missing'));
+    const pathWithDetails = splitfilepathWithDetails(data.filepath);
     const parentFolder = await createFileParentFolders(
       context,
       agent,
@@ -113,7 +115,10 @@ async function createFileParentFolders(
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, workspace, {
-      folderpath: pathWithDetails.parentPath,
+      folderpath: addRootnameToPath(
+        pathWithDetails.parentPath,
+        workspace.rootname
+      ),
     });
   }
 

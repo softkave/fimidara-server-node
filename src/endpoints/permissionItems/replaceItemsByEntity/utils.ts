@@ -8,18 +8,11 @@ import PermissionItemQueries from '../queries';
 import {compactPermissionItems, permissionItemIndexer} from '../utils';
 import {IReplacePermissionItemsByEntityEndpointParams} from './types';
 
-export async function internalReplacePermissionItemsByEntity(
+export async function internalAddPermissionItemsByEntity(
   context: IBaseContext,
   agent: IAgent,
   data: IReplacePermissionItemsByEntityEndpointParams
 ) {
-  await context.data.permissionItem.deleteManyItems(
-    PermissionItemQueries.getByPermissionEntity(
-      data.permissionEntityId,
-      data.permissionEntityType
-    )
-  );
-
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   let items: IPermissionItem[] = data.items.map(input => {
     const item: IPermissionItem = {
@@ -43,4 +36,19 @@ export async function internalReplacePermissionItemsByEntity(
   items = compactPermissionItems(items);
   await context.data.permissionItem.bulkSaveItems(items);
   return items;
+}
+
+export async function internalReplacePermissionItemsByEntity(
+  context: IBaseContext,
+  agent: IAgent,
+  data: IReplacePermissionItemsByEntityEndpointParams
+) {
+  await context.data.permissionItem.deleteManyItems(
+    PermissionItemQueries.getByPermissionEntity(
+      data.permissionEntityId,
+      data.permissionEntityType
+    )
+  );
+
+  return await internalAddPermissionItemsByEntity(context, agent, data);
 }

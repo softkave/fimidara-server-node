@@ -38,5 +38,4 @@ export interface IPublicFolder {
 export interface IFolderMatcher {
   folderpath?: string;
   folderId?: string;
-  workspaceId?: string;
 }

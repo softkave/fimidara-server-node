@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {
   IClientAssignedToken,
   IPublicClientAssignedToken,

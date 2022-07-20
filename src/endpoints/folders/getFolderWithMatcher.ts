@@ -1,9 +1,9 @@
 import {IFolderMatcher} from '../../definitions/folder';
 import {IBaseContext} from '../contexts/BaseContext';
-import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
+import {assertWorkspace} from '../workspaces/utils';
 import FolderQueries from './queries';
-import {assertSplitfolderpath} from './utils';
+import {assertFolder, splitPathWithDetails} from './utils';
 
 export async function getFolderWithMatcher(
   context: IBaseContext,
@@ -13,10 +13,19 @@ export async function getFolderWithMatcher(
     return await context.data.folder.getItem(
       EndpointReusableQueries.getById(matcher.folderId)
     );
-  } else if (matcher.folderpath && matcher.workspaceId) {
-    const splitPath = assertSplitfolderpath(matcher.folderpath);
+  } else if (matcher.folderpath) {
+    const pathWithDetails = splitPathWithDetails(matcher.folderpath);
+    const workspace = await context.cacheProviders.workspace.getByRootname(
+      context,
+      pathWithDetails.workspaceRootname
+    );
+
+    assertWorkspace(workspace);
     const folder = await context.data.folder.assertGetItem(
-      FolderQueries.getByNamePath(matcher.workspaceId, splitPath)
+      FolderQueries.getByNamePath(
+        workspace.resourceId,
+        pathWithDetails.itemSplitPath
+      )
     );
 
     return folder;
@@ -30,10 +39,6 @@ export async function assertGetFolderWithMatcher(
   matcher: IFolderMatcher
 ) {
   const folder = await getFolderWithMatcher(context, matcher);
-
-  if (!folder) {
-    throw new NotFoundError('Folder not found');
-  }
-
+  assertFolder(folder);
   return folder;
 }

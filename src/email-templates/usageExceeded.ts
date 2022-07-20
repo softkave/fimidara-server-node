@@ -60,16 +60,16 @@ export function getLabelUsageExceededMessage(label: UsageRecordCategory) {
   let message = '';
   switch (label) {
     case UsageRecordCategory.Storage:
-      message = `You have reached your storage usage threshold.`;
+      message = 'You have reached your storage usage threshold.';
       break;
     case UsageRecordCategory.BandwidthIn:
-      message = `You have reached your incoming bandwidth usage threshold.`;
+      message = 'You have reached your incoming bandwidth usage threshold.';
       break;
     case UsageRecordCategory.BandwidthOut:
-      message = `You have reached your outgoing bandwidth usage threshold.`;
+      message = 'You have reached your outgoing bandwidth usage threshold.';
       break;
     case UsageRecordCategory.Request:
-      message = `You have reached your API requests usage threshold.`;
+      message = 'You have reached your API requests usage threshold.';
       break;
     default:
       message = `You have reached your ${label} usage threshold.`;
@@ -77,5 +77,3 @@ export function getLabelUsageExceededMessage(label: UsageRecordCategory) {
 
   return `${message}. Further requests of this type will not be served. Please login to your workspace to increase your usage.`;
 }
-
-export function getTotalUsageExceededMessage(usage: number) {}

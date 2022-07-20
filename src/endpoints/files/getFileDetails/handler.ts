@@ -5,11 +5,7 @@ import {
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
 import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {
-  checkFileAuthorization03,
-  fileExtractor,
-  getFileMatcher,
-} from '../utils';
+import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
 import {getFileDetailsJoiSchema} from './validation';
 
@@ -24,7 +20,7 @@ const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
   let {file} = await checkFileAuthorization03(
     context,
     agent,
-    getFileMatcher(agent, data),
+    data,
     BasicCRUDActions.Read
   );
 

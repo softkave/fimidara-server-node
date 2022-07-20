@@ -10,7 +10,7 @@ import RequestData from '../../RequestData';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestBaseContext,
+  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
 } from '../../test-utils/test-utils';
@@ -30,11 +30,11 @@ import {IForgotPasswordParams} from './types';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('forgot password with email sent', async () => {

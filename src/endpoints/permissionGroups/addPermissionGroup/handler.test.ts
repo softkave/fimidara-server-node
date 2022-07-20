@@ -3,7 +3,7 @@ import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssign
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -19,11 +19,11 @@ import {permissionGroupExtractor} from '../utils';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('permissionGroup permissions group added', async () => {

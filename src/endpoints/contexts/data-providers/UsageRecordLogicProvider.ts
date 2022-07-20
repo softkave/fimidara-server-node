@@ -117,7 +117,7 @@ export class UsageRecordLogicProvider {
         return true;
       }
 
-      if (usageLocks[record.category] && usageLocks[record.category]!.locked) {
+      if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
         this.dropRecord(
           ctx,
           reqData,

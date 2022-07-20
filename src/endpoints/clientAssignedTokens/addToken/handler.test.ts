@@ -4,7 +4,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertClientAssignedTokenForTest,
   insertPermissionGroupForTest,
   insertUserForTest,
@@ -15,11 +15,11 @@ import {getPublicClientToken} from '../utils';
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 test('client assigned token added', async () => {

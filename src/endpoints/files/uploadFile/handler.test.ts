@@ -2,18 +2,19 @@ import {BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {folderConstants} from '../../folders/constants';
+import {addRootnameToPath} from '../../folders/utils';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
   assertContext,
-  getTestBaseContext,
+  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
-import {getFileName} from '../utils';
+import {getFilePathWithoutRootname} from '../utils';
 import {
   IUploadFileEndpointParams,
   UploadFilePublicAccessActions,
@@ -36,13 +37,13 @@ import {
 
 let context: IBaseContext | null = null;
 
-jest.setTimeout(30000); // 30 seconds
+jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  context = await getTestBaseContext();
+  context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await getTestBaseContext.release();
+  await context?.dispose();
 });
 
 describe('uploadFile', () => {
@@ -66,7 +67,7 @@ describe('uploadFile', () => {
       assertContext(context);
       await assertCanDeletePublicFile(
         context,
-        insertWorkspaceResult.workspace.resourceId,
+        insertWorkspaceResult.workspace,
         filepath
       );
     }, [PermissionDeniedError.name]);
@@ -75,7 +76,7 @@ describe('uploadFile', () => {
       assertContext(context);
       await assertCanUpdatePublicFile(
         context,
-        insertWorkspaceResult.workspace.resourceId,
+        insertWorkspaceResult.workspace,
         filepath
       );
     }, [PermissionDeniedError.name]);
@@ -109,25 +110,25 @@ describe('uploadFile', () => {
     const filepath = file.namePath.join(folderConstants.nameSeparator);
     await assertCanReadPublicFile(
       context,
-      insertWorkspaceResult.workspace.resourceId,
+      insertWorkspaceResult.workspace,
       filepath
     );
 
     await assertCanUploadToPublicFile(
       context,
-      insertWorkspaceResult.workspace.resourceId,
+      insertWorkspaceResult.workspace,
       filepath
     );
 
     await assertCanUpdatePublicFile(
       context,
-      insertWorkspaceResult.workspace.resourceId,
+      insertWorkspaceResult.workspace,
       filepath
     );
 
     await assertCanDeletePublicFile(
       context,
-      insertWorkspaceResult.workspace.resourceId,
+      insertWorkspaceResult.workspace,
       filepath
     );
   });
@@ -137,7 +138,10 @@ describe('uploadFile', () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest(context);
     const update: Partial<IUploadFileEndpointParams> = {
-      filepath: getFileName(savedFile),
+      filepath: addRootnameToPath(
+        getFilePathWithoutRootname(savedFile),
+        insertWorkspaceResult.workspace.rootname
+      ),
       publicAccessAction: UploadFilePublicAccessActions.Read,
     };
 
@@ -177,7 +181,10 @@ describe('uploadFile', () => {
       );
 
     const update: Partial<IUploadFileEndpointParams> = {
-      filepath: getFileName(savedFile),
+      filepath: addRootnameToPath(
+        getFilePathWithoutRootname(savedFile),
+        insertWorkspaceResult.workspace.rootname
+      ),
       publicAccessAction: UploadFilePublicAccessActions.None,
     };
 
@@ -213,10 +220,9 @@ describe('uploadFile', () => {
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
       UsageRecordCategory.Storage,
     ]);
-    await expectErrorThrown(
-      async () =>
-        await insertFileForTest(context!, userToken, workspace.resourceId),
-      [UsageLimitExceededError.name]
-    );
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await insertFileForTest(context, userToken, workspace);
+    }, [UsageLimitExceededError.name]);
   });
 });

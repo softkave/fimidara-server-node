@@ -1,3 +1,4 @@
+import assert = require('assert');
 import {IAgent} from '../../../definitions/system';
 import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -8,7 +9,7 @@ import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   checkWorkspaceNameExists,
-  checkWorkspaceRootNameExists,
+  checkWorkspaceRootnameExists,
 } from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
@@ -23,7 +24,8 @@ export function transformUsageThresholInput(
 ) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
   cast<UsageThresholdCategory[]>(Object.keys(input)).forEach(category => {
-    const usageThreshold = input[category]!;
+    const usageThreshold = input[category];
+    assert(usageThreshold);
     usageThresholds[category] = {
       ...usageThreshold,
       lastUpdatedBy: agent,
@@ -41,7 +43,7 @@ const internalCreateWorkspace = async (
 ) => {
   await Promise.all([
     checkWorkspaceNameExists(context, data.name),
-    checkWorkspaceRootNameExists(context, data.rootname),
+    checkWorkspaceRootnameExists(context, data.rootname),
   ]);
   const createdAt = getDateString();
   const usageThresholds = transformUsageThresholInput(

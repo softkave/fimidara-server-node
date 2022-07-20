@@ -10,8 +10,8 @@ import checkEntitiesExist from '../checkEntitiesExist';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
 import {PermissionItemUtils} from '../utils';
-import {internalReplacePermissionItemsByEntity} from './internalReplaceItemsByEntity';
 import {ReplacePermissionItemsByEntityEndpoint} from './types';
+import {internalReplacePermissionItemsByEntity} from './utils';
 import {replacePermissionItemsByEntityJoiSchema} from './validation';
 
 const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint =
