@@ -132,6 +132,10 @@ export async function addAssignedTagList(
   return await addAssignedItemList(context, items);
 }
 
+export interface ISaveResourceAssignedItemsOptions {
+  skipPermissionGroupsCheck?: boolean;
+}
+
 export async function saveResourceAssignedItems(
   context: IBaseContext,
   agent: IAgent,
@@ -142,7 +146,8 @@ export async function saveResourceAssignedItems(
     tags?: IAssignedTagInput[];
     permissionGroups?: IPermissionGroupInput[];
   },
-  deleteExisting = true
+  deleteExisting = true,
+  options: ISaveResourceAssignedItemsOptions = {}
 ) {
   if (data.permissionGroups) {
     await addAssignedPermissionGroupList(
@@ -152,7 +157,8 @@ export async function saveResourceAssignedItems(
       data.permissionGroups,
       resourceId,
       resourceType,
-      deleteExisting
+      deleteExisting,
+      options.skipPermissionGroupsCheck
     );
   }
 

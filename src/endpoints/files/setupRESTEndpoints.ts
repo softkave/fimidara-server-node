@@ -1,5 +1,5 @@
 import {Express, Request, Response} from 'express';
-import {isNumber, merge} from 'lodash';
+import {last, merge} from 'lodash';
 import * as multer from 'multer';
 import {endpointConstants} from '../constants';
 import {IBaseContext} from '../contexts/BaseContext';
@@ -12,6 +12,9 @@ import getFileDetails from './getFileDetails/handler';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {IUploadFileEndpointParams} from './uploadFile/types';
+
+const uploadFilePath = '/files/uploadFile';
+const getFilePath = '/files/getFile';
 
 function handleGetFileResponse(
   res: Response,
@@ -27,21 +30,22 @@ function handleGetFileResponse(
 }
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
-  const filepath = req.query.filepath as string;
+  const p = req.path;
+  const filepath = last(p.split(getFilePath));
   const width = req.query.w;
   const height = req.query.h;
   return {
-    filepath: filepath,
-    imageTranformation:
-      isNumber(width) && isNumber(height) ? {width, height} : undefined,
+    filepath,
+    imageTranformation: {width, height},
     ...req.body,
   };
 }
 
-function extractUploadFilesParamsFromQuery(
+function extractUploadFilesParamsFromPath(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
-  const filepath = req.query.filepath as string;
+  const p = req.path;
+  const filepath = last(p.split(uploadFilePath));
   return {filepath};
 }
 
@@ -60,7 +64,7 @@ function extractUploadFilesParamsFromReq(
   req: Request
 ): IUploadFileEndpointParams {
   return merge(
-    extractUploadFilesParamsFromQuery(req),
+    extractUploadFilesParamsFromPath(req),
     extractUploadFilesParamsFromFormData(req)
   );
 }
@@ -90,12 +94,12 @@ export default function setupFilesRESTEndpoints(
 
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
-  app.get('/files/getFile', endpoints.getFile);
+  app.get(`${getFilePath}*`, endpoints.getFile);
   app.delete('/files/deleteFile', endpoints.deleteFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
   app.post('/files/updateFileDetails', endpoints.updateFileDetails);
   app.post(
-    '/files/uploadFile',
+    `${uploadFilePath}*`,
     upload.single(fileConstants.uploadedFileFieldName),
     endpoints.uploadFile
   );

@@ -230,6 +230,7 @@ export async function setupApp(context: IBaseContext) {
     context,
     workspace
   );
+
   const appWorkspacesImageUploadPermissionGroup =
     await setupImageUploadPermissionGroup(
       context,

@@ -42,7 +42,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     throw new NotFoundError('File not found');
   }
 
-  if (data.imageTranformation) {
+  if (data.imageTranformation?.width || data.imageTranformation?.height) {
     buffer = await sharp(buffer)
       .resize(data.imageTranformation.width, data.imageTranformation.height)
       .png()

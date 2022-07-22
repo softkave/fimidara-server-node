@@ -1,5 +1,5 @@
 {
-  "extends": "../node_modules/gts/tsconfig-google.json",
+  "extends": "../../node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
@@ -8,8 +8,9 @@
     "moduleResolution": "node",
     "outDir": "build",
     "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "skipLibCheck": true
   },
-  "exclude": ["node_modules", "build"],
+  "exclude": ["build", "node_modules"],
   "files": ["index.ts"]
 }
