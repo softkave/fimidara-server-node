@@ -32,7 +32,7 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
     context,
     token.workspaceId,
     token,
-    AppResourceType.ClientAssignedToken
+    AppResourceType.ProgramAccessToken
   );
 
   return {
