@@ -23,6 +23,7 @@ import MongoDBDataProviderContext from '../../src/endpoints/contexts/MongoDBData
 import EndpointReusableQueries from '../../src/endpoints/queries';
 import {setupApp} from '../../src/endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../src/endpoints/test-utils/context/NoopEmailProviderContext';
+import internalConfirmEmailAddress from '../../src/endpoints/user/confirmEmailAddress/internalConfirmEmailAddress';
 import {internalSignupUser} from '../../src/endpoints/user/signup/utils';
 import UserQueries from '../../src/endpoints/user/UserQueries';
 import {
@@ -146,6 +147,7 @@ async function makeUserAdmin(
   );
 
   if (!isAdmin) {
+    console.log('Making user admin');
     await saveResourceAssignedItems(
       context,
       systemAgent,
@@ -215,11 +217,14 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
     );
 
     if (request) {
+      console.log('Existing collaboration request found');
+      console.log(`Accepting request ${request.resourceId}`);
       await internalRespondToRequest(context, user, {
         requestId: request.resourceId,
         response: CollaborationRequestStatusType.Accepted,
       });
     } else {
+      console.log('Adding user to workspace');
       await assignWorkspaceToUser(
         context,
         systemAgent,
@@ -234,6 +239,11 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
       workspace,
       adminPermissionGroup.resourceId
     );
+  }
+
+  if (!user.isEmailVerified) {
+    console.log(`Verifying email address for user ${user.email}`);
+    await internalConfirmEmailAddress(context, user);
   }
 
   console.log(
