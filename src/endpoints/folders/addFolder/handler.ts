@@ -15,7 +15,7 @@ import {ServerError} from '../../../utilities/errors';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -230,7 +230,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     false
   );
 
-  folder = await withAssignedPermissionGroupsAndTags(
+  folder = await populateAssignedPermissionGroupsAndTags(
     context,
     folder.workspaceId,
     folder,

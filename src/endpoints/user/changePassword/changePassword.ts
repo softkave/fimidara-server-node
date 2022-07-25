@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {
   getUserClientAssignedToken,
@@ -18,7 +18,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const newPassword = result.password;
   let user = await context.session.getUser(context, instData);
   const hash = await argon2.hash(newPassword);
-  user = await withUserWorkspaces(
+  user = await populateUserWorkspaces(
     context,
     await context.data.user.assertUpdateItem(
       UserQueries.getById(user.resourceId),

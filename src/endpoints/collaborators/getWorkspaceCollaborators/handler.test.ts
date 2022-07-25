@@ -1,4 +1,4 @@
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -43,7 +43,7 @@ test('workspace collaborators returned', async () => {
 
   const result = await getWorkspaceCollaborators(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await withUserWorkspaces(
+  const updatedUser = await populateUserWorkspaces(
     context,
     await context.data.user.assertGetItem(
       EndpointReusableQueries.getById(user.resourceId)

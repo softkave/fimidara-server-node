@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {
@@ -30,7 +31,6 @@ import {
   IUsageRecordInput,
   UsageRecordLogicProvider,
 } from '../UsageRecordLogicProvider';
-import assert = require('assert');
 
 let connection: Connection | null = null;
 let context: IBaseContext | null = null;

@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {
   checkProgramAccessTokenAuthorization02,
@@ -28,11 +28,11 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (
     BasicCRUDActions.Read
   );
 
-  token = await withAssignedPermissionGroupsAndTags(
+  token = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,
-    AppResourceType.ClientAssignedToken
+    AppResourceType.ProgramAccessToken
   );
 
   return {

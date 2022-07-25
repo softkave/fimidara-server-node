@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {IAgent} from '../../../definitions/system';
 import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -45,6 +45,7 @@ const internalCreateWorkspace = async (
     checkWorkspaceNameExists(context, data.name),
     checkWorkspaceRootnameExists(context, data.rootname),
   ]);
+
   const createdAt = getDateString();
   const usageThresholds = transformUsageThresholInput(
     agent,
@@ -75,8 +76,8 @@ const internalCreateWorkspace = async (
     workspace.resourceId,
     {publicPermissionGroupId: publicPermissionGroup.resourceId}
   );
-  assertWorkspace(workspace);
 
+  assertWorkspace(workspace);
   if (user) {
     await addWorkspaceToUserAndAssignAdminPermissionGroup(
       context,

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -87,7 +87,7 @@ test('permissionGroup updated', async () => {
   const result = await updatePermissionGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedPermissionGroup = await withAssignedPermissionGroupsAndTags(
+  const updatedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     await context.data.permissiongroup.assertGetItem(

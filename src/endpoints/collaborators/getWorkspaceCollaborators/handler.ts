@@ -1,18 +1,18 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {userListWithWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
+import AssignedItemQueries from '../../assignedItems/queries';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {PermissionDeniedError} from '../../user/errors';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor, removeOtherUserWorkspaces} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation';
-import {getWorkspaceId} from '../../contexts/SessionContext';
-import AssignedItemQueries from '../../assignedItems/queries';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   context,
@@ -61,7 +61,7 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
     throw new PermissionDeniedError();
   }
 
-  const usersWithWorkspaces = await userListWithWorkspaces(
+  const usersWithWorkspaces = await populateUserListWithWorkspaces(
     context,
     allowedCollaborators
   );

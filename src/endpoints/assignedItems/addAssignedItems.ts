@@ -62,7 +62,7 @@ export async function addAssignedPermissionGroupList(
       workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
-      AppResourceType.PermissionGroup
+      [AppResourceType.PermissionGroup]
     );
   }
 
@@ -110,7 +110,7 @@ export async function addAssignedTagList(
       workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
-      AppResourceType.Tag
+      [AppResourceType.Tag]
     );
   }
 
@@ -132,6 +132,10 @@ export async function addAssignedTagList(
   return await addAssignedItemList(context, items);
 }
 
+export interface ISaveResourceAssignedItemsOptions {
+  skipPermissionGroupsCheck?: boolean;
+}
+
 export async function saveResourceAssignedItems(
   context: IBaseContext,
   agent: IAgent,
@@ -142,7 +146,8 @@ export async function saveResourceAssignedItems(
     tags?: IAssignedTagInput[];
     permissionGroups?: IPermissionGroupInput[];
   },
-  deleteExisting = true
+  deleteExisting = true,
+  options: ISaveResourceAssignedItemsOptions = {}
 ) {
   if (data.permissionGroups) {
     await addAssignedPermissionGroupList(
@@ -152,7 +157,8 @@ export async function saveResourceAssignedItems(
       data.permissionGroups,
       resourceId,
       resourceType,
-      deleteExisting
+      deleteExisting,
+      options.skipPermissionGroupsCheck
     );
   }
 
@@ -169,7 +175,7 @@ export async function saveResourceAssignedItems(
   }
 }
 
-export async function addAssignedUserWorkspace(
+export async function assignWorkspaceToUser(
   context: IBaseContext,
   agent: IAgent,
   workspaceId: string,

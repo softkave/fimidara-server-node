@@ -1,8 +1,8 @@
-import * as cors from 'cors';
-import * as express from 'express';
-import * as expressJwt from 'express-jwt';
-import * as http from 'http';
-import * as multer from 'multer';
+import cors from 'cors';
+import express from 'express';
+import expressJwt from 'express-jwt';
+import http from 'http';
+import multer from 'multer';
 import {getMongoConnection} from './db/connection';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';

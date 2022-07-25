@@ -1,24 +1,24 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import {
-  IConfirmEmailAddressEmailProps,
-  confirmEmailAddressEmailHTML,
-  confirmEmailAddressEmailText,
-} from '../src/email-templates/confirmEmailAddress';
-import {
-  IForgotPasswordEmailProps,
-  forgotPasswordEmailHTML,
-  forgotPasswordEmailText,
-} from '../src/email-templates/forgotPassword';
-import {
-  ICollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
-} from '../src/email-templates/collaborationRequest';
+  ICollaborationRequestEmailProps,
+} from '../../src/email-templates/collaborationRequest';
 import {
-  ICollaborationRequestRevokedEmailProps,
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
-} from '../src/email-templates/collaborationRequestRevoked';
+  ICollaborationRequestRevokedEmailProps,
+} from '../../src/email-templates/collaborationRequestRevoked';
+import {
+  confirmEmailAddressEmailHTML,
+  confirmEmailAddressEmailText,
+  IConfirmEmailAddressEmailProps,
+} from '../../src/email-templates/confirmEmailAddress';
+import {
+  forgotPasswordEmailHTML,
+  forgotPasswordEmailText,
+  IForgotPasswordEmailProps,
+} from '../../src/email-templates/forgotPassword';
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =
