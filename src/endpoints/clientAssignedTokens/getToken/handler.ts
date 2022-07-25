@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkClientAssignedTokenAuthorization03,
   getPublicClientToken,
@@ -21,7 +21,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (
     BasicCRUDActions.Read
   );
 
-  const tokenWithAssignedItems = await withAssignedPermissionGroupsAndTags(
+  const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,

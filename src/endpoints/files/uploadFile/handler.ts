@@ -10,7 +10,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {ValidationError} from '../../../utilities/errors';
 import {appAssert} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -95,7 +95,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     contentLength: data.data.byteLength,
   });
 
-  file = await withAssignedPermissionGroupsAndTags(
+  file = await populateAssignedPermissionGroupsAndTags(
     context,
     file.workspaceId,
     file,

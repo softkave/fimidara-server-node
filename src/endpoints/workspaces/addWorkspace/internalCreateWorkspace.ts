@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {IAgent} from '../../../definitions/system';
 import {UsageThresholdCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';

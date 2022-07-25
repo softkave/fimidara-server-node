@@ -1,19 +1,7 @@
-import {IAssignedPermissionGroupMeta} from '../../../definitions/assignedItem';
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
-import {ServerStateConflictError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {
-  addAssignedPermissionGroupList,
-  addAssignedUserWorkspace,
-} from '../../assignedItems/addAssignedItems';
-import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import EndpointReusableQueries from '../../queries';
-import {PermissionDeniedError} from '../../user/errors';
-import {assertWorkspace} from '../../workspaces/utils';
 import {collabRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
+import {internalRespondToRequest} from './utils';
 import {respondToRequestJoiSchema} from './validation';
 
 const respondToRequest: RespondToRequestEndpoint = async (
@@ -22,75 +10,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, respondToRequestJoiSchema);
   const user = await context.session.getUser(context, instData);
-  let request = await context.data.collaborationRequest.assertGetItem(
-    EndpointReusableQueries.getById(data.requestId)
-  );
-
-  if (user.email !== request.recipientEmail) {
-    throw new PermissionDeniedError(
-      'User is not the collaboration request recipient'
-    );
-  }
-
-  const isExpired =
-    request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
-
-  if (isExpired && request.expiresAt) {
-    throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt)}`
-    );
-  }
-
-  request = await context.data.collaborationRequest.assertUpdateItem(
-    EndpointReusableQueries.getById(data.requestId),
-    {
-      statusHistory: request.statusHistory.concat({
-        date: getDateString(),
-        status: data.response,
-      }),
-    }
-  );
-
-  if (data.response === CollaborationRequestStatusType.Accepted) {
-    await addAssignedUserWorkspace(
-      context,
-      request.createdBy,
-      request.workspaceId,
-      user
-    );
-
-    const permissionGroupsOnAccept = await getResourceAssignedItems(
-      context,
-      request.workspaceId,
-      request.resourceId,
-      AppResourceType.CollaborationRequest
-    );
-
-    if (permissionGroupsOnAccept.length > 0) {
-      const workspace = await context.cacheProviders.workspace.getById(
-        context,
-        request.workspaceId
-      );
-      assertWorkspace(workspace);
-      await addAssignedPermissionGroupList(
-        context,
-        {
-          agentId: user.resourceId,
-          agentType: SessionAgentType.User,
-        },
-        workspace,
-        permissionGroupsOnAccept.map(item => ({
-          permissionGroupId: item.assignedItemId,
-          order: (item.meta as IAssignedPermissionGroupMeta)?.order || 1,
-        })),
-        user.resourceId,
-        AppResourceType.User,
-        /** deleteExisting */ false,
-        /** skipPermissionGroupsCheck */ true
-      );
-    }
-  }
-
+  const request = await internalRespondToRequest(context, user, data);
   return {
     request: collabRequestExtractor(request),
   };

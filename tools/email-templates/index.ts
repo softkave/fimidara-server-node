@@ -11,3 +11,4 @@ renderForgotPasswordMedia();
 renderCollaborationRequestMedia();
 renderCollaborationRequestRevokedMedia();
 console.log('Completed writing templates');
+process.exit(0);

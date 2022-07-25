@@ -62,7 +62,7 @@ export async function addAssignedPermissionGroupList(
       workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
-      AppResourceType.PermissionGroup
+      [AppResourceType.PermissionGroup]
     );
   }
 
@@ -110,7 +110,7 @@ export async function addAssignedTagList(
       workspace.resourceId,
       assignedToItemId,
       assignedToItemType,
-      AppResourceType.Tag
+      [AppResourceType.Tag]
     );
   }
 
@@ -175,7 +175,7 @@ export async function saveResourceAssignedItems(
   }
 }
 
-export async function addAssignedUserWorkspace(
+export async function assignWorkspaceToUser(
   context: IBaseContext,
   agent: IAgent,
   workspaceId: string,

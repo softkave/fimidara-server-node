@@ -1,5 +1,6 @@
-import assert = require('assert');
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
+import sharp from 'sharp';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -26,7 +27,6 @@ import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
-import sharp = require('sharp');
 
 let context: IBaseContext | null = null;
 

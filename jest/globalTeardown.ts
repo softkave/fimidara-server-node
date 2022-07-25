@@ -4,8 +4,8 @@ import {
   ObjectIdentifier,
   S3Client,
 } from '@aws-sdk/client-s3';
-import * as _ from 'lodash';
-import * as mongoose from 'mongoose';
+import _ from 'lodash';
+import mongoose from 'mongoose';
 import {
   getTestVarsInternalFn,
   ITestVariables,

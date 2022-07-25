@@ -4,7 +4,7 @@ import {
   ISessionAgent,
 } from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
-import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -81,7 +81,7 @@ export async function checkCollaboratorAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const collaborator = await withUserWorkspaces(
+  const collaborator = await populateUserWorkspaces(
     context,
     await context.data.user.assertGetItem(
       EndpointReusableQueries.getById(collaboratorId)

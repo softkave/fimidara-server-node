@@ -18,8 +18,8 @@ import {
   wrapFireAndThrowErrorNoAsync,
 } from '../../utilities/promiseFns';
 import {
-  withAssignedPermissionGroupsAndTags,
-  withUserWorkspaces,
+  populateAssignedPermissionGroupsAndTags,
+  populateUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
@@ -125,7 +125,7 @@ export default class SessionContext implements ISessionContext {
             ctx.session.tokenContainsAudience(ctx, userToken, audience);
           }
 
-          user = await withUserWorkspaces(
+          user = await populateUserWorkspaces(
             ctx,
             await ctx.data.user.assertGetItem(
               EndpointReusableQueries.getById(userToken.userId)
@@ -139,7 +139,7 @@ export default class SessionContext implements ISessionContext {
             ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
           );
 
-          programAccessToken = await withAssignedPermissionGroupsAndTags(
+          programAccessToken = await populateAssignedPermissionGroupsAndTags(
             ctx,
             pgt.workspaceId,
             pgt,
@@ -153,7 +153,7 @@ export default class SessionContext implements ISessionContext {
             EndpointReusableQueries.getById(incomingTokenData.sub.id)
           );
 
-          clientAssignedToken = await withAssignedPermissionGroupsAndTags(
+          clientAssignedToken = await populateAssignedPermissionGroupsAndTags(
             ctx,
             clt.workspaceId,
             clt,

@@ -9,7 +9,7 @@ import {getDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -103,7 +103,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
     data.token
   );
 
-  const tokenWithAssignedItems = await withAssignedPermissionGroupsAndTags(
+  const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,

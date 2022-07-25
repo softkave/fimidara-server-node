@@ -1,6 +1,7 @@
-import assert = require('assert');
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {add} from 'date-fns';
+import sharp from 'sharp';
 import {getMongoConnection} from '../../db/connection';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
@@ -12,7 +13,7 @@ import {
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
-import {withUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
   IAddClientAssignedTokenEndpointParams,
@@ -81,7 +82,6 @@ import {ITestBaseContext} from './context/types';
 import {generateUsageThresholdMap} from './generate-data/workspace';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables} from './vars';
-import sharp = require('sharp');
 
 function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
@@ -201,7 +201,7 @@ export async function insertUserForTest(
   if (!skipAutoVerifyEmail) {
     rawUser = await internalConfirmEmailAddress(context, result.user);
   } else {
-    rawUser = await withUserWorkspaces(
+    rawUser = await populateUserWorkspaces(
       context,
       await context.data.user.assertGetItem(
         EndpointReusableQueries.getById(result.user.resourceId)

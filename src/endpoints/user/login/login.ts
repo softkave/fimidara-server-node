@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import {ServerError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {InvalidEmailOrPasswordError} from '../errors';
 import UserQueries from '../UserQueries';
@@ -20,7 +20,6 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   let passwordMatch = false;
-
   try {
     passwordMatch = await argon2.verify(user.hash, data.password);
   } catch (error) {
@@ -38,7 +37,7 @@ const login: LoginEndpoint = async (context, instData) => {
     user.resourceId
   );
 
-  const userWithWorkspaces = await withUserWorkspaces(context, user);
+  const userWithWorkspaces = await populateUserWorkspaces(context, user);
 
   // Make the user token available to other requests
   // made with this request data

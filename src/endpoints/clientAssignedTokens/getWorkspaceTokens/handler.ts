@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {resourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -51,12 +51,13 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
       throw new PermissionDeniedError();
     }
 
-    allowedTokens = await resourceListWithAssignedPermissionGroupsAndTags(
-      context,
-      workspace.resourceId,
-      allowedTokens,
-      AppResourceType.ClientAssignedToken
-    );
+    allowedTokens =
+      await populateResourceListWithAssignedPermissionGroupsAndTags(
+        context,
+        workspace.resourceId,
+        allowedTokens,
+        AppResourceType.ClientAssignedToken
+      );
 
     return {
       tokens: allowedTokens.map(token => getPublicClientToken(context, token)),

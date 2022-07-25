@@ -4,6 +4,7 @@ import OperationError, {
 } from '../../utilities/OperationError';
 import {endpointConstants} from '../constants';
 import {ServerRecommendedActions} from '../types';
+import {throwUserNotFound, throwUserTokenNotFound} from './utils';
 
 export class EmailAddressNotAvailableError extends OperationError {
   public name = 'EmailAddressNotAvailableError';
@@ -94,3 +95,8 @@ export class IncorrectPasswordError extends OperationError {
     );
   }
 }
+
+export const userCommonErrors = {
+  notFound: throwUserNotFound,
+  tokenNotFound: throwUserTokenNotFound,
+};

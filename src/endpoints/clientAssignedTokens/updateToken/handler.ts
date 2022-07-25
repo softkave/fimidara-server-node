@@ -4,7 +4,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {
@@ -65,7 +65,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (
     data.token
   );
 
-  const tokenWithAssignedItems = await withAssignedPermissionGroupsAndTags(
+  const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,

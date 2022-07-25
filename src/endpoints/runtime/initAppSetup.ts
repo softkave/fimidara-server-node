@@ -8,6 +8,7 @@ import {
   AppResourceType,
   APP_RUNTIME_STATE_DOC_ID,
   BasicCRUDActions,
+  IAppRuntimeState,
   systemAgent,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
@@ -190,30 +191,43 @@ async function setupImageUploadPermissionGroup(
   return imageUploadPermissionGroup;
 }
 
-export async function setupApp(context: IBaseContext) {
+async function isRootWorkspaceSetup(context: IBaseContext) {
   const appRuntimeState = await context.data.appRuntimeState.getItem(
     EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID)
   );
 
-  if (appRuntimeState) {
-    const appRuntimeVars: IAppRuntimeVars = {
-      appWorkspaceId: appRuntimeState.appWorkspaceId,
-      appWorkspacesImageUploadPermissionGroupId:
-        appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
-      appUsersImageUploadPermissionGroupId:
-        appRuntimeState.appUsersImageUploadPermissionGroupId,
-    };
+  return appRuntimeState;
+}
 
-    merge(context.appVariables, appRuntimeVars);
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      appRuntimeState.appWorkspaceId
-    );
-    assertWorkspace(workspace);
-    return workspace;
+async function getRootWorkspace(
+  context: IBaseContext,
+  appRuntimeState: IAppRuntimeState
+) {
+  const appRuntimeVars: IAppRuntimeVars = {
+    appWorkspaceId: appRuntimeState.appWorkspaceId,
+    appWorkspacesImageUploadPermissionGroupId:
+      appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
+    appUsersImageUploadPermissionGroupId:
+      appRuntimeState.appUsersImageUploadPermissionGroupId,
+  };
+
+  merge(context.appVariables, appRuntimeVars);
+  const workspace = await context.cacheProviders.workspace.getById(
+    context,
+    appRuntimeState.appWorkspaceId
+  );
+
+  assertWorkspace(workspace);
+  return workspace;
+}
+
+export async function setupApp(context: IBaseContext) {
+  const appRuntimeState = await isRootWorkspaceSetup(context);
+  if (appRuntimeState) {
+    return await getRootWorkspace(context, appRuntimeState);
   }
 
-  const {adminPermissionGroup, workspace: workspace} = await setupWorkspace(
+  const {adminPermissionGroup, workspace} = await setupWorkspace(
     context,
     appSetupVars.workspaceName,
     appSetupVars.rootname

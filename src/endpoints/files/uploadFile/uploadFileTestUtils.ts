@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {IFile} from '../../../definitions/file';
 import {
   AppResourceType,
@@ -37,7 +38,6 @@ import {
 } from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {IUploadFileEndpointParams} from './types';
-import assert = require('assert');
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,

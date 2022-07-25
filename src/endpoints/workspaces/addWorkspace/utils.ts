@@ -16,9 +16,9 @@ import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {
   addAssignedPermissionGroupList,
-  addAssignedUserWorkspace,
+  assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {permissionItemIndexer} from '../../permissionItems/utils';
 
@@ -229,7 +229,7 @@ export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
 
   await Promise.all([
     // Assign workspace to user
-    addAssignedUserWorkspace(context, agent, workspace.resourceId, user),
+    assignWorkspaceToUser(context, agent, workspace.resourceId, user),
 
     // Assign admin permission group to user
     addAssignedPermissionGroupList(
@@ -244,5 +244,5 @@ export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
     ),
   ]);
 
-  return await withUserWorkspaces(context, user);
+  return await populateUserWorkspaces(context, user);
 }
