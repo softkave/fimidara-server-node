@@ -28,6 +28,14 @@ export interface IAssignedPermissionGroupMeta {
   order: number;
 }
 
+export type ResourceWithPermissionGroups<T> = T & {
+  permissionGroups: IAssignedPermissionGroup[];
+};
+
+export type ResourceWithTags<T> = T & {
+  tags: IAssignedTag[];
+};
+
 export type ResourceWithPermissionGroupsAndTags<T> = T & {
   permissionGroups: IAssignedPermissionGroup[];
   tags: IAssignedTag[];

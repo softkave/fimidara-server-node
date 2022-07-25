@@ -1,5 +1,5 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -60,7 +60,7 @@ test('client assigned token added', async () => {
 
   const savedToken = getPublicClientToken(
     context,
-    await withAssignedPermissionGroupsAndTags(
+    await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.clientAssignedToken.assertGetItem(

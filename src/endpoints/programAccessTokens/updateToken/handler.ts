@@ -4,7 +4,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import ProgramAccessTokenQueries from '../queries';
@@ -67,7 +67,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
     data.token
   );
 
-  token = await withAssignedPermissionGroupsAndTags(
+  token = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,
     token,

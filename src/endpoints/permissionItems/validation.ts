@@ -1,4 +1,4 @@
-import Joi = require('joi');
+import Joi from 'joi';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {permissionItemConstants} from './constants';

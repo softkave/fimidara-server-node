@@ -1,5 +1,5 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
@@ -66,7 +66,7 @@ test('program access token added', async () => {
 
   const savedToken = getPublicProgramToken(
     context,
-    await withAssignedPermissionGroupsAndTags(
+    await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.programAccessToken.assertGetItem(

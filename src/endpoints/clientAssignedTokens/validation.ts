@@ -1,4 +1,4 @@
-import Joi = require('joi');
+import Joi from 'joi';
 import {clientAssignedTokenConstants} from './constants';
 
 const providedResourceId = Joi.string().max(

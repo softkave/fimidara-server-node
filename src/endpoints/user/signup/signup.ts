@@ -1,22 +1,18 @@
-import getNewId from '../../../utilities/getNewId';
-import {validate} from '../../../utilities/validate';
-import {EmailAddressNotAvailableError} from '../errors';
-import {SignupEndpoint} from './types';
-import {signupJoiSchema} from './validation';
-import * as argon2 from 'argon2';
-import {getDateString} from '../../../utilities/dateFns';
-import UserQueries from '../UserQueries';
-import {makeUserSessionAgent} from '../../contexts/SessionContext';
-import {IBaseContext} from '../../contexts/BaseContext';
-import RequestData from '../../RequestData';
-import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
+import {merge} from 'lodash';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {validate} from '../../../utilities/validate';
+import {IBaseContext} from '../../contexts/BaseContext';
+import {makeUserSessionAgent} from '../../contexts/SessionContext';
+import RequestData from '../../RequestData';
 import {
   getUserClientAssignedToken,
   getUserToken,
   toLoginResult,
 } from '../login/utils';
-import {merge} from 'lodash';
+import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
+import {SignupEndpoint} from './types';
+import {internalSignupUser} from './utils';
+import {signupJoiSchema} from './validation';
 
 async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
   const sendEmailReqData = RequestData.clone(reqData, reqData.data);
@@ -29,28 +25,7 @@ async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
 
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
-  const userExists = await context.data.user.checkItemExists(
-    UserQueries.getByEmail(data.email)
-  );
-
-  if (userExists) {
-    throw new EmailAddressNotAvailableError();
-  }
-
-  const hash = await argon2.hash(data.password);
-  const now = getDateString();
-  const user = await context.data.user.saveItem({
-    hash,
-    resourceId: getNewId(),
-    email: data.email,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    createdAt: now,
-    passwordLastChangedAt: now,
-    isEmailVerified: false,
-    lastUpdatedAt: now,
-  });
-
+  const user = await internalSignupUser(context, data);
   const userToken = await getUserToken(context, user);
   const clientAssignedToken = await getUserClientAssignedToken(
     context,

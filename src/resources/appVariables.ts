@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {isObject, isUndefined, merge, mergeWith} from 'lodash';
 import cast, {getFirstArg} from '../utilities/fns';
 

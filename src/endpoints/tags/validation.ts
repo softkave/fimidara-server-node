@@ -1,4 +1,4 @@
-import Joi = require('joi');
+import Joi from 'joi';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {tagConstants} from './constants';

@@ -9,7 +9,7 @@ import {
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
-import {resourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -117,14 +117,15 @@ const listFolderContent: ListFolderContentEndpoint = async (
     throw new PermissionDeniedError();
   }
 
-  allowedFolders = await resourceListWithAssignedPermissionGroupsAndTags(
-    context,
-    workspace.resourceId,
-    allowedFolders,
-    AppResourceType.Folder
-  );
+  allowedFolders =
+    await populateResourceListWithAssignedPermissionGroupsAndTags(
+      context,
+      workspace.resourceId,
+      allowedFolders,
+      AppResourceType.Folder
+    );
 
-  allowedFiles = await resourceListWithAssignedPermissionGroupsAndTags(
+  allowedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     allowedFiles,

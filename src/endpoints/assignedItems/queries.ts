@@ -36,7 +36,7 @@ function getByAssignedToResource(
   workspaceId: string,
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
-  assignedItemType?: AppResourceType
+  assignedItemTypeList?: ReadonlyArray<AppResourceType>
 ) {
   const filter = newFilter()
     .addItem(
@@ -50,11 +50,11 @@ function getByAssignedToResource(
       DataProviderFilterValueOperator.Equal
     );
 
-  if (assignedItemType) {
+  if (assignedItemTypeList) {
     filter.addItem(
       'assignedItemType',
-      assignedItemType,
-      DataProviderFilterValueOperator.Equal
+      assignedItemTypeList,
+      DataProviderFilterValueOperator.In
     );
   }
 

@@ -18,7 +18,7 @@ import {formatDate, getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
 import {
@@ -54,7 +54,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   );
 
   if (existingUser) {
-    const existingUserWithWorkspaces = await withUserWorkspaces(
+    const existingUserWithWorkspaces = await populateUserWorkspaces(
       context,
       existingUser
     );

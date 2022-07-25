@@ -1,7 +1,7 @@
 import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
@@ -21,7 +21,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     update.emailVerificationEmailSentAt = null;
   }
 
-  user = await withUserWorkspaces(
+  user = await populateUserWorkspaces(
     context,
     await context.data.user.assertUpdateItem(
       UserQueries.getById(user.resourceId),
