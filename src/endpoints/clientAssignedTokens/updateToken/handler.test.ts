@@ -1,5 +1,5 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -81,7 +81,7 @@ test('client assigned token permission groups updated', async () => {
   assertEndpointResultOk(result);
   const updatedToken = getPublicClientToken(
     context,
-    await withAssignedPermissionGroupsAndTags(
+    await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.clientAssignedToken.assertGetItem(

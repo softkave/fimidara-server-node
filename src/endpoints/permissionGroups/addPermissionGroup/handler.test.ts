@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   assertContext,
@@ -36,7 +36,7 @@ test('permissionGroup permissions group added', async () => {
     workspace.resourceId
   );
 
-  const savedPermissionGroup = await withAssignedPermissionGroupsAndTags(
+  const savedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
     await context.data.permissiongroup.assertGetItem(

@@ -3,7 +3,7 @@ import {ResourceWithPermissionGroupsAndTags} from '../../../definitions/assigned
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import PermissionGroupQueries from '../../permissionGroups/queries';
 import {IBaseContext} from '../BaseContext';
 import {IPermissionEntity} from './getPermissionEntities';
@@ -109,7 +109,7 @@ async function fetchPermissionGroups(
         );
 
         if (permissionGroup) {
-          return withAssignedPermissionGroupsAndTags(
+          return populateAssignedPermissionGroupsAndTags(
             context,
             permissionGroup.workspaceId,
             permissionGroup,

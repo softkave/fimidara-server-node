@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {getWorkspaceModel} from '../../../../db/workspace';

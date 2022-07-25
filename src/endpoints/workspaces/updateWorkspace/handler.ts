@@ -5,10 +5,7 @@ import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {transformUsageThresholInput} from '../addWorkspace/internalCreateWorkspace';
-import {
-  checkWorkspaceNameExists,
-  checkWorkspaceRootnameExists,
-} from '../checkWorkspaceNameExists';
+import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {
   assertWorkspace,
   checkWorkspaceAuthorization02,
@@ -32,12 +29,12 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     await checkWorkspaceNameExists(context, data.workspace.name);
   }
 
-  if (
-    data.workspace.rootname &&
-    data.workspace.rootname !== workspace.rootname
-  ) {
-    await checkWorkspaceRootnameExists(context, data.workspace.rootname);
-  }
+  // if (
+  //   data.workspace.rootname &&
+  //   data.workspace.rootname !== workspace.rootname
+  // ) {
+  //   await checkWorkspaceRootnameExists(context, data.workspace.rootname);
+  // }
 
   const update: Partial<IWorkspace> = {
     ...omit(data.workspace, ['usageThresholds']),

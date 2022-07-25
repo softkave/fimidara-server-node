@@ -1,5 +1,5 @@
 import {format} from 'date-fns';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import {
   ITestVariables,
   TestDataProviderType,

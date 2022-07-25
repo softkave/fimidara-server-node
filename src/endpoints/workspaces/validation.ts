@@ -1,4 +1,4 @@
-import Joi = require('joi');
+import Joi from 'joi';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 
 const price = Joi.number().min(0).precision(5);

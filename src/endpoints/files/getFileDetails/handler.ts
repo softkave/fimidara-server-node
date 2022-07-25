@@ -4,7 +4,7 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
 import {getFileDetailsJoiSchema} from './validation';
@@ -24,7 +24,7 @@ const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  file = await withAssignedPermissionGroupsAndTags(
+  file = await populateAssignedPermissionGroupsAndTags(
     context,
     file.workspaceId,
     file,

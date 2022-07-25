@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -87,7 +87,7 @@ test('program access token updated', async () => {
 
   const updatedToken = getPublicProgramToken(
     context,
-    await withAssignedPermissionGroupsAndTags(
+    await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
       await context.data.programAccessToken.assertGetItem(

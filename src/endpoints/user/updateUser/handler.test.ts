@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
 import {
@@ -44,7 +44,7 @@ test('user data updated', async () => {
   const result = await updateUser(context, instData);
   assertEndpointResultOk(result);
 
-  const savedUser = await withUserWorkspaces(
+  const savedUser = await populateUserWorkspaces(
     context,
     await context.data.user.assertGetItem(
       UserQueries.getById(result.user.resourceId)

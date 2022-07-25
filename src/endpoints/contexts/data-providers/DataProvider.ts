@@ -18,7 +18,7 @@ export enum DataProviderFilterValueLogicalOperator {
   Not,
 }
 
-export type DataProviderValueExpander<T> = Array<T> | T | RegExp | null;
+export type DataProviderValueExpander<T> = ReadonlyArray<T> | T | RegExp | null;
 export type DataProviderGetValueType<Value> = Value extends any[]
   ? Value[0]
   : Value extends {[key: string]: any}

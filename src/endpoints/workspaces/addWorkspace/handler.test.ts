@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {withUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
@@ -71,7 +71,7 @@ describe('addWorkspace', () => {
       )
     );
 
-    const user = await withUserWorkspaces(
+    const user = await populateUserWorkspaces(
       context,
       await context.data.user.assertGetItem(
         EndpointReusableQueries.getById(userToken.userId)

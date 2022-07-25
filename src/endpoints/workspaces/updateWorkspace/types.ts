@@ -3,7 +3,9 @@ import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 import {INewWorkspaceInput} from '../addWorkspace/types';
 
-export type IUpdateWorkspaceInput = Partial<INewWorkspaceInput>;
+export type IUpdateWorkspaceInput = Partial<
+  Omit<INewWorkspaceInput, 'rootname'>
+>;
 
 export interface IUpdateWorkspaceEndpointParams {
   workspaceId?: string;

@@ -8,7 +8,7 @@ import {
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
@@ -83,7 +83,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     true
   );
 
-  folder = await withAssignedPermissionGroupsAndTags(
+  folder = await populateAssignedPermissionGroupsAndTags(
     context,
     folder.workspaceId,
     folder,

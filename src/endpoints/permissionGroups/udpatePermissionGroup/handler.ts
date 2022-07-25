@@ -4,7 +4,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {withAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import PermissionGroupQueries from '../queries';
 import {
@@ -57,7 +57,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (
     data.permissionGroup
   );
 
-  permissionGroup = await withAssignedPermissionGroupsAndTags(
+  permissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     permissionGroup.workspaceId,
     permissionGroup,
