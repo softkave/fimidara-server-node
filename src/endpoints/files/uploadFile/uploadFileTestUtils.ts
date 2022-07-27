@@ -10,7 +10,7 @@ import {IUserToken} from '../../../definitions/userToken';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utilities/fns';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
@@ -65,7 +65,7 @@ export const uploadFileBaseTest = async (
   });
 
   const savedBuffer =
-    persistedFile.body && (await getBodyFromStream(persistedFile.body));
+    persistedFile.body && (await getBufferFromStream(persistedFile.body));
 
   appAssert(savedBuffer);
   expect(buffer.equals(savedBuffer)).toBe(true);

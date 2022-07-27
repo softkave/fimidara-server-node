@@ -1,10 +1,10 @@
 import sharp from 'sharp';
+import stream from 'stream';
 import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {NotFoundError} from '../../errors';
 import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
 import {checkFileAuthorization03} from '../utils';
@@ -35,24 +35,32 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     key: file.resourceId,
   });
 
-  let buffer =
-    persistedFile.body && (await getBodyFromStream(persistedFile.body));
-
-  if (!buffer) {
+  if (!persistedFile.body) {
     throw new NotFoundError('File not found');
   }
 
   if (data.imageTranformation?.width || data.imageTranformation?.height) {
-    buffer = await sharp(buffer)
-      .resize(data.imageTranformation.width, data.imageTranformation.height)
-      .png()
-      .toBuffer();
-  }
+    const outputStream = new stream.PassThrough();
+    const transformer = sharp()
+      .resize({
+        width: data.imageTranformation.width,
+        height: data.imageTranformation.height,
+      })
+      .png();
 
-  return {
-    buffer,
-    mimetype: file.mimetype,
-  };
+    persistedFile.body.pipe(transformer).pipe(outputStream);
+    return {
+      stream: outputStream,
+      mimetype: 'image/png',
+      contentLength: persistedFile.contentLength,
+    };
+  } else {
+    return {
+      stream: persistedFile.body,
+      mimetype: file.mimetype || 'application/octet-stream',
+      contentLength: persistedFile.contentLength,
+    };
+  }
 };
 
 export default getFile;

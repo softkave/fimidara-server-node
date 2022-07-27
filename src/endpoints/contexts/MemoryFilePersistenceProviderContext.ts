@@ -6,6 +6,7 @@ import {
   IFilePersistenceGetFileParams,
   IFilePersistenceProviderContext,
   IFilePersistenceUploadFileParams,
+  IPersistedFile,
 } from './FilePersistenceProviderContext';
 
 export default class MemoryFilePersistenceProviderContext
@@ -20,14 +21,16 @@ export default class MemoryFilePersistenceProviderContext
   );
 
   public getFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceGetFileParams) => {
+    async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
       const file = this.files[params.bucket + '-' + params.key];
-
       if (file) {
         const readable = new Readable();
         readable.push(file.body);
         readable.push(null);
-        return {body: readable};
+        return {
+          body: readable,
+          contentLength: file.contentLength || file.body.byteLength,
+        };
       }
 
       return {body: undefined};
