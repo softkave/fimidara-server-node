@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
-import {getBodyFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
@@ -63,9 +63,11 @@ describe('getFile', () => {
     });
 
     const savedBuffer =
-      savedFile.body && (await getBodyFromStream(savedFile.body));
+      savedFile.body && (await getBufferFromStream(savedFile.body));
+    const resultBuffer = await getBufferFromStream(result.stream);
     assert(savedBuffer);
-    expect(result.buffer.equals(savedBuffer)).toBe(true);
+    assert(resultBuffer);
+    expect(resultBuffer.equals(savedBuffer)).toBe(true);
     await waitForRequestPendingJobs(reqData);
     await waitForRequestPendingJobs(instData);
   });
@@ -100,7 +102,9 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    const fileMetadata = await sharp(result.buffer).metadata();
+    const resultBuffer = await getBufferFromStream(result.stream);
+    assert(resultBuffer);
+    const fileMetadata = await sharp(resultBuffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
     expect(fileMetadata.height).toEqual(expectedHeight);
     await waitForRequestPendingJobs(reqData);
