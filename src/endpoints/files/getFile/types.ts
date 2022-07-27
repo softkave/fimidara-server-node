@@ -12,8 +12,9 @@ export interface IGetFileEndpointParams extends IFileMatcher {
 }
 
 export interface IGetFileEndpointResult {
-  buffer: Buffer;
+  stream: NodeJS.ReadableStream;
   mimetype?: string;
+  contentLength?: number;
 }
 
 export type GetFileEndpoint = Endpoint<

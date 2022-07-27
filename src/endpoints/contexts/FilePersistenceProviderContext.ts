@@ -32,6 +32,7 @@ export interface IFilePersistenceDeleteFilesParams {
 
 export interface IPersistedFile {
   body?: Readable;
+  contentLength?: number;
 }
 
 export interface IFilePersistenceProviderContext {
@@ -67,14 +68,17 @@ export class S3FilePersistenceProviderContext
   );
 
   public getFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceGetFileParams) => {
+    async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
       const command = new GetObjectCommand({
         Bucket: params.bucket,
         Key: params.key,
       });
 
       const response = await this.s3.send(command);
-      return {body: <Readable | undefined>response.Body};
+      return {
+        body: <Readable | undefined>response.Body,
+        contentLength: response.ContentLength,
+      };
     }
   );
 
@@ -105,7 +109,6 @@ export class S3FilePersistenceProviderContext
       const response = await this.s3.send(command);
       const exists = endpointConstants.httpStatusCode.ok;
       const notFound = endpointConstants.httpStatusCode.notFound;
-
       if (response.$metadata.httpStatusCode === exists) {
         return;
       } else if (response.$metadata.httpStatusCode === notFound) {
@@ -139,7 +142,9 @@ export async function ensureAppBucketsReady(
   ]);
 }
 
-export function getBodyFromStream(body: Readable): Promise<Buffer> {
+export function getBufferFromStream(
+  body: NodeJS.ReadableStream
+): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     body.once('error', err => reject(err));

@@ -84,7 +84,7 @@ async function createProgramAccessToken(
   return {token, tokenStr};
 }
 
-export async function setupSDKTestReq(isProcess = false) {
+export async function setupSDKTestReq() {
   const context = await setupContext();
   const {workspace, adminPermissionGroup} = await insertWorkspace(context);
   const {token, tokenStr} = await createProgramAccessToken(
