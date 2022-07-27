@@ -22,11 +22,11 @@ function handleGetFileResponse(
 ) {
   res
     .set({
-      'Content-Length': result.buffer.length,
+      'Content-Length': result.contentLength,
       'Content-Type': result.mimetype,
     })
-    .status(endpointConstants.httpStatusCode.ok)
-    .send(result.buffer);
+    .status(endpointConstants.httpStatusCode.ok);
+  result.stream.pipe(res);
 }
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
