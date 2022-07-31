@@ -6,7 +6,7 @@ import {
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
-  UsageRecordSummationType,
+  UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
@@ -71,10 +71,11 @@ export class UsageRecordLogicProvider {
       resourceId: input.resourceId || getNewId(),
       createdAt: getDate(),
       createdBy: agent,
-      summationType: UsageRecordSummationType.One,
+      summationType: UsageSummationType.One,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
       artifacts: defaultTo(input.artifacts, []),
     };
+
     return record;
   };
 
@@ -90,8 +91,9 @@ export class UsageRecordLogicProvider {
         reqData,
         record,
         UsageRecordDropReason.BillOverdue,
-        'total'
+        UsageRecordCategory.Total
       );
+
       return true;
     }
 
@@ -106,14 +108,18 @@ export class UsageRecordLogicProvider {
   ) => {
     if (workspace) {
       const usageLocks = workspace.usageThresholdLocks || {};
-      if (usageLocks['total'] && usageLocks['total'].locked) {
+      if (
+        usageLocks[UsageRecordCategory.Total] &&
+        usageLocks[UsageRecordCategory.Total]?.locked
+      ) {
         this.dropRecord(
           ctx,
           reqData,
           record,
           UsageRecordDropReason.UsageExceeded,
-          'total'
+          UsageRecordCategory.Total
         );
+
         return true;
       }
 
@@ -125,6 +131,7 @@ export class UsageRecordLogicProvider {
           UsageRecordDropReason.UsageExceeded,
           record.category
         );
+
         return true;
       }
     }
@@ -137,12 +144,10 @@ export class UsageRecordLogicProvider {
     reqData: RequestData,
     record: IUsageRecord,
     dropReason: UsageRecordDropReason,
-    dropLabel: IUsageRecord['dropCategory'],
     dropMessage?: string
   ) => {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
     record.dropReason = dropReason;
-    record.dropCategory = dropLabel;
     record.dropMessage = dropMessage;
     ctx.jobs.addJob(
       reqData,

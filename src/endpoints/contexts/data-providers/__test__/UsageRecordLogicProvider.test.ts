@@ -17,7 +17,7 @@ import cast from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
-import {generateWorkspace} from '../../../test-utils/generate-data/workspace';
+import {generateTestWorkspace} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
 import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
 import {getTestVars} from '../../../test-utils/vars';
@@ -77,7 +77,7 @@ async function getSumRecords(model: IUsageRecordModel, recordId: string) {
 describe('UsageRecordLogicProvider', () => {
   test('record is fulfilled', async () => {
     const {connection, context, provider} = assertDeps();
-    const workspace = generateWorkspace();
+    const workspace = generateTestWorkspace();
     await context.cacheProviders.workspace.insert(context, workspace);
     const recordId = getNewId();
     const reqData = new RequestData();
@@ -101,7 +101,7 @@ describe('UsageRecordLogicProvider', () => {
 
   test('record dropped cause bill is overdue', async () => {
     const {connection, context, provider} = assertDeps();
-    const workspace = generateWorkspace();
+    const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatus.BillOverdue;
     await context.cacheProviders.workspace.insert(context, workspace);
     const recordId = getNewId();

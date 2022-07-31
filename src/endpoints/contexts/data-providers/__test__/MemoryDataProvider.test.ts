@@ -1,21 +1,21 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
-import {IWorkspace} from '../../../../definitions/workspace';
 import {SessionAgentType} from '../../../../definitions/system';
+import {IWorkspace} from '../../../../definitions/workspace';
 import {getDateString} from '../../../../utilities/dateFns';
 import getNewId from '../../../../utilities/getNewId';
 import {NotFoundError} from '../../../errors';
-import WorkspaceQueries from '../../../workspaces/queries';
-import {throwWorkspaceNotFound} from '../../../workspaces/utils';
 import {
-  generateWorkspace,
+  generateTestWorkspace,
   generateWorkspaces,
 } from '../../../test-utils/generate-data/workspace';
+import WorkspaceQueries from '../../../workspaces/queries';
+import {throwWorkspaceNotFound} from '../../../workspaces/utils';
 import MemoryDataProvider from '../MemoryDataProvider';
 
 // Using workspace for the tests
 function insertWorkspaceMemory(data: IWorkspace[], workspace?: IWorkspace) {
-  workspace = workspace || generateWorkspace();
+  workspace = workspace || generateTestWorkspace();
   data.push(workspace);
   return workspace;
 }
@@ -273,7 +273,7 @@ describe('MemoryDataProvider', () => {
   test('saveItem', async () => {
     const data: IWorkspace[] = [];
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
-    const workspace = generateWorkspace();
+    const workspace = generateTestWorkspace();
     await provider.saveItem(workspace);
     expect(provider.items).toHaveLength(1);
   });
