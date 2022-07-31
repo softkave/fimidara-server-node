@@ -36,7 +36,7 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import cast from '../../utilities/fns';
-import {aggregateRecords} from './utils';
+import {aggregateRecords, getRecordingMonth, getRecordingYear} from './utils';
 
 let context: IBaseContext | null = null;
 let connection: Connection | null = null;
@@ -81,10 +81,11 @@ async function insertUsageRecordsForFiles(
 
   const files = generateTestFiles(workspace, 10);
   const promises = [];
+  let totalUsage = 0;
   for (
-    let i = random(1, limit - 1, true);
-    i < limit;
-    i = random(1, limit - 1, true)
+    let usage = random(1, limit - 1, true);
+    usage < limit;
+    usage = random(1, limit - 1, true)
   ) {
     const f = files[random(0, files.length - 1)];
     let p: Promise<void> | null = null;
@@ -97,9 +98,11 @@ async function insertUsageRecordsForFiles(
     }
 
     promises.push(p);
+    totalUsage += usage;
   }
 
   await Promise.all(promises);
+  return {totalUsage};
 }
 
 async function setupForFile(exceedLimit: boolean = false) {
@@ -114,14 +117,14 @@ async function setupForFile(exceedLimit: boolean = false) {
 
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
-  await insertUsageRecordsForFiles(
+  const {totalUsage} = await insertUsageRecordsForFiles(
     workspace,
     UsageRecordCategory.Storage,
     ut.usage,
     exceedLimit
   );
 
-  return {workspace, threshold: ut};
+  return {workspace, totalUsage, threshold: ut};
 }
 
 /**
@@ -184,57 +187,108 @@ async function checkFailedRecordExistsForFile(w1: IWorkspace, f1: IFile) {
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
+async function assertRecordInsertionFails(w1: IWorkspace) {
+  const f1 = generateTestFile(w1);
+  await expect(async () => {
+    assertContext(context);
+    await insertStorageUsageRecordInput(context, reqData, f1);
+  }).rejects.toThrow(UsageLimitExceededError);
+
+  await checkFailedRecordExistsForFile(w1, f1);
+  return {workspace: w1, file: f1};
+}
+
+async function assertRecordLevel2(w: IWorkspace, usage: number) {
+  assert(connection);
+  const model = getUsageRecordModel(connection);
+  const month = getRecordingMonth();
+  const year = getRecordingYear();
+  const records = await model
+    .find({
+      month,
+      year,
+      workspaceId: w.resourceId,
+      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationType.Two,
+    })
+    .lean()
+    .exec();
+
+  expect(records).toBeDefined();
+  expect(records.length).toBe(1);
+  const record = first(records);
+  expect(record).toBeDefined();
+  expect(record?.usage).toBe(usage);
+}
+
 describe('usage-records-pipeline', () => {
   test('does not exceed usage', async () => {
-    const {workspace: w1} = await setupForFile();
-    const {workspace: w2} = await setupForFile();
+    // Setup
+    const {workspace: w1, totalUsage: tu1} = await setupForFile();
+    const {workspace: w2, totalUsage: tu2} = await setupForFile();
+
+    // Run
     assert(connection);
     await aggregateRecords(connection);
+
+    // Assert
     await checkLocks(w1.resourceId, null, false);
     await checkLocks(w2.resourceId, null, false);
+    await assertRecordLevel2(w1, tu1);
+    await assertRecordLevel2(w2, tu2);
   });
 
   test('exceeds usage for category', async () => {
-    const {workspace: w1, threshold: ut1} = await setupForFile(
+    // Setup
+    const {workspace: w1, totalUsage: tu1} = await setupForFile(
       /** exceedLimit */ true
     );
-    const {workspace: w2} = await setupForFile();
+    const {workspace: w2, totalUsage: tu2} = await setupForFile();
+
+    // Run
     assert(connection);
     await aggregateRecords(connection);
+
+    // Assert
     await checkLocks(w2.resourceId, null, false);
     await checkLocks(w1.resourceId, {
       [UsageRecordCategory.Storage]: true,
     });
 
-    const f1 = generateTestFile(w1);
-    await expect(async () => {
-      assertContext(context);
-      await insertStorageUsageRecordInput(context, reqData, f1);
-    }).rejects.toThrow(UsageLimitExceededError);
-
-    await checkFailedRecordExistsForFile(w1, f1);
+    await assertRecordInsertionFails(w1);
+    await assertRecordLevel2(w1, tu1);
+    await assertRecordLevel2(w2, tu2);
   });
 
   test('exceeds total usage', async () => {
+    // Setup
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(
       publicAgent,
-      generateUsageThresholdInputMap02(/**  thresholds */ {})
+      generateUsageThresholdInputMap02({
+        [UsageRecordCategory.Total]: 1000,
+      })
     );
 
-    const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
+    const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
-    await insertUsageRecordsForFiles(
+    const {totalUsage} = await insertUsageRecordsForFiles(
       workspace,
       UsageRecordCategory.Storage,
       ut.usage,
-      exceedLimit
+      /** exceedLimit */ true
     );
 
+    // Run
     assert(connection);
     await aggregateRecords(connection);
-    await checkLocks(w1.resourceId, {
-      [UsageRecordCategory.Storage]: true,
+
+    // Assert
+    await checkLocks(workspace.resourceId, {
+      [UsageRecordCategory.Total]: true,
     });
+
+    await assertRecordInsertionFails(workspace);
+    await assertRecordLevel2(workspace, totalUsage);
   });
 });
