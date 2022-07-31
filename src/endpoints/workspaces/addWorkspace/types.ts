@@ -1,4 +1,4 @@
-import {UsageThresholdCategory} from '../../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {
   IPublicWorkspace,
   IUsageThreshold,
@@ -6,13 +6,13 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
+export type IUsageThresholdInput = Pick<IUsageThreshold, 'category' | 'price'>;
+
 export interface INewWorkspaceInput {
   name: string;
   rootname: string;
   description?: string;
-  usageThresholds?: Partial<
-    Record<UsageThresholdCategory, Pick<IUsageThreshold, 'category' | 'price'>>
-  >;
+  usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThresholdInput>>;
 }
 
 export type IAddWorkspaceParams = INewWorkspaceInput;

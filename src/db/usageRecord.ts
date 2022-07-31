@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {
   IUsageRecord,
   IUsageRecordArtifact,
@@ -26,15 +26,12 @@ const usageRecordSchema = ensureTypeFields<IUsageRecord>({
   artifacts: {type: [artifactSchema], default: []},
   summationType: {type: Number},
   fulfillmentStatus: {
-    type: Number,
+    type: String,
     default: UsageRecordFulfillmentStatus.Undecided,
   },
   dropMessage: {type: String},
   dropReason: {type: String},
-  dropCategory: {type: String},
 });
-
-export type IUsageRecordDocument = Document<IUsageRecord>;
 
 const schema = new Schema<IUsageRecord>(usageRecordSchema);
 const modelName = 'usage-record';
@@ -46,6 +43,7 @@ export function getUsageRecordModel(connection: Connection) {
     schema,
     collectionName
   );
+
   return model;
 }
 

@@ -8,7 +8,6 @@ import {
   IBandwidthUsageRecordArtifact,
   IDatabaseObjectUsageRecordArtifact,
   IFileUsageRecordArtifact,
-  IRequestUsageRecordArtifact,
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
@@ -24,12 +23,10 @@ async function insertRecord(
   reqData: RequestData,
   input: IUsageRecordInput
 ) {
-  // not yet ready
-  // return;
-
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
   );
+
   const allowed = await ctx.logicProviders.usageRecord.insert(
     ctx,
     reqData,
@@ -55,6 +52,7 @@ export async function insertStorageUsageRecordInput(
     requestId: reqData.requestId,
     ...artifactMetaInput,
   };
+
   const input: IUsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.Storage,
@@ -68,6 +66,7 @@ export async function insertStorageUsageRecordInput(
       },
     ],
   };
+
   await insertRecord(ctx, reqData, input);
 }
 
@@ -82,6 +81,7 @@ export async function insertBandwidthInUsageRecordInput(
     filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
+
   const input: IUsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.BandwidthIn,
@@ -95,6 +95,7 @@ export async function insertBandwidthInUsageRecordInput(
       },
     ],
   };
+
   await insertRecord(ctx, reqData, input);
 }
 
@@ -109,6 +110,7 @@ export async function insertBandwidthOutUsageRecordInput(
     filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
+
   const input: IUsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.BandwidthOut,
@@ -122,34 +124,7 @@ export async function insertBandwidthOutUsageRecordInput(
       },
     ],
   };
-  await insertRecord(ctx, reqData, input);
-}
 
-export async function insertRequestUsageRecordInput(
-  ctx: IBaseContext,
-  reqData: RequestData,
-  workspaceId: string,
-  url: string,
-  action: BasicCRUDActions,
-  resourceType: AppResourceType
-) {
-  const artifactMeta: IRequestUsageRecordArtifact = {
-    url,
-    requestId: reqData.requestId,
-  };
-  const input: IUsageRecordInput = {
-    workspaceId,
-    category: UsageRecordCategory.Request,
-    usage: 1,
-    artifacts: [
-      {
-        action,
-        resourceType,
-        artifact: artifactMeta,
-        type: UsageRecordArtifactType.RequestURL,
-      },
-    ],
-  };
   await insertRecord(ctx, reqData, input);
 }
 
@@ -165,6 +140,7 @@ export async function insertDbObjectUsageRecordInput(
     resourceId,
     requestId: reqData.requestId,
   };
+
   const input: IUsageRecordInput = {
     workspaceId,
     category: UsageRecordCategory.DatabaseObject,
@@ -178,5 +154,6 @@ export async function insertDbObjectUsageRecordInput(
       },
     ],
   };
+
   await insertRecord(ctx, reqData, input);
 }

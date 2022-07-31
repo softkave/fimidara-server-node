@@ -249,6 +249,7 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   console.log(
     `User ${user.email} is now an admin of workspace ${workspace.name}`
   );
+
   await context.dispose();
   return {user, workspace, adminPermissionGroup};
 }

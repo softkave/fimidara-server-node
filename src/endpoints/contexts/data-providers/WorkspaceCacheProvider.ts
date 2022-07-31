@@ -18,6 +18,10 @@ export interface IWorkspaceCacheProvider {
   ) => Promise<IWorkspace | null>;
   deleteById: (ctx: IBaseContext, id: string) => Promise<void>;
 
+  // refresh utils
+  setRefreshIntervalMs: (ctx: IBaseContext, ms: number) => Promise<void>;
+  getRefreshIntervalMs: () => number;
+
   // call and wait for the promise to resolve before using the provider
   init: (ctx: IBaseContext) => Promise<void>;
   dispose: () => Promise<void>;
@@ -32,13 +36,13 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     this.refreshIntervalMs = refreshIntervalMs;
   }
 
-  public insert = async (ctx: IBaseContext, workspace: IWorkspace) => {
+  insert = async (ctx: IBaseContext, workspace: IWorkspace) => {
     workspace = this.workspaces[workspace.resourceId] =
       await ctx.dataProviders.workspace.insert(workspace);
     return workspace;
   };
 
-  public getById = async (ctx: IBaseContext, id: string) => {
+  getById = async (ctx: IBaseContext, id: string) => {
     const w: IWorkspace | null =
       this.workspaces[id] || (await ctx.dataProviders.workspace.getById(id));
 
@@ -49,7 +53,7 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     return w;
   };
 
-  public getByIds = async (ctx: IBaseContext, ids: string[]) => {
+  getByIds = async (ctx: IBaseContext, ids: string[]) => {
     const ws = await ctx.dataProviders.workspace.getByIds(ids);
     for (const w of ws) {
       this.workspaces[w.resourceId] = w;
@@ -58,20 +62,20 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     return ws;
   };
 
-  public getByRootname = async (ctx: IBaseContext, rootname: string) => {
+  getByRootname = async (ctx: IBaseContext, rootname: string) => {
     // TODO: implement caching by rootname
     return await ctx.dataProviders.workspace.getByRootname(rootname);
   };
 
-  public existsByName = async (ctx: IBaseContext, name: string) => {
+  existsByName = async (ctx: IBaseContext, name: string) => {
     return await ctx.dataProviders.workspace.existsByName(name);
   };
 
-  public existsByRootname = async (ctx: IBaseContext, name: string) => {
+  existsByRootname = async (ctx: IBaseContext, name: string) => {
     return await ctx.dataProviders.workspace.existsByRootname(name);
   };
 
-  public updateById = async (
+  updateById = async (
     ctx: IBaseContext,
     id: string,
     update: Partial<IWorkspace>
@@ -84,28 +88,35 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     return w;
   };
 
-  public deleteById = async (ctx: IBaseContext, id: string) => {
+  deleteById = async (ctx: IBaseContext, id: string) => {
     await ctx.dataProviders.workspace.deleteById(id);
     delete this.workspaces[id];
   };
 
-  public init = async (ctx: IBaseContext) => {
-    this.dispose();
+  getRefreshIntervalMs = () => this.refreshIntervalMs;
+  setRefreshIntervalMs = async (ctx: IBaseContext, ms: number) => {
+    this.refreshIntervalMs = ms;
+    this.init(ctx);
+  };
+
+  init = async (ctx: IBaseContext) => {
+    await this.dispose();
+    this.refreshIntervalHandle = setInterval(
+      this.refreshCache.bind(this, ctx),
+      this.refreshIntervalMs
+    );
+  };
+
+  dispose = async () => {
+    if (this.refreshIntervalHandle) {
+      clearInterval(this.refreshIntervalHandle);
+    }
+  };
+
+  private refreshCache = async (ctx: IBaseContext) => {
     const workspaces = await ctx.dataProviders.workspace.getAll();
     workspaces.forEach(w => {
       this.workspaces[w.resourceId] = w;
     });
-
-    this.refreshIntervalHandle = setInterval(
-      this.init,
-      this.refreshIntervalMs,
-      ctx
-    );
-  };
-
-  public dispose = async () => {
-    if (this.refreshIntervalHandle) {
-      clearInterval(this.refreshIntervalHandle);
-    }
   };
 }

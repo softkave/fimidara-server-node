@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {IAgent} from '../../../definitions/system';
-import {UsageThresholdCategory} from '../../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
@@ -23,7 +23,7 @@ export function transformUsageThresholInput(
   input: Required<INewWorkspaceInput>['usageThresholds']
 ) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
-  cast<UsageThresholdCategory[]>(Object.keys(input)).forEach(category => {
+  cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
     assert(usageThreshold);
     usageThresholds[category] = {

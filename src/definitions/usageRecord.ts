@@ -6,12 +6,11 @@ export enum UsageRecordCategory {
   BandwidthOut = 'bandwidth-out',
   Request = 'request',
   DatabaseObject = 'db-object',
+  Total = 'total',
 }
 
-export type UsageThresholdCategory = UsageRecordCategory | 'total';
 export enum UsageRecordArtifactType {
   File = 'file',
-  RequestURL = 'request-url',
   DatabaseObject = 'db-object',
 }
 
@@ -22,56 +21,55 @@ export interface IUsageRecordArtifact {
 
   /**
    * File ID when type is File
-   * Request URL when type is RequestURL
    * Database object resource ID when type is DatabaseObject
    */
   artifact: any;
 }
 
-export enum UsageRecordSummationType {
-  // individual usage records
-  One = 1,
-  // usage records grouped by billing period
-  Two = 2,
-  // total usage record for a workspace for a billing period
-  Three = 3,
-}
-
 export enum UsageRecordFulfillmentStatus {
   // Default status
-  Undecided = 0,
+  Undecided = 'undecided',
   // usage record has been fulfilled
-  Fulfilled = 1,
+  Fulfilled = 'fulfilled',
   // usage record has not been fulfilled
-  Dropped = 2,
+  Dropped = 'dropped',
 }
 
 export enum UsageRecordDropReason {
   UsageExceeded = 'usage-exceeded',
-  ExceedsRemaining = 'exceeds-remaining',
+  ExceedsRemainingUsage = 'exceeds-remaining-usage',
   BillOverdue = 'bill-overdue',
-  Other = 'other',
+}
+
+export enum UsageSummationType {
+  One,
+  Two,
 }
 
 export interface IUsageRecord {
   resourceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
   workspaceId: string;
   category: UsageRecordCategory;
+  createdBy: IAgent;
+  createdAt: Date | string;
+  lastUpdatedBy?: IAgent;
+  lastUpdatedAt?: Date | string;
 
-  // usage is price in USD for sum level 3
   // usage is count for requests and db objects
   // usage is bytes for storage, bandwidth in, and bandwidth out
   usage: number;
-  artifacts: IUsageRecordArtifact[];
-  summationType: UsageRecordSummationType;
+  cost: number;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
+  summationType: UsageSummationType;
+
+  // summation level 1
+  artifacts: IUsageRecordArtifact[];
   dropReason?: UsageRecordDropReason;
   dropMessage?: string;
-  dropCategory?: UsageThresholdCategory;
+
+  // summation level 2
+  month: number;
+  year: number;
 }
 
 export type IPublicUsageRecord = IUsageRecord;
@@ -89,12 +87,26 @@ export interface IBandwidthUsageRecordArtifact {
   requestId: string;
 }
 
-export interface IRequestUsageRecordArtifact {
-  requestId: string;
-  url: string;
-}
-
 export interface IDatabaseObjectUsageRecordArtifact {
   resourceId: string;
   requestId: string;
 }
+
+// export interface IUsageRecordReportingPeriod {
+//   resourceId: string;
+//   startDate: Date | string;
+//   endDate: Date | string;
+//   month: number;
+//   year: number;
+//   createdAt: Date | string;
+//   createdBy: IAgent;
+// }
+
+// export interface IUsageRecordCost {
+//   resourceId: string;
+//   costPerUnit: number;
+//   createdAt: Date | string;
+//   createdBy: IAgent;
+//   category: UsageRecordCategory;
+//   effectiveDate: Date | string;
+// }

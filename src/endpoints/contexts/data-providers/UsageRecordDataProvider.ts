@@ -8,7 +8,6 @@ export interface IUsageRecordDataProvider {
    */
   insert(usageRecord: IUsageRecord): Promise<IUsageRecord>;
   updateById(id: string, update: Partial<IUsageRecord>): Promise<void>;
-  getAll(): Promise<IUsageRecord[]>;
 }
 
 export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
@@ -25,10 +24,6 @@ export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
     const doc = new this.model(usagerecord);
     const saved = await doc.save();
     return saved;
-  };
-
-  public getAll = async () => {
-    return await this.model.find().lean().exec();
   };
 
   public updateById = async (id: string, update: Partial<IUsageRecord>) => {

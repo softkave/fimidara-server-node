@@ -1,17 +1,18 @@
 import {IAgent} from './system';
-import {UsageThresholdCategory} from './usageRecord';
+import {UsageRecordCategory} from './usageRecord';
 
 export interface IUsageThreshold {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
-  category: UsageThresholdCategory;
+  category: UsageRecordCategory;
   price: number; // price in USD
+  usage: number; // how much usage the price affords
 }
 
 export interface IUsageThresholdLock {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
-  category: UsageThresholdCategory;
+  category: UsageRecordCategory;
   locked: boolean;
 }
 
@@ -37,9 +38,9 @@ export interface IWorkspace {
   publicPermissionGroupId?: string;
   billStatusAssignedAt?: Date | string;
   billStatus?: WorkspaceBillStatus;
-  usageThresholds?: Partial<Record<UsageThresholdCategory, IUsageThreshold>>;
+  usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThreshold>>;
   usageThresholdLocks?: Partial<
-    Record<UsageThresholdCategory, IUsageThresholdLock>
+    Record<UsageRecordCategory, IUsageThresholdLock>
   >;
 }
 
