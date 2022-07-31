@@ -48,13 +48,13 @@ async function getWorkspaces(connection: Connection) {
   return workspaces;
 }
 
-function getMonth() {
+export function getRecordingMonth() {
   const d = new Date();
   const m = d.getMonth();
   return m;
 }
 
-function getYear() {
+export function getRecordingYear() {
   const d = new Date();
   const y = d.getFullYear();
   return y;
@@ -62,7 +62,7 @@ function getYear() {
 
 function getStartOfMonth() {
   const d = new Date();
-  const m = getMonth();
+  const m = getRecordingMonth();
 
   // set to the previous month
   // will set to dec if it is january
@@ -76,7 +76,7 @@ function getStartOfMonth() {
 
 function getEndOfMonth() {
   const d = new Date();
-  const m = getMonth();
+  const m = getRecordingMonth();
   d.setMonth(m);
   d.setDate(usageRecordConstants.recordingMonthEndDate);
   d.setHours(23, 59, 59, 999); // set to end of day
@@ -119,8 +119,8 @@ async function getUsageRecordsLevel2(
   workspaceId: string
 ) {
   const model = makeUsageRecordModel(connection);
-  const month = getMonth();
-  const year = getYear();
+  const month = getRecordingMonth();
+  const year = getRecordingYear();
   const records: IUsageRecord[] = await model
     .find({
       workspaceId,

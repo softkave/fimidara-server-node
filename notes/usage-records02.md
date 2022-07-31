@@ -9,3 +9,5 @@
 - Unlock workspaces when bill is paid or when it's new reporting period and the workspace doesn't have unpaid bills
 - Aggregate monthly dropped usage records
 - Spread out the record names in usage thresholds and locks
+- Confirm that usage is checked against usage and price/cost against price/cost
+- Surface total dropped records
