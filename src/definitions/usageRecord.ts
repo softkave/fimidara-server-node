@@ -42,8 +42,8 @@ export enum UsageRecordDropReason {
 }
 
 export enum UsageSummationType {
-  One,
-  Two,
+  One = 1,
+  Two = 2,
 }
 
 export interface IUsageRecord {

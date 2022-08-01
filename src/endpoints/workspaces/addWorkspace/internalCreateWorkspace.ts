@@ -7,6 +7,7 @@ import {getDate, getDateString} from '../../../utilities/dateFns';
 import cast from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
   checkWorkspaceNameExists,
   checkWorkspaceRootnameExists,
@@ -47,11 +48,13 @@ const internalCreateWorkspace = async (
   ]);
 
   const createdAt = getDateString();
-  const usageThresholds = transformUsageThresholInput(
-    agent,
-    data.usageThresholds || {}
-  );
+  // const usageThresholds = transformUsageThresholInput(
+  //   agent,
+  //   data.usageThresholds || {}
+  // );
 
+  // TODO: replace with user defined usage thresholds when we implement billing
+  const usageThresholds = getDefaultThresholds();
   let workspace: IWorkspace | null =
     await context.cacheProviders.workspace.insert(context, {
       createdAt,

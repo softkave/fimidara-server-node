@@ -4,7 +4,6 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import {validate} from '../../../utilities/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {transformUsageThresholInput} from '../addWorkspace/internalCreateWorkspace';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {
   assertWorkspace,
@@ -45,12 +44,13 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     },
   };
 
-  if (data.workspace.usageThresholds) {
-    update.usageThresholds = transformUsageThresholInput(
-      agent,
-      data.workspace.usageThresholds
-    );
-  }
+  // TODO: replace with user defined usage thresholds when we implement billing
+  // if (data.workspace.usageThresholds) {
+  //   update.usageThresholds = transformUsageThresholInput(
+  //     agent,
+  //     data.workspace.usageThresholds
+  //   );
+  // }
 
   const updatedWorkspace = await context.cacheProviders.workspace.updateById(
     context,
