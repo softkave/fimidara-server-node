@@ -6,7 +6,7 @@ import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import {getDate} from '../../../../utilities/dateFns';
 import cast, {waitTimeout} from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
-import {generateWorkspaces} from '../../../test-utils/generate-data/workspace';
+import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
 import {getTestVars} from '../../../test-utils/vars';
 import BaseContext, {getDataProviders} from '../../BaseContext';
@@ -30,7 +30,7 @@ afterAll(async () => {
 
 async function setupContextAndWorkspaces() {
   assert(connection);
-  const workspaces = generateWorkspaces();
+  const workspaces = generateTestWorkspaces();
   const model = getWorkspaceModel(connection);
   await model.insertMany(workspaces);
   const emptyObject = cast<any>({});

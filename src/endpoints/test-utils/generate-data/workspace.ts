@@ -15,27 +15,27 @@ export function generateTestUsageThresholdInputMap(
   return {
     [UsageRecordCategory.Storage]: {
       category: UsageRecordCategory.Storage,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.Request]: {
       category: UsageRecordCategory.Request,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.BandwidthIn]: {
       category: UsageRecordCategory.BandwidthIn,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.BandwidthOut]: {
       category: UsageRecordCategory.BandwidthOut,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.DatabaseObject]: {
       category: UsageRecordCategory.DatabaseObject,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.Total]: {
       category: UsageRecordCategory.Total,
-      price: threshold * Object.keys(UsageRecordCategory).length,
+      budget: threshold * Object.keys(UsageRecordCategory).length,
     },
   };
 }
@@ -49,12 +49,12 @@ export function generateUsageThresholdInputMap02(
     if (thresholds[key as UsageRecordCategory]) {
       urs[key as UsageRecordCategory] = {
         category: key as UsageRecordCategory,
-        price: thresholds[key as UsageRecordCategory] as number,
+        budget: thresholds[key as UsageRecordCategory] as number,
       };
     } else if (fillRemaining) {
       urs[key as UsageRecordCategory] = {
         category: key as UsageRecordCategory,
-        price: usageRecordConstants.defaultTotalThresholdInUSD,
+        budget: usageRecordConstants.defaultTotalThresholdInUSD,
       };
     }
   });
@@ -91,7 +91,7 @@ export function generateTestWorkspace() {
   return workspace;
 }
 
-export function generateWorkspaces(count = 20) {
+export function generateTestWorkspaces(count = 20) {
   const workspaces: IWorkspace[] = [];
   for (let i = 0; i < count; i++) {
     workspaces.push(generateTestWorkspace());

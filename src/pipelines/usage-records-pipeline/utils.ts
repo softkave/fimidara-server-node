@@ -3,8 +3,8 @@
  *
  * - get workspaces
  * - for each workspace, get usage records level 2
- * - for each usage record level 2, get usage records level 1 after in reporting
- *   month
+ * - for each usage record level 2, get usage records level 1 not yet summed in
+ *   reporting month
  * - sum usage records level 1 and add to usage records level 2
  * - sum total usage record level 2
  * - lock usage or workspace if usage exceeds limit
@@ -91,6 +91,7 @@ async function sumUsageRecordsLevel1(
   const endDate = getEndOfMonth();
   let lastCount = 0;
   let sumUsage = 0;
+  let sumCost = 0;
   const model = makeUsageRecordModel(connection);
   do {
     const records = await model
@@ -107,11 +108,15 @@ async function sumUsageRecordsLevel1(
       .exec();
 
     lastCount = records.length;
-    sumUsage = records.reduce((acc, cur) => acc + cur.usage, sumUsage);
+    records.forEach(cur => {
+      sumUsage += cur.usage;
+      sumCost += cur.usageCost;
+    });
+
     fromDate = records[records.length - 1].createdAt;
   } while (lastCount > 0);
 
-  return sumUsage;
+  return {sumUsage, sumCost};
 }
 
 async function getUsageRecordsLevel2(
@@ -148,7 +153,7 @@ async function getUsageRecordsLevel2(
         summationType: UsageSummationType.Two,
         fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
         usage: 0,
-        cost: 0,
+        usageCost: 0,
         artifacts: [],
       });
     }
@@ -161,8 +166,13 @@ async function incrementRecordLevel2(
   connection: Connection,
   recordLevel2: IUsageRecord
 ) {
-  const sumUsage = await sumUsageRecordsLevel1(connection, recordLevel2);
-  recordLevel2.usage = sumUsage;
+  const {sumUsage, sumCost} = await sumUsageRecordsLevel1(
+    connection,
+    recordLevel2
+  );
+
+  recordLevel2.usage += sumUsage;
+  recordLevel2.usageCost += sumCost;
   recordLevel2.lastUpdatedAt = new Date();
   recordLevel2.lastUpdatedBy = systemAgent;
   return recordLevel2;
@@ -192,10 +202,10 @@ async function aggregateRecordsLevel2(
   );
 
   assert(totalRecord, 'total record not found');
-  totalRecord.usage = records.reduce(
-    (acc, cur) => acc + cur.usage,
-    totalRecord.usage
-  );
+  records.forEach(cur => {
+    totalRecord.usage += cur.usage;
+    totalRecord.usageCost += cur.usageCost;
+  });
 
   totalRecord.lastUpdatedAt = new Date();
   totalRecord.lastUpdatedBy = systemAgent;
@@ -221,11 +231,12 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
     connection,
     workspace.resourceId
   );
+
   const thresholds = workspace.usageThresholds || {};
   const locks = workspace.usageThresholdLocks || {};
   records.forEach(r => {
     const threshold = thresholds[r.category];
-    if (threshold && r.cost >= threshold.price) {
+    if (threshold && r.usageCost >= threshold.budget) {
       const usageLock: IUsageThresholdLock = {
         ...defaultTo(locks[r.category], {}),
         category: r.category,

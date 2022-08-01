@@ -6,7 +6,7 @@ import {
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
-export type IUsageThresholdInput = Pick<IUsageThreshold, 'category' | 'price'>;
+export type IUsageThresholdInput = Pick<IUsageThreshold, 'category' | 'budget'>;
 
 export interface INewWorkspaceInput {
   name: string;

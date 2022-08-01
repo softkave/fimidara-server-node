@@ -13,6 +13,8 @@ import {getDate} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import RequestData from '../../RequestData';
+import {getCostForUsage} from '../../usageRecords/constants';
+import {getRecordingPeriod} from '../../usageRecords/utils';
 import {IBaseContext} from '../BaseContext';
 
 export interface IUsageRecordInput {
@@ -67,6 +69,7 @@ export class UsageRecordLogicProvider {
     input: IUsageRecordInput
   ) => {
     const record: IUsageRecord = {
+      ...getRecordingPeriod(),
       ...input,
       resourceId: input.resourceId || getNewId(),
       createdAt: getDate(),
@@ -74,6 +77,7 @@ export class UsageRecordLogicProvider {
       summationType: UsageSummationType.One,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
       artifacts: defaultTo(input.artifacts, []),
+      usageCost: getCostForUsage(input.category, input.usage),
     };
 
     return record;

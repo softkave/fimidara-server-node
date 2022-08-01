@@ -28,6 +28,7 @@ import {
   initTestBaseContext,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/test-utils/test-utils';
+import {getUsageForCost} from '../../endpoints/usageRecords/constants';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors';
 import {
   insertBandwidthInUsageRecordInput,
@@ -120,7 +121,7 @@ async function setupForFile(exceedLimit: boolean = false) {
   const {totalUsage} = await insertUsageRecordsForFiles(
     workspace,
     UsageRecordCategory.Storage,
-    ut.usage,
+    getUsageForCost(ut.category, ut.budget),
     exceedLimit
   );
 
@@ -275,7 +276,7 @@ describe('usage-records-pipeline', () => {
     const {totalUsage} = await insertUsageRecordsForFiles(
       workspace,
       UsageRecordCategory.Storage,
-      ut.usage,
+      getUsageForCost(ut.category, ut.budget),
       /** exceedLimit */ true
     );
 

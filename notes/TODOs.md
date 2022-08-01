@@ -83,3 +83,4 @@
 - [ ] rich filter system
 - [ ] don't send email to unverified email addresses, except for the email verification email, and that you should send with a limit
 - [ ] fimidara should sit on top of client's data providers
+- [ ] Delete unused client tokens after a while

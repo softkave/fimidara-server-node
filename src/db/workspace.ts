@@ -12,7 +12,7 @@ const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date, default: getDate},
   category: {type: String},
-  price: {type: Number},
+  budget: {type: Number},
 });
 
 const usageThresholdMapSchema = ensureTypeFields<
