@@ -1,4 +1,6 @@
+import {IAgent, systemAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
+import {IWorkspace} from '../../definitions/workspace';
 
 export const usageRecordConstants = {
   defaultTotalThresholdInUSD: 1000,
@@ -22,12 +24,29 @@ export const usageCosts: Record<UsageRecordCategory, number> = {
   [UsageRecordCategory.Total]: 0,
 };
 
-export const getCost = (label: UsageRecordCategory, usage: number) => {
-  const costPerUnit = usageCosts[label];
+export const getCostForUsage = (
+  catgory: UsageRecordCategory,
+  usage: number
+) => {
+  const costPerUnit = usageCosts[catgory];
   return costPerUnit ? costPerUnit * usage : 0;
 };
 
-export function getUsageForCost(label: UsageRecordCategory, cost: number) {
-  const costPerUnit = usageCosts[label];
+export function getUsageForCost(category: UsageRecordCategory, cost: number) {
+  const costPerUnit = usageCosts[category];
   return costPerUnit ? cost / costPerUnit : 0;
+}
+
+export function getDefaultThresholds(agent: IAgent = systemAgent) {
+  const date = new Date();
+  const defaultUsageThresholds: IWorkspace['usageThresholds'] = {
+    [UsageRecordCategory.Total]: {
+      category: UsageRecordCategory.Storage,
+      budget: usageRecordConstants.defaultTotalThresholdInUSD,
+      lastUpdatedBy: agent,
+      lastUpdatedAt: date,
+    },
+  };
+
+  return defaultUsageThresholds;
 }

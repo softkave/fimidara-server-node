@@ -11,6 +11,7 @@ import {
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
+import {IWorkspace} from '../../definitions/workspace';
 import {IBaseContext} from '../contexts/BaseContext';
 import {IUsageRecordInput} from '../contexts/data-providers/UsageRecordLogicProvider';
 import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
@@ -156,4 +157,42 @@ export async function insertDbObjectUsageRecordInput(
   };
 
   await insertRecord(ctx, reqData, input);
+}
+
+export function getRecordingPeriod() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  return {month: m, year: y};
+}
+
+export function getUsageThreshold(
+  w: IWorkspace,
+  category: UsageRecordCategory
+) {
+  const thresholds = w.usageThresholds || {};
+  return thresholds[category];
+}
+
+export function workspaceHasUsageThresholds(w: IWorkspace) {
+  const thresholds = w.usageThresholds || {};
+  return Object.values(UsageRecordCategory).some(k => {
+    const usage = thresholds[k];
+    return usage && usage.budget > 0;
+  });
+}
+
+export function sumWorkspaceThresholds(
+  w: IWorkspace,
+  exclude?: UsageRecordCategory[]
+) {
+  const threshold = w.usageThresholds || {};
+  return Object.values(UsageRecordCategory).reduce((acc, k) => {
+    if (exclude && exclude.includes(k)) {
+      return acc;
+    }
+
+    const usage = threshold[k];
+    return usage ? acc + usage.budget : acc;
+  }, 0);
 }

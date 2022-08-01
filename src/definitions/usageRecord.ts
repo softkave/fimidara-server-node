@@ -58,7 +58,7 @@ export interface IUsageRecord {
   // usage is count for requests and db objects
   // usage is bytes for storage, bandwidth in, and bandwidth out
   usage: number;
-  cost: number;
+  usageCost: number;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
   summationType: UsageSummationType;
 

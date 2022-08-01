@@ -30,7 +30,7 @@ const usageThresholdSchema = getFields<IUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: getDateString,
   category: true,
-  price: true,
+  budget: true,
 });
 
 const usageThresholdIfExistExtractor =

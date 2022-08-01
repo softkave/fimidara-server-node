@@ -7,7 +7,7 @@ import getNewId from '../../../../utilities/getNewId';
 import {NotFoundError} from '../../../errors';
 import {
   generateTestWorkspace,
-  generateWorkspaces,
+  generateTestWorkspaces,
 } from '../../../test-utils/generate-data/workspace';
 import WorkspaceQueries from '../../../workspaces/queries';
 import {throwWorkspaceNotFound} from '../../../workspaces/utils';
@@ -281,7 +281,7 @@ describe('MemoryDataProvider', () => {
   test('bulkSaveItems', async () => {
     const data: IWorkspace[] = [];
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
-    const workspaces = generateWorkspaces(10);
+    const workspaces = generateTestWorkspaces(10);
     await provider.bulkSaveItems(workspaces);
     expect(provider.items).toHaveLength(10);
   });

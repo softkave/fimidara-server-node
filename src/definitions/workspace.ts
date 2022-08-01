@@ -5,8 +5,7 @@ export interface IUsageThreshold {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
   category: UsageRecordCategory;
-  price: number; // price in USD
-  usage: number; // how much usage the price affords
+  budget: number; // price in USD
 }
 
 export interface IUsageThresholdLock {

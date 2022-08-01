@@ -17,20 +17,24 @@ const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
 const usageRecordSchema = ensureTypeFields<IUsageRecord>({
   resourceId: {type: String, unique: true, index: true},
   createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate},
+  createdAt: {type: Date, default: getDate, index: true},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   workspaceId: {type: String, index: true},
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},
-  summationType: {type: Number},
+  summationType: {type: Number, index: true},
   fulfillmentStatus: {
     type: String,
     default: UsageRecordFulfillmentStatus.Undecided,
+    index: true,
   },
   dropMessage: {type: String},
   dropReason: {type: String},
+  usageCost: {type: Number},
+  month: {type: Number, index: true},
+  year: {type: Number, index: true},
 });
 
 const schema = new Schema<IUsageRecord>(usageRecordSchema);
