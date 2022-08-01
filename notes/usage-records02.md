@@ -6,10 +6,10 @@
 - Surface usage records on the client side
 - Surface usage records on js sdk
 - Restrict updating usage threshold from the client side and js sdk
-- Unlock workspaces when bill is paid or when it's new reporting period and the workspace doesn't have unpaid bills
-- Aggregate monthly dropped usage records
+- [x] Unlock workspaces when bill is paid or when it's new reporting period and the workspace doesn't have unpaid bills
+- [x] Aggregate monthly dropped usage records
 - Spread out the record names in usage thresholds and locks
-- Confirm that usage is checked against usage and price/cost against price/cost
+- [x] Confirm that usage is checked against usage and price/cost against price/cost
 - Surface total dropped records
 - Setup a cron job to run every day to aggregate monthly dropped records and add to procfile
 - What happens if a workspace changes it's threshold during the reporting period?
@@ -19,3 +19,4 @@
 - Setup products and prices in Stripe.
 - Setup the subscription model in Stripe.
 - Add the workspace Stripe accounts to the subscription model.
+- Move background jobs to the background jobs service.
