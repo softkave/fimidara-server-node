@@ -22,7 +22,8 @@ import {UsageLimitExceededError} from './errors';
 async function insertRecord(
   ctx: IBaseContext,
   reqData: RequestData,
-  input: IUsageRecordInput
+  input: IUsageRecordInput,
+  nothrow: boolean = false
 ) {
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
@@ -35,9 +36,11 @@ async function insertRecord(
     input
   );
 
-  if (!allowed) {
+  if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
   }
+
+  return allowed;
 }
 
 export async function insertStorageUsageRecordInput(
@@ -45,7 +48,8 @@ export async function insertStorageUsageRecordInput(
   reqData: RequestData,
   file: IFile,
   action: BasicCRUDActions = BasicCRUDActions.Create,
-  artifactMetaInput: Partial<IFileUsageRecordArtifact> = {}
+  artifactMetaInput: Partial<IFileUsageRecordArtifact> = {},
+  nothrow: boolean = false
 ) {
   const artifactMeta: IFileUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -68,14 +72,15 @@ export async function insertStorageUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input);
+  await insertRecord(ctx, reqData, input, nothrow);
 }
 
 export async function insertBandwidthInUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Create
+  action: BasicCRUDActions = BasicCRUDActions.Create,
+  nothrow: boolean = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -97,14 +102,15 @@ export async function insertBandwidthInUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input);
+  await insertRecord(ctx, reqData, input, nothrow);
 }
 
 export async function insertBandwidthOutUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Read
+  action: BasicCRUDActions = BasicCRUDActions.Read,
+  nothrow: boolean = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -126,7 +132,7 @@ export async function insertBandwidthOutUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input);
+  await insertRecord(ctx, reqData, input, nothrow);
 }
 
 export async function insertDbObjectUsageRecordInput(
@@ -135,7 +141,8 @@ export async function insertDbObjectUsageRecordInput(
   workspaceId: string,
   resourceId: string,
   action: BasicCRUDActions,
-  resourceType: AppResourceType
+  resourceType: AppResourceType,
+  nothrow: boolean = false
 ) {
   const artifactMeta: IDatabaseObjectUsageRecordArtifact = {
     resourceId,
@@ -156,7 +163,7 @@ export async function insertDbObjectUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input);
+  await insertRecord(ctx, reqData, input, nothrow);
 }
 
 export function getRecordingPeriod() {

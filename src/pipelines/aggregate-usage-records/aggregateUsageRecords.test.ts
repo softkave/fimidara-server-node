@@ -4,7 +4,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {IFile} from '../../definitions/file';
-import {publicAgent} from '../../definitions/system';
+import {BasicCRUDActions, publicAgent} from '../../definitions/system';
 import {
   IFileUsageRecordArtifact,
   UsageRecordCategory,
@@ -37,7 +37,11 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import cast from '../../utilities/fns';
-import {aggregateRecords, getRecordingMonth, getRecordingYear} from './utils';
+import {
+  aggregateRecords,
+  getRecordingMonth,
+  getRecordingYear,
+} from './aggregateUsageRecords';
 
 let context: IBaseContext | null = null;
 let connection: Connection | null = null;
@@ -73,40 +77,70 @@ async function insertUsageRecordsForFiles(
     | UsageRecordCategory.BandwidthOut
   >,
   limit: number,
-  exceedLimit: boolean = false
+  exceedLimit: boolean = false,
+  nothrow: boolean = true,
+  exceedBy: number = 0
 ) {
   assertContext(context);
   if (exceedLimit) {
-    limit += random(limit);
+    limit += exceedBy || random(limit);
   }
 
   const files = generateTestFiles(workspace, 10);
   const promises = [];
   let totalUsage = 0;
-  for (
-    let usage = random(1, limit - 1, true);
-    usage < limit;
-    usage = random(1, limit - 1, true)
-  ) {
+  for (let usage = random(1, limit - 1, true); usage < limit; ) {
     const f = files[random(0, files.length - 1)];
     let p: Promise<void> | null = null;
     if (category === UsageRecordCategory.Storage) {
-      p = insertStorageUsageRecordInput(context, reqData, f);
+      p = insertStorageUsageRecordInput(
+        context,
+        reqData,
+        f,
+        BasicCRUDActions.Create,
+        /** artifactMetaInput */ {},
+        nothrow
+      );
     } else if (category === UsageRecordCategory.BandwidthIn) {
-      p = insertBandwidthInUsageRecordInput(context, reqData, f);
+      p = insertBandwidthInUsageRecordInput(
+        context,
+        reqData,
+        f,
+        BasicCRUDActions.Create,
+        nothrow
+      );
     } else if (category === UsageRecordCategory.BandwidthOut) {
-      p = insertBandwidthOutUsageRecordInput(context, reqData, f);
+      p = insertBandwidthOutUsageRecordInput(
+        context,
+        reqData,
+        f,
+        BasicCRUDActions.Create,
+        nothrow
+      );
     }
 
     promises.push(p);
     totalUsage += usage;
+
+    // seed next usage
+    let nextUsage = random(1, limit - 1, true);
+    if (nextUsage + usage > limit) {
+      // round off to limit
+      nextUsage = limit - usage;
+    }
+
+    usage = nextUsage;
   }
 
   await Promise.all(promises);
   return {totalUsage};
 }
 
-async function setupForFile(exceedLimit: boolean = false) {
+async function setupForFile(
+  exceedLimit: boolean = false,
+  nothrow: boolean = true,
+  exceedBy: number = 0
+) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
     publicAgent,
@@ -122,7 +156,9 @@ async function setupForFile(exceedLimit: boolean = false) {
     workspace,
     UsageRecordCategory.Storage,
     getUsageForCost(ut.category, ut.budget),
-    exceedLimit
+    exceedLimit,
+    nothrow,
+    exceedBy
   );
 
   return {workspace, totalUsage, threshold: ut};
@@ -199,7 +235,11 @@ async function assertRecordInsertionFails(w1: IWorkspace) {
   return {workspace: w1, file: f1};
 }
 
-async function assertRecordLevel2(w: IWorkspace, usage: number) {
+async function assertRecordLevel2Exists(
+  w: IWorkspace,
+  usage: number,
+  fulfillmentStatus: UsageRecordFulfillmentStatus
+) {
   assert(connection);
   const model = getUsageRecordModel(connection);
   const month = getRecordingMonth();
@@ -208,8 +248,8 @@ async function assertRecordLevel2(w: IWorkspace, usage: number) {
     .find({
       month,
       year,
+      fulfillmentStatus,
       workspaceId: w.resourceId,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
       summationType: UsageSummationType.Two,
     })
     .lean()
@@ -223,7 +263,7 @@ async function assertRecordLevel2(w: IWorkspace, usage: number) {
 }
 
 describe('usage-records-pipeline', () => {
-  test('does not exceed usage', async () => {
+  test('workspace not locked if below threshold', async () => {
     // Setup
     const {workspace: w1, totalUsage: tu1} = await setupForFile();
     const {workspace: w2, totalUsage: tu2} = await setupForFile();
@@ -235,15 +275,25 @@ describe('usage-records-pipeline', () => {
     // Assert
     await checkLocks(w1.resourceId, null, false);
     await checkLocks(w2.resourceId, null, false);
-    await assertRecordLevel2(w1, tu1);
-    await assertRecordLevel2(w2, tu2);
+    await assertRecordLevel2Exists(
+      w1,
+      tu1,
+      UsageRecordFulfillmentStatus.Fulfilled
+    );
+
+    await assertRecordLevel2Exists(
+      w2,
+      tu2,
+      UsageRecordFulfillmentStatus.Fulfilled
+    );
   });
 
-  test('exceeds usage for category', async () => {
+  test('category locked if threshold reached', async () => {
     // Setup
     const {workspace: w1, totalUsage: tu1} = await setupForFile(
       /** exceedLimit */ true
     );
+
     const {workspace: w2, totalUsage: tu2} = await setupForFile();
 
     // Run
@@ -257,11 +307,20 @@ describe('usage-records-pipeline', () => {
     });
 
     await assertRecordInsertionFails(w1);
-    await assertRecordLevel2(w1, tu1);
-    await assertRecordLevel2(w2, tu2);
+    await assertRecordLevel2Exists(
+      w1,
+      tu1,
+      UsageRecordFulfillmentStatus.Fulfilled
+    );
+
+    await assertRecordLevel2Exists(
+      w2,
+      tu2,
+      UsageRecordFulfillmentStatus.Fulfilled
+    );
   });
 
-  test('exceeds total usage', async () => {
+  test('usage category total locked if usage exceeds total threshold', async () => {
     // Setup
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(
@@ -290,6 +349,31 @@ describe('usage-records-pipeline', () => {
     });
 
     await assertRecordInsertionFails(workspace);
-    await assertRecordLevel2(workspace, totalUsage);
+    await assertRecordLevel2Exists(
+      workspace,
+      totalUsage,
+      UsageRecordFulfillmentStatus.Fulfilled
+    );
+  });
+
+  test('aggregates dropped usage records', async () => {
+    // Setup
+    const exceedBy = 100;
+    const {workspace: w1, totalUsage: tu1} = await setupForFile(
+      /** exceedLimit */ true,
+      /** nothrow */ true,
+      exceedBy // 100 bytes
+    );
+
+    // Run
+    assert(connection);
+    await aggregateRecords(connection);
+
+    // Assert
+    await assertRecordLevel2Exists(
+      w1,
+      exceedBy,
+      UsageRecordFulfillmentStatus.Dropped
+    );
   });
 });

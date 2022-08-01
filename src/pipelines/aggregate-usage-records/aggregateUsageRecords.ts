@@ -1,16 +1,3 @@
-/**
- * Aggregates usage records by month by category and total.
- *
- * - get workspaces
- * - for each workspace, get usage records level 2
- * - for each usage record level 2, get usage records level 1 not yet summed in
- *   reporting month
- * - sum usage records level 1 and add to usage records level 2
- * - sum total usage record level 2
- * - lock usage or workspace if usage exceeds limit
- * - [not in here] server refreshes workspace cache
- */
-
 import assert from 'assert';
 import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
@@ -31,6 +18,21 @@ import {
   getAppVariables,
 } from '../../resources/appVariables';
 import getNewId from '../../utilities/getNewId';
+
+/**
+ * Aggregates usage records by month by category and total.
+ *
+ * - get workspaces
+ * - for each workspace, get usage records level 2
+ * - for each usage record level 2, get usage records level 1 not yet summed in
+ *   reporting month
+ * - sum usage records level 1 and add to usage records level 2
+ * - sum total usage record level 2
+ * - lock usage or workspace if usage exceeds limit
+ * - [not in here] server refreshes workspace cache
+ *
+ * - in similar manner, sum up dropped usage records but do not lock workspace
+ */
 
 function makeUsageRecordModel(connection: Connection) {
   const m = getUsageRecordModel(connection);
@@ -99,7 +101,7 @@ async function sumUsageRecordsLevel1(
         workspaceId: recordLevel2.workspaceId,
         category: recordLevel2.category,
         createdAt: {$gte: fromDate, $lt: endDate},
-        fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+        fulfillmentStatus: recordLevel2.fulfillmentStatus,
         summationType: UsageSummationType.One,
       })
       .sort({createdAt: 1})
@@ -121,7 +123,8 @@ async function sumUsageRecordsLevel1(
 
 async function getUsageRecordsLevel2(
   connection: Connection,
-  workspaceId: string
+  workspaceId: string,
+  fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
   const model = makeUsageRecordModel(connection);
   const month = getRecordingMonth();
@@ -131,7 +134,7 @@ async function getUsageRecordsLevel2(
       workspaceId,
       month,
       year,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      fulfillmentStatus,
       summationType: UsageSummationType.Two,
     })
     .lean()
@@ -180,9 +183,15 @@ async function incrementRecordLevel2(
 
 async function aggregateRecordsLevel2ExcludingTotal(
   connection: Connection,
-  workspaceId: string
+  workspaceId: string,
+  fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  const records = await getUsageRecordsLevel2(connection, workspaceId);
+  const records = await getUsageRecordsLevel2(
+    connection,
+    workspaceId,
+    fulfillmentStatus
+  );
+
   const promises = records.map(r => incrementRecordLevel2(connection, r));
   const results = await Promise.all(promises);
   return results;
@@ -190,11 +199,13 @@ async function aggregateRecordsLevel2ExcludingTotal(
 
 async function aggregateRecordsLevel2(
   connection: Connection,
-  workspaceId: string
+  workspaceId: string,
+  fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
   const records = await aggregateRecordsLevel2ExcludingTotal(
     connection,
-    workspaceId
+    workspaceId,
+    fulfillmentStatus
   );
 
   const totalRecord = records.find(
@@ -229,7 +240,8 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
 ) {
   const records = await aggregateRecordsLevel2(
     connection,
-    workspace.resourceId
+    workspace.resourceId,
+    UsageRecordFulfillmentStatus.Fulfilled
   );
 
   const thresholds = workspace.usageThresholds || {};
@@ -255,7 +267,18 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
     .exec();
 }
 
-async function tryAggregateRecordsInWorkspaceAndLockIfUsageExceeded(
+async function aggregateDroppedRecordsInWorkspace(
+  connection: Connection,
+  workspace: IWorkspace
+) {
+  await aggregateRecordsLevel2(
+    connection,
+    workspace.resourceId,
+    UsageRecordFulfillmentStatus.Dropped
+  );
+}
+
+async function tryAggregateRecordsInWorkspace(
   connection: Connection,
   workspace: IWorkspace
 ) {
@@ -264,6 +287,8 @@ async function tryAggregateRecordsInWorkspaceAndLockIfUsageExceeded(
       connection,
       workspace
     );
+
+    await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
     console.log(
       `
@@ -279,7 +304,7 @@ async function tryAggregateRecordsInWorkspaceAndLockIfUsageExceeded(
 export async function aggregateRecords(connection: Connection) {
   const workspaces = await getWorkspaces(connection);
   const promises = workspaces.map(w =>
-    tryAggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection, w)
+    tryAggregateRecordsInWorkspace(connection, w)
   );
 
   await Promise.all(promises);
