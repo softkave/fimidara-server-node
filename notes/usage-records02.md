@@ -15,7 +15,7 @@
 - What happens if a workspace changes it's threshold during the reporting period?
 - Alert workspace owners when their threshold is reached
 - Access control for usage records, billing, and setting usage thresholds.
-- Setup acocunts for existing workspaces in Stripe.
+- Setup accunts for existing workspaces in Stripe.
 - Setup products and prices in Stripe.
 - Setup the subscription model in Stripe.
 - Add the workspace Stripe accounts to the subscription model.

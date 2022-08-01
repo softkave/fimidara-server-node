@@ -1,13 +1,30 @@
-import {Connection, Model} from 'mongoose';
+import {Connection, FilterQuery, Model} from 'mongoose';
 import {getUsageRecordModel} from '../../../db/usageRecord';
-import {IUsageRecord} from '../../../definitions/usageRecord';
+import {
+  IUsageRecord,
+  UsageRecordCategory,
+  UsageRecordFulfillmentStatus,
+  UsageSummationType,
+} from '../../../definitions/usageRecord';
+import {getDate} from '../../../utilities/dateFns';
+
+export interface IWorkspaceSummedUsageQueryParams {
+  workspaceId?: string;
+  categories?: UsageRecordCategory[];
+  fromDate?: string;
+  toDate?: string;
+  fulfillmentStatus?: UsageRecordFulfillmentStatus;
+}
 
 export interface IUsageRecordDataProvider {
   /**
-   * Don't use directly. Use through the UsageRecordLogicProvider.
+   * Don't use insert directly. Use through the UsageRecordLogicProvider.
    */
   insert(usageRecord: IUsageRecord): Promise<IUsageRecord>;
   updateById(id: string, update: Partial<IUsageRecord>): Promise<void>;
+  getWorkspaceSummedUsage(
+    q: IWorkspaceSummedUsageQueryParams
+  ): Promise<IUsageRecord[]>;
 }
 
 export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
@@ -28,5 +45,42 @@ export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
 
   public updateById = async (id: string, update: Partial<IUsageRecord>) => {
     await this.model.updateOne({resourceId: id}, update, {upsert: true}).exec();
+  };
+
+  public getWorkspaceSummedUsage = async (
+    q: IWorkspaceSummedUsageQueryParams
+  ) => {
+    let fromMonth = undefined;
+    let toMonth = undefined;
+    let fromYear = undefined;
+    let toYear = undefined;
+    const query: FilterQuery<IUsageRecord> = {
+      workspaceId: q.workspaceId,
+      fulfillmentStatus: q.fulfillmentStatus,
+      summationType: UsageSummationType.Two,
+    };
+
+    if (q.fromDate) {
+      const fromDate = getDate(q.fromDate);
+      fromMonth = fromDate.getMonth();
+      fromYear = fromDate.getFullYear();
+    }
+
+    if (q.toDate) {
+      const toDate = getDate(q.toDate);
+      toMonth = toDate.getMonth();
+      toYear = toDate.getFullYear();
+    }
+
+    if (fromMonth && toMonth) {
+      query.month = {$gte: fromMonth, $lte: toMonth};
+    }
+
+    if (fromYear && toYear) {
+      query.year = {$gte: fromYear, $lte: toYear};
+    }
+
+    const records: IUsageRecord[] = await this.model.find(query).lean().exec();
+    return records;
   };
 }
