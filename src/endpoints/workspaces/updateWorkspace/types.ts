@@ -4,7 +4,7 @@ import {Endpoint} from '../../types';
 import {INewWorkspaceInput} from '../addWorkspace/types';
 
 export type IUpdateWorkspaceInput = Partial<
-  Omit<INewWorkspaceInput, 'rootname'>
+  Omit<INewWorkspaceInput, 'rootname' | 'usageThresholds'>
 >;
 
 export interface IUpdateWorkspaceEndpointParams {

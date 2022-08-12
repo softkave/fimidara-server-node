@@ -6,12 +6,11 @@ import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import {getDate} from '../../../../utilities/dateFns';
 import cast, {waitTimeout} from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
-import {generateWorkspaces} from '../../../test-utils/generate-data/workspace';
-import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
+import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
+import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import {getTestVars} from '../../../test-utils/vars';
-import BaseContext from '../../BaseContext';
+import BaseContext, {getDataProviders} from '../../BaseContext';
 import {WorkspaceCacheProvider} from '../WorkspaceCacheProvider';
-import {WorkspaceMongoDataProvider} from '../WorkspaceDataProvider';
 
 let connection: Connection | null = null;
 
@@ -24,37 +23,41 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection);
-    await connection.close();
+    await dropMongoConnection(connection, /** dropDb */ true);
   }
 });
 
+async function setupContextAndWorkspaces() {
+  assert(connection);
+  const workspaces = generateTestWorkspaces();
+  const model = getWorkspaceModel(connection);
+  await model.insertMany(workspaces);
+  const emptyObject = cast<any>({});
+  const refreshIntervalMs = 1000 * 5; // 5 seconds
+  const provider = new WorkspaceCacheProvider(refreshIntervalMs);
+  const context = new BaseContext(
+    /** data */ emptyObject,
+    /** emailProvider */ emptyObject,
+    /** fileBackend */ emptyObject,
+    /** appVariables */ emptyObject,
+    /** dataProviders */ getDataProviders(connection),
+    /** cacheProviders */ {workspace: provider},
+    /** logicProviders */ emptyObject
+  );
+
+  await provider.init(context);
+  return {context, provider, model, workspaces, refreshIntervalMs};
+}
+
 describe('WorkspaceCacheProvider', () => {
   test('data is refreshed', async () => {
-    assert(connection);
-    const workspaces = generateWorkspaces();
-    const model = getWorkspaceModel(connection);
-    await model.insertMany(workspaces);
-    const emptyObject = cast<any>({});
-    const refreshIntervalMs = 1000 * 5; // 5 seconds
-    const provider = new WorkspaceCacheProvider(refreshIntervalMs);
-    const context = new BaseContext(
-      /** data */ emptyObject,
-      /** emailProvider */ emptyObject,
-      /** fileBackend */ emptyObject,
-      /** appVariables */ emptyObject,
-      /** dataProviders */ cast({
-        workspace: new WorkspaceMongoDataProvider(connection),
-      }),
-      /** cacheProviders */ {workspace: provider},
-      /** logicProviders */ emptyObject
-    );
+    const {context, provider, model, workspaces, refreshIntervalMs} =
+      await setupContextAndWorkspaces();
 
-    await provider.init(context);
-    let ws = await provider.getById(context, workspaces[0].resourceId);
+    let w1 = await provider.getById(context, workspaces[0].resourceId);
     await model
       .updateOne(
-        {resourceId: ws.resourceId},
+        {resourceId: w1.resourceId},
         {
           $set: {
             billStatus: WorkspaceBillStatus.BillOverdue,
@@ -65,7 +68,31 @@ describe('WorkspaceCacheProvider', () => {
       .exec();
 
     await waitTimeout(refreshIntervalMs + 100); // wait for the refresh interval + 100ms
-    ws = await provider.getById(context, workspaces[0].resourceId);
-    expect(ws.billStatus).toBe(WorkspaceBillStatus.BillOverdue);
+    w1 = await provider.getById(context, workspaces[0].resourceId);
+    expect(w1.billStatus).toBe(WorkspaceBillStatus.BillOverdue);
+  });
+
+  test('refresh interval is updated', async () => {
+    const {context, provider, model, workspaces, refreshIntervalMs} =
+      await setupContextAndWorkspaces();
+    const newRefreshIntervalMs = refreshIntervalMs / 2;
+    await provider.setRefreshIntervalMs(context, newRefreshIntervalMs);
+
+    let w1 = await provider.getById(context, workspaces[0].resourceId);
+    await model
+      .updateOne(
+        {resourceId: w1.resourceId},
+        {
+          $set: {
+            billStatus: WorkspaceBillStatus.BillOverdue,
+            billStatusAssignedAt: getDate(),
+          },
+        }
+      )
+      .exec();
+
+    await waitTimeout(newRefreshIntervalMs + 100); // wait for the refresh interval + 100ms
+    w1 = await provider.getById(context, workspaces[0].resourceId);
+    expect(w1.billStatus).toBe(WorkspaceBillStatus.BillOverdue);
   });
 });

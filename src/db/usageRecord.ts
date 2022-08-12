@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {
   IUsageRecord,
   IUsageRecordArtifact,
@@ -17,24 +17,25 @@ const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
 const usageRecordSchema = ensureTypeFields<IUsageRecord>({
   resourceId: {type: String, unique: true, index: true},
   createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate},
+  createdAt: {type: Date, default: getDate, index: true},
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date},
   workspaceId: {type: String, index: true},
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},
-  summationType: {type: Number},
+  summationType: {type: Number, index: true},
   fulfillmentStatus: {
-    type: Number,
+    type: String,
     default: UsageRecordFulfillmentStatus.Undecided,
+    index: true,
   },
   dropMessage: {type: String},
   dropReason: {type: String},
-  dropCategory: {type: String},
+  usageCost: {type: Number},
+  month: {type: Number, index: true},
+  year: {type: Number, index: true},
 });
-
-export type IUsageRecordDocument = Document<IUsageRecord>;
 
 const schema = new Schema<IUsageRecord>(usageRecordSchema);
 const modelName = 'usage-record';
@@ -46,6 +47,7 @@ export function getUsageRecordModel(connection: Connection) {
     schema,
     collectionName
   );
+
   return model;
 }
 
