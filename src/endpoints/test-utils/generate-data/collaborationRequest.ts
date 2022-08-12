@@ -1,8 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IAgent, SessionAgentType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  IAgent,
+  SessionAgentType,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {
   defaultGenPartialTestDataFn,
   generateTestList,
@@ -12,7 +16,7 @@ import {
 export function generateCollaborationRequestForTest() {
   const createdAt = getDateString();
   const createdBy: IAgent = {
-    agentId: getNewId(),
+    agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
   };
 
@@ -21,9 +25,9 @@ export function generateCollaborationRequestForTest() {
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
     workspaceName: faker.company.companyName(),
-    workspaceId: getNewId(),
+    workspaceId: getNewIdForResource(AppResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
     statusHistory: [],

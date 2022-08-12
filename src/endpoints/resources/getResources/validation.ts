@@ -4,7 +4,7 @@ import resourcesValidationSchemas from '../validation';
 
 export const getResourcesJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     resources: resourcesValidationSchemas.fetchResourceItemList.required(),
   })
   .required();

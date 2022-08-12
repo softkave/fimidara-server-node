@@ -3,7 +3,7 @@ import {validationSchemas} from '../../utilities/validationUtils';
 import resourcesConstants from './constants';
 
 const fetchResourceItem = Joi.object().keys({
-  resourceId: validationSchemas.nanoid.required(),
+  resourceId: validationSchemas.resourceId.required(),
   resourceType: validationSchemas.resourceType.required(),
 });
 

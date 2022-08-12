@@ -3,7 +3,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const updateTagJoiSchema = Joi.object()
   .keys({
-    tagId: validationSchemas.nanoid.required(),
+    tagId: validationSchemas.resourceId.required(),
     tag: Joi.object()
       .keys({
         name: validationSchemas.name.allow(null),

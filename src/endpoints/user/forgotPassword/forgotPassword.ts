@@ -1,20 +1,21 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {validate} from '../../../utilities/validate';
-import {userConstants} from '../constants';
-import {ForgotPasswordEndpoint} from './types';
-import {forgotPasswordJoiSchema} from './validation';
+import {AppResourceType} from '../../../definitions/system';
+import {IUserToken} from '../../../definitions/userToken';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
-import UserQueries from '../UserQueries';
+import {getNewIdForResource} from '../../../utilities/resourceId';
+import {validate} from '../../../utilities/validate';
+import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
   TokenAudience,
   TokenType,
 } from '../../contexts/SessionContext';
+import {userConstants} from '../constants';
+import UserQueries from '../UserQueries';
 import sendChangePasswordEmail from './sendChangePasswordEmail';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {IUserToken} from '../../../definitions/userToken';
+import {ForgotPasswordEndpoint} from './types';
+import {forgotPasswordJoiSchema} from './validation';
 
 const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
@@ -26,7 +27,7 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const forgotToken = await context.data.userToken.saveItem({
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),

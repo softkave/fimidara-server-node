@@ -5,7 +5,7 @@ import {IUserToken} from '../../../definitions/userToken';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
 import {appAssert} from '../../../utilities/fns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
@@ -77,7 +77,7 @@ export async function getUserClientAssignedToken(
       createdAt,
       lastUpdatedAt: createdAt,
       lastUpdatedBy: systemAgent,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.ClientAssignedToken),
       providedResourceId: userId,
       createdBy: systemAgent,
       workspaceId: context.appVariables.appWorkspaceId,
@@ -126,7 +126,7 @@ export async function getUserToken(context: IBaseContext, user: IUser) {
 
   if (!userToken) {
     userToken = await context.data.userToken.saveItem({
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.UserToken),
       userId: user.resourceId,
       audience: [TokenAudience.Login],
       issuedAt: getDateString(),

@@ -3,6 +3,6 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const getRequestJoiSchema = Joi.object()
   .keys({
-    requestId: validationSchemas.nanoid.required(),
+    requestId: validationSchemas.resourceId.required(),
   })
   .required();

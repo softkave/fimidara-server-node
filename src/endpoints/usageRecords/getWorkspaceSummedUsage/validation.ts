@@ -4,7 +4,7 @@ import usageRecordValidationSchemas from '../validation';
 
 export const getWorkspaceSummedUsageJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     categories: usageRecordValidationSchemas.categoryList,
     fromDate: Joi.date().iso(),
     toDate: Joi.date().iso(),

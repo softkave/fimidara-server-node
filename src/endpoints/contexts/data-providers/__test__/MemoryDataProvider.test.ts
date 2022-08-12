@@ -1,9 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
-import {SessionAgentType} from '../../../../definitions/system';
+import {
+  AppResourceType,
+  SessionAgentType,
+} from '../../../../definitions/system';
 import {IWorkspace} from '../../../../definitions/workspace';
 import {getDateString} from '../../../../utilities/dateFns';
-import getNewId from '../../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../../utilities/resourceId';
 import {NotFoundError} from '../../../errors';
 import {
   generateTestWorkspace,
@@ -59,7 +62,7 @@ describe('MemoryDataProvider', () => {
     await insertWorkspaceMemory(data);
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
     const exists = await provider.checkItemExists(
-      WorkspaceQueries.getById(getNewId())
+      WorkspaceQueries.getById(getNewIdForResource(AppResourceType.Workspace))
     );
 
     expect(exists).toBeFalsy();
@@ -80,7 +83,9 @@ describe('MemoryDataProvider', () => {
     const data: IWorkspace[] = [];
     await insertWorkspaceMemory(data);
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
-    const result = await provider.getItem(WorkspaceQueries.getById(getNewId()));
+    const result = await provider.getItem(
+      WorkspaceQueries.getById(getNewIdForResource(AppResourceType.Workspace))
+    );
 
     expect(result).toBeFalsy();
   });
@@ -115,7 +120,10 @@ describe('MemoryDataProvider', () => {
     insertWorkspacesMemory(data);
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
     const result = await provider.getManyItems(
-      WorkspaceQueries.getByIds([getNewId(), getNewId()])
+      WorkspaceQueries.getByIds([
+        getNewIdForResource(AppResourceType.Workspace),
+        getNewIdForResource(AppResourceType.Workspace),
+      ])
     );
 
     expect(result).toHaveLength(0);
@@ -150,7 +158,7 @@ describe('MemoryDataProvider', () => {
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
     const workspaceUpdate: Partial<IWorkspace> = {
       lastUpdatedBy: {
-        agentId: getNewId(),
+        agentId: getNewIdForResource(AppResourceType.User),
         agentType: SessionAgentType.User,
       },
       lastUpdatedAt: getDateString(),
@@ -190,7 +198,7 @@ describe('MemoryDataProvider', () => {
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
     const workspaceUpdate: Partial<IWorkspace> = {
       lastUpdatedBy: {
-        agentId: getNewId(),
+        agentId: getNewIdForResource(AppResourceType.User),
         agentType: SessionAgentType.User,
       },
       lastUpdatedAt: getDateString(),
@@ -224,7 +232,12 @@ describe('MemoryDataProvider', () => {
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
 
     try {
-      await provider.updateItem(WorkspaceQueries.getById(getNewId()), {});
+      await provider.updateItem(
+        WorkspaceQueries.getById(
+          getNewIdForResource(AppResourceType.Workspace)
+        ),
+        {}
+      );
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }
@@ -252,7 +265,9 @@ describe('MemoryDataProvider', () => {
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
 
     try {
-      await provider.assertItemExists(WorkspaceQueries.getById(getNewId()));
+      await provider.assertItemExists(
+        WorkspaceQueries.getById(getNewIdForResource(AppResourceType.Workspace))
+      );
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }
@@ -264,7 +279,9 @@ describe('MemoryDataProvider', () => {
     const provider = new MemoryDataProvider(data, throwWorkspaceNotFound);
 
     try {
-      await provider.assertGetItem(WorkspaceQueries.getById(getNewId()));
+      await provider.assertGetItem(
+        WorkspaceQueries.getById(getNewIdForResource(AppResourceType.Workspace))
+      );
     } catch (error) {
       expect(error instanceof NotFoundError).toBeTruthy();
     }

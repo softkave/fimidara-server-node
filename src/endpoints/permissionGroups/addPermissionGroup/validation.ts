@@ -5,7 +5,7 @@ import permissionGroupsValidationSchemas from '../validation';
 
 export const addPermissionGroupJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     permissionGroup: Joi.object()
       .keys({
         name: validationSchemas.name.required(),

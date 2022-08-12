@@ -4,7 +4,7 @@ import {
   IAgent,
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
@@ -53,7 +53,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
   });
 

@@ -4,7 +4,7 @@ import {validationSchemas} from '../../utilities/validationUtils';
 import {permissionGroupConstants} from './constants';
 
 const assignedPermissionGroup = Joi.object().keys({
-  permissionGroupId: validationSchemas.nanoid.required(),
+  permissionGroupId: validationSchemas.resourceId.required(),
   order: Joi.number(),
 });
 

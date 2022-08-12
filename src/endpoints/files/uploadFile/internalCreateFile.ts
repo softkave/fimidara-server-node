@@ -7,7 +7,7 @@ import {
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
@@ -22,7 +22,7 @@ export function getNewFile(
   data: IUploadFileEndpointParams,
   parentFolder: IFolder | null
 ) {
-  const fileId = getNewId();
+  const fileId = getNewIdForResource(AppResourceType.File);
   const createdAt = getDateString();
   const createdBy: IAgent = {
     agentId: agent.agentId,

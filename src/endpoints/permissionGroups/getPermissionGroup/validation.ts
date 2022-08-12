@@ -3,6 +3,6 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const getPermissionGroupJoiSchema = Joi.object()
   .keys({
-    permissionGroupId: validationSchemas.nanoid.required(),
+    permissionGroupId: validationSchemas.resourceId.required(),
   })
   .required();
