@@ -4,62 +4,64 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
-import {costConstants} from '../../usageRecords/costs';
+import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
+import {makeRootnameFromName} from '../../workspaces/utils';
 
-export function generateUsageThresholdMap(
-  threshold = costConstants.defaultTotalThresholdInUSD
+export function generateTestUsageThresholdInputMap(
+  threshold = usageRecordConstants.defaultTotalThresholdInUSD
 ): Required<INewWorkspaceInput>['usageThresholds'] {
   return {
     [UsageRecordCategory.Storage]: {
       category: UsageRecordCategory.Storage,
-      price: threshold,
+      budget: threshold,
     },
-    [UsageRecordCategory.Request]: {
-      category: UsageRecordCategory.Request,
-      price: threshold,
-    },
+    // [UsageRecordCategory.Request]: {
+    //   category: UsageRecordCategory.Request,
+    //   budget: threshold,
+    // },
     [UsageRecordCategory.BandwidthIn]: {
       category: UsageRecordCategory.BandwidthIn,
-      price: threshold,
+      budget: threshold,
     },
     [UsageRecordCategory.BandwidthOut]: {
       category: UsageRecordCategory.BandwidthOut,
-      price: threshold,
+      budget: threshold,
     },
-    [UsageRecordCategory.DatabaseObject]: {
-      category: UsageRecordCategory.DatabaseObject,
-      price: threshold,
-    },
-    ['total']: {
-      category: 'total',
-      price: threshold * Object.keys(UsageRecordCategory).length,
+    // [UsageRecordCategory.DatabaseObject]: {
+    //   category: UsageRecordCategory.DatabaseObject,
+    //   budget: threshold,
+    // },
+    [UsageRecordCategory.Total]: {
+      category: UsageRecordCategory.Total,
+      budget: threshold * Object.keys(UsageRecordCategory).length,
     },
   };
 }
 
-export function generateWorkspace() {
+export function generateTestWorkspace() {
   const createdAt = getDateString();
   const createdBy: IAgent = {
     agentId: getNewId(),
     agentType: SessionAgentType.User,
   };
 
+  const name = faker.company.companyName();
   const workspace: IWorkspace = {
     createdAt,
     createdBy,
+    name,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     resourceId: getNewId(),
-    name: faker.lorem.word(),
-    rootname: faker.lorem.words().split(' ').join('-'),
+    rootname: makeRootnameFromName(name),
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholds: transformUsageThresholInput(
       createdBy,
-      generateUsageThresholdMap()
+      generateTestUsageThresholdInputMap()
     ),
     usageThresholdLocks: {},
   };
@@ -67,10 +69,11 @@ export function generateWorkspace() {
   return workspace;
 }
 
-export function generateWorkspaces(count = 20) {
+export function generateTestWorkspaces(count = 20) {
   const workspaces: IWorkspace[] = [];
   for (let i = 0; i < count; i++) {
-    workspaces.push(generateWorkspace());
+    workspaces.push(generateTestWorkspace());
   }
+
   return workspaces;
 }

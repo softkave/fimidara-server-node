@@ -1,12 +1,13 @@
 import assert from 'assert';
 import {IAgent} from '../../../definitions/system';
-import {UsageThresholdCategory} from '../../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import cast from '../../../utilities/fns';
 import getNewId from '../../../utilities/getNewId';
 import {IBaseContext} from '../../contexts/BaseContext';
+import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
   checkWorkspaceNameExists,
   checkWorkspaceRootnameExists,
@@ -23,7 +24,7 @@ export function transformUsageThresholInput(
   input: Required<INewWorkspaceInput>['usageThresholds']
 ) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
-  cast<UsageThresholdCategory[]>(Object.keys(input)).forEach(category => {
+  cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
     assert(usageThreshold);
     usageThresholds[category] = {
@@ -47,11 +48,13 @@ const internalCreateWorkspace = async (
   ]);
 
   const createdAt = getDateString();
-  const usageThresholds = transformUsageThresholInput(
-    agent,
-    data.usageThresholds || {}
-  );
+  // const usageThresholds = transformUsageThresholInput(
+  //   agent,
+  //   data.usageThresholds || {}
+  // );
 
+  // TODO: replace with user defined usage thresholds when we implement billing
+  const usageThresholds = getDefaultThresholds();
   let workspace: IWorkspace | null =
     await context.cacheProviders.workspace.insert(context, {
       createdAt,

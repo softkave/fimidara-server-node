@@ -79,11 +79,10 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
-import {generateUsageThresholdMap} from './generate-data/workspace';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables} from './vars';
 
-function getTestEmailProvider(appVariables: ITestVariables) {
+export function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
     return new TestSESEmailProviderContext(appVariables.awsRegion);
   } else {
@@ -91,7 +90,7 @@ function getTestEmailProvider(appVariables: ITestVariables) {
   }
 }
 
-async function getTestFileProvider(appVariables: ITestVariables) {
+export async function getTestFileProvider(appVariables: ITestVariables) {
   if (appVariables.useS3FileProvider) {
     const fileProvider = new TestS3FilePersistenceProviderContext(
       appVariables.awsRegion
@@ -240,7 +239,7 @@ export async function insertWorkspaceForTest(
       name: companyName,
       rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
-      usageThresholds: generateUsageThresholdMap(),
+      // usageThresholds: generateTestUsageThresholdInputMap(),
       ...workspaceInput,
     }
   );

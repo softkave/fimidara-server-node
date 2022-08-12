@@ -1,0 +1,25 @@
+# Usage Records 02
+
+- [x] Add threshold to all workspaces
+- [x] Surface thresholds and locks on js sdk
+- [x] Surface thresholds on the client side
+- [x] Surface usage records on the client side
+- [x] Surface usage records on js sdk
+- [x] Restrict updating usage threshold from the client side and js sdk
+- [x] Unlock workspaces when bill is paid or when it's new reporting period and the workspace doesn't have unpaid bills
+- [x] Aggregate monthly dropped usage records
+- [x] Confirm that usage is checked against usage and price/cost against price/cost
+- [x] Surface total dropped records
+- Setup a cron job to run every day to aggregate monthly dropped records and add to procfile
+- Move background jobs to the background jobs service.
+- [x] Remove circle loading from frontend on loaading pages.
+- Move workspace backdrop to Next.js reusable component page.
+- Alert workspace owners when their threshold is reached
+- Track db objects created particularly client assigned tokens and permission items.
+- What happens if a workspace changes it's threshold during the reporting period?
+- Access control for usage records, billing, and setting usage thresholds.
+- Setup accunts for existing workspaces in Stripe.
+- Setup products and prices in Stripe.
+- Setup the subscription model in Stripe.
+- Add the workspace Stripe accounts to the subscription model.
+- Spread out the record names in usage thresholds and locks

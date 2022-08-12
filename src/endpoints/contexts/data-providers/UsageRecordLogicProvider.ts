@@ -6,13 +6,15 @@ import {
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
-  UsageRecordSummationType,
+  UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
 import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import RequestData from '../../RequestData';
+import {getCostForUsage} from '../../usageRecords/constants';
+import {getRecordingPeriod} from '../../usageRecords/utils';
 import {IBaseContext} from '../BaseContext';
 
 export interface IUsageRecordInput {
@@ -24,7 +26,7 @@ export interface IUsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  public insert = async (
+  insert = async (
     ctx: IBaseContext,
     reqData: RequestData,
     agent: IAgent,
@@ -67,14 +69,17 @@ export class UsageRecordLogicProvider {
     input: IUsageRecordInput
   ) => {
     const record: IUsageRecord = {
+      ...getRecordingPeriod(),
       ...input,
       resourceId: input.resourceId || getNewId(),
       createdAt: getDate(),
       createdBy: agent,
-      summationType: UsageRecordSummationType.One,
+      summationType: UsageSummationType.One,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
       artifacts: defaultTo(input.artifacts, []),
+      usageCost: getCostForUsage(input.category, input.usage),
     };
+
     return record;
   };
 
@@ -90,8 +95,9 @@ export class UsageRecordLogicProvider {
         reqData,
         record,
         UsageRecordDropReason.BillOverdue,
-        'total'
+        UsageRecordCategory.Total
       );
+
       return true;
     }
 
@@ -106,14 +112,18 @@ export class UsageRecordLogicProvider {
   ) => {
     if (workspace) {
       const usageLocks = workspace.usageThresholdLocks || {};
-      if (usageLocks['total'] && usageLocks['total'].locked) {
+      if (
+        usageLocks[UsageRecordCategory.Total] &&
+        usageLocks[UsageRecordCategory.Total]?.locked
+      ) {
         this.dropRecord(
           ctx,
           reqData,
           record,
           UsageRecordDropReason.UsageExceeded,
-          'total'
+          UsageRecordCategory.Total
         );
+
         return true;
       }
 
@@ -125,6 +135,7 @@ export class UsageRecordLogicProvider {
           UsageRecordDropReason.UsageExceeded,
           record.category
         );
+
         return true;
       }
     }
@@ -137,12 +148,10 @@ export class UsageRecordLogicProvider {
     reqData: RequestData,
     record: IUsageRecord,
     dropReason: UsageRecordDropReason,
-    dropLabel: IUsageRecord['dropCategory'],
     dropMessage?: string
   ) => {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
     record.dropReason = dropReason;
-    record.dropCategory = dropLabel;
     record.dropMessage = dropMessage;
     ctx.jobs.addJob(
       reqData,

@@ -1,8 +1,5 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {
-  UsageRecordCategory,
-  UsageThresholdCategory,
-} from '../definitions/usageRecord';
+import {UsageRecordCategory} from '../definitions/usageRecord';
 import {
   IUsageThreshold,
   IUsageThresholdLock,
@@ -15,18 +12,18 @@ const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
   lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Date, default: getDate},
   category: {type: String},
-  price: {type: Number},
+  budget: {type: Number},
 });
 
 const usageThresholdMapSchema = ensureTypeFields<
-  Record<UsageThresholdCategory, IUsageThreshold>
+  Record<UsageRecordCategory, IUsageThreshold>
 >({
   [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
-  [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+  // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
   [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
   [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
-  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
-  ['total']: {type: usageThresholdSchema},
+  [UsageRecordCategory.Total]: {type: usageThresholdSchema},
 });
 
 const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
@@ -37,14 +34,14 @@ const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
 });
 
 const usageThresholdLockMapSchema = ensureTypeFields<
-  Record<UsageThresholdCategory, IUsageThreshold>
+  Record<UsageRecordCategory, IUsageThreshold>
 >({
   [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
   [UsageRecordCategory.BandwidthIn]: {type: usageThresholdLockSchema},
   [UsageRecordCategory.BandwidthOut]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
-  ['total']: {type: usageThresholdLockSchema},
+  [UsageRecordCategory.Total]: {type: usageThresholdLockSchema},
 });
 
 const workspaceSchema = ensureTypeFields<IWorkspace>({

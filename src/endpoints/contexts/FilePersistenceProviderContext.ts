@@ -52,7 +52,7 @@ export class S3FilePersistenceProviderContext
     this.s3 = new S3Client({region});
   }
 
-  public uploadFile = wrapFireAndThrowError(
+  uploadFile = wrapFireAndThrowError(
     async (params: IFilePersistenceUploadFileParams) => {
       const command = new PutObjectCommand({
         Bucket: params.bucket,
@@ -67,7 +67,7 @@ export class S3FilePersistenceProviderContext
     }
   );
 
-  public getFile = wrapFireAndThrowError(
+  getFile = wrapFireAndThrowError(
     async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
       const command = new GetObjectCommand({
         Bucket: params.bucket,
@@ -82,7 +82,7 @@ export class S3FilePersistenceProviderContext
     }
   );
 
-  public deleteFiles = wrapFireAndThrowError(
+  deleteFiles = wrapFireAndThrowError(
     async (params: IFilePersistenceDeleteFilesParams) => {
       if (params.keys.length === 0) {
         return;
@@ -100,7 +100,7 @@ export class S3FilePersistenceProviderContext
     }
   );
 
-  public ensureBucketReady = wrapFireAndThrowError(
+  ensureBucketReady = wrapFireAndThrowError(
     async (name: string, region: string) => {
       const command = new HeadBucketCommand({
         Bucket: name,
@@ -125,7 +125,7 @@ export class S3FilePersistenceProviderContext
     }
   );
 
-  public close = wrapFireAndThrowError(async () => {
+  close = wrapFireAndThrowError(async () => {
     await this.s3.destroy();
   });
 }

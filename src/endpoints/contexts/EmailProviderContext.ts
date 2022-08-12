@@ -27,7 +27,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     this.ses = new SESv2Client({region});
   }
 
-  public sendEmail = wrapFireAndThrowError(
+  sendEmail = wrapFireAndThrowError(
     async (context: IBaseContext, params: ISendEmailParams) => {
       const command = new SendEmailCommand({
         Destination: {
@@ -58,7 +58,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     }
   );
 
-  public close = wrapFireAndThrowErrorNoAsync(async () => {
+  close = wrapFireAndThrowErrorNoAsync(async () => {
     await this.ses.destroy();
   });
 }

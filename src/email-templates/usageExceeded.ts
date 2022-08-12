@@ -68,9 +68,9 @@ export function getLabelUsageExceededMessage(label: UsageRecordCategory) {
     case UsageRecordCategory.BandwidthOut:
       message = 'You have reached your outgoing bandwidth usage threshold.';
       break;
-    case UsageRecordCategory.Request:
-      message = 'You have reached your API requests usage threshold.';
-      break;
+    // case UsageRecordCategory.Request:
+    //   message = 'You have reached your API requests usage threshold.';
+    //   break;
     default:
       message = `You have reached your ${label} usage threshold.`;
   }
