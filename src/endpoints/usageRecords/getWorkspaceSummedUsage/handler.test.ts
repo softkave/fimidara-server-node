@@ -7,6 +7,7 @@ import {
   IUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
+  UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {getDateString} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -85,7 +86,11 @@ describe('getWorkspaceSummedUsage', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const records = generateUsageRecords(workspace.resourceId);
+    const records = generateUsageRecords(workspace.resourceId, 10, {
+      summationType: UsageSummationType.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+    });
+
     assert(connection);
     const model = getUsageRecordModel(connection);
     await model.insertMany(records);
@@ -102,7 +107,7 @@ describe('getWorkspaceSummedUsage', () => {
     // verify
     assertEndpointResultOk(result);
     expect(result.records).toBeTruthy();
-    expect(result.records.length).toBeGreaterThan(records.length);
+    expect(result.records.length).toBeGreaterThanOrEqual(records.length);
   });
 
   test('get query summed records', async () => {

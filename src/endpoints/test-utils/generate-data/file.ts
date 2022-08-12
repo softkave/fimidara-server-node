@@ -1,4 +1,4 @@
-import faker from 'faker';
+import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
 import {systemAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';

@@ -10,7 +10,7 @@ import {systemAgent} from '../../../../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
-  UsageRecordSummationType,
+  UsageSummationType,
 } from '../../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import cast from '../../../../utilities/fns';
@@ -18,7 +18,7 @@ import getNewId from '../../../../utilities/getNewId';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
 import {generateTestWorkspace} from '../../../test-utils/generate-data/workspace';
-import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
+import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
 import {getTestVars} from '../../../test-utils/vars';
 import BaseContext, {
@@ -56,8 +56,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection);
-    await connection.close();
+    await dropMongoConnection(connection, /** dropDb */ true);
   }
 });
 
@@ -92,7 +91,7 @@ describe('UsageRecordLogicProvider', () => {
     expect(status).toBe(true);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
-    expect(record.summationType).toBe(UsageRecordSummationType.One);
+    expect(record.summationType).toBe(UsageSummationType.One);
     expect(record.fulfillmentStatus).toBe(
       UsageRecordFulfillmentStatus.Fulfilled
     );
@@ -117,14 +116,16 @@ describe('UsageRecordLogicProvider', () => {
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
-    expect(record.summationType).toBe(UsageRecordSummationType.One);
+    expect(record.summationType).toBe(UsageSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
     expect(record).toMatchObject(input);
   });
 
   test('record dropped cause total threshold is exceeded', async () => {
     const {connection, context, provider} = assertDeps();
-    const workspace = generateWorkspaceWithCategoryUsageExceeded(['total']);
+    const workspace = generateWorkspaceWithCategoryUsageExceeded([
+      UsageRecordCategory.Total,
+    ]);
     await context.cacheProviders.workspace.insert(context, workspace);
     const recordId = getNewId();
     const reqData = new RequestData();
@@ -139,7 +140,7 @@ describe('UsageRecordLogicProvider', () => {
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
-    expect(record.summationType).toBe(UsageRecordSummationType.One);
+    expect(record.summationType).toBe(UsageSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
     expect(record).toMatchObject(input);
   });
@@ -163,7 +164,7 @@ describe('UsageRecordLogicProvider', () => {
     await waitForRequestPendingJobs(reqData);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
-    expect(record.summationType).toBe(UsageRecordSummationType.One);
+    expect(record.summationType).toBe(UsageSummationType.One);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
     expect(record).toMatchObject(input);
   });

@@ -43,4 +43,4 @@ export interface IWorkspace {
   >;
 }
 
-export type IPublicWorkspace = Omit<IWorkspace, 'usageThresholdLocks'>;
+export type IPublicWorkspace = IWorkspace;

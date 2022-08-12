@@ -30,54 +30,45 @@ import MemoryDataProvider from './data-providers/MemoryDataProvider';
 export default class MemoryDataProviderContext
   implements IBaseContextDataProviders
 {
-  public folder = new MemoryDataProvider<IFolder>([], throwFolderNotFound);
-  public file = new MemoryDataProvider<IFile>([], throwFileNotFound);
-  public clientAssignedToken = new MemoryDataProvider<IClientAssignedToken>(
+  folder = new MemoryDataProvider<IFolder>([], throwFolderNotFound);
+  file = new MemoryDataProvider<IFile>([], throwFileNotFound);
+  clientAssignedToken = new MemoryDataProvider<IClientAssignedToken>(
     [],
     throwClientAssignedTokenNotFound
   );
 
-  public programAccessToken = new MemoryDataProvider<IProgramAccessToken>(
+  programAccessToken = new MemoryDataProvider<IProgramAccessToken>(
     [],
     throwProgramAccessTokenNotFound
   );
 
-  public permissionItem = new MemoryDataProvider<IPermissionItem>(
+  permissionItem = new MemoryDataProvider<IPermissionItem>(
     [],
     throwPermissionItemNotFound
   );
 
-  public permissiongroup = new MemoryDataProvider<IPermissionGroup>(
+  permissiongroup = new MemoryDataProvider<IPermissionGroup>(
     [],
     throwPermissionGroupNotFound
   );
 
-  public workspace = new MemoryDataProvider<IWorkspace>(
-    [],
-    throwWorkspaceNotFound
-  );
+  workspace = new MemoryDataProvider<IWorkspace>([], throwWorkspaceNotFound);
 
-  public collaborationRequest = new MemoryDataProvider<ICollaborationRequest>(
+  collaborationRequest = new MemoryDataProvider<ICollaborationRequest>(
     [],
     throwCollaborationRequestNotFound
   );
 
-  public user = new MemoryDataProvider<IUser>([], throwUserNotFound);
-  public userToken = new MemoryDataProvider<IUserToken>(
-    [],
-    throwUserTokenNotFound
-  );
+  user = new MemoryDataProvider<IUser>([], throwUserNotFound);
+  userToken = new MemoryDataProvider<IUserToken>([], throwUserTokenNotFound);
 
-  public appRuntimeState = new MemoryDataProvider<IAppRuntimeState>(
-    [],
-    throwNotFound
-  );
+  appRuntimeState = new MemoryDataProvider<IAppRuntimeState>([], throwNotFound);
 
-  public tag = new MemoryDataProvider<ITag>([], throwTagNotFound);
-  public assignedItem = new MemoryDataProvider<IAssignedItem>(
+  tag = new MemoryDataProvider<ITag>([], throwTagNotFound);
+  assignedItem = new MemoryDataProvider<IAssignedItem>(
     [],
     throwAssignedItemNotFound
   );
 
-  public close = noopAsync;
+  close = noopAsync;
 }

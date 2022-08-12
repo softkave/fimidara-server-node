@@ -25,10 +25,12 @@ import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessToke
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
+import setupUsageRecordsRESTEndpoints from './endpoints/usageRecords/setupRESTEndpoints';
 import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
 import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
+import {startJobs} from './pipelines';
 import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
 import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
 
@@ -80,6 +82,10 @@ async function setup() {
   await script_AddThresholdToExistingWorkspaces(connection);
   // End of scripts
 
+  // Jobs
+  startJobs();
+  // End of jobs
+
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
@@ -109,17 +115,16 @@ async function setup() {
   setupAccountRESTEndpoints(ctx, app);
   setupResourcesRESTEndpoints(ctx, app);
   setupTagsRESTEndpoints(ctx, app);
+  setupUsageRecordsRESTEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
-
     console.log(ctx.appVariables.appName);
     console.log(`server listening on port ${ctx.appVariables.port}`);
   });
 }
 
 setup();
-
 process.on('uncaughtException', (exp: any, origin: any) => {
   console.log('uncaughtException');
   console.error(exp);

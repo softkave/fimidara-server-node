@@ -12,12 +12,6 @@ import {systemAgent} from '../../definitions/system';
  * so we're just unlocking the locks.
  */
 
-async function getWorkspaces(connection: Connection) {
-  const model = getWorkspaceModel(connection);
-  const workspaces = await model.find({}).lean().exec();
-  return workspaces;
-}
-
 export async function unlockUsageThresholdLocks(connection: Connection) {
   const model = getWorkspaceModel(connection);
   const workspaces = await model.find({}).lean().exec();

@@ -32,8 +32,8 @@ function randomCategory() {
 }
 
 function randomSummationType() {
-  const items = Object.values(UsageSummationType);
-  return items[random(0, items.length - 1)];
+  const r = random(0, 1);
+  return r === 0 ? UsageSummationType.One : UsageSummationType.Two;
 }
 
 function randomFulfillmentStatus() {

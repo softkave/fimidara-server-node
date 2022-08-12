@@ -82,19 +82,19 @@ export default class MongoDBDataProviderContext
   protected connection: Connection;
   protected db: IBaseContextDatabaseModels;
 
-  public folder: IDataProvider<IFolder>;
-  public file: IDataProvider<IFile>;
-  public clientAssignedToken: IDataProvider<IClientAssignedToken>;
-  public programAccessToken: IDataProvider<IProgramAccessToken>;
-  public permissionItem: IDataProvider<IPermissionItem>;
-  public permissiongroup: IDataProvider<IPermissionGroup>;
-  public workspace: IDataProvider<IWorkspace>;
-  public collaborationRequest: IDataProvider<ICollaborationRequest>;
-  public user: IDataProvider<IUser>;
-  public userToken: IDataProvider<IUserToken>;
-  public appRuntimeState: IDataProvider<IAppRuntimeState>;
-  public tag: IDataProvider<ITag>;
-  public assignedItem: IDataProvider<IAssignedItem<AnyObject>>;
+  folder: IDataProvider<IFolder>;
+  file: IDataProvider<IFile>;
+  clientAssignedToken: IDataProvider<IClientAssignedToken>;
+  programAccessToken: IDataProvider<IProgramAccessToken>;
+  permissionItem: IDataProvider<IPermissionItem>;
+  permissiongroup: IDataProvider<IPermissionGroup>;
+  workspace: IDataProvider<IWorkspace>;
+  collaborationRequest: IDataProvider<ICollaborationRequest>;
+  user: IDataProvider<IUser>;
+  userToken: IDataProvider<IUserToken>;
+  appRuntimeState: IDataProvider<IAppRuntimeState>;
+  tag: IDataProvider<ITag>;
+  assignedItem: IDataProvider<IAssignedItem<AnyObject>>;
 
   constructor(connection: Connection) {
     this.connection = connection;
@@ -165,6 +165,6 @@ export default class MongoDBDataProviderContext
   }
 
   async close() {
-    await this.connection.close();
+    // do nothing
   }
 }

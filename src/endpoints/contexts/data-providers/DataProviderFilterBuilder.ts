@@ -18,7 +18,7 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
 {
   private data: {[K in keyof T]?: IDataProviderFilterValue<T[K]>} = {};
 
-  public addItem<K extends keyof T>(
+  addItem<K extends keyof T>(
     key: K,
     value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
     queryOp?: DataProviderFilterValueOperator
@@ -27,7 +27,7 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
     return this;
   }
 
-  public addItemWithStringKey<K extends keyof T | string>(
+  addItemWithStringKey<K extends keyof T | string>(
     key: K,
     value: DataProviderValueExpander<DataProviderGetValueType<T[K]>>,
     queryOp?: DataProviderFilterValueOperator
@@ -36,7 +36,7 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
     return this;
   }
 
-  public addItemValue<K extends keyof T>(
+  addItemValue<K extends keyof T>(
     key: K,
     value: IDataProviderFilterValue<T[K]>
   ) {
@@ -44,7 +44,7 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
     return this;
   }
 
-  public build() {
+  build() {
     return {
       items: this.data,
     };

@@ -7,6 +7,7 @@ import {systemAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
+import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {getTestVars} from '../../endpoints/test-utils/vars';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 
@@ -15,12 +16,14 @@ let dbName: string | null = null;
 
 beforeAll(async () => {
   const appVariables = getTestVars();
-  dbName = faker.lorem.words(5);
+  dbName = faker.lorem.words(5).replace(/ /g, '_');
   connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
 });
 
 afterAll(async () => {
-  await connection?.close();
+  if (connection) {
+    await dropMongoConnection(connection, /** dropDb */ true);
+  }
 });
 
 describe('unlockUsageThresholds', () => {
@@ -41,14 +44,17 @@ describe('unlockUsageThresholds', () => {
       workspace.usageThresholdLocks = locks;
     });
 
-    // run
     assert(connection);
+    const model = getWorkspaceModel(connection);
+    await model.insertMany(workspaces);
+
+    // run
     await unlockUsageThresholdLocks(connection);
 
     // verify
-    const model = getWorkspaceModel(connection);
+
     const dbWorkspaces = await model.find({}).lean().exec();
-    expect(dbWorkspaces.length).toHaveLength(workspaces.length);
+    expect(dbWorkspaces.length).toBe(workspaces.length);
     dbWorkspaces.forEach(dbWorkspace => {
       const locks = dbWorkspace.usageThresholdLocks || {};
       Object.values(UsageRecordCategory).forEach(k => {

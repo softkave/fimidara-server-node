@@ -12,8 +12,8 @@ const usageThresholdMap = Joi.object().keys({
   [UsageRecordCategory.Storage]: usageThreshold,
   [UsageRecordCategory.BandwidthIn]: usageThreshold,
   [UsageRecordCategory.BandwidthOut]: usageThreshold,
-  [UsageRecordCategory.Request]: usageThreshold,
-  [UsageRecordCategory.DatabaseObject]: usageThreshold,
+  // [UsageRecordCategory.Request]: usageThreshold,
+  // [UsageRecordCategory.DatabaseObject]: usageThreshold,
   [UsageRecordCategory.Total]: usageThreshold,
 });
 

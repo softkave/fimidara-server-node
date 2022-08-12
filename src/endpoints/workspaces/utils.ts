@@ -1,12 +1,10 @@
+import {identity} from 'lodash';
 import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {
-  UsageRecordCategory,
-  UsageThresholdCategory,
-} from '../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
   IPublicWorkspace,
   IUsageThreshold,
@@ -35,20 +33,22 @@ const usageThresholdSchema = getFields<IUsageThreshold>({
 
 const usageThresholdIfExistExtractor =
   makeExtractIfPresent(usageThresholdSchema);
+
 const usageThresholdMapSchema = getFields<
-  Partial<Record<UsageThresholdCategory, IUsageThreshold>>
+  Partial<Record<UsageRecordCategory, IUsageThreshold>>
 >({
   [UsageRecordCategory.Storage]: usageThresholdIfExistExtractor,
   [UsageRecordCategory.BandwidthIn]: usageThresholdIfExistExtractor,
   [UsageRecordCategory.BandwidthOut]: usageThresholdIfExistExtractor,
-  [UsageRecordCategory.Request]: usageThresholdIfExistExtractor,
-  [UsageRecordCategory.DatabaseObject]: usageThresholdIfExistExtractor,
-  ['total']: usageThresholdIfExistExtractor,
+  // [UsageRecordCategory.Request]: usageThresholdIfExistExtractor,
+  // [UsageRecordCategory.DatabaseObject]: usageThresholdIfExistExtractor,
+  [UsageRecordCategory.Total]: usageThresholdIfExistExtractor,
 });
 
 const usageThresholdMapExtractorIfExist = makeExtractIfPresent(
   usageThresholdMapSchema
 );
+
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
   createdBy: agentExtractor,
@@ -60,7 +60,8 @@ const workspaceFields = getFields<IPublicWorkspace>({
   description: true,
   publicPermissionGroupId: true,
   billStatus: true,
-  usageThresholds: usageThresholdMapExtractorIfExist,
+  usageThresholds: identity,
+  usageThresholdLocks: identity,
   billStatusAssignedAt: getDateStringIfPresent,
 });
 

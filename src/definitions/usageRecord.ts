@@ -4,25 +4,20 @@ export enum UsageRecordCategory {
   Storage = 'storage',
   BandwidthIn = 'bandwidth-in',
   BandwidthOut = 'bandwidth-out',
-  Request = 'request',
-  DatabaseObject = 'db-object',
+  // Request = 'request',
+  // DatabaseObject = 'db-object',
   Total = 'total',
 }
 
 export enum UsageRecordArtifactType {
   File = 'file',
-  DatabaseObject = 'db-object',
+  // DatabaseObject = 'db-object',
 }
 
 export interface IUsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
   action?: BasicCRUDActions;
-
-  /**
-   * File ID when type is File
-   * Database object resource ID when type is DatabaseObject
-   */
   artifact: any;
 }
 

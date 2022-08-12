@@ -21,6 +21,7 @@ export interface IWorkspaceCacheProvider {
   // refresh utils
   setRefreshIntervalMs: (ctx: IBaseContext, ms: number) => Promise<void>;
   getRefreshIntervalMs: () => number;
+  refreshCache: (ctx: IBaseContext) => Promise<void>;
 
   // call and wait for the promise to resolve before using the provider
   init: (ctx: IBaseContext) => Promise<void>;
@@ -113,7 +114,7 @@ export class WorkspaceCacheProvider implements IWorkspaceCacheProvider {
     }
   };
 
-  private refreshCache = async (ctx: IBaseContext) => {
+  refreshCache = async (ctx: IBaseContext) => {
     const workspaces = await ctx.dataProviders.workspace.getAll();
     workspaces.forEach(w => {
       this.workspaces[w.resourceId] = w;
