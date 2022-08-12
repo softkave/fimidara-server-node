@@ -17,10 +17,10 @@ export function generateTestUsageThresholdInputMap(
       category: UsageRecordCategory.Storage,
       budget: threshold,
     },
-    [UsageRecordCategory.Request]: {
-      category: UsageRecordCategory.Request,
-      budget: threshold,
-    },
+    // [UsageRecordCategory.Request]: {
+    //   category: UsageRecordCategory.Request,
+    //   budget: threshold,
+    // },
     [UsageRecordCategory.BandwidthIn]: {
       category: UsageRecordCategory.BandwidthIn,
       budget: threshold,
@@ -29,37 +29,15 @@ export function generateTestUsageThresholdInputMap(
       category: UsageRecordCategory.BandwidthOut,
       budget: threshold,
     },
-    [UsageRecordCategory.DatabaseObject]: {
-      category: UsageRecordCategory.DatabaseObject,
-      budget: threshold,
-    },
+    // [UsageRecordCategory.DatabaseObject]: {
+    //   category: UsageRecordCategory.DatabaseObject,
+    //   budget: threshold,
+    // },
     [UsageRecordCategory.Total]: {
       category: UsageRecordCategory.Total,
       budget: threshold * Object.keys(UsageRecordCategory).length,
     },
   };
-}
-
-export function generateUsageThresholdInputMap02(
-  thresholds: Partial<Record<UsageRecordCategory, number>> = {},
-  fillRemaining: boolean = true
-): Required<INewWorkspaceInput>['usageThresholds'] {
-  const urs: Required<INewWorkspaceInput>['usageThresholds'] = {};
-  Object.keys(UsageRecordCategory).forEach(key => {
-    if (thresholds[key as UsageRecordCategory]) {
-      urs[key as UsageRecordCategory] = {
-        category: key as UsageRecordCategory,
-        budget: thresholds[key as UsageRecordCategory] as number,
-      };
-    } else if (fillRemaining) {
-      urs[key as UsageRecordCategory] = {
-        category: key as UsageRecordCategory,
-        budget: usageRecordConstants.defaultTotalThresholdInUSD,
-      };
-    }
-  });
-
-  return urs;
 }
 
 export function generateTestWorkspace() {

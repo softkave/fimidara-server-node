@@ -1,7 +1,7 @@
 import assert from 'assert';
+import {add} from 'date-fns';
 import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
-import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
 import {systemAgent} from '../../definitions/system';
@@ -13,10 +13,6 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {
-  extractProdEnvsSchema,
-  getAppVariables,
-} from '../../resources/appVariables';
 import getNewId from '../../utilities/getNewId';
 
 /**
@@ -66,8 +62,7 @@ function getStartOfMonth() {
   const d = new Date();
   const m = getRecordingMonth();
 
-  // set to the previous month
-  // will set to dec if it is january
+  // set to the previous month will set to dec if it is january
   d.setMonth(m - 1);
 
   // set to one day after the last recording date of the previous month
@@ -91,6 +86,7 @@ async function sumUsageRecordsLevel1(
 ) {
   let fromDate = recordLevel2.lastUpdatedAt || getStartOfMonth();
   const endDate = getEndOfMonth();
+  let totalCount = 0;
   let lastCount = 0;
   let sumUsage = 0;
   let sumCost = 0;
@@ -100,25 +96,33 @@ async function sumUsageRecordsLevel1(
       .find({
         workspaceId: recordLevel2.workspaceId,
         category: recordLevel2.category,
-        createdAt: {$gte: fromDate, $lt: endDate},
+        createdAt: {$gt: fromDate, $lt: endDate},
         fulfillmentStatus: recordLevel2.fulfillmentStatus,
         summationType: UsageSummationType.One,
       })
       .sort({createdAt: 1})
-      .limit(1000)
+      .limit(500)
+      .skip(totalCount)
       .lean()
       .exec();
 
     lastCount = records.length;
+    totalCount += lastCount;
     records.forEach(cur => {
       sumUsage += cur.usage;
       sumCost += cur.usageCost;
     });
 
-    fromDate = records[records.length - 1].createdAt;
+    if (records[records.length - 1]) {
+      const lastDate = add(new Date(records[records.length - 1].createdAt), {
+        seconds: 1,
+      });
+
+      fromDate = lastDate;
+    }
   } while (lastCount > 0);
 
-  return {sumUsage, sumCost};
+  return {sumUsage, sumCost, totalCount};
 }
 
 async function getUsageRecordsLevel2(
@@ -147,14 +151,12 @@ async function getUsageRecordsLevel2(
         workspaceId,
         month,
         year,
+        fulfillmentStatus,
         resourceId: getNewId(),
         createdAt: new Date(),
         createdBy: systemAgent,
-        lastUpdatedAt: new Date(),
-        lastUpdatedBy: systemAgent,
         category: k,
         summationType: UsageSummationType.Two,
-        fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
         usage: 0,
         usageCost: 0,
         artifacts: [],
@@ -169,7 +171,7 @@ async function incrementRecordLevel2(
   connection: Connection,
   recordLevel2: IUsageRecord
 ) {
-  const {sumUsage, sumCost} = await sumUsageRecordsLevel1(
+  const {sumUsage, sumCost, totalCount} = await sumUsageRecordsLevel1(
     connection,
     recordLevel2
   );
@@ -213,9 +215,14 @@ async function aggregateRecordsLevel2(
   );
 
   assert(totalRecord, 'total record not found');
+  totalRecord.usageCost = 0;
   records.forEach(cur => {
-    totalRecord.usage += cur.usage;
-    totalRecord.usageCost += cur.usageCost;
+    if (cur.category !== UsageRecordCategory.Total) {
+      // only keep track of the usage cost for the total record cause each
+      // category has its own usage unit, like bytes for storage and count for db
+      // objects
+      totalRecord.usageCost += cur.usageCost;
+    }
   });
 
   totalRecord.lastUpdatedAt = new Date();
@@ -308,15 +315,4 @@ export async function aggregateRecords(connection: Connection) {
   );
 
   await Promise.all(promises);
-}
-
-export async function aggregateRecordsMain() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
-
-  await aggregateRecords(connection);
-  await connection.close();
 }

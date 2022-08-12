@@ -56,7 +56,6 @@ export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
     let toYear = undefined;
     const query: FilterQuery<IUsageRecord> = {
       workspaceId: q.workspaceId,
-      fulfillmentStatus: q.fulfillmentStatus,
       summationType: UsageSummationType.Two,
     };
 
@@ -80,7 +79,27 @@ export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
       query.year = {$gte: fromYear, $lte: toYear};
     }
 
-    const records: IUsageRecord[] = await this.model.find(query).lean().exec();
+    if (q.categories) {
+      query.category = {$in: q.categories};
+    }
+
+    // don't include the fulfillment status if it's undecided
+    if (q.fulfillmentStatus) {
+      query.fulfillmentStatus = {
+        $eq: q.fulfillmentStatus,
+        $ne: UsageRecordFulfillmentStatus.Undecided,
+      };
+    } else {
+      query.fulfillmentStatus = {
+        $ne: UsageRecordFulfillmentStatus.Undecided,
+      };
+    }
+
+    const records: IUsageRecord[] = await this.model
+      .find(query, null, {sort: {createdAt: 'desc'}})
+      .lean()
+      .exec();
+
     return records;
   };
 }

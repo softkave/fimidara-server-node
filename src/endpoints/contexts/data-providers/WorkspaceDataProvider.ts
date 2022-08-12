@@ -27,24 +27,24 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
   // No need to wrap in fireAndThrowError, because it's
   // going to be used exclusively by the cache provider
   // and the cache provider will fire and throw errors
-  public insert = async (workspace: IWorkspace) => {
+  insert = async (workspace: IWorkspace) => {
     const doc = new this.model(workspace);
     const saved = await doc.save();
     return saved;
   };
 
-  public getById = async (id: string) => {
+  getById = async (id: string) => {
     return await this.model.findOne({resourceId: id}).lean().exec();
   };
 
-  public getByIds = async (ids: string[]) => {
+  getByIds = async (ids: string[]) => {
     return await this.model
       .find({resourceId: {$in: ids}})
       .lean()
       .exec();
   };
 
-  public getByRootname = async (rootname: string) => {
+  getByRootname = async (rootname: string) => {
     return await this.model
       .findOne({
         rootname: {$regex: new RegExp(`^${rootname}$`, 'i')},
@@ -53,7 +53,7 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
       .exec();
   };
 
-  public existsByName = async (name: string) => {
+  existsByName = async (name: string) => {
     const w = await this.model
       .findOne(
         {
@@ -69,7 +69,7 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
     return w !== null;
   };
 
-  public existsByRootname = async (rootname: string) => {
+  existsByRootname = async (rootname: string) => {
     const w = await this.model
       .findOne(
         {
@@ -83,18 +83,18 @@ export class WorkspaceMongoDataProvider implements IWorkspaceDataProvider {
     return w !== null;
   };
 
-  public getAll = async () => {
+  getAll = async () => {
     return await this.model.find().lean().exec();
   };
 
-  public updateById = async (id: string, update: Partial<IWorkspace>) => {
+  updateById = async (id: string, update: Partial<IWorkspace>) => {
     return await this.model
       .findOneAndUpdate({resourceId: id}, update, {new: true})
       .lean()
       .exec();
   };
 
-  public deleteById = async (id: string) => {
+  deleteById = async (id: string) => {
     await this.model.deleteOne({resourceId: id}).exec();
   };
 }

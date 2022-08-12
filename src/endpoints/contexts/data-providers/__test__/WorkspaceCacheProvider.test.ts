@@ -7,7 +7,7 @@ import {getDate} from '../../../../utilities/dateFns';
 import cast, {waitTimeout} from '../../../../utilities/fns';
 import getNewId from '../../../../utilities/getNewId';
 import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
-import {dropMongoConnection} from '../../../test-utils/helpers/dropMongo';
+import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import {getTestVars} from '../../../test-utils/vars';
 import BaseContext, {getDataProviders} from '../../BaseContext';
 import {WorkspaceCacheProvider} from '../WorkspaceCacheProvider';
@@ -23,8 +23,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection);
-    await connection.close();
+    await dropMongoConnection(connection, /** dropDb */ true);
   }
 });
 

@@ -19,10 +19,10 @@ const usageThresholdMapSchema = ensureTypeFields<
   Record<UsageRecordCategory, IUsageThreshold>
 >({
   [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
-  [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+  // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
   [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
   [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
-  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
   [UsageRecordCategory.Total]: {type: usageThresholdSchema},
 });
 
@@ -37,10 +37,10 @@ const usageThresholdLockMapSchema = ensureTypeFields<
   Record<UsageRecordCategory, IUsageThreshold>
 >({
   [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
   [UsageRecordCategory.BandwidthIn]: {type: usageThresholdLockSchema},
   [UsageRecordCategory.BandwidthOut]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
   [UsageRecordCategory.Total]: {type: usageThresholdLockSchema},
 });
 

@@ -5,7 +5,9 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
+import {IWorkspace} from '../../definitions/workspace';
 import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
+import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {getTestVars} from '../../endpoints/test-utils/vars';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
 import cast from '../../utilities/fns';
@@ -17,13 +19,26 @@ let dbName: string | null = null;
 
 beforeAll(async () => {
   const appVariables = getTestVars();
-  dbName = faker.lorem.words(5);
+  dbName = faker.lorem.words(5).replace(/ /g, '_');
   connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
 });
 
 afterAll(async () => {
-  await connection?.close();
+  if (connection) {
+    await dropMongoConnection(connection, /** dropDb */ true);
+  }
 });
+
+function assertThresholds(
+  ut1: IWorkspace['usageThresholds'] = {},
+  ut2: IWorkspace['usageThresholds'] = {}
+) {
+  Object.values(UsageRecordCategory).forEach(category => {
+    const threshold1 = ut1[category];
+    const threshold2 = ut2[category];
+    expect(threshold1?.budget).toBe(threshold2?.budget);
+  });
+}
 
 describe('addThresholdToExistingWorkspaces', () => {
   test('adds usage thresholds to existing workspaces', async () => {
@@ -33,7 +48,7 @@ describe('addThresholdToExistingWorkspaces', () => {
     // without usage thresholds
     const workspaces01 = workspaces.slice(0, 10);
     forEach(workspaces01, workspace => {
-      workspace.usageThresholds = {};
+      workspace.usageThresholds = undefined;
     });
 
     // with usage thresholds
@@ -67,16 +82,14 @@ describe('addThresholdToExistingWorkspaces', () => {
     forEach(workspaces02, workspace => {
       const dbWorkspace = dbWorkspacesMap[workspace.resourceId];
       assert(dbWorkspace);
-      expect(dbWorkspace.usageThresholds).toMatchObject(
-        workspace.usageThresholds || {}
-      );
+      assertThresholds(dbWorkspace.usageThresholds, workspace.usageThresholds);
     });
 
     // assert that workspaces without usage thresholds are updated
     forEach(workspaces01, workspace => {
       const dbWorkspace = dbWorkspacesMap[workspace.resourceId];
       assert(dbWorkspace);
-      expect(dbWorkspace.usageThresholds).toMatchObject(defaultThresholds);
+      assertThresholds(dbWorkspace.usageThresholds, defaultThresholds);
     });
   });
 });

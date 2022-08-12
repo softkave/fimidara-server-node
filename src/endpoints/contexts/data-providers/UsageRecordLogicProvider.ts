@@ -26,7 +26,7 @@ export interface IUsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  public insert = async (
+  insert = async (
     ctx: IBaseContext,
     reqData: RequestData,
     agent: IAgent,

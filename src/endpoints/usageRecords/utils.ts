@@ -6,7 +6,6 @@ import {
 } from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
-  IDatabaseObjectUsageRecordArtifact,
   IFileUsageRecordArtifact,
   UsageRecordArtifactType,
   UsageRecordCategory,
@@ -23,7 +22,7 @@ async function insertRecord(
   ctx: IBaseContext,
   reqData: RequestData,
   input: IUsageRecordInput,
-  nothrow: boolean = false
+  nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
@@ -49,7 +48,7 @@ export async function insertStorageUsageRecordInput(
   file: IFile,
   action: BasicCRUDActions = BasicCRUDActions.Create,
   artifactMetaInput: Partial<IFileUsageRecordArtifact> = {},
-  nothrow: boolean = false
+  nothrow = false
 ) {
   const artifactMeta: IFileUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -80,7 +79,7 @@ export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: IFile,
   action: BasicCRUDActions = BasicCRUDActions.Create,
-  nothrow: boolean = false
+  nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -110,7 +109,7 @@ export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: IFile,
   action: BasicCRUDActions = BasicCRUDActions.Read,
-  nothrow: boolean = false
+  nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
@@ -135,36 +134,36 @@ export async function insertBandwidthOutUsageRecordInput(
   await insertRecord(ctx, reqData, input, nothrow);
 }
 
-export async function insertDbObjectUsageRecordInput(
-  ctx: IBaseContext,
-  reqData: RequestData,
-  workspaceId: string,
-  resourceId: string,
-  action: BasicCRUDActions,
-  resourceType: AppResourceType,
-  nothrow: boolean = false
-) {
-  const artifactMeta: IDatabaseObjectUsageRecordArtifact = {
-    resourceId,
-    requestId: reqData.requestId,
-  };
+// export async function insertDbObjectUsageRecordInput(
+//   ctx: IBaseContext,
+//   reqData: RequestData,
+//   workspaceId: string,
+//   resourceId: string,
+//   action: BasicCRUDActions,
+//   resourceType: AppResourceType,
+//   nothrow: boolean = false
+// ) {
+//   const artifactMeta: IDatabaseObjectUsageRecordArtifact = {
+//     resourceId,
+//     requestId: reqData.requestId,
+//   };
 
-  const input: IUsageRecordInput = {
-    workspaceId,
-    category: UsageRecordCategory.DatabaseObject,
-    usage: 1,
-    artifacts: [
-      {
-        action,
-        resourceType,
-        artifact: artifactMeta,
-        type: UsageRecordArtifactType.DatabaseObject,
-      },
-    ],
-  };
+//   const input: IUsageRecordInput = {
+//     workspaceId,
+//     category: UsageRecordCategory.DatabaseObject,
+//     usage: 1,
+//     artifacts: [
+//       {
+//         action,
+//         resourceType,
+//         artifact: artifactMeta,
+//         type: UsageRecordArtifactType.DatabaseObject,
+//       },
+//     ],
+//   };
 
-  await insertRecord(ctx, reqData, input, nothrow);
-}
+//   await insertRecord(ctx, reqData, input, nothrow);
+// }
 
 export function getRecordingPeriod() {
   const d = new Date();

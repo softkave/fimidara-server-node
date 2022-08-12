@@ -12,15 +12,15 @@ import {
 export default class MemoryFilePersistenceProviderContext
   implements IFilePersistenceProviderContext
 {
-  public files: Record<string, IFilePersistenceUploadFileParams> = {};
+  files: Record<string, IFilePersistenceUploadFileParams> = {};
 
-  public uploadFile = wrapFireAndThrowError(
+  uploadFile = wrapFireAndThrowError(
     async (params: IFilePersistenceUploadFileParams) => {
       this.files[params.bucket + '-' + params.key] = params;
     }
   );
 
-  public getFile = wrapFireAndThrowError(
+  getFile = wrapFireAndThrowError(
     async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
       const file = this.files[params.bucket + '-' + params.key];
       if (file) {
@@ -37,7 +37,7 @@ export default class MemoryFilePersistenceProviderContext
     }
   );
 
-  public deleteFiles = wrapFireAndThrowError(
+  deleteFiles = wrapFireAndThrowError(
     async (params: IFilePersistenceDeleteFilesParams) => {
       params.keys.forEach(key => {
         delete this.files[params.bucket + '-' + key];
@@ -45,6 +45,6 @@ export default class MemoryFilePersistenceProviderContext
     }
   );
 
-  public ensureBucketReady = noopAsync;
-  public close = noopAsync;
+  ensureBucketReady = noopAsync;
+  close = noopAsync;
 }

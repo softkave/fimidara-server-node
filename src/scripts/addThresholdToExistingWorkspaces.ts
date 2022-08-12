@@ -15,12 +15,12 @@ export async function script_AddThresholdToExistingWorkspaces(
   logScriptStarted(script_AddThresholdToExistingWorkspaces);
   try {
     const model = getWorkspaceModel(connection);
-    let docs = await model.find({rootname: null}).lean().exec();
+    let docs = await model.find({}).lean().exec();
     docs = docs.filter(d => !workspaceHasUsageThresholds(d));
     const defaultThresholds = getDefaultThresholds();
     await model.updateMany(
       {resourceId: {$in: docs.map(d => d.resourceId)}},
-      {$set: {usageThresholds: defaultThresholds}}
+      {usageThresholds: defaultThresholds}
     );
 
     logScriptMessage(

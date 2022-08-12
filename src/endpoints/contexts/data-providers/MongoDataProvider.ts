@@ -3,9 +3,9 @@ import {Document, FilterQuery, Model} from 'mongoose';
 import cast from '../../../utilities/fns';
 import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
 import {
-  IDataProvider,
-  DataProviderFilterValueOperator,
   DataProviderFilterValueLogicalOperator,
+  DataProviderFilterValueOperator,
+  IDataProvider,
   IDataProviderFilter,
 } from './DataProvider';
 
@@ -18,8 +18,8 @@ export interface IMongoDataProvider<T extends {[key: string]: any}>
 export default class MongoDataProvider<T extends {[key: string]: any}>
   implements IMongoDataProvider<T>
 {
-  public model: Model<T>;
-  public throwNotFound?: () => void;
+  model: Model<T>;
+  throwNotFound?: () => void;
 
   constructor(model: Model<T>, throwNotFound?: () => void) {
     this.model = model;

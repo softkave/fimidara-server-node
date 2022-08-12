@@ -1,7 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/BaseContext';
 import RequestData from '../../RequestData';
-import {generateTestUsageThresholdInputMap} from '../../test-utils/generate-data/workspace';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
   assertContext,
@@ -35,7 +34,7 @@ describe('updateWorkspce', () => {
       name: companyName,
       // rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
-      usageThresholds: generateTestUsageThresholdInputMap(500),
+      // usageThresholds: generateTestUsageThresholdInputMap(500),
     };
 
     const instData =

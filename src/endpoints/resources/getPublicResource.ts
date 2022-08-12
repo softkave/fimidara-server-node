@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {ServerError} from '../../utilities/errors';
 import {clientAssignedTokenExtractor} from '../clientAssignedTokens/utils';
 import {collabRequestExtractor} from '../collaborationRequests/utils';
@@ -43,7 +43,7 @@ export function getPublicResourceList(
   workspaceId: string
 ) {
   return resources.map(item => {
-    item.resource = getPublicResource(item, workspaceId);
+    item.resource = getPublicResource(item, workspaceId) as IResourceBase;
     return item;
   });
 }

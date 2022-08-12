@@ -1,10 +1,10 @@
 import {Express} from 'express';
-import {wrapEndpointREST} from '../utils';
 import {IBaseContext} from '../contexts/BaseContext';
+import {wrapEndpointREST} from '../utils';
 import addTag from './addTag/handler';
 import deleteTag from './deleteTag/handler';
-import getWorkspaceTags from './getWorkspaceTags/handler';
 import getTag from './getTag/handler';
+import getWorkspaceTags from './getWorkspaceTags/handler';
 import updateTag from './updateTag/handler';
 
 export default function setupTagsRESTEndpoints(

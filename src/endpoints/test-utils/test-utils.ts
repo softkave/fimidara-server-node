@@ -82,7 +82,7 @@ import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import {getTestVars, ITestVariables} from './vars';
 
-function getTestEmailProvider(appVariables: ITestVariables) {
+export function getTestEmailProvider(appVariables: ITestVariables) {
   if (appVariables.useSESEmailProvider) {
     return new TestSESEmailProviderContext(appVariables.awsRegion);
   } else {
@@ -90,7 +90,7 @@ function getTestEmailProvider(appVariables: ITestVariables) {
   }
 }
 
-async function getTestFileProvider(appVariables: ITestVariables) {
+export async function getTestFileProvider(appVariables: ITestVariables) {
   if (appVariables.useS3FileProvider) {
     const fileProvider = new TestS3FilePersistenceProviderContext(
       appVariables.awsRegion

@@ -13,22 +13,37 @@ import {
   UsageSummationType,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {IBaseContext} from '../../endpoints/contexts/BaseContext';
+import BaseContext, {
+  getCacheProviders,
+  getDataProviders,
+  getLogicProviders,
+  IBaseContext,
+} from '../../endpoints/contexts/BaseContext';
+import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
 import RequestData from '../../endpoints/RequestData';
 import {
   generateTestFile,
   generateTestFiles,
 } from '../../endpoints/test-utils/generate-data/file';
 import {
+  generateTestUsageThresholdInputMap,
   generateTestWorkspace,
-  generateUsageThresholdInputMap02,
 } from '../../endpoints/test-utils/generate-data/workspace';
 import {
+  dropMongoConnection,
+  genDbName,
+} from '../../endpoints/test-utils/helpers/mongo';
+import {
   assertContext,
-  initTestBaseContext,
+  getTestEmailProvider,
+  getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/test-utils/test-utils';
-import {getUsageForCost} from '../../endpoints/usageRecords/constants';
+import {getTestVars} from '../../endpoints/test-utils/vars';
+import {
+  getCostForUsage,
+  getUsageForCost,
+} from '../../endpoints/usageRecords/constants';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors';
 import {
   insertBandwidthInUsageRecordInput,
@@ -43,32 +58,50 @@ import {
   getRecordingYear,
 } from './aggregateUsageRecords';
 
-let context: IBaseContext | null = null;
-let connection: Connection | null = null;
+const contexts: IBaseContext[] = [];
+const connections: Connection[] = [];
 const workspaceCacheRefreshIntervalMs = 1000; // 1 second interval
 const reqData = RequestData.fromExpressRequest(
   mockExpressRequestForPublicAgent()
 );
 
-beforeAll(async () => {
-  context = await initTestBaseContext();
+afterAll(async () => {
+  await Promise.all(contexts.map(c => c.dispose()));
+  // await Promise.all(connections.map(c => c.close()));
+  await Promise.all(connections.map(c => dropMongoConnection(c, true)));
+});
+
+async function getContextAndConnection() {
+  const appVariables = getTestVars();
+  const dbName = genDbName();
+  appVariables.mongoDbDatabaseName = dbName;
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
+
+  const context = new BaseContext(
+    new MongoDBDataProviderContext(connection),
+    getTestEmailProvider(appVariables),
+    await getTestFileProvider(appVariables),
+    appVariables,
+    getDataProviders(connection),
+    getCacheProviders(),
+    getLogicProviders()
+  );
+
   await context.cacheProviders.workspace.setRefreshIntervalMs(
     context,
     workspaceCacheRefreshIntervalMs
   );
 
-  connection = await getMongoConnection(
-    context.appVariables.mongoDbURI,
-    context.appVariables.mongoDbDatabaseName
-  );
-});
-
-afterAll(async () => {
-  await context?.dispose();
-  await connection?.close();
-});
+  contexts.push(context);
+  connections.push(connection);
+  return {context, connection};
+}
 
 async function insertUsageRecordsForFiles(
+  context: IBaseContext,
   workspace: IWorkspace,
   category: Extract<
     UsageRecordCategory,
@@ -77,20 +110,24 @@ async function insertUsageRecordsForFiles(
     | UsageRecordCategory.BandwidthOut
   >,
   limit: number,
-  exceedLimit: boolean = false,
-  nothrow: boolean = true,
-  exceedBy: number = 0
+  exceedLimit = false,
+  nothrow = true,
+  exceedBy = 0
 ) {
-  assertContext(context);
   if (exceedLimit) {
-    limit += exceedBy || random(limit);
+    limit += exceedBy || random(1, limit);
   }
+
+  limit = Math.floor(limit);
+  let count = 0;
 
   const files = generateTestFiles(workspace, 10);
   const promises = [];
-  let totalUsage = 0;
-  for (let usage = random(1, limit - 1, true); usage < limit; ) {
+  let usage = random(1, limit - 1, true);
+  let totalUsage = usage;
+  for (; totalUsage <= limit; ) {
     const f = files[random(0, files.length - 1)];
+    f.size = usage;
     let p: Promise<void> | null = null;
     if (category === UsageRecordCategory.Storage) {
       p = insertStorageUsageRecordInput(
@@ -120,39 +157,44 @@ async function insertUsageRecordsForFiles(
     }
 
     promises.push(p);
-    totalUsage += usage;
+    count++;
 
-    // seed next usage
-    let nextUsage = random(1, limit - 1, true);
-    if (nextUsage + usage > limit) {
-      // round off to limit
-      nextUsage = limit - usage;
+    // break if we exceed the limit
+    if (totalUsage >= limit) {
+      break;
     }
 
-    usage = nextUsage;
+    // seed next usage
+    usage = random(1, limit - 1, true);
+    if (totalUsage + usage > limit) {
+      // round off to limit
+      usage = limit - totalUsage;
+    }
+
+    totalUsage += usage;
   }
 
   await Promise.all(promises);
-  return {totalUsage};
+  return {totalUsage, count};
 }
 
 async function setupForFile(
-  exceedLimit: boolean = false,
-  nothrow: boolean = true,
-  exceedBy: number = 0
+  context: IBaseContext,
+  exceedLimit = false,
+  nothrow = true,
+  exceedBy = 0
 ) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
     publicAgent,
-    generateUsageThresholdInputMap02(
-      /**  thresholds */ {},
-      /** fillRemaining */ true
-    )
+    generateTestUsageThresholdInputMap()
   );
 
+  await context.cacheProviders.workspace.insert(context, workspace);
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
-  const {totalUsage} = await insertUsageRecordsForFiles(
+  const {totalUsage, count} = await insertUsageRecordsForFiles(
+    context,
     workspace,
     UsageRecordCategory.Storage,
     getUsageForCost(ut.category, ut.budget),
@@ -175,18 +217,18 @@ async function setupForFile(
  * @param expectedState
  */
 async function checkLocks(
+  context: IBaseContext,
   wId: string,
   categories?: Partial<Record<UsageRecordCategory, boolean>> | null,
-  expectedState: boolean = true
+  expectedState = true
 ) {
   if (!categories) {
-    categories = Object.keys(UsageRecordCategory).reduce((acc, key) => {
-      acc[key as UsageRecordCategory] = expectedState;
+    categories = Object.values(UsageRecordCategory).reduce((acc, key) => {
+      acc[key] = expectedState;
       return acc;
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  assertContext(context);
   const w = await context.cacheProviders.workspace.getById(context, wId);
   assert(w);
   const locks = w.usageThresholdLocks || {};
@@ -199,9 +241,11 @@ async function checkLocks(
   }
 }
 
-async function checkFailedRecordExistsForFile(w1: IWorkspace, f1: IFile) {
-  assertContext(context);
-  assert(connection);
+async function checkFailedRecordExistsForFile(
+  connection: Connection,
+  w1: IWorkspace,
+  f1: IFile
+) {
   const model = getUsageRecordModel(connection);
   const failedRecord = await model
     .findOne({
@@ -224,28 +268,36 @@ async function checkFailedRecordExistsForFile(w1: IWorkspace, f1: IFile) {
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
-async function assertRecordInsertionFails(w1: IWorkspace) {
+async function assertRecordInsertionFails(
+  context: IBaseContext,
+  connection: Connection,
+  w1: IWorkspace
+) {
   const f1 = generateTestFile(w1);
   await expect(async () => {
     assertContext(context);
     await insertStorageUsageRecordInput(context, reqData, f1);
   }).rejects.toThrow(UsageLimitExceededError);
 
-  await checkFailedRecordExistsForFile(w1, f1);
+  assertContext(context);
+  await context.jobs.waitOnJobs();
+  await checkFailedRecordExistsForFile(connection, w1, f1);
   return {workspace: w1, file: f1};
 }
 
 async function assertRecordLevel2Exists(
+  connection: Connection,
   w: IWorkspace,
-  usage: number,
+  category: UsageRecordCategory,
+  usageCost: number,
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  assert(connection);
   const model = getUsageRecordModel(connection);
   const month = getRecordingMonth();
   const year = getRecordingYear();
   const records = await model
     .find({
+      category,
       month,
       year,
       fulfillmentStatus,
@@ -259,83 +311,107 @@ async function assertRecordLevel2Exists(
   expect(records.length).toBe(1);
   const record = first(records);
   expect(record).toBeDefined();
-  expect(record?.usage).toBe(usage);
+  expect(record?.usageCost.toFixed(3)).toBe(usageCost.toFixed(3));
 }
 
 describe('usage-records-pipeline', () => {
   test('workspace not locked if below threshold', async () => {
     // Setup
-    const {workspace: w1, totalUsage: tu1} = await setupForFile();
-    const {workspace: w2, totalUsage: tu2} = await setupForFile();
+    const {context, connection} = await getContextAndConnection();
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
+      context
+    );
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(
+      context
+    );
 
     // Run
     assert(connection);
     await aggregateRecords(connection);
 
     // Assert
-    await checkLocks(w1.resourceId, null, false);
-    await checkLocks(w2.resourceId, null, false);
+    assertContext(context);
+    await context.cacheProviders.workspace.refreshCache(context);
+    await checkLocks(context, w1.resourceId, null, false);
+    await checkLocks(context, w2.resourceId, null, false);
     await assertRecordLevel2Exists(
+      connection,
       w1,
-      tu1,
+      UsageRecordCategory.Storage,
+      getCostForUsage(UsageRecordCategory.Storage, totalUsage1),
       UsageRecordFulfillmentStatus.Fulfilled
     );
 
     await assertRecordLevel2Exists(
+      connection,
       w2,
-      tu2,
+      UsageRecordCategory.Storage,
+      getCostForUsage(UsageRecordCategory.Storage, totalUsage2),
       UsageRecordFulfillmentStatus.Fulfilled
     );
   });
 
   test('category locked if threshold reached', async () => {
     // Setup
-    const {workspace: w1, totalUsage: tu1} = await setupForFile(
+    const {context, connection} = await getContextAndConnection();
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
+      context,
       /** exceedLimit */ true
     );
 
-    const {workspace: w2, totalUsage: tu2} = await setupForFile();
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(
+      context
+    );
 
     // Run
     assert(connection);
     await aggregateRecords(connection);
 
     // Assert
-    await checkLocks(w2.resourceId, null, false);
-    await checkLocks(w1.resourceId, {
+    assertContext(context);
+    await context.cacheProviders.workspace.refreshCache(context);
+    await checkLocks(context, w2.resourceId, null, false);
+    await checkLocks(context, w1.resourceId, {
       [UsageRecordCategory.Storage]: true,
     });
 
-    await assertRecordInsertionFails(w1);
+    await assertRecordInsertionFails(context, connection, w1);
     await assertRecordLevel2Exists(
+      connection,
       w1,
-      tu1,
+      UsageRecordCategory.Storage,
+      getCostForUsage(UsageRecordCategory.Storage, totalUsage1),
       UsageRecordFulfillmentStatus.Fulfilled
     );
 
     await assertRecordLevel2Exists(
+      connection,
       w2,
-      tu2,
+      UsageRecordCategory.Storage,
+      getCostForUsage(UsageRecordCategory.Storage, totalUsage2),
       UsageRecordFulfillmentStatus.Fulfilled
     );
   });
 
   test('usage category total locked if usage exceeds total threshold', async () => {
     // Setup
+    const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(
-      publicAgent,
-      generateUsageThresholdInputMap02({
-        [UsageRecordCategory.Total]: 1000,
-      })
-    );
+    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+      [UsageRecordCategory.Total]: {
+        budget: 1000,
+        category: UsageRecordCategory.Total,
+      },
+    });
 
+    await context.cacheProviders.workspace.insert(context, workspace);
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
-    const {totalUsage} = await insertUsageRecordsForFiles(
+    const {totalUsage, count} = await insertUsageRecordsForFiles(
+      context,
       workspace,
       UsageRecordCategory.Storage,
-      getUsageForCost(ut.category, ut.budget),
+      getUsageForCost(UsageRecordCategory.Storage, ut.budget),
       /** exceedLimit */ true
     );
 
@@ -344,25 +420,43 @@ describe('usage-records-pipeline', () => {
     await aggregateRecords(connection);
 
     // Assert
-    await checkLocks(workspace.resourceId, {
+    assertContext(context);
+    await context.cacheProviders.workspace.refreshCache(context);
+    await checkLocks(context, workspace.resourceId, {
       [UsageRecordCategory.Total]: true,
     });
 
-    await assertRecordInsertionFails(workspace);
     await assertRecordLevel2Exists(
+      connection,
       workspace,
-      totalUsage,
+      UsageRecordCategory.Total,
+      getCostForUsage(UsageRecordCategory.Storage, totalUsage),
       UsageRecordFulfillmentStatus.Fulfilled
     );
+
+    await assertRecordInsertionFails(context, connection, workspace);
   });
 
   test('aggregates dropped usage records', async () => {
     // Setup
-    const exceedBy = 100;
-    const {workspace: w1, totalUsage: tu1} = await setupForFile(
-      /** exceedLimit */ true,
-      /** nothrow */ true,
-      exceedBy // 100 bytes
+    const {context, connection} = await getContextAndConnection();
+    const workspace = generateTestWorkspace();
+    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+      [UsageRecordCategory.Total]: {
+        budget: 1000,
+        category: UsageRecordCategory.Total,
+      },
+    });
+
+    await context.cacheProviders.workspace.insert(context, workspace);
+    const ut = workspace.usageThresholds[UsageRecordCategory.Total];
+    assert(ut);
+    await insertUsageRecordsForFiles(
+      context,
+      workspace,
+      UsageRecordCategory.Storage,
+      getUsageForCost(UsageRecordCategory.Storage, ut.budget),
+      /** exceedLimit */ true
     );
 
     // Run
@@ -370,9 +464,30 @@ describe('usage-records-pipeline', () => {
     await aggregateRecords(connection);
 
     // Assert
+    await context.cacheProviders.workspace.refreshCache(context);
+    await checkLocks(context, workspace.resourceId, {
+      [UsageRecordCategory.Total]: true,
+    });
+
+    // Setup
+    const exceedBy = 100;
+    await insertUsageRecordsForFiles(
+      context,
+      workspace,
+      UsageRecordCategory.Storage,
+      exceedBy
+    );
+
+    // Run
+    await aggregateRecords(connection);
+
+    // Assert
+    assertContext(context);
     await assertRecordLevel2Exists(
-      w1,
-      exceedBy,
+      connection,
+      workspace,
+      UsageRecordCategory.Storage,
+      getCostForUsage(UsageRecordCategory.Storage, exceedBy),
       UsageRecordFulfillmentStatus.Dropped
     );
   });

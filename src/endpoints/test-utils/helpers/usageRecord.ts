@@ -1,6 +1,6 @@
 import {defaultTo} from 'lodash';
 import {systemAgent} from '../../../definitions/system';
-import {UsageThresholdCategory} from '../../../definitions/usageRecord';
+import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -8,7 +8,7 @@ import {IBaseContext} from '../../contexts/BaseContext';
 export async function updateTestWorkspaceUsageLocks(
   context: IBaseContext,
   id: string,
-  categories: UsageThresholdCategory[]
+  categories: UsageRecordCategory[]
 ) {
   let workspace = await context.cacheProviders.workspace.getById(context, id);
   const usageThresholdLocks: IWorkspace['usageThresholdLocks'] = {
