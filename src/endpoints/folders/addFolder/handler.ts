@@ -12,7 +12,7 @@ import {compactPublicAccessOps} from '../../../definitions/utils';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
@@ -54,7 +54,7 @@ export async function createSingleFolder(
     return existingFolder;
   }
 
-  const folderId = getNewId();
+  const folderId = getNewIdForResource(AppResourceType.Folder);
   const createdAt = getDateString();
   const createdBy: IAgent = {
     agentId: agent.agentId,

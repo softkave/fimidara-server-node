@@ -1,7 +1,7 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAgent} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import PermissionItemQueries from '../queries';
@@ -18,7 +18,7 @@ export async function internalAddPermissionItemsByEntity(
     const item: IPermissionItem = {
       ...input,
       workspaceId,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
       createdAt: getDateString(),
       createdBy: {
         agentId: agent.agentId,

@@ -13,7 +13,7 @@ import {
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
@@ -35,7 +35,7 @@ function makeAdminPermissions(
     action => {
       const item: IPermissionItem = {
         action,
-        resourceId: getNewId(),
+        resourceId: getNewIdForResource(AppResourceType.PermissionItem),
         workspaceId: workspace.resourceId,
         createdAt: getDateString(),
         createdBy: {
@@ -77,7 +77,7 @@ function makeCollaboratorPermissions(
         action,
         itemResourceId,
         appliesTo,
-        resourceId: getNewId(),
+        resourceId: getNewIdForResource(AppResourceType.PermissionItem),
         workspaceId: workspace.resourceId,
         createdAt: getDateString(),
         createdBy: {
@@ -164,7 +164,7 @@ export async function setupDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -176,7 +176,7 @@ export async function setupDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
@@ -188,7 +188,7 @@ export async function setupDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,

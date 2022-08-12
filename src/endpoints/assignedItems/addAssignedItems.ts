@@ -9,8 +9,8 @@ import {AppResourceType, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
-import getNewId from '../../utilities/getNewId';
 import {indexArray} from '../../utilities/indexArray';
+import {getNewIdForResource} from '../../utilities/resourceId';
 import {IBaseContext} from '../contexts/BaseContext';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
@@ -79,11 +79,12 @@ export async function addAssignedPermissionGroupList(
     const meta: IAssignedPermissionGroupMeta = {
       order: permissionGroup.order || Number.MAX_SAFE_INTEGER,
     };
+
     const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
       assignedToItemId,
       assignedToItemType,
       meta,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.AssignedItem),
       assignedItemId: permissionGroup.permissionGroupId,
       assignedItemType: AppResourceType.PermissionGroup,
       workspaceId: workspace.resourceId,
@@ -120,7 +121,7 @@ export async function addAssignedTagList(
       assignedToItemId,
       assignedToItemType,
       meta: {},
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.AssignedItem),
       assignedItemId: tag.tagId,
       assignedItemType: AppResourceType.PermissionGroup,
       workspaceId: workspace.resourceId,
@@ -186,7 +187,7 @@ export async function assignWorkspaceToUser(
     assignedToItemId: user.resourceId,
     assignedToItemType: AppResourceType.User,
     meta: {},
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.AssignedItem),
     assignedItemId: workspaceId,
     assignedItemType: AppResourceType.Workspace,
   };

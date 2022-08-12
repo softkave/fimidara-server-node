@@ -1,5 +1,5 @@
 import {defaultTo} from 'lodash';
-import {IAgent} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {
   IUsageRecord,
   IUsageRecordArtifact,
@@ -10,8 +10,8 @@ import {
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import RequestData from '../../RequestData';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
@@ -71,7 +71,8 @@ export class UsageRecordLogicProvider {
     const record: IUsageRecord = {
       ...getRecordingPeriod(),
       ...input,
-      resourceId: input.resourceId || getNewId(),
+      resourceId:
+        input.resourceId || getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: getDate(),
       createdBy: agent,
       summationType: UsageSummationType.One,

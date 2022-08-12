@@ -1,5 +1,5 @@
 import {defaultTo, random} from 'lodash';
-import {systemAgent} from '../../../definitions/system';
+import {AppResourceType, systemAgent} from '../../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -7,7 +7,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {getDate} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(
@@ -52,7 +52,7 @@ export function generateUsageRecords(
       workspaceId,
       month: random(0, 11),
       year: random(0, 11),
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: new Date(),
       createdBy: systemAgent,
       lastUpdatedAt: new Date(),

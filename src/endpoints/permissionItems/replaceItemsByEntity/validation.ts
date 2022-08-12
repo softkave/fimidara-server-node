@@ -4,8 +4,8 @@ import permissionItemValidationSchemas from '../validation';
 
 export const replacePermissionItemsByEntityJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
-    permissionEntityId: validationSchemas.nanoid.required(),
+    workspaceId: validationSchemas.resourceId,
+    permissionEntityId: validationSchemas.resourceId.required(),
     permissionEntityType: validationSchemas.resourceType.required(),
     items: permissionItemValidationSchemas.itemInputByEntityList.required(),
   })

@@ -1,8 +1,8 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getDate} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {indexArray} from '../../../utilities/indexArray';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
@@ -37,7 +37,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
     const item: IPermissionItem = {
       workspaceId,
       ...input,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
       createdAt: getDate(),
       createdBy: {
         agentId: agent.agentId,

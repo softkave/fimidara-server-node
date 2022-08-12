@@ -5,9 +5,9 @@ import clientAssignedTokenValidationSchemas from '../validation';
 
 export const updateClientAssignedTokenPermissionGroupsJoiSchema = Joi.object()
   .keys({
-    tokenId: validationSchemas.nanoid.allow(null),
+    tokenId: validationSchemas.resourceId.allow(null),
     onReferenced: Joi.boolean().allow(null),
-    workspaceId: validationSchemas.nanoid.allow(null),
+    workspaceId: validationSchemas.resourceId.allow(null),
     providedResourceId:
       clientAssignedTokenValidationSchemas.providedResourceId.allow(null),
     token: newClientAssignedTokenJoiSchema.required(),

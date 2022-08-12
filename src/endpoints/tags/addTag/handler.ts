@@ -4,17 +4,17 @@ import {
   IAgent,
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
+import {checkTagNameExists} from '../checkTagNameExists';
+import {tagExtractor} from '../utils';
 import {AddTagEndpoint} from './types';
 import {addTagJoiSchema} from './validation';
-import {tagExtractor} from '../utils';
-import {checkTagNameExists} from '../checkTagNameExists';
 
 const addTag: AddTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, addTagJoiSchema);
@@ -48,7 +48,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     workspaceId: workspace.resourceId,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.Tag),
   });
 
   return {

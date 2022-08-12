@@ -1,6 +1,8 @@
 import {URL} from 'url';
+import {AppResourceType} from '../../../definitions/system';
+import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -12,7 +14,7 @@ import UserTokenQueries from '../UserTokenQueries';
 
 export async function withConfirmEmailAddressToken(
   context: IBaseContext,
-  user: {resourceId: string; isEmailVerified?: boolean},
+  user: Pick<IUser, 'resourceId' | 'isEmailVerified'>,
   link: string
 ) {
   const url = new URL(link);
@@ -32,7 +34,7 @@ export async function withConfirmEmailAddressToken(
       token = await context.data.userToken.saveItem({
         audience: [TokenAudience.ConfirmEmailAddress],
         issuedAt: getDateString(),
-        resourceId: getNewId(),
+        resourceId: getNewIdForResource(AppResourceType.UserToken),
         userId: user.resourceId,
         version: CURRENT_TOKEN_VERSION,
       });

@@ -6,7 +6,7 @@ import {
   getUsageRecordModel,
   IUsageRecordModel,
 } from '../../../../db/usageRecord';
-import {systemAgent} from '../../../../definitions/system';
+import {AppResourceType, systemAgent} from '../../../../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
@@ -14,7 +14,7 @@ import {
 } from '../../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import cast from '../../../../utilities/fns';
-import getNewId from '../../../../utilities/getNewId';
+import {getNewId, getNewIdForResource} from '../../../../utilities/resourceId';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
 import {generateTestWorkspace} from '../../../test-utils/generate-data/workspace';
@@ -78,7 +78,7 @@ describe('UsageRecordLogicProvider', () => {
     const {connection, context, provider} = assertDeps();
     const workspace = generateTestWorkspace();
     await context.cacheProviders.workspace.insert(context, workspace);
-    const recordId = getNewId();
+    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
@@ -103,7 +103,7 @@ describe('UsageRecordLogicProvider', () => {
     const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatus.BillOverdue;
     await context.cacheProviders.workspace.insert(context, workspace);
-    const recordId = getNewId();
+    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
@@ -127,7 +127,7 @@ describe('UsageRecordLogicProvider', () => {
       UsageRecordCategory.Total,
     ]);
     await context.cacheProviders.workspace.insert(context, workspace);
-    const recordId = getNewId();
+    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
@@ -151,7 +151,7 @@ describe('UsageRecordLogicProvider', () => {
       UsageRecordCategory.Storage,
     ]);
     await context.cacheProviders.workspace.insert(context, workspace);
-    const recordId = getNewId();
+    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,

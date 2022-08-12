@@ -5,7 +5,7 @@ import {getWorkspaceModel} from '../../../../db/workspace';
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
 import {getDate} from '../../../../utilities/dateFns';
 import cast, {waitTimeout} from '../../../../utilities/fns';
-import getNewId from '../../../../utilities/getNewId';
+import {getNewId} from '../../../../utilities/resourceId';
 import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import {getTestVars} from '../../../test-utils/vars';
