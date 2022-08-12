@@ -1,6 +1,7 @@
 import {URL} from 'url';
+import {AppResourceType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -27,7 +28,7 @@ async function createTestEmailVerificationToken(userId: string) {
     userId,
     audience: [TokenAudience.ConfirmEmailAddress],
     issuedAt: getDateString(),
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.UserToken),
     version: CURRENT_TOKEN_VERSION,
   });
 }
@@ -61,7 +62,10 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
       context,
-      {resourceId: getNewId()},
+      {
+        resourceId: getNewIdForResource(AppResourceType.User),
+        isEmailVerified: false,
+      },
       prevLink
     );
     assertLinkWithToken(link, null, prevLink);
@@ -69,12 +73,12 @@ describe('withConfirmEmailAddress', () => {
 
   test('email verification token reused', async () => {
     assertContext(context);
-    const userId = getNewId();
+    const userId = getNewIdForResource(AppResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
       context,
-      {resourceId: userId},
+      {resourceId: userId, isEmailVerified: false},
       prevLink
     );
 
@@ -89,7 +93,7 @@ describe('withConfirmEmailAddress', () => {
 
   test('email verification token not added if already exist', async () => {
     assertContext(context);
-    const userId = getNewId();
+    const userId = getNewIdForResource(AppResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
     const encodedToken = context.session.encodeToken(
       context,
@@ -101,7 +105,10 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = `http://localhost/?token=prevToken&${userConstants.confirmEmailTokenQueryParam}=${encodedToken}`;
     const link = await withConfirmEmailAddressToken(
       context,
-      {resourceId: getNewId()},
+      {
+        resourceId: getNewIdForResource(AppResourceType.User),
+        isEmailVerified: false,
+      },
       prevLink
     );
 
@@ -114,7 +121,10 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = 'http://localhost/';
     const link = await withConfirmEmailAddressToken(
       context,
-      {resourceId: getNewId(), isEmailVerified: true},
+      {
+        resourceId: getNewIdForResource(AppResourceType.User),
+        isEmailVerified: true,
+      },
       prevLink
     );
 

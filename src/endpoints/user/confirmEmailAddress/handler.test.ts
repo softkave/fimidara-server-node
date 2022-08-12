@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
+import {AppResourceType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -35,7 +36,7 @@ test('email address is confirmed', async () => {
   });
 
   const token = await context.data.userToken.saveItem({
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     audience: [TokenAudience.ConfirmEmailAddress],
     issuedAt: getDateString(),

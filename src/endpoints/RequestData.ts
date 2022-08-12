@@ -1,6 +1,6 @@
 import {ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import getNewId from '../utilities/getNewId';
+import {getNewId} from '../utilities/resourceId';
 import {IBaseTokenData} from './contexts/SessionContext';
 import {IServerRequest} from './contexts/types';
 import {IRequestDataPendingPromise} from './types';
@@ -63,7 +63,6 @@ export default class RequestData<T = any> {
 
   public constructor(arg?: IRequestContructorParams<T>) {
     this.requestId = getNewId();
-
     if (!arg) {
       return;
     }
@@ -73,7 +72,6 @@ export default class RequestData<T = any> {
     this.incomingTokenData = arg.incomingTokenData;
     this.agent = arg.agent;
     this.user = arg.user;
-
     if (arg.pendingPromises) {
       this.pendingPromises = arg.pendingPromises;
     }

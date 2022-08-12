@@ -1,6 +1,7 @@
 import {add} from 'date-fns';
+import {AppResourceType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
   CURRENT_TOKEN_VERSION,
@@ -49,7 +50,7 @@ async function changePasswordWithTokenTest() {
 
   const newPassword = 'abd784_!new';
   const token = await context.data.userToken.saveItem({
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),

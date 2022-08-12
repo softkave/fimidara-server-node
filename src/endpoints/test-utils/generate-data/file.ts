@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
-import {systemAgent} from '../../../definitions/system';
+import {AppResourceType, systemAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 
 export function generateTestFile(
   workspace: Pick<IWorkspace, 'rootname' | 'resourceId'>,
   extra: Partial<IFile> = {}
 ) {
-  const id = getNewId();
+  const id = getNewIdForResource(AppResourceType.File);
   const name = faker.lorem.words();
   const createdAt = faker.date.past();
   const file: IFile = {

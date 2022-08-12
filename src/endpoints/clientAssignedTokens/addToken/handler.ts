@@ -6,7 +6,7 @@ import {
   IAgent,
 } from '../../../definitions/system';
 import {getDate, getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
@@ -74,7 +74,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       createdBy,
       providedResourceId: defaultTo(data.token.providedResourceId, null),
       workspaceId: workspace.resourceId,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.ClientAssignedToken),
       version: CURRENT_TOKEN_VERSION,
       issuedAt: getDateString(),
       lastUpdatedAt: createdAt,
