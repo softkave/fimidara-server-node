@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {systemAgent} from '../../definitions/system';
+import {AppResourceType, systemAgent} from '../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -13,7 +13,7 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import getNewId from '../../utilities/getNewId';
+import {getNewIdForResource} from '../../utilities/resourceId';
 
 /**
  * Aggregates usage records by month by category and total.
@@ -152,7 +152,7 @@ async function getUsageRecordsLevel2(
         month,
         year,
         fulfillmentStatus,
-        resourceId: getNewId(),
+        resourceId: getNewIdForResource(AppResourceType.UsageRecord),
         createdAt: new Date(),
         createdBy: systemAgent,
         category: k,

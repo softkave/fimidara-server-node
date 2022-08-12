@@ -5,7 +5,7 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {
   ISaveResourceAssignedItemsOptions,
   saveResourceAssignedItems,
@@ -44,7 +44,7 @@ export const internalCreateProgramAccessToken = async (
       lastUpdatedBy: createdBy,
       hash,
       workspaceId: workspace.resourceId,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.ProgramAccessToken),
     });
 
   await saveResourceAssignedItems(

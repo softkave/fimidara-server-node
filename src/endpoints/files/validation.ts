@@ -28,7 +28,7 @@ const publicAccessAction = Joi.string().valid(
 
 const fileMatcherParts = {
   filepath,
-  fileId: validationSchemas.nanoid,
+  fileId: validationSchemas.resourceId,
 };
 
 const fileValidationSchemas = {

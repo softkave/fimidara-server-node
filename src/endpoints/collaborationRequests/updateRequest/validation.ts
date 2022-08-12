@@ -8,7 +8,7 @@ export const updateRequestInputJoiSchema = Joi.object().keys({
 
 export const updateRequestJoiSchema = Joi.object()
   .keys({
-    requestId: validationSchemas.nanoid.required(),
+    requestId: validationSchemas.resourceId.required(),
     request: updateRequestInputJoiSchema.required(),
   })
   .required();

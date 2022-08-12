@@ -1,7 +1,8 @@
 import {faker} from '@faker-js/faker';
+import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {
   defaultGenPartialTestDataFn,
   generateTestList,
@@ -11,7 +12,7 @@ import {
 export function generateUserForTest() {
   const createdAt = getDateString();
   const item: IUser = {
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.User),
     createdAt,
     lastUpdatedAt: createdAt,
     firstName: faker.name.firstName(),

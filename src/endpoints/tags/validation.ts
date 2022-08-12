@@ -4,7 +4,7 @@ import {validationSchemas} from '../../utilities/validationUtils';
 import {tagConstants} from './constants';
 
 const assignedTag = Joi.object().keys({
-  tagId: validationSchemas.nanoid.required(),
+  tagId: validationSchemas.resourceId.required(),
 });
 
 const assignedTagsList = Joi.array()

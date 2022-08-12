@@ -17,7 +17,7 @@ export const newClientAssignedTokenJoiSchema = Joi.object().keys({
 
 export const addClientAssignedTokenJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     token: newClientAssignedTokenJoiSchema.required(),
   })
   .required();

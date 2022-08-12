@@ -4,9 +4,9 @@ import {permissionItemConstants} from '../constants';
 
 export const deletePermissionItemsByIdJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     itemIds: Joi.array()
-      .items(validationSchemas.nanoid.required())
+      .items(validationSchemas.resourceId.required())
       .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
       .required(),
   })

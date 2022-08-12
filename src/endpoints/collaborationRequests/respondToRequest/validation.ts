@@ -4,7 +4,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const respondToRequestJoiSchema = Joi.object()
   .keys({
-    requestId: validationSchemas.nanoid.required(),
+    requestId: validationSchemas.resourceId.required(),
     response: Joi.string()
       .allow(
         CollaborationRequestStatusType.Accepted,

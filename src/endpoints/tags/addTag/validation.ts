@@ -3,7 +3,7 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const addTagJoiSchema = Joi.object()
   .keys({
-    workspaceId: validationSchemas.nanoid,
+    workspaceId: validationSchemas.resourceId,
     tag: Joi.object()
       .keys({
         name: validationSchemas.name.required(),

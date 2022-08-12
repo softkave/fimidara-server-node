@@ -3,6 +3,6 @@ import {validationSchemas} from '../../../utilities/validationUtils';
 
 export const deleteTagJoiSchema = Joi.object()
   .keys({
-    tagId: validationSchemas.nanoid.required(),
+    tagId: validationSchemas.resourceId.required(),
   })
   .required();

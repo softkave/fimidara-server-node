@@ -49,7 +49,7 @@ const verificationCode = Joi.string()
   .min(validationConstants.minVerificationCodeLength)
   .max(validationConstants.maxVerificationCodeLength);
 
-const nanoid = Joi.string().trim().length(21);
+const resourceId = Joi.string().trim().max(50);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
@@ -64,7 +64,7 @@ const publicAccessOpList = Joi.array()
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 export const validationSchemas = {
-  nanoid,
+  resourceId,
   color,
   URL,
   positiveNum,

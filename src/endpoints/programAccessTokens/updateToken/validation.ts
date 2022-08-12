@@ -5,7 +5,7 @@ import tagValidationSchemas from '../../tags/validation';
 
 export const updateProgramAccessTokenJoiSchema = Joi.object()
   .keys({
-    tokenId: validationSchemas.nanoid.allow(null),
+    tokenId: validationSchemas.resourceId.allow(null),
     onReferenced: Joi.boolean().allow(null),
     token: Joi.object()
       .keys({

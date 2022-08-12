@@ -9,9 +9,9 @@ const appliesTo = Joi.string()
 
 const itemInputByEntity = Joi.object().keys({
   appliesTo,
-  permissionOwnerId: validationSchemas.nanoid.required(),
+  permissionOwnerId: validationSchemas.resourceId.required(),
   permissionOwnerType: validationSchemas.resourceType.required(),
-  itemResourceId: validationSchemas.nanoid.allow(null),
+  itemResourceId: validationSchemas.resourceId.allow(null),
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
   grantAccess: Joi.boolean().required(),
@@ -19,13 +19,13 @@ const itemInputByEntity = Joi.object().keys({
 
 const itemInput = Joi.object().keys({
   appliesTo,
-  permissionOwnerId: validationSchemas.nanoid.required(),
+  permissionOwnerId: validationSchemas.resourceId.required(),
   permissionOwnerType: validationSchemas.resourceType.required(),
-  itemResourceId: validationSchemas.nanoid.allow(null),
+  itemResourceId: validationSchemas.resourceId.allow(null),
   itemResourceType: validationSchemas.resourceType.required(),
   action: validationSchemas.crudAction.required(),
   grantAccess: Joi.boolean().required(),
-  permissionEntityId: validationSchemas.nanoid.required(),
+  permissionEntityId: validationSchemas.resourceId.required(),
   permissionEntityType: validationSchemas.resourceType.required(),
 });
 
@@ -38,7 +38,7 @@ const itemInputList = Joi.array()
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 const itemIds = Joi.array()
-  .items(validationSchemas.nanoid.required())
+  .items(validationSchemas.resourceId.required())
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
   .unique();
 

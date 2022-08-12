@@ -15,8 +15,8 @@ import {
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
@@ -102,7 +102,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
     message: data.request.message,
     workspaceName: workspace.name,
     workspaceId: workspace.resourceId,

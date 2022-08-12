@@ -1,6 +1,7 @@
 import * as argon2 from 'argon2';
+import {AppResourceType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {EmailAddressNotAvailableError} from '../errors';
@@ -23,7 +24,7 @@ export const internalSignupUser = async (
   const now = getDateString();
   const user = await context.data.user.saveItem({
     hash,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.User),
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,

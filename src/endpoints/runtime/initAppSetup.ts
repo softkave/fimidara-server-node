@@ -14,7 +14,7 @@ import {
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/appVariables';
 import {getDate, getDateString} from '../../utilities/dateFns';
-import getNewId from '../../utilities/getNewId';
+import {getNewIdForResource} from '../../utilities/resourceId';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext} from '../contexts/BaseContext';
 import {createSingleFolder} from '../folders/addFolder/handler';
@@ -62,7 +62,7 @@ async function setupDefaultUserCollaborationRequest(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: systemAgent,
-    resourceId: getNewId(),
+    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
     createdBy: systemAgent,
     message:
       'System-generated collaboration request ' +
@@ -158,7 +158,7 @@ async function setupImageUploadPermissionGroup(
       createdAt,
       lastUpdatedAt: createdAt,
       lastUpdatedBy: systemAgent,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
       workspaceId: workspaceId,
       createdBy: systemAgent,
     });
@@ -170,7 +170,7 @@ async function setupImageUploadPermissionGroup(
     const item: IPermissionItem = {
       action,
       hash: '',
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
       workspaceId: workspaceId,
       createdAt: getDateString(),
       createdBy: systemAgent,

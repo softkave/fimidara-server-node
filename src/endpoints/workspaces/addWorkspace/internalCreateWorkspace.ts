@@ -1,11 +1,11 @@
 import assert from 'assert';
-import {IAgent} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
 import cast from '../../../utilities/fns';
-import getNewId from '../../../utilities/getNewId';
+import {getNewIdForResource} from '../../../utilities/resourceId';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
@@ -64,7 +64,7 @@ const internalCreateWorkspace = async (
       lastUpdatedBy: agent,
       name: data.name,
       rootname: data.rootname,
-      resourceId: getNewId(),
+      resourceId: getNewIdForResource(AppResourceType.Workspace),
       description: data.description,
       billStatus: WorkspaceBillStatus.Ok,
       billStatusAssignedAt: createdAt,
