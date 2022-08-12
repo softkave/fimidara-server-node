@@ -3,7 +3,7 @@ import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 
 export const usageRecordConstants = {
-  defaultTotalThresholdInUSD: 100,
+  defaultTotalThresholdInUSD: 20,
 
   /**
    * We leave some wiggle room for requests that slightly exceed the threshold
