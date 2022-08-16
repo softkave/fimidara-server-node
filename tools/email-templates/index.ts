@@ -1,5 +1,6 @@
 import {
   renderCollaborationRequestMedia,
+  renderCollaborationRequestResponseMedia,
   renderCollaborationRequestRevokedMedia,
   renderConfirmEmailAddressMedia,
   renderForgotPasswordMedia,
@@ -10,5 +11,6 @@ renderConfirmEmailAddressMedia();
 renderForgotPasswordMedia();
 renderCollaborationRequestMedia();
 renderCollaborationRequestRevokedMedia();
+renderCollaborationRequestResponseMedia();
 console.log('Completed writing templates');
 process.exit(0);
