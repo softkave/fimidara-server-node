@@ -1,5 +1,5 @@
 import {validate} from '../../../utilities/validate';
-import {collabRequestExtractor} from '../utils';
+import {collaborationRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
 import {internalRespondToRequest} from './utils';
 import {respondToRequestJoiSchema} from './validation';
@@ -12,7 +12,7 @@ const respondToRequest: RespondToRequestEndpoint = async (
   const user = await context.session.getUser(context, instData);
   const request = await internalRespondToRequest(context, user, data);
   return {
-    request: collabRequestExtractor(request),
+    request: collaborationRequestExtractor(request),
   };
 };
 

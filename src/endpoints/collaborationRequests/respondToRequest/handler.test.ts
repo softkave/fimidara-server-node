@@ -11,7 +11,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {collabRequestExtractor} from '../utils';
+import {collaborationRequestExtractor} from '../utils';
 import respondToRequest from './handler';
 import {IRespondToRequestEndpointParams} from './types';
 
@@ -63,7 +63,9 @@ test('collaboration request declined', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(collabRequestExtractor(updatedRequest));
+  expect(result.request).toMatchObject(
+    collaborationRequestExtractor(updatedRequest)
+  );
   expect(
     updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
   ).toMatchObject({
