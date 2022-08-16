@@ -18,6 +18,7 @@ import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
@@ -116,13 +117,28 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     ],
   });
 
-  fireAndForgetPromise(sendEmail(context, request, existingUser));
+  if (
+    data.request.permissionGroupsOnAccept &&
+    data.request.permissionGroupsOnAccept.length > 0
+  ) {
+    await addAssignedPermissionGroupList(
+      context,
+      agent,
+      workspace,
+      data.request.permissionGroupsOnAccept,
+      request.resourceId,
+      AppResourceType.CollaborationRequest,
+      /** deleteExisting */ false
+    );
+  }
+
+  fireAndForgetPromise(sendRequestEmail(context, request, existingUser));
   return {
     request: collabRequestExtractor(request),
   };
 };
 
-async function sendEmail(
+async function sendRequestEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
   toUser: IUser | null

@@ -1,10 +1,12 @@
 import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {Endpoint} from '../../types';
 
 export interface IUpdateCollaborationRequestInput {
   message?: string;
   expires?: string;
+  permissionGroupsOnAccept?: IPermissionGroupInput[];
 }
 
 export interface IUpdateRequestEndpointParams {

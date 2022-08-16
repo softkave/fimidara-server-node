@@ -27,7 +27,7 @@ test('permissionGroup permission group deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
+  const {permissionGroup} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
