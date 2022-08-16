@@ -13,13 +13,14 @@ import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
+import {assertWorkspace} from '../../workspaces/utils';
 import {
   checkCollaborationRequestAuthorization02,
-  collabRequestExtractor,
+  collaborationRequestExtractor,
+  populateRequestPermissionGroups,
 } from '../utils';
 import {RevokeRequestEndpoint} from './types';
 import {revokeRequestJoiSchema} from './validation';
-import {assertWorkspace} from '../../workspaces/utils';
 
 const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, revokeRequestJoiSchema);
@@ -49,18 +50,22 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
       context,
       request.workspaceId
     );
+
     assertWorkspace(workspace);
     if (workspace) {
-      fireAndForgetPromise(sendEmail(context, request, workspace.name));
+      fireAndForgetPromise(
+        sendRevokeRequestEmail(context, request, workspace.name)
+      );
     }
   }
 
+  request = await populateRequestPermissionGroups(context, request);
   return {
-    request: collabRequestExtractor(request),
+    request: collaborationRequestExtractor(request),
   };
 };
 
-async function sendEmail(
+async function sendRevokeRequestEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
   workspaceName: string

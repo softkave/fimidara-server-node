@@ -39,6 +39,7 @@ const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
 export const assignedPermissionGroupsExtractor = makeExtract(
   assignedPermissionGroupsFields
 );
+
 export const assignedPermissionGroupsListExtractor = makeListExtract(
   assignedPermissionGroupsFields
 );

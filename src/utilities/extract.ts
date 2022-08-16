@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {pick, isFunction} from 'lodash';
+import {isFunction, pick} from 'lodash';
 import cast from './fns';
 
 export type ExtractFieldTransformer<
@@ -57,11 +57,9 @@ export function getFields<
   finalizeFn?: (data: T, currentResult: Result, extraArgs: ExtraArgs) => Result
 ): IObjectPaths<T, Result, ExtraArgs> {
   const keys = Object.keys(data) as Array<keyof typeof data>;
-
   return keys.reduce(
     (paths, key) => {
       const value = data[key];
-
       if (isFunction(value)) {
         paths.scalarFieldsWithTransformers.push({
           property: key as string,
@@ -97,7 +95,6 @@ export function extractFields<
   let result = pick(data, paths.scalarFields);
   paths.scalarFieldsWithTransformers.forEach(({property, transformer}) => {
     const propValue = data[property];
-
     if (propValue === undefined) {
       return;
     }

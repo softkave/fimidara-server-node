@@ -1,3 +1,4 @@
+import {IFile} from '../../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -93,7 +94,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     contentLength: data.data.byteLength,
   });
 
-  file = await populateAssignedPermissionGroupsAndTags(
+  file = await populateAssignedPermissionGroupsAndTags<IFile>(
     context,
     file.workspaceId,
     file,

@@ -80,7 +80,6 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
   assertItemExists = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
       const item = await this.getItem(filter);
-
       if (!item) {
         if (throwError) {
           throwError();
@@ -96,7 +95,6 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
   assertGetItem = wrapFireAndThrowError(
     async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
       const item = await this.getItem(filter);
-
       if (!item) {
         if (throwError) {
           throwError();
@@ -116,7 +114,6 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
       throwError?: () => void
     ) => {
       const item = await this.updateItem(filter, data);
-
       if (!item) {
         if (throwError) {
           throwError();
@@ -132,7 +129,7 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
   saveItem = wrapFireAndThrowError(async (data: T) => {
     const item = new this.model(data);
     const savedItem = await item.save();
-    return cast<T>(savedItem);
+    return savedItem.toObject();
   });
 
   bulkSaveItems = wrapFireAndThrowError(async (data: T[]) => {
@@ -147,14 +144,12 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
 
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
   const query: FilterQuery<Document<any, any, any>> = {};
-
   forEach(filter.items, (value, key) => {
     if (!value) {
       return;
     }
 
     let valueMongoQuery: FilterQuery<any> = {};
-
     switch (value.queryOp) {
       case DataProviderFilterValueOperator.GreaterThan:
         valueMongoQuery = {$gt: value.value};
@@ -186,6 +181,7 @@ export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {
         } else {
           valueMongoQuery = {$regex: value.value};
         }
+
         break;
       case DataProviderFilterValueOperator.Object:
         valueMongoQuery = {$elemMatch: value.value};

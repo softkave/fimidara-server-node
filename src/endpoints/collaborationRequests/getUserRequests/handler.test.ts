@@ -38,16 +38,12 @@ test("user's collaboration request returned", async () => {
     context,
     userToken,
     workspace.resourceId,
-    {
-      recipientEmail: user02.email,
-    }
+    {recipientEmail: user02.email}
   );
 
   const instData = RequestData.fromExpressRequest(
     mockExpressRequestWithUserToken(user02Token),
-    {
-      workspaceId: workspace.resourceId,
-    }
+    {workspaceId: workspace.resourceId}
   );
 
   const result = await getUserRequests(context, instData);

@@ -6,7 +6,8 @@ import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedIte
 import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization02,
-  collabRequestExtractor,
+  collaborationRequestExtractor,
+  populateRequestPermissionGroups,
 } from '../utils';
 import {UpdateRequestEndpoint} from './types';
 import {updateRequestJoiSchema} from './validation';
@@ -48,9 +49,9 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
     }
   }
 
-  const publicData = collabRequestExtractor(request);
+  request = await populateRequestPermissionGroups(context, request);
   return {
-    request: publicData,
+    request: collaborationRequestExtractor(request),
   };
 };
 
