@@ -1,3 +1,4 @@
+import {format, formatDistance} from 'date-fns';
 import {
   emailTemplateConstants,
   emailTemplateStyles,
@@ -5,9 +6,8 @@ import {
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
-import {format, formatDistance} from 'date-fns';
 
-export const forgotPasswordEmailTitle = 'Change Your Password';
+export const forgotPasswordEmailTitle = 'Change your password';
 
 export interface IForgotPasswordEmailProps {
   link: string;

@@ -1,9 +1,16 @@
+import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
+import {CollaborationRequestStatusType} from '../../src/definitions/collaborationRequest';
 import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   ICollaborationRequestEmailProps,
 } from '../../src/email-templates/collaborationRequest';
+import {
+  collaborationRequestResponseEmailHTML,
+  collaborationRequestResponseEmailText,
+  ICollaborationRequestResponseEmailProps,
+} from '../../src/email-templates/collaborationRequestResponse';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
@@ -22,9 +29,9 @@ import {
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =
-  './email-templates/templates/confirm-email-address-html.html';
+  './tools/email-templates/templates/confirm-email-address-html.html';
 const confirmEmailAddressTxtFile =
-  './email-templates/templates/confirm-email-address-text.txt';
+  './tools/email-templates/templates/confirm-email-address-text.txt';
 
 export function renderConfirmEmailAddressMedia() {
   const props: IConfirmEmailAddressEmailProps = {
@@ -40,9 +47,9 @@ export function renderConfirmEmailAddressMedia() {
 
 // Forgot password email
 const forgotPasswordEmailHTMLFile =
-  './email-templates/templates/forgot-password-html.html';
+  './tools/email-templates/templates/forgot-password-html.html';
 const forgotPasswordEmailTxtFile =
-  './email-templates/templates/forgot-password-text.txt';
+  './tools/email-templates/templates/forgot-password-text.txt';
 
 export function renderForgotPasswordMedia() {
   const props: IForgotPasswordEmailProps = {
@@ -58,9 +65,9 @@ export function renderForgotPasswordMedia() {
 
 // Collaboration request email
 const collaborationRequestEmailHTMLFile =
-  './email-templates/templates/collaboration-request-html.html';
+  './tools/email-templates/templates/collaboration-request-html.html';
 const collaborationRequestEmailTxtFile =
-  './email-templates/templates/collaboration-request-text.txt';
+  './tools/email-templates/templates/collaboration-request-text.txt';
 
 export function renderCollaborationRequestMedia() {
   const props: ICollaborationRequestEmailProps = {
@@ -82,9 +89,9 @@ export function renderCollaborationRequestMedia() {
 
 // Collaboration request revoked email
 const collaborationRequestRevokedEmailHTMLFile =
-  './email-templates/templates/collaboration-request-revoked-html.html';
+  './tools/email-templates/templates/collaboration-request-revoked-html.html';
 const collaborationRequestRevokedEmailTxtFile =
-  './email-templates/templates/collaboration-request-revoked-text.txt';
+  './tools/email-templates/templates/collaboration-request-revoked-text.txt';
 
 export function renderCollaborationRequestRevokedMedia() {
   const props: ICollaborationRequestRevokedEmailProps = {
@@ -97,4 +104,25 @@ export function renderCollaborationRequestRevokedMedia() {
   const renderedText = collaborationRequestRevokedEmailText(props);
   fs.writeFileSync(collaborationRequestRevokedEmailHTMLFile, renderedHTML);
   fs.writeFileSync(collaborationRequestRevokedEmailTxtFile, renderedText);
+}
+
+// Collaboration request response email
+const collaborationRequestResponseEmailHTMLFile =
+  './tools/email-templates/templates/collaboration-request-response-html.html';
+const collaborationRequestResponseEmailTxtFile =
+  './tools/email-templates/templates/collaboration-request-response-text.txt';
+
+export function renderCollaborationRequestResponseMedia() {
+  const props: ICollaborationRequestResponseEmailProps = {
+    workspaceName: 'Fimidara',
+    signupLink: 'https://fimidara.com/accounts/signup',
+    loginLink: 'https://fimidara.com/accounts/login',
+    recipientEmail: faker.internet.email(),
+    response: CollaborationRequestStatusType.Accepted,
+  };
+
+  const renderedHTML = collaborationRequestResponseEmailHTML(props);
+  const renderedText = collaborationRequestResponseEmailText(props);
+  fs.writeFileSync(collaborationRequestResponseEmailHTMLFile, renderedHTML);
+  fs.writeFileSync(collaborationRequestResponseEmailTxtFile, renderedText);
 }

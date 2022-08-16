@@ -1,11 +1,11 @@
 import {
   emailTemplateStyles,
+  getAccountAccessSectionHTML,
+  getAccountAccessSectionText,
   getCenteredContentHTML,
   getFooterHTML,
   getHeaderHTML,
   getHeaderText,
-  getAccountAccessSectionHTML,
-  getAccountAccessSectionText,
 } from './helpers';
 import {IBaseEmailTemplateProps} from './types';
 
@@ -15,7 +15,7 @@ export interface ICollaborationRequestRevokedEmailProps
 }
 
 export function collaborationRequestRevokedEmailTitle(workspaceName: string) {
-  return `Collaboration Request from ${workspaceName} Revoked`;
+  return `Collaboration request from ${workspaceName} revoked`;
 }
 
 export function collaborationRequestRevokedEmailHTML(

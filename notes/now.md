@@ -20,3 +20,6 @@
 - [ ] free flowing tags
 - [ ] sort data by date by default
 - [ ] Use extension when file matching so that users can upload files with the same name but with different extensions and test that it works
+- [ ] Job to send reminder of collaboration requests to users who haven't accepted or rejected them in a while and when they expire
+- [ ] Allow collaboration requests to be resent after a certain time
+- [ ] Alert recipients when request is revoked

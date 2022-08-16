@@ -6,7 +6,7 @@ import {
   getHeaderText,
 } from './helpers';
 
-export const confirmEmailAddressEmailTitle = 'Confirm Your Email Address';
+export const confirmEmailAddressEmailTitle = 'Confirm your email address';
 
 export interface IConfirmEmailAddressEmailProps {
   firstName: string;
