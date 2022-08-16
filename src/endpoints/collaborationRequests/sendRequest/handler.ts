@@ -31,7 +31,10 @@ import {getWorkspaceId} from '../../contexts/SessionContext';
 import {ResourceExistsError} from '../../errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaborationRequestQueries from '../queries';
-import {collabRequestExtractor} from '../utils';
+import {
+  collaborationRequestExtractor,
+  populateRequestPermissionGroups,
+} from '../utils';
 import {SendRequestEndpoint} from './types';
 import {sendRequestJoiSchema} from './validation';
 
@@ -98,7 +101,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     agentType: agent.agentType,
   };
 
-  const request = await context.data.collaborationRequest.saveItem({
+  let request = await context.data.collaborationRequest.saveItem({
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -133,8 +136,9 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   }
 
   fireAndForgetPromise(sendRequestEmail(context, request, existingUser));
+  request = await populateRequestPermissionGroups(context, request);
   return {
-    request: collabRequestExtractor(request),
+    request: collaborationRequestExtractor(request),
   };
 };
 

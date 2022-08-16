@@ -4,13 +4,16 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
-import {collabRequestListExtractor} from '../utils';
+import {checkWorkspaceExists} from '../../workspaces/utils';
+import {
+  collaborationRequestListExtractor,
+  populateRequestListPermissionGroups,
+} from '../utils';
 import {GetWorkspaceRequestsEndpoint} from './types';
 import {getWorkspaceRequestsJoiSchema} from './validation';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
   context,
@@ -42,14 +45,18 @@ const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
     )
   );
 
-  const allowedRequests = requests.filter((item, i) => !!permittedReads[i]);
-
+  let allowedRequests = requests.filter((item, i) => !!permittedReads[i]);
   if (allowedRequests.length === 0 && requests.length > 0) {
     throw new PermissionDeniedError();
   }
 
+  allowedRequests = await populateRequestListPermissionGroups(
+    context,
+    allowedRequests
+  );
+
   return {
-    requests: collabRequestListExtractor(allowedRequests),
+    requests: collaborationRequestListExtractor(allowedRequests),
   };
 };
 
