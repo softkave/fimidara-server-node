@@ -1,3 +1,5 @@
+import {last} from 'lodash';
+import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {appAssert} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
@@ -5,7 +7,8 @@ import {NotFoundError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization,
-  collabRequestExtractor,
+  collaborationRequestExtractor,
+  populateRequestPermissionGroups,
 } from '../utils';
 import {GetRequestEndpoint} from './types';
 import {getRequestJoiSchema} from './validation';
@@ -18,9 +21,13 @@ const getRequest: GetRequestEndpoint = async (context, instData) => {
   );
 
   appAssert(request, new NotFoundError('Collaboration request not found'));
-  if (request.recipientEmail === agent.user?.email) {
+  const isAccepted =
+    last(request.statusHistory)?.status ===
+    CollaborationRequestStatusType.Accepted;
+
+  if (request.recipientEmail === agent.user?.email && !isAccepted) {
     // Request sent to user
-    return {request: collabRequestExtractor(request)};
+    return {request: collaborationRequestExtractor(request)};
   }
 
   await checkCollaborationRequestAuthorization(
@@ -30,7 +37,11 @@ const getRequest: GetRequestEndpoint = async (context, instData) => {
     BasicCRUDActions.Read
   );
 
-  return {request: collabRequestExtractor(request)};
+  const populatedRequest = collaborationRequestExtractor(
+    await populateRequestPermissionGroups(context, request)
+  );
+
+  return {request: populatedRequest};
 };
 
 export default getRequest;

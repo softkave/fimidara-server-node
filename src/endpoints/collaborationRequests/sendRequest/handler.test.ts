@@ -1,8 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {AppResourceType} from '../../../definitions/system';
-import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/BaseContext';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -13,7 +11,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
-import {collabRequestExtractor} from '../utils';
+import {populateRequestPermissionGroups} from '../utils';
 import {ICollaborationRequestInput} from './types';
 
 let context: IBaseContext | null = null;
@@ -57,28 +55,24 @@ describe('sendRequest', () => {
       requestInput
     );
 
+    const assignedPermissionGroup01 = request01.permissionGroupsOnAccept[0];
+    expect(assignedPermissionGroup01).toBeDefined();
+    expect(assignedPermissionGroup01.permissionGroupId).toBe(
+      permissionGroup.resourceId
+    );
+
     const savedRequest = await context.data.collaborationRequest.assertGetItem(
       EndpointReusableQueries.getById(request01.resourceId)
     );
 
-    expect(request01).toMatchObject(collabRequestExtractor(savedRequest));
+    expect(request01).toMatchObject(
+      await populateRequestPermissionGroups(context, savedRequest)
+    );
+
     expect(
       savedRequest.statusHistory[savedRequest.statusHistory.length - 1]
     ).toMatchObject({
       status: CollaborationRequestStatusType.Pending,
     });
-
-    const assignedItems = await getResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      savedRequest.resourceId,
-      AppResourceType.CollaborationRequest,
-      [AppResourceType.PermissionGroup]
-    );
-
-    expect(assignedItems.length).toBe(1);
-    const assignedItem01 = assignedItems[0];
-    expect(assignedItem01).toBeDefined();
-    expect(assignedItem01.assignedItemId).toBe(permissionGroup.resourceId);
   });
 });

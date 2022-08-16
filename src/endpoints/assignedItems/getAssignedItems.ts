@@ -151,13 +151,18 @@ export async function populateAssignedItems<
 }
 
 export async function populateAssignedPermissionGroupsAndTags<
-  T extends IResourceBase
+  T extends IResourceBase,
+  R extends T | undefined = undefined,
+  Final = R extends undefined ? ResourceWithPermissionGroupsAndTags<T> : R
 >(
   context: IBaseContext,
   workspaceId: string,
   resource: T,
-  resourceType: AppResourceType
-): Promise<ResourceWithPermissionGroupsAndTags<T>> {
+  resourceType: AppResourceType,
+  labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {},
+  includePermissionGroups: boolean = true,
+  includeTags: boolean = true
+): Promise<Final> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
     workspaceId,
@@ -166,21 +171,33 @@ export async function populateAssignedPermissionGroupsAndTags<
     [AppResourceType.PermissionGroup, AppResourceType.Tag]
   );
 
-  const updatedResource: ResourceWithPermissionGroupsAndTags<T> =
-    resource as ResourceWithPermissionGroupsAndTags<T>;
-  updatedResource.permissionGroups = [];
-  updatedResource.tags = [];
+  const updatedResource: Final = cast<Final>(resource);
+  const permissionGroupsLabel =
+    labels[AppResourceType.PermissionGroup] || 'permissionGroups';
+  const tagsLabel = labels[AppResourceType.Tag] || 'tags';
+  if (includePermissionGroups) {
+    (updatedResource as any)[permissionGroupsLabel] = [];
+  }
+
+  if (includeTags) {
+    (updatedResource as any)[tagsLabel] = [];
+  }
+
   for (const type in sortedItems) {
     switch (type) {
       case AppResourceType.PermissionGroup:
-        updatedResource.permissionGroups =
-          assignedItemsToAssignedPermissionGroupList(sortedItems[type]);
+        if (includePermissionGroups) {
+          (updatedResource as any)[permissionGroupsLabel] =
+            assignedItemsToAssignedPermissionGroupList(sortedItems[type]);
+        }
         break;
 
       case AppResourceType.Tag:
-        updatedResource.tags = assignedItemsToAssignedTagList(
-          sortedItems[type]
-        );
+        if (includeTags) {
+          (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
+            sortedItems[type]
+          );
+        }
         break;
     }
   }
@@ -189,20 +206,27 @@ export async function populateAssignedPermissionGroupsAndTags<
 }
 
 export async function populateResourceListWithAssignedPermissionGroupsAndTags<
-  T extends IResourceBase
+  T extends IResourceBase,
+  R extends T | undefined = undefined
 >(
   context: IBaseContext,
   workspaceId: string,
   resources: T[],
-  type: AppResourceType
+  type: AppResourceType,
+  labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {},
+  includePermissionGroups: boolean = true,
+  includeTags: boolean = true
 ) {
   return await Promise.all(
     resources.map(resource =>
-      populateAssignedPermissionGroupsAndTags(
+      populateAssignedPermissionGroupsAndTags<T, R>(
         context,
         workspaceId,
         resource,
-        type
+        type,
+        labels,
+        includePermissionGroups,
+        includeTags
       )
     )
   );

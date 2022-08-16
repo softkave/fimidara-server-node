@@ -1,5 +1,5 @@
 import CollaborationRequestQueries from '../queries';
-import {collabRequestListExtractor} from '../utils';
+import {collaborationRequestListExtractor} from '../utils';
 import {GetUserRequestsEndpoint} from './types';
 
 const getUserRequests: GetUserRequestsEndpoint = async (context, instData) => {
@@ -9,7 +9,7 @@ const getUserRequests: GetUserRequestsEndpoint = async (context, instData) => {
   );
 
   return {
-    requests: collabRequestListExtractor(requests),
+    requests: collaborationRequestListExtractor(requests),
   };
 };
 
