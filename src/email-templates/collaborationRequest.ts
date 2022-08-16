@@ -6,10 +6,10 @@ import {
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
+import {IBaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestEmailProps {
-  signupLink: string;
-  loginLink: string;
+export interface ICollaborationRequestEmailProps
+  extends IBaseEmailTemplateProps {
   workspaceName: string;
   isRecipientAUser: boolean;
   message?: string;
@@ -17,7 +17,7 @@ export interface ICollaborationRequestEmailProps {
 }
 
 export function collaborationRequestEmailTitle(workspaceName: string) {
-  return `Collaboration Request from ${workspaceName}`;
+  return `Collaboration request from ${workspaceName}`;
 }
 
 export function collaborationRequestEmailHTML(
@@ -64,7 +64,6 @@ export function collaborationRequestEmailText(
 ) {
   let linkText = '';
   const title = collaborationRequestEmailTitle(props.workspaceName);
-
   if (props.isRecipientAUser) {
     linkText = `Login to your account here - ${props.loginLink}`;
   } else {
