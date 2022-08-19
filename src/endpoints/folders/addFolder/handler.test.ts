@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/BaseContext';
 import {
@@ -51,18 +52,22 @@ describe('addFolder', () => {
           {
             action: BasicCRUDActions.Create,
             resourceType: AppResourceType.File,
+            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
           },
           {
             action: BasicCRUDActions.Read,
             resourceType: AppResourceType.File,
+            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
           },
           {
             action: BasicCRUDActions.Create,
             resourceType: AppResourceType.Folder,
+            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
           },
           {
             action: BasicCRUDActions.Read,
             resourceType: AppResourceType.Folder,
+            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
           },
         ],
       });

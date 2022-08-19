@@ -1,26 +1,25 @@
-import {uniqWith} from 'lodash';
+import { uniqWith } from 'lodash';
 import {
   IPermissionItem,
-  IPublicPermissionItem,
-  PermissionItemAppliesTo,
+  IPublicPermissionItem
 } from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
   IAgent,
   IPublicAccessOp,
-  IPublicAccessOpInput,
+  IPublicAccessOpInput
 } from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {makeKey} from '../../utilities/fns';
-import {IBaseContext} from '../contexts/BaseContext';
-import {NotFoundError} from '../errors';
-import {agentExtractor} from '../utils';
+import { IWorkspace } from '../../definitions/workspace';
+import { getDateString } from '../../utilities/dateFns';
+import { getFields, makeExtract, makeListExtract } from '../../utilities/extract';
+import { makeKey } from '../../utilities/fns';
+import { IBaseContext } from '../contexts/BaseContext';
+import { NotFoundError } from '../errors';
+import { agentExtractor } from '../utils';
 import PermissionItemQueries from './queries';
-import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
-import {internalAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
+import { INewPermissionItemInputByEntity } from './replaceItemsByEntity/types';
+import { internalAddPermissionItemsByEntity } from './replaceItemsByEntity/utils';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   resourceId: true,
@@ -85,7 +84,6 @@ export function makePermissionItemInputsFromPublicAccessOps(
   ops: IPublicAccessOpInput[],
   itemResourceId?: string,
   grantAccess = true,
-  appliesTo = PermissionItemAppliesTo.OwnerAndChildren
 ): INewPermissionItemInputByEntity[] {
   return ops.map(op => ({
     permissionOwnerId,
@@ -93,8 +91,8 @@ export function makePermissionItemInputsFromPublicAccessOps(
     itemResourceId,
     action: op.action,
     itemResourceType: op.resourceType,
+    appliesTo: op.appliesTo,
     grantAccess,
-    appliesTo,
   }));
 }
 

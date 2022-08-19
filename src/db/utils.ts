@@ -21,4 +21,5 @@ export const publicAccessOpSchema = ensureTypeFields<IPublicAccessOp>({
   markedAt: {type: Date, default: getDate},
   markedBy: {type: agentSchema},
   resourceType: {type: String},
+  appliesTo: {type: String},
 });

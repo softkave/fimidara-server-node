@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import sharp from 'sharp';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/BaseContext';
@@ -119,7 +120,11 @@ describe('getFile', () => {
     // Make public folder
     const {folder} = await insertFolderForTest(context, userToken, workspace, {
       publicAccessOps: [
-        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        },
       ],
     });
 

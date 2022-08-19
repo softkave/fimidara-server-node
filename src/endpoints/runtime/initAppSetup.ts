@@ -119,7 +119,11 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
         workspace.rootname
       ),
       publicAccessOps: [
-        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        },
       ],
     }
   );
@@ -135,7 +139,11 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
         workspace.rootname
       ),
       publicAccessOps: [
-        {action: BasicCRUDActions.Read, resourceType: AppResourceType.File},
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        },
       ],
     }
   );

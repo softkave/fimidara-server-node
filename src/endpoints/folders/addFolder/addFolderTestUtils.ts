@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   getNonWorkspaceActionList,
@@ -227,6 +228,7 @@ export function makeEveryFolderPublicAccessOp() {
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,
         resourceType: type,
+        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
       }))
     );
   }, [] as IPublicAccessOpInput[]);
@@ -238,6 +240,7 @@ export function makeEveryFolderPublicAccessOp02() {
       [AppResourceType.File, AppResourceType.Folder].map(type => ({
         action,
         resourceType: type,
+        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
       }))
     );
   }, [] as IPublicAccessOpInput[]);
