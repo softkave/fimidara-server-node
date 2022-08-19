@@ -1,24 +1,23 @@
-import {defaultTo, first, isArray, last} from 'lodash';
-import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
+import { defaultTo, first, isArray, last } from 'lodash';
+import { IFolder, IFolderMatcher, IPublicFolder } from '../../definitions/folder';
 import {
   AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
+  BasicCRUDActions, ISessionAgent
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import { getDateString } from '../../utilities/dateFns';
+import { getFields, makeExtract, makeListExtract } from '../../utilities/extract';
 import {
   checkAuthorization,
-  getFilePermissionOwners,
+  getFilePermissionOwners
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
-import {InvalidRequestError} from '../errors';
-import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor} from '../utils';
-import {checkWorkspaceExists} from '../workspaces/utils';
-import {folderConstants} from './constants';
-import {FolderNotFoundError} from './errors';
-import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
+import { IBaseContext } from '../contexts/BaseContext';
+import { InvalidRequestError } from '../errors';
+import { assignedTagListExtractor } from '../tags/utils';
+import { agentExtractor } from '../utils';
+import { checkWorkspaceExists } from '../workspaces/utils';
+import { folderConstants } from './constants';
+import { FolderNotFoundError } from './errors';
+import { assertGetFolderWithMatcher } from './getFolderWithMatcher';
 
 const folderFields = getFields<IPublicFolder>({
   resourceId: true,

@@ -1,8 +1,9 @@
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
+  AppResourceType,
+  BasicCRUDActions,
   IAgent,
   IPublicAccessOp,
-  BasicCRUDActions,
-  AppResourceType,
 } from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
 import {getDate} from '../../../utilities/dateFns';
@@ -16,6 +17,7 @@ export const makeFilePublicReadAccessOps = (
     markedAt: getDate(),
     markedBy: agent,
     resourceType: AppResourceType.File,
+    appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
   },
 ];
 
@@ -28,12 +30,14 @@ export const makeFilePublicReadAndUpdateAccessOps = (
       markedAt: getDate(),
       markedBy: agent,
       resourceType: AppResourceType.File,
+      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
     },
     {
       action: BasicCRUDActions.Create,
       markedAt: getDate(),
       markedBy: agent,
       resourceType: AppResourceType.File,
+      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
     },
   ]);
 
@@ -46,6 +50,7 @@ export const makeFilePublicReadUpdateAndDeleteAccessOps = (
       markedAt: getDate(),
       markedBy: agent,
       resourceType: AppResourceType.File,
+      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
     },
   ]);
 

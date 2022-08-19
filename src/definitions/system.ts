@@ -2,6 +2,7 @@ import {TokenType} from '../endpoints/contexts/SessionContext';
 import {IAppRuntimeVars} from '../resources/appVariables';
 import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
+import {PermissionItemAppliesTo} from './permissionItem';
 import {IProgramAccessToken} from './programAccessToken';
 import {IUserWithWorkspace} from './user';
 import {IUserToken} from './userToken';
@@ -248,11 +249,17 @@ export interface IAppRuntimeState extends IAppRuntimeVars {
 export interface IPublicAccessOpInput {
   action: BasicCRUDActions;
   resourceType: AppResourceType;
+  appliesTo: PermissionItemAppliesTo;
 }
 
 export interface IPublicAccessOp {
   action: BasicCRUDActions;
   resourceType: AppResourceType;
+
+  /**
+   * Whether is the operation is allowed for the resource and it's children.
+   */
+  appliesTo: PermissionItemAppliesTo;
   markedAt: Date | string;
   markedBy: IAgent;
 }

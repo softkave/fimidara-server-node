@@ -1,4 +1,4 @@
-import {Response, Request} from 'express';
+import {Request, Response} from 'express';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utilities/dateFns';
 import {ServerError} from '../utilities/errors';
@@ -108,6 +108,7 @@ const publicAccessOpFields = getFields<IPublicAccessOp>({
   markedAt: getDateString,
   markedBy: agentExtractor,
   resourceType: true,
+  appliesTo: true,
 });
 
 export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);

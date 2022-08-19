@@ -5,6 +5,7 @@ import {
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import {permissionItemConstants} from '../endpoints/permissionItems/constants';
+import permissionItemValidationSchemas from '../endpoints/permissionItems/validation';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;
@@ -57,6 +58,7 @@ const crudAction = Joi.string().valid(...getWorkspaceActionList());
 const publicAccessOp = Joi.object().keys({
   action: crudAction.required(),
   resourceType: resourceType.required(),
+  appliesTo: permissionItemValidationSchemas.appliesTo.required(),
 });
 
 const publicAccessOpList = Joi.array()

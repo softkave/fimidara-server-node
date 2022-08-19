@@ -48,6 +48,7 @@ const permissionItemValidationSchemas = {
   itemIds,
   itemInput,
   itemInputList,
+  appliesTo,
 };
 
 export default permissionItemValidationSchemas;

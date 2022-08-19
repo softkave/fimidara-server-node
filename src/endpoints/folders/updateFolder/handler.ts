@@ -1,4 +1,4 @@
-import {omit} from 'lodash';
+import {isNull, omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
@@ -32,7 +32,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
 
   let folder = checkResult.folder;
   const workspace = checkResult.workspace;
-  const incomingPublicAccessOps = data.folder.publicAccessOps || [];
+  const incomingPublicAccessOps = data.folder.publicAccessOps;
   const update: Partial<IFolder> = {
     ...omit(data.folder, 'publicAccessOps'),
     lastUpdatedAt: getDateString(),
@@ -48,7 +48,9 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   );
 
   const hasPublicAccessOpsChanges =
-    incomingPublicAccessOps.length > 0 || data.folder.removePublicAccessOps;
+    incomingPublicAccessOps ||
+    isNull(incomingPublicAccessOps) ||
+    data.folder.removePublicAccessOps;
 
   if (hasPublicAccessOpsChanges) {
     let publicAccessOps = incomingPublicAccessOps
