@@ -1,4 +1,5 @@
 import {compact, isString} from 'lodash';
+import {logger} from '../endpoints/contexts/logger';
 import OperationError from './OperationError';
 import {AnyFn, AnyObject} from './types';
 
@@ -65,7 +66,7 @@ export function appAssert(
 ): asserts value {
   if (!value) {
     if (logMessage) {
-      console.error(logMessage);
+      logger.error(logMessage);
     }
 
     if (isString(response)) {

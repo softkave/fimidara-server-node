@@ -13,6 +13,10 @@ import {
   UsageSummationType,
 } from '../../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
+import {
+  extractEnvVariables,
+  extractProdEnvsSchema,
+} from '../../../../resources/vars';
 import cast from '../../../../utilities/fns';
 import {getNewId, getNewIdForResource} from '../../../../utilities/resourceId';
 import RequestData from '../../../RequestData';
@@ -20,7 +24,6 @@ import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/ge
 import {generateTestWorkspace} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import {waitForRequestPendingJobs} from '../../../test-utils/helpers/reqData';
-import {getTestVars} from '../../../test-utils/vars';
 import BaseContext, {
   getCacheProviders,
   getDataProviders,
@@ -37,7 +40,7 @@ let context: IBaseContext | null = null;
 let provider: UsageRecordLogicProvider | null = null;
 
 beforeAll(async () => {
-  const testVars = getTestVars();
+  const testVars = extractEnvVariables(extractProdEnvsSchema);
   const dbName = `test-db-usage-record-${getNewId()}`;
   testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
@@ -56,7 +59,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection, /** dropDb */ true);
+    await dropMongoConnection(connection);
   }
 });
 
@@ -87,7 +90,7 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
     expect(status).toBe(true);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -112,7 +115,7 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -136,7 +139,7 @@ describe('UsageRecordLogicProvider', () => {
       usage: faker.datatype.number(),
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
     expect(status).toBe(false);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
@@ -161,7 +164,7 @@ describe('UsageRecordLogicProvider', () => {
     };
     const status = await provider.insert(context, reqData, systemAgent, input);
     expect(status).toBe(false);
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
     const model = await getUsageRecordModel(connection);
     const {record} = await getSumRecords(model, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);

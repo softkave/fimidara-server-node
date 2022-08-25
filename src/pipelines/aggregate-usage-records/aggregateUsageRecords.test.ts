@@ -39,7 +39,6 @@ import {
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/test-utils/test-utils';
-import {getTestVars} from '../../endpoints/test-utils/vars';
 import {
   getCostForUsage,
   getUsageForCost,
@@ -51,6 +50,7 @@ import {
   insertStorageUsageRecordInput,
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
+import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import cast from '../../utilities/fns';
 import {
   aggregateRecords,
@@ -67,12 +67,11 @@ const reqData = RequestData.fromExpressRequest(
 
 afterAll(async () => {
   await Promise.all(contexts.map(c => c.dispose()));
-  // await Promise.all(connections.map(c => c.close()));
-  await Promise.all(connections.map(c => dropMongoConnection(c, true)));
+  await Promise.all(connections.map(c => dropMongoConnection(c)));
 });
 
 async function getContextAndConnection() {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
   const connection = await getMongoConnection(
@@ -280,7 +279,7 @@ async function assertRecordInsertionFails(
   }).rejects.toThrow(UsageLimitExceededError);
 
   assertContext(context);
-  await context.jobs.waitOnJobs();
+  await context.jobs.waitOnJobs(context);
   await checkFailedRecordExistsForFile(connection, w1, f1);
   return {workspace: w1, file: f1};
 }

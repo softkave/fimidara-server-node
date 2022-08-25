@@ -1,0 +1,16 @@
+# Example env file
+
+CLIENT_DOMAIN="http://localhost:3000"
+MONGODB_DATABASE_NAME="fimidara-dev"
+MONGODB_URI=""
+LOGS_DB_NAME="ixtb-dev"
+LOGS_COLLECTION_NAME="logs"
+JWT_SECRET="jwt-secret"
+NODE_ENV="development"
+PORT=5000
+S3_BUCKET="fimidara-dev-bucket"
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_REGION=""
+DEFAULT_USER_EMAIL_ADDRESS=""
+FILE_BACKEND="memory"

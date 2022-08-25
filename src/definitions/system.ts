@@ -1,5 +1,5 @@
 import {TokenType} from '../endpoints/contexts/SessionContext';
-import {IAppRuntimeVars} from '../resources/appVariables';
+import {IAppRuntimeVars} from '../resources/vars';
 import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {PermissionItemAppliesTo} from './permissionItem';

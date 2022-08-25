@@ -1,11 +1,10 @@
-import {isEqual, isArray, get} from 'lodash';
+import {get, isArray, isEqual} from 'lodash';
 import {InternalError} from '../../../utilities/errors';
 import cast from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
-import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
 import {
-  IDataProvider,
   DataProviderFilterValueOperator,
+  IDataProvider,
   IDataProviderFilter,
 } from './DataProvider';
 
@@ -171,124 +170,117 @@ export default class MemoryDataProvider<T extends {[key: string]: any}>
     this.throwNotFound = throwNotFound;
   }
 
-  checkItemExists = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      return !!(await this.getItem(filter));
-    }
-  );
+  checkItemExists = async (filter: IDataProviderFilter<T>) => {
+    return !!(await this.getItem(filter));
+  };
 
-  getItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+  getItem = async (filter: IDataProviderFilter<T>) => {
     return <T | null>matchFirst(this.items, filter).item;
-  });
+  };
 
-  getManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      return <T[]>matchMany(this.items, filter).matchedItems;
-    }
-  );
+  getManyItems = async (filter: IDataProviderFilter<T>) => {
+    return <T[]>matchMany(this.items, filter).matchedItems;
+  };
 
-  deleteItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+  deleteItem = async (filter: IDataProviderFilter<T>) => {
     const {index} = matchFirst(this.items, filter);
     if (index !== -1) {
       this.items.splice(index, 1);
     }
-  });
+  };
 
-  deleteManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      const {indexes} = matchMany(this.items, filter);
-      const indexesMap = indexArray(indexes, {reducer: () => true});
-      const remainingItems = this.items.filter(
-        (item, index) => !indexesMap[index]
-      );
-      this.items = remainingItems;
+  deleteManyItems = async (filter: IDataProviderFilter<T>) => {
+    const {indexes} = matchMany(this.items, filter);
+    const indexesMap = indexArray(indexes, {reducer: () => true});
+    const remainingItems = this.items.filter(
+      (item, index) => !indexesMap[index]
+    );
+    this.items = remainingItems;
+  };
+
+  updateItem = async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
+    const {item, index} = matchFirst(this.items, filter);
+    if (item) {
+      const newItem = {...item, ...data} as T;
+      this.items[index] = newItem;
+      return cast<T>(newItem);
+    } else {
+      return null;
     }
-  );
+  };
 
-  updateItem = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const {item, index} = matchFirst(this.items, filter);
-      if (item) {
-        const newItem = {...item, ...data} as T;
-        this.items[index] = newItem;
-        return cast<T>(newItem);
-      } else {
-        return null;
+  updateManyItems = async (
+    filter: IDataProviderFilter<T>,
+    data: Partial<T>
+  ) => {
+    const {matchedItems, indexes} = matchMany(this.items, filter);
+    matchedItems.forEach((item, index) => {
+      this.items[indexes[index]] = {...item, ...data} as T;
+    });
+  };
+
+  assertItemExists = async (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.getItem(filter);
+
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
     }
-  );
 
-  updateManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const {matchedItems, indexes} = matchMany(this.items, filter);
-      matchedItems.forEach((item, index) => {
-        this.items[indexes[index]] = {...item, ...data} as T;
-      });
-    }
-  );
+    return true;
+  };
 
-  assertItemExists = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
-      const item = await this.getItem(filter);
+  assertGetItem = async (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.getItem(filter);
 
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
-
-      return true;
     }
-  );
 
-  assertGetItem = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
-      const item = await this.getItem(filter);
+    return cast<T>(item);
+  };
 
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
+  assertUpdateItem = async (
+    filter: IDataProviderFilter<T>,
+    data: Partial<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.updateItem(filter, data);
+
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
-
-      return cast<T>(item);
     }
-  );
 
-  assertUpdateItem = wrapFireAndThrowError(
-    async (
-      filter: IDataProviderFilter<T>,
-      data: Partial<T>,
-      throwError?: () => void
-    ) => {
-      const item = await this.updateItem(filter, data);
+    return cast<T>(item);
+  };
 
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
-      }
-
-      return cast<T>(item);
-    }
-  );
-
-  saveItem = wrapFireAndThrowError(async (data: T) => {
+  saveItem = async (data: T) => {
     this.items.push(data);
     return data;
-  });
+  };
 
-  bulkSaveItems = wrapFireAndThrowError(async (data: T[]) => {
+  bulkSaveItems = async (data: T[]) => {
     data.forEach(item => this.items.push(item));
-  });
+  };
 
-  getAll = wrapFireAndThrowError(async () => {
+  getAll = async () => {
     return this.items;
-  });
+  };
 }

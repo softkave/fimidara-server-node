@@ -3,12 +3,15 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {getWorkspaceModel} from '../../../../db/workspace';
 import {WorkspaceBillStatus} from '../../../../definitions/workspace';
+import {
+  extractEnvVariables,
+  extractProdEnvsSchema,
+} from '../../../../resources/vars';
 import {getDate} from '../../../../utilities/dateFns';
 import cast, {waitTimeout} from '../../../../utilities/fns';
 import {getNewId} from '../../../../utilities/resourceId';
 import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
-import {getTestVars} from '../../../test-utils/vars';
 import BaseContext, {getDataProviders} from '../../BaseContext';
 import {WorkspaceCacheProvider} from '../WorkspaceCacheProvider';
 
@@ -16,14 +19,14 @@ let connection: Connection | null = null;
 
 jest.setTimeout(50000); // 50 seconds
 beforeAll(async () => {
-  const testVars = getTestVars();
+  const testVars = extractEnvVariables(extractProdEnvsSchema);
   const dbName = `test-db-workspace-cache-${getNewId()}`;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
 });
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection, /** dropDb */ true);
+    await dropMongoConnection(connection);
   }
 });
 

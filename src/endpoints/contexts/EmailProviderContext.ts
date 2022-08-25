@@ -1,8 +1,4 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
-import {
-  wrapFireAndThrowError,
-  wrapFireAndThrowErrorNoAsync,
-} from '../../utilities/promiseFns';
 import {IBaseContext} from './BaseContext';
 
 export interface ISendEmailParams {
@@ -27,38 +23,36 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     this.ses = new SESv2Client({region});
   }
 
-  sendEmail = wrapFireAndThrowError(
-    async (context: IBaseContext, params: ISendEmailParams) => {
-      const command = new SendEmailCommand({
-        Destination: {
-          ToAddresses: params.destination,
-        },
-        FromEmailAddress: params.source,
-        Content: {
-          Simple: {
-            Subject: {
+  sendEmail = async (context: IBaseContext, params: ISendEmailParams) => {
+    const command = new SendEmailCommand({
+      Destination: {
+        ToAddresses: params.destination,
+      },
+      FromEmailAddress: params.source,
+      Content: {
+        Simple: {
+          Subject: {
+            Charset: context.appVariables.awsEmailEncoding,
+            Data: params.subject,
+          },
+          Body: {
+            Html: {
               Charset: context.appVariables.awsEmailEncoding,
-              Data: params.subject,
+              Data: params.body.html,
             },
-            Body: {
-              Html: {
-                Charset: context.appVariables.awsEmailEncoding,
-                Data: params.body.html,
-              },
-              Text: {
-                Charset: context.appVariables.awsEmailEncoding,
-                Data: params.body.text,
-              },
+            Text: {
+              Charset: context.appVariables.awsEmailEncoding,
+              Data: params.body.text,
             },
           },
         },
-      });
+      },
+    });
 
-      await this.ses.send(command);
-    }
-  );
+    await this.ses.send(command);
+  };
 
-  close = wrapFireAndThrowErrorNoAsync(async () => {
+  close = async () => {
     await this.ses.destroy();
-  });
+  };
 }

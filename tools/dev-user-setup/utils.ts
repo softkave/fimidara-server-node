@@ -19,6 +19,7 @@ import BaseContext, {
   getLogicProviders,
   IBaseContext,
 } from '../../src/endpoints/contexts/BaseContext';
+import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
 import MongoDBDataProviderContext from '../../src/endpoints/contexts/MongoDBDataProviderContext';
 import EndpointReusableQueries from '../../src/endpoints/queries';
 import {setupApp} from '../../src/endpoints/runtime/initAppSetup';
@@ -147,7 +148,7 @@ async function makeUserAdmin(
   );
 
   if (!isAdmin) {
-    console.log('Making user admin');
+    consoleLogger.info('Making user admin');
     await saveResourceAssignedItems(
       context,
       systemAgent,
@@ -217,14 +218,14 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
     );
 
     if (request) {
-      console.log('Existing collaboration request found');
-      console.log(`Accepting request ${request.resourceId}`);
+      consoleLogger.info('Existing collaboration request found');
+      consoleLogger.info(`Accepting request ${request.resourceId}`);
       await internalRespondToRequest(context, user, {
         requestId: request.resourceId,
         response: CollaborationRequestStatusType.Accepted,
       });
     } else {
-      console.log('Adding user to workspace');
+      consoleLogger.info('Adding user to workspace');
       await assignWorkspaceToUser(
         context,
         systemAgent,
@@ -242,11 +243,11 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   }
 
   if (!user.isEmailVerified) {
-    console.log(`Verifying email address for user ${user.email}`);
+    consoleLogger.info(`Verifying email address for user ${user.email}`);
     await internalConfirmEmailAddress(context, user);
   }
 
-  console.log(
+  consoleLogger.info(
     `User ${user.email} is now an admin of workspace ${workspace.name}`
   );
 

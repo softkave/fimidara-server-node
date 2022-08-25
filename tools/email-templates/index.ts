@@ -1,3 +1,4 @@
+import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
@@ -6,11 +7,11 @@ import {
   renderForgotPasswordMedia,
 } from './renderToFile';
 
-console.log('Writing templates');
+consoleLogger.info('Writing templates');
 renderConfirmEmailAddressMedia();
 renderForgotPasswordMedia();
 renderCollaborationRequestMedia();
 renderCollaborationRequestRevokedMedia();
 renderCollaborationRequestResponseMedia();
-console.log('Completed writing templates');
+consoleLogger.info('Completed writing templates');
 process.exit(0);

@@ -15,7 +15,9 @@ import BaseContext, {
   getLogicProviders,
   IBaseContext,
 } from './endpoints/contexts/BaseContext';
+import {consoleLogger} from './endpoints/contexts/consoleLogger';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
+import {logger} from './endpoints/contexts/logger';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
@@ -31,10 +33,10 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {startJobs} from './pipelines';
-import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
+import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
 import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
 
-console.log('server initialization');
+logger.info('server initialization');
 
 const app = express();
 const upload = multer();
@@ -100,7 +102,7 @@ async function setup() {
   );
 
   const defaultWorkspace = await setupApp(ctx);
-  console.log(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  ctx.logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
   setupClientAssignedTokensRESTEndpoints(ctx, app);
@@ -119,20 +121,22 @@ async function setup() {
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
-    console.log(ctx.appVariables.appName);
-    console.log(`server listening on port ${ctx.appVariables.port}`);
+    logger.info(ctx.appVariables.appName);
+    logger.info(`server listening on port ${ctx.appVariables.port}`);
   });
 }
 
 setup();
+
+// TODO: move these error logs to mongo
 process.on('uncaughtException', (exp: any, origin: any) => {
-  console.log('uncaughtException');
-  console.error(exp);
-  console.log(origin);
+  consoleLogger.info('uncaughtException');
+  consoleLogger.error(exp);
+  consoleLogger.info(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('unhandledRejection');
-  console.log(promise);
-  console.log(reason);
+  consoleLogger.info('unhandledRejection');
+  consoleLogger.info(promise);
+  consoleLogger.info(reason);
 });
