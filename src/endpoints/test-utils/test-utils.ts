@@ -13,6 +13,12 @@ import {
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
+import {
+  extractEnvVariables,
+  extractProdEnvsSchema,
+  FileBackendType,
+  IAppVariables,
+} from '../../resources/vars';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
@@ -77,25 +83,19 @@ import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
-import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
-import {getTestVars, ITestVariables} from './vars';
 
-export function getTestEmailProvider(appVariables: ITestVariables) {
-  if (appVariables.useSESEmailProvider) {
-    return new TestSESEmailProviderContext(appVariables.awsRegion);
-  } else {
-    return new MockTestEmailProviderContext();
-  }
+export function getTestEmailProvider(appVariables: IAppVariables) {
+  return new MockTestEmailProviderContext();
 }
 
-export async function getTestFileProvider(appVariables: ITestVariables) {
-  if (appVariables.useS3FileProvider) {
+export async function getTestFileProvider(appVariables: IAppVariables) {
+  if (appVariables.fileBackend === FileBackendType.S3) {
     const fileProvider = new TestS3FilePersistenceProviderContext(
       appVariables.awsRegion
     );
-    // await ensureAppBucketsReady(fileProvider, appVariables);
+
     return fileProvider;
   } else {
     return new TestMemoryFilePersistenceProviderContext();
@@ -103,7 +103,7 @@ export async function getTestFileProvider(appVariables: ITestVariables) {
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

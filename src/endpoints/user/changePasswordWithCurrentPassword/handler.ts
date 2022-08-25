@@ -1,13 +1,12 @@
+import * as argon2 from 'argon2';
+import {validate} from '../../../utilities/validate';
+import {IBaseContext} from '../../contexts/BaseContext';
+import RequestData from '../../RequestData';
+import changePassword from '../changePassword/changePassword';
+import {IChangePasswordParameters} from '../changePassword/types';
+import {IncorrectPasswordError} from '../errors';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
 import {changePasswordWithPasswordJoiSchema} from './validation';
-import * as argon2 from 'argon2';
-import {ServerError} from '../../../utilities/errors';
-import {validate} from '../../../utilities/validate';
-import {IncorrectPasswordError} from '../errors';
-import {IChangePasswordParameters} from '../changePassword/types';
-import changePassword from '../changePassword/changePassword';
-import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/BaseContext';
 
 export async function completeChangePassword(
   context: IBaseContext,
@@ -32,14 +31,7 @@ const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoi
     const currentPassword = data.currentPassword;
     let passwordMatch = false;
     const user = await context.session.getUser(context, instData);
-
-    try {
-      passwordMatch = await argon2.verify(user.hash, currentPassword);
-    } catch (error) {
-      console.error(error);
-      throw new ServerError();
-    }
-
+    passwordMatch = await argon2.verify(user.hash, currentPassword);
     if (!passwordMatch) {
       throw new IncorrectPasswordError();
     }

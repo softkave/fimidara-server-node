@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import {jestLogger} from './logger';
 
 export function setupEnvVars(
   envPath: string,
@@ -14,8 +15,8 @@ export function setupEnvVars(
     throw result.error;
   }
 
-  console.log(`-- ${cmdMessage} --`);
-  console.log(result.parsed);
-  console.log(`-- ${cmdMessage} --`);
+  jestLogger.info(`-- ${cmdMessage} --`);
+  jestLogger.info(result.parsed);
+  jestLogger.info(`-- ${cmdMessage} --`);
   return result.parsed;
 }

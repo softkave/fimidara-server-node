@@ -9,6 +9,7 @@ import BaseContext, {
   getLogicProviders,
   IBaseContext,
 } from '../../src/endpoints/contexts/BaseContext';
+import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
 import MongoDBDataProviderContext from '../../src/endpoints/contexts/MongoDBDataProviderContext';
 import {internalCreateProgramAccessToken} from '../../src/endpoints/programAccessTokens/addToken/utils';
 import {getPublicProgramToken} from '../../src/endpoints/programAccessTokens/utils';
@@ -93,10 +94,10 @@ export async function setupSDKTestReq() {
     adminPermissionGroup.resourceId
   );
 
-  console.log(`Workspace ID: ${workspace.resourceId}`);
-  console.log(`Workspace rootname: ${workspace.rootname}`);
-  console.log(`Program access token ID: ${token.resourceId}`);
-  console.log(`Program access token token: ${tokenStr}`);
+  consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
+  consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);
+  consoleLogger.info(`Program access token ID: ${token.resourceId}`);
+  consoleLogger.info(`Program access token token: ${tokenStr}`);
   await context.dispose();
   return {workspace, token, tokenStr};
 }

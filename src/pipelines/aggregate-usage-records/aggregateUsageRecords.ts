@@ -12,6 +12,7 @@ import {
   UsageSummationType,
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
+import {logger} from '../../endpoints/contexts/logger';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
 import {getNewIdForResource} from '../../utilities/resourceId';
 
@@ -297,14 +298,14 @@ async function tryAggregateRecordsInWorkspace(
 
     await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
-    console.log(
+    logger.info(
       `
       Error processing workspace usage records 
       Workspace ID: ${workspace.resourceId} 
       Rootname: ${workspace.rootname}
       `
     );
-    console.log(e);
+    logger.error(e);
   }
 }
 

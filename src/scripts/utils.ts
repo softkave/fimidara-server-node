@@ -1,7 +1,8 @@
+import {logger} from '../endpoints/contexts/logger';
 import {AnyFn} from '../utilities/types';
 
 export function logScriptMessage(fn: AnyFn, message: string) {
-  console.log(`script ${fn.name}: ${message}`);
+  logger.info(`script ${fn.name}: ${message}`);
 }
 
 export function logScriptStarted(fn: AnyFn) {
@@ -15,6 +16,6 @@ export function logScriptSuccessful(fn: AnyFn) {
 export function logScriptFailed(fn: AnyFn, error?: Error) {
   logScriptMessage(fn, 'failed');
   if (error) {
-    console.error(error);
+    logger.error(error);
   }
 }

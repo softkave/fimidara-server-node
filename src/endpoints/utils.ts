@@ -68,16 +68,13 @@ export const wrapEndpointREST = <
       );
 
       const result = await endpoint(context, instData);
-
       if (handleResponse) {
         handleResponse(res, result);
       } else {
         res.status(endpointConstants.httpStatusCode.ok).json(result || {});
       }
     } catch (error) {
-      console.error(error);
-      console.log('-- END');
-
+      context.logger.error(error);
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);

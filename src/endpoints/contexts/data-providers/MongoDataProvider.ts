@@ -1,7 +1,6 @@
 import {forEach} from 'lodash';
 import {Document, FilterQuery, Model} from 'mongoose';
 import cast from '../../../utilities/fns';
-import {wrapFireAndThrowError} from '../../../utilities/promiseFns';
 import {
   DataProviderFilterValueLogicalOperator,
   DataProviderFilterValueOperator,
@@ -26,120 +25,113 @@ export default class MongoDataProvider<T extends {[key: string]: any}>
     this.throwNotFound = throwNotFound;
   }
 
-  checkItemExists = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      const mongoQuery = getMongoQueryFromFilter(filter);
-      return !!(await this.model.exists(mongoQuery).exec())?._id;
-    }
-  );
+  checkItemExists = async (filter: IDataProviderFilter<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    return !!(await this.model.exists(mongoQuery).exec())?._id;
+  };
 
-  getItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+  getItem = async (filter: IDataProviderFilter<T>) => {
     const mongoQuery = getMongoQueryFromFilter(filter);
     const item = await this.model.findOne(mongoQuery).lean().exec();
     return cast<T | null>(item);
-  });
+  };
 
-  getManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      const mongoQuery = getMongoQueryFromFilter(filter);
-      const items = await this.model.find(mongoQuery).lean().exec();
-      return cast<T[]>(items);
-    }
-  );
+  getManyItems = async (filter: IDataProviderFilter<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    const items = await this.model.find(mongoQuery).lean().exec();
+    return cast<T[]>(items);
+  };
 
-  deleteItem = wrapFireAndThrowError(async (filter: IDataProviderFilter<T>) => {
+  deleteItem = async (filter: IDataProviderFilter<T>) => {
     const mongoQuery = getMongoQueryFromFilter(filter);
     await this.model.deleteOne(mongoQuery).exec();
-  });
+  };
 
-  deleteManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>) => {
-      const mongoQuery = getMongoQueryFromFilter(filter);
-      await this.model.deleteMany(mongoQuery).exec();
-    }
-  );
+  deleteManyItems = async (filter: IDataProviderFilter<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    await this.model.deleteMany(mongoQuery).exec();
+  };
 
-  updateItem = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const mongoQuery = getMongoQueryFromFilter(filter);
-      const item = await this.model
-        .findOneAndUpdate(mongoQuery, data, {new: true})
-        .lean()
-        .exec();
-      return cast<T | null>(item);
-    }
-  );
+  updateItem = async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    const item = await this.model
+      .findOneAndUpdate(mongoQuery, data, {new: true})
+      .lean()
+      .exec();
+    return cast<T | null>(item);
+  };
 
-  updateManyItems = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, data: Partial<T>) => {
-      const mongoQuery = getMongoQueryFromFilter(filter);
-      await this.model.updateMany(mongoQuery, data, {new: true}).lean().exec();
-    }
-  );
+  updateManyItems = async (
+    filter: IDataProviderFilter<T>,
+    data: Partial<T>
+  ) => {
+    const mongoQuery = getMongoQueryFromFilter(filter);
+    await this.model.updateMany(mongoQuery, data, {new: true}).lean().exec();
+  };
 
-  assertItemExists = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
-      const item = await this.getItem(filter);
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
+  assertItemExists = async (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.getItem(filter);
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
-
-      return true;
     }
-  );
 
-  assertGetItem = wrapFireAndThrowError(
-    async (filter: IDataProviderFilter<T>, throwError?: () => void) => {
-      const item = await this.getItem(filter);
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
+    return true;
+  };
+
+  assertGetItem = async (
+    filter: IDataProviderFilter<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.getItem(filter);
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
-
-      return cast<T>(item);
     }
-  );
 
-  assertUpdateItem = wrapFireAndThrowError(
-    async (
-      filter: IDataProviderFilter<T>,
-      data: Partial<T>,
-      throwError?: () => void
-    ) => {
-      const item = await this.updateItem(filter, data);
-      if (!item) {
-        if (throwError) {
-          throwError();
-        } else if (this.throwNotFound) {
-          this.throwNotFound();
-        }
+    return cast<T>(item);
+  };
+
+  assertUpdateItem = async (
+    filter: IDataProviderFilter<T>,
+    data: Partial<T>,
+    throwError?: () => void
+  ) => {
+    const item = await this.updateItem(filter, data);
+    if (!item) {
+      if (throwError) {
+        throwError();
+      } else if (this.throwNotFound) {
+        this.throwNotFound();
       }
-
-      return cast<T>(item);
     }
-  );
 
-  saveItem = wrapFireAndThrowError(async (data: T) => {
-    const item = new this.model(data);
-    const savedItem = await item.save();
-    return savedItem.toObject();
-  });
+    return cast<T>(item);
+  };
 
-  bulkSaveItems = wrapFireAndThrowError(async (data: T[]) => {
+  saveItem = async (data: T) => {
+    let item = new this.model(data);
+    item = await item.save();
+    return cast<T>(item);
+  };
+
+  bulkSaveItems = async (data: T[]) => {
     await this.model.insertMany(data);
-  });
+  };
 
-  getAll = wrapFireAndThrowError(async () => {
+  getAll = async () => {
     const items = await this.model.find({}).exec();
     return cast<T[]>(items);
-  });
+  };
 }
 
 export function getMongoQueryFromFilter(filter: IDataProviderFilter<any>) {

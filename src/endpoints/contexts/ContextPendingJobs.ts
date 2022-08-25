@@ -4,13 +4,14 @@ import {
 } from '../../utilities/waitOnPromises';
 import RequestData from '../RequestData';
 import {IRequestDataPendingPromise} from '../types';
+import {IBaseContext} from './BaseContext';
 
 export interface IContextPendingJobs {
   addJob: (
     reqData: RequestData,
     job: IRequestDataPendingPromise | Promise<any>
   ) => void;
-  waitOnJobs: () => Promise<void>;
+  waitOnJobs: (ctx: IBaseContext) => Promise<void>;
 }
 
 function isRequestDataPendingPromise(
@@ -38,8 +39,8 @@ export class ContextPendingJobs implements IContextPendingJobs {
     }
   }
 
-  async waitOnJobs() {
-    throwRejectedPromisesWithId(await waitOnPromisesWithId(this.jobs));
+  async waitOnJobs(ctx: IBaseContext) {
+    throwRejectedPromisesWithId(ctx, await waitOnPromisesWithId(this.jobs));
   }
 
   private _addJob(reqData: RequestData, job: IRequestDataPendingPromise) {

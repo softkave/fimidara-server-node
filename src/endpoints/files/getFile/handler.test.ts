@@ -69,8 +69,8 @@ describe('getFile', () => {
     assert(savedBuffer);
     assert(resultBuffer);
     expect(resultBuffer.equals(savedBuffer)).toBe(true);
-    await waitForRequestPendingJobs(reqData);
-    await waitForRequestPendingJobs(instData);
+    await waitForRequestPendingJobs(context, reqData);
+    await waitForRequestPendingJobs(context, instData);
   });
 
   test('file resized', async () => {
@@ -108,8 +108,8 @@ describe('getFile', () => {
     const fileMetadata = await sharp(resultBuffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);
     expect(fileMetadata.height).toEqual(expectedHeight);
-    await waitForRequestPendingJobs(reqData);
-    await waitForRequestPendingJobs(instData);
+    await waitForRequestPendingJobs(context, reqData);
+    await waitForRequestPendingJobs(context, instData);
   });
 
   test('can read file from public folder', async () => {
@@ -154,8 +154,8 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    await waitForRequestPendingJobs(reqData);
-    await waitForRequestPendingJobs(instData);
+    await waitForRequestPendingJobs(context, reqData);
+    await waitForRequestPendingJobs(context, instData);
   });
 
   test('can read public file', async () => {
@@ -181,8 +181,8 @@ describe('getFile', () => {
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
-    await waitForRequestPendingJobs(reqData);
-    await waitForRequestPendingJobs(instData);
+    await waitForRequestPendingJobs(context, reqData);
+    await waitForRequestPendingJobs(context, instData);
   });
 
   test('cannot read private file', async () => {
@@ -211,8 +211,8 @@ describe('getFile', () => {
     } catch (error: any) {
       expect(error?.name).toBe(PermissionDeniedError.name);
     } finally {
-      await waitForRequestPendingJobs(reqData);
-      instData && (await waitForRequestPendingJobs(instData));
+      await waitForRequestPendingJobs(context, reqData);
+      instData && (await waitForRequestPendingJobs(context, instData));
     }
   });
 
@@ -239,7 +239,7 @@ describe('getFile', () => {
       assertContext(context);
       await getFile(context, reqData);
     }, [UsageLimitExceededError.name]);
-    await waitForRequestPendingJobs(reqData);
-    await waitForRequestPendingJobs(insertFileReqData);
+    await waitForRequestPendingJobs(context, reqData);
+    await waitForRequestPendingJobs(context, insertFileReqData);
   });
 });

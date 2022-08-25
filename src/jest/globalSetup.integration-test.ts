@@ -1,17 +1,17 @@
-import {getMongoConnection} from '../src/db/connection';
+import {getMongoConnection} from '../db/connection';
 import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-} from '../src/endpoints/contexts/BaseContext';
-import {S3FilePersistenceProviderContext} from '../src/endpoints/contexts/FilePersistenceProviderContext';
-import MongoDBDataProviderContext from '../src/endpoints/contexts/MongoDBDataProviderContext';
-import {setupApp} from '../src/endpoints/runtime/initAppSetup';
-import NoopEmailProviderContext from '../src/endpoints/test-utils/context/NoopEmailProviderContext';
-import {getTestVars} from '../src/endpoints/test-utils/vars';
+} from '../endpoints/contexts/BaseContext';
+import {S3FilePersistenceProviderContext} from '../endpoints/contexts/FilePersistenceProviderContext';
+import MongoDBDataProviderContext from '../endpoints/contexts/MongoDBDataProviderContext';
+import {setupApp} from '../endpoints/runtime/initAppSetup';
+import NoopEmailProviderContext from '../endpoints/test-utils/context/NoopEmailProviderContext';
+import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
 
 async function integrationTestGlobalSetup() {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

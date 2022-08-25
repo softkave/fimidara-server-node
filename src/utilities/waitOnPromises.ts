@@ -1,4 +1,5 @@
 import {Dictionary, map} from 'lodash';
+import {IBaseContext} from '../endpoints/contexts/BaseContext';
 
 export interface IPromiseWithId<T = any> {
   promise: Promise<T>;
@@ -73,12 +74,14 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function throwRejectedPromisesWithId(p: ISettledPromiseWithId[]) {
+export function throwRejectedPromisesWithId(
+  ctx: IBaseContext,
+  p: ISettledPromiseWithId[]
+) {
   const rejected = p.filter(p => p.rejected);
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      console.error(`Promise ${p.id} rejected`);
-      console.error(p.reason);
+      ctx.logger.error(`Promise ${p.id} rejected with reason ${p.reason}`);
     });
 
     throw new Error('One or more promises rejected');
@@ -86,6 +89,7 @@ export function throwRejectedPromisesWithId(p: ISettledPromiseWithId[]) {
 }
 
 export function throwRejectedPromisesWithStatus(
+  ctx: IBaseContext,
   p: PromiseSettledResult<any>[]
 ) {
   const rejected: PromiseRejectedResult[] = p.filter(
@@ -94,7 +98,7 @@ export function throwRejectedPromisesWithStatus(
 
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      console.error(p.reason);
+      ctx.logger.error(p.reason);
     });
 
     throw new Error('One or more promises rejected');

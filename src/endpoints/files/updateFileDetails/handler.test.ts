@@ -70,5 +70,5 @@ test('file updated', async () => {
 
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
-  await waitForRequestPendingJobs(reqData);
+  await waitForRequestPendingJobs(context, reqData);
 });

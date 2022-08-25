@@ -1,12 +1,10 @@
 import {getMongoConnection} from '../../db/connection';
-import {
-  extractProdEnvsSchema,
-  getAppVariables,
-} from '../../resources/appVariables';
+import {consoleLogger} from '../../endpoints/contexts/consoleLogger';
+import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 
 async function unlockUsageThresholdLocksMain() {
-  console.log('Unlocking workspace locks job started');
+  consoleLogger.info('Unlocking workspace locks job started');
   const appVariables = getAppVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
@@ -19,8 +17,8 @@ async function unlockUsageThresholdLocksMain() {
 
 unlockUsageThresholdLocksMain()
   .then(() => {
-    console.log('Unlocking usage threshold locks job completed');
+    consoleLogger.info('Unlocking usage threshold locks job completed');
   })
   .catch(err => {
-    console.error(err);
+    consoleLogger.error(err);
   });

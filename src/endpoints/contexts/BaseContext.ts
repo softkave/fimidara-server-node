@@ -1,4 +1,5 @@
 import {Connection} from 'mongoose';
+import {Logger} from 'winston';
 import {IAssignedItem} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {ICollaborationRequest} from '../../definitions/collaborationRequest';
@@ -12,7 +13,7 @@ import {ITag} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IWorkspace} from '../../definitions/workspace';
-import {FileBackendType, IAppVariables} from '../../resources/appVariables';
+import {FileBackendType, IAppVariables} from '../../resources/vars';
 import {throwRejectedPromisesWithStatus} from '../../utilities/waitOnPromises';
 import {ContextPendingJobs, IContextPendingJobs} from './ContextPendingJobs';
 import {IDataProvider} from './data-providers/DataProvider';
@@ -34,8 +35,15 @@ import {
   IFilePersistenceProviderContext,
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
+import {logger} from './logger';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
+
+/**
+ * Requiring `winston-mongodb` will expose
+ * `winston.transports.MongoDB`
+ */
+require('winston-mongodb');
 
 export interface IBaseContextDataProviders {
   folder: IDataProvider<IFolder>;
@@ -66,6 +74,7 @@ export interface IBaseContext<
   email: E;
   fileBackend: F;
   jobs: IContextPendingJobs;
+  logger: Logger;
   dataProviders: {
     workspace: IWorkspaceDataProvider;
     usageRecord: IUsageRecordDataProvider;
@@ -97,9 +106,10 @@ export default class BaseContext<
   dataProviders: IBaseContext['dataProviders'];
   cacheProviders: IBaseContext['cacheProviders'];
   logicProviders: IBaseContext['logicProviders'];
-  disposeFn?: () => Promise<void>;
   session: ISessionContext = new SessionContext();
   jobs: IContextPendingJobs;
+  logger: Logger = logger;
+  disposeFn?: () => Promise<void>;
 
   constructor(
     data: T,
@@ -127,19 +137,20 @@ export default class BaseContext<
   };
 
   dispose = async () => {
-    await this.jobs.waitOnJobs();
+    await this.jobs.waitOnJobs(this);
     const promises = [
       this.cacheProviders.workspace.dispose(),
       this.fileBackend.close(),
       this.email.close(),
       this.data.close(),
+      this.logger.close(),
     ];
 
     if (this.disposeFn) {
       promises.push(this.disposeFn());
     }
 
-    throwRejectedPromisesWithStatus(await Promise.allSettled(promises));
+    throwRejectedPromisesWithStatus(this, await Promise.allSettled(promises));
   };
 }
 

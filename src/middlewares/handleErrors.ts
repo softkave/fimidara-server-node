@@ -6,6 +6,7 @@ import {
 } from 'jsonwebtoken';
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
+import {logger} from '../endpoints/contexts/logger';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,
@@ -33,21 +34,14 @@ export function resolveJWTError(err: Error) {
 
 function getArg(name: 'err' | 'req' | 'res' | 'next', args: any[]) {
   switch (name) {
-    case 'err': {
+    case 'err':
       return args.length === 4 ? args[0] : undefined;
-    }
-
-    case 'req': {
+    case 'req':
       return args.length === 4 ? args[1] : args[0];
-    }
-
-    case 'res': {
+    case 'res':
       return args.length === 4 ? args[2] : args[1];
-    }
-
-    case 'next': {
+    case 'next':
       return args.length === 4 ? args[3] : args[2];
-    }
   }
 }
 
@@ -64,11 +58,8 @@ function handleErrors(...args: any[]) {
     return;
   }
 
-  console.error(err);
-  console.log('\n'); // for spacing
-
+  logger.error(err);
   const JWTError = resolveJWTError(err);
-
   if (JWTError) {
     res.status(endpointConstants.httpStatusCode.unauthorized).json({
       errors: getPublicErrors([JWTError]),
@@ -82,8 +73,6 @@ function handleErrors(...args: any[]) {
       errors: getPublicErrors([new ServerError()]),
     });
   }
-
-  console.error(err);
 }
 
 export default handleErrors;

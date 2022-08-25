@@ -1,4 +1,4 @@
-import {defaultStaticVars} from '../resources/appVariables';
+import {defaultStaticVars} from '../resources/vars';
 import {IBaseEmailTemplateProps} from './types';
 
 const maxWidth = '700px';

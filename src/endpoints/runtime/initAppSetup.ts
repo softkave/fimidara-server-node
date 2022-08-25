@@ -12,7 +12,7 @@ import {
   systemAgent,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {IAppRuntimeVars} from '../../resources/appVariables';
+import {IAppRuntimeVars} from '../../resources/vars';
 import {getDate, getDateString} from '../../utilities/dateFns';
 import {getNewIdForResource} from '../../utilities/resourceId';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
