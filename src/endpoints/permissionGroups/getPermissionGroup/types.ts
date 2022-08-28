@@ -2,7 +2,7 @@ import {
   IPermissionGroupMatcher,
   IPublicPermissionGroup,
 } from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IGetPermissionGroupEndpointParams = IPermissionGroupMatcher;

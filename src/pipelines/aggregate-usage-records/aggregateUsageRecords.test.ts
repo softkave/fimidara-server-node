@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {first, random} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
@@ -17,9 +17,9 @@ import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-  IBaseContext,
 } from '../../endpoints/contexts/BaseContext';
 import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from '../../endpoints/contexts/types';
 import RequestData from '../../endpoints/RequestData';
 import {
   generateTestFile,
@@ -51,7 +51,8 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
-import cast from '../../utilities/fns';
+import {cast} from '../../utilities/fns';
+import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {
   aggregateRecords,
   getRecordingMonth,
@@ -64,6 +65,10 @@ const workspaceCacheRefreshIntervalMs = 1000; // 1 second interval
 const reqData = RequestData.fromExpressRequest(
   mockExpressRequestForPublicAgent()
 );
+
+const runInfo = pipelineRunInfoFactory({
+  job: FimidaraPipelineNames.AggregateUsageRecordsJob,
+});
 
 afterAll(async () => {
   await Promise.all(contexts.map(c => c.dispose()));
@@ -326,7 +331,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -364,7 +369,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -416,7 +421,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -460,7 +465,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     await context.cacheProviders.workspace.refreshCache(context);
@@ -478,7 +483,7 @@ describe('usage-records-pipeline', () => {
     );
 
     // Run
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);

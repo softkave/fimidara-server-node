@@ -5,7 +5,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utilities/indexArray';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import PermissionGroupQueries from '../../permissionGroups/queries';
-import {IBaseContext} from '../BaseContext';
+import {IBaseContext} from '../types';
 import {IPermissionEntity} from './getPermissionEntities';
 
 // Add entity to the container if it's not already added

@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,

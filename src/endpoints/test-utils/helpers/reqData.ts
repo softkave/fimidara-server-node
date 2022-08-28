@@ -2,7 +2,7 @@ import {
   throwRejectedPromisesWithId,
   waitOnPromisesWithId,
 } from '../../../utilities/waitOnPromises';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 
 export async function waitForRequestPendingJobs(

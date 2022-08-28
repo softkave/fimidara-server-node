@@ -1,4 +1,4 @@
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(

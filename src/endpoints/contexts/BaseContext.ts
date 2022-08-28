@@ -1,96 +1,22 @@
 import {Connection} from 'mongoose';
 import {Logger} from 'winston';
-import {IAssignedItem} from '../../definitions/assignedItem';
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {IFile} from '../../definitions/file';
-import {IFolder} from '../../definitions/folder';
-import {IPermissionGroup} from '../../definitions/permissionGroups';
-import {IPermissionItem} from '../../definitions/permissionItem';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {IAppRuntimeState} from '../../definitions/system';
-import {ITag} from '../../definitions/tag';
-import {IUser} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
-import {IWorkspace} from '../../definitions/workspace';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
+import {consoleLogger, logger} from '../../utilities/logger/logger';
+import {disposeDbTransport} from '../../utilities/logger/loggerUtils';
 import {throwRejectedPromisesWithStatus} from '../../utilities/waitOnPromises';
 import {ContextPendingJobs, IContextPendingJobs} from './ContextPendingJobs';
-import {IDataProvider} from './data-providers/DataProvider';
-import {
-  IUsageRecordDataProvider,
-  UsageRecordMongoDataProvider,
-} from './data-providers/UsageRecordDataProvider';
+import {UsageRecordMongoDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
-import {
-  IWorkspaceCacheProvider,
-  WorkspaceCacheProvider,
-} from './data-providers/WorkspaceCacheProvider';
-import {
-  IWorkspaceDataProvider,
-  WorkspaceMongoDataProvider,
-} from './data-providers/WorkspaceDataProvider';
+import {WorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
+import {WorkspaceMongoDataProvider} from './data-providers/WorkspaceDataProvider';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {
   IFilePersistenceProviderContext,
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
-import {logger} from './logger';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
-
-/**
- * Requiring `winston-mongodb` will expose
- * `winston.transports.MongoDB`
- */
-require('winston-mongodb');
-
-export interface IBaseContextDataProviders {
-  folder: IDataProvider<IFolder>;
-  file: IDataProvider<IFile>;
-  clientAssignedToken: IDataProvider<IClientAssignedToken>;
-  programAccessToken: IDataProvider<IProgramAccessToken>;
-  permissionItem: IDataProvider<IPermissionItem>;
-  permissiongroup: IDataProvider<IPermissionGroup>;
-  workspace: IDataProvider<IWorkspace>;
-  collaborationRequest: IDataProvider<ICollaborationRequest>;
-  user: IDataProvider<IUser>;
-  userToken: IDataProvider<IUserToken>;
-  appRuntimeState: IDataProvider<IAppRuntimeState>;
-  tag: IDataProvider<ITag>;
-  assignedItem: IDataProvider<IAssignedItem>;
-  close: () => Promise<void>;
-}
-
-export interface IBaseContext<
-  T extends IBaseContextDataProviders = IBaseContextDataProviders,
-  E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  V extends IAppVariables = IAppVariables
-> {
-  appVariables: V;
-  session: ISessionContext;
-  data: T;
-  email: E;
-  fileBackend: F;
-  jobs: IContextPendingJobs;
-  logger: Logger;
-  dataProviders: {
-    workspace: IWorkspaceDataProvider;
-    usageRecord: IUsageRecordDataProvider;
-  };
-
-  cacheProviders: {
-    workspace: IWorkspaceCacheProvider;
-  };
-
-  logicProviders: {
-    usageRecord: UsageRecordLogicProvider;
-  };
-
-  init: () => Promise<void>;
-  dispose: () => Promise<void>;
-}
+import {IBaseContext, IBaseContextDataProviders} from './types';
 
 export default class BaseContext<
   T extends IBaseContextDataProviders,
@@ -143,7 +69,6 @@ export default class BaseContext<
       this.fileBackend.close(),
       this.email.close(),
       this.data.close(),
-      this.logger.close(),
     ];
 
     if (this.disposeFn) {
@@ -151,6 +76,11 @@ export default class BaseContext<
     }
 
     throwRejectedPromisesWithStatus(this, await Promise.allSettled(promises));
+    await Promise.all([
+      this.logger.close(),
+      consoleLogger.close(),
+      disposeDbTransport(),
+    ]);
   };
 }
 

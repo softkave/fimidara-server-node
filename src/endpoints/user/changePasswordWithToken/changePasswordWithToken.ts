@@ -1,9 +1,6 @@
+import {TokenAudience, TokenType} from '../../../definitions/system';
 import {validate} from '../../../utilities/validate';
-import {
-  assertIncomingToken,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+import {assertIncomingToken} from '../../contexts/SessionContext';
 import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
 import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';

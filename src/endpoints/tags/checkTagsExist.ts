@@ -1,8 +1,8 @@
 import {uniqBy} from 'lodash';
-import {IWorkspace} from '../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IWorkspace} from '../../definitions/workspace';
+import {IBaseContext} from '../contexts/types';
 import {getResources} from '../resources/getResources';
 import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
 

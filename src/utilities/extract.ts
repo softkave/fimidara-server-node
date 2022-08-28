@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import {isFunction, pick} from 'lodash';
-import cast from './fns';
+import {cast} from './fns';
 
 export type ExtractFieldTransformer<
   T,

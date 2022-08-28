@@ -1,5 +1,5 @@
 import {IFolderMatcher} from '../../definitions/folder';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {assertWorkspace} from '../workspaces/utils';
 import FolderQueries from './queries';

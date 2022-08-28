@@ -9,7 +9,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';

@@ -1,14 +1,15 @@
 import {URL} from 'url';
-import {AppResourceType} from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAudience,
   TokenType,
-} from '../../contexts/SessionContext';
+} from '../../../definitions/system';
+import {IUser} from '../../../definitions/user';
+import {getDateString} from '../../../utilities/dateFns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 import UserTokenQueries from '../UserTokenQueries';
 

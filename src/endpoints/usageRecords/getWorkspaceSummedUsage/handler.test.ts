@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {sub} from 'date-fns';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
@@ -10,7 +10,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {getDateString} from '../../../utilities/dateFns';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateUsageRecords} from '../../test-utils/generate-data/usageRecord';
 import {

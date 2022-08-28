@@ -1,8 +1,9 @@
+import {TokenAudience} from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
 import {getDateString} from '../../../utilities/dateFns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {TokenAudience} from '../../contexts/SessionContext';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 

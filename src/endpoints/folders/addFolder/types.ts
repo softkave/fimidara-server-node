@@ -1,7 +1,7 @@
 import {IPublicFolder} from '../../../definitions/folder';
 import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IAssignedTagInput} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface INewFolderInput {

@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 
 export async function assertUserTokenIsSame(
   context: IBaseContext,

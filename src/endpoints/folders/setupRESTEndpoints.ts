@@ -1,11 +1,11 @@
-import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
+import {wrapEndpointREST} from '../utils';
 import addFolder from './addFolder/handler';
 import deleteFolder from './deleteFolder/handler';
 import getFolder from './getFolder/handler';
 import listFolderContent from './listFolderContent/handler';
 import updateFolder from './updateFolder/handler';
-import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupFoldersRESTEndpoints(
   ctx: IBaseContext,

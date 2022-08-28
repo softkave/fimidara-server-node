@@ -19,7 +19,7 @@ import {
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {permissionItemIndexer} from '../../permissionItems/utils';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';

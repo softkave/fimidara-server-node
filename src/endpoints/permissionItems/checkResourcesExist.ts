@@ -1,6 +1,6 @@
-import {IWorkspace} from '../../definitions/workspace';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IWorkspace} from '../../definitions/workspace';
+import {IBaseContext} from '../contexts/types';
 import {getResources, IGetResourcesOptions} from '../resources/getResources';
 import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';

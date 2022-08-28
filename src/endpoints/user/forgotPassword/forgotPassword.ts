@@ -1,16 +1,17 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {AppResourceType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+  TokenType,
+} from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
 import {getDateString} from '../../../utilities/dateFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../contexts/SessionContext';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 import UserQueries from '../UserQueries';
 import sendChangePasswordEmail from './sendChangePasswordEmail';

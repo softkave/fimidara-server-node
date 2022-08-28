@@ -5,7 +5,7 @@ import {
   BasicCRUDActions,
   getWorkspaceActionList,
 } from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
 import {

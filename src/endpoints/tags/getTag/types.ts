@@ -1,5 +1,5 @@
 import {IPublicTag} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface IGetTagEndpointParams {

@@ -1,25 +1,32 @@
 import {CronJob} from 'cron';
 import {getMongoConnection} from '../db/connection';
-import {logger} from '../endpoints/contexts/logger';
 import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
 import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
 import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
+import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
 
+// TODO: move to worker thread
+// TODO: have a mechanism to preven the start of another until the previous is
+// done
 const aggregateUsageRecordsJob = new CronJob(
-  /** cronTime */ '* 5 * * * *', // every 5 minutes
+  /** cronTime */ '0 */10 * * * *', // every 5 minutes
   /** onTick */ async function () {
+    const runInfo = pipelineRunInfoFactory({
+      job: FimidaraPipelineNames.AggregateUsageRecordsJob,
+    });
+
     try {
-      logger.info('Aggregate usage records job started');
+      runInfo.logger.info('Aggregate usage records job started');
       const appVariables = extractEnvVariables(extractProdEnvsSchema);
       const connection = await getMongoConnection(
         appVariables.mongoDbURI,
         appVariables.mongoDbDatabaseName
       );
 
-      await aggregateRecords(connection);
+      await aggregateRecords(connection, runInfo);
     } catch (err: any) {
-      logger.info('Error in aggregate usage records job: ');
-      logger.error(err);
+      runInfo.logger.info('Error in aggregate usage records job: ');
+      runInfo.logger.error(err);
     }
   },
   /** onComplete */ null,
@@ -32,10 +39,14 @@ const aggregateUsageRecordsJob = new CronJob(
 );
 
 const unlockWorkspaceLocksJob = new CronJob(
-  /** cronTime */ '0 0 0 27 * *', // every month on the 27th at midnight
+  /** cronTime */ '0 0 */27 * *', // every month on the 27th at midnight
   /** onTick */ async function () {
+    const runInfo = pipelineRunInfoFactory({
+      job: FimidaraPipelineNames.UnlockWorkspaceLocksJob,
+    });
+
     try {
-      logger.info('Unlocking workspace locks job started');
+      runInfo.logger.info('Unlocking workspace locks job started');
       const appVariables = extractEnvVariables(extractProdEnvsSchema);
       const connection = await getMongoConnection(
         appVariables.mongoDbURI,
@@ -44,8 +55,8 @@ const unlockWorkspaceLocksJob = new CronJob(
 
       await unlockUsageThresholdLocks(connection);
     } catch (error: any) {
-      logger.info('Error in unlocking workspace locks job: ');
-      logger.error(error);
+      runInfo.logger.info('Error in unlocking workspace locks job: ');
+      runInfo.logger.error(error);
     }
   },
   /** onComplete */ null,

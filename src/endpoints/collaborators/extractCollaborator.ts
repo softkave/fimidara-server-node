@@ -1,6 +1,6 @@
 import {IUser} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {collaboratorExtractor, removeOtherUserWorkspaces} from './utils';
 
 export async function extractCollaborator(

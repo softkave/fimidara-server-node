@@ -24,11 +24,12 @@ async function integrationTestGlobalSetup() {
     appVariables,
     getDataProviders(connection),
     getCacheProviders(),
-    getLogicProviders()
+    getLogicProviders(),
+    () => connection.close()
   );
 
   await setupApp(ctx);
-  await connection.close();
+  await ctx.dispose();
 }
 
 module.exports = integrationTestGlobalSetup;

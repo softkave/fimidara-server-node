@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {insertTagForTest} from '../../test-utils/helpers/tag';
 import {
   assertContext,

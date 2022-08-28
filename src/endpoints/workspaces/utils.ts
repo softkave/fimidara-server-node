@@ -18,8 +18,8 @@ import {
   makeListExtract,
 } from '../../utilities/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
 import {getWorkspaceId} from '../contexts/SessionContext';
+import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
 import {agentExtractor} from '../utils';

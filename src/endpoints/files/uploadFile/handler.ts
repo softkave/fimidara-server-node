@@ -4,8 +4,9 @@ import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
+import {appAssert} from '../../../utilities/assertion';
 import {ValidationError} from '../../../utilities/errors';
-import {appAssert} from '../../../utilities/fns';
+import {} from '../../../utilities/fns';
 import {validate} from '../../../utilities/validate';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {

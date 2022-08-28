@@ -25,7 +25,7 @@ import {
   EmailAddressNotVerifiedError,
   PermissionDeniedError,
 } from '../../../user/errors';
-import {IBaseContext} from '../../BaseContext';
+import {IBaseContext} from '../../types';
 import {
   checkAuthorization,
   getFilePermissionOwners,

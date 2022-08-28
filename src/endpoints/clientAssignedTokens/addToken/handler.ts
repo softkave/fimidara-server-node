@@ -3,6 +3,7 @@ import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {
   AppResourceType,
   BasicCRUDActions,
+  CURRENT_TOKEN_VERSION,
   IAgent,
 } from '../../../definitions/system';
 import {getDate, getDateString} from '../../../utilities/dateFns';
@@ -14,10 +15,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {
-  CURRENT_TOKEN_VERSION,
-  getWorkspaceId,
-} from '../../contexts/SessionContext';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';

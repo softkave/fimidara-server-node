@@ -1,4 +1,4 @@
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {ResourceExistsError} from '../errors';
 import PermissionGroupQueries from './queries';
 

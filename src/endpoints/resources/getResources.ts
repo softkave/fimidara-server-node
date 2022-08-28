@@ -17,7 +17,7 @@ import {
   checkAuthorization,
   makeResourcePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {IFetchResourceItem, IResource} from './types';
 

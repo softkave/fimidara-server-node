@@ -11,7 +11,7 @@ import {
   getFilePermissionOwners,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
 import {ISplitfilepathWithDetails} from '../utils';

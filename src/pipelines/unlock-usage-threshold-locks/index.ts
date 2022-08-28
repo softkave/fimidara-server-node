@@ -1,24 +1,27 @@
 import {getMongoConnection} from '../../db/connection';
-import {consoleLogger} from '../../endpoints/contexts/consoleLogger';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 
 async function unlockUsageThresholdLocksMain() {
-  consoleLogger.info('Unlocking workspace locks job started');
-  const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
+  const runInfo = pipelineRunInfoFactory({
+    job: FimidaraPipelineNames.UnlockWorkspaceLocksJob,
+  });
 
-  await unlockUsageThresholdLocks(connection);
-  await connection.close();
+  try {
+    runInfo.logger.info('Unlocking workspace locks job started');
+    const appVariables = getAppVariables(extractProdEnvsSchema);
+    const connection = await getMongoConnection(
+      appVariables.mongoDbURI,
+      appVariables.mongoDbDatabaseName
+    );
+
+    await unlockUsageThresholdLocks(connection);
+    await connection.close();
+    runInfo.logger.info('Unlocking usage threshold locks job completed');
+  } catch (error: any) {
+    runInfo.logger.error(error);
+  }
 }
 
-unlockUsageThresholdLocksMain()
-  .then(() => {
-    consoleLogger.info('Unlocking usage threshold locks job completed');
-  })
-  .catch(err => {
-    consoleLogger.error(err);
-  });
+unlockUsageThresholdLocksMain();

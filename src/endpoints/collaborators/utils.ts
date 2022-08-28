@@ -9,7 +9,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import {checkWorkspaceExists} from '../workspaces/utils';

@@ -1,13 +1,14 @@
 import {URL} from 'url';
-import {AppResourceType} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAudience,
   TokenType,
-} from '../../contexts/SessionContext';
+} from '../../../definitions/system';
+import {getDateString} from '../../../utilities/dateFns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';

@@ -1,18 +1,21 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {AppResourceType, systemAgent} from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
-import {IUserToken} from '../../../definitions/userToken';
-import {getDateString} from '../../../utilities/dateFns';
-import {ServerError} from '../../../utilities/errors';
-import {appAssert} from '../../../utilities/fns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  AppResourceType,
   CURRENT_TOKEN_VERSION,
+  systemAgent,
   TokenAudience,
   TokenType,
-} from '../../contexts/SessionContext';
+} from '../../../definitions/system';
+import {IUser} from '../../../definitions/user';
+import {IUserToken} from '../../../definitions/userToken';
+import {appAssert} from '../../../utilities/assertion';
+import {getDateString} from '../../../utilities/dateFns';
+import {ServerError} from '../../../utilities/errors';
+import {} from '../../../utilities/fns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import UserTokenQueries from '../UserTokenQueries';

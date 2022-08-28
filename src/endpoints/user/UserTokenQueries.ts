@@ -1,7 +1,8 @@
+import {TokenAudience} from '../../definitions/system';
 import {IUserToken} from '../../definitions/userToken';
 import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
-import {TokenAudience} from '../contexts/SessionContext';
+import {} from '../contexts/SessionContext';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {

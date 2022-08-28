@@ -1,12 +1,12 @@
-import assert from 'assert';
+import assert = require('assert');
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate, getDateString} from '../../../utilities/dateFns';
-import cast from '../../../utilities/fns';
+import {cast} from '../../../utilities/fns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
   checkWorkspaceNameExists,

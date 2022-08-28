@@ -26,8 +26,8 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaborationRequestQueries from '../queries';

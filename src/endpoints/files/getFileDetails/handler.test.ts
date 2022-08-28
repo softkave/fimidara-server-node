@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';

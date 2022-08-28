@@ -15,9 +15,9 @@ import {
   EmailAddressNotVerifiedError,
   PermissionDeniedError,
 } from '../../user/errors';
-import {IBaseContext} from '../BaseContext';
 import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
 import DataProviderFilterBuilder from '../data-providers/DataProviderFilterBuilder';
+import {IBaseContext} from '../types';
 import {fetchAndSortPermissionGroups} from './fetchPermissionGroups';
 import {
   getPermissionEntities,

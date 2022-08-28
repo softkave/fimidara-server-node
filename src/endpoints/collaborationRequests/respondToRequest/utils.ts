@@ -21,7 +21,7 @@ import {
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import {assertWorkspace} from '../../workspaces/utils';

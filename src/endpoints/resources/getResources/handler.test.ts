@@ -8,7 +8,7 @@ import {
 } from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
 import {
   IAddPermissionItemsEndpointParams,

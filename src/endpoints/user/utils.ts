@@ -7,7 +7,7 @@ import {
 import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import {userCommonErrors} from './errors';

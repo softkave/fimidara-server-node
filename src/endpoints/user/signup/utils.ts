@@ -3,7 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {EmailAddressNotAvailableError} from '../errors';
 import UserQueries from '../UserQueries';
 import {ISignupParams} from './types';

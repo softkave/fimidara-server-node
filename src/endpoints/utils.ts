@@ -11,8 +11,7 @@ import {
 import OperationError from '../utilities/OperationError';
 import {AnyObject} from '../utilities/types';
 import {endpointConstants} from './constants';
-import {IBaseContext} from './contexts/BaseContext';
-import {IServerRequest} from './contexts/types';
+import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataPendingPromise} from './types';

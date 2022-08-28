@@ -3,7 +3,7 @@ import {systemAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 
 export async function updateTestWorkspaceUsageLocks(
   context: IBaseContext,

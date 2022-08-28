@@ -1,11 +1,9 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
-import sharp from 'sharp';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
@@ -28,6 +26,8 @@ import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import getFile from './handler';
 import {IGetFileEndpointParams} from './types';
+import sharp = require('sharp');
+import assert = require('assert');
 
 let context: IBaseContext | null = null;
 

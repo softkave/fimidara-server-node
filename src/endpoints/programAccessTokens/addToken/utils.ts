@@ -10,7 +10,7 @@ import {
   saveResourceAssignedItems,
 } from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import {programAccessTokenConstants} from '../constants';
 import {INewProgramAccessTokenInput} from './types';

@@ -1,11 +1,12 @@
+import {TokenAudience} from '../../../definitions/system';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
   IForgotPasswordEmailProps,
 } from '../../../email-templates/forgotPassword';
-import {IBaseContext} from '../../contexts/BaseContext';
-import {TokenAudience} from '../../contexts/SessionContext';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,

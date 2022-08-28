@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
