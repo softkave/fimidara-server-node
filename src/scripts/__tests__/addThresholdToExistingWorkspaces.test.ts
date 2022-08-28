@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {forEach} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
@@ -10,9 +9,10 @@ import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/w
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
-import cast from '../../utilities/fns';
+import {cast} from '../../utilities/fns';
 import {indexArray} from '../../utilities/indexArray';
 import {script_AddThresholdToExistingWorkspaces} from '../addThresholdToExistingWorkspaces';
+import assert = require('assert');
 
 let connection: Connection | null = null;
 let dbName: string | null = null;

@@ -1,12 +1,12 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {
   AppResourceType,
+  CURRENT_TOKEN_VERSION,
   IAgent,
   SessionAgentType,
 } from '../../../definitions/system';
 import {getDateString} from '../../../utilities/dateFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
-import {CURRENT_TOKEN_VERSION} from '../../contexts/SessionContext';
 
 export function generateClientAssignedTokenForTest() {
   const createdAt = getDateString();

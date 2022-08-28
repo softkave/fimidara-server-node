@@ -4,7 +4,7 @@ import {
 } from '../../utilities/waitOnPromises';
 import RequestData from '../RequestData';
 import {IRequestDataPendingPromise} from '../types';
-import {IBaseContext} from './BaseContext';
+import {IBaseContext} from './types';
 
 export interface IContextPendingJobs {
   addJob: (

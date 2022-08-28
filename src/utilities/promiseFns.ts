@@ -1,4 +1,4 @@
-import {logger} from '../endpoints/contexts/logger';
+import {logger} from './logger/logger';
 
 export const fireAndForgetFn = async <Fn extends (...args: any) => any>(
   fn: Fn,

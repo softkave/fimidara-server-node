@@ -1,6 +1,6 @@
 import {get, isArray, isEqual} from 'lodash';
 import {InternalError} from '../../../utilities/errors';
-import cast from '../../../utilities/fns';
+import {cast} from '../../../utilities/fns';
 import {indexArray} from '../../../utilities/indexArray';
 import {
   DataProviderFilterValueOperator,
@@ -63,12 +63,12 @@ function matches(
     }
 
     const fields = key.split('.');
-    const base = get(item, fields[0]);
+    const base: any = get(item, fields[0]);
     const baseIsList = Array.isArray(base);
     const baseIsDotList = fields.length > 1 && baseIsList;
     const runFn = (fn: (...args: any[]) => boolean) => {
       if (baseIsDotList) {
-        const i = base.findIndex(o1 => {
+        const i = (base as any[]).findIndex(o1 => {
           const do1 = get(o1, fields[1]);
           return fn(v.value, do1);
         });
@@ -77,9 +77,8 @@ function matches(
       }
 
       const firstCheck = fn(v.value, base);
-
       if (firstCheck === false && baseIsList) {
-        const i = base.findIndex(o1 => {
+        const i = (base as any[]).findIndex(o1 => {
           return fn(v.value, o1);
         });
 

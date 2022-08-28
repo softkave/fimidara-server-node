@@ -3,7 +3,7 @@ import {
   PermissionItemAppliesTo,
 } from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface INewPermissionItemInput {

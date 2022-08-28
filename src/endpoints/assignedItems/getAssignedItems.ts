@@ -7,8 +7,8 @@ import {
 } from '../../definitions/assignedItem';
 import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
-import cast from '../../utilities/fns';
-import {IBaseContext} from '../contexts/BaseContext';
+import {cast} from '../../utilities/fns';
+import {IBaseContext} from '../contexts/types';
 import AssignedItemQueries from './queries';
 import {
   assignedItemsToAssignedPermissionGroupList,

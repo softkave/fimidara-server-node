@@ -1,6 +1,6 @@
 import {forEach} from 'lodash';
 import {Document, FilterQuery, Model} from 'mongoose';
-import cast from '../../../utilities/fns';
+import {cast} from '../../../utilities/fns';
 import {
   DataProviderFilterValueLogicalOperator,
   DataProviderFilterValueOperator,

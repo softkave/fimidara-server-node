@@ -1,8 +1,8 @@
-import cors from 'cors';
-import express from 'express';
-import expressJwt from 'express-jwt';
-import http from 'http';
-import multer from 'multer';
+import cors = require('cors');
+import express = require('express');
+import expressJwt = require('express-jwt');
+import http = require('http');
+import multer = require('multer');
 import {getMongoConnection} from './db/connection';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
@@ -13,12 +13,11 @@ import BaseContext, {
   getDataProviders,
   getFileProvider,
   getLogicProviders,
-  IBaseContext,
 } from './endpoints/contexts/BaseContext';
-import {consoleLogger} from './endpoints/contexts/consoleLogger';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {logger} from './endpoints/contexts/logger';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from './endpoints/contexts/types';
+import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
 import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
@@ -35,16 +34,27 @@ import httpToHttps from './middlewares/httpToHttps';
 import {startJobs} from './pipelines';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
 import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
+import {consoleLogger, logger} from './utilities/logger/logger';
 
 logger.info('server initialization');
 
 const app = express();
-const upload = multer();
+const upload = multer({
+  limits: {
+    fieldNameSize: 100,
+    fieldSize: 1 * 1024 * 1204,
+    fields: 1024,
+    fileSize: fileConstants.maxFileSizeInBytes,
+    files: 1,
+    parts: 10000,
+    headerPairs: 2000,
+  },
+});
+
 const httpServer = http.createServer(app);
 
 // Match all origins
 const whiteListedCorsOrigins = [/[\s\S]*/];
-
 if (process.env.NODE_ENV !== 'production') {
   whiteListedCorsOrigins.push(/localhost/);
 }

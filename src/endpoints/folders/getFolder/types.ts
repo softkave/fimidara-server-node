@@ -1,5 +1,5 @@
 import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IGetFolderEndpointParams = IFolderMatcher;

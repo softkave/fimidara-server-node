@@ -4,15 +4,21 @@ import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
   AppResourceType,
+  CURRENT_TOKEN_VERSION,
   IAgent,
+  IBaseTokenData,
+  IGeneralTokenSubject,
   ISessionAgent,
   publicAgent,
   SessionAgentType,
+  TokenAudience,
+  TokenType,
 } from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
+import {appAssert} from '../../utilities/assertion';
 import {ServerError} from '../../utilities/errors';
-import cast, {appAssert} from '../../utilities/fns';
+import {cast} from '../../utilities/fns';
 import {
   populateAssignedPermissionGroupsAndTags,
   populateUserWorkspaces,
@@ -23,39 +29,7 @@ import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {CredentialsExpiredError, PermissionDeniedError} from '../user/errors';
 import UserTokenQueries from '../user/UserTokenQueries';
-import {IBaseContext} from './BaseContext';
-
-export const CURRENT_TOKEN_VERSION = 1;
-
-export enum TokenType {
-  UserToken = 'user',
-  ProgramAccessToken = 'program',
-  ClientAssignedToken = 'client',
-}
-
-export enum TokenAudience {
-  Login = 'login',
-  ChangePassword = 'change-password',
-  ConfirmEmailAddress = 'confirm-email-address',
-}
-
-export interface IGeneralTokenSubject {
-  id: string;
-  type: TokenType;
-}
-
-export interface IBaseTokenData<
-  Sub extends IGeneralTokenSubject = IGeneralTokenSubject
-> {
-  version: number;
-  sub: Sub;
-  iat: number;
-  exp?: number;
-}
-
-export interface IAgentPersistedToken {
-  audience: TokenAudience[];
-}
+import {IBaseContext} from './types';
 
 export interface ISessionContext {
   getAgent: (

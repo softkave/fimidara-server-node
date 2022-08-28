@@ -1,4 +1,4 @@
-import {createConnection, Connection} from 'mongoose';
+import {Connection, createConnection} from 'mongoose';
 
 export function getMongoConnection(
   uri: string,

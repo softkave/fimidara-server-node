@@ -1,11 +1,11 @@
-import {ConfirmEmailAddressEndpoint} from './types';
-import {TokenAudience} from '../../contexts/SessionContext';
+import {TokenAudience} from '../../../definitions/system';
 import {
   getUserClientAssignedToken,
   getUserToken,
   toLoginResult,
 } from '../login/utils';
 import internalConfirmEmailAddress from './internalConfirmEmailAddress';
+import {ConfirmEmailAddressEndpoint} from './types';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (
   context,

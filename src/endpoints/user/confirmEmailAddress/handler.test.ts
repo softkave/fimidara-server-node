@@ -1,12 +1,13 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {
+  AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAudience,
-} from '../../contexts/SessionContext';
+} from '../../../definitions/system';
+import {getDateString} from '../../../utilities/dateFns';
+import {getNewIdForResource} from '../../../utilities/resourceId';
+import {} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {assertUserTokenIsSame} from '../../test-utils/helpers/user';
 import {

@@ -1,10 +1,7 @@
 import {AnyFn} from '../../../utilities/types';
-import {
-  IBaseContext,
-  IBaseContextDataProviders,
-} from '../../contexts/BaseContext';
 import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
 import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
+import {IBaseContext, IBaseContextDataProviders} from '../../contexts/types';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {

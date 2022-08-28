@@ -11,9 +11,9 @@ import {
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {IBaseContext} from '../contexts/BaseContext';
 import {IUsageRecordInput} from '../contexts/data-providers/UsageRecordLogicProvider';
 import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
+import {IBaseContext} from '../contexts/types';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
 import {UsageLimitExceededError} from './errors';

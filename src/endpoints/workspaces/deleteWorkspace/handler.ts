@@ -6,8 +6,8 @@ import {
 import {validate} from '../../../utilities/validate';
 import {waitOnPromises} from '../../../utilities/waitOnPromises';
 import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {internalDeleteFolderList} from '../../folders/deleteFolder/handler';
 import FolderQueries from '../../folders/queries';

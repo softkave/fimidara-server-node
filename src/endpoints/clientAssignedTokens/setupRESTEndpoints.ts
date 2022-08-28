@@ -1,10 +1,10 @@
 import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
+import {wrapEndpointREST} from '../utils';
 import addClientAssignedToken from './addToken/handler';
 import deleteClientAssignedToken from './deleteToken/handler';
-import getWorkspaceClientAssignedTokens from './getWorkspaceTokens/handler';
 import getClientAssignedToken from './getToken/handler';
-import {wrapEndpointREST} from '../utils';
-import {IBaseContext} from '../contexts/BaseContext';
+import getWorkspaceClientAssignedTokens from './getWorkspaceTokens/handler';
 import updateClientAssignedToken from './updateToken/handler';
 
 export default function setupClientAssignedTokensRESTEndpoints(

@@ -1,6 +1,6 @@
 import {IPublicFile} from '../../../definitions/file';
 import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IListFolderContentEndpointParams = IFolderMatcher;

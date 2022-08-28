@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi = require('joi');
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import usageRecordValidationSchemas from '../usageRecords/validation';
 

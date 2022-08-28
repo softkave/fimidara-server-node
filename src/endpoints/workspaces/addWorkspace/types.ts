@@ -3,7 +3,7 @@ import {
   IPublicWorkspace,
   IUsageThreshold,
 } from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IUsageThresholdInput = Pick<IUsageThreshold, 'category' | 'budget'>;

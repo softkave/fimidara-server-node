@@ -1,7 +1,7 @@
-import OperationError from '../utilities/OperationError';
-import RequestData from './RequestData';
-import {IBaseContext} from './contexts/BaseContext';
 import {SessionAgentType} from '../definitions/system';
+import OperationError from '../utilities/OperationError';
+import {IBaseContext} from './contexts/types';
+import RequestData from './RequestData';
 
 export interface IBaseEndpointResult {
   errors?: OperationError[];

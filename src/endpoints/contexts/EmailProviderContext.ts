@@ -1,5 +1,5 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
-import {IBaseContext} from './BaseContext';
+import {IBaseContext} from './types';
 
 export interface ISendEmailParams {
   destination: string[];

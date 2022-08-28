@@ -1,12 +1,12 @@
-import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
+import {wrapEndpointREST} from '../utils';
 import addWorkspace from './addWorkspace/handler';
 import deleteWorkspace from './deleteWorkspace/handler';
-import getWorkspace from './getWorkspace/handler';
 import getRequestWorkspace from './getRequestWorkspace/handler';
 import getUserWorkspaces from './getUserWorkspaces/handler';
+import getWorkspace from './getWorkspace/handler';
 import updateWorkspace from './updateWorkspace/handler';
-import {IBaseContext} from '../contexts/BaseContext';
 
 export default function setupWorkspacesRESTEndpoints(
   ctx: IBaseContext,

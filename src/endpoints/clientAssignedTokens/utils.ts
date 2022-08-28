@@ -6,20 +6,21 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
+  TokenType,
 } from '../../definitions/system';
+import {appAssert} from '../../utilities/assertion';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import cast, {appAssert} from '../../utilities/fns';
+import {cast} from '../../utilities/fns';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
 import {
   assertGetWorkspaceIdFromAgent,
   getClientAssignedTokenIdNoThrow,
-  TokenType,
 } from '../contexts/SessionContext';
+import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import EndpointReusableQueries from '../queries';

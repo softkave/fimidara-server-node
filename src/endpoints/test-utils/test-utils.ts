@@ -1,14 +1,15 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {add} from 'date-fns';
-import sharp from 'sharp';
 import {getMongoConnection} from '../../db/connection';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
+  CURRENT_TOKEN_VERSION,
   getNonWorkspaceActionList,
   getWorkspaceActionList,
+  IBaseTokenData,
+  TokenType,
 } from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
@@ -35,15 +36,10 @@ import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-  IBaseContext,
 } from '../contexts/BaseContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
-import {
-  CURRENT_TOKEN_VERSION,
-  IBaseTokenData,
-  TokenType,
-} from '../contexts/SessionContext';
-import {IServerRequest} from '../contexts/types';
+import {} from '../contexts/SessionContext';
+import {IBaseContext, IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
 import {IUploadFileEndpointParams} from '../files/uploadFile/types';
 import {splitfilepathWithDetails} from '../files/utils';
@@ -85,6 +81,8 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
+import sharp = require('sharp');
+import assert = require('assert');
 
 export function getTestEmailProvider(appVariables: IAppVariables) {
   return new MockTestEmailProviderContext();

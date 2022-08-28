@@ -3,8 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
-    "lib": ["dom"],
-    "esModuleInterop": true
+    "lib": ["es2018", "dom"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "src/jest/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }

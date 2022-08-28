@@ -1,5 +1,5 @@
 import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {INewClientAssignedTokenInput} from '../addToken/types';
 

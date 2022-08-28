@@ -7,7 +7,7 @@ import {
   IPublicAccessOpInput,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,

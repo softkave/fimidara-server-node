@@ -11,7 +11,7 @@ import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {indexArray} from '../../utilities/indexArray';
 import {getNewIdForResource} from '../../utilities/resourceId';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
 import {IResourceWithoutAssignedAgent, withAssignedAgent} from '../utils';

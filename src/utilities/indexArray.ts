@@ -1,5 +1,5 @@
 import {get} from 'lodash';
-import {logger} from '../endpoints/contexts/logger';
+import {logger} from './logger/logger';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {

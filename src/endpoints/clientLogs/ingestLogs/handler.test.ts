@@ -1,74 +1,55 @@
-import assert from 'assert';
-import {Connection, Schema} from 'mongoose';
+import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {
-  extractEnvVariables,
-  extractProdEnvsSchema,
-} from '../../../resources/vars';
 import {getDateString} from '../../../utilities/dateFns';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getLogicProviders,
-  IBaseContext,
-} from '../../contexts/BaseContext';
-import MongoDBDataProviderContext from '../../contexts/MongoDBDataProviderContext';
+import {waitTimeout} from '../../../utilities/fns';
+import {FimidaraLoggerServiceNames} from '../../../utilities/logger/loggerUtils';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {dropMongoConnection, genDbName} from '../../test-utils/helpers/mongo';
 import {
   assertContext,
   assertEndpointResultOk,
-  getTestEmailProvider,
-  getTestFileProvider,
+  initTestBaseContext,
   mockExpressRequestForPublicAgent,
 } from '../../test-utils/test-utils';
 import ingestLogs from './handler';
 import {IClientLog, IIngestLogsEndpointParams} from './types';
+import assert = require('assert');
 
 let context: IBaseContext | null = null;
 let logsConnection: Connection | null = null;
+let model: Model<IClientLog> | null = null;
 
 beforeAll(async () => {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
-  appVariables.logsDbName = genDbName();
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
-
-  context = new BaseContext(
-    new MongoDBDataProviderContext(connection),
-    getTestEmailProvider(appVariables),
-    await getTestFileProvider(appVariables),
-    appVariables,
-    getDataProviders(connection),
-    getCacheProviders(),
-    getLogicProviders(),
-    () => connection.close()
-  );
-
+  context = await initTestBaseContext();
   logsConnection = await getMongoConnection(
     context.appVariables.mongoDbURI,
     context.appVariables.logsDbName
+  );
+
+  model = logsConnection.model<IClientLog>(
+    'log',
+    new Schema<IClientLog>({meta: SchemaTypes.Map}),
+    context.appVariables.logsCollectionName
   );
 });
 
 afterAll(async () => {
   await context?.dispose();
-  await dropMongoConnection(logsConnection);
+  await logsConnection?.close();
 });
 
 describe('ingestLogs', () => {
   test('client logs ingested', async () => {
     assertContext(context);
     const testLogs: IClientLog[] = [];
+    const randomTag = Math.random().toString();
     for (let i = 0; i < 10; i++) {
       testLogs.push({
         level: 'error',
         message: `Test client log ${i}`,
         timestamp: getDateString(),
-        stack: new Error().stack,
-        service: 'fimidara-test',
+        stack: randomTag,
+        service: FimidaraLoggerServiceNames.Test,
       });
     }
 
@@ -79,14 +60,10 @@ describe('ingestLogs', () => {
 
     const result = await ingestLogs(context, reqData);
     assertEndpointResultOk(result);
-    assert(logsConnection);
-    const model = logsConnection.model<IClientLog>(
-      'log',
-      new Schema<IClientLog>({message: String}),
-      context.appVariables.logsCollectionName
-    );
-
-    const savedLogs = await model.find({}).lean().exec();
+    await waitTimeout(1000);
+    assert(model);
+    const savedLogs = await model.find({'meta.stack': randomTag}).lean().exec();
+    console.dir(savedLogs);
     expect(savedLogs.length).toBe(testLogs.length);
   });
 });

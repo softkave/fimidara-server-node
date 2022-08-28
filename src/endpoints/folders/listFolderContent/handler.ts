@@ -14,7 +14,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
 import {PermissionDeniedError} from '../../user/errors';

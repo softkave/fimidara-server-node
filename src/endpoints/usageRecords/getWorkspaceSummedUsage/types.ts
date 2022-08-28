@@ -1,6 +1,6 @@
 import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {IWorkspaceSummedUsageQueryParams} from '../../contexts/data-providers/UsageRecordDataProvider';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IGetWorkspaceSummedUsageEndpointParams =

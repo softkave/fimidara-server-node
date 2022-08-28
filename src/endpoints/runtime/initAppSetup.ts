@@ -16,7 +16,7 @@ import {IAppRuntimeVars} from '../../resources/vars';
 import {getDate, getDateString} from '../../utilities/dateFns';
 import {getNewIdForResource} from '../../utilities/resourceId';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import {permissionItemIndexer} from '../permissionItems/utils';

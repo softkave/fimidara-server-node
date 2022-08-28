@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
@@ -10,6 +9,7 @@ import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/w
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
+import assert = require('assert');
 
 let connection: Connection | null = null;
 let dbName: string | null = null;

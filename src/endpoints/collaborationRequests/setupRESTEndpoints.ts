@@ -1,14 +1,14 @@
-import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
-import sendRequest from './sendRequest/handler';
+import {IBaseContext} from '../contexts/types';
+import {wrapEndpointREST} from '../utils';
 import deleteRequest from './deleteRequest/handler';
-import getWorkspaceRequests from './getWorkspaceRequests/handler';
+import getRequest from './getRequest/handler';
 import getUserRequests from './getUserRequests/handler';
+import getWorkspaceRequests from './getWorkspaceRequests/handler';
 import respondToRequest from './respondToRequest/handler';
 import revokeRequest from './revokeRequest/handler';
+import sendRequest from './sendRequest/handler';
 import updateRequest from './updateRequest/handler';
-import {IBaseContext} from '../contexts/BaseContext';
-import getRequest from './getRequest/handler';
 
 export default function setupCollaborationRequestsRESTEndpoints(
   ctx: IBaseContext,

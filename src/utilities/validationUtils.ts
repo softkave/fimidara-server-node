@@ -4,8 +4,6 @@ import {
   getWorkspaceActionList,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
-import {permissionItemConstants} from '../endpoints/permissionItems/constants';
-import permissionItemValidationSchemas from '../endpoints/permissionItems/validation';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;
@@ -55,15 +53,6 @@ const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
 const crudAction = Joi.string().valid(...getWorkspaceActionList());
-const publicAccessOp = Joi.object().keys({
-  action: crudAction.required(),
-  resourceType: resourceType.required(),
-  appliesTo: permissionItemValidationSchemas.appliesTo.required(),
-});
-
-const publicAccessOpList = Joi.array()
-  .items(publicAccessOp)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 export const validationSchemas = {
   resourceId,
@@ -81,8 +70,6 @@ export const validationSchemas = {
   alphanum,
   resourceType,
   crudAction,
-  publicAccessOp,
-  publicAccessOpList,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {

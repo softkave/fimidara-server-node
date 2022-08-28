@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {
@@ -17,7 +16,7 @@ import {
   extractEnvVariables,
   extractProdEnvsSchema,
 } from '../../../../resources/vars';
-import cast from '../../../../utilities/fns';
+import {cast} from '../../../../utilities/fns';
 import {getNewId, getNewIdForResource} from '../../../../utilities/resourceId';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
@@ -28,12 +27,13 @@ import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-  IBaseContext,
 } from '../../BaseContext';
+import {IBaseContext} from '../../types';
 import {
   IUsageRecordInput,
   UsageRecordLogicProvider,
 } from '../UsageRecordLogicProvider';
+import assert = require('assert');
 
 let connection: Connection | null = null;
 let context: IBaseContext | null = null;

@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';

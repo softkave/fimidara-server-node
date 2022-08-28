@@ -1,17 +1,17 @@
+import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
+import changePassword from './changePassword/changePassword';
+import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
+import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
+import confirmEmailAddress from './confirmEmailAddress/handler';
 import forgotPassword from './forgotPassword/forgotPassword';
 import getUserData from './getUserData/getUserData';
 import login from './login/login';
+import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
 import signup from './signup/signup';
 import updateUser from './updateUser/handler';
 import userExists from './userExists/handler';
-import {Express} from 'express';
-import confirmEmailAddress from './confirmEmailAddress/handler';
-import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
-import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
-import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
-import {IBaseContext} from '../contexts/BaseContext';
-import changePassword from './changePassword/changePassword';
 
 export default function setupAccountRESTEndpoints(
   ctx: IBaseContext,

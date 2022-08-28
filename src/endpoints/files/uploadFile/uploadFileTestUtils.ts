@@ -1,22 +1,22 @@
-import { faker } from '@faker-js/faker';
-import assert from 'assert';
-import { IFile } from '../../../definitions/file';
-import { PermissionItemAppliesTo } from '../../../definitions/permissionItem';
+import {faker} from '@faker-js/faker';
+import {IFile} from '../../../definitions/file';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
-  IPublicAccessOpInput
+  IPublicAccessOpInput,
 } from '../../../definitions/system';
-import { IUserToken } from '../../../definitions/userToken';
-import { IWorkspace } from '../../../definitions/workspace';
-import { appAssert } from '../../../utilities/fns';
-import { IBaseContext } from '../../contexts/BaseContext';
-import { getBufferFromStream } from '../../contexts/FilePersistenceProviderContext';
-import { addRootnameToPath } from '../../folders/utils';
+import {IUserToken} from '../../../definitions/userToken';
+import {IWorkspace} from '../../../definitions/workspace';
+import {appAssert} from '../../../utilities/assertion';
+import {} from '../../../utilities/fns';
+import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {IBaseContext} from '../../contexts/types';
+import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
-import { makePermissionItemInputsFromPublicAccessOps } from '../../permissionItems/utils';
+import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import RequestData from '../../RequestData';
-import { expectItemsByEntityPresent } from '../../test-utils/helpers/permissionItem';
+import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -25,20 +25,21 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-  mockExpressRequestWithUserToken
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteFile from '../deleteFile/handler';
-import { IDeleteFileEndpointParams } from '../deleteFile/types';
+import {IDeleteFileEndpointParams} from '../deleteFile/types';
 import getFile from '../getFile/handler';
-import { IGetFileEndpointParams } from '../getFile/types';
+import {IGetFileEndpointParams} from '../getFile/types';
 import FileQueries from '../queries';
 import updateFileDetails from '../updateFileDetails/handler';
 import {
   IUpdateFileDetailsEndpointParams,
-  IUpdateFileDetailsInput
+  IUpdateFileDetailsInput,
 } from '../updateFileDetails/types';
-import { fileExtractor } from '../utils';
-import { IUploadFileEndpointParams } from './types';
+import {fileExtractor} from '../utils';
+import {IUploadFileEndpointParams} from './types';
+import assert = require('assert');
 
 export const uploadFileBaseTest = async (
   ctx: IBaseContext,
@@ -197,7 +198,7 @@ export const uploadFileWithPublicAccessActionTest = async (
       return {
         action,
         resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren
+        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
       };
     }),
     AppResourceType.File

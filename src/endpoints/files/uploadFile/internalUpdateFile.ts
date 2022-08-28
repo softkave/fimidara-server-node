@@ -3,7 +3,7 @@ import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {ISplitfilepathWithDetails} from '../utils';

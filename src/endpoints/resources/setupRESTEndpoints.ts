@@ -1,6 +1,6 @@
 import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
-import {IBaseContext} from '../contexts/BaseContext';
 import getResources from './getResources/handler';
 
 export default function setupResourcesRESTEndpoints(

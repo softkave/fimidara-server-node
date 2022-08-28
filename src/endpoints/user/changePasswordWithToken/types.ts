@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {IChangePasswordParameters} from '../changePassword/types';
 import {ILoginResult} from '../login/types';

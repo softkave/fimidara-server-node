@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
 import {IUserToken} from '../../../definitions/userToken';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import addTag from '../../tags/addTag/handler';
 import {IAddTagEndpointParams, INewTagInput} from '../../tags/addTag/types';
 import {
-  mockExpressRequestWithUserToken,
-  mockExpressRequestForPublicAgent,
   assertEndpointResultOk,
+  mockExpressRequestForPublicAgent,
+  mockExpressRequestWithUserToken,
 } from '../test-utils';
 
 export async function insertTagForTest(

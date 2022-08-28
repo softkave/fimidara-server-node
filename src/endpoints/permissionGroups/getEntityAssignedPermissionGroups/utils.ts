@@ -2,7 +2,7 @@ import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType} from '../../../definitions/system';
 import {getResourceAssignedItemsSortedByType} from '../../assignedItems/getAssignedItems';
 import {assignedItemsToAssignedPermissionGroupList} from '../../assignedItems/utils';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 
 export const internalGetEntityAssignedPermissionGroups = async (
   context: IBaseContext,

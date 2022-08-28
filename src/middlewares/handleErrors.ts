@@ -6,13 +6,13 @@ import {
 } from 'jsonwebtoken';
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
-import {logger} from '../endpoints/contexts/logger';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,
 } from '../endpoints/user/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utilities/errors';
+import {logger} from '../utilities/logger/logger';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {

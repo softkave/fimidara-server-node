@@ -1,5 +1,5 @@
 import {Dictionary, map} from 'lodash';
-import {IBaseContext} from '../endpoints/contexts/BaseContext';
+import {IBaseContext} from '../endpoints/contexts/types';
 
 export interface IPromiseWithId<T = any> {
   promise: Promise<T>;

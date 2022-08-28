@@ -15,7 +15,7 @@ import {getNewIdForResource} from '../../../utilities/resourceId';
 import RequestData from '../../RequestData';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
-import {IBaseContext} from '../BaseContext';
+import {IBaseContext} from '../types';
 
 export interface IUsageRecordInput {
   resourceId?: string;

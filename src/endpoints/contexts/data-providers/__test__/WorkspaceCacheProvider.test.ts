@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../../db/connection';
 import {getWorkspaceModel} from '../../../../db/workspace';
@@ -8,7 +8,7 @@ import {
   extractProdEnvsSchema,
 } from '../../../../resources/vars';
 import {getDate} from '../../../../utilities/dateFns';
-import cast, {waitTimeout} from '../../../../utilities/fns';
+import {cast, waitTimeout} from '../../../../utilities/fns';
 import {getNewId} from '../../../../utilities/resourceId';
 import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/mongo';

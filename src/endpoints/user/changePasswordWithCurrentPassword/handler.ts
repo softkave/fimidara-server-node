@@ -1,6 +1,6 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utilities/validate';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import changePassword from '../changePassword/changePassword';
 import {IChangePasswordParameters} from '../changePassword/types';
