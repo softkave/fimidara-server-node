@@ -5,8 +5,8 @@ const config: InitialOptionsTsJest = {
   testEnvironment: 'node',
   testPathIgnorePatterns: ['/jest/', '/build/'],
   testTimeout: 30000,
-  globalTeardown: './jest/globalTeardown.ts',
-  globalSetup: './jest/globalSetup.unit-test.ts',
+  globalTeardown: './src/jest/globalTeardown.ts',
+  globalSetup: './src/jest/globalSetup.unit-test.ts',
 };
 
 module.exports = config;

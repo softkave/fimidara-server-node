@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {isArray} from 'lodash';
 import {AnyFn} from '../../../utilities/types';
 

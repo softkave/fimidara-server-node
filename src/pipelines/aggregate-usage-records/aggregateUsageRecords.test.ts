@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {first, random} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
@@ -17,9 +17,9 @@ import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-  IBaseContext,
 } from '../../endpoints/contexts/BaseContext';
 import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from '../../endpoints/contexts/types';
 import RequestData from '../../endpoints/RequestData';
 import {
   generateTestFile,
@@ -39,7 +39,6 @@ import {
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/test-utils/test-utils';
-import {getTestVars} from '../../endpoints/test-utils/vars';
 import {
   getCostForUsage,
   getUsageForCost,
@@ -51,7 +50,9 @@ import {
   insertStorageUsageRecordInput,
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import cast from '../../utilities/fns';
+import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {cast} from '../../utilities/fns';
+import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {
   aggregateRecords,
   getRecordingMonth,
@@ -65,14 +66,17 @@ const reqData = RequestData.fromExpressRequest(
   mockExpressRequestForPublicAgent()
 );
 
+const runInfo = pipelineRunInfoFactory({
+  job: FimidaraPipelineNames.AggregateUsageRecordsJob,
+});
+
 afterAll(async () => {
   await Promise.all(contexts.map(c => c.dispose()));
-  // await Promise.all(connections.map(c => c.close()));
-  await Promise.all(connections.map(c => dropMongoConnection(c, true)));
+  await Promise.all(connections.map(c => dropMongoConnection(c)));
 });
 
 async function getContextAndConnection() {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
   const connection = await getMongoConnection(
@@ -280,7 +284,7 @@ async function assertRecordInsertionFails(
   }).rejects.toThrow(UsageLimitExceededError);
 
   assertContext(context);
-  await context.jobs.waitOnJobs();
+  await context.jobs.waitOnJobs(context);
   await checkFailedRecordExistsForFile(connection, w1, f1);
   return {workspace: w1, file: f1};
 }
@@ -327,7 +331,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -365,7 +369,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -417,7 +421,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);
@@ -461,7 +465,7 @@ describe('usage-records-pipeline', () => {
 
     // Run
     assert(connection);
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     await context.cacheProviders.workspace.refreshCache(context);
@@ -479,7 +483,7 @@ describe('usage-records-pipeline', () => {
     );
 
     // Run
-    await aggregateRecords(connection);
+    await aggregateRecords(connection, runInfo);
 
     // Assert
     assertContext(context);

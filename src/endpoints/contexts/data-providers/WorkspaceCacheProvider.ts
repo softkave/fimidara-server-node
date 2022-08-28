@@ -1,5 +1,5 @@
 import {IWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../BaseContext';
+import {IBaseContext} from '../types';
 
 export interface IWorkspaceCacheProvider {
   insert: (context: IBaseContext, workspace: IWorkspace) => Promise<IWorkspace>;

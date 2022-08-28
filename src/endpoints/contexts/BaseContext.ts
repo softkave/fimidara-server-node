@@ -1,34 +1,14 @@
 import {Connection} from 'mongoose';
-import {IAssignedItem} from '../../definitions/assignedItem';
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {IFile} from '../../definitions/file';
-import {IFolder} from '../../definitions/folder';
-import {IPermissionGroup} from '../../definitions/permissionGroups';
-import {IPermissionItem} from '../../definitions/permissionItem';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {IAppRuntimeState} from '../../definitions/system';
-import {ITag} from '../../definitions/tag';
-import {IUser} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
-import {IWorkspace} from '../../definitions/workspace';
-import {FileBackendType, IAppVariables} from '../../resources/appVariables';
+import {Logger} from 'winston';
+import {FileBackendType, IAppVariables} from '../../resources/vars';
+import {consoleLogger, logger} from '../../utilities/logger/logger';
+import {disposeDbTransport} from '../../utilities/logger/loggerUtils';
 import {throwRejectedPromisesWithStatus} from '../../utilities/waitOnPromises';
 import {ContextPendingJobs, IContextPendingJobs} from './ContextPendingJobs';
-import {IDataProvider} from './data-providers/DataProvider';
-import {
-  IUsageRecordDataProvider,
-  UsageRecordMongoDataProvider,
-} from './data-providers/UsageRecordDataProvider';
+import {UsageRecordMongoDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
-import {
-  IWorkspaceCacheProvider,
-  WorkspaceCacheProvider,
-} from './data-providers/WorkspaceCacheProvider';
-import {
-  IWorkspaceDataProvider,
-  WorkspaceMongoDataProvider,
-} from './data-providers/WorkspaceDataProvider';
+import {WorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
+import {WorkspaceMongoDataProvider} from './data-providers/WorkspaceDataProvider';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {
   IFilePersistenceProviderContext,
@@ -36,52 +16,7 @@ import {
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
-
-export interface IBaseContextDataProviders {
-  folder: IDataProvider<IFolder>;
-  file: IDataProvider<IFile>;
-  clientAssignedToken: IDataProvider<IClientAssignedToken>;
-  programAccessToken: IDataProvider<IProgramAccessToken>;
-  permissionItem: IDataProvider<IPermissionItem>;
-  permissiongroup: IDataProvider<IPermissionGroup>;
-  workspace: IDataProvider<IWorkspace>;
-  collaborationRequest: IDataProvider<ICollaborationRequest>;
-  user: IDataProvider<IUser>;
-  userToken: IDataProvider<IUserToken>;
-  appRuntimeState: IDataProvider<IAppRuntimeState>;
-  tag: IDataProvider<ITag>;
-  assignedItem: IDataProvider<IAssignedItem>;
-  close: () => Promise<void>;
-}
-
-export interface IBaseContext<
-  T extends IBaseContextDataProviders = IBaseContextDataProviders,
-  E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  V extends IAppVariables = IAppVariables
-> {
-  appVariables: V;
-  session: ISessionContext;
-  data: T;
-  email: E;
-  fileBackend: F;
-  jobs: IContextPendingJobs;
-  dataProviders: {
-    workspace: IWorkspaceDataProvider;
-    usageRecord: IUsageRecordDataProvider;
-  };
-
-  cacheProviders: {
-    workspace: IWorkspaceCacheProvider;
-  };
-
-  logicProviders: {
-    usageRecord: UsageRecordLogicProvider;
-  };
-
-  init: () => Promise<void>;
-  dispose: () => Promise<void>;
-}
+import {IBaseContext, IBaseContextDataProviders} from './types';
 
 export default class BaseContext<
   T extends IBaseContextDataProviders,
@@ -97,9 +32,10 @@ export default class BaseContext<
   dataProviders: IBaseContext['dataProviders'];
   cacheProviders: IBaseContext['cacheProviders'];
   logicProviders: IBaseContext['logicProviders'];
-  disposeFn?: () => Promise<void>;
   session: ISessionContext = new SessionContext();
   jobs: IContextPendingJobs;
+  logger: Logger = logger;
+  disposeFn?: () => Promise<void>;
 
   constructor(
     data: T,
@@ -127,7 +63,7 @@ export default class BaseContext<
   };
 
   dispose = async () => {
-    await this.jobs.waitOnJobs();
+    await this.jobs.waitOnJobs(this);
     const promises = [
       this.cacheProviders.workspace.dispose(),
       this.fileBackend.close(),
@@ -139,7 +75,12 @@ export default class BaseContext<
       promises.push(this.disposeFn());
     }
 
-    throwRejectedPromisesWithStatus(await Promise.allSettled(promises));
+    throwRejectedPromisesWithStatus(this, await Promise.allSettled(promises));
+    await Promise.all([
+      this.logger.close(),
+      consoleLogger.close(),
+      disposeDbTransport(),
+    ]);
   };
 }
 

@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi = require('joi');
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {validationSchemas} from '../../utilities/validationUtils';
 import {permissionItemConstants} from './constants';
@@ -42,6 +42,16 @@ const itemIds = Joi.array()
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
   .unique();
 
+const publicAccessOp = Joi.object().keys({
+  action: validationSchemas.crudAction.required(),
+  resourceType: validationSchemas.resourceType.required(),
+  appliesTo: appliesTo.required(),
+});
+
+const publicAccessOpList = Joi.array()
+  .items(publicAccessOp)
+  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+
 const permissionItemValidationSchemas = {
   itemInputByEntity,
   itemInputByEntityList,
@@ -49,6 +59,8 @@ const permissionItemValidationSchemas = {
   itemInput,
   itemInputList,
   appliesTo,
+  publicAccessOp,
+  publicAccessOpList,
 };
 
 export default permissionItemValidationSchemas;

@@ -1,6 +1,4 @@
-import {ServerError} from './errors';
-import cast from './fns';
-import OperationError from './OperationError';
+import {logger} from './logger/logger';
 
 export const fireAndForgetFn = async <Fn extends (...args: any) => any>(
   fn: Fn,
@@ -9,7 +7,7 @@ export const fireAndForgetFn = async <Fn extends (...args: any) => any>(
   try {
     return await fn(...args);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 
   return undefined;
@@ -19,76 +17,14 @@ export const fireAndForgetPromise = async <T>(promise: Promise<T>) => {
   try {
     return await promise;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 
   return undefined;
 };
 
-export const wrapFireAndThrowError = <
-  Fn extends (...args: any) => any,
-  ReturnFn = (
-    ...args: Parameters<Fn>
-  ) => ReturnType<Fn> extends Promise<any>
-    ? ReturnType<Fn>
-    : Promise<ReturnType<Fn>>
->(
-  fn: Fn,
-  throwError = true,
-  thrownError: typeof OperationError = ServerError
-): ReturnFn => {
-  return cast<ReturnFn>(async (...args: any) => {
-    try {
-      return await fn(...args);
-    } catch (error: any) {
-      console.error(error);
-
-      if (cast<OperationError>(error)?.isPublicError) {
-        throw error;
-      }
-
-      if (throwError) {
-        if (thrownError) {
-          throw new thrownError();
-        } else {
-          throw error;
-        }
-      }
-    }
-  });
-};
-
-export const wrapFireAndThrowErrorNoAsync = <
-  Fn extends (...args: any) => any,
-  ReturnFn = (...args: Parameters<Fn>) => ReturnType<Fn>
->(
-  fn: Fn,
-  throwError = true,
-  thrownError: typeof OperationError = ServerError
-): ReturnFn => {
-  return cast<ReturnFn>((...args: any) => {
-    try {
-      return fn(...args);
-    } catch (error) {
-      console.error(error);
-
-      if (throwError) {
-        if (thrownError) {
-          throw new thrownError();
-        } else {
-          throw error;
-        }
-      }
-    }
-  });
-};
-
-export const wrapFireAndDontThrow: typeof wrapFireAndThrowError = fn => {
-  return wrapFireAndThrowError(fn, false);
-};
-
 export async function waitOnPromisesAndLogErrors(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
-    result => result.status === 'rejected' && console.error(result.reason)
+    result => result.status === 'rejected' && logger.error(result.reason)
   );
 }

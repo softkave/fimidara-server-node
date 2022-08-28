@@ -4,51 +4,53 @@ import {
   ObjectIdentifier,
   S3Client,
 } from '@aws-sdk/client-s3';
-import _ from 'lodash';
 import mongoose from 'mongoose';
-import {
-  getTestVarsInternalFn,
-  ITestVariables,
-} from '../src/endpoints/test-utils/vars';
+import {dropMongoConnection} from '../endpoints/test-utils/helpers/mongo';
 import {
   ExtractEnvSchema,
+  extractEnvVariables,
   extractProdEnvsSchema,
-} from '../src/resources/appVariables';
+  FileBackendType,
+  IAppVariables,
+} from '../resources/vars';
+import {jestLogger} from './logger';
+import _ = require('lodash');
 
 async function waitOnPromises(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
-    result => result.status === 'rejected' && console.error(result.reason)
+    result => result.status === 'rejected' && jestLogger.error(result.reason)
   );
 }
 
-async function dropMongoCollections(globals: ITestVariables) {
+async function dropMongoCollections(globals: IAppVariables) {
   const mongoURI = globals.mongoDbURI;
-  const dbName = globals.mongoDbDatabaseName;
-  const useMongoDataProvider = globals.dataProviderType === 'mongo';
-  if (!mongoURI || !useMongoDataProvider) {
+  const appDbName = globals.mongoDbDatabaseName;
+  const logsDbName = globals.logsDbName;
+  if (!mongoURI) {
     return;
   }
 
-  const connection = await mongoose
-    .createConnection(mongoURI, {dbName})
-    .asPromise();
+  async function dropFn(name?: string) {
+    if (!name) {
+      return;
+    }
 
-  console.log(`-- Mongo - dropping mongo collections in db ${dbName} --`);
-  const collections = await connection.db.collections();
-  const promises = _.map(collections, collection => {
-    return collection.drop();
-  });
+    jestLogger.info(`Dropping db - ${name}`);
+    const connection = await mongoose
+      .createConnection(mongoURI, {dbName: name})
+      .asPromise();
+    dropMongoConnection(connection);
+  }
 
-  await waitOnPromises(promises);
-  await connection.close();
+  await waitOnPromises([dropFn(appDbName), dropFn(logsDbName)]);
 }
 
-async function deleteAWSBucketObjects(globals: ITestVariables) {
+async function deleteAWSBucketObjects(globals: IAppVariables) {
   const accessKeyId = globals.awsAccessKeyId;
   const secretAccessKey = globals.awsSecretAccessKey;
   const region = globals.awsRegion;
   const bucketName = globals.S3Bucket;
-  const useS3FileProvider = globals.useS3FileProvider;
+  const useS3FileProvider = globals.fileBackend === FileBackendType.S3;
   if (
     !accessKeyId ||
     !secretAccessKey ||
@@ -59,7 +61,7 @@ async function deleteAWSBucketObjects(globals: ITestVariables) {
     return;
   }
 
-  console.log(`-- AWS - deleting bucket ${bucketName} objects --`);
+  jestLogger.info(`-- AWS - deleting bucket ${bucketName} objects --`);
   const s3 = new S3Client({region: globals.awsRegion});
   let continuationToken: string | undefined;
   do {
@@ -93,10 +95,11 @@ async function jestGlobalTeardown() {
     return map;
   }, {} as ExtractEnvSchema);
 
-  const vars = getTestVarsInternalFn(envSchema);
+  const vars = extractEnvVariables(envSchema);
   const dropMongoPromise = dropMongoCollections(vars);
   const dropAWSBucketsPromise = deleteAWSBucketObjects(vars);
   await waitOnPromises([dropMongoPromise, dropAWSBucketsPromise]);
+  await jestLogger.close();
 }
 
 module.exports = jestGlobalTeardown;

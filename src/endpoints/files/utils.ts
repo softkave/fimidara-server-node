@@ -12,7 +12,7 @@ import {
   checkAuthorization,
   getFilePermissionOwners,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';

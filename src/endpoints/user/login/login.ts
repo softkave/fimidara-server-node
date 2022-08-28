@@ -1,5 +1,4 @@
 import * as argon2 from 'argon2';
-import {ServerError} from '../../../utilities/errors';
 import {validate} from '../../../utilities/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
@@ -20,13 +19,7 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   let passwordMatch = false;
-  try {
-    passwordMatch = await argon2.verify(user.hash, data.password);
-  } catch (error) {
-    console.error(error);
-    throw new ServerError();
-  }
-
+  passwordMatch = await argon2.verify(user.hash, data.password);
   if (!passwordMatch) {
     throw new InvalidEmailOrPasswordError();
   }

@@ -1,18 +1,25 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {add} from 'date-fns';
-import sharp from 'sharp';
 import {getMongoConnection} from '../../db/connection';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
+  CURRENT_TOKEN_VERSION,
   getNonWorkspaceActionList,
   getWorkspaceActionList,
+  IBaseTokenData,
+  TokenType,
 } from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
+import {
+  extractEnvVariables,
+  extractProdEnvsSchema,
+  FileBackendType,
+  IAppVariables,
+} from '../../resources/vars';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
@@ -29,15 +36,10 @@ import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getLogicProviders,
-  IBaseContext,
 } from '../contexts/BaseContext';
 import MongoDBDataProviderContext from '../contexts/MongoDBDataProviderContext';
-import {
-  CURRENT_TOKEN_VERSION,
-  IBaseTokenData,
-  TokenType,
-} from '../contexts/SessionContext';
-import {IServerRequest} from '../contexts/types';
+import {} from '../contexts/SessionContext';
+import {IBaseContext, IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
 import {IUploadFileEndpointParams} from '../files/uploadFile/types';
 import {splitfilepathWithDetails} from '../files/utils';
@@ -77,25 +79,21 @@ import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
-import TestSESEmailProviderContext from './context/TestSESEmailProviderContext';
 import {ITestBaseContext} from './context/types';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
-import {getTestVars, ITestVariables} from './vars';
+import sharp = require('sharp');
+import assert = require('assert');
 
-export function getTestEmailProvider(appVariables: ITestVariables) {
-  if (appVariables.useSESEmailProvider) {
-    return new TestSESEmailProviderContext(appVariables.awsRegion);
-  } else {
-    return new MockTestEmailProviderContext();
-  }
+export function getTestEmailProvider(appVariables: IAppVariables) {
+  return new MockTestEmailProviderContext();
 }
 
-export async function getTestFileProvider(appVariables: ITestVariables) {
-  if (appVariables.useS3FileProvider) {
+export async function getTestFileProvider(appVariables: IAppVariables) {
+  if (appVariables.fileBackend === FileBackendType.S3) {
     const fileProvider = new TestS3FilePersistenceProviderContext(
       appVariables.awsRegion
     );
-    // await ensureAppBucketsReady(fileProvider, appVariables);
+
     return fileProvider;
   } else {
     return new TestMemoryFilePersistenceProviderContext();
@@ -103,7 +101,7 @@ export async function getTestFileProvider(appVariables: ITestVariables) {
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

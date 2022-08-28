@@ -1,10 +1,10 @@
-import {wrapEndpointREST} from '../utils';
 import {Express} from 'express';
+import {IBaseContext} from '../contexts/types';
+import {wrapEndpointREST} from '../utils';
 import addProgramAccessToken from './addToken/handler';
 import deleteProgramAccessToken from './deleteToken/handler';
-import getWorkspaceProgramAccessTokens from './getWorkspaceTokens/handler';
 import getProgramAccessToken from './getToken/handler';
-import {IBaseContext} from '../contexts/BaseContext';
+import getWorkspaceProgramAccessTokens from './getWorkspaceTokens/handler';
 import updateProgramAccessToken from './updateToken/handler';
 
 export default function setupProgramAccessTokensRESTEndpoints(

@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
@@ -8,21 +7,22 @@ import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
-import {getTestVars} from '../../endpoints/test-utils/vars';
+import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
+import assert = require('assert');
 
 let connection: Connection | null = null;
 let dbName: string | null = null;
 
 beforeAll(async () => {
-  const appVariables = getTestVars();
+  const appVariables = extractEnvVariables(extractProdEnvsSchema);
   dbName = faker.lorem.words(5).replace(/ /g, '_');
   connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
 });
 
 afterAll(async () => {
   if (connection) {
-    await dropMongoConnection(connection, /** dropDb */ true);
+    await dropMongoConnection(connection);
   }
 });
 

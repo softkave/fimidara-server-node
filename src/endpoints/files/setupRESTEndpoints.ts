@@ -2,7 +2,7 @@ import {Express, Request, Response} from 'express';
 import {last, merge} from 'lodash';
 import * as multer from 'multer';
 import {endpointConstants} from '../constants';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';

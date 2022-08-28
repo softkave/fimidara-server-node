@@ -1,13 +1,13 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {EmailAddressVerifiedError} from '../errors';
-import {SendEmailVerificationCodeEndpoint} from './types';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
+import {fireAndForgetPromise} from '../../../utilities/promiseFns';
+import {IBaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
-import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
+import {EmailAddressVerifiedError} from '../errors';
 import UserQueries from '../UserQueries';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
-import {IBaseContext} from '../../contexts/BaseContext';
+import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
+import {SendEmailVerificationCodeEndpoint} from './types';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (

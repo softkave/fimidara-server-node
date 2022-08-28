@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,

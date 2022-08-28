@@ -1,5 +1,5 @@
-import sharp from 'sharp';
-import stream from 'stream';
+import sharp = require('sharp');
+import stream = require('stream');
 import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,

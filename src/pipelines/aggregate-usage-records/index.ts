@@ -1,26 +1,27 @@
 import {getMongoConnection} from '../../db/connection';
-import {
-  extractProdEnvsSchema,
-  getAppVariables,
-} from '../../resources/appVariables';
+import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords} from './aggregateUsageRecords';
 
 async function aggregateRecordsMain() {
-  console.log('Aggregate usage records job started');
-  const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
+  const runInfo = pipelineRunInfoFactory({
+    job: FimidaraPipelineNames.AggregateUsageRecordsJob,
+  });
 
-  await aggregateRecords(connection);
-  await connection.close();
+  try {
+    runInfo.logger.info('Aggregate usage records job started');
+    const appVariables = getAppVariables(extractProdEnvsSchema);
+    const connection = await getMongoConnection(
+      appVariables.mongoDbURI,
+      appVariables.mongoDbDatabaseName
+    );
+
+    await aggregateRecords(connection, runInfo);
+    await connection.close();
+    runInfo.logger.info('Aggregate usage records job completed');
+  } catch (error: any) {
+    runInfo.logger.error(error);
+  }
 }
 
-aggregateRecordsMain()
-  .then(() => {
-    console.log('Aggregate usage records job completed');
-  })
-  .catch(err => {
-    console.error(err);
-  });
+aggregateRecordsMain();

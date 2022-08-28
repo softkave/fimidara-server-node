@@ -1,11 +1,42 @@
-import {TokenType} from '../endpoints/contexts/SessionContext';
-import {IAppRuntimeVars} from '../resources/appVariables';
+import {IAppRuntimeVars} from '../resources/vars';
 import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {PermissionItemAppliesTo} from './permissionItem';
 import {IProgramAccessToken} from './programAccessToken';
 import {IUserWithWorkspace} from './user';
 import {IUserToken} from './userToken';
+
+export const CURRENT_TOKEN_VERSION = 1;
+
+export enum TokenType {
+  UserToken = 'user',
+  ProgramAccessToken = 'program',
+  ClientAssignedToken = 'client',
+}
+
+export enum TokenAudience {
+  Login = 'login',
+  ChangePassword = 'change-password',
+  ConfirmEmailAddress = 'confirm-email-address',
+}
+
+export interface IGeneralTokenSubject {
+  id: string;
+  type: TokenType;
+}
+
+export interface IBaseTokenData<
+  Sub extends IGeneralTokenSubject = IGeneralTokenSubject
+> {
+  version: number;
+  sub: Sub;
+  iat: number;
+  exp?: number;
+}
+
+export interface IAgentPersistedToken {
+  audience: TokenAudience[];
+}
 
 export enum SessionAgentType {
   User = 'user',

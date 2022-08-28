@@ -3,7 +3,7 @@ import {
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
 } from '../../../email-templates/forgotPassword';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 
 export interface ISendChangePasswordEmailParams {
   emailAddress: string;

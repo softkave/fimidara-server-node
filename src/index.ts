@@ -1,8 +1,8 @@
-import cors from 'cors';
-import express from 'express';
-import expressJwt from 'express-jwt';
-import http from 'http';
-import multer from 'multer';
+import cors = require('cors');
+import express = require('express');
+import expressJwt = require('express-jwt');
+import http = require('http');
+import multer = require('multer');
 import {getMongoConnection} from './db/connection';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
@@ -13,10 +13,11 @@ import BaseContext, {
   getDataProviders,
   getFileProvider,
   getLogicProviders,
-  IBaseContext,
 } from './endpoints/contexts/BaseContext';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
 import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from './endpoints/contexts/types';
+import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
 import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
@@ -31,18 +32,29 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {startJobs} from './pipelines';
-import {extractProdEnvsSchema, getAppVariables} from './resources/appVariables';
+import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
 import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
+import {consoleLogger, logger} from './utilities/logger/logger';
 
-console.log('server initialization');
+logger.info('server initialization');
 
 const app = express();
-const upload = multer();
+const upload = multer({
+  limits: {
+    fieldNameSize: 100,
+    fieldSize: 1 * 1024 * 1204,
+    fields: 1024,
+    fileSize: fileConstants.maxFileSizeInBytes,
+    files: 1,
+    parts: 10000,
+    headerPairs: 2000,
+  },
+});
+
 const httpServer = http.createServer(app);
 
 // Match all origins
 const whiteListedCorsOrigins = [/[\s\S]*/];
-
 if (process.env.NODE_ENV !== 'production') {
   whiteListedCorsOrigins.push(/localhost/);
 }
@@ -100,7 +112,7 @@ async function setup() {
   );
 
   const defaultWorkspace = await setupApp(ctx);
-  console.log(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  ctx.logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
   setupClientAssignedTokensRESTEndpoints(ctx, app);
@@ -119,20 +131,22 @@ async function setup() {
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
-    console.log(ctx.appVariables.appName);
-    console.log(`server listening on port ${ctx.appVariables.port}`);
+    logger.info(ctx.appVariables.appName);
+    logger.info(`server listening on port ${ctx.appVariables.port}`);
   });
 }
 
 setup();
+
+// TODO: move these error logs to mongo
 process.on('uncaughtException', (exp: any, origin: any) => {
-  console.log('uncaughtException');
-  console.error(exp);
-  console.log(origin);
+  consoleLogger.info('uncaughtException');
+  consoleLogger.error(exp);
+  consoleLogger.info(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('unhandledRejection');
-  console.log(promise);
-  console.log(reason);
+  consoleLogger.info('unhandledRejection');
+  consoleLogger.info(promise);
+  consoleLogger.info(reason);
 });

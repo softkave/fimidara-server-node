@@ -3,16 +3,22 @@ import {getWorkspaceModel} from '../db/workspace';
 import {getDefaultThresholds} from '../endpoints/usageRecords/constants';
 import {workspaceHasUsageThresholds} from '../endpoints/usageRecords/utils';
 import {
+  FimidaraScriptNames,
   logScriptFailed,
   logScriptMessage,
   logScriptStarted,
   logScriptSuccessful,
+  scriptRunInfoFactory,
 } from './utils';
 
 export async function script_AddThresholdToExistingWorkspaces(
   connection: Connection
 ) {
-  logScriptStarted(script_AddThresholdToExistingWorkspaces);
+  const runInfo = scriptRunInfoFactory({
+    job: FimidaraScriptNames.AddThresholdToExistingWorkspaces,
+  });
+
+  logScriptStarted(runInfo);
   try {
     const model = getWorkspaceModel(connection);
     let docs = await model.find({}).lean().exec();
@@ -24,11 +30,11 @@ export async function script_AddThresholdToExistingWorkspaces(
     );
 
     logScriptMessage(
-      script_AddThresholdToExistingWorkspaces,
+      runInfo,
       `Added usage thresholds to ${docs.length} workspaces`
     );
-    logScriptSuccessful(script_AddThresholdToExistingWorkspaces);
+    logScriptSuccessful(runInfo);
   } catch (error: any) {
-    logScriptFailed(script_AddThresholdToExistingWorkspaces, error);
+    logScriptFailed(runInfo, error);
   }
 }

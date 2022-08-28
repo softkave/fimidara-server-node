@@ -6,16 +6,16 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ISessionAgent,
+  TokenType,
 } from '../../definitions/system';
 import {getDateString} from '../../utilities/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import cast from '../../utilities/fns';
+import {cast} from '../../utilities/fns';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/BaseContext';
-import {TokenType} from '../contexts/SessionContext';
+import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import {assignedTagListExtractor} from '../tags/utils';

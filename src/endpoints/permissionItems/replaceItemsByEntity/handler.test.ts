@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {IPermissionEntity} from '../../contexts/authorization-checks/getPermissionEntities';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {
   assertContext,
   initTestBaseContext,

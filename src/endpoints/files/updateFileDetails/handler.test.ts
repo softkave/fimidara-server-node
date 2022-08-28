@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
@@ -70,5 +70,5 @@ test('file updated', async () => {
 
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
-  await waitForRequestPendingJobs(reqData);
+  await waitForRequestPendingJobs(context, reqData);
 });

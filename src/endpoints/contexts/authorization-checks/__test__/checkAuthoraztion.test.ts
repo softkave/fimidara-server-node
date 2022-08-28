@@ -25,7 +25,7 @@ import {
   EmailAddressNotVerifiedError,
   PermissionDeniedError,
 } from '../../../user/errors';
-import {IBaseContext} from '../../BaseContext';
+import {IBaseContext} from '../../types';
 import {
   checkAuthorization,
   getFilePermissionOwners,
@@ -105,7 +105,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeTruthy();
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
   });
 
   test('auth fails when agent does not have permission', async () => {
@@ -145,7 +145,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeFalsy();
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
   });
 
   test('should throw error when nothrow is turned off', async () => {
@@ -187,7 +187,7 @@ describe('checkAuthorization', () => {
     } catch (error: any) {
       expect(error instanceof PermissionDeniedError).toBeTruthy();
     } finally {
-      await waitForRequestPendingJobs(reqData);
+      await waitForRequestPendingJobs(context, reqData);
     }
   });
 
@@ -234,7 +234,7 @@ describe('checkAuthorization', () => {
     });
 
     expect(permitted).toBeTruthy();
-    await waitForRequestPendingJobs(reqData);
+    await waitForRequestPendingJobs(context, reqData);
   });
 
   test('auth fails if action is not read and user is not email verified', async () => {
@@ -281,7 +281,7 @@ describe('checkAuthorization', () => {
     } catch (error: any) {
       expect(error instanceof EmailAddressNotVerifiedError).toBeTruthy();
     } finally {
-      await waitForRequestPendingJobs(reqData);
+      await waitForRequestPendingJobs(context, reqData);
     }
   });
 });

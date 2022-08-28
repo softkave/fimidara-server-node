@@ -11,8 +11,7 @@ import {
 import OperationError from '../utilities/OperationError';
 import {AnyObject} from '../utilities/types';
 import {endpointConstants} from './constants';
-import {IBaseContext} from './contexts/BaseContext';
-import {IServerRequest} from './contexts/types';
+import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataPendingPromise} from './types';
@@ -68,16 +67,13 @@ export const wrapEndpointREST = <
       );
 
       const result = await endpoint(context, instData);
-
       if (handleResponse) {
         handleResponse(res, result);
       } else {
         res.status(endpointConstants.httpStatusCode.ok).json(result || {});
       }
     } catch (error) {
-      console.error(error);
-      console.log('-- END');
-
+      context.logger.error(error);
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);

@@ -21,7 +21,7 @@ import {
   getFilePermissionOwners,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {fileConstants} from '../../files/constants';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';

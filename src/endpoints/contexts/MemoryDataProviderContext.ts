@@ -24,8 +24,8 @@ import {throwTagNotFound} from '../tags/utils';
 import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
 import {throwNotFound} from '../utils';
 import {throwWorkspaceNotFound} from '../workspaces/utils';
-import {IBaseContextDataProviders} from './BaseContext';
 import MemoryDataProvider from './data-providers/MemoryDataProvider';
+import {IBaseContextDataProviders} from './types';
 
 export default class MemoryDataProviderContext
   implements IBaseContextDataProviders

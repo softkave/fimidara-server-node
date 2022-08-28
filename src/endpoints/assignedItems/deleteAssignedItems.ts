@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../definitions/system';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import AssignedItemQueries from './queries';
 
 export async function deleteResourceAssignedItems(

@@ -4,14 +4,13 @@ import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utilities/dateFns';
-import {ServerError} from '../../../utilities/errors';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {
   ISaveResourceAssignedItemsOptions,
   saveResourceAssignedItems,
 } from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import {programAccessTokenConstants} from '../constants';
 import {INewProgramAccessTokenInput} from './types';
@@ -69,13 +68,8 @@ export const internalCreateProgramAccessToken = async (
 };
 
 function generateSecretKey() {
-  try {
-    const key = crypto
-      .randomBytes(programAccessTokenConstants.tokenSecretKeyLength)
-      .toString('hex');
-    return key;
-  } catch (error) {
-    console.error(error);
-    throw new ServerError('Error generating secret key');
-  }
+  const key = crypto
+    .randomBytes(programAccessTokenConstants.tokenSecretKeyLength)
+    .toString('hex');
+  return key;
 }

@@ -3,7 +3,7 @@ import {
   IPublicPermissionGroup,
 } from '../../../definitions/permissionGroups';
 import {IAssignedTagInput} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface INewPermissionGroupInput {

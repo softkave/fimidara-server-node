@@ -1,8 +1,8 @@
 import {merge} from 'lodash';
 import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
-import {IBaseContext} from '../../contexts/BaseContext';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   getUserClientAssignedToken,

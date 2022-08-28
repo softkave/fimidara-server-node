@@ -56,9 +56,10 @@ import {throwTagNotFound} from '../tags/utils';
 import {throwUserNotFound, throwUserTokenNotFound} from '../user/utils';
 import {throwNotFound} from '../utils';
 import {throwWorkspaceNotFound} from '../workspaces/utils';
-import {IBaseContextDataProviders} from './BaseContext';
+import {} from './BaseContext';
 import {IDataProvider} from './data-providers/DataProvider';
 import MongoDataProvider from './data-providers/MongoDataProvider';
+import {IBaseContextDataProviders} from './types';
 
 export interface IBaseContextDatabaseModels {
   user: IUserModel;

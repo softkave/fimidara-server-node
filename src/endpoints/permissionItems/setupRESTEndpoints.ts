@@ -1,11 +1,11 @@
 import {Express} from 'express';
-import replacePermissionItemsByEntity from './replaceItemsByEntity/handler';
+import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
-import {IBaseContext} from '../contexts/BaseContext';
-import getEntityPermissionItems from './getEntityPermissionItems/handler';
-import getResourcePermissionItems from './getResourcePermissionItems/handler';
 import addItems from './addItems/handler';
 import deleteItemsById from './deleteItemsById/handler';
+import getEntityPermissionItems from './getEntityPermissionItems/handler';
+import getResourcePermissionItems from './getResourcePermissionItems/handler';
+import replacePermissionItemsByEntity from './replaceItemsByEntity/handler';
 
 export default function setupPermissionItemsRESTEndpoints(
   ctx: IBaseContext,

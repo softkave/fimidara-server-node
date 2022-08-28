@@ -1,8 +1,7 @@
-import {compact, isString} from 'lodash';
-import OperationError from './OperationError';
-import {AnyFn, AnyObject} from './types';
+import {compact} from 'lodash';
+import {AnyObject} from './types';
 
-export default function cast<ToType>(resource: any): ToType {
+export function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
 }
 
@@ -56,28 +55,6 @@ export function findItemWithField<T>(
   return items.find(item => {
     return item[field] === val;
   });
-}
-
-export function appAssert(
-  value: any,
-  response?: string | Error | AnyFn,
-  logMessage?: string
-): asserts value {
-  if (!value) {
-    if (logMessage) {
-      console.error(logMessage);
-    }
-
-    if (isString(response)) {
-      throw new OperationError(response);
-    } else if (response instanceof Error) {
-      throw response;
-    } else if (response) {
-      response();
-    } else {
-      throw new Error('Assertion failed');
-    }
-  }
 }
 
 export function makeKey(fields: any[], separator = '-', omitFalsy = true) {

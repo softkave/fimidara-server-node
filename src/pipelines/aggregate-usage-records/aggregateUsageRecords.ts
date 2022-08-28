@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert = require('assert');
 import {add} from 'date-fns';
 import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
@@ -14,6 +14,7 @@ import {
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
 import {getNewIdForResource} from '../../utilities/resourceId';
+import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**
  * Aggregates usage records by month by category and total.
@@ -287,7 +288,8 @@ async function aggregateDroppedRecordsInWorkspace(
 
 async function tryAggregateRecordsInWorkspace(
   connection: Connection,
-  workspace: IWorkspace
+  workspace: IWorkspace,
+  runInfo: IFimidaraPipelineRunInfo
 ) {
   try {
     await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
@@ -297,21 +299,24 @@ async function tryAggregateRecordsInWorkspace(
 
     await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
-    console.log(
+    runInfo.logger.info(
       `
       Error processing workspace usage records 
       Workspace ID: ${workspace.resourceId} 
       Rootname: ${workspace.rootname}
       `
     );
-    console.log(e);
+    runInfo.logger.error(e);
   }
 }
 
-export async function aggregateRecords(connection: Connection) {
+export async function aggregateRecords(
+  connection: Connection,
+  runInfo: IFimidaraPipelineRunInfo
+) {
   const workspaces = await getWorkspaces(connection);
   const promises = workspaces.map(w =>
-    tryAggregateRecordsInWorkspace(connection, w)
+    tryAggregateRecordsInWorkspace(connection, w, runInfo)
   );
 
   await Promise.all(promises);

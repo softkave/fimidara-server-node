@@ -1,6 +1,6 @@
-import assert from 'assert';
+import assert = require('assert');
 import {isObject, isUndefined, merge, mergeWith} from 'lodash';
-import cast, {getFirstArg} from '../utilities/fns';
+import {cast, getFirstArg} from '../utilities/fns';
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
 
@@ -23,7 +23,6 @@ function getOptional<T extends any = any>(
   processFn: EnvProcessFn<T> = getFirstArg
 ): ReturnType<typeof processFn> | undefined {
   const value = fromEnv(envName);
-
   if (isUndefined(value) && isUndefined(defaultValue)) {
     return undefined;
   }
@@ -65,6 +64,8 @@ export enum AppEnvVariables {
   CLIENT_DOMAIN = 'CLIENT_DOMAIN',
   MONGODB_URI = 'MONGODB_URI',
   MONGODB_DATABASE_NAME = 'MONGODB_DATABASE_NAME',
+  LOGS_DB_NAME = 'LOGS_DB_NAME',
+  LOGS_COLLECTION_NAME = 'LOGS_COLLECTION_NAME',
   JWT_SECRET = 'JWT_SECRET',
   NODE_ENV = 'NODE_ENV',
   PORT = 'PORT',
@@ -72,7 +73,6 @@ export enum AppEnvVariables {
   AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
   AWS_REGION = 'AWS_REGION',
-  FILES_WORKSPACE_ID = 'FILES_WORKSPACE_ID',
   DEFAULT_USER_EMAIL_ADDRESS = 'DEFAULT_USER_EMAIL_ADDRESS',
   FILE_BACKEND = 'FILE_BACKEND',
 }
@@ -86,6 +86,8 @@ interface ISuppliedVariables {
   clientDomain: string;
   mongoDbURI: string;
   mongoDbDatabaseName: string;
+  logsDbName: string;
+  logsCollectionName: string;
   jwtSecret: string;
   nodeEnv: string;
   port: string;
@@ -143,6 +145,14 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     required: true,
     name: AppEnvVariables.MONGODB_DATABASE_NAME,
   },
+  logsDbName: {
+    required: true,
+    name: AppEnvVariables.LOGS_DB_NAME,
+  },
+  logsCollectionName: {
+    required: true,
+    name: AppEnvVariables.LOGS_COLLECTION_NAME,
+  },
   jwtSecret: {
     required: true,
     name: AppEnvVariables.JWT_SECRET,
@@ -185,7 +195,7 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
 
 export const defaultStaticVars = {
   appName: 'Fimidara',
-  appDefaultEmailAddressFrom: 'Fimidara@fimidara.com',
+  appDefaultEmailAddressFrom: 'Fimidara@softkave.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
   changePasswordPath: '/account/change-password',

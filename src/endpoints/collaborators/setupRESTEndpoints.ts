@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import getCollaborator from './getCollaborator/handler';
 import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler';

@@ -1,5 +1,5 @@
 import {findItemWithField} from '../../../utilities/fns';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,

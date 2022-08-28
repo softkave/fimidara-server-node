@@ -1,5 +1,5 @@
 import {IFile, IFileMatcher} from '../../definitions/file';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {assertWorkspace} from '../workspaces/utils';
 import FileQueries from './queries';

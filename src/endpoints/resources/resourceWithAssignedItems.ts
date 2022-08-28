@@ -5,7 +5,7 @@ import {
   populateAssignedPermissionGroupsAndTags,
   populateUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {IResource} from './types';
 
 export async function resourceWithAssignedItems(

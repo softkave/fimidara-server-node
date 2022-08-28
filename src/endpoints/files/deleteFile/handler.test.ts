@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
@@ -51,5 +51,5 @@ test('file deleted', async () => {
   const result = await deleteFile(context, instData);
   assertEndpointResultOk(result);
   await assertFileDeleted(context, file.resourceId);
-  await waitForRequestPendingJobs(reqData);
+  await waitForRequestPendingJobs(context, reqData);
 });

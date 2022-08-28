@@ -1,20 +1,58 @@
-import {AnyFn} from '../utilities/types';
+import winston = require('winston');
+import {getDateString} from '../utilities/dateFns';
+import {
+  decideTransport,
+  FimidaraLoggerServiceNames,
+  loggerFactory,
+} from '../utilities/logger/loggerUtils';
 
-export function logScriptMessage(fn: AnyFn, message: string) {
-  console.log(`script ${fn.name}: ${message}`);
+export enum FimidaraScriptNames {
+  AddThresholdToExistingWorkspaces = 'script_AddThresholdToExistingWorkspaces',
 }
 
-export function logScriptStarted(fn: AnyFn) {
-  logScriptMessage(fn, 'started');
+export interface IFimidaraScriptRunInfo {
+  job: FimidaraScriptNames;
+  runId: string;
+  logger: winston.Logger;
 }
 
-export function logScriptSuccessful(fn: AnyFn) {
-  logScriptMessage(fn, 'succeeded');
+export function scriptRunInfoFactory(
+  opts: Pick<IFimidaraScriptRunInfo, 'job'>
+): IFimidaraScriptRunInfo {
+  return {
+    job: opts.job,
+    runId: getDateString(),
+    logger: loggerFactory({
+      transports: decideTransport(),
+      meta: {
+        service: FimidaraLoggerServiceNames.Pipeline,
+        job: opts.job,
+      },
+    }),
+  };
 }
 
-export function logScriptFailed(fn: AnyFn, error?: Error) {
-  logScriptMessage(fn, 'failed');
+export function logScriptMessage(
+  runInfo: IFimidaraScriptRunInfo,
+  message: string
+) {
+  runInfo.logger.info(`script ${runInfo.job}: ${message}`);
+}
+
+export function logScriptStarted(runInfo: IFimidaraScriptRunInfo) {
+  logScriptMessage(runInfo, 'started');
+}
+
+export function logScriptSuccessful(runInfo: IFimidaraScriptRunInfo) {
+  logScriptMessage(runInfo, 'succeeded');
+}
+
+export function logScriptFailed(
+  runInfo: IFimidaraScriptRunInfo,
+  error?: Error
+) {
+  logScriptMessage(runInfo, 'failed');
   if (error) {
-    console.error(error);
+    runInfo.logger.error(error);
   }
 }

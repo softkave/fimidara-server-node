@@ -1,6 +1,6 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {
   assertContext,
   initTestBaseContext,

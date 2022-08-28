@@ -1,7 +1,7 @@
 import {format} from 'util';
+import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {ISessionAgent, AppResourceType} from '../../definitions/system';
-import {IBaseContext} from '../contexts/BaseContext';
+import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
 import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';

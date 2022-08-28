@@ -23,3 +23,11 @@
 - [ ] Job to send reminder of collaboration requests to users who haven't accepted or rejected them in a while and when they expire
 - [ ] Allow collaboration requests to be resent after a certain time
 - [ ] Alert recipients when request is revoked
+- [ ] Split free usage thresholds
+- [ ] Waitlist and size ups
+- [ ] Add usage to workspace and check remaining when uploading or downloading
+- [ ] Pipelines should run when the prev is done
+- [ ] Move pipelines to worker threads
+- [ ] Scripts should run once
+- [ ] New usage thresholds very small
+- [ ] Articles

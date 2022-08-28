@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import RequestData from '../../RequestData';
 import {

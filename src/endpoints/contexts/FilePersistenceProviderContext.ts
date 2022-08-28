@@ -7,8 +7,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {IAppVariables} from '../../resources/appVariables';
-import {wrapFireAndThrowError} from '../../utilities/promiseFns';
+import {IAppVariables} from '../../resources/vars';
 import {endpointConstants} from '../constants';
 
 export interface IFilePersistenceUploadFileParams {
@@ -52,82 +51,76 @@ export class S3FilePersistenceProviderContext
     this.s3 = new S3Client({region});
   }
 
-  uploadFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceUploadFileParams) => {
-      const command = new PutObjectCommand({
-        Bucket: params.bucket,
-        Key: params.key,
-        Body: params.body,
-        ContentType: params.contentType,
-        ContentEncoding: params.contentEncoding,
-        ContentLength: params.contentLength,
-      });
+  uploadFile = async (params: IFilePersistenceUploadFileParams) => {
+    const command = new PutObjectCommand({
+      Bucket: params.bucket,
+      Key: params.key,
+      Body: params.body,
+      ContentType: params.contentType,
+      ContentEncoding: params.contentEncoding,
+      ContentLength: params.contentLength,
+    });
 
-      await this.s3.send(command);
+    await this.s3.send(command);
+  };
+
+  getFile = async (
+    params: IFilePersistenceGetFileParams
+  ): Promise<IPersistedFile> => {
+    const command = new GetObjectCommand({
+      Bucket: params.bucket,
+      Key: params.key,
+    });
+
+    const response = await this.s3.send(command);
+    return {
+      body: <Readable | undefined>response.Body,
+      contentLength: response.ContentLength,
+    };
+  };
+
+  deleteFiles = async (params: IFilePersistenceDeleteFilesParams) => {
+    if (params.keys.length === 0) {
+      return;
     }
-  );
 
-  getFile = wrapFireAndThrowError(
-    async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
-      const command = new GetObjectCommand({
-        Bucket: params.bucket,
-        Key: params.key,
-      });
+    const command = new DeleteObjectsCommand({
+      Bucket: params.bucket,
+      Delete: {
+        Objects: params.keys.map(key => ({Key: key})),
+        Quiet: false,
+      },
+    });
 
-      const response = await this.s3.send(command);
-      return {
-        body: <Readable | undefined>response.Body,
-        contentLength: response.ContentLength,
-      };
-    }
-  );
+    await this.s3.send(command);
+  };
 
-  deleteFiles = wrapFireAndThrowError(
-    async (params: IFilePersistenceDeleteFilesParams) => {
-      if (params.keys.length === 0) {
-        return;
-      }
+  ensureBucketReady = async (name: string, region: string) => {
+    const command = new HeadBucketCommand({
+      Bucket: name,
+    });
 
-      const command = new DeleteObjectsCommand({
-        Bucket: params.bucket,
-        Delete: {
-          Objects: params.keys.map(key => ({Key: key})),
-          Quiet: false,
+    const response = await this.s3.send(command);
+    const exists = endpointConstants.httpStatusCode.ok;
+    const notFound = endpointConstants.httpStatusCode.notFound;
+    if (response.$metadata.httpStatusCode === exists) {
+      return;
+    } else if (response.$metadata.httpStatusCode === notFound) {
+      const command = new CreateBucketCommand({
+        Bucket: name,
+        ACL: 'private',
+        CreateBucketConfiguration: {
+          LocationConstraint: region,
         },
       });
 
       await this.s3.send(command);
     }
-  );
+  };
 
-  ensureBucketReady = wrapFireAndThrowError(
-    async (name: string, region: string) => {
-      const command = new HeadBucketCommand({
-        Bucket: name,
-      });
-
-      const response = await this.s3.send(command);
-      const exists = endpointConstants.httpStatusCode.ok;
-      const notFound = endpointConstants.httpStatusCode.notFound;
-      if (response.$metadata.httpStatusCode === exists) {
-        return;
-      } else if (response.$metadata.httpStatusCode === notFound) {
-        const command = new CreateBucketCommand({
-          Bucket: name,
-          ACL: 'private',
-          CreateBucketConfiguration: {
-            LocationConstraint: region,
-          },
-        });
-
-        await this.s3.send(command);
-      }
-    }
-  );
-
-  close = wrapFireAndThrowError(async () => {
+  close = async () => {
     await this.s3.destroy();
-  });
+  };
 }
 
 export async function ensureAppBucketsReady(

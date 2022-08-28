@@ -1,5 +1,5 @@
 import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/BaseContext';
+import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,
