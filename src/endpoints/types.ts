@@ -1,5 +1,6 @@
 import {SessionAgentType} from '../definitions/system';
 import OperationError from '../utilities/OperationError';
+import {IDataProvideQueryListParams} from './contexts/data-providers/types';
 import {IBaseContext} from './contexts/types';
 import RequestData from './RequestData';
 
@@ -30,3 +31,14 @@ export interface IRequestDataPendingPromise {
   id: string | number;
   promise: Promise<any>;
 }
+
+export interface IPaginatedResult {
+  page: number;
+  pageSize: number;
+  count: number;
+}
+
+export type IPaginationQuery = Pick<
+  IDataProvideQueryListParams<any>,
+  'page' | 'pageSize'
+>;

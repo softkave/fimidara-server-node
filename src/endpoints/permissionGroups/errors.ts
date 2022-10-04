@@ -5,8 +5,8 @@ import OperationError, {
 import {endpointConstants} from '../constants';
 
 export class PermissionGroupExistsError extends OperationError {
-  public name = 'PermissionGroupExistsError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  name = 'PermissionGroupExistsError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -17,8 +17,8 @@ export class PermissionGroupExistsError extends OperationError {
 }
 
 export class PermissionGroupDoesNotExistError extends OperationError {
-  public name = 'PermissionGroupDoesNotExistError';
-  public statusCode = endpointConstants.httpStatusCode.notFound;
+  name = 'PermissionGroupDoesNotExistError';
+  statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(

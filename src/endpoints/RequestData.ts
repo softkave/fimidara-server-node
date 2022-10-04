@@ -14,7 +14,7 @@ export interface IRequestContructorParams<T = any> {
 }
 
 export default class RequestData<T = any> {
-  public static fromExpressRequest<DataType = any>(
+  static fromExpressRequest<DataType = any>(
     req: IServerRequest,
     data?: DataType
   ): RequestData<DataType> {
@@ -27,10 +27,7 @@ export default class RequestData<T = any> {
     return requestData;
   }
 
-  public static clone<T = undefined>(
-    from: RequestData,
-    data: T
-  ): RequestData<T> {
+  static clone<T = undefined>(from: RequestData, data: T): RequestData<T> {
     return new RequestData({
       data,
       req: from.req,
@@ -41,7 +38,7 @@ export default class RequestData<T = any> {
     });
   }
 
-  public static merge<T>(from: RequestData, to: RequestData<T>) {
+  static merge<T>(from: RequestData, to: RequestData<T>) {
     return new RequestData<T>({
       req: from.req,
       data: to.data,
@@ -52,15 +49,15 @@ export default class RequestData<T = any> {
     });
   }
 
-  public requestId: string;
-  public req?: IServerRequest | null;
-  public data?: T;
-  public incomingTokenData?: IBaseTokenData | null;
-  public user?: IUser | null;
-  public agent?: ISessionAgent | null;
-  public pendingPromises: IRequestDataPendingPromise[] = [];
+  requestId: string;
+  req?: IServerRequest | null;
+  data?: T;
+  incomingTokenData?: IBaseTokenData | null;
+  user?: IUser | null;
+  agent?: ISessionAgent | null;
+  pendingPromises: IRequestDataPendingPromise[] = [];
 
-  public constructor(arg?: IRequestContructorParams<T>) {
+  constructor(arg?: IRequestContructorParams<T>) {
     this.requestId = getNewId();
     if (!arg) {
       return;

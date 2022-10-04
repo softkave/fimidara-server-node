@@ -5,8 +5,8 @@ import OperationError, {
 } from './OperationError';
 
 export class ServerError extends OperationError {
-  public name = 'ServerError';
-  public statusCode = endpointConstants.httpStatusCode.serverError;
+  name = 'ServerError';
+  statusCode = endpointConstants.httpStatusCode.serverError;
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
@@ -15,17 +15,17 @@ export class ServerError extends OperationError {
 }
 
 export class ValidationError extends OperationError {
-  public name = 'ValidationError';
-  public statusCode = endpointConstants.httpStatusCode.badRequest;
+  name = 'ValidationError';
+  statusCode = endpointConstants.httpStatusCode.badRequest;
 }
 
 export class ServerStateConflictError extends OperationError {
-  public name = 'ServerStateConflictError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  name = 'ServerStateConflictError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
 }
 
 export class InternalError extends OperationError {
-  public name = 'InternalError';
-  public isPublicError = false;
-  public statusCode = endpointConstants.httpStatusCode.serverError;
+  name = 'InternalError';
+  isPublicError = false;
+  statusCode = endpointConstants.httpStatusCode.serverError;
 }

@@ -72,3 +72,13 @@ export function objectHasData(data: AnyObject) {
 export function waitTimeout(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function reverseMap<K extends string, V extends string>(
+  m: Record<K, V>
+): Record<V, K> {
+  const r: Record<V, K> = cast<Record<V, K>>({});
+  for (const k in m) {
+    r[m[k]] = k;
+  }
+  return r;
+}

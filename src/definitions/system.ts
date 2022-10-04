@@ -1,4 +1,5 @@
 import {IAppRuntimeVars} from '../resources/vars';
+import {reverseMap} from '../utilities/fns';
 import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {PermissionItemAppliesTo} from './permissionItem';
@@ -105,133 +106,35 @@ export enum AppResourceType {
   AssignedItem = 'assigned-item',
 }
 
-export enum AppResourceIdShortName {
-  All = '*',
-  Workspace = 'wksp',
-  CollaborationRequest = 'corq',
-  ProgramAccessToken = 'patn',
-  ClientAssignedToken = 'catn',
-  UserToken = 'ustn',
-  PermissionGroup = 'prgp',
-  PermissionItem = 'pitm',
-  Folder = 'fold',
-  File = 'file',
-  User = 'user',
-  Tag = 'tag',
-  AssignedItem = 'asig',
-  UsageRecord = 'usgr',
+export const resourceTypeShortNameMaxLen = 7;
+function padShortName(shortName: string) {
+  const pad0 = '0';
+  if (shortName.length > resourceTypeShortNameMaxLen) {
+    throw new Error(
+      `Resource short name is more than ${resourceTypeShortNameMaxLen} characters`
+    );
+  }
+  return shortName.padEnd(resourceTypeShortNameMaxLen, pad0).toLowerCase();
 }
 
-export type GetAppResourceIdShortName<T extends AppResourceType> =
-  T extends AppResourceType.All
-    ? AppResourceIdShortName.All
-    : T extends AppResourceType.Workspace
-    ? AppResourceIdShortName.Workspace
-    : T extends AppResourceType.CollaborationRequest
-    ? AppResourceIdShortName.CollaborationRequest
-    : T extends AppResourceType.ProgramAccessToken
-    ? AppResourceIdShortName.ProgramAccessToken
-    : T extends AppResourceType.ClientAssignedToken
-    ? AppResourceIdShortName.ClientAssignedToken
-    : T extends AppResourceType.UserToken
-    ? AppResourceIdShortName.UserToken
-    : T extends AppResourceType.PermissionGroup
-    ? AppResourceIdShortName.PermissionGroup
-    : T extends AppResourceType.PermissionItem
-    ? AppResourceIdShortName.PermissionItem
-    : T extends AppResourceType.Folder
-    ? AppResourceIdShortName.Folder
-    : T extends AppResourceType.File
-    ? AppResourceIdShortName.File
-    : T extends AppResourceType.User
-    ? AppResourceIdShortName.User
-    : T extends AppResourceType.Tag
-    ? AppResourceIdShortName.Tag
-    : T extends AppResourceType.AssignedItem
-    ? AppResourceIdShortName.AssignedItem
-    : T extends AppResourceType.UsageRecord
-    ? AppResourceIdShortName.UsageRecord
-    : never;
-
-export type GetAppResourceType<T extends AppResourceIdShortName> =
-  T extends AppResourceIdShortName.All
-    ? AppResourceType.All
-    : T extends AppResourceIdShortName.Workspace
-    ? AppResourceType.Workspace
-    : T extends AppResourceIdShortName.CollaborationRequest
-    ? AppResourceType.CollaborationRequest
-    : T extends AppResourceIdShortName.ProgramAccessToken
-    ? AppResourceType.ProgramAccessToken
-    : T extends AppResourceIdShortName.ClientAssignedToken
-    ? AppResourceType.ClientAssignedToken
-    : T extends AppResourceIdShortName.UserToken
-    ? AppResourceType.UserToken
-    : T extends AppResourceIdShortName.PermissionGroup
-    ? AppResourceType.PermissionGroup
-    : T extends AppResourceIdShortName.PermissionItem
-    ? AppResourceType.PermissionItem
-    : T extends AppResourceIdShortName.Folder
-    ? AppResourceType.Folder
-    : T extends AppResourceIdShortName.File
-    ? AppResourceType.File
-    : T extends AppResourceIdShortName.User
-    ? AppResourceType.User
-    : T extends AppResourceIdShortName.Tag
-    ? AppResourceType.Tag
-    : T extends AppResourceIdShortName.AssignedItem
-    ? AppResourceType.AssignedItem
-    : T extends AppResourceIdShortName.UsageRecord
-    ? AppResourceType.UsageRecord
-    : never;
-
-export const resourceTypeToShortNameMap: Record<
-  AppResourceType,
-  GetAppResourceIdShortName<AppResourceType>
-> = {
-  [AppResourceType.All]: AppResourceIdShortName.All,
-  [AppResourceType.Workspace]: AppResourceIdShortName.Workspace,
-  [AppResourceType.CollaborationRequest]:
-    AppResourceIdShortName.CollaborationRequest,
-  [AppResourceType.ProgramAccessToken]:
-    AppResourceIdShortName.ProgramAccessToken,
-  [AppResourceType.ClientAssignedToken]:
-    AppResourceIdShortName.ClientAssignedToken,
-  [AppResourceType.UserToken]: AppResourceIdShortName.UserToken,
-  [AppResourceType.PermissionGroup]: AppResourceIdShortName.PermissionGroup,
-  [AppResourceType.PermissionItem]: AppResourceIdShortName.PermissionItem,
-  [AppResourceType.Folder]: AppResourceIdShortName.Folder,
-  [AppResourceType.File]: AppResourceIdShortName.File,
-  [AppResourceType.User]: AppResourceIdShortName.User,
-  [AppResourceType.Tag]: AppResourceIdShortName.Tag,
-  [AppResourceType.AssignedItem]: AppResourceIdShortName.AssignedItem,
-  [AppResourceType.UsageRecord]: AppResourceIdShortName.UsageRecord,
+export const resourceTypeShortNames: Record<AppResourceType, string> = {
+  [AppResourceType.All]: padShortName('*'),
+  [AppResourceType.Workspace]: padShortName('wkspce'),
+  [AppResourceType.CollaborationRequest]: padShortName('corqst'),
+  [AppResourceType.ProgramAccessToken]: padShortName('pgacstn'),
+  [AppResourceType.ClientAssignedToken]: padShortName('casgntn'),
+  [AppResourceType.UserToken]: padShortName('usertn'),
+  [AppResourceType.PermissionGroup]: padShortName('permgrp'),
+  [AppResourceType.PermissionItem]: padShortName('permitm'),
+  [AppResourceType.Folder]: padShortName('folder'),
+  [AppResourceType.File]: padShortName('file'),
+  [AppResourceType.User]: padShortName('user'),
+  [AppResourceType.Tag]: padShortName('tag'),
+  [AppResourceType.AssignedItem]: padShortName('assgnitm'),
+  [AppResourceType.UsageRecord]: padShortName('usgrecd'),
 };
 
-export const resourceShortNameToTypeMap: Record<
-  AppResourceIdShortName,
-  GetAppResourceType<AppResourceIdShortName>
-> = {
-  [AppResourceIdShortName.All]: AppResourceType.All,
-  [AppResourceIdShortName.Workspace]: AppResourceType.Workspace,
-  [AppResourceIdShortName.CollaborationRequest]:
-    AppResourceType.CollaborationRequest,
-  [AppResourceIdShortName.ProgramAccessToken]:
-    AppResourceType.ProgramAccessToken,
-  [AppResourceIdShortName.ClientAssignedToken]:
-    AppResourceType.ClientAssignedToken,
-  [AppResourceIdShortName.UserToken]: AppResourceType.UserToken,
-  [AppResourceIdShortName.PermissionGroup]: AppResourceType.PermissionGroup,
-  [AppResourceIdShortName.PermissionItem]: AppResourceType.PermissionItem,
-  [AppResourceIdShortName.Folder]: AppResourceType.Folder,
-  [AppResourceIdShortName.File]: AppResourceType.File,
-  [AppResourceIdShortName.User]: AppResourceType.User,
-  [AppResourceIdShortName.Tag]: AppResourceType.Tag,
-  [AppResourceIdShortName.AssignedItem]: AppResourceType.AssignedItem,
-  [AppResourceIdShortName.UsageRecord]: AppResourceType.UsageRecord,
-};
-
-export type AppResourceId<T extends AppResourceType> =
-  `${GetAppResourceIdShortName<T>}-${string}`;
+export const shortNameToResourceTypes = reverseMap(resourceTypeShortNames);
 
 export enum BasicCRUDActions {
   All = '*',

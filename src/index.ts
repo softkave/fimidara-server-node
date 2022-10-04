@@ -31,7 +31,6 @@ import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
 import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
-import {startJobs} from './pipelines';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
 import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
 import {consoleLogger, logger} from './utilities/logger/logger';
@@ -95,7 +94,7 @@ async function setup() {
   // End of scripts
 
   // Jobs
-  startJobs();
+  // startJobs();
   // End of jobs
 
   const mongoDBDataProvider = new MongoDBDataProviderContext(connection);

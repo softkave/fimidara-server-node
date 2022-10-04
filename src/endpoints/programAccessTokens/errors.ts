@@ -5,8 +5,8 @@ import OperationError, {
 import {endpointConstants} from '../constants';
 
 export class ProgramAccessTokenExistsError extends OperationError {
-  public name = 'ProgramAccessTokenExistsError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  name = 'ProgramAccessTokenExistsError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -17,8 +17,8 @@ export class ProgramAccessTokenExistsError extends OperationError {
 }
 
 export class ProgramAccessTokenDoesNotExistError extends OperationError {
-  public name = 'ProgramAccessTokenDoesNotExistError';
-  public statusCode = endpointConstants.httpStatusCode.notFound;
+  name = 'ProgramAccessTokenDoesNotExistError';
+  statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(

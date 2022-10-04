@@ -37,19 +37,17 @@ export class UsageRecordMongoDataProvider implements IUsageRecordDataProvider {
   // No need to wrap in fireAndThrowError, because it's
   // going to be used exclusively by the cache provider
   // and the cache provider will fire and throw errors
-  public insert = async (usagerecord: IUsageRecord) => {
+  insert = async (usagerecord: IUsageRecord) => {
     const doc = new this.model(usagerecord);
     const saved = await doc.save();
     return saved;
   };
 
-  public updateById = async (id: string, update: Partial<IUsageRecord>) => {
+  updateById = async (id: string, update: Partial<IUsageRecord>) => {
     await this.model.updateOne({resourceId: id}, update, {upsert: true}).exec();
   };
 
-  public getWorkspaceSummedUsage = async (
-    q: IWorkspaceSummedUsageQueryParams
-  ) => {
+  getWorkspaceSummedUsage = async (q: IWorkspaceSummedUsageQueryParams) => {
     let fromMonth = undefined;
     let toMonth = undefined;
     let fromYear = undefined;

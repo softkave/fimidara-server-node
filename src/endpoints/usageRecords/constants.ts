@@ -3,7 +3,7 @@ import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 
 export const usageRecordConstants = {
-  defaultTotalThresholdInUSD: 20,
+  defaultTotalThresholdInUSD: 5,
 
   /**
    * We leave some wiggle room for requests that slightly exceed the threshold
@@ -12,8 +12,7 @@ export const usageRecordConstants = {
   costThresholdBufferPercent: 0.1,
 
   /**
-   * 25th of the month.
-   * Using 24 below, cause JS date is 0-indexed.
+   * 25th of the month. Using 24 below, cause JS date is 0-indexed.
    */
   recordingMonthEndDate: 24,
   stripeReportingMonthEndDate: 26, // 27th of the month

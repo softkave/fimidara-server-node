@@ -9,7 +9,7 @@ import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
 // TODO: have a mechanism to preven the start of another until the previous is
 // done
 const aggregateUsageRecordsJob = new CronJob(
-  /** cronTime */ '0 */10 * * * *', // every 5 minutes
+  /** cronTime */ '0 */10 * * * *', // every 10 minutes
   /** onTick */ async function () {
     const runInfo = pipelineRunInfoFactory({
       job: FimidaraPipelineNames.AggregateUsageRecordsJob,

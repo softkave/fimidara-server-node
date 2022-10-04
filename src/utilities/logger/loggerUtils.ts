@@ -11,7 +11,8 @@ export const consoleTransport = new transports.Console({
   format: format.combine(
     format.colorize(),
     format.printf(info => {
-      const {level, message, timestamp, service, ...rest} = info;
+      const {message, metadata, level} = info;
+      const {timestamp, service, ...rest} = metadata;
       const stringifiedRest = jsonStringify(rest, null, 2);
       if (stringifiedRest !== '{}') {
         return `${timestamp} [${service}]: ${level}: ${message} \n${stringifiedRest}`;

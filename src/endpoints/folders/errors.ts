@@ -5,8 +5,8 @@ import OperationError, {
 import {endpointConstants} from '../constants';
 
 export class FolderExistsError extends OperationError {
-  public name = 'FolderExistsError';
-  public statusCode = endpointConstants.httpStatusCode.conflict;
+  name = 'FolderExistsError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Folder exists');
@@ -14,8 +14,8 @@ export class FolderExistsError extends OperationError {
 }
 
 export class FolderNotFoundError extends OperationError {
-  public name = 'FolderNotFoundError';
-  public statusCode = endpointConstants.httpStatusCode.notFound;
+  name = 'FolderNotFoundError';
+  statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Folder not found');

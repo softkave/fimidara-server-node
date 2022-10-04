@@ -8,14 +8,14 @@ export interface IOperationErrorParameters {
 }
 
 export default class OperationError extends Error {
-  public message = 'Error';
-  public field?: string;
+  message = 'Error';
+  field?: string;
 
   // recommended action for the client
-  public action?: string;
-  public value?: string;
-  public statusCode?: number;
-  public isPublicError = true;
+  action?: string;
+  value?: string;
+  statusCode?: number;
+  isPublicError = true;
 
   constructor(props?: IOperationErrorParameters | string) {
     super();
