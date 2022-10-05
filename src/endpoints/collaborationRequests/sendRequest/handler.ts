@@ -15,7 +15,6 @@ import {
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {validate} from '../../../utilities/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
@@ -135,7 +134,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     );
   }
 
-  fireAndForgetPromise(sendRequestEmail(context, request, existingUser));
+  await sendRequestEmail(context, request, existingUser);
   request = await populateRequestPermissionGroups(context, request);
   return {
     request: collaborationRequestExtractor(request),

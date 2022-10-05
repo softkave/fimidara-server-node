@@ -14,7 +14,6 @@ import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppVariables} from '../../resources/vars';
-import {IContextPendingJobs} from './ContextPendingJobs';
 import {IDataProvider} from './data-providers/DataProvider';
 import {IUsageRecordDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
@@ -57,17 +56,15 @@ export interface IBaseContext<
   data: T;
   email: E;
   fileBackend: F;
-  jobs: IContextPendingJobs;
   logger: Logger;
+  clientLogger: Logger;
   dataProviders: {
     workspace: IWorkspaceDataProvider;
     usageRecord: IUsageRecordDataProvider;
   };
-
   cacheProviders: {
     workspace: IWorkspaceCacheProvider;
   };
-
   logicProviders: {
     usageRecord: UsageRecordLogicProvider;
   };

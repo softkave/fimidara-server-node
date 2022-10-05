@@ -6,7 +6,6 @@ import {Endpoint} from '../../types';
 
 export interface IUpdateFolderInput {
   description?: string;
-  maxFileSizeInBytes?: number;
   publicAccessOps?: IPublicAccessOpInput[];
   removePublicAccessOps?: boolean;
   tags?: IAssignedTagInput[];

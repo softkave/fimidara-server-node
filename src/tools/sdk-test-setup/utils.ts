@@ -1,25 +1,22 @@
 import {faker} from '@faker-js/faker';
-import {getMongoConnection} from '../../src/db/connection';
-import {systemAgent} from '../../src/definitions/system';
-import {IWorkspace} from '../../src/definitions/workspace';
+import {getMongoConnection} from '../../db/connection';
+import {systemAgent} from '../../definitions/system';
+import {IWorkspace} from '../../definitions/workspace';
 import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getFileProvider,
   getLogicProviders,
-  IBaseContext,
-} from '../../src/endpoints/contexts/BaseContext';
-import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
-import MongoDBDataProviderContext from '../../src/endpoints/contexts/MongoDBDataProviderContext';
-import {internalCreateProgramAccessToken} from '../../src/endpoints/programAccessTokens/addToken/utils';
-import {getPublicProgramToken} from '../../src/endpoints/programAccessTokens/utils';
-import NoopEmailProviderContext from '../../src/endpoints/test-utils/context/NoopEmailProviderContext';
-import internalCreateWorkspace from '../../src/endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import {makeRootnameFromName} from '../../src/endpoints/workspaces/utils';
-import {
-  extractProdEnvsSchema,
-  getAppVariables,
-} from '../../src/resources/appVariables';
+} from '../../endpoints/contexts/BaseContext';
+import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from '../../endpoints/contexts/types';
+import {internalCreateProgramAccessToken} from '../../endpoints/programAccessTokens/addToken/utils';
+import {getPublicProgramToken} from '../../endpoints/programAccessTokens/utils';
+import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
+import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
+import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
+import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {consoleLogger} from '../../utilities/logger/logger';
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
@@ -45,7 +42,7 @@ async function setupContext() {
 }
 
 async function insertWorkspace(context: IBaseContext) {
-  const companyName = faker.company.companyName();
+  const companyName = faker.company.name();
   return await internalCreateWorkspace(
     context,
     {

@@ -1,3 +1,4 @@
+import {containsEveryItemIn} from '../../../utilities/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
@@ -54,6 +55,9 @@ test('workspace collaboration requests returned', async () => {
   const result = await getWorkspaceRequests(context, instData);
   assertEndpointResultOk(result);
   expect(result.requests.length).toEqual(2);
-  expect(result.requests).toContainEqual(request01);
-  expect(result.requests).toContainEqual(request02);
+  containsEveryItemIn(
+    result.requests,
+    [request01, request02],
+    item => item.resourceId
+  );
 });

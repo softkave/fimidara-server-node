@@ -63,7 +63,6 @@ describe('ingestLogs', () => {
     await waitTimeout(1000);
     assert(model);
     const savedLogs = await model.find({'meta.stack': randomTag}).lean().exec();
-    console.dir(savedLogs);
     expect(savedLogs.length).toBe(testLogs.length);
   });
 });

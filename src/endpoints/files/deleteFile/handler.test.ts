@@ -2,7 +2,6 @@ import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
-import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -51,5 +50,4 @@ test('file deleted', async () => {
   const result = await deleteFile(context, instData);
   assertEndpointResultOk(result);
   await assertFileDeleted(context, file.resourceId);
-  await waitForRequestPendingJobs(context, reqData);
 });

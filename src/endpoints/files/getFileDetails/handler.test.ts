@@ -1,7 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
-import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -43,5 +42,4 @@ test('file details returned', async () => {
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);
   expect(result.file).toEqual(file);
-  await waitForRequestPendingJobs(context, reqData);
 });

@@ -1,4 +1,4 @@
-import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
+import {consoleLogger} from '../../utilities/logger/logger';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,

@@ -37,4 +37,6 @@ export async function script_AddThresholdToExistingWorkspaces(
   } catch (error: any) {
     logScriptFailed(runInfo, error);
   }
+
+  runInfo.logger.close();
 }

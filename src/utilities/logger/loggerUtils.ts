@@ -1,10 +1,8 @@
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
-import {MongoDBTransportInstance} from 'winston-mongodb';
+import 'winston-mongodb';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {AnyObject} from '../types';
-
-require('winston-mongodb');
 
 const vars = extractEnvVariables(extractProdEnvsSchema);
 export const consoleTransport = new transports.Console({
@@ -23,15 +21,6 @@ export const consoleTransport = new transports.Console({
   ),
 });
 
-export const defaultLoggerFormat = format.combine(
-  format.timestamp({
-    format: 'YYYY-MM-DDTHH:mm:ssZ',
-  }),
-  format.errors({stack: true}),
-  format.metadata(),
-  format.json()
-);
-
 export interface ICreateLoggerOptions {
   transports: Array<'console' | 'mongodb'>;
   meta: {
@@ -39,26 +28,17 @@ export interface ICreateLoggerOptions {
   } & AnyObject;
 }
 
-let dbTransport: MongoDBTransportInstance | null = null;
-function getDbTransport() {
-  if (dbTransport) {
-    return dbTransport;
-  }
-
-  const mongoURL = new URL(vars.logsDbName, vars.mongoDbURI);
-  dbTransport = new transports.MongoDB({
-    db: mongoURL.toString(),
-    collection: vars.logsCollectionName,
-    storeHost: true,
-  });
-
-  return dbTransport;
-}
-
 export function loggerFactory(opts: ICreateLoggerOptions) {
   const logger = createLogger({
     level: 'info',
-    format: defaultLoggerFormat,
+    format: format.combine(
+      format.timestamp({
+        format: 'YYYY-MM-DDTHH:mm:ssZ',
+      }),
+      format.errors({stack: true}),
+      format.metadata(),
+      format.json()
+    ),
     defaultMeta: opts.meta,
     transports: [],
   });
@@ -69,21 +49,20 @@ export function loggerFactory(opts: ICreateLoggerOptions) {
         logger.add(consoleTransport);
         break;
       case 'mongodb':
-        logger.add(getDbTransport());
+        {
+          const mongoURL = new URL(vars.logsDbName, vars.mongoDbURI);
+          const dbTransport = new transports.MongoDB({
+            db: mongoURL.toString(),
+            collection: vars.logsCollectionName,
+            storeHost: true,
+          });
+          logger.add(dbTransport);
+        }
         break;
     }
   });
 
   return logger;
-}
-
-export function disposeDbTransport() {
-  if (dbTransport) {
-    if (dbTransport.close) {
-      dbTransport.close();
-    }
-    dbTransport = null;
-  }
 }
 
 export function decideTransport(): ICreateLoggerOptions['transports'] {

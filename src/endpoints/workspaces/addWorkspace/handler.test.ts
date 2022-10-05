@@ -35,7 +35,7 @@ describe('addWorkspace', () => {
   test('workspace created', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const companyName = faker.company.companyName();
+    const companyName = faker.company.name();
     const companyInput: IAddWorkspaceParams = {
       name: companyName,
       rootname: makeRootnameFromName(companyName),

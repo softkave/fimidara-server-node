@@ -130,7 +130,7 @@ export const resourceTypeShortNames: Record<AppResourceType, string> = {
   [AppResourceType.File]: padShortName('file'),
   [AppResourceType.User]: padShortName('user'),
   [AppResourceType.Tag]: padShortName('tag'),
-  [AppResourceType.AssignedItem]: padShortName('assgnitm'),
+  [AppResourceType.AssignedItem]: padShortName('asgnitm'),
   [AppResourceType.UsageRecord]: padShortName('usgrecd'),
 };
 
@@ -200,4 +200,8 @@ export interface IPublicAccessOp {
 
 export interface IResourceBase {
   resourceId: string;
+}
+
+export function isUserAgent(agent: IAgent) {
+  return agent.agentType === SessionAgentType.User;
 }

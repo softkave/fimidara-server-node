@@ -22,7 +22,6 @@ import {
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {fileConstants} from '../../files/constants';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderConstants} from '../constants';
@@ -73,8 +72,6 @@ export async function createSingleFolder(
     idPath: parent ? parent.idPath.concat(folderId) : [folderId],
     namePath: parent ? parent.namePath.concat(name) : [name],
     description: input.description,
-    maxFileSizeInBytes:
-      input.maxFileSizeInBytes || fileConstants.maxFileSizeInBytes,
   });
 
   let publicAccessOps: IPublicAccessOp[] = input.publicAccessOps

@@ -1,5 +1,4 @@
 import {get} from 'lodash';
-import {logger} from './logger/logger';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {
@@ -40,11 +39,7 @@ export function indexArray<T, R = T>(
 
   if (typeof indexer !== 'function') {
     if (typeof path !== 'string') {
-      logger.error(
-        new Error('Path must be provided if an indexer is not provided')
-      );
-
-      return {};
+      throw new Error('Path must be provided if an indexer is not provided');
     }
   }
 

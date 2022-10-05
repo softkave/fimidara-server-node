@@ -1,10 +1,13 @@
 import {Connection} from 'mongoose';
 import {Logger} from 'winston';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
+import {waitTimeout} from '../../utilities/fns';
 import {consoleLogger, logger} from '../../utilities/logger/logger';
-import {disposeDbTransport} from '../../utilities/logger/loggerUtils';
-import {throwRejectedPromisesWithStatus} from '../../utilities/waitOnPromises';
-import {ContextPendingJobs, IContextPendingJobs} from './ContextPendingJobs';
+import {
+  FimidaraLoggerServiceNames,
+  loggerFactory,
+} from '../../utilities/logger/loggerUtils';
+import {logRejectedPromisesAndThrow} from '../../utilities/waitOnPromises';
 import {UsageRecordMongoDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 import {WorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
@@ -33,8 +36,11 @@ export default class BaseContext<
   cacheProviders: IBaseContext['cacheProviders'];
   logicProviders: IBaseContext['logicProviders'];
   session: ISessionContext = new SessionContext();
-  jobs: IContextPendingJobs;
   logger: Logger = logger;
+  clientLogger: Logger = loggerFactory({
+    transports: ['mongodb'],
+    meta: {service: FimidaraLoggerServiceNames.WebClient},
+  });
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -55,7 +61,6 @@ export default class BaseContext<
     this.cacheProviders = cacheProviders;
     this.logicProviders = logicProviders;
     this.disposeFn = disposeFn;
-    this.jobs = new ContextPendingJobs(this.appVariables.nodeEnv !== 'test');
   }
 
   init = async () => {
@@ -63,24 +68,20 @@ export default class BaseContext<
   };
 
   dispose = async () => {
-    await this.jobs.waitOnJobs(this);
     const promises = [
       this.cacheProviders.workspace.dispose(),
       this.fileBackend.close(),
       this.email.close(),
       this.data.close(),
     ];
-
+    logRejectedPromisesAndThrow(this, await Promise.allSettled(promises));
+    this.logger.close();
+    this.clientLogger.close();
+    consoleLogger.close();
     if (this.disposeFn) {
-      promises.push(this.disposeFn());
+      await this.disposeFn();
     }
-
-    throwRejectedPromisesWithStatus(this, await Promise.allSettled(promises));
-    await Promise.all([
-      this.logger.close(),
-      consoleLogger.close(),
-      disposeDbTransport(),
-    ]);
+    await waitTimeout(5000);
   };
 }
 

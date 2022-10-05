@@ -4,7 +4,6 @@ import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAs
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
-import {waitForRequestPendingJobs} from '../../test-utils/helpers/reqData';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -70,5 +69,4 @@ test('file updated', async () => {
 
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
-  await waitForRequestPendingJobs(context, reqData);
 });

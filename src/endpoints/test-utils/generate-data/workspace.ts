@@ -51,7 +51,7 @@ export function generateTestWorkspace() {
     agentType: SessionAgentType.User,
   };
 
-  const name = faker.company.companyName();
+  const name = faker.company.name();
   const workspace: IWorkspace = {
     createdAt,
     createdBy,

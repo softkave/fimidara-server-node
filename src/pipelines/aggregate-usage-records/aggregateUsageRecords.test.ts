@@ -284,7 +284,6 @@ async function assertRecordInsertionFails(
   }).rejects.toThrow(UsageLimitExceededError);
 
   assertContext(context);
-  await context.jobs.waitOnJobs(context);
   await checkFailedRecordExistsForFile(connection, w1, f1);
   return {workspace: w1, file: f1};
 }

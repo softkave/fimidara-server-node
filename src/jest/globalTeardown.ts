@@ -39,7 +39,7 @@ async function dropMongoCollections(globals: IAppVariables) {
     const connection = await mongoose
       .createConnection(mongoURI, {dbName: name})
       .asPromise();
-    dropMongoConnection(connection);
+    await dropMongoConnection(connection);
   }
 
   await waitOnPromises([dropFn(appDbName), dropFn(logsDbName)]);

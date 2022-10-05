@@ -8,7 +8,6 @@ export interface INewFolderInput {
   // folder path should include the workspace rootname
   folderpath: string;
   description?: string;
-  maxFileSizeInBytes?: number;
 
   // TODO: validate that actions and types belong to the resource
   // TODO: should we instead use an S3-like approach? Something like

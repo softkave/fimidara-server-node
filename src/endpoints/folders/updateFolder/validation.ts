@@ -1,6 +1,5 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utilities/validationUtils';
-import fileValidationSchemas from '../../files/validation';
 import permissionItemValidationSchemas from '../../permissionItems/validation';
 import tagValidationSchemas from '../../tags/validation';
 import folderValidationSchemas from '../validation';
@@ -16,7 +15,6 @@ export const updateFolderJoiSchema = Joi.object()
     folder: Joi.object()
       .keys({
         description: validationSchemas.description.allow(null),
-        maxFileSizeInBytes: fileValidationSchemas.fileSizeInBytes.allow(null),
         publicAccessOps:
           permissionItemValidationSchemas.publicAccessOpList.allow(null),
         removePublicAccessOps: Joi.boolean().allow(null),

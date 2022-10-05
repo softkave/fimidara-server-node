@@ -72,7 +72,7 @@ export async function getUserWithWorkspaceById(
   return await populateUserWorkspaces(context, user);
 }
 
-export async function getUserWithWorkspaceByEmail(
+export async function getCompleteUserDataByEmail(
   context: IBaseContext,
   email: string
 ) {

@@ -26,7 +26,6 @@ const folderFields = getFields<IPublicFolder>({
   createdAt: getDateString,
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: getDateString,
-  maxFileSizeInBytes: true,
   workspaceId: true,
   parentId: true,
   name: true,

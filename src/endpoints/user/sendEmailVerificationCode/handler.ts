@@ -1,6 +1,5 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {IBaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
@@ -45,11 +44,9 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     firstName: user.firstName,
   });
 
-  fireAndForgetPromise(
-    context.data.user.updateItem(UserQueries.getById(user.resourceId), {
-      emailVerificationEmailSentAt: getDateString(),
-    })
-  );
+  await context.data.user.updateItem(UserQueries.getById(user.resourceId), {
+    emailVerificationEmailSentAt: getDateString(),
+  });
 };
 
 export default sendEmailVerificationCode;

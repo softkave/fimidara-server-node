@@ -62,7 +62,6 @@ async function updateFolderBaseTest(
 
   const updateInput: IUpdateFolderInput = {
     description: faker.lorem.words(20),
-    maxFileSizeInBytes: 9_000_000_000,
     ...incomingUpdateInput,
   };
 

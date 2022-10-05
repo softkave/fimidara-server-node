@@ -10,7 +10,6 @@ import {
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDate} from '../../../utilities/dateFns';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import RequestData from '../../RequestData';
 import {getCostForUsage} from '../../usageRecords/constants';
@@ -32,7 +31,7 @@ export class UsageRecordLogicProvider {
     agent: IAgent,
     input: IUsageRecordInput
   ) => {
-    const record = await this.makeLevel1Record(agent, input);
+    const record = this.makeLevel1Record(agent, input);
     const workspace = await ctx.cacheProviders.workspace.getById(
       ctx,
       record.workspaceId
@@ -60,14 +59,11 @@ export class UsageRecordLogicProvider {
       return false;
     }
 
-    this.fulfillRecord(ctx, reqData, record);
+    await this.fulfillRecord(ctx, reqData, record);
     return true;
   };
 
-  private makeLevel1Record = async (
-    agent: IAgent,
-    input: IUsageRecordInput
-  ) => {
+  private makeLevel1Record = (agent: IAgent, input: IUsageRecordInput) => {
     const record: IUsageRecord = {
       ...getRecordingPeriod(),
       ...input,
@@ -117,7 +113,7 @@ export class UsageRecordLogicProvider {
         usageLocks[UsageRecordCategory.Total] &&
         usageLocks[UsageRecordCategory.Total]?.locked
       ) {
-        this.dropRecord(
+        await this.dropRecord(
           ctx,
           reqData,
           record,
@@ -129,7 +125,7 @@ export class UsageRecordLogicProvider {
       }
 
       if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
-        this.dropRecord(
+        await this.dropRecord(
           ctx,
           reqData,
           record,
@@ -154,12 +150,9 @@ export class UsageRecordLogicProvider {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
     record.dropReason = dropReason;
     record.dropMessage = dropMessage;
-    ctx.jobs.addJob(
-      reqData,
-      fireAndForgetPromise(
-        ctx.dataProviders.usageRecord.updateById(record.resourceId, record)
-      )
-    );
+
+    // TODO: move to fire and forget
+    await ctx.dataProviders.usageRecord.updateById(record.resourceId, record);
   };
 
   private fulfillRecord = async (
@@ -168,11 +161,8 @@ export class UsageRecordLogicProvider {
     record: IUsageRecord
   ) => {
     record.fulfillmentStatus = UsageRecordFulfillmentStatus.Fulfilled;
-    ctx.jobs.addJob(
-      reqData,
-      fireAndForgetPromise(
-        ctx.dataProviders.usageRecord.updateById(record.resourceId, record)
-      )
-    );
+
+    // TODO: move to fire and forget
+    await ctx.dataProviders.usageRecord.updateById(record.resourceId, record);
   };
 }

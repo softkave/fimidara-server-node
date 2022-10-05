@@ -120,7 +120,6 @@ export async function assertCanUpdatePublicFolder(
 ) {
   const updateInput: IUpdateFolderInput = {
     description: faker.lorem.words(20),
-    maxFileSizeInBytes: 9_000_000_000,
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(

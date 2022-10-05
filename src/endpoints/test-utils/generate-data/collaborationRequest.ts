@@ -26,7 +26,7 @@ export function generateCollaborationRequestForTest() {
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
-    workspaceName: faker.company.companyName(),
+    workspaceName: faker.company.name(),
     workspaceId: getNewIdForResource(AppResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',

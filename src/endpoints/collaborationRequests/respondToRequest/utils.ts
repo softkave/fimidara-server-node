@@ -4,7 +4,11 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  isUserAgent,
+  SessionAgentType,
+} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
@@ -15,7 +19,6 @@ import {
 } from '../../../email-templates/collaborationRequestResponse';
 import {formatDate, getDateString} from '../../../utilities/dateFns';
 import {ServerStateConflictError} from '../../../utilities/errors';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
@@ -130,20 +133,22 @@ export const internalRespondToRequest = async (
   );
 
   assertWorkspace(workspace);
-  const notifyUser = await context.data.user.assertGetItem(
-    EndpointReusableQueries.getById(
-      request.createdBy.agentType === SessionAgentType.User
-        ? request.createdBy.agentId
-        : workspace.createdBy.agentId
-    )
-  );
+  const notifyUser =
+    isUserAgent(request.createdBy) || isUserAgent(workspace.createdBy)
+      ? // TODO: check if agent is a user or associated type before fetching
+        await context.data.user.assertGetItem(
+          EndpointReusableQueries.getById(
+            request.createdBy.agentType === SessionAgentType.User
+              ? request.createdBy.agentId
+              : workspace.createdBy.agentId
+          )
+        )
+      : null;
 
-  if (notifyUser.isEmailVerified) {
-    fireAndForgetPromise(
-      sendResponseEmail(context, request, data.response, {
-        email: notifyUser.email,
-      })
-    );
+  if (notifyUser && notifyUser.isEmailVerified) {
+    await sendResponseEmail(context, request, data.response, {
+      email: notifyUser.email,
+    });
   }
 
   if (data.response === CollaborationRequestStatusType.Accepted) {

@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
+import {consoleLogger} from '../../utilities/logger/logger';
 
 export async function genJWTSecret() {
   const secret = crypto.randomBytes(128).toString('hex');

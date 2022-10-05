@@ -9,7 +9,7 @@ export interface IFolder {
   parentId?: string;
   createdBy: IAgent;
   createdAt: Date | string;
-  maxFileSizeInBytes: number;
+  // maxFileSizeInBytes: number;
   lastUpdatedBy: IAgent;
   lastUpdatedAt: Date | string;
   name: string;
@@ -27,7 +27,7 @@ export interface IPublicFolder {
   parentId?: string;
   createdBy: IAgent;
   createdAt: Date | string;
-  maxFileSizeInBytes: number;
+  // maxFileSizeInBytes: number;
   lastUpdatedBy: IAgent;
   lastUpdatedAt: string;
   name: string;

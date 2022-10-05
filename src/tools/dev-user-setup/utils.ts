@@ -1,41 +1,38 @@
 import * as assert from 'assert';
-import inquirer from 'inquirer';
-import {getMongoConnection} from '../../src/db/connection';
-import {CollaborationRequestStatusType} from '../../src/definitions/collaborationRequest';
-import {AppResourceType, systemAgent} from '../../src/definitions/system';
-import {IUserWithWorkspace} from '../../src/definitions/user';
-import {IWorkspace} from '../../src/definitions/workspace';
+import * as inquirer from 'inquirer';
+import {getMongoConnection} from '../../db/connection';
+import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
+import {AppResourceType, systemAgent} from '../../definitions/system';
+import {IUserWithWorkspace} from '../../definitions/user';
+import {IWorkspace} from '../../definitions/workspace';
 import {
   assignWorkspaceToUser,
   saveResourceAssignedItems,
-} from '../../src/endpoints/assignedItems/addAssignedItems';
-import {populateAssignedItems} from '../../src/endpoints/assignedItems/getAssignedItems';
-import CollaborationRequestQueries from '../../src/endpoints/collaborationRequests/queries';
-import {internalRespondToRequest} from '../../src/endpoints/collaborationRequests/respondToRequest/utils';
+} from '../../endpoints/assignedItems/addAssignedItems';
+import {populateAssignedItems} from '../../endpoints/assignedItems/getAssignedItems';
+import CollaborationRequestQueries from '../../endpoints/collaborationRequests/queries';
+import {internalRespondToRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import BaseContext, {
   getCacheProviders,
   getDataProviders,
   getFileProvider,
   getLogicProviders,
-  IBaseContext,
-} from '../../src/endpoints/contexts/BaseContext';
-import {consoleLogger} from '../../src/endpoints/contexts/consoleLogger';
-import MongoDBDataProviderContext from '../../src/endpoints/contexts/MongoDBDataProviderContext';
-import EndpointReusableQueries from '../../src/endpoints/queries';
-import {setupApp} from '../../src/endpoints/runtime/initAppSetup';
-import NoopEmailProviderContext from '../../src/endpoints/test-utils/context/NoopEmailProviderContext';
-import internalConfirmEmailAddress from '../../src/endpoints/user/confirmEmailAddress/internalConfirmEmailAddress';
-import {internalSignupUser} from '../../src/endpoints/user/signup/utils';
-import UserQueries from '../../src/endpoints/user/UserQueries';
+} from '../../endpoints/contexts/BaseContext';
+import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import {IBaseContext} from '../../endpoints/contexts/types';
+import EndpointReusableQueries from '../../endpoints/queries';
+import {setupApp} from '../../endpoints/runtime/initAppSetup';
+import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
+import internalConfirmEmailAddress from '../../endpoints/user/confirmEmailAddress/internalConfirmEmailAddress';
+import {internalSignupUser} from '../../endpoints/user/signup/utils';
+import UserQueries from '../../endpoints/user/UserQueries';
 import {
-  getUserWithWorkspaceByEmail,
+  getCompleteUserDataByEmail,
   isUserInWorkspace,
-} from '../../src/endpoints/user/utils';
-import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../src/endpoints/workspaces/addWorkspace/utils';
-import {
-  extractProdEnvsSchema,
-  getAppVariables,
-} from '../../src/resources/appVariables';
+} from '../../endpoints/user/utils';
+import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
+import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {consoleLogger} from '../../utilities/logger/logger';
 
 export interface IPromptEmailAnswers {
   email: string;
@@ -177,7 +174,7 @@ async function getUser(context: IBaseContext, options: AppRuntimeOptions) {
 
   let user: IUserWithWorkspace;
   if (userExists) {
-    user = await getUserWithWorkspaceByEmail(context, email);
+    user = await getCompleteUserDataByEmail(context, email);
   } else {
     const userInfo = await options.getUserInfo();
     user = await internalSignupUser(context, {...userInfo, email});

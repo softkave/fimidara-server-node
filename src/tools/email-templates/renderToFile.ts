@@ -1,31 +1,31 @@
 import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
-import {CollaborationRequestStatusType} from '../../src/definitions/collaborationRequest';
+import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
 import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   ICollaborationRequestEmailProps,
-} from '../../src/email-templates/collaborationRequest';
+} from '../../email-templates/collaborationRequest';
 import {
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
   ICollaborationRequestResponseEmailProps,
-} from '../../src/email-templates/collaborationRequestResponse';
+} from '../../email-templates/collaborationRequestResponse';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   ICollaborationRequestRevokedEmailProps,
-} from '../../src/email-templates/collaborationRequestRevoked';
+} from '../../email-templates/collaborationRequestRevoked';
 import {
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
   IConfirmEmailAddressEmailProps,
-} from '../../src/email-templates/confirmEmailAddress';
+} from '../../email-templates/confirmEmailAddress';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
   IForgotPasswordEmailProps,
-} from '../../src/email-templates/forgotPassword';
+} from '../../email-templates/forgotPassword';
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =

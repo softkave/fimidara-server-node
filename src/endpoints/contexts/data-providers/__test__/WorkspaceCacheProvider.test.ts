@@ -35,7 +35,7 @@ async function setupContextAndWorkspaces() {
   const workspaces = generateTestWorkspaces();
   const model = getWorkspaceModel(connection);
   await model.insertMany(workspaces);
-  const emptyObject = cast<any>({});
+  const emptyObject = cast<any>({close() {}, dispose() {}});
   const refreshIntervalMs = 1000 * 5; // 5 seconds
   const provider = new WorkspaceCacheProvider(refreshIntervalMs);
   const context = new BaseContext(

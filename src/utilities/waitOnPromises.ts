@@ -74,7 +74,7 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function throwRejectedPromisesWithId(
+export function logRejectedPromisesWithIdAndThrow(
   ctx: IBaseContext,
   p: ISettledPromiseWithId[]
 ) {
@@ -83,12 +83,11 @@ export function throwRejectedPromisesWithId(
     rejected.forEach(p => {
       ctx.logger.error(`Promise ${p.id} rejected with reason ${p.reason}`);
     });
-
     throw new Error('One or more promises rejected');
   }
 }
 
-export function throwRejectedPromisesWithStatus(
+export function logRejectedPromisesAndThrow(
   ctx: IBaseContext,
   p: PromiseSettledResult<any>[]
 ) {
@@ -100,7 +99,6 @@ export function throwRejectedPromisesWithStatus(
     rejected.forEach(p => {
       ctx.logger.error(p.reason);
     });
-
     throw new Error('One or more promises rejected');
   }
 }

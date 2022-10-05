@@ -29,7 +29,7 @@ describe('updateWorkspce', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const companyName = faker.company.companyName();
+    const companyName = faker.company.name();
     const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
       name: companyName,
       // rootname: makeRootnameFromName(companyName),

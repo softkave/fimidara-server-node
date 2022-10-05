@@ -9,7 +9,6 @@ import {
   collaborationRequestRevokedEmailTitle,
 } from '../../../email-templates/collaborationRequestRevoked';
 import {getDateString} from '../../../utilities/dateFns';
-import {fireAndForgetPromise} from '../../../utilities/promiseFns';
 import {validate} from '../../../utilities/validate';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -53,9 +52,7 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
 
     assertWorkspace(workspace);
     if (workspace) {
-      fireAndForgetPromise(
-        sendRevokeRequestEmail(context, request, workspace.name)
-      );
+      await sendRevokeRequestEmail(context, request, workspace.name);
     }
   }
 
