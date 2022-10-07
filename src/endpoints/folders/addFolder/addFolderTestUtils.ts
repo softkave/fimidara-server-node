@@ -15,6 +15,7 @@ import {
   assertPublicAccessOps,
 } from '../../files/uploadFile/uploadFileTestUtils';
 import RequestData from '../../RequestData';
+import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -179,7 +180,7 @@ export async function assertPublicOps(
   const {file} = await assertCanUploadToPublicFile(
     ctx,
     insertWorkspaceResult.workspace,
-    folder02Path + folderConstants.nameSeparator + faker.lorem.word()
+    folder02Path + folderConstants.nameSeparator + generateTestFolderName()
   );
 
   await assertCanListContentOfPublicFolder(

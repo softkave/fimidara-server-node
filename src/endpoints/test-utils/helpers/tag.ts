@@ -23,7 +23,7 @@ export async function insertTagForTest(
     {
       workspaceId,
       tag: {
-        name: faker.random.word(),
+        name: faker.random.words(),
         description: faker.lorem.paragraph(),
         ...tagInput,
       },

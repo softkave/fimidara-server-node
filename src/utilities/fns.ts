@@ -118,3 +118,23 @@ export function containsExactly<T2, T1 extends T2>(
   expect(list1.length).toEqual(list2.length);
   containsEveryItemIn(list1, list2, indexer);
 }
+
+export function getRandomArbitrary(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+export function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  // The maximum is exclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+export function getRandomIntInclusive(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  // The maximum is inclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}

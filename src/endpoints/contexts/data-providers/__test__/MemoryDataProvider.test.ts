@@ -162,7 +162,7 @@ describe('MemoryDataProvider', () => {
         agentType: SessionAgentType.User,
       },
       lastUpdatedAt: getDateString(),
-      name: faker.lorem.word(),
+      name: faker.lorem.words(),
       description: faker.lorem.paragraph(),
     };
 
@@ -202,7 +202,7 @@ describe('MemoryDataProvider', () => {
         agentType: SessionAgentType.User,
       },
       lastUpdatedAt: getDateString(),
-      name: faker.lorem.word(),
+      name: faker.lorem.words(),
       description: faker.lorem.paragraph(),
     };
 

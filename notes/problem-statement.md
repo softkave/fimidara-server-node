@@ -23,3 +23,5 @@
 ### Use case 8: Email attachments
 
 ## Problem 2: File storage that can bypass your servers for uploading and downloading reducing load on your app servers
+
+## Problem 3: What do you do if a workspace or user is in default, how do you restrict access?

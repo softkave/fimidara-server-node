@@ -1,4 +1,3 @@
-import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
@@ -7,6 +6,7 @@ import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
+import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
 import {
@@ -123,19 +123,14 @@ describe('getFile', () => {
       ],
     });
 
-    const {file, reqData} = await insertFileForTest(
-      context,
-      userToken,
-      workspace,
-      {
-        filepath: addRootnameToPath(
-          folder.namePath
-            .concat([faker.lorem.word()])
-            .join(folderConstants.nameSeparator),
-          workspace.rootname
-        ),
-      }
-    );
+    const {file} = await insertFileForTest(context, userToken, workspace, {
+      filepath: addRootnameToPath(
+        folder.namePath
+          .concat([generateTestFolderName()])
+          .join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
+    });
 
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
       mockExpressRequestForPublicAgent(),

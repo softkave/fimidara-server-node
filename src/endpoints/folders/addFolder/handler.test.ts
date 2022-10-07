@@ -1,4 +1,3 @@
-import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
@@ -7,6 +6,7 @@ import {
   assertCanReadPublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
@@ -83,7 +83,7 @@ describe('addFolder', () => {
     const {file} = await assertCanUploadToPublicFile(
       context,
       insertWorkspaceResult.workspace,
-      folder02Path + '/' + faker.lorem.word()
+      folder02Path + folderConstants.nameSeparator + generateTestFolderName()
     );
 
     await assertCanListContentOfPublicFolder(

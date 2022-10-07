@@ -80,6 +80,7 @@ import MockTestEmailProviderContext from './context/MockTestEmailProviderContext
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
+import {generateTestFolderName} from './generate-data/folder';
 import {expectItemsByEntityPresent} from './helpers/permissionItem';
 import sharp = require('sharp');
 import assert = require('assert');
@@ -449,7 +450,7 @@ export async function insertFolderForTest(
     {
       folder: {
         folderpath: addRootnameToPath(
-          [faker.lorem.word()].join(folderConstants.nameSeparator),
+          [generateTestFolderName()].join(folderConstants.nameSeparator),
           workspace.rootname
         ),
         description: faker.lorem.paragraph(),
@@ -498,7 +499,7 @@ export async function insertFileForTest(
 ) {
   const input: IUploadFileEndpointParams = {
     filepath: addRootnameToPath(
-      [faker.lorem.word()].join(folderConstants.nameSeparator),
+      [generateTestFolderName()].join(folderConstants.nameSeparator),
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),

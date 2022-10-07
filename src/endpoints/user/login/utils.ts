@@ -11,10 +11,8 @@ import {IUserToken} from '../../../definitions/userToken';
 import {appAssert} from '../../../utilities/assertion';
 import {getDateString} from '../../../utilities/dateFns';
 import {ServerError} from '../../../utilities/errors';
-import {} from '../../../utilities/fns';
 import {getNewIdForResource} from '../../../utilities/resourceId';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -54,13 +52,11 @@ export async function getUserClientAssignedToken(
     new ServerError(),
     'App workspace ID not set'
   );
-
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
     'App workspaces image upload permission group ID not set'
   );
-
   appAssert(
     context.appVariables.appUsersImageUploadPermissionGroupId,
     new ServerError(),

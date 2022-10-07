@@ -122,7 +122,7 @@ export const resourceTypeShortNames: Record<AppResourceType, string> = {
   [AppResourceType.Workspace]: padShortName('wkspce'),
   [AppResourceType.CollaborationRequest]: padShortName('corqst'),
   [AppResourceType.ProgramAccessToken]: padShortName('pgacstn'),
-  [AppResourceType.ClientAssignedToken]: padShortName('casgntn'),
+  [AppResourceType.ClientAssignedToken]: padShortName('clasgtn'),
   [AppResourceType.UserToken]: padShortName('usertn'),
   [AppResourceType.PermissionGroup]: padShortName('permgrp'),
   [AppResourceType.PermissionItem]: padShortName('permitm'),

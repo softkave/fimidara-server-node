@@ -1,4 +1,5 @@
 import {Request, Response} from 'express';
+import {isString} from 'lodash';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utilities/dateFns';
 import {ServerError} from '../utilities/errors';
@@ -156,4 +157,8 @@ export function withAssignedAgentList<T extends AnyObject>(
       agentType: agent.agentType,
     },
   }));
+}
+
+export function endpointDecodeURIComponent(d?: any) {
+  return d && isString(d) ? decodeURIComponent(d) : undefined;
 }

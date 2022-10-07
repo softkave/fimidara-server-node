@@ -3,7 +3,7 @@ import {last, merge} from 'lodash';
 import * as multer from 'multer';
 import {endpointConstants} from '../constants';
 import {IBaseContext} from '../contexts/types';
-import {wrapEndpointREST} from '../utils';
+import {endpointDecodeURIComponent, wrapEndpointREST} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
 import getFile from './getFile/handler';
@@ -31,9 +31,9 @@ function handleGetFileResponse(
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
   const p = req.path;
-  const filepath = last(p.split(getFilePath));
-  const width = req.query.w;
-  const height = req.query.h;
+  const filepath = endpointDecodeURIComponent(last(p.split(getFilePath)));
+  const width = endpointDecodeURIComponent(req.query.w);
+  const height = endpointDecodeURIComponent(req.query.h);
   return {
     filepath,
     imageTranformation: {width, height},
@@ -45,7 +45,7 @@ function extractUploadFilesParamsFromPath(
   req: Request
 ): Partial<IUploadFileEndpointParams> {
   const p = req.path;
-  const filepath = last(p.split(uploadFilePath));
+  const filepath = endpointDecodeURIComponent(last(p.split(uploadFilePath)));
   return {filepath};
 }
 

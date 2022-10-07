@@ -1,7 +1,7 @@
-import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import RequestData from '../../RequestData';
+import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -67,7 +67,7 @@ test('folder deleted', async () => {
     {
       folderpath: addRootnameToPath(
         folder01.namePath
-          .concat(faker.lorem.word())
+          .concat(generateTestFolderName())
           .join(folderConstants.nameSeparator),
         workspace.rootname
       ),
@@ -77,7 +77,7 @@ test('folder deleted', async () => {
   const {file} = await insertFileForTest(context, userToken, workspace, {
     filepath: addRootnameToPath(
       folder01.namePath
-        .concat(faker.lorem.word())
+        .concat(generateTestFolderName())
         .join(folderConstants.nameSeparator),
       workspace.rootname
     ),

@@ -32,7 +32,6 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
-import {script_AddThresholdToExistingWorkspaces} from './scripts/addThresholdToExistingWorkspaces';
 import {consoleLogger, logger} from './utilities/logger/logger';
 
 logger.info('server initialization');
@@ -90,7 +89,7 @@ async function setup() {
   );
 
   // Run scripts here
-  await script_AddThresholdToExistingWorkspaces(connection);
+  // await script_AddThresholdToExistingWorkspaces(connection);
   // End of scripts
 
   // Jobs
