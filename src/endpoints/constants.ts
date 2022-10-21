@@ -11,4 +11,5 @@ export const endpointConstants = {
     tooManyRequests: 429,
     serverError: 500,
   },
+  maxPageSize: 100,
 };

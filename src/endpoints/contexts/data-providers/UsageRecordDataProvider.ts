@@ -9,7 +9,6 @@ import {
 import {getDate} from '../../../utilities/dateFns';
 
 export interface IWorkspaceSummedUsageQueryParams {
-  workspaceId?: string;
   categories?: UsageRecordCategory[];
   fromDate?: string;
   toDate?: string;

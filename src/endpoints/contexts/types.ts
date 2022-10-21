@@ -1,24 +1,21 @@
 import {Request} from 'express';
 import {Logger} from 'winston';
-import {IAssignedItem} from '../../definitions/assignedItem';
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {ICollaborationRequest} from '../../definitions/collaborationRequest';
-import {IFile} from '../../definitions/file';
-import {IFolder} from '../../definitions/folder';
-import {IPermissionGroup} from '../../definitions/permissionGroups';
-import {IPermissionItem} from '../../definitions/permissionItem';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
-import {IAppRuntimeState, IBaseTokenData} from '../../definitions/system';
-import {ITag} from '../../definitions/tag';
-import {IUser} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
-import {IWorkspace} from '../../definitions/workspace';
+import {IBaseTokenData} from '../../definitions/system';
 import {IAppVariables} from '../../resources/vars';
-import {IDataProvider} from './data-providers/DataProvider';
-import {IUsageRecordDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
-import {IWorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';
-import {IWorkspaceDataProvider} from './data-providers/WorkspaceDataProvider';
+import {IAppRuntimeStateDataProvider} from './data/appruntimestate/type';
+import {IAssignedItemDataProvider} from './data/assigneditem/type';
+import {IClientAssignedTokenDataProvider} from './data/clientassignedtoken/type';
+import {ICollaborationRequestDataProvider} from './data/collaborationrequest/type';
+import {IFileDataProvider} from './data/file/type';
+import {IFolderDataProvider} from './data/folder/type';
+import {IPermissionGroupDataProvider} from './data/permissiongroup/type';
+import {IPermissionItemDataProvider} from './data/permissionitem/type';
+import {IProgramAccessTokenDataProvider} from './data/programaccesstoken/type';
+import {ITagDataProvider} from './data/tag/type';
+import {IUserDataProvider} from './data/user/type';
+import {IUserTokenDataProvider} from './data/usertoken/type';
+import {IWorkspaceDataProvider} from './data/workspace/type';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
 import {ISessionContext} from './SessionContext';
@@ -29,20 +26,19 @@ export interface IServerRequest extends Request {
 }
 
 export interface IBaseContextDataProviders {
-  folder: IDataProvider<IFolder>;
-  file: IDataProvider<IFile>;
-  clientAssignedToken: IDataProvider<IClientAssignedToken>;
-  programAccessToken: IDataProvider<IProgramAccessToken>;
-  permissionItem: IDataProvider<IPermissionItem>;
-  permissiongroup: IDataProvider<IPermissionGroup>;
-  workspace: IDataProvider<IWorkspace>;
-  collaborationRequest: IDataProvider<ICollaborationRequest>;
-  user: IDataProvider<IUser>;
-  userToken: IDataProvider<IUserToken>;
-  appRuntimeState: IDataProvider<IAppRuntimeState>;
-  tag: IDataProvider<ITag>;
-  assignedItem: IDataProvider<IAssignedItem>;
-  close: () => Promise<void>;
+  folder: IFolderDataProvider;
+  file: IFileDataProvider;
+  clientAssignedToken: IClientAssignedTokenDataProvider;
+  programAccessToken: IProgramAccessTokenDataProvider;
+  permissionItem: IPermissionItemDataProvider;
+  permissiongroup: IPermissionGroupDataProvider;
+  workspace: IWorkspaceDataProvider;
+  collaborationRequest: ICollaborationRequestDataProvider;
+  user: IUserDataProvider;
+  userToken: IUserTokenDataProvider;
+  appRuntimeState: IAppRuntimeStateDataProvider;
+  tag: ITagDataProvider;
+  assignedItem: IAssignedItemDataProvider;
 }
 
 export interface IBaseContext<
@@ -58,17 +54,7 @@ export interface IBaseContext<
   fileBackend: F;
   logger: Logger;
   clientLogger: Logger;
-  dataProviders: {
-    workspace: IWorkspaceDataProvider;
-    usageRecord: IUsageRecordDataProvider;
-  };
-  cacheProviders: {
-    workspace: IWorkspaceCacheProvider;
-  };
-  logicProviders: {
-    usageRecord: UsageRecordLogicProvider;
-  };
-
+  usageRecord: UsageRecordLogicProvider;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }
