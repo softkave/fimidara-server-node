@@ -2,7 +2,7 @@ import {uniqBy} from 'lodash';
 import {ResourceWithPermissionGroupsAndTags} from '../../../definitions/assignedItem';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType} from '../../../definitions/system';
-import {indexArray} from '../../../utilities/indexArray';
+import {indexArray} from '../../../utils/indexArray';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import PermissionGroupQueries from '../../permissionGroups/queries';
 import {IBaseContext} from '../types';

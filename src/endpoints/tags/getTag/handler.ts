@@ -1,5 +1,5 @@
 import {BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {checkTagAuthorization02, tagExtractor} from '../utils';
 import {GetTagEndpoint} from './types';
 import {getTagJoiSchema} from './validation';

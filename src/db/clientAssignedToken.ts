@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IClientAssignedToken} from '../definitions/clientAssignedToken';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({

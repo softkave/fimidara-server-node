@@ -2,7 +2,7 @@ import {defaultTo} from 'lodash';
 import {systemAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDate} from '../../../utilities/dateFns';
+import {getDate} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 
 export async function updateTestWorkspaceUsageLocks(

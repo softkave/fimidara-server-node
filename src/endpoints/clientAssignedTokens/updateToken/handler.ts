@@ -1,8 +1,8 @@
 import {omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDate} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDate} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';

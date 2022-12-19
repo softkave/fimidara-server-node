@@ -1,6 +1,6 @@
 import {SchemaDefinitionProperty} from 'mongoose';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 
 // ensures all the fields defined in the type are added to the schema
 // TODO: do deep check to make sure that internal schemas are checked too

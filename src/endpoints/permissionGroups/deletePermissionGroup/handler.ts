@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {
   deleteAssignableItemAssignedItems,
   deleteResourceAssignedItems,

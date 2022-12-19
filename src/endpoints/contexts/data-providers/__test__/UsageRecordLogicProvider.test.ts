@@ -16,8 +16,8 @@ import {
   extractEnvVariables,
   extractProdEnvsSchema,
 } from '../../../../resources/vars';
-import {cast} from '../../../../utilities/fns';
-import {getNewId, getNewIdForResource} from '../../../../utilities/resourceId';
+import {cast} from '../../../../utils/fns';
+import {getNewId, getNewIdForResource} from '../../../../utils/resourceId';
 import RequestData from '../../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../../test-utils/generate-data/usageRecord';
 import {generateTestWorkspace} from '../../../test-utils/generate-data/workspace';

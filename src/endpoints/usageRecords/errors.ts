@@ -1,7 +1,7 @@
 import OperationError, {
   getErrorMessageFromParams,
   IOperationErrorParameters,
-} from '../../utilities/OperationError';
+} from '../../utils/OperationError';
 import {endpointConstants} from '../constants';
 
 export class UsageLimitExceededError extends OperationError {

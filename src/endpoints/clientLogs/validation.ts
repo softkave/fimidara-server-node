@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../utilities/validationUtils';
+import {validationSchemas} from '../../utils/validationUtils';
 import clientLogsConstants from './constants';
 
 const log = Joi.object().keys({

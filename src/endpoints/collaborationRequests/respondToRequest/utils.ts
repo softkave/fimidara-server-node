@@ -17,8 +17,8 @@ import {
   collaborationRequestResponseEmailTitle,
   ICollaborationRequestResponseEmailProps,
 } from '../../../email-templates/collaborationRequestResponse';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
-import {ServerStateConflictError} from '../../../utilities/errors';
+import {formatDate, getDateString} from '../../../utils/dateFns';
+import {ServerStateConflictError} from '../../../utils/errors';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,

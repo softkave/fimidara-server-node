@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {isObjectEmpty} from '../../../utilities/fns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {isObjectEmpty} from '../../../utils/fns';
+import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {

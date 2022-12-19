@@ -1,7 +1,7 @@
 import {format} from 'util';
 import {AppResourceType} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
-import {InternalError} from '../../utilities/errors';
+import {InternalError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {InvalidRequestError} from '../errors';
 import {IResource, IWorkspaceResource} from './types';

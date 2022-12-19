@@ -6,13 +6,13 @@ import {
   ISessionAgent,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {makeKey} from '../../utilities/fns';
-import {indexArray} from '../../utilities/indexArray';
+import {makeKey} from '../../utils/fns';
+import {indexArray} from '../../utils/indexArray';
 import {
   IPromiseWithId,
   ISettledPromiseWithId,
   waitOnPromisesWithId,
-} from '../../utilities/waitOnPromises';
+} from '../../utils/waitOnPromises';
 import {
   checkAuthorization,
   makeResourcePermissionOwnerList,

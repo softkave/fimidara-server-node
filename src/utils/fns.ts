@@ -138,3 +138,11 @@ export function getRandomIntInclusive(min: number, max: number) {
   // The maximum is inclusive and the minimum is inclusive
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function uncapitalizeFirstLetter(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}

@@ -1,4 +1,4 @@
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {IngestLogsEndpoint} from './types';
 import {ingestLogsJoiSchema} from './validation';
 

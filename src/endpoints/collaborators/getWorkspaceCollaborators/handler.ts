@@ -1,5 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {

@@ -1,7 +1,7 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import PermissionItemQueries from '../queries';

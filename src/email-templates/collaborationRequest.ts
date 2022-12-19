@@ -1,4 +1,4 @@
-import {formatDateTime} from '../utilities/dateFns';
+import {formatDateTime} from '../utils/dateFns';
 import {
   emailTemplateStyles,
   getCenteredContentHTML,

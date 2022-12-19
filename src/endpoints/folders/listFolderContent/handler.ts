@@ -7,8 +7,8 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,

@@ -6,7 +6,7 @@ import {
   IPublicAccessOp,
 } from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
-import {getDate} from '../../../utilities/dateFns';
+import {getDate} from '../../../utils/dateFns';
 import {UploadFilePublicAccessActions} from './types';
 
 export const makeFilePublicReadAccessOps = (

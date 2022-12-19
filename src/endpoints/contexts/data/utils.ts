@@ -1,5 +1,5 @@
 import {FilterQuery, Model} from 'mongoose';
-import {cast} from '../../../utilities/fns';
+import {cast} from '../../../utils/fns';
 import {endpointConstants} from '../../constants';
 import {
   DataQuery,

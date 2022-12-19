@@ -9,8 +9,8 @@ import {
   ISessionAgent,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {InternalError} from '../../../utilities/errors';
-import {indexArray} from '../../../utilities/indexArray';
+import {InternalError} from '../../../utils/errors';
+import {indexArray} from '../../../utils/indexArray';
 import {
   EmailAddressNotVerifiedError,
   PermissionDeniedError,

@@ -1,5 +1,5 @@
 import {merge} from 'lodash';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';

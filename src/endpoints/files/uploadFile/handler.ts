@@ -4,10 +4,10 @@ import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
-import {appAssert} from '../../../utilities/assertion';
-import {ValidationError} from '../../../utilities/errors';
-import {} from '../../../utilities/fns';
-import {validate} from '../../../utilities/validate';
+import {appAssert} from '../../../utils/assertion';
+import {ValidationError} from '../../../utils/errors';
+import {} from '../../../utils/fns';
+import {validate} from '../../../utils/validate';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   insertBandwidthInUsageRecordInput,

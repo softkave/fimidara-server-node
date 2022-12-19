@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {IPermissionGroupInput} from '../../definitions/permissionGroups';
-import {validationSchemas} from '../../utilities/validationUtils';
+import {validationSchemas} from '../../utils/validationUtils';
 import {permissionGroupConstants} from './constants';
 
 const assignedPermissionGroup = Joi.object().keys({

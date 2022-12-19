@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
 import {AppResourceType, systemAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getNewIdForResource} from '../../../utils/resourceId';
 
 export function generateTestFile(
   workspace: Pick<IWorkspace, 'rootname' | 'resourceId'>,

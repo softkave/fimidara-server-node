@@ -51,7 +51,7 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
-import {cast} from '../../utilities/fns';
+import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {
   aggregateRecords,

@@ -1,8 +1,8 @@
 import {omit} from 'lodash';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
 import {

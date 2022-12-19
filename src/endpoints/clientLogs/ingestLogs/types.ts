@@ -1,4 +1,4 @@
-import {AnyObject} from '../../../utilities/types';
+import {AnyObject} from '../../../utils/types';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 

@@ -1,8 +1,8 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {getDateString} from '../../../utilities/dateFns';
-import {waitTimeout} from '../../../utilities/fns';
-import {FimidaraLoggerServiceNames} from '../../../utilities/logger/loggerUtils';
+import {getDateString} from '../../../utils/dateFns';
+import {waitTimeout} from '../../../utils/fns';
+import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {

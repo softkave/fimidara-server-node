@@ -5,7 +5,7 @@ import {
   IUsageThresholdLock,
   IWorkspace,
 } from '../definitions/workspace';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({

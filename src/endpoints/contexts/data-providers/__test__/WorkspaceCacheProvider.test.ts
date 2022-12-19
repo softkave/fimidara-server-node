@@ -7,9 +7,9 @@ import {
   extractEnvVariables,
   extractProdEnvsSchema,
 } from '../../../../resources/vars';
-import {getDate} from '../../../../utilities/dateFns';
-import {cast, waitTimeout} from '../../../../utilities/fns';
-import {getNewId} from '../../../../utilities/resourceId';
+import {getDate} from '../../../../utils/dateFns';
+import {cast, waitTimeout} from '../../../../utils/fns';
+import {getNewId} from '../../../../utils/resourceId';
 import {generateTestWorkspaces} from '../../../test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../../test-utils/helpers/mongo';
 import BaseContext, {getDataProviders} from '../../BaseContext';

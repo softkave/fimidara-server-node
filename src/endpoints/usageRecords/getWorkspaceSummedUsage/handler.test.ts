@@ -9,7 +9,7 @@ import {
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {getDateString} from '../../../utilities/dateFns';
+import {getDateString} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateUsageRecords} from '../../test-utils/generate-data/usageRecord';

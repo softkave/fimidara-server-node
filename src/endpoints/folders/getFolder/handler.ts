@@ -3,7 +3,7 @@ import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {GetFolderEndpoint} from './types';

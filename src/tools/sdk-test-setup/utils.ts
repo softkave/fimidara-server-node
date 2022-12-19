@@ -16,7 +16,7 @@ import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEma
 import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
-import {consoleLogger} from '../../utilities/logger/logger';
+import {consoleLogger} from '../../utils/logger/logger';
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);

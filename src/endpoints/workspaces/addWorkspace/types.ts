@@ -15,14 +15,17 @@ export interface INewWorkspaceInput {
   usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThresholdInput>>;
 }
 
-export type IAddWorkspaceParams = Omit<INewWorkspaceInput, 'usageThresholds'>;
+export type IAddWorkspaceEndpointParams = Omit<
+  INewWorkspaceInput,
+  'usageThresholds'
+>;
 
-export interface IAddWorkspaceResult {
+export interface IAddWorkspaceEndpointResult {
   workspace: IPublicWorkspace;
 }
 
 export type AddWorkspaceEndpoint = Endpoint<
   IBaseContext,
-  IAddWorkspaceParams,
-  IAddWorkspaceResult
+  IAddWorkspaceEndpointParams,
+  IAddWorkspaceEndpointResult
 >;

@@ -8,8 +8,8 @@ import {
 } from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
 import {IWorkspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utilities/assertion';
-import {} from '../../../utilities/fns';
+import {appAssert} from '../../../utils/assertion';
+import {} from '../../../utils/fns';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';

@@ -4,8 +4,8 @@ import {
   IUserWithWorkspace,
   IUserWorkspace,
 } from '../../definitions/user';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';

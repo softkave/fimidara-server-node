@@ -1,5 +1,5 @@
 import {BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {GetWorkspaceEndpoint} from './types';

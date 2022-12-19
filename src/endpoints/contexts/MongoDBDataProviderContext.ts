@@ -43,7 +43,7 @@ import {ITag} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IWorkspace} from '../../definitions/workspace';
-import {AnyObject} from '../../utilities/types';
+import {AnyObject} from '../../utils/types';
 import {throwAssignedItemNotFound} from '../assignedItems/utils';
 import {throwClientAssignedTokenNotFound} from '../clientAssignedTokens/utils';
 import {throwCollaborationRequestNotFound} from '../collaborationRequests/utils';

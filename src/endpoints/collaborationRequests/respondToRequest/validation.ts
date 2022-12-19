@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 
 export const respondToRequestJoiSchema = Joi.object()
   .keys({

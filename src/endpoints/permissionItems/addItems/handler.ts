@@ -1,9 +1,9 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDate} from '../../../utilities/dateFns';
-import {indexArray} from '../../../utilities/indexArray';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {getDate} from '../../../utils/dateFns';
+import {indexArray} from '../../../utils/indexArray';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,

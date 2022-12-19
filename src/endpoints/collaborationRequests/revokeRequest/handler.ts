@@ -8,8 +8,8 @@ import {
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
 } from '../../../email-templates/collaborationRequestRevoked';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';

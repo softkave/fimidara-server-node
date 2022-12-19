@@ -1,22 +1,22 @@
 import {first, flattenDeep, uniqBy} from 'lodash';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   getFilePermissionOwners,
   IPermissionOwner,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IResource} from '../../resources/types';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
 import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
 import {getResourcePermissionItemsJoiSchema} from './validation';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 
 const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   context,

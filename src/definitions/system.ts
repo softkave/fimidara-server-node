@@ -1,5 +1,5 @@
 import {IAppRuntimeVars} from '../resources/vars';
-import {reverseMap} from '../utilities/fns';
+import {reverseMap} from '../utils/fns';
 import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {PermissionItemAppliesTo} from './permissionItem';
@@ -105,6 +105,12 @@ export enum AppResourceType {
   // [internal-only]
   AssignedItem = 'assigned-item',
 }
+
+export const validAgentTypes = [
+  AppResourceType.User,
+  AppResourceType.ProgramAccessToken,
+  AppResourceType.ClientAssignedToken,
+];
 
 export const resourceTypeShortNameMaxLen = 7;
 function padShortName(shortName: string) {

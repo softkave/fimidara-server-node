@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {
   defaultGenPartialTestDataFn,
   generateTestList,

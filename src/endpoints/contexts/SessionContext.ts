@@ -16,9 +16,9 @@ import {
 } from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
-import {appAssert} from '../../utilities/assertion';
-import {ServerError} from '../../utilities/errors';
-import {cast} from '../../utilities/fns';
+import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
+import {cast} from '../../utils/fns';
 import {
   populateAssignedPermissionGroupsAndTags,
   populateUserWorkspaces,

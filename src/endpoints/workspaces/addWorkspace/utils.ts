@@ -12,8 +12,8 @@ import {
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,

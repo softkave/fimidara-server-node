@@ -8,10 +8,10 @@ import {
   ISessionAgent,
   TokenType,
 } from '../../definitions/system';
-import {appAssert} from '../../utilities/assertion';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {cast} from '../../utilities/fns';
+import {appAssert} from '../../utils/assertion';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {cast} from '../../utils/fns';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,

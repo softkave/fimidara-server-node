@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IPermissionGroup} from '../definitions/permissionGroups';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const permissionGroupsSchema = ensureTypeFields<IPermissionGroup>({

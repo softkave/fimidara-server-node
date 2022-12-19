@@ -1,6 +1,6 @@
 import {IBaseTokenData, ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import {getNewId} from '../utilities/resourceId';
+import {getNewId} from '../utils/resourceId';
 import {IServerRequest} from './contexts/types';
 import {IRequestDataPendingPromise} from './types';
 

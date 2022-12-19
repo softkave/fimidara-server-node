@@ -1,13 +1,13 @@
 import {Connection} from 'mongoose';
 import {Logger} from 'winston';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
-import {waitTimeout} from '../../utilities/fns';
-import {consoleLogger, logger} from '../../utilities/logger/logger';
+import {waitTimeout} from '../../utils/fns';
+import {consoleLogger, logger} from '../../utils/logger/logger';
 import {
   FimidaraLoggerServiceNames,
   loggerFactory,
-} from '../../utilities/logger/loggerUtils';
-import {logRejectedPromisesAndThrow} from '../../utilities/waitOnPromises';
+} from '../../utils/logger/loggerUtils';
+import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {UsageRecordMongoDataProvider} from './data-providers/UsageRecordDataProvider';
 import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 import {WorkspaceCacheProvider} from './data-providers/WorkspaceCacheProvider';

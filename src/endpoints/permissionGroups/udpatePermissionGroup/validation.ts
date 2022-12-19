@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 import tagValidationSchemas from '../../tags/validation';
 import permissionGroupsValidationSchemas from '../validation';
 

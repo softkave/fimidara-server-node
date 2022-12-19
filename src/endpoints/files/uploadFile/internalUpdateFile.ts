@@ -1,7 +1,7 @@
 import {IFile} from '../../../definitions/file';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDate} from '../../../utilities/dateFns';
+import {getDate} from '../../../utils/dateFns';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';

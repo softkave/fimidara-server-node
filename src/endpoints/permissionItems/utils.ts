@@ -11,9 +11,9 @@ import {
   IPublicAccessOpInput,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {makeKey} from '../../utilities/fns';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {makeKey} from '../../utils/fns';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';

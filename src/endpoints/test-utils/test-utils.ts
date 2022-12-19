@@ -74,7 +74,7 @@ import signup from '../user/signup/signup';
 import {ISignupParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import addWorkspace from '../workspaces/addWorkspace/handler';
-import {IAddWorkspaceParams} from '../workspaces/addWorkspace/types';
+import {IAddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
@@ -229,10 +229,10 @@ export interface IInsertWorkspaceForTestResult {
 export async function insertWorkspaceForTest(
   context: IBaseContext,
   userToken: IUserToken,
-  workspaceInput: Partial<IAddWorkspaceParams> = {}
+  workspaceInput: Partial<IAddWorkspaceEndpointParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
   const companyName = faker.lorem.words(6);
-  const instData = RequestData.fromExpressRequest<IAddWorkspaceParams>(
+  const instData = RequestData.fromExpressRequest<IAddWorkspaceEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       name: companyName,

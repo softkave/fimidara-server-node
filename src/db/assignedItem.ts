@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
 import {IAssignedItem} from '../definitions/assignedItem';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const assignedItemSchema = ensureTypeFields<IAssignedItem>({

@@ -1,12 +1,12 @@
-import {ITag} from '../../../definitions/tag';
 import {BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {ITag} from '../../../definitions/tag';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
+import EndpointReusableQueries from '../../queries';
+import {checkTagNameExists} from '../checkTagNameExists';
 import {checkTagAuthorization02, tagExtractor} from '../utils';
 import {UpdateTagEndpoint} from './types';
 import {updateTagJoiSchema} from './validation';
-import EndpointReusableQueries from '../../queries';
-import {checkTagNameExists} from '../checkTagNameExists';
 
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);

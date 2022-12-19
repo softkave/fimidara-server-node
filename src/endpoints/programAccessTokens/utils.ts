@@ -8,9 +8,9 @@ import {
   ISessionAgent,
   TokenType,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {cast} from '../../utilities/fns';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {cast} from '../../utils/fns';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,

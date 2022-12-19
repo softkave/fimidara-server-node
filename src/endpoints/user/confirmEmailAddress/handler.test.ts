@@ -4,8 +4,8 @@ import {
   CURRENT_TOKEN_VERSION,
   TokenAudience,
 } from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';

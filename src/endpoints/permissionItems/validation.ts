@@ -1,6 +1,6 @@
 import Joi = require('joi');
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {validationSchemas} from '../../utilities/validationUtils';
+import {validationSchemas} from '../../utils/validationUtils';
 import {permissionItemConstants} from './constants';
 
 const appliesTo = Joi.string()

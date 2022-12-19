@@ -1,16 +1,16 @@
 import {Request, Response} from 'express';
 import {isString} from 'lodash';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
-import {getDateString} from '../utilities/dateFns';
-import {ServerError} from '../utilities/errors';
+import {getDateString} from '../utils/dateFns';
+import {ServerError} from '../utils/errors';
 import {
   getFields,
   makeExtract,
   makeExtractIfPresent,
   makeListExtract,
-} from '../utilities/extract';
-import OperationError from '../utilities/OperationError';
-import {AnyObject} from '../utilities/types';
+} from '../utils/extract';
+import OperationError from '../utils/OperationError';
+import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';

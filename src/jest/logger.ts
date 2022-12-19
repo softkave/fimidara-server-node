@@ -1,4 +1,4 @@
-import {loggerFactory} from '../utilities/logger/loggerUtils';
+import {loggerFactory} from '../utils/logger/loggerUtils';
 
 export const jestLogger = loggerFactory({
   transports: ['console'],

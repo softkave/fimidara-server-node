@@ -1,4 +1,4 @@
-import {containsEveryItemIn} from '../../../utilities/fns';
+import {containsEveryItemIn} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {

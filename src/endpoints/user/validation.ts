@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {regExPatterns} from '../../utilities/validationUtils';
+import {regExPatterns} from '../../utils/validationUtils';
 import {userConstants} from './constants';
 
 const email = Joi.string().trim().lowercase().email();

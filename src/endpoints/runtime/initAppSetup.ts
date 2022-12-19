@@ -13,8 +13,8 @@ import {
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/vars';
-import {getDate, getDateString} from '../../utilities/dateFns';
-import {getNewIdForResource} from '../../utilities/resourceId';
+import {getDate, getDateString} from '../../utils/dateFns';
+import {getNewIdForResource} from '../../utils/resourceId';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext} from '../contexts/types';
 import {createSingleFolder} from '../folders/addFolder/handler';

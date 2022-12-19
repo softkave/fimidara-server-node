@@ -6,8 +6,8 @@ import {
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {getDate} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDate} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(

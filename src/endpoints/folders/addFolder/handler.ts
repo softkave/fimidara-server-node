@@ -10,10 +10,10 @@ import {
 } from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDate, getDateString} from '../../../utilities/dateFns';
-import {ServerError} from '../../../utilities/errors';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {getDate, getDateString} from '../../../utils/dateFns';
+import {ServerError} from '../../../utils/errors';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {

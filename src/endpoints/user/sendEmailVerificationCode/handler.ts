@@ -1,5 +1,5 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
+import {formatDate, getDateString} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';

@@ -9,8 +9,8 @@ import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/w
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
-import {cast} from '../../utilities/fns';
-import {indexArray} from '../../utilities/indexArray';
+import {cast} from '../../utils/fns';
+import {indexArray} from '../../utils/indexArray';
 import {script_AddThresholdToExistingWorkspaces} from '../addThresholdToExistingWorkspaces';
 import assert = require('assert');
 

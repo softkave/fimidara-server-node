@@ -1,4 +1,4 @@
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {collaborationRequestExtractor} from '../utils';
 import {RespondToRequestEndpoint} from './types';
 import {internalRespondToRequest} from './utils';

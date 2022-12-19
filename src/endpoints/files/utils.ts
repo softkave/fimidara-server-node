@@ -5,9 +5,9 @@ import {
   ISessionAgent,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utilities/dateFns';
-import {ValidationError} from '../../utilities/errors';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {getDateString} from '../../utils/dateFns';
+import {ValidationError} from '../../utils/errors';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionOwners,

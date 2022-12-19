@@ -15,7 +15,7 @@ import {
   makeRootnameFromName,
   workspaceExtractor,
 } from '../utils';
-import {IAddWorkspaceParams} from './types';
+import {IAddWorkspaceEndpointParams} from './types';
 import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
   DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
@@ -36,7 +36,7 @@ describe('addWorkspace', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const companyName = faker.company.name();
-    const companyInput: IAddWorkspaceParams = {
+    const companyInput: IAddWorkspaceEndpointParams = {
       name: companyName,
       rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),

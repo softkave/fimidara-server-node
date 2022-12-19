@@ -32,7 +32,7 @@ import {
 } from '../../endpoints/user/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
-import {consoleLogger} from '../../utilities/logger/logger';
+import {consoleLogger} from '../../utils/logger/logger';
 
 export interface IPromptEmailAnswers {
   email: string;

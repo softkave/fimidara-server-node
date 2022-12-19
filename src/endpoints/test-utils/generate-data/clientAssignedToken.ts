@@ -5,8 +5,8 @@ import {
   IAgent,
   SessionAgentType,
 } from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 
 export function generateClientAssignedTokenForTest() {
   const createdAt = getDateString();

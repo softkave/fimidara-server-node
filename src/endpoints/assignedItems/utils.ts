@@ -7,7 +7,7 @@ import {
 import {IAssignedPermissionGroup} from '../../definitions/permissionGroups';
 import {IAssignedTag} from '../../definitions/tag';
 import {IUserWorkspace} from '../../definitions/user';
-import {makeKey} from '../../utilities/fns';
+import {makeKey} from '../../utils/fns';
 import {NotFoundError} from '../errors';
 
 export function assignedItemToAssignedPermissionGroup(

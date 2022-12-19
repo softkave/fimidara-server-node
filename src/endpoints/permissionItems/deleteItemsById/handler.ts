@@ -1,12 +1,12 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {checkWorkspaceExists} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';
 

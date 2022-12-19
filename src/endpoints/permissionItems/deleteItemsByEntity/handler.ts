@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -8,8 +8,10 @@ import {
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
-import PermissionItemQueries from '../queries';
-import PermissionItemsQueries from '../queries';
+import {
+  default as PermissionItemQueries,
+  default as PermissionItemsQueries,
+} from '../queries';
 import {DeletePermissionItemsByEntityEndpoint} from './types';
 import {deletePermissionItemsByEntityJoiSchema} from './validation';
 

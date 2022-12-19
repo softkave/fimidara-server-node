@@ -10,13 +10,13 @@ import {
   IUsageThreshold,
   IWorkspace,
 } from '../../definitions/workspace';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
+import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
 import {
   getFields,
   makeExtract,
   makeExtractIfPresent,
   makeListExtract,
-} from '../../utilities/extract';
+} from '../../utils/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';

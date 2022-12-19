@@ -13,7 +13,7 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {getNewIdForResource} from '../../utilities/resourceId';
+import {getNewIdForResource} from '../../utils/resourceId';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**

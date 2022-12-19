@@ -1,7 +1,7 @@
 import {get, isArray, isEqual} from 'lodash';
-import {InternalError} from '../../../utilities/errors';
-import {cast} from '../../../utilities/fns';
-import {indexArray} from '../../../utilities/indexArray';
+import {InternalError} from '../../../utils/errors';
+import {cast} from '../../../utils/fns';
+import {indexArray} from '../../../utils/indexArray';
 import {
   DataProviderFilterValueOperator,
   IDataProvider,

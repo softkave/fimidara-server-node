@@ -1,4 +1,4 @@
-import {AnyObject} from '../utilities/types';
+import {AnyObject} from '../utils/types';
 import {IAssignedPermissionGroup} from './permissionGroups';
 import {AppResourceType, IAgent} from './system';
 import {IAssignedTag} from './tag';

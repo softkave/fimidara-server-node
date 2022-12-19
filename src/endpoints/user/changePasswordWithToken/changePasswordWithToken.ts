@@ -1,5 +1,5 @@
 import {TokenAudience, TokenType} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {assertIncomingToken} from '../../contexts/SessionContext';
 import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';

@@ -1,5 +1,5 @@
 import {IAgent, SessionAgentType} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {workspaceExtractor} from '../utils';
 import internalCreateWorkspace from './internalCreateWorkspace';
 import {AddWorkspaceEndpoint} from './types';

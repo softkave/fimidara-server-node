@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {getWorkspaceId} from '../../contexts/SessionContext';

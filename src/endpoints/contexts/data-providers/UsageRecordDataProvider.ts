@@ -6,7 +6,7 @@ import {
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {getDate} from '../../../utilities/dateFns';
+import {getDate} from '../../../utils/dateFns';
 
 export interface IWorkspaceSummedUsageQueryParams {
   categories?: UsageRecordCategory[];

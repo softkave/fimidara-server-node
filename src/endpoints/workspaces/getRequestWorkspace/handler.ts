@@ -1,5 +1,5 @@
-import {getFields, makeExtract} from '../../../utilities/extract';
-import {validate} from '../../../utilities/validate';
+import {getFields, makeExtract} from '../../../utils/extract';
+import {validate} from '../../../utils/validate';
 import {assertWorkspace} from '../utils';
 import {GetRequestWorkspaceEndpoint, IPublicRequestWorkspace} from './types';
 import {getRequestWorkspaceJoiSchema} from './validation';

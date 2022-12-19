@@ -3,9 +3,9 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {getDate, getDateString} from '../../../utilities/dateFns';
-import {cast} from '../../../utilities/fns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDate, getDateString} from '../../../utils/dateFns';
+import {cast} from '../../../utils/fns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {

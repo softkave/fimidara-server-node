@@ -12,11 +12,11 @@ import {
   ISessionAgent,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {appAssert} from '../../utilities/assertion';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {} from '../../utilities/fns';
-import {indexArray} from '../../utilities/indexArray';
+import {appAssert} from '../../utils/assertion';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {} from '../../utils/fns';
+import {indexArray} from '../../utils/indexArray';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,

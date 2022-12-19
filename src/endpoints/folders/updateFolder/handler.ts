@@ -5,8 +5,8 @@ import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
-import {getDate, getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDate, getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';

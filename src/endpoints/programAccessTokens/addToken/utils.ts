@@ -3,8 +3,8 @@ import * as crypto from 'crypto';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {
   ISaveResourceAssignedItemsOptions,
   saveResourceAssignedItems,

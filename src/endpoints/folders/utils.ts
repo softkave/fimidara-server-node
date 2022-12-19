@@ -5,8 +5,8 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionOwners,

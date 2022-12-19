@@ -8,10 +8,10 @@ import {
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IUserToken} from '../../../definitions/userToken';
-import {appAssert} from '../../../utilities/assertion';
-import {getDateString} from '../../../utilities/dateFns';
-import {ServerError} from '../../../utilities/errors';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {appAssert} from '../../../utils/assertion';
+import {getDateString} from '../../../utils/dateFns';
+import {ServerError} from '../../../utils/errors';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';

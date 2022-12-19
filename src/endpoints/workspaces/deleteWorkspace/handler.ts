@@ -3,8 +3,8 @@ import {
   BasicCRUDActions,
   SessionAgentType,
 } from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';

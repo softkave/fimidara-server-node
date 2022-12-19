@@ -6,10 +6,7 @@ import {
   shortNameToResourceTypes,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
-import OperationError, {
-  getErrorMessageFromParams,
-  IOperationErrorParameters,
-} from './OperationError';
+import OperationError, {getErrorMessageFromParams, IOperationErrorParameters} from './OperationError';
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
@@ -25,16 +22,13 @@ export function getNewId(size?: number) {
   return nanoid(size);
 }
 
-const separator = '_';
+export const idSeparator = '_';
 
 // TODO: write Joi schema
-export function getNewIdForResource(
-  resourceType: AppResourceType,
-  size?: number
-) {
+export function getNewIdForResource(resourceType: AppResourceType, size?: number) {
   const id = nanoid(size);
   const shortName = resourceTypeShortNames[resourceType];
-  return `${shortName}${separator}${id}`;
+  return `${shortName}${idSeparator}${id}`;
 }
 
 export function isAppResourceId(resourceId: string) {

@@ -8,8 +8,8 @@ import {
   BasicCRUDActions,
   ISessionAgent,
 } from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   populateAssignedPermissionGroupsAndTags,
   populateResourceListWithAssignedPermissionGroupsAndTags,

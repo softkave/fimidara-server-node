@@ -1,8 +1,8 @@
 import {last} from 'lodash';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
-import {appAssert} from '../../../utilities/assertion';
-import {validate} from '../../../utilities/validate';
+import {appAssert} from '../../../utils/assertion';
+import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {

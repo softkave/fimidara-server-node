@@ -7,9 +7,9 @@ import {
   TokenType,
 } from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';

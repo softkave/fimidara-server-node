@@ -5,8 +5,8 @@ import {
   SessionAgentType,
 } from '../../../../definitions/system';
 import {IWorkspace} from '../../../../definitions/workspace';
-import {getDateString} from '../../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../../utilities/resourceId';
+import {getDateString} from '../../../../utils/dateFns';
+import {getNewIdForResource} from '../../../../utils/resourceId';
 import {NotFoundError} from '../../../errors';
 import {
   generateTestWorkspace,

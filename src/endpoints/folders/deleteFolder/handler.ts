@@ -4,8 +4,8 @@ import {
   BasicCRUDActions,
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
-import {waitOnPromises} from '../../../utilities/waitOnPromises';
+import {validate} from '../../../utils/validate';
+import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';

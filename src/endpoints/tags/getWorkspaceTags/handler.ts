@@ -1,12 +1,12 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
+import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {tagExtractor} from '../utils';
 import {GetWorkspaceTagEndpoint} from './types';
 import {getWorkspaceTagJoiSchema} from './validation';

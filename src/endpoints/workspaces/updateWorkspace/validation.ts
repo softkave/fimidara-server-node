@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 import folderValidationSchemas from '../../folders/validation';
 
 export const workspaceInputJoiSchema = Joi.object().keys({

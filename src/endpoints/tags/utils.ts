@@ -4,8 +4,8 @@ import {
   ISessionAgent,
 } from '../../definitions/system';
 import {IAssignedTag, IPublicTag, ITag} from '../../definitions/tag';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,

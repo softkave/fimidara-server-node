@@ -32,7 +32,7 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
-import {consoleLogger, logger} from './utilities/logger/logger';
+import {consoleLogger, logger} from './utils/logger/logger';
 
 logger.info('server initialization');
 
