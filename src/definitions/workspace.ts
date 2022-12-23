@@ -16,9 +16,9 @@ export interface IUsageThresholdLock {
 }
 
 export enum WorkspaceBillStatus {
-  Ok = 0,
-  GracePeriod = 2,
-  BillOverdue = 3,
+  Ok = 'ok',
+  GracePeriod = 'gracePeriod',
+  BillOverdue = 'billOverdue',
 }
 
 export interface IWorkspace {
@@ -38,9 +38,7 @@ export interface IWorkspace {
   billStatusAssignedAt?: Date | string;
   billStatus?: WorkspaceBillStatus;
   usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThreshold>>;
-  usageThresholdLocks?: Partial<
-    Record<UsageRecordCategory, IUsageThresholdLock>
-  >;
+  usageThresholdLocks?: Partial<Record<UsageRecordCategory, IUsageThresholdLock>>;
 }
 
 export type IPublicWorkspace = IWorkspace;

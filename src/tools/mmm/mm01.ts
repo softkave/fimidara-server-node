@@ -1,3 +1,8 @@
+/**
+ * An attempt at extracting API definitions from types to build API documentations.
+ * Currently in hiatus.
+ */
+
 export type IFileMatcher = {
   // file path with workspace root name
   filepath?: string;

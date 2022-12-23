@@ -9,7 +9,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import deleteWorkspace from './handler';
-import {IDeleteWorkspaceParams} from './types';
+import {IDeleteWorkspaceEndpointParams} from './types';
 
 /**
  * TODO:
@@ -30,7 +30,7 @@ test('workspace deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IDeleteWorkspaceParams>(
+  const instData = RequestData.fromExpressRequest<IDeleteWorkspaceEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       workspaceId: workspace.resourceId,
@@ -39,9 +39,6 @@ test('workspace deleted', async () => {
 
   const result = await deleteWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.cacheProviders.workspace.getById(
-    context,
-    workspace.resourceId
-  );
+  const savedWorkspace = await context.cacheProviders.workspace.getById(context, workspace.resourceId);
   expect(savedWorkspace).toBeFalsy();
 });

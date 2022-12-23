@@ -1,10 +1,5 @@
 import {customAlphabet} from 'nanoid';
-import {
-  AppResourceType,
-  IAgent,
-  resourceTypeShortNames,
-  validAgentTypes,
-} from '../definitions/system';
+import {AppResourceType, IAgent, resourceTypeShortNames, validAgentTypes} from '../definitions/system';
 import {
   FieldArray,
   FieldObject,
@@ -12,80 +7,93 @@ import {
   FieldString,
   FieldUndefined,
   HttpEndpointHeaderItem,
+  HttpEndpointHeaders,
   orUndefined,
 } from '../mddoc/mddoc';
 import {idSeparator} from '../utils/resourceId';
+import {IBaseEndpointResult} from './types';
 
-const authorizationHeaderItem = new HttpEndpointHeaderItem(
-  'Authorization',
-  new FieldString(true, 'Access token', 'Bearer <token>'),
-  true,
-  'User, client, or program access token'
-);
+const authorizationHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Authorization')
+  .setType(new FieldString().setRequired(true).setDescription('Access token').setExample('Bearer <token>'))
+  .setRequired(true)
+  .setDescription('User, client, or program access token');
 
-const requestContentTypeHeaderItem = new HttpEndpointHeaderItem(
-  'Content-Type',
-  new FieldString(
-    true,
-    'HTTP request content type',
-    'application/json or multipart/form-data'
-  ),
-  true,
-  'HTTP request content type'
-);
+const requestContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP request content type')
+      .setExample('application/json or multipart/form-data')
+  )
+  .setRequired(true)
+  .setDescription('HTTP request content type');
 
-const jsonRequestContentTypeHeaderItem = new HttpEndpointHeaderItem(
-  'Content-Type',
-  new FieldString(true, 'HTTP JSON request content type', 'application/json', [
-    'application/json',
-  ]),
-  true,
-  'HTTP JSON request content type'
-);
+const jsonRequestContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP JSON request content type')
+      .setExample('application/json')
+      .setValid(['application/json'])
+  )
+  .setRequired(true)
+  .setDescription('HTTP JSON request content type');
 
-const multipartFormdataRequestContentTypeHeaderItem =
-  new HttpEndpointHeaderItem(
-    'Content-Type',
-    new FieldString(
-      true,
-      'HTTP multipart form-data request content type',
-      'multipart/form-data',
-      ['multipart/form-data']
-    ),
-    true,
-    'HTTP multipart form-data request content type'
-  );
+const multipartFormdataRequestContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP multipart form-data request content type')
+      .setExample('multipart/form-data')
+      .setValid(['multipart/form-data'])
+  )
+  .setRequired(true)
+  .setDescription('HTTP multipart form-data request content type');
 
-const jsonResponseContentTypeHeaderItem = new HttpEndpointHeaderItem(
-  'Content-Type',
-  new FieldString(true, 'HTTP JSON response content type', undefined, [
-    'application/json',
-  ]),
-  true,
-  'HTTP JSON response content type'
-);
+const jsonResponseContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP JSON response content type')
+      .setExample(undefined)
+      .setValid(['application/json'])
+  )
+  .setRequired(true)
+  .setDescription('HTTP JSON response content type');
 
-const binaryResponseContentTypeHeaderItem = new HttpEndpointHeaderItem(
-  'Content-Type',
-  new FieldString(
-    true,
-    'HTTP binary stream response content type',
-    'File content type like image/png or application/octet-stream'
-  ),
-  true,
-  'HTTP binary stream response content type'
-);
+const binaryResponseContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP binary stream response content type')
+      .setExample('File content type like image/png or application/octet-stream')
+  )
+  .setRequired(true)
+  .setDescription('HTTP binary stream response content type');
 
-const responseContentTypeHeaderItem = new HttpEndpointHeaderItem(
-  'Content-Type',
-  new FieldString(
-    true,
-    'HTTP response content type',
-    'application/json or application/octet-stream'
-  ),
-  true,
-  'HTTP response content type'
-);
+const responseContentTypeHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Type')
+  .setType(
+    new FieldString()
+      .setRequired(true)
+      .setDescription('HTTP response content type')
+      .setExample('application/json or application/octet-stream')
+  )
+  .setRequired(true)
+  .setDescription('HTTP response content type');
+
+const jsonWithAuthRequestHeaders = new HttpEndpointHeaders().setItems([
+  authorizationHeaderItem,
+  jsonRequestContentTypeHeaderItem,
+]);
+
+const jsonResponseHeaders = new HttpEndpointHeaders().setItems([jsonResponseContentTypeHeaderItem]);
 
 export const httpHeaderItems = {
   authorizationHeaderItem,
@@ -95,57 +103,59 @@ export const httpHeaderItems = {
   binaryResponseContentTypeHeaderItem,
   jsonRequestContentTypeHeaderItem,
   multipartFormdataRequestContentTypeHeaderItem,
+  jsonWithAuthRequestHeaders,
+  jsonResponseHeaders,
 };
 
-const errorObject = new FieldObject('OperationError', {
-  name: new FieldString(true, 'Error name', 'ValidationError'),
-  message: new FieldString(true, 'Error message', 'Workspace name is invalid'),
-  field: new FieldOrCombination(
-    [
-      new FieldString(true, undefined, 'workspace.innerField.secondInnerField'),
+const errorObject = new FieldObject().setName('OperationError').setFields({
+  name: new FieldString().setRequired(true).setDescription('Error name').setExample('ValidationError'),
+  message: new FieldString().setRequired(true).setDescription('Error message').setExample('Workspace name is invalid'),
+  field: new FieldOrCombination()
+    .setTypes([
+      new FieldString().setRequired(true).setExample('workspace.innerField.secondInnerField'),
       new FieldUndefined(),
-    ],
-    false,
-    'Invalid field failing validation when error is ValidationError'
-  ),
+    ])
+    .setDescription('Invalid field failing validation when error is ValidationError'),
 });
 
 const responseWithErrorRaw = {
-  errors: new FieldOrCombination(
-    [new FieldArray(errorObject), new FieldUndefined()],
-    false,
-    'Endpoint call response errors'
-  ),
+  errors: new FieldOrCombination()
+    .setTypes([new FieldArray().setType(errorObject), new FieldUndefined()])
+    .setRequired(false)
+    .setDescription('Endpoint call response errors'),
 };
+
+const defaultResponse = new FieldObject<IBaseEndpointResult>()
+  .setName('EndpointResult')
+  .setFields(responseWithErrorRaw)
+  .setRequired(true)
+  .setDescription('Endpoint result');
 
 export const httpResponseItems = {
   responseWithErrorRaw,
+  defaultResponse,
 };
 
-const agent = new FieldObject<IAgent>('Agent', {
-  agentId: new FieldString(true, 'Agent ID'),
-  agentType: new FieldString(
-    /** required */ true,
-    'Agent type',
-    AppResourceType.ProgramAccessToken,
-    validAgentTypes
-  ),
+const agent = new FieldObject<IAgent>().setName('Agent').setFields({
+  agentId: new FieldString().setRequired(true).setDescription('Agent ID'),
+  agentType: new FieldString()
+    .setRequired(true)
+    .setDescription('Agent type')
+    .setExample(AppResourceType.ProgramAccessToken)
+    .setValid(validAgentTypes),
 });
 
-const date = new FieldString(false, 'Date string');
-const id = new FieldString(
-  false,
-  'Resource ID',
-  `${
-    resourceTypeShortNames[AppResourceType.Workspace]
-  }${idSeparator}${customAlphabet('0')()}`
-);
+const date = new FieldString().setRequired(false).setDescription('Date string');
+const id = new FieldString()
+  .setRequired(false)
+  .setDescription('Resource ID')
+  .setExample(`${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`);
 
 export const fReusables = {
   agent,
-  agentOrUndefined: orUndefined(agent),
   date,
-  dateOrUndefined: orUndefined(date),
   id,
+  agentOrUndefined: orUndefined(agent),
+  dateOrUndefined: orUndefined(date),
   idOrUndefined: orUndefined(id),
 };
