@@ -1,107 +1,105 @@
 import {isString, uniqWith} from 'lodash';
+import {withClassAccessors} from '../utils/classAccessors';
 import {indexArray} from '../utils/indexArray';
+import {AnyObject} from '../utils/types';
 
-export class FieldBase {
-  stringType = 'any';
-  constructor(public required?: boolean, public description?: string) {}
-}
-
-export class FieldString extends FieldBase {
-  stringType = 'string';
-  constructor(
-    public required?: boolean,
-    public description?: string,
-    public example?: string,
-    public valid?: string[]
-  ) {
-    super(required, description);
+export const FieldBase = withClassAccessors(
+  class FieldBase_ {
+    stringType = 'any';
+    constructor(public required?: boolean, public description?: string) {}
   }
+);
 
-  setValid(valid: string[]) {
-    this.valid = valid;
-    return this;
+const f = new FieldBase();
+const d = f.getDescription();
+const r1 = f.required;
+
+export const FieldString = withClassAccessors(
+  class FieldString_ extends FieldBase {
+    stringType = 'string';
+    constructor(required?: boolean, description?: string, public example?: string, public valid?: string[]) {
+      super(required, description);
+    }
   }
+);
 
-  clone(required?: boolean, description?: string, example?: string, valid?: string[]) {
-    return new FieldString(
-      required ?? this.required,
-      description ?? this.description,
-      example ?? this.example,
-      valid ?? this.valid
-    );
+export const FieldNumber = withClassAccessors(
+  class FieldNumber_ extends FieldBase {
+    stringType = 'number';
+    constructor(required?: boolean, description?: string, public example?: number) {
+      super(required, description);
+    }
   }
-}
+);
 
-export class FieldNumber extends FieldBase {
-  stringType = 'number';
-  constructor(public required?: boolean, public description?: string, public example?: number) {
-    super(required, description);
+export const FieldBoolean = withClassAccessors(
+  class FieldBoolean_ extends FieldBase {
+    stringType = 'boolean';
+    constructor(required?: boolean, description?: string, public example?: boolean) {
+      super(required, description);
+    }
   }
-}
+);
 
-export class FieldBoolean extends FieldBase {
-  stringType = 'boolean';
-  constructor(public required?: boolean, public description?: string, public example?: boolean) {
-    super(required, description);
+export const FieldNull = withClassAccessors(
+  class FieldNull_ extends FieldBase {
+    stringType = 'null';
   }
-}
+);
 
-export class FieldNull extends FieldBase {
-  stringType = 'null';
-}
-
-export class FieldUndefined extends FieldBase {
-  stringType = 'undefined';
-}
-
-export class FieldDate extends FieldBase {
-  stringType = 'iso date string';
-  constructor(public required?: boolean, public description?: string, public example?: string) {
-    super(required, description);
+export const FieldUndefined = withClassAccessors(
+  class FieldUndefined_ extends FieldBase {
+    stringType = 'undefined';
   }
-}
+);
 
-export class FieldArray extends FieldBase {
-  constructor(public type: FieldBase, public required?: boolean, public description?: string) {
-    super(required, description);
-    this.stringType = `array of (${type.stringType})`;
+export const FieldDate = withClassAccessors(
+  class FieldDate_ extends FieldBase {
+    stringType = 'iso date string';
+    constructor(required?: boolean, description?: string, public example?: string) {
+      super(required, description);
+    }
   }
-}
+);
 
-export class FieldObject<T = any> extends FieldBase {
-  stringType = 'object';
-  constructor(
-    public name: string | undefined,
-    public fields: Required<{[K in keyof T]: FieldBase}>,
-    public required?: boolean,
-    public description?: string
-  ) {
-    super(required, description);
-    this.stringType = name ?? this.stringType;
+export const FieldArray = withClassAccessors(
+  class FieldArray_ extends FieldBase {
+    constructor(public type: InstanceType<typeof FieldBase>, required?: boolean, description?: string) {
+      super(required, description);
+      this.stringType = `array of (${type.stringType})`;
+    }
   }
-}
+);
 
-// export class FieldAndCombination extends FieldBase {
-//   stringType = 'object';
-//   constructor(
-//     public parts: FieldObject[],
-//     public required?: boolean,
-//     public description?: string
-//   ) {
-//     super(required, description);
-//   }
-// }
-
-export class FieldOrCombination extends FieldBase {
-  constructor(public types: Array<FieldBase>, public required?: boolean, public description?: string) {
-    super(required, description);
-    this.stringType = types.map(f => f.stringType).join(' or ');
+export const FieldObject = withClassAccessors(
+  class FieldObject_<T = AnyObject> extends FieldBase {
+    stringType = 'object';
+    constructor(
+      public name: string | undefined,
+      public fields: Required<{[K in keyof T]: InstanceType<typeof FieldBase>}>,
+      required?: boolean,
+      description?: string
+    ) {
+      super(required, description);
+      this.stringType = name ?? this.stringType;
+    }
   }
-}
+);
 
-export class FieldBinary extends FieldBase {
-  stringType = 'binary';
-}
+export const FieldOrCombination = withClassAccessors(
+  class FieldOrCombination_ extends FieldBase {
+    constructor(public types: Array<InstanceType<typeof FieldBase>>, required?: boolean, description?: string) {
+      super(required, description);
+      this.stringType = types.map(f => f.stringType).join(' or ');
+    }
+  }
+);
+
+export const FieldBinary = withClassAccessors(
+  class FieldBinary_ extends FieldBase {
+    stringType = 'binary';
+  }
+);
 
 export enum HttpEndpointMethod {
   Get = 'get',
@@ -109,51 +107,83 @@ export enum HttpEndpointMethod {
   Delete = 'delete',
 }
 
-export class HttpEndpointQueryItem {
-  constructor(public name: string, public type: FieldString | FieldNumber | FieldBoolean) {}
-}
+export const HttpEndpointQueryItem = withClassAccessors(
+  class {
+    constructor(
+      public name: string,
+      public type:
+        | InstanceType<typeof FieldString>
+        | InstanceType<typeof FieldNumber>
+        | InstanceType<typeof FieldNumber>
+    ) {}
+  }
+);
 
-export class HttpEndpointQuery {
-  constructor(public items: Array<HttpEndpointQueryItem>) {}
-}
+export const HttpEndpointQuery = withClassAccessors(
+  class {
+    constructor(public items: Array<InstanceType<typeof HttpEndpointQueryItem>>) {}
+  }
+);
 
-export class HttpEndpointMultipartFormdataItem {
-  constructor(public name: string, public type: FieldString | FieldNumber | FieldBoolean | FieldBinary) {}
-}
+export const HttpEndpointMultipartFormdataItem = withClassAccessors(
+  class {
+    constructor(
+      public name: string,
+      public type:
+        | InstanceType<typeof FieldString>
+        | InstanceType<typeof FieldNumber>
+        | InstanceType<typeof FieldNumber>
+        | InstanceType<typeof FieldBinary>
+    ) {}
+  }
+);
 
-export class HttpEndpointMultipartFormdata {
-  constructor(public items: Array<HttpEndpointMultipartFormdataItem>, public isSingularBlob?: boolean) {}
-}
+export const HttpEndpointMultipartFormdata = withClassAccessors(
+  class {
+    constructor(
+      public items: Array<InstanceType<typeof HttpEndpointMultipartFormdataItem>>,
+      public isSingularBlob?: boolean
+    ) {}
+  }
+);
 
-export class HttpEndpointHeaderItem {
-  constructor(
-    public name: string,
-    public type: FieldString | FieldNumber,
-    public required?: boolean,
-    public description?: string
-  ) {}
-}
+export const HttpEndpointHeaderItem = withClassAccessors(
+  class {
+    constructor(
+      public name: string,
+      public type: InstanceType<typeof FieldString> | InstanceType<typeof FieldNumber>,
+      public required?: boolean,
+      public description?: string
+    ) {}
+  }
+);
 
-export class HttpEndpointHeaders {
-  constructor(public items: Array<HttpEndpointHeaderItem>) {}
-}
+export const HttpEndpointHeaders = withClassAccessors(
+  class {
+    constructor(public items: Array<InstanceType<typeof HttpEndpointHeaderItem>>) {}
+  }
+);
 
-export class HttpEndpointParameterPathnameItem {
-  constructor(public name: string, public type: FieldString) {}
-}
+export const HttpEndpointParameterPathnameItem = withClassAccessors(
+  class {
+    constructor(public name: string, public type: InstanceType<typeof FieldString>) {}
+  }
+);
 
-export class HttpEndpointDefinition {
-  constructor(
-    public basePathname: string,
-    public method: HttpEndpointMethod,
-    public parameterPathnames?: Array<HttpEndpointParameterPathnameItem>,
-    public query?: HttpEndpointQuery,
-    public requestBody?: FieldObject | HttpEndpointMultipartFormdata,
-    public requestHeaders?: HttpEndpointHeaders,
-    public responseBody?: FieldObject | FieldBinary,
-    public responseHeaders?: HttpEndpointHeaders
-  ) {}
-}
+export const HttpEndpointDefinition = withClassAccessors(
+  class {
+    constructor(
+      public basePathname: string,
+      public method: HttpEndpointMethod,
+      public parameterPathnames?: Array<InstanceType<typeof HttpEndpointParameterPathnameItem>>,
+      public query?: InstanceType<typeof HttpEndpointQuery>,
+      public requestBody?: InstanceType<typeof FieldObject> | InstanceType<typeof HttpEndpointMultipartFormdata>,
+      public requestHeaders?: InstanceType<typeof HttpEndpointHeaders>,
+      public responseBody?: InstanceType<typeof FieldObject> | InstanceType<typeof FieldBinary>,
+      public responseHeaders?: InstanceType<typeof HttpEndpointHeaders>
+    ) {}
+  }
+);
 
 export class MdDocumenter {
   inlineSeparator = ' — ';
@@ -252,7 +282,11 @@ export class MdDocumenter {
     return this;
   }
 
-  insertJsonField(identifier: string | undefined, f: FieldBase, ignoreComments = false): MdDocumenter {
+  insertJsonField(
+    identifier: string | undefined,
+    f: InstanceType<typeof FieldBase>,
+    ignoreComments = false
+  ): MdDocumenter {
     const insertId = () => {
       if (identifier) {
         this.insertText(`"${identifier}": `);
@@ -274,28 +308,32 @@ export class MdDocumenter {
       insertId();
       this.insertText('{').insertNewLine();
 
-      const obf = f as FieldObject;
+      const fieldObject = f as InstanceType<typeof FieldObject>;
       let hasPrevField = false;
-      for (const k in obf.fields) {
+      for (const k in fieldObject.fields) {
         if (hasPrevField) {
           this.insertText(',').insertNewLine();
         }
 
-        const kf = obf.fields[k];
-        this.insertJsonField(k, kf);
+        const fieldObjectProps = fieldObject.fields[k as keyof typeof fieldObject.fields];
+        this.insertJsonField(k, fieldObjectProps);
       }
 
       this.insertNewLine().insertText('}');
     } else if (isArrayField(f)) {
       insertId();
-      const farr = f as FieldArray;
+      const farr = f as InstanceType<typeof FieldArray>;
       this.insertText('[').insertJsonField(undefined, farr.type).insertText(']');
     }
 
     return this;
   }
 
-  insertObjectAsMdTable(id: string | undefined, f: FieldObject, ignoreRequired = false): MdDocumenter {
+  insertObjectAsMdTable(
+    id: string | undefined,
+    f: InstanceType<typeof FieldObject>,
+    ignoreRequired = false
+  ): MdDocumenter {
     id = id ?? f.name;
     if (id) {
       this.insertInlineCode(id).insertNewLine();
@@ -315,7 +353,7 @@ export class MdDocumenter {
       !ignoreRequired && this.insertTableCell(isString(text) ? text : text ? 'Required' : 'Not required');
     };
 
-    const putDescription = (text: string | undefined, objects?: FieldObject[]) => {
+    const putDescription = (text: string | undefined, objects?: InstanceType<typeof FieldObject>[]) => {
       const m = mddoc();
       objects?.forEach(next => {
         m.insertText('See below for ').insertInlineCode(next.name).insertText("'s object fields.").insertBreak(!!text);
@@ -324,7 +362,7 @@ export class MdDocumenter {
       this.insertTableCell(m.content).insertNewLine();
     };
 
-    const innerObjects: FieldObject[] = [];
+    const innerObjects: InstanceType<typeof FieldObject>[] = [];
 
     putField(' Field ', true);
     putType(' Type ', true);
@@ -337,14 +375,14 @@ export class MdDocumenter {
     putDescription(' - ');
 
     for (const key in f.fields) {
-      const currentField = f.fields[key];
+      const currentField = f.fields[key as keyof typeof f.fields] as InstanceType<typeof FieldBase>;
       if (isLiteralField(currentField)) {
         putField(key);
         putType(currentField.stringType);
         putRequired(currentField.required);
         putDescription(currentField.description);
       } else if (isObjectField(currentField)) {
-        const objectField = currentField as FieldObject;
+        const objectField = currentField as InstanceType<typeof FieldObject>;
         innerObjects.push(objectField);
         putField(key);
         putType(objectField.stringType);
@@ -353,10 +391,10 @@ export class MdDocumenter {
       } else if (isArrayField(currentField)) {
         putField(key);
 
-        const arrayField = currentField as FieldArray;
+        const arrayField = currentField as InstanceType<typeof FieldArray>;
         const arrayFieldType = arrayField.type;
 
-        const prepareTypes = (iter: FieldBase | null) => {
+        const prepareTypes = (iter: InstanceType<typeof FieldBase> | null) => {
           const m = mddoc();
 
           while (!!iter) {
@@ -365,14 +403,16 @@ export class MdDocumenter {
               iter = null;
             } else if (isObjectField(iter)) {
               innerObjects.push(iter);
-              m.insertInlineCode((iter as FieldObject).stringType);
+              m.insertInlineCode((iter as InstanceType<typeof FieldObject>).stringType);
               iter = null;
             } else if (isArrayField(iter)) {
-              const child = (iter as FieldArray).type;
+              const child = (iter as InstanceType<typeof FieldArray>).type;
               m.insertInlineCode('array').insertText(child && ' of ');
               iter = child;
             } else if ((iter as any) instanceof FieldOrCombination) {
-              const combinationTypes = (iter as FieldOrCombination).types.map(t => prepareTypes(t)).join(' or ');
+              const combinationTypes = (iter as InstanceType<typeof FieldOrCombination>).types
+                .map(t => prepareTypes(t))
+                .join(' or ');
               m.insertText(`(${combinationTypes})`);
               iter = null;
             }
@@ -393,7 +433,7 @@ export class MdDocumenter {
           isObjectField(arrayFieldType) ? [arrayFieldType] : undefined
         );
       } else if ((currentField as any) instanceof FieldOrCombination) {
-        const orField = currentField as FieldOrCombination;
+        const orField = currentField as InstanceType<typeof FieldOrCombination>;
         putField(key);
         putType(orField.types.map(t => t.stringType));
         putRequired(orField.required);
@@ -405,7 +445,7 @@ export class MdDocumenter {
               return true;
             }
             return false;
-          }) as FieldObject[]
+          }) as InstanceType<typeof FieldObject>[]
         );
       }
     }
@@ -416,8 +456,14 @@ export class MdDocumenter {
 }
 
 export function isLiteralField(
-  f: FieldBase
-): f is FieldBinary | FieldNumber | FieldString | FieldBoolean | FieldUndefined | FieldNull {
+  f: InstanceType<typeof FieldBase>
+): f is
+  | InstanceType<typeof FieldBinary>
+  | InstanceType<typeof FieldNumber>
+  | InstanceType<typeof FieldString>
+  | InstanceType<typeof FieldBoolean>
+  | InstanceType<typeof FieldUndefined>
+  | InstanceType<typeof FieldNull> {
   return (
     f instanceof FieldBinary ||
     f instanceof FieldNumber ||
@@ -428,15 +474,15 @@ export function isLiteralField(
   );
 }
 
-export function isObjectField(f: any): f is FieldObject {
+export function isObjectField(f: any): f is InstanceType<typeof FieldObject> {
   return f instanceof FieldObject;
 }
 
-export function isArrayField(f: any): f is FieldArray {
+export function isArrayField(f: any): f is InstanceType<typeof FieldArray> {
   return f instanceof FieldArray;
 }
 
-export function isMultipartFormdata(f: any): f is HttpEndpointMultipartFormdata {
+export function isMultipartFormdata(f: any): f is InstanceType<typeof HttpEndpointMultipartFormdata> {
   return f instanceof HttpEndpointMultipartFormdata;
 }
 
@@ -444,7 +490,7 @@ export function mddoc() {
   return new MdDocumenter();
 }
 
-export function httpHeadersToFieldObject(headers: HttpEndpointHeaderItem[]) {
+export function httpHeadersToFieldObject(headers: Array<InstanceType<typeof HttpEndpointHeaderItem>>) {
   const kf = indexArray(headers, {
     indexer: h => h.name,
     reducer: h => h.type,
@@ -452,7 +498,7 @@ export function httpHeadersToFieldObject(headers: HttpEndpointHeaderItem[]) {
   return new FieldObject(undefined, kf);
 }
 
-export function httpFormdataToFieldObject(fm: HttpEndpointMultipartFormdata) {
+export function httpFormdataToFieldObject(fm: InstanceType<typeof HttpEndpointMultipartFormdata>) {
   const kf = indexArray(fm.items, {
     indexer: h => h.name,
     reducer: h => h.type,
@@ -460,7 +506,7 @@ export function httpFormdataToFieldObject(fm: HttpEndpointMultipartFormdata) {
   return new FieldObject(undefined, kf);
 }
 
-export function httpQueryToFieldObject(fm: HttpEndpointQuery) {
+export function httpQueryToFieldObject(fm: InstanceType<typeof HttpEndpointQuery>) {
   const kf = indexArray(fm.items, {
     indexer: h => h.name,
     reducer: h => h.type,
@@ -468,7 +514,9 @@ export function httpQueryToFieldObject(fm: HttpEndpointQuery) {
   return new FieldObject(undefined, kf);
 }
 
-export function httpParameterPathnameToFieldObject(input: Array<HttpEndpointParameterPathnameItem>) {
+export function httpParameterPathnameToFieldObject(
+  input: Array<InstanceType<typeof HttpEndpointParameterPathnameItem>>
+) {
   const kf = indexArray(input, {
     indexer: h => h.name,
     reducer: h => h.type,
@@ -476,7 +524,7 @@ export function httpParameterPathnameToFieldObject(input: Array<HttpEndpointPara
   return new FieldObject(undefined, kf);
 }
 
-export function docEndpoint(endpoint: HttpEndpointDefinition) {
+export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition>) {
   const m = mddoc()
     .insertInlineCode(endpoint.basePathname)
     .insertInlineSeparator()
@@ -541,7 +589,7 @@ export function docEndpoint(endpoint: HttpEndpointDefinition) {
     return uniqWith(headers, (a, b) => a.name === b.name);
   };
 
-  const putHeaders = (headers: HttpEndpointHeaderItem[], title: string) => {
+  const putHeaders = (headers: InstanceType<typeof HttpEndpointHeaderItem>[], title: string) => {
     if (headers.length) {
       m.insertBoldText(title).insertNewLine().insertObjectAsMdTable(undefined, httpHeadersToFieldObject(headers));
     } else {
@@ -600,7 +648,14 @@ export function docEndpoint(endpoint: HttpEndpointDefinition) {
     m.insertNewLine().insertNewLine();
   };
 
-  const putBody = (b: FieldObject | FieldBinary | HttpEndpointMultipartFormdata | undefined, title: string) => {
+  const putBody = (
+    b:
+      | InstanceType<typeof FieldObject>
+      | InstanceType<typeof FieldBinary>
+      | InstanceType<typeof HttpEndpointMultipartFormdata>
+      | undefined,
+    title: string
+  ) => {
     if (b instanceof FieldObject) {
       m.insertObjectAsMdTable(undefined, b);
     } else if (b instanceof HttpEndpointMultipartFormdata) {
@@ -628,6 +683,6 @@ export function docEndpoint(endpoint: HttpEndpointDefinition) {
   return m.content;
 }
 
-export function orUndefined(f: FieldBase) {
+export function orUndefined(f: InstanceType<typeof FieldBase>) {
   return new FieldOrCombination([new FieldUndefined(), f], f.required, f.description);
 }

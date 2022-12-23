@@ -44,25 +44,3 @@ class EndpointDefinition {
   pathname: string;
 }
 ```
-
-`identifier` {`string`} [`required`] - This is a required string field.
-
-`identifier` | `string` | `required` - This is a required string field.
-
-- `identifier`
-  - **Type** — `string` | `number`
-  - **Required** — `true`
-  - **Description** — Identifier description so that you can know what the identifier is about. Specifies what content encodings have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field.
-  - **Fields**
-    - `identifier`<br />**Type** — `string` | `number`<br />
-      **Required** — `true`<br />
-      **Description** — Identifier description so that you can know what the identifier is about. Specifies what content encodings have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field.
-      ```jsonc
-      {
-        "identifier": 0 // required
-      }
-      ```
-- `identifier` — `string` | `number` — required
-  - **Type** — `string` | `number`
-  - **Required** — `true`
-  - **Description** — Identifier description so that you can know what the identifier is about. Specifies what content encodings have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field.

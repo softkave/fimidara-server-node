@@ -41,3 +41,36 @@ export type Paths<T, D extends number = 10> = [D] extends [never]
 export type AnyObject = {[k: string | number | symbol]: any};
 export type ClassConstructor = new (...args: any) => any;
 export type AbstractClassConstructor = abstract new (...args: any) => any;
+export type ObjectValues<T> = T[keyof T];
+
+// from express.js type definitions
+type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}` ? P : S;
+type GetRouteParameter<S extends string> = RemoveTail<
+  RemoveTail<RemoveTail<S, `/${string}`>, `-${string}`>,
+  `.${string}`
+>;
+
+export interface ParamsDictionary {
+  [key: string]: string;
+}
+
+/**
+ * Returns route parameters, example:
+ * @example
+ * ```
+ * type P = RouteParameters<"workspace/getWorkspace/:workspaceId">
+ * // => {workspaceId: string}
+ * ```
+ */
+export type RouteParameters<Route extends string> = string extends Route
+  ? ParamsDictionary
+  : Route extends `${string}(${string}`
+  ? ParamsDictionary //TODO: handling for regex parameters
+  : Route extends `${string}:${infer Rest}`
+  ? (GetRouteParameter<Rest> extends never
+      ? ParamsDictionary
+      : GetRouteParameter<Rest> extends `${infer ParamName}?`
+      ? {[P in ParamName]?: string}
+      : {[P in GetRouteParameter<Rest>]: string}) &
+      (Rest extends `${GetRouteParameter<Rest>}${infer Next}` ? RouteParameters<Next> : unknown)
+  : {};
