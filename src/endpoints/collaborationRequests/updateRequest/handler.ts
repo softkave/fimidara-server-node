@@ -9,11 +9,11 @@ import {
   collaborationRequestExtractor,
   populateRequestPermissionGroups,
 } from '../utils';
-import {UpdateRequestEndpoint} from './types';
-import {updateRequestJoiSchema} from './validation';
+import {UpdateCollaborationRequestEndpoint} from './types';
+import {updateCollaborationRequestJoiSchema} from './validation';
 
-const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, updateRequestJoiSchema);
+const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request, workspace} = await checkCollaborationRequestAuthorization02(
     context,
@@ -55,4 +55,4 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
   };
 };
 
-export default updateRequest;
+export default updateCollaborationRequest;

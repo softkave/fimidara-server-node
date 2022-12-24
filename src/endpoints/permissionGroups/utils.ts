@@ -1,26 +1,18 @@
 import {
   IAssignedPermissionGroup,
+  IAssignPermissionGroupInput,
   IPermissionGroup,
-  IPermissionGroupInput,
   IPermissionGroupMatcher,
   IPublicPermissionGroup,
 } from '../../definitions/permissionGroups';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IAgent,
-  ISessionAgent,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, IAgent, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
 import {assertGetWorkspaceIdFromAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
@@ -37,13 +29,9 @@ const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
   order: true,
 });
 
-export const assignedPermissionGroupsExtractor = makeExtract(
-  assignedPermissionGroupsFields
-);
+export const assignedPermissionGroupsExtractor = makeExtract(assignedPermissionGroupsFields);
 
-export const assignedPermissionGroupsListExtractor = makeListExtract(
-  assignedPermissionGroupsFields
-);
+export const assignedPermissionGroupsListExtractor = makeListExtract(assignedPermissionGroupsFields);
 
 const permissionGroupFields = getFields<IPublicPermissionGroup>({
   resourceId: true,
@@ -60,9 +48,7 @@ const permissionGroupFields = getFields<IPublicPermissionGroup>({
 
 export const permissionGroupExtractor = makeExtract(permissionGroupFields);
 
-export const permissionGroupListExtractor = makeListExtract(
-  permissionGroupFields
-);
+export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
 
 export async function checkPermissionGroupAuthorization(
   context: IBaseContext,
@@ -71,10 +57,7 @@ export async function checkPermissionGroupAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const workspace = await checkWorkspaceExists(
-    context,
-    permissionGroup.workspaceId
-  );
+  const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
 
   await checkAuthorization({
     context,
@@ -97,17 +80,9 @@ export async function checkPermissionGroupAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const permissionGroup = await context.data.permissiongroup.assertGetItem(
-    PermissionGroupQueries.getById(id)
-  );
+  const permissionGroup = await context.data.permissiongroup.assertGetItem(PermissionGroupQueries.getById(id));
 
-  return checkPermissionGroupAuthorization(
-    context,
-    agent,
-    permissionGroup,
-    action,
-    nothrow
-  );
+  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
 }
 
 export async function checkPermissionGroupAuthorization03(
@@ -128,8 +103,7 @@ export async function checkPermissionGroupAuthorization03(
       PermissionGroupQueries.getById(input.permissionGroupId)
     );
   } else if (input.name) {
-    const workspaceId =
-      input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
+    const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
 
     permissionGroup = await context.data.permissiongroup.assertGetItem(
       PermissionGroupQueries.getByWorkspaceAndName(workspaceId, input.name)
@@ -137,26 +111,18 @@ export async function checkPermissionGroupAuthorization03(
   }
 
   appAssert(permissionGroup, new PermissionGroupDoesNotExistError());
-  return checkPermissionGroupAuthorization(
-    context,
-    agent,
-    permissionGroup,
-    action,
-    nothrow
-  );
+  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
 }
 
 export async function checkPermissionGroupsExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  permissionGroupInputs: IPermissionGroupInput[]
+  permissionGroupInputs: IAssignPermissionGroupInput[]
 ) {
   const permissionGroups = await Promise.all(
     permissionGroupInputs.map(item =>
-      context.data.permissiongroup.assertGetItem(
-        PermissionGroupQueries.getById(item.permissionGroupId)
-      )
+      context.data.permissiongroup.assertGetItem(PermissionGroupQueries.getById(item.permissionGroupId))
     )
   );
 
@@ -168,9 +134,7 @@ export async function checkPermissionGroupsExist(
         workspace,
         resource: item,
         type: AppResourceType.PermissionGroup,
-        permissionOwners: makeWorkspacePermissionOwnerList(
-          workspace.resourceId
-        ),
+        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
         action: BasicCRUDActions.Read,
       })
     )
@@ -181,7 +145,7 @@ export async function checkPermissionGroupsExist(
 
 export function mergePermissionGroupsWithInput(
   permissionGroups: IAssignedPermissionGroup[],
-  input: IPermissionGroupInput[],
+  input: IAssignPermissionGroupInput[],
   agent: IAgent
 ) {
   const inputMap = indexArray(input, {path: 'permissionGroupId'});

@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 
-export const deleteRequestJoiSchema = Joi.object()
+export const deleteCollaborationRequestJoiSchema = Joi.object()
   .keys({
     requestId: validationSchemas.resourceId.required(),
   })

@@ -2,13 +2,13 @@ import {IPublicCollaborationRequest} from '../../../definitions/collaborationReq
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetUserRequestsEndpointResult {
+export interface IGetUserCollaborationRequestsEndpointResult {
   requests: IPublicCollaborationRequest[];
 }
 
-export type GetUserRequestsEndpoint = Endpoint<
+export type GetUserCollaborationRequestsEndpoint = Endpoint<
   IBaseContext,
   // eslint-disable-next-line @typescript-eslint/ban-types
   {},
-  IGetUserRequestsEndpointResult
+  IGetUserCollaborationRequestsEndpointResult
 >;

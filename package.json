@@ -22,7 +22,8 @@
     "test": "env-cmd -f \".env.test\" jest --config=jest.config.ts --detectOpenHandles",
     "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
     "dev": "tsc && env-cmd -f \".env.local\" npm start",
-    "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts"
+    "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
+    "mddoc": "ts-node src/mddoc/mddoc.fimidara.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",

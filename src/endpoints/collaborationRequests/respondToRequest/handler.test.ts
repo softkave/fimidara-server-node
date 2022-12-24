@@ -12,8 +12,8 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {collaborationRequestExtractor} from '../utils';
-import respondToRequest from './handler';
-import {IRespondToRequestEndpointParams} from './types';
+import respondToCollaborationRequest from './handler';
+import {IRespondToCollaborationRequestEndpointParams} from './types';
 
 /**
  * TODO:
@@ -33,42 +33,30 @@ afterAll(async () => {
 test('collaboration request declined', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const {user: user02, userToken: user02Token} = await insertUserForTest(
-    context
-  );
+  const {user: user02, userToken: user02Token} = await insertUserForTest(context);
 
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {request: request01} = await insertRequestForTest(
-    context,
-    userToken,
-    workspace.resourceId,
+  const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
+    recipientEmail: user02.email,
+  });
+
+  const instData = RequestData.fromExpressRequest<IRespondToCollaborationRequestEndpointParams>(
+    mockExpressRequestWithUserToken(user02Token),
     {
-      recipientEmail: user02.email,
+      requestId: request01.resourceId,
+      response: CollaborationRequestStatusType.Accepted,
     }
   );
 
-  const instData =
-    RequestData.fromExpressRequest<IRespondToRequestEndpointParams>(
-      mockExpressRequestWithUserToken(user02Token),
-      {
-        requestId: request01.resourceId,
-        response: CollaborationRequestStatusType.Accepted,
-      }
-    );
-
-  const result = await respondToRequest(context, instData);
+  const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetItem(
     EndpointReusableQueries.getById(request01.resourceId)
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(
-    collaborationRequestExtractor(updatedRequest)
-  );
-  expect(
-    updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
-  ).toMatchObject({
+  expect(result.request).toMatchObject(collaborationRequestExtractor(updatedRequest));
+  expect(updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]).toMatchObject({
     status: CollaborationRequestStatusType.Accepted,
   });
 });

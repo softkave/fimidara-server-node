@@ -1,6 +1,7 @@
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {IUsageThreshold, IUsageThresholdLock, IWorkspace, WorkspaceBillStatus} from '../../definitions/workspace';
+import {IPublicWorkspace, IUsageThreshold, IUsageThresholdLock, WorkspaceBillStatus} from '../../definitions/workspace';
 import {
+  asFieldObjectAny,
   FieldBoolean,
   FieldNumber,
   FieldObject,
@@ -20,11 +21,6 @@ import {
   IUpdateWorkspaceInput,
 } from './updateWorkspace/types';
 
-const workspaceName = new FieldString().setRequired(true).setDescription('Workspace name').setExample('fimidara');
-const workspaceRootname = new FieldString()
-  .setRequired(true)
-  .setDescription('Workspace root name, must be a URL compatible name')
-  .setExample('fimidara-rootname');
 const workspaceDescription = new FieldString()
   .setRequired(true)
   .setDescription('Workspace description')
@@ -47,14 +43,14 @@ const usageThresholdLock = new FieldObject<IUsageThresholdLock>().setName('Usage
   category: usageRecordCategory,
   locked: new FieldBoolean(true, 'Flag for whether a certain usage category is locked or not', false),
 });
-const workspace = new FieldObject<IWorkspace>().setName('Workspace').setFields({
+const workspace = new FieldObject<IPublicWorkspace>().setName('Workspace').setFields({
   resourceId: new FieldString(),
   createdBy: fReusables.agent,
   createdAt: fReusables.date,
   lastUpdatedBy: fReusables.agent,
   lastUpdatedAt: fReusables.date,
-  name: workspaceName,
-  rootname: workspaceRootname,
+  name: fReusables.workspaceName,
+  rootname: fReusables.workspaceRootname,
   description: workspaceDescription,
   publicPermissionGroupId: fReusables.idOrUndefined,
   billStatusAssignedAt: fReusables.dateOrUndefined,
@@ -65,7 +61,7 @@ const workspace = new FieldObject<IWorkspace>().setName('Workspace').setFields({
       .setValid(Object.values(WorkspaceBillStatus))
   ),
   usageThresholds: orUndefined(
-    new FieldObject<IWorkspace['usageThresholds']>().setName('WorkspaceUsageThresholds').setFields({
+    new FieldObject<IPublicWorkspace['usageThresholds']>().setName('WorkspaceUsageThresholds').setFields({
       [UsageRecordCategory.Storage]: orUndefined(usageThreshold),
       [UsageRecordCategory.BandwidthIn]: orUndefined(usageThreshold),
       [UsageRecordCategory.BandwidthOut]: orUndefined(usageThreshold),
@@ -73,7 +69,7 @@ const workspace = new FieldObject<IWorkspace>().setName('Workspace').setFields({
     })
   ),
   usageThresholdLocks: orUndefined(
-    new FieldObject<IWorkspace['usageThresholdLocks']>().setName('WorkspaceUsageThresholdLocks').setFields({
+    new FieldObject<IPublicWorkspace['usageThresholdLocks']>().setName('WorkspaceUsageThresholdLocks').setFields({
       [UsageRecordCategory.Storage]: orUndefined(usageThresholdLock),
       [UsageRecordCategory.BandwidthIn]: orUndefined(usageThresholdLock),
       [UsageRecordCategory.BandwidthOut]: orUndefined(usageThresholdLock),
@@ -84,8 +80,8 @@ const workspace = new FieldObject<IWorkspace>().setName('Workspace').setFields({
 const addWorkspaceParams = new FieldObject<IAddWorkspaceEndpointParams>()
   .setName('AddWorkspaceEndpointParams')
   .setFields({
-    name: workspaceName,
-    rootname: workspaceRootname,
+    name: fReusables.workspaceName,
+    rootname: fReusables.workspaceRootname,
     description: orUndefined(workspaceDescription),
   })
   .setRequired(true);
@@ -116,8 +112,8 @@ const updateWorkspaceParams = new FieldObject<IUpdateWorkspaceEndpointParams>()
   .setFields({
     workspaceId: fReusables.id,
     workspace: new FieldObject<IUpdateWorkspaceInput>().setName('UpdateWorkspaceInput').setFields({
-      name: workspaceName,
-      description: workspaceDescription,
+      name: fReusables.workspaceNameOrUndefined,
+      description: orUndefined(workspaceDescription),
     }),
   })
   .setRequired(true);
@@ -139,31 +135,31 @@ const deleteWorkspaceParams = new FieldObject<IDeleteWorkspaceEndpointParams>()
 export const addWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/addWorkspace')
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(addWorkspaceParams)
+  .setRequestBody(asFieldObjectAny(addWorkspaceParams))
   .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(addWorkspaceResult)
+  .setResponseBody(asFieldObjectAny(addWorkspaceResult))
   .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
 
 export const getWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/getWorkspace')
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getWorkspaceParams)
+  .setRequestBody(asFieldObjectAny(getWorkspaceParams))
   .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(getWorkspaceResult)
+  .setResponseBody(asFieldObjectAny(getWorkspaceResult))
   .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
 
 export const updateWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/updateWorkspace')
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(updateWorkspaceParams)
+  .setRequestBody(asFieldObjectAny(updateWorkspaceParams))
   .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(updateWorkspaceResult)
+  .setResponseBody(asFieldObjectAny(updateWorkspaceResult))
   .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
 
 export const deleteWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/deleteWorkspace')
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(deleteWorkspaceParams)
+  .setMethod(HttpEndpointMethod.Delete)
+  .setRequestBody(asFieldObjectAny(deleteWorkspaceParams))
   .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponseBody(httpResponseItems.defaultResponse)
   .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);

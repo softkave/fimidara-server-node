@@ -1,4 +1,4 @@
-import {IPermissionGroupInput} from '../../../definitions/permissionGroups';
+import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
@@ -6,7 +6,7 @@ import {Endpoint} from '../../types';
 export interface IUpdateCollaboratorPermissionGroupsEndpointParams {
   workspaceId?: string;
   collaboratorId: string;
-  permissionGroups: IPermissionGroupInput[];
+  permissionGroups: IAssignPermissionGroupInput[];
 }
 
 export interface IUpdateCollaboratorPermissionGroupsEndpointResult {

@@ -1,6 +1,5 @@
 import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {IPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {IAssignedTagInput} from '../../../definitions/tag';
+import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
@@ -9,8 +8,8 @@ export interface INewClientAssignedTokenInput {
   name?: string;
   description?: string;
   expires?: string;
-  permissionGroups?: IPermissionGroupInput[];
-  tags?: IAssignedTagInput[];
+  permissionGroups?: IAssignPermissionGroupInput[];
+  // tags?: IAssignedTagInput[];
 }
 
 export interface IAddClientAssignedTokenEndpointParams {

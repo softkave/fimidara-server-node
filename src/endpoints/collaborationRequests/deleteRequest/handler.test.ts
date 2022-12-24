@@ -10,8 +10,8 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import deleteRequest from './handler';
-import {IDeleteRequestEndpointParams} from './types';
+import deleteCollaborationRequest from './handler';
+import {IDeleteCollaborationRequestEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -27,25 +27,17 @@ test('collaboration request deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {request} = await insertRequestForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-
-  const instData = RequestData.fromExpressRequest<IDeleteRequestEndpointParams>(
+  const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
+  const instData = RequestData.fromExpressRequest<IDeleteCollaborationRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
-    {
-      requestId: request.resourceId,
-    }
+    {requestId: request.resourceId}
   );
 
-  const result = await deleteRequest(context, instData);
+  const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const deletedRequestExists =
-    await context.data.collaborationRequest.checkItemExists(
-      EndpointReusableQueries.getById(request.resourceId)
-    );
+  const deletedRequestExists = await context.data.collaborationRequest.checkItemExists(
+    EndpointReusableQueries.getById(request.resourceId)
+  );
 
   expect(deletedRequestExists).toBeFalsy();
 });

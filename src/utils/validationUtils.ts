@@ -1,8 +1,5 @@
 import * as Joi from 'joi';
-import {
-  appResourceTypesList as systemAppResourceTypesList,
-  getWorkspaceActionList,
-} from '../definitions/system';
+import {appResourceTypesList as systemAppResourceTypesList, getWorkspaceActionList} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
@@ -28,18 +25,10 @@ export const validationConstants = {
 // const uuid = Joi.string().guid().trim();
 const color = Joi.string().trim().lowercase().regex(regExPatterns.hexColor);
 const alphanum = Joi.string().regex(str);
-const URL = Joi.string()
-  .uri()
-  .trim()
-  .max(validationConstants.maxImageURLLength);
-
+const URL = Joi.string().uri().trim().max(validationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
 const name = Joi.string().trim().max(endpointConstants.maxNameLength);
-const description = Joi.string()
-  .allow(null, '')
-  .max(endpointConstants.maxDescriptionLength)
-  .trim();
-
+const description = Joi.string().allow(null, '').max(endpointConstants.maxDescriptionLength).trim();
 const zipcode = Joi.string().regex(regExPatterns.zipcode);
 const phone = Joi.string().regex(regExPatterns.phone);
 const time = Joi.date().iso();
@@ -53,6 +42,7 @@ const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
 const crudAction = Joi.string().valid(...getWorkspaceActionList());
+const providedResourceId = Joi.string().max(endpointConstants.providedResourceIdMaxLength);
 
 export const validationSchemas = {
   resourceId,
@@ -70,6 +60,7 @@ export const validationSchemas = {
   alphanum,
   resourceType,
   crudAction,
+  providedResourceId,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {

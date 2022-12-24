@@ -4,11 +4,7 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {
-  AppResourceType,
-  isUserAgent,
-  SessionAgentType,
-} from '../../../definitions/system';
+import {AppResourceType, isUserAgent, SessionAgentType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
@@ -19,16 +15,13 @@ import {
 } from '../../../email-templates/collaborationRequestResponse';
 import {formatDate, getDateString} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
-import {
-  addAssignedPermissionGroupList,
-  assignWorkspaceToUser,
-} from '../../assignedItems/addAssignedItems';
+import {addAssignedPermissionGroupList, assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import {assertWorkspace} from '../../workspaces/utils';
-import {IRespondToRequestEndpointParams} from './types';
+import {IRespondToCollaborationRequestEndpointParams} from './types';
 
 async function sendResponseEmail(
   context: IBaseContext,
@@ -93,44 +86,31 @@ async function assignUserRequestPermissionGroups(
  * @param instData
  * @returns
  */
-export const internalRespondToRequest = async (
+export const internalRespondToCollaborationRequest = async (
   context: IBaseContext,
   user: IUser,
-  data: IRespondToRequestEndpointParams
+  data: IRespondToCollaborationRequestEndpointParams
 ) => {
-  let request = await context.data.collaborationRequest.assertGetItem(
-    EndpointReusableQueries.getById(data.requestId)
-  );
+  let request = await context.data.collaborationRequest.assertGetItem(EndpointReusableQueries.getById(data.requestId));
 
   if (user.email !== request.recipientEmail) {
-    throw new PermissionDeniedError(
-      'User is not the collaboration request recipient'
-    );
+    throw new PermissionDeniedError('User is not the collaboration request recipient');
   }
 
-  const isExpired =
-    request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
+  const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
 
   if (isExpired && request.expiresAt) {
-    throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt)}`
-    );
+    throw new ServerStateConflictError(`Collaboration request expired on ${formatDate(request.expiresAt)}`);
   }
 
-  request = await context.data.collaborationRequest.assertUpdateItem(
-    EndpointReusableQueries.getById(data.requestId),
-    {
-      statusHistory: request.statusHistory.concat({
-        date: getDateString(),
-        status: data.response,
-      }),
-    }
-  );
+  request = await context.data.collaborationRequest.assertUpdateItem(EndpointReusableQueries.getById(data.requestId), {
+    statusHistory: request.statusHistory.concat({
+      date: getDateString(),
+      status: data.response,
+    }),
+  });
 
-  const workspace = await context.cacheProviders.workspace.getById(
-    context,
-    request.workspaceId
-  );
+  const workspace = await context.cacheProviders.workspace.getById(context, request.workspaceId);
 
   assertWorkspace(workspace);
   const notifyUser =
@@ -152,12 +132,7 @@ export const internalRespondToRequest = async (
   }
 
   if (data.response === CollaborationRequestStatusType.Accepted) {
-    await assignWorkspaceToUser(
-      context,
-      request.createdBy,
-      request.workspaceId,
-      user
-    );
+    await assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user);
 
     await assignUserRequestPermissionGroups(context, user, workspace, request);
   }

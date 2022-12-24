@@ -1,6 +1,5 @@
 import {IAssignedPermissionGroup} from './permissionGroups';
 import {IAgent} from './system';
-import {IAssignedTag} from './tag';
 
 export interface IClientAssignedToken {
   resourceId: string;
@@ -16,7 +15,7 @@ export interface IClientAssignedToken {
 
   // not same as iat in token, may be a litte bit behind or after
   // and is a ISO string, where iat is time in seconds
-  issuedAt: Date | string;
+  // issuedAt: Date | string;
   expires?: Date | string;
 
   // environmentId: string;
@@ -37,8 +36,8 @@ export interface IPublicClientAssignedToken {
   lastUpdatedAt: string;
   workspaceId: string;
   permissionGroups: IAssignedPermissionGroup[];
-  issuedAt: string;
+  // issuedAt: string;
   expires?: string;
   tokenStr: string;
-  tags: IAssignedTag[];
+  // tags: IAssignedTag[];
 }

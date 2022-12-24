@@ -38,7 +38,7 @@ export interface IPublicPermissionGroup {
   tags: IAssignedTag[];
 }
 
-export interface IPermissionGroupInput {
+export interface IAssignPermissionGroupInput {
   permissionGroupId: string;
   order?: number;
 }

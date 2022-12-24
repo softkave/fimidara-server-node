@@ -1,8 +1,8 @@
 import CollaborationRequestQueries from '../queries';
 import {collaborationRequestListExtractor} from '../utils';
-import {GetUserRequestsEndpoint} from './types';
+import {GetUserCollaborationRequestsEndpoint} from './types';
 
-const getUserRequests: GetUserRequestsEndpoint = async (context, instData) => {
+const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
   const requests = await context.data.collaborationRequest.getManyItems(
     CollaborationRequestQueries.getByUserEmail(user.email)
@@ -13,4 +13,4 @@ const getUserRequests: GetUserRequestsEndpoint = async (context, instData) => {
   };
 };
 
-export default getUserRequests;
+export default getUserCollaborationRequests;

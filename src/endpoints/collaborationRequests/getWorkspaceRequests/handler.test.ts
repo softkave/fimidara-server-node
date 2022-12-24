@@ -10,8 +10,8 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import getWorkspaceRequests from './handler';
-import {IGetWorkspaceRequestsEndpointParams} from './types';
+import getWorkspaceCollaborationRequests from './handler';
+import {IGetWorkspaceCollaborationRequestsEndpointParams} from './types';
 
 /**
  * TODO:
@@ -32,32 +32,19 @@ test('workspace collaboration requests returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {request: request01} = await insertRequestForTest(
-    context,
-    userToken,
-    workspace.resourceId
+  const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId);
+
+  const {request: request02} = await insertRequestForTest(context, userToken, workspace.resourceId);
+
+  const instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      workspaceId: workspace.resourceId,
+    }
   );
 
-  const {request: request02} = await insertRequestForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-
-  const instData =
-    RequestData.fromExpressRequest<IGetWorkspaceRequestsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-      }
-    );
-
-  const result = await getWorkspaceRequests(context, instData);
+  const result = await getWorkspaceCollaborationRequests(context, instData);
   assertEndpointResultOk(result);
   expect(result.requests.length).toEqual(2);
-  containsEveryItemIn(
-    result.requests,
-    [request01, request02],
-    item => item.resourceId
-  );
+  containsEveryItemIn(result.requests, [request01, request02], item => item.resourceId);
 });

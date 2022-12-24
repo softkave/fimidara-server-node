@@ -1,5 +1,5 @@
-import {isString, uniqWith} from 'lodash';
-import {makeGetAccessor, makeSetAccessor, withClassAccessors} from '../utils/classAccessors';
+import {forEach, isString, uniqWith} from 'lodash';
+import {makeAssertGetAccessor, makeGetAccessor, makeSetAccessor, withClassAccessors} from '../utils/classAccessors';
 import {indexArray} from '../utils/indexArray';
 import {AnyObject} from '../utils/types';
 
@@ -13,7 +13,14 @@ export const FieldBase = withClassAccessors(
 export const FieldString = withClassAccessors(
   class FieldString_ extends FieldBase {
     stringType = 'string';
-    constructor(required?: boolean, description?: string, public example?: string, public valid?: string[]) {
+    constructor(
+      required?: boolean,
+      description?: string,
+      public example?: string,
+      public valid?: string[],
+      public min?: number,
+      public max?: number
+    ) {
       super(required, description);
     }
   }
@@ -22,7 +29,14 @@ export const FieldString = withClassAccessors(
 export const FieldNumber = withClassAccessors(
   class FieldNumber_ extends FieldBase {
     stringType = 'number';
-    constructor(required?: boolean, description?: string, public example?: number) {
+    constructor(
+      required?: boolean,
+      description?: string,
+      public example?: number,
+      public integer?: boolean,
+      public min?: number,
+      public max?: number
+    ) {
       super(required, description);
     }
   }
@@ -60,12 +74,18 @@ export const FieldDate = withClassAccessors(
 
 export const FieldArray = withClassAccessors(
   class FieldArray_ extends FieldBase {
-    constructor(public type?: InstanceType<typeof FieldBase>, required?: boolean, description?: string) {
+    constructor(
+      required?: boolean,
+      description?: string,
+      public type?: InstanceType<typeof FieldBase>,
+      public min?: number,
+      public max?: number
+    ) {
       super(required, description);
       this.stringType = `array of (${type ? type.stringType : 'unknown'})`;
     }
 
-    setTypes(type?: InstanceType<typeof FieldBase>) {
+    setType(type?: InstanceType<typeof FieldBase>) {
       this.type = type;
       if (type) this.stringType = `array of (${type.stringType})`;
     }
@@ -75,28 +95,32 @@ export const FieldArray = withClassAccessors(
 export class FieldObject<T = AnyObject> extends FieldBase {
   stringType = 'object';
   constructor(
-    public name?: string | undefined,
-    public fields?: Required<{[K in keyof T]: InstanceType<typeof FieldBase>}>,
     required?: boolean,
-    description?: string
+    description?: string,
+    public name?: string | undefined,
+    public fields?: Required<{[K in keyof T]: InstanceType<typeof FieldBase>}>
   ) {
     super(required, description);
     this.stringType = name ?? this.stringType;
   }
 
   getName = makeGetAccessor(this, 'name');
+  assertGetName = makeAssertGetAccessor(this, 'name');
   setName = makeSetAccessor(this, 'name');
   getFields = makeGetAccessor(this, 'fields');
+  assertGetFields = makeAssertGetAccessor(this, 'fields');
   setFields = makeSetAccessor(this, 'fields');
   getRequired = makeGetAccessor(this, 'required');
+  assertGetRequired = makeAssertGetAccessor(this, 'required');
   setRequired = makeSetAccessor(this, 'required');
   getDescription = makeGetAccessor(this, 'description');
+  assertGetDescription = makeAssertGetAccessor(this, 'description');
   setDescription = makeSetAccessor(this, 'description');
 }
 
 export const FieldOrCombination = withClassAccessors(
   class FieldOrCombination_ extends FieldBase {
-    constructor(public types?: Array<InstanceType<typeof FieldBase>>, required?: boolean, description?: string) {
+    constructor(required?: boolean, description?: string, public types?: Array<InstanceType<typeof FieldBase>>) {
       super(required, description);
       this.stringType = (types ?? []).map(f => f.stringType).join(' or ');
     }
@@ -104,6 +128,7 @@ export const FieldOrCombination = withClassAccessors(
     setTypes(types?: Array<InstanceType<typeof FieldBase>>) {
       this.types = types;
       if (types) this.stringType = types.map(f => f.stringType).join(' or ');
+      return this;
     }
   }
 );
@@ -183,6 +208,10 @@ export const HttpEndpointParameterPathnameItem = withClassAccessors(
   }
 );
 
+type TOY<T> = {
+  [K in keyof T]: T[K];
+};
+
 export const HttpEndpointDefinition = withClassAccessors(
   class {
     constructor(
@@ -190,11 +219,9 @@ export const HttpEndpointDefinition = withClassAccessors(
       public method?: HttpEndpointMethod,
       public parameterPathnames?: Array<InstanceType<typeof HttpEndpointParameterPathnameItem>>,
       public query?: InstanceType<typeof HttpEndpointQuery>,
-      public requestBody?:
-        | InstanceType<typeof FieldObject<AnyObject>>
-        | InstanceType<typeof HttpEndpointMultipartFormdata>,
+      public requestBody?: InstanceType<typeof FieldObject<any>> | InstanceType<typeof HttpEndpointMultipartFormdata>,
       public requestHeaders?: InstanceType<typeof HttpEndpointHeaders>,
-      public responseBody?: InstanceType<typeof FieldObject<AnyObject>> | InstanceType<typeof FieldBinary>,
+      public responseBody?: InstanceType<typeof FieldObject<any>> | InstanceType<typeof FieldBinary>,
       public responseHeaders?: InstanceType<typeof HttpEndpointHeaders>
     ) {}
   }
@@ -324,7 +351,7 @@ export class MdDocumenter {
       insertId();
       this.insertText('{').insertNewLine();
 
-      const fieldObject = f;
+      const fieldObject = f as InstanceType<typeof FieldObject>;
       let hasPrevField = false;
       for (const k in fieldObject.fields) {
         if (hasPrevField) {
@@ -348,9 +375,10 @@ export class MdDocumenter {
   insertObjectAsMdTable(
     id: string | undefined,
     f: InstanceType<typeof FieldObject>,
-    ignoreRequired = false
+    ignoreRequired = false,
+    omitName = false
   ): MdDocumenter {
-    id = id ?? f.name;
+    id = id ?? omitName ? '' : f.name;
     if (id) {
       this.insertInlineCode(id).insertNewLine();
     }
@@ -378,7 +406,7 @@ export class MdDocumenter {
       this.insertTableCell(m.content).insertNewLine();
     };
 
-    const innerObjects: InstanceType<typeof FieldObject>[] = [];
+    let innerObjects: InstanceType<typeof FieldObject>[] = [];
 
     putField(' Field ', true);
     putType(' Type ', true);
@@ -398,7 +426,7 @@ export class MdDocumenter {
         putRequired(currentField.required);
         putDescription(currentField.description);
       } else if (isObjectField(currentField)) {
-        const objectField = currentField;
+        const objectField = currentField as InstanceType<typeof FieldObject>;
         innerObjects.push(objectField);
         putField(key);
         putType(objectField.stringType);
@@ -467,6 +495,7 @@ export class MdDocumenter {
       }
     }
 
+    innerObjects = uniqWith(innerObjects, (a, b) => a.getName() === b.getName());
     innerObjects.forEach(next => this.insertNewLine().insertObjectAsMdTable(undefined, next));
     return this;
   }
@@ -512,7 +541,7 @@ export function httpHeadersToFieldObject(headers: Array<InstanceType<typeof Http
     indexer: h => h.assertGetName(),
     reducer: h => h.assertGetType(),
   });
-  return new FieldObject(undefined, kf);
+  return new FieldObject().setFields(kf).setName('HTTPHeaders');
 }
 
 export function httpFormdataToFieldObject(fm: InstanceType<typeof HttpEndpointMultipartFormdata>) {
@@ -520,7 +549,7 @@ export function httpFormdataToFieldObject(fm: InstanceType<typeof HttpEndpointMu
     indexer: h => h.name,
     reducer: h => h.type,
   });
-  return new FieldObject(undefined, kf);
+  return new FieldObject().setFields(kf).setName('RequestFormdata');
 }
 
 export function httpQueryToFieldObject(fm: InstanceType<typeof HttpEndpointQuery>) {
@@ -528,7 +557,7 @@ export function httpQueryToFieldObject(fm: InstanceType<typeof HttpEndpointQuery
     indexer: h => h.name,
     reducer: h => h.type,
   });
-  return new FieldObject(undefined, kf);
+  return new FieldObject().setFields(kf).setName('HTTPQuery');
 }
 
 export function httpParameterPathnameToFieldObject(
@@ -538,11 +567,37 @@ export function httpParameterPathnameToFieldObject(
     indexer: h => h.assertGetName(),
     reducer: h => h.assertGetType(),
   });
-  return new FieldObject(undefined, kf);
+  return new FieldObject().setFields(kf).setName('HTTPParameterPathname');
 }
 
 export function orUndefined(f: InstanceType<typeof FieldBase>) {
-  return new FieldOrCombination([new FieldUndefined(), f], f.required, f.description);
+  return new FieldOrCombination().setRequired(false).setDescription(f.description).setTypes([new FieldUndefined(), f]);
+}
+
+export function orNull(f: InstanceType<typeof FieldBase>) {
+  return new FieldOrCombination().setRequired(f.required).setDescription(f.description).setTypes([new FieldNull(), f]);
+}
+
+export function orUndefinedOrNull(f: InstanceType<typeof FieldBase>) {
+  return orUndefined(orNull(f));
+}
+
+export function asFieldObjectAny<T>(f: FieldObject<T>) {
+  return f as FieldObject<any>;
+}
+
+export function partialFieldObject<T>(f: FieldObject<T>) {
+  const fields = f.getFields();
+  let clonedFields: typeof fields | undefined = undefined;
+
+  if (fields) {
+    clonedFields = {...fields};
+    forEach(clonedFields, next => {
+      next.setRequired(false);
+    });
+  }
+
+  return new FieldObject().setFields(clonedFields);
 }
 
 export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition>) {
@@ -612,12 +667,19 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
 
   const putHeaders = (headers: InstanceType<typeof HttpEndpointHeaderItem>[], title: string) => {
     if (headers.length) {
-      m.insertBoldText(title).insertNewLine().insertObjectAsMdTable(undefined, httpHeadersToFieldObject(headers));
+      m.insertBoldText(title)
+        .insertNewLine()
+        .insertObjectAsMdTable(
+          undefined,
+          httpHeadersToFieldObject(headers),
+          /** ignoreRequired */ false,
+          /** omitName */ true
+        );
     } else {
       m.insertBoldText(title).insertInlineSeparator().insertText('No headers present');
     }
 
-    m.insertNewLine().insertNewLine();
+    m.insertNewLine();
   };
 
   const putQuery = () => {
@@ -689,7 +751,7 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
       m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
     }
 
-    m.insertNewLine().insertNewLine();
+    m.insertNewLine();
   };
 
   putHeaders(prepareRequestHeaders(), 'Request Headers');

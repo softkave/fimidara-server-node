@@ -1,7 +1,4 @@
-import {
-  CollaborationRequestStatusType,
-  ICollaborationRequest,
-} from '../../../definitions/collaborationRequest';
+import {CollaborationRequestStatusType, ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
@@ -18,11 +15,11 @@ import {
   collaborationRequestExtractor,
   populateRequestPermissionGroups,
 } from '../utils';
-import {RevokeRequestEndpoint} from './types';
-import {revokeRequestJoiSchema} from './validation';
+import {RevokeCollaborationRequestEndpoint} from './types';
+import {revokeCollaborationRequestJoiSchema} from './validation';
 
-const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, revokeRequestJoiSchema);
+const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request} = await checkCollaborationRequestAuthorization02(
     context,
@@ -45,14 +42,11 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
       }
     );
 
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      request.workspaceId
-    );
+    const workspace = await context.cacheProviders.workspace.getById(context, request.workspaceId);
 
     assertWorkspace(workspace);
     if (workspace) {
-      await sendRevokeRequestEmail(context, request, workspace.name);
+      await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
     }
   }
 
@@ -62,7 +56,7 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   };
 };
 
-async function sendRevokeRequestEmail(
+async function sendRevokeCollaborationRequestEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
   workspaceName: string
@@ -89,4 +83,4 @@ async function sendRevokeRequestEmail(
   });
 }
 
-export default revokeRequest;
+export default revokeCollaborationRequest;

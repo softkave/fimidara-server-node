@@ -1,11 +1,21 @@
 import assert = require('assert');
-import {capitalize} from 'lodash';
-import {cast} from './fns';
+import {isFunction} from 'lodash';
+import {capitalizeFirstLetter, cast} from './fns';
 import {AnyFn, AnyObject, ClassConstructor} from './types';
+
+type IsAccessorFnKey<F> = F extends `set${infer F1}`
+  ? true
+  : F extends `get${infer F1}`
+  ? true
+  : F extends `assertGet${infer F1}`
+  ? true
+  : false;
 
 export type ClassFieldsWithAccessorFields<Klass> = {
   [Key in keyof Klass]: Key extends string
     ? Key extends AnyFn
+      ? Key
+      : IsAccessorFnKey<Key> extends true
       ? Key
       : `set${Capitalize<Key>}` | `get${Capitalize<Key>}` | `assertGet${Capitalize<Key>}` | Key
     : Key;
@@ -40,7 +50,7 @@ export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
 export function makeAssertGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
     assert(obj[k]);
-    return obj[k];
+    return obj[k] as NonNullable<T[K]>;
   };
 }
 
@@ -53,25 +63,21 @@ export function makeSetAccessor<T, K extends keyof T>(obj: T, k: K) {
 
 export function addClassAccessors(klass: AnyObject) {
   for (const key in klass) {
-    const setAccessorName = `set${capitalize(key)}`;
-    const getAccessorName = `get${capitalize(key)}`;
-    const assertGetAccessorName = `assertGet${capitalize(key)}`;
+    if (isFunction(klass[key])) continue;
+
+    const setAccessorName = `set${capitalizeFirstLetter(key)}`;
+    const getAccessorName = `get${capitalizeFirstLetter(key)}`;
+    const assertGetAccessorName = `assertGet${capitalizeFirstLetter(key)}`;
     if (!klass[setAccessorName]) {
-      klass[setAccessorName] = (value: any) => {
-        klass[key] = value;
-        return klass;
-      };
+      klass[setAccessorName] = makeSetAccessor(klass, key);
     }
 
     if (!klass[getAccessorName]) {
-      klass[getAccessorName] = () => klass[key];
+      klass[getAccessorName] = makeGetAccessor(klass, key);
     }
 
     if (!klass[assertGetAccessorName]) {
-      klass[assertGetAccessorName] = () => {
-        assert(klass[key]);
-        return klass[key];
-      };
+      klass[assertGetAccessorName] = makeAssertGetAccessor(klass, key);
     }
   }
 }

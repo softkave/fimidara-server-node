@@ -2,16 +2,16 @@ import {IPublicCollaborationRequest} from '../../../definitions/collaborationReq
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetRequestEndpointParams {
+export interface IGetCollaborationRequestEndpointParams {
   requestId: string;
 }
 
-export interface IGetRequestEndpointResult {
+export interface IGetCollaborationRequestEndpointResult {
   request: IPublicCollaborationRequest;
 }
 
-export type GetRequestEndpoint = Endpoint<
+export type GetCollaborationRequestEndpoint = Endpoint<
   IBaseContext,
-  IGetRequestEndpointParams,
-  IGetRequestEndpointResult
+  IGetCollaborationRequestEndpointParams,
+  IGetCollaborationRequestEndpointResult
 >;
