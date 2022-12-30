@@ -1,7 +1,4 @@
-import OperationError, {
-  getErrorMessageFromParams,
-  IOperationErrorParameters,
-} from '../utils/OperationError';
+import OperationError, {getErrorMessageFromParams, IOperationErrorParameters} from '../utils/OperationError';
 import {endpointConstants} from './constants';
 
 export class InvalidRequestError extends OperationError {
@@ -20,10 +17,7 @@ export class RateLimitError extends OperationError {
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Rate limit in progress, please try again later'
-    );
+    this.message = getErrorMessageFromParams(props, 'Rate limit in progress, please try again later');
   }
 }
 

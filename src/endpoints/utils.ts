@@ -3,12 +3,7 @@ import {isString} from 'lodash';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
-import {
-  getFields,
-  makeExtract,
-  makeExtractIfPresent,
-  makeListExtract,
-} from '../utils/extract';
+import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../utils/extract';
 import OperationError from '../utils/OperationError';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
@@ -18,15 +13,12 @@ import RequestData from './RequestData';
 import {Endpoint, IPublicAgent, IRequestDataPendingPromise} from './types';
 
 export function getPublicErrors(inputError: any) {
-  const errors: OperationError[] = Array.isArray(inputError)
-    ? inputError
-    : [inputError];
+  const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
 
   // We are mapping errors cause some values don't show if we don't
   // or was it errors, not sure anymore, this is old code.
   // TODO: Feel free to look into it, cause it could help performance.
-  const preppedErrors: Omit<OperationError, 'isPublicError' | 'statusCode'>[] =
-    [];
+  const preppedErrors: Omit<OperationError, 'isPublicError' | 'statusCode'>[] = [];
 
   errors.forEach(
     errorItem =>
@@ -47,26 +39,16 @@ export function getPublicErrors(inputError: any) {
   return preppedErrors;
 }
 
-export const wrapEndpointREST = <
-  Context extends IBaseContext,
-  EndpointType extends Endpoint<Context>
->(
+export const wrapEndpointREST = <Context extends IBaseContext, EndpointType extends Endpoint<Context>>(
   endpoint: EndpointType,
   context: Context,
-  handleResponse?: (
-    res: Response,
-    result: Awaited<ReturnType<EndpointType>>
-  ) => void,
+  handleResponse?: (res: Response, result: Awaited<ReturnType<EndpointType>>) => void,
   getData?: (req: Request) => Parameters<EndpointType>[1]['data']
 ): ((req: Request, res: Response) => any) => {
   return async (req: Request, res: Response) => {
     try {
       const data = getData ? getData(req) : req.body;
-      const instData = RequestData.fromExpressRequest(
-        req as unknown as IServerRequest,
-        data
-      );
-
+      const instData = RequestData.fromExpressRequest(req as unknown as IServerRequest, data);
       const result = await endpoint(context, instData);
       if (handleResponse) {
         handleResponse(res, result);
@@ -109,10 +91,8 @@ const publicAccessOpFields = getFields<IPublicAccessOp>({
 });
 
 export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
-export const publicAccessOpExtractorIfPresent =
-  makeExtractIfPresent(publicAccessOpFields);
-export const publicAccessOpListExtractor =
-  makeListExtract(publicAccessOpFields);
+export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
+export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
 
 export async function waitForWorks(works: IRequestDataPendingPromise[]) {
   await Promise.all(
@@ -126,10 +106,7 @@ export function throwNotFound() {
   throw new NotFoundError();
 }
 
-export type IResourceWithoutAssignedAgent<T> = Omit<
-  T,
-  'assignedAt' | 'assignedBy'
->;
+export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
 
 export function withAssignedAgent<T extends AnyObject>(
   agent: IAgent,

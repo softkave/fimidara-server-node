@@ -3,29 +3,29 @@
  * Currently in hiatus.
  */
 
-export type IFileMatcher = {
+type IFileMatcher = {
   // file path with workspace root name
   filepath?: string;
   fileId?: string;
 };
 
-export type IImageTransformationParams = {
+type IImageTransformationParams = {
   width?: number;
   height?: number;
 };
 
-export type IGetFileEndpointParams = {
+type IGetFileEndpointParams = {
   imageTranformation?: IImageTransformationParams;
 } & IFileMatcher;
 
-export type ObjectValues<T> = T[keyof T];
+type ObjectValues<T> = T[keyof T];
 type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}` ? P : S;
 type GetRouteParameter<S extends string> = RemoveTail<
   RemoveTail<RemoveTail<S, `/${string}`>, `-${string}`>,
   `.${string}`
 >;
 
-export interface ParamsDictionary {
+interface ParamsDictionary {
   [key: string]: string;
 }
 
@@ -37,7 +37,7 @@ export interface ParamsDictionary {
  * // => {workspaceId: string}
  * ```
  */
-export type RouteParameters<Route extends string> = string extends Route
+type RouteParameters<Route extends string> = string extends Route
   ? ParamsDictionary
   : Route extends `${string}(${string}`
   ? ParamsDictionary //TODO: handling for regex parameters

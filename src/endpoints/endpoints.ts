@@ -1,6 +1,14 @@
 import {customAlphabet} from 'nanoid';
 import {IAssignPermissionGroupInput} from '../definitions/permissionGroups';
-import {AppResourceType, IAgent, resourceTypeShortNames, validAgentTypes} from '../definitions/system';
+import {PermissionItemAppliesTo} from '../definitions/permissionItem';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getNonWorkspaceActionList,
+  IAgent,
+  resourceTypeShortNames,
+  validAgentTypes,
+} from '../definitions/system';
 import {
   asFieldObjectAny,
   FieldArray,
@@ -13,6 +21,7 @@ import {
   FieldUndefined,
   HttpEndpointHeaderItem,
   HttpEndpointHeaders,
+  HttpEndpointResponse,
   orUndefined,
 } from '../mddoc/mddoc';
 import {idSeparator} from '../utils/resourceId';
@@ -20,151 +29,193 @@ import {endpointConstants} from './constants';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {IBaseEndpointResult} from './types';
 
+export const endpointStatusCodes = {
+  success: `${endpointConstants.httpStatusCode.ok}`,
+  error: '4XX or 5XX',
+};
+
 const authorizationHeaderItem = new HttpEndpointHeaderItem()
   .setName('Authorization')
-  .setType(new FieldString().setRequired(true).setDescription('Access token').setExample('Bearer <token>'))
+  .setType(new FieldString().setRequired(true).setDescription('Access token.').setExample('Bearer <token>'))
   .setRequired(true)
-  .setDescription('User, client, or program access token');
+  .setDescription('User, client, or program access token.');
 
 const requestContentTypeHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Type')
   .setType(
     new FieldString()
       .setRequired(true)
-      .setDescription('HTTP request content type')
+      .setDescription('HTTP request content type.')
       .setExample('application/json or multipart/form-data')
   )
   .setRequired(true)
-  .setDescription('HTTP request content type');
+  .setDescription('HTTP request content type.');
 
 const jsonRequestContentTypeHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Type')
   .setType(
     new FieldString()
       .setRequired(true)
-      .setDescription('HTTP JSON request content type')
+      .setDescription('HTTP JSON request content type.')
       .setExample('application/json')
       .setValid(['application/json'])
   )
   .setRequired(true)
-  .setDescription('HTTP JSON request content type');
+  .setDescription('HTTP JSON request content type.');
 
 const multipartFormdataRequestContentTypeHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Type')
   .setType(
     new FieldString()
       .setRequired(true)
-      .setDescription('HTTP multipart form-data request content type')
+      .setDescription('HTTP multipart form-data request content type.')
       .setExample('multipart/form-data')
       .setValid(['multipart/form-data'])
   )
   .setRequired(true)
-  .setDescription('HTTP multipart form-data request content type');
+  .setDescription('HTTP multipart form-data request content type.');
 
 const jsonResponseContentTypeHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Type')
   .setType(
     new FieldString()
       .setRequired(true)
-      .setDescription('HTTP JSON response content type')
+      .setDescription('HTTP JSON response content type.')
       .setExample(undefined)
       .setValid(['application/json'])
   )
   .setRequired(true)
-  .setDescription('HTTP JSON response content type');
-
-const binaryResponseContentTypeHeaderItem = new HttpEndpointHeaderItem()
-  .setName('Content-Type')
-  .setType(
-    new FieldString()
-      .setRequired(true)
-      .setDescription('HTTP binary stream response content type')
-      .setExample('File content type like image/png or application/octet-stream')
-  )
-  .setRequired(true)
-  .setDescription('HTTP binary stream response content type');
+  .setDescription('HTTP JSON response content type.');
 
 const responseContentTypeHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Type')
   .setType(
     new FieldString()
       .setRequired(true)
-      .setDescription('HTTP response content type')
+      .setDescription('HTTP response content type.')
       .setExample('application/json or application/octet-stream')
   )
   .setRequired(true)
-  .setDescription('HTTP response content type');
+  .setDescription('HTTP response content type.');
+
+const responseContentLengthHeaderItem = new HttpEndpointHeaderItem()
+  .setName('Content-Length')
+  .setType(new FieldString().setRequired(true).setDescription('HTTP response content length in bytes.'))
+  .setRequired(true)
+  .setDescription('HTTP response content length in bytes.');
 
 const jsonWithAuthRequestHeaders = new HttpEndpointHeaders().setItems([
   authorizationHeaderItem,
   jsonRequestContentTypeHeaderItem,
 ]);
 
-const jsonResponseHeaders = new HttpEndpointHeaders().setItems([jsonResponseContentTypeHeaderItem]);
+const authRequestHeaders = new HttpEndpointHeaders().setItems([authorizationHeaderItem]);
+const jsonResponseHeaders = new HttpEndpointHeaders().setItems([
+  jsonResponseContentTypeHeaderItem,
+  responseContentLengthHeaderItem,
+]);
 
-export const httpHeaderItems = {
+export const endpointHttpHeaderItems = {
   authorizationHeaderItem,
   requestContentTypeHeaderItem,
   responseContentTypeHeaderItem,
   jsonResponseContentTypeHeaderItem,
-  binaryResponseContentTypeHeaderItem,
   jsonRequestContentTypeHeaderItem,
   multipartFormdataRequestContentTypeHeaderItem,
   jsonWithAuthRequestHeaders,
   jsonResponseHeaders,
+  authRequestHeaders,
+  responseContentLengthHeaderItem,
 };
 
 const errorObject = new FieldObject().setName('OperationError').setFields({
-  name: new FieldString().setRequired(true).setDescription('Error name').setExample('ValidationError'),
-  message: new FieldString().setRequired(true).setDescription('Error message').setExample('Workspace name is invalid'),
+  name: new FieldString().setRequired(true).setDescription('Error name.').setExample('ValidationError'),
+  message: new FieldString()
+    .setRequired(true)
+    .setDescription('Error message.')
+    .setExample('Workspace name is invalid.'),
   field: new FieldOrCombination()
-    .setDescription('Invalid field failing validation when error is ValidationError')
+    .setDescription('Invalid field failing validation when error is ValidationError.')
     .setTypes([
       new FieldString().setRequired(true).setExample('workspace.innerField.secondInnerField'),
       new FieldUndefined(),
     ]),
 });
 
-const responseWithErrorRaw = {
-  errors: new FieldOrCombination()
-    .setTypes([new FieldArray().setType(errorObject), new FieldUndefined()])
-    .setDescription('Endpoint call response errors'),
-};
+const errorResponse = new HttpEndpointResponse()
+  .setStatusCode(endpointStatusCodes.error)
+  .setResponseHeaders(jsonResponseHeaders)
+  .setResponseBody(
+    asFieldObjectAny(
+      new FieldObject<IBaseEndpointResult>()
+        .setName('EndpointErrorResult')
+        .setFields({
+          errors: new FieldArray().setType(errorObject).setDescription('Endpoint call response errors.'),
+        })
+        .setRequired(true)
+        .setDescription('Endpoint error result.')
+    )
+  );
 
-const defaultResponse = asFieldObjectAny(
-  new FieldObject<IBaseEndpointResult>()
-    .setName('EndpointResult')
-    .setFields(responseWithErrorRaw)
-    .setRequired(true)
-    .setDescription('Endpoint result')
-);
+const emptySuccessResponse = new HttpEndpointResponse()
+  .setStatusCode(endpointStatusCodes.success)
+  .setResponseHeaders(jsonResponseHeaders)
+  .setResponseBody(
+    asFieldObjectAny(
+      new FieldObject<{}>()
+        .setName('EmptyEndpointSuccessResult')
+        .setFields({})
+        .setRequired(true)
+        .setDescription('Empty endpoint success result.')
+    )
+  );
 
-export const httpResponseItems = {
-  responseWithErrorRaw,
-  defaultResponse,
+const emptyEndpointResponse = [emptySuccessResponse, errorResponse];
+
+export const endpointHttpResponseItems = {
+  errorResponse,
+  emptySuccessResponse,
+  emptyEndpointResponse,
 };
 
 const agent = new FieldObject<IAgent>().setName('Agent').setFields({
-  agentId: new FieldString().setRequired(true).setDescription('Agent ID'),
+  agentId: new FieldString().setRequired(true).setDescription('Agent ID.'),
   agentType: new FieldString()
     .setRequired(true)
     .setDescription('Agent type')
     .setExample(AppResourceType.ProgramAccessToken)
     .setValid(validAgentTypes),
 });
-const date = new FieldString().setRequired(false).setDescription('Date string');
+const date = new FieldString().setRequired(false).setDescription('Date string.');
 const id = new FieldString()
   .setRequired(false)
-  .setDescription('Resource ID')
+  .setDescription('Resource ID.')
   .setExample(`${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`);
 const workspaceId = new FieldString()
   .setRequired(false)
-  .setDescription('Workspace ID')
+  .setDescription('Workspace ID.')
   .setExample(`${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`);
+const folderId = new FieldString()
+  .setRequired(false)
+  .setDescription('Folder ID.')
+  .setExample(`${resourceTypeShortNames[AppResourceType.Folder]}${idSeparator}${customAlphabet('0')()}`);
+const fileId = new FieldString()
+  .setRequired(false)
+  .setDescription('File ID.')
+  .setExample(`${resourceTypeShortNames[AppResourceType.File]}${idSeparator}${customAlphabet('0')()}`);
+const permissionGroupId = new FieldString()
+  .setRequired(false)
+  .setDescription('Permission group ID.')
+  .setExample(`${resourceTypeShortNames[AppResourceType.PermissionGroup]}${idSeparator}${customAlphabet('0')()}`);
+const permissionItemId = new FieldString()
+  .setRequired(false)
+  .setDescription('Permission item ID.')
+  .setExample(`${resourceTypeShortNames[AppResourceType.PermissionItem]}${idSeparator}${customAlphabet('0')()}`);
+const idPath = new FieldArray().setType(folderId).setDescription('List of parent folder IDs.');
 const name = new FieldString().setRequired(true).setDescription('Name');
 const description = new FieldString().setRequired(true).setDescription('Description');
-const expires = new FieldDate().setRequired(true).setDescription('Expiration date');
-const tokenString = new FieldString().setRequired(true).setDescription('JWT token string');
+const expires = new FieldDate().setRequired(true).setDescription('Expiration date.');
+const tokenString = new FieldString().setRequired(true).setDescription('JWT token string.');
 const assignPermissionGroup = new FieldObject<IAssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
   .setFields({
@@ -181,17 +232,52 @@ const effectOnReferenced = new FieldBoolean().setDescription(
 const providedResourceId = new FieldString()
   .setDescription('Resource ID provided by you.')
   .setMax(endpointConstants.providedResourceIdMaxLength);
-const workspaceName = new FieldString().setRequired(true).setDescription('Workspace name').setExample('fimidara');
+const workspaceName = new FieldString().setRequired(true).setDescription('Workspace name.').setExample('fimidara');
+
+// TODO: set allowed characters for rootname and file and folder name
 const workspaceRootname = new FieldString()
   .setRequired(true)
-  .setDescription('Workspace root name, must be a URL compatible name')
+  .setDescription('Workspace root name, must be a URL compatible name.')
   .setExample('fimidara-rootname');
-const firstName = new FieldString().setRequired(true).setDescription('First name').setExample('Jesus');
-const lastName = new FieldString().setRequired(true).setDescription('Last name').setExample('Christ');
+const firstName = new FieldString().setRequired(true).setDescription('First name.').setExample('Jesus');
+const lastName = new FieldString().setRequired(true).setDescription('Last name.').setExample('Christ');
 const emailAddress = new FieldString()
   .setRequired(true)
-  .setDescription('Email address')
+  .setDescription('Email address.')
   .setExample('my-email-address@email-domain.com');
+const foldername = new FieldString().setRequired(true).setDescription('Folder name.').setExample('my-folder');
+const filename = new FieldString().setRequired(true).setDescription('File name.').setExample('my-file');
+const folderpath = new FieldString()
+  .setRequired(true)
+  .setDescription('Folder path.')
+  .setExample('/my-outer-folder/my-inner-folder');
+const filepath = new FieldString()
+  .setRequired(true)
+  .setDescription('File name.')
+  .setExample('/my-outer-folder/my-image-file.png');
+const folderNamePath = new FieldArray().setType(foldername).setDescription('List of parent folder names.');
+const action = new FieldString()
+  .setRequired(true)
+  .setDescription('Action')
+  .setExample(BasicCRUDActions.Create)
+  .setValid(Object.values(BasicCRUDActions));
+const nonWorkspaceAction = new FieldString()
+  .setRequired(true)
+  .setDescription('Action')
+  .setExample(BasicCRUDActions.Create)
+  .setValid(getNonWorkspaceActionList());
+const resourceType = new FieldString()
+  .setRequired(true)
+  .setDescription('Resource type.')
+  .setExample(AppResourceType.File)
+  .setValid(Object.values(AppResourceType));
+const appliesTo = new FieldString()
+  .setRequired(true)
+  .setDescription(
+    "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
+  )
+  .setExample(PermissionItemAppliesTo.OwnerAndChildren)
+  .setValid(Object.values(PermissionItemAppliesTo));
 
 export const fReusables = {
   agent,
@@ -211,6 +297,20 @@ export const fReusables = {
   firstName,
   lastName,
   emailAddress,
+  folderId,
+  idPath,
+  foldername,
+  folderNamePath,
+  filename,
+  folderpath,
+  filepath,
+  fileId,
+  action,
+  nonWorkspaceAction,
+  resourceType,
+  permissionGroupId,
+  permissionItemId,
+  appliesTo,
   agentOrUndefined: orUndefined(agent),
   dateOrUndefined: orUndefined(date),
   idOrUndefined: orUndefined(id),
@@ -221,7 +321,7 @@ export const fReusables = {
   assignPermissionGroupListOrUndefined: orUndefined(assignPermissionGroupList),
   workspaceIdOrUndefined: orUndefined(workspaceId),
   workspaceIdInputOrUndefined: orUndefined(workspaceId).setDescription(
-    'Will default to using workspace ID from client and program tokens if not provided.'
+    'Workspace ID. Will default to using workspace ID from client and program tokens if not provided.'
   ),
   tokenStringOrUndefined: orUndefined(tokenString),
   effectOnReferencedOrUndefined: orUndefined(effectOnReferenced),
@@ -231,4 +331,16 @@ export const fReusables = {
   firstNameOrUndefined: orUndefined(firstName),
   lastNameOrUndefined: orUndefined(lastName),
   emailAddressOrUndefined: orUndefined(emailAddress),
+  folderIdOrUndefined: orUndefined(folderId),
+  folderNameOrUndefined: orUndefined(foldername),
+  folderNamePathOrUndefined: orUndefined(folderNamePath),
+  filenameOrUndefined: orUndefined(filename),
+  folderpathOrUndefined: orUndefined(folderpath),
+  filepathOrUndefined: orUndefined(filepath),
+  fileIdOrUndefined: orUndefined(fileId),
+  actionOrUndefined: orUndefined(action),
+  nonWorkspaceActionOrUndefined: orUndefined(nonWorkspaceAction),
+  resourceTypeOrUndefined: orUndefined(resourceType),
+  permissionGroupIdOrUndefined: orUndefined(permissionGroupId),
+  permissionItemIdOrUndefined: orUndefined(permissionItemId),
 };

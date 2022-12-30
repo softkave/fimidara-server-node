@@ -9,17 +9,21 @@ type IsAccessorFnKey<F> = F extends `set${infer F1}`
   ? true
   : F extends `assertGet${infer F1}`
   ? true
+  : F extends 'clone'
+  ? true
   : false;
 
-export type ClassFieldsWithAccessorFields<Klass> = {
-  [Key in keyof Klass]: Key extends string
-    ? Key extends AnyFn
-      ? Key
-      : IsAccessorFnKey<Key> extends true
-      ? Key
-      : `set${Capitalize<Key>}` | `get${Capitalize<Key>}` | `assertGet${Capitalize<Key>}` | Key
-    : Key;
-}[keyof Klass];
+export type ClassFieldsWithAccessorFields<Klass> =
+  | {
+      [Key in keyof Klass]: Key extends string
+        ? Key extends AnyFn
+          ? Key
+          : IsAccessorFnKey<Key> extends true
+          ? Key
+          : `set${Capitalize<Key>}` | `get${Capitalize<Key>}` | `assertGet${Capitalize<Key>}` | Key
+        : Key;
+    }[keyof Klass]
+  | 'clone';
 
 export type ClassFieldsWithAccessorsMixin<Class> = {
   [Key in ClassFieldsWithAccessorFields<Class>]: Key extends `set${infer OriginalField}`
@@ -36,6 +40,8 @@ export type ClassFieldsWithAccessorsMixin<Class> = {
     ? Uncapitalize<OriginalField> extends keyof Class
       ? () => NonNullable<Class[Uncapitalize<OriginalField>]>
       : never
+    : Key extends 'clone'
+    ? () => ClassFieldsWithAccessorsMixin<Class>
     : Key extends keyof Class
     ? Class[Key]
     : never;
@@ -61,24 +67,49 @@ export function makeSetAccessor<T, K extends keyof T>(obj: T, k: K) {
   };
 }
 
-export function addClassAccessors(klass: AnyObject) {
-  for (const key in klass) {
-    if (isFunction(klass[key])) continue;
+/**
+ * Expects that contrcutor params are not required.
+ */
+export function makeClone<T extends ClassConstructor>(klass: T, cloneFrom: InstanceType<T>, addAccessors = true) {
+  return () => {
+    const clone = new klass();
+    for (const key in cloneFrom) {
+      if (isFunction(cloneFrom[key])) continue;
+      clone[key] = cloneFrom[key];
+    }
+
+    if (addAccessors) {
+      addClassAccessors(clone, klass);
+    }
+
+    return clone;
+  };
+}
+
+export function addClassAccessors(instance: AnyObject, klass: ClassConstructor) {
+  for (const key in instance) {
+    if (isFunction(instance[key])) continue;
 
     const setAccessorName = `set${capitalizeFirstLetter(key)}`;
     const getAccessorName = `get${capitalizeFirstLetter(key)}`;
     const assertGetAccessorName = `assertGet${capitalizeFirstLetter(key)}`;
-    if (!klass[setAccessorName]) {
-      klass[setAccessorName] = makeSetAccessor(klass, key);
+
+    if (!instance[setAccessorName]) {
+      instance[setAccessorName] = makeSetAccessor(instance, key);
     }
 
-    if (!klass[getAccessorName]) {
-      klass[getAccessorName] = makeGetAccessor(klass, key);
+    if (!instance[getAccessorName]) {
+      instance[getAccessorName] = makeGetAccessor(instance, key);
     }
 
-    if (!klass[assertGetAccessorName]) {
-      klass[assertGetAccessorName] = makeAssertGetAccessor(klass, key);
+    if (!instance[assertGetAccessorName]) {
+      instance[assertGetAccessorName] = makeAssertGetAccessor(instance, key);
     }
+  }
+
+  const cloneName = 'clone';
+  if (!instance[cloneName]) {
+    instance[cloneName] = makeClone(klass, instance);
   }
 }
 
@@ -87,7 +118,7 @@ export function withClassAccessors<Klass extends ClassConstructor>(klass: Klass)
     class extends klass {
       constructor(...props: any[]) {
         super(...props);
-        addClassAccessors(this);
+        addClassAccessors(this, klass);
       }
     }
   );

@@ -1,5 +1,4 @@
 import {IAgent} from './system';
-import {IAssignedTag} from './tag';
 
 export interface IFile {
   resourceId: string;
@@ -23,7 +22,9 @@ export interface IFile {
   // meta?: Record<string, string | number | boolean | null>;
 }
 
-export type IPublicFile = IFile & {tags: IAssignedTag[]};
+export type IPublicFile = IFile & {
+  // tags: IAssignedTag[]
+};
 
 export type IFileMatcher = {
   // file path with workspace root name

@@ -6,12 +6,11 @@ import {
   FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
-  orUndefined,
+  HttpEndpointResponse,
   orUndefinedOrNull,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {fReusables, httpHeaderItems, httpResponseItems} from '../endpoints';
-import {IBaseEndpointResult} from '../types';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
 import {
   IAddClientAssignedTokenEndpointParams,
   IAddClientAssignedTokenEndpointResult,
@@ -56,34 +55,43 @@ const addClientAssignedTokenParams = new FieldObject<IAddClientAssignedTokenEndp
     workspaceId: fReusables.workspaceIdInputOrUndefined,
     token: newClientAssignedTokenInput,
   })
-  .setRequired(true);
-
-const addClientAssignedTokenResult = new FieldObject<IAddClientAssignedTokenEndpointResult & IBaseEndpointResult>()
-  .setName('AddClientAssignedTokenEndpointResult')
-  .setFields({
-    ...httpResponseItems.responseWithErrorRaw,
-    token: orUndefined(clientAssignedToken),
-  })
   .setRequired(true)
-  .setDescription('Add client assigned token endpoint result');
+  .setDescription('Add client assigned token endpoint params.');
+const addClientAssignedTokenResult = [
+  endpointHttpResponseItems.errorResponse,
+  new HttpEndpointResponse()
+    .setStatusCode(endpointStatusCodes.success)
+    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setResponseBody(
+      new FieldObject<IAddClientAssignedTokenEndpointResult>()
+        .setName('AddClientAssignedTokenEndpointSuccessResult')
+        .setFields({token: clientAssignedToken})
+        .setRequired(true)
+        .setDescription('Add client assigned token endpoint success result.')
+    ),
+];
 
 const getWorkspaceClientAssignedTokensParams = new FieldObject<IGetWorkspaceClientAssignedTokensEndpointParams>()
   .setName('GetWorkspaceClientAssignedTokensEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputOrUndefined,
   })
-  .setRequired(true);
-
-const getWorkspaceClientAssignedTokensResult = new FieldObject<
-  IGetWorkspaceClientAssignedTokensEndpointResult & IBaseEndpointResult
->()
-  .setName('GetWorkspaceClientAssignedTokensEndpointResult')
-  .setFields({
-    ...httpResponseItems.responseWithErrorRaw,
-    tokens: orUndefined(new FieldArray().setType(clientAssignedToken)),
-  })
   .setRequired(true)
-  .setDescription('Get workspace client assigned tokens endpoint result');
+  .setDescription('Get workspace client assigned tokens endpoint params.');
+
+const getWorkspaceClientAssignedTokensResult = [
+  endpointHttpResponseItems.errorResponse,
+  new HttpEndpointResponse()
+    .setStatusCode(endpointStatusCodes.success)
+    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setResponseBody(
+      new FieldObject<IGetWorkspaceClientAssignedTokensEndpointResult>()
+        .setName('GetWorkspaceClientAssignedTokensEndpointSuccessResult')
+        .setFields({tokens: new FieldArray().setType(clientAssignedToken)})
+        .setRequired(true)
+        .setDescription('Get workspace client assigned tokens endpoint success result.')
+    ),
+];
 
 const updateClientAssignedTokenParams = new FieldObject<IUpdateClientAssignedTokenEndpointParams>()
   .setName('UpdateClientAssignedTokenEndpointParams')
@@ -94,37 +102,45 @@ const updateClientAssignedTokenParams = new FieldObject<IUpdateClientAssignedTok
     workspaceId: fReusables.workspaceIdInputOrUndefined,
     token: partialFieldObject(newClientAssignedTokenInput),
   })
-  .setRequired(true);
-
-const updateClientAssignedTokenResult = new FieldObject<
-  IUpdateClientAssignedTokenEndpointResult & IBaseEndpointResult
->()
-  .setName('UpdateClientAssignedTokenEndpointResult')
-  .setFields({
-    ...httpResponseItems.responseWithErrorRaw,
-    token: orUndefined(clientAssignedToken),
-  })
   .setRequired(true)
-  .setDescription('Update client assigned token endpoint result');
+  .setDescription('Update client assigned token endpoint params.');
+const updateClientAssignedTokenResult = [
+  endpointHttpResponseItems.errorResponse,
+  new HttpEndpointResponse()
+    .setStatusCode(endpointStatusCodes.success)
+    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setResponseBody(
+      new FieldObject<IUpdateClientAssignedTokenEndpointResult>()
+        .setName('UpdateClientAssignedTokenEndpointSuccessResult')
+        .setFields({token: clientAssignedToken})
+        .setRequired(true)
+        .setDescription('Update client assigned token endpoint Successresult')
+    ),
+];
 
 const getClientAssignedTokenParams = new FieldObject<IGetClientAssignedTokenEndpointParams>()
-  .setName('UpdateClientAssignedTokenEndpointParams')
+  .setName('GetClientAssignedTokenEndpointParams')
   .setFields({
     tokenId: fReusables.idOrUndefined,
     onReferenced: fReusables.effectOnReferencedOrUndefined,
     providedResourceId: fReusables.providedResourceIdOrUndefined,
     workspaceId: fReusables.workspaceIdInputOrUndefined,
   })
-  .setRequired(true);
-
-const getClientAssignedTokenResult = new FieldObject<IGetClientAssignedTokenEndpointResult & IBaseEndpointResult>()
-  .setName('UpdateClientAssignedTokenEndpointResult')
-  .setFields({
-    ...httpResponseItems.responseWithErrorRaw,
-    token: orUndefined(clientAssignedToken),
-  })
   .setRequired(true)
-  .setDescription('Get client assigned token endpoint result');
+  .setDescription('Get client assigned token endpoint params.');
+const getClientAssignedTokenResult = [
+  endpointHttpResponseItems.errorResponse,
+  new HttpEndpointResponse()
+    .setStatusCode(endpointStatusCodes.success)
+    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setResponseBody(
+      new FieldObject<IGetClientAssignedTokenEndpointResult>()
+        .setName('GetClientAssignedTokenEndpointSuccessResult')
+        .setFields({token: clientAssignedToken})
+        .setRequired(true)
+        .setDescription('Get client assigned token endpoint success result.')
+    ),
+];
 
 const deleteClientAssignedTokenParams = new FieldObject<IDeleteClientAssignedTokenEndpointParams>()
   .setName('DeleteClientAssignedTokenEndpointParams')
@@ -134,44 +150,40 @@ const deleteClientAssignedTokenParams = new FieldObject<IDeleteClientAssignedTok
     providedResourceId: fReusables.providedResourceIdOrUndefined,
     workspaceId: fReusables.workspaceIdInputOrUndefined,
   })
-  .setRequired(true);
+  .setRequired(true)
+  .setDescription('Delete client assigned token endpoint params.');
 
 export const addClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/addToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addClientAssignedTokenParams))
-  .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(asFieldObjectAny(addClientAssignedTokenResult))
-  .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
+  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setResponses(addClientAssignedTokenResult);
 
 export const getClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/getToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getClientAssignedTokenParams))
-  .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(asFieldObjectAny(getClientAssignedTokenResult))
-  .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
+  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setResponses(getClientAssignedTokenResult);
 
 export const updateClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/updateToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateClientAssignedTokenParams))
-  .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(asFieldObjectAny(updateClientAssignedTokenResult))
-  .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
+  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setResponses(updateClientAssignedTokenResult);
 
 export const deleteClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/deleteToken')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteClientAssignedTokenParams))
-  .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(httpResponseItems.defaultResponse)
-  .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
+  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
 
-export const getWorkspaceClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
+export const getWorkspaceClientAssignedTokensEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/getWorkspaceTokens')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceClientAssignedTokensParams))
-  .setRequestHeaders(httpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponseBody(asFieldObjectAny(getWorkspaceClientAssignedTokensResult))
-  .setResponseHeaders(httpHeaderItems.jsonResponseHeaders);
+  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setResponses(getWorkspaceClientAssignedTokensResult);

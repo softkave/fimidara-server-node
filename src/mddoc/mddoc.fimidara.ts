@@ -3,7 +3,7 @@ import {
   addClientAssignedTokenEndpointDefinition,
   deleteClientAssignedTokenEndpointDefinition,
   getClientAssignedTokenEndpointDefinition,
-  getWorkspaceClientAssignedTokenEndpointDefinition,
+  getWorkspaceClientAssignedTokensEndpointDefinition,
   updateClientAssignedTokenEndpointDefinition,
 } from '../endpoints/clientAssignedTokens/endpoints';
 import {
@@ -18,6 +18,33 @@ import {
   removeCollaboratorEndpointDefinition,
   updateCollaboratorPermissionGroupsEndpointDefinition,
 } from '../endpoints/collaborators/endpoints';
+import {
+  deleteFileEndpointDefinition,
+  getFileDetailsEndpointDefinition,
+  getFileEndpointDefinition,
+  updateFileDetailsEndpointDefinition,
+  uploadFileEndpointDefinition,
+} from '../endpoints/files/endpoints';
+import {
+  addFolderEndpointDefinition,
+  getFolderEndpointDefinition,
+  listFolderContentEndpointDefinition,
+  updateFolderEndpointDefinition,
+} from '../endpoints/folders/endpoints';
+import {
+  addPermissionGroupEndpointDefinition,
+  deletePermissionGroupEndpointDefinition,
+  getPermissionGroupEndpointDefinition,
+  getWorkspacePermissionGroupsEndpointDefinition,
+  updatePermissionGroupEndpointDefinition,
+} from '../endpoints/permissionGroups/endpoints';
+import {
+  addPermissionItemsEndpointDefinition,
+  deletePermissionItemsByIdEndpointDefinition,
+  getEntityPermissionItemsEndpointDefinition,
+  getResourcePermissionItemsEndpointDefinition,
+  replacePermissionItemsByEntityEndpointDefinition,
+} from '../endpoints/permissionItems/endpoints';
 import {
   addProgramAccessTokenEndpointDefinition,
   deleteProgramAccessTokenEndpointDefinition,
@@ -37,6 +64,20 @@ function main() {
     getWorkspaceEndpointDefinition,
     updateWorkspaceEndpointDefinition,
 
+    // folders
+    listFolderContentEndpointDefinition,
+    addFolderEndpointDefinition,
+    getFolderEndpointDefinition,
+    updateFolderEndpointDefinition,
+    deleteFileEndpointDefinition,
+
+    // files
+    uploadFileEndpointDefinition,
+    getFileEndpointDefinition,
+    getFileDetailsEndpointDefinition,
+    updateFileDetailsEndpointDefinition,
+    deleteFileEndpointDefinition,
+
     // program access tokens
     getWorkspaceProgramAccessTokenEndpointDefinition,
     addProgramAccessTokenEndpointDefinition,
@@ -45,11 +86,25 @@ function main() {
     deleteProgramAccessTokenEndpointDefinition,
 
     // client assigned tokens
-    getWorkspaceClientAssignedTokenEndpointDefinition,
+    getWorkspaceClientAssignedTokensEndpointDefinition,
     addClientAssignedTokenEndpointDefinition,
     updateClientAssignedTokenEndpointDefinition,
     getClientAssignedTokenEndpointDefinition,
     deleteClientAssignedTokenEndpointDefinition,
+
+    // permission groups
+    getWorkspacePermissionGroupsEndpointDefinition,
+    addPermissionGroupEndpointDefinition,
+    updatePermissionGroupEndpointDefinition,
+    getPermissionGroupEndpointDefinition,
+    deletePermissionGroupEndpointDefinition,
+
+    // permission items
+    addPermissionItemsEndpointDefinition,
+    getEntityPermissionItemsEndpointDefinition,
+    replacePermissionItemsByEntityEndpointDefinition,
+    deletePermissionItemsByIdEndpointDefinition,
+    getResourcePermissionItemsEndpointDefinition,
 
     // collaboration requests
     getWorkspaceCollaborationRequestEndpointDefinition,
@@ -64,7 +119,18 @@ function main() {
     getCollaboratorEndpointDefinition,
     removeCollaboratorEndpointDefinition,
   ]);
-  fs.writeFileSync(filepath, md, {encoding: 'utf-8'});
+
+  const docs = `
+---
+title: Fimidara API
+description: Fimidara API documentation
+---
+
+# {% $markdoc.frontmatter.title %}
+${md}
+`;
+
+  fs.writeFileSync(filepath, docs, {encoding: 'utf-8'});
 }
 
 main();
