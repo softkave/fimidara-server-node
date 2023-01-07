@@ -27,11 +27,11 @@ import {IUpdateClientAssignedTokenEndpointParams, IUpdateClientAssignedTokenEndp
 const newClientAssignedTokenInput = new FieldObject<INewClientAssignedTokenInput>()
   .setName('NewClientAssignedTokenInput')
   .setFields({
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
-    name: fReusables.nameOrUndefined,
-    description: fReusables.descriptionOrUndefined,
-    expires: fReusables.expiresOrUndefined,
-    permissionGroups: fReusables.assignPermissionGroupListOrUndefined,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
+    name: fReusables.nameNotRequired,
+    description: fReusables.descriptionNotRequired,
+    expires: fReusables.expiresNotRequired,
+    permissionGroups: fReusables.assignPermissionGroupListNotRequired,
   });
 
 const clientAssignedToken = new FieldObject<IPublicClientAssignedToken>().setName('ClientAssignedToken').setFields({
@@ -43,7 +43,7 @@ const clientAssignedToken = new FieldObject<IPublicClientAssignedToken>().setNam
   name: fReusables.name,
   description: fReusables.descriptionOrUndefined,
   expires: fReusables.expiresOrUndefined,
-  providedResourceId: orUndefinedOrNull(fReusables.id),
+  providedResourceId: orUndefinedOrNull(fReusables.providedResourceId),
   workspaceId: fReusables.workspaceId,
   permissionGroups: fReusables.assignPermissionGroupList,
   tokenStr: fReusables.tokenString,
@@ -52,7 +52,7 @@ const clientAssignedToken = new FieldObject<IPublicClientAssignedToken>().setNam
 const addClientAssignedTokenParams = new FieldObject<IAddClientAssignedTokenEndpointParams>()
   .setName('AddClientAssignedTokenEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     token: newClientAssignedTokenInput,
   })
   .setRequired(true)
@@ -74,7 +74,7 @@ const addClientAssignedTokenResult = [
 const getWorkspaceClientAssignedTokensParams = new FieldObject<IGetWorkspaceClientAssignedTokensEndpointParams>()
   .setName('GetWorkspaceClientAssignedTokensEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace client assigned tokens endpoint params.');
@@ -96,10 +96,10 @@ const getWorkspaceClientAssignedTokensResult = [
 const updateClientAssignedTokenParams = new FieldObject<IUpdateClientAssignedTokenEndpointParams>()
   .setName('UpdateClientAssignedTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     token: partialFieldObject(newClientAssignedTokenInput),
   })
   .setRequired(true)
@@ -121,10 +121,10 @@ const updateClientAssignedTokenResult = [
 const getClientAssignedTokenParams = new FieldObject<IGetClientAssignedTokenEndpointParams>()
   .setName('GetClientAssignedTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Get client assigned token endpoint params.');
@@ -145,10 +145,10 @@ const getClientAssignedTokenResult = [
 const deleteClientAssignedTokenParams = new FieldObject<IDeleteClientAssignedTokenEndpointParams>()
   .setName('DeleteClientAssignedTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Delete client assigned token endpoint params.');
@@ -158,32 +158,42 @@ export const addClientAssignedTokenEndpointDefinition = new HttpEndpointDefiniti
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addClientAssignedTokenResult);
+  .setResponses(addClientAssignedTokenResult)
+  .setName('Add Client Assigned Token Endpoint')
+  .setDescription('Add client assigned token endpoint.');
 
 export const getClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/getToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getClientAssignedTokenResult);
+  .setResponses(getClientAssignedTokenResult)
+  .setName('Get Client Assigned Token Endpoint')
+  .setDescription('Get client assigned token endpoint.');
 
 export const updateClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/updateToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateClientAssignedTokenResult);
+  .setResponses(updateClientAssignedTokenResult)
+  .setName('Update Client Assigned Token Endpoint')
+  .setDescription('Update client assigned token endpoint.');
 
 export const deleteClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/deleteToken')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setName('Delete Client Assigned Token Endpoint')
+  .setDescription('Delete client assigned token endpoint.');
 
 export const getWorkspaceClientAssignedTokensEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/clientAssignedTokens/getWorkspaceTokens')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceClientAssignedTokensParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceClientAssignedTokensResult);
+  .setResponses(getWorkspaceClientAssignedTokensResult)
+  .setName('Get Workspace Client Assigned Tokens Endpoint')
+  .setDescription('Get workspace client assigned tokens endpoint.');

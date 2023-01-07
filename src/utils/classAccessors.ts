@@ -55,7 +55,7 @@ export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
 
 export function makeAssertGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
-    assert(obj[k]);
+    assert(obj[k], `${k.toString()} is not present`);
     return obj[k] as NonNullable<T[K]>;
   };
 }
@@ -113,6 +113,7 @@ export function addClassAccessors(instance: AnyObject, klass: ClassConstructor) 
   }
 }
 
+// TODO: look into using applyMixins function in './fns.ts' file
 export function withClassAccessors<Klass extends ClassConstructor>(klass: Klass) {
   return cast<new (...args: ConstructorParameters<Klass>) => ClassFieldsWithAccessorsMixin<InstanceType<Klass>>>(
     class extends klass {

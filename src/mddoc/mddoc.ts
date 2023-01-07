@@ -198,7 +198,9 @@ export const HttpEndpointDefinition = withClassAccessors(
       public query?: InstanceType<typeof FieldObject>,
       public requestBody?: InstanceType<typeof FieldObject<any>> | InstanceType<typeof HttpEndpointMultipartFormdata>,
       public requestHeaders?: InstanceType<typeof HttpEndpointHeaders>,
-      public responses?: Array<InstanceType<typeof HttpEndpointResponse>>
+      public responses?: Array<InstanceType<typeof HttpEndpointResponse>>,
+      public name?: string,
+      public description?: string
     ) {}
   }
 );
@@ -215,6 +217,11 @@ export class MdDocumenter {
 
   insertText(text?: string | null): MdDocumenter {
     if (text) this.content += text;
+    return this;
+  }
+
+  insertHyperlink(text?: string | null, url?: string): MdDocumenter {
+    if (text && url) this.content += `[${text}](${url})`;
     return this;
   }
 
@@ -265,6 +272,11 @@ export class MdDocumenter {
     return this;
   }
 
+  /**
+   * WARNING: Use commonmark newline instead, stripe's markdoc used for
+   * rendering the docs doesn't seem to recognize it, but it recognizes
+   * commonmark's newline
+   */
   insertBreak(apply: boolean | null | undefined = true): MdDocumenter {
     if (apply) this.content += MdDocumenter.HTML_BREAK;
     return this;
@@ -364,12 +376,21 @@ export class MdDocumenter {
     return this;
   }
 
+  /**
+   * Renders a markdown table from an object.
+   * Expects all objects to have names, it'll fail otherwise.
+   */
   insertObjectAsMdTable(
     id: string | undefined,
     f: InstanceType<typeof FieldObject>,
     ignoreRequired = false,
-    omitName = false
+    omitName = false,
+    renderedObjects: Record<string, boolean> = {}
   ): MdDocumenter {
+    // Makes sure objects are not rendered twice
+    if (f.name && renderedObjects[f.name]) return this;
+    if (f.name) renderedObjects[f.name] = true;
+
     id = id ?? omitName ? '' : f.name;
     if (id) {
       this.insertInlineCode(id).insertNewLine();
@@ -392,7 +413,7 @@ export class MdDocumenter {
     const putDescription = (text: string | undefined, objects?: InstanceType<typeof FieldObject>[]) => {
       const m = mddoc();
       objects?.forEach(next => {
-        m.insertText('See below for ').insertInlineCode(next.name).insertText("'s object fields.").insertBreak(!!text);
+        m.insertText('See below for ').insertInlineCode(next.name).insertText("'s object fields.").insertText(' ');
       });
       m.insertText(text);
       this.insertTableCell(m.content).insertNewLine();
@@ -462,11 +483,8 @@ export class MdDocumenter {
         putRequired(arrayField.required);
 
         putDescription(
-          mddoc()
-            .insertText(arrayField.description)
-            .insertBreak(!!arrayFieldType.description)
-            .insertBreak(!!arrayField.description)
-            .insertText(`${arrayFieldType.description}`).content,
+          mddoc().insertText(arrayField.description).insertText(' ').insertText(`${arrayFieldType.description}`)
+            .content,
           isObjectField(arrayFieldType) ? [arrayFieldType] : undefined
         );
       } else if ((currentField as any) instanceof FieldOrCombination) {
@@ -488,7 +506,15 @@ export class MdDocumenter {
     }
 
     innerObjects = uniqWith(innerObjects, (a, b) => a.getName() === b.getName());
-    innerObjects.forEach(next => this.insertNewLine().insertObjectAsMdTable(undefined, next));
+    innerObjects.forEach(next =>
+      this.insertNewLine().insertObjectAsMdTable(
+        /** id */ undefined,
+        next,
+        ignoreRequired,
+        /** omitName */ false,
+        renderedObjects
+      )
+    );
     return this;
   }
 }
@@ -556,6 +582,10 @@ export function orNull(f: InstanceType<typeof FieldBase>) {
 
 export function orUndefinedOrNull(f: InstanceType<typeof FieldBase>) {
   return orUndefined(orNull(f));
+}
+
+export function cloneAndMarkNotRequired<T extends InstanceType<typeof FieldBase>>(f: T) {
+  return f.clone().setRequired(false);
 }
 
 export function asFieldObjectAny<T>(f: FieldObject<T>) {
@@ -636,16 +666,15 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
     return uniqWith(headers, (a, b) => a.name === b.name);
   };
 
-  const putHeaders = (headers: InstanceType<typeof HttpEndpointHeaderItem>[], title: string) => {
+  const putHeaders = (
+    headers: InstanceType<typeof HttpEndpointHeaderItem>[],
+    title: string,
+    hideRequiredCell?: boolean
+  ) => {
     if (headers.length) {
       m.insertBoldText(title)
         .insertNewLine()
-        .insertObjectAsMdTable(
-          undefined,
-          httpHeadersToFieldObject(headers),
-          /** ignoreRequired */ false,
-          /** omitName */ true
-        );
+        .insertObjectAsMdTable(undefined, httpHeadersToFieldObject(headers), hideRequiredCell, /** omitName */ true);
     } else {
       m.insertBoldText(title).insertInlineSeparator().insertText('No headers present');
     }
@@ -706,15 +735,16 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
       | InstanceType<typeof FieldBinary>
       | InstanceType<typeof HttpEndpointMultipartFormdata>
       | undefined,
-    title: string
+    title: string,
+    hideRequiredCell?: boolean
   ) => {
     if (b instanceof FieldObject) {
-      m.insertObjectAsMdTable(undefined, b);
+      m.insertObjectAsMdTable(undefined, b, hideRequiredCell);
     } else if (b instanceof HttpEndpointMultipartFormdata) {
       if (b.getIsSingularBlob()) {
         m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
       } else {
-        m.insertBoldText(title).insertNewLine().insertObjectAsMdTable(undefined, b.assertGetItems());
+        m.insertBoldText(title).insertNewLine().insertObjectAsMdTable(undefined, b.assertGetItems(), hideRequiredCell);
       }
     } else if (b instanceof FieldBinary) {
       m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
@@ -726,10 +756,11 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
   const putResponse = (response: InstanceType<typeof HttpEndpointResponse>) => {
     putHeaders(
       prepareResponseHeaders(response),
-      `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Headers`
+      `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Headers`,
+      true
     );
     putResponseBodyType(response, `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body Type`);
-    putBody(response.responseBody, `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body`);
+    putBody(response.responseBody, `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body`, true);
   };
 
   putParameterPathnames();
@@ -744,4 +775,10 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
 
 export function docEndpointList(endpoints: Array<InstanceType<typeof HttpEndpointDefinition>>) {
   return endpoints.map(endpoint => docEndpoint(endpoint)).join(MdDocumenter.NEWLINE + MdDocumenter.NEWLINE);
+}
+
+export function docEndpointListToC(endpoints: Array<InstanceType<typeof HttpEndpointDefinition>>) {
+  return endpoints.map(
+    endpoint => mddoc().insertText(endpoint.basePathname).insertInlineSeparator().insertText(endpoint.method).content
+  );
 }

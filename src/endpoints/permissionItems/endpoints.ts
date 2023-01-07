@@ -3,6 +3,7 @@ import {AppResourceType} from '../../definitions/system';
 import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
+  cloneAndMarkNotRequired,
   FieldArray,
   FieldBoolean,
   FieldObject,
@@ -65,13 +66,13 @@ const permissionEntityId = fReusables.permissionGroupId
   .setDescription(
     'Permission entity resource ID. ' +
       'Permission entity is the resource granted access. ' +
-      'This can be a user, a permission group, a program access token, or a client assigned token.'
+      'This can be a user, a permission group, a permission item, or a client assigned token.'
   );
 const permissionEntityType = new FieldString()
   .setDescription(
     'Permission entity resource type. ' +
       'Permission entity is the resource granted access. ' +
-      'This can be a user, a permission group, a program access token, or a client assigned token.'
+      'This can be a user, a permission group, a permission item, or a client assigned token.'
   )
   .setValid([
     AppResourceType.User,
@@ -82,9 +83,10 @@ const permissionEntityType = new FieldString()
 const grantAccess = new FieldBoolean().setDescription(
   'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
 );
-const permissionOwnerIdOrUndefined = orUndefined(permissionOwnerId);
-const permissionOwnerTypeOrUndefined = orUndefined(permissionOwnerType);
 const itemResourceIdOrUndefined = orUndefined(itemResourceId);
+const permissionOwnerIdNotRequired = cloneAndMarkNotRequired(permissionOwnerId);
+const permissionOwnerTypeNotRequired = cloneAndMarkNotRequired(permissionOwnerType);
+const itemResourceIdNotRequired = cloneAndMarkNotRequired(itemResourceId);
 
 const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInput>>()
   .setName('NewPermissionItemInput')
@@ -95,7 +97,7 @@ const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInp
     permissionEntityId,
     permissionEntityType,
     itemResourceType,
-    itemResourceId: itemResourceIdOrUndefined,
+    itemResourceId: itemResourceIdNotRequired,
     action: fReusables.action,
     appliesTo: fReusables.appliesTo,
   });
@@ -107,7 +109,7 @@ const newPermissionItemByEntityInput = new FieldObject<ExcludeTags<INewPermissio
     permissionOwnerType,
     grantAccess,
     itemResourceType,
-    itemResourceId: itemResourceIdOrUndefined,
+    itemResourceId: itemResourceIdNotRequired,
     action: fReusables.action,
     appliesTo: fReusables.appliesTo,
   });
@@ -138,7 +140,7 @@ const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>().set
 const addPermissionItemsParams = new FieldObject<IAddPermissionItemsEndpointParams>()
   .setName('AddPermissionItemsEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     items: newPermissionItemInputList,
   })
   .setRequired(true)
@@ -160,11 +162,11 @@ const addPermissionItemsResult = [
 const getResourcePermissionItemsParams = new FieldObject<IGetResourcePermissionItemsEndpointParams>()
   .setName('GetResourcePermissionItemsEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
-    itemResourceId: itemResourceIdOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
+    itemResourceId: itemResourceIdNotRequired,
     itemResourceType: itemResourceType,
-    permissionOwnerId: permissionOwnerIdOrUndefined,
-    permissionOwnerType: permissionOwnerTypeOrUndefined,
+    permissionOwnerId: permissionOwnerIdNotRequired,
+    permissionOwnerType: permissionOwnerTypeNotRequired,
   })
   .setRequired(true)
   .setDescription(
@@ -193,7 +195,7 @@ const replacePermissionItemsByEntityParams = new FieldObject<IReplacePermissionI
   .setFields({
     permissionEntityId,
     permissionEntityType,
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     items: newPermissionItemByEntityInputList,
   })
   .setRequired(true)
@@ -214,7 +216,7 @@ const replacePermissionItemsByEntityResult = [
 
 const getEntityPermissionItemsParams = new FieldObject<IGetEntityPermissionItemsEndpointParams>()
   .setName('getEntityPermissionItemsEndpointParams')
-  .setFields({permissionEntityId, permissionEntityType, workspaceId: fReusables.workspaceIdInputOrUndefined})
+  .setFields({permissionEntityId, permissionEntityType, workspaceId: fReusables.workspaceIdInputNotRequired})
   .setRequired(true)
   .setDescription('Get entity permission items endpoint params.');
 const getEntityPermissionItemsResult = [
@@ -234,7 +236,7 @@ const getEntityPermissionItemsResult = [
 const deletePermissionItemsByIdParams = new FieldObject<IDeletePermissionItemsByIdEndpointParams>()
   .setName('DeletePermissionItemsByIdEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     itemIds: new FieldArray()
       .setType(fReusables.permissionItemId)
       .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest),
@@ -247,32 +249,42 @@ export const addPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addPermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addPermissionItemsResult);
+  .setResponses(addPermissionItemsResult)
+  .setName('Add Permission Items Endpoint')
+  .setDescription('Add permission items endpoint.');
 
 export const getEntityPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/permissionItems/getEntityPermissionItems')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getEntityPermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getEntityPermissionItemsResult);
+  .setResponses(getEntityPermissionItemsResult)
+  .setName('Get Entity Permission Items Endpoint')
+  .setDescription('Get entity permission items endpoint.');
 
 export const replacePermissionItemsByEntityEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/permissionItems/replaceItemsByEntity')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(replacePermissionItemsByEntityParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(replacePermissionItemsByEntityResult);
+  .setResponses(replacePermissionItemsByEntityResult)
+  .setName('Replace Permission Items Endpoint')
+  .setDescription('Replace permission items endpoint.');
 
 export const deletePermissionItemsByIdEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/permissionItems/deleteItemsById')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deletePermissionItemsByIdParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setName('Delete Permission Items Endpoint')
+  .setDescription('Delete permission items endpoint.');
 
 export const getResourcePermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/permissionItems/getResourcePermissionItems')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getResourcePermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getResourcePermissionItemsResult);
+  .setResponses(getResourcePermissionItemsResult)
+  .setName('Get Resource Permission Items Endpoint')
+  .setDescription('Get resource permission items endpoint.');

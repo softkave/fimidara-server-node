@@ -1,6 +1,7 @@
 import {IFileMatcher, IPublicFile} from '../../definitions/file';
 import {
   asFieldObjectAny,
+  cloneAndMarkNotRequired,
   FieldBinary,
   FieldObject,
   FieldObjectFields,
@@ -37,10 +38,12 @@ const height = new FieldString().setDescription('Resize to height if file is an 
 const width = new FieldString().setDescription('Resize to width if file is an image.');
 const mimetypeOrUndefined = orUndefined(mimetype);
 const encodingOrUndefined = orUndefined(encoding);
-const extensionOrUndefined = orUndefined(extension);
-const uploadFilePublicAccessActionOrUndefined = orUndefined(uploadFilePublicAccessAction);
-const widthOrUndefined = orUndefined(width);
-const heightOrUndefined = orUndefined(height);
+const mimetypeNotRequired = cloneAndMarkNotRequired(mimetype);
+const encodingNotRequired = cloneAndMarkNotRequired(encoding);
+const extensionNotRequired = cloneAndMarkNotRequired(extension);
+const uploadFilePublicAccessActionNotRequired = cloneAndMarkNotRequired(uploadFilePublicAccessAction);
+const widthNotRequired = cloneAndMarkNotRequired(width);
+const heightNotRequired = cloneAndMarkNotRequired(height);
 
 const file = new FieldObject<IPublicFile>().setName('File').setFields({
   size,
@@ -61,14 +64,14 @@ const file = new FieldObject<IPublicFile>().setName('File').setFields({
 });
 
 const updateFileDetailsInput = new FieldObject<IUpdateFileDetailsInput>().setName('UpdateFileDetailsInput').setFields({
-  description: fReusables.descriptionOrUndefined,
-  mimetype: mimetypeOrUndefined,
-  publicAccessAction: uploadFilePublicAccessActionOrUndefined,
+  description: fReusables.descriptionNotRequired,
+  mimetype: mimetypeNotRequired,
+  publicAccessAction: uploadFilePublicAccessActionNotRequired,
 });
 
 const fileMatcherParts: FieldObjectFields<IFileMatcher> = {
-  filepath: fReusables.filepathOrUndefined,
-  fileId: fReusables.fileIdOrUndefined,
+  filepath: fReusables.filepathNotRequired,
+  fileId: fReusables.fileIdNotRequired,
 };
 
 const filepathParameterPathname = new HttpEndpointParameterPathnameItem()
@@ -132,8 +135,8 @@ const getFileParams = new FieldObject<IGetFileEndpointParams>()
     ...fileMatcherParts,
     imageTranformation: new FieldObject<IImageTransformationParams>()
       .setFields({
-        width: widthOrUndefined,
-        height: heightOrUndefined,
+        width: widthNotRequired,
+        height: heightNotRequired,
       })
       .setName('ImageTransformationParams'),
   })
@@ -170,11 +173,11 @@ const updloadFileParams = new HttpEndpointMultipartFormdata().setItems(
     new FieldObject<IUploadFileEndpointParams>().setFields({
       ...fileMatcherParts,
       data: new FieldBinary().setRequired(true).setDescription('File binary.'),
-      description: fReusables.descriptionOrUndefined,
-      mimetype: mimetypeOrUndefined,
-      publicAccessAction: uploadFilePublicAccessActionOrUndefined,
-      encoding: encodingOrUndefined,
-      extension: extensionOrUndefined,
+      description: fReusables.descriptionNotRequired,
+      mimetype: mimetypeNotRequired,
+      publicAccessAction: uploadFilePublicAccessActionNotRequired,
+      encoding: encodingNotRequired,
+      extension: extensionNotRequired,
     })
   )
     .setDescription('Upload file endpoint params.')
@@ -201,13 +204,15 @@ export const getFileEndpointDefinition = new HttpEndpointDefinition()
   .setQuery(
     asFieldObjectAny(
       new FieldObject<IGetFileEndpointQueryParams>().setFields({
-        w: widthOrUndefined,
-        h: heightOrUndefined,
+        w: widthNotRequired,
+        h: heightNotRequired,
       })
     )
   )
   .setRequestBody(asFieldObjectAny(getFileParams))
-  .setResponses(getFileResult);
+  .setResponses(getFileResult)
+  .setName('Get File Endpoint')
+  .setDescription('Get file endpoint.');
 
 export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/files/uploadFile')
@@ -215,27 +220,35 @@ export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(uploadFileResult);
+  .setResponses(uploadFileResult)
+  .setName('Upload File Endpoint')
+  .setDescription('Upload file endpoint.');
 
 export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/files/getFileDetails')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getFileDetailsResult);
+  .setResponses(getFileDetailsResult)
+  .setName('Get File details Endpoint')
+  .setDescription('Get file details endpoint.');
 
 export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/files/updateFileDetails')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateFileDetailsResult);
+  .setResponses(updateFileDetailsResult)
+  .setName('Update File Details Endpoint')
+  .setDescription('Update file details endpoint.');
 
 export const deleteFileEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/files/deleteFile')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteFileParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setName('Delete File Endpoint')
+  .setDescription('Delete file endpoint.');
 
 export const fileEndpointsParts = {file};

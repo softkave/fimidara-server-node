@@ -26,9 +26,9 @@ import {IUpdateProgramAccessTokenEndpointParams, IUpdateProgramAccessTokenEndpoi
 const newProgramAccessTokenInput = new FieldObject<INewProgramAccessTokenInput>()
   .setName('NewProgramAccessTokenInput')
   .setFields({
-    name: fReusables.nameOrUndefined,
-    description: fReusables.descriptionOrUndefined,
-    permissionGroups: fReusables.assignPermissionGroupListOrUndefined,
+    name: fReusables.nameNotRequired,
+    description: fReusables.descriptionNotRequired,
+    permissionGroups: fReusables.assignPermissionGroupListNotRequired,
   });
 
 const programAccessToken = new FieldObject<IPublicProgramAccessToken>().setName('ProgramAccessToken').setFields({
@@ -47,7 +47,7 @@ const programAccessToken = new FieldObject<IPublicProgramAccessToken>().setName(
 const addProgramAccessTokenParams = new FieldObject<IAddProgramAccessTokenEndpointParams>()
   .setName('AddProgramAccessTokenEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     token: newProgramAccessTokenInput,
   })
   .setRequired(true)
@@ -69,7 +69,7 @@ const addProgramAccessTokenResult = [
 const getWorkspaceProgramAccessTokensParams = new FieldObject<IGetWorkspaceProgramAccessTokensEndpointParams>()
   .setName('GetWorkspaceProgramAccessTokensEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace program access tokens endpoint params.');
@@ -90,8 +90,8 @@ const getWorkspaceProgramAccessTokensResult = [
 const updateProgramAccessTokenParams = new FieldObject<IUpdateProgramAccessTokenEndpointParams>()
   .setName('UpdateProgramAccessTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
     token: partialFieldObject(newProgramAccessTokenInput),
   })
   .setRequired(true)
@@ -113,8 +113,8 @@ const updateProgramAccessTokenResult = [
 const getProgramAccessTokenParams = new FieldObject<IGetProgramAccessTokenEndpointParams>()
   .setName('UpdateProgramAccessTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
   })
   .setRequired(true)
   .setDescription('Get program access token endpoint params.');
@@ -135,8 +135,8 @@ const getProgramAccessTokenResult = [
 const deleteProgramAccessTokenParams = new FieldObject<IDeleteProgramAccessTokenEndpointParams>()
   .setName('DeleteProgramAccessTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idOrUndefined,
-    onReferenced: fReusables.effectOnReferencedOrUndefined,
+    tokenId: fReusables.idNotRequired,
+    onReferenced: fReusables.effectOnReferencedNotRequired,
   })
   .setRequired(true)
   .setDescription('Delete program access token endpoint params.');
@@ -146,32 +146,42 @@ export const addProgramAccessTokenEndpointDefinition = new HttpEndpointDefinitio
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addProgramAccessTokenResult);
+  .setResponses(addProgramAccessTokenResult)
+  .setName('Add Program Access Token Endpoint')
+  .setDescription('Add program access token endpoint.');
 
 export const getProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/programAccessTokens/getToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getProgramAccessTokenResult);
+  .setResponses(getProgramAccessTokenResult)
+  .setName('Get Program Access Token Endpoint')
+  .setDescription('Get program access token endpoint.');
 
 export const updateProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/programAccessTokens/updateToken')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateProgramAccessTokenResult);
+  .setResponses(updateProgramAccessTokenResult)
+  .setName('Update Program Access Token Endpoint')
+  .setDescription('Update program access token endpoint.');
 
 export const deleteProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/programAccessTokens/deleteToken')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setName('Delete Program Access Token Endpoint')
+  .setDescription('Delete program access token endpoint.');
 
 export const getWorkspaceProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/programAccessTokens/getWorkspaceTokens')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceProgramAccessTokensParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceProgramAccessTokensResult);
+  .setResponses(getWorkspaceProgramAccessTokensResult)
+  .setName('Get Workspace Program Access Tokens Endpoint')
+  .setDescription('Get workspace program access tokens endpoint.');

@@ -2,6 +2,7 @@ import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IPublicWorkspace, IUsageThreshold, IUsageThresholdLock, WorkspaceBillStatus} from '../../definitions/workspace';
 import {
   asFieldObjectAny,
+  cloneAndMarkNotRequired,
   FieldBoolean,
   FieldNumber,
   FieldObject,
@@ -83,7 +84,7 @@ const addWorkspaceParams = new FieldObject<IAddWorkspaceEndpointParams>()
   .setFields({
     name: fReusables.workspaceName,
     rootname: fReusables.workspaceRootname,
-    description: orUndefined(workspaceDescription),
+    description: cloneAndMarkNotRequired(workspaceDescription),
   })
   .setRequired(true)
   .setDescription('Add workspace endpoint params.');
@@ -104,7 +105,7 @@ const addWorkspaceResult = [
 const getWorkspaceParams = new FieldObject<IGetWorkspaceEndpointParams>()
   .setName('GetWorkspaceEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace endpoint params.');
@@ -125,10 +126,10 @@ const getWorkspaceResult = [
 const updateWorkspaceParams = new FieldObject<IUpdateWorkspaceEndpointParams>()
   .setName('UpdateWorkspaceEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     workspace: new FieldObject<IUpdateWorkspaceInput>().setName('UpdateWorkspaceInput').setFields({
-      name: fReusables.workspaceNameOrUndefined,
-      description: orUndefined(workspaceDescription),
+      name: fReusables.workspaceNameNotRequired,
+      description: cloneAndMarkNotRequired(workspaceDescription),
     }),
   })
   .setRequired(true)
@@ -150,7 +151,7 @@ const updateWorkspaceResult = [
 const deleteWorkspaceParams = new FieldObject<IDeleteWorkspaceEndpointParams>()
   .setName('DeleteWorkspaceEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputOrUndefined,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Delete workspace endpoint params.');
@@ -160,25 +161,33 @@ export const addWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addWorkspaceResult);
+  .setResponses(addWorkspaceResult)
+  .setName('Add Workspace Endpoint')
+  .setDescription('Add workspace endpoint.');
 
 export const getWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/getWorkspace')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceResult);
+  .setResponses(getWorkspaceResult)
+  .setName('Get Workspace Endpoint')
+  .setDescription('Get workspace endpoint.');
 
 export const updateWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/updateWorkspace')
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateWorkspaceResult);
+  .setResponses(updateWorkspaceResult)
+  .setName('Update Workspace Endpoint')
+  .setDescription('Update workspace endpoint.');
 
 export const deleteWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname('/workspaces/deleteWorkspace')
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse);
+  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setName('Delete Workspace Endpoint')
+  .setDescription('Delete workspace endpoint.');
