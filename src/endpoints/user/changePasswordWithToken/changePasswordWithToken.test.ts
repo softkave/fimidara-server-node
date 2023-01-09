@@ -1,9 +1,5 @@
 import {add} from 'date-fns';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-} from '../../../definitions/system';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {} from '../../contexts/SessionContext';
@@ -50,7 +46,7 @@ async function changePasswordWithTokenTest() {
   });
 
   const newPassword = 'abd784_!new';
-  const token = await context.data.userToken.saveItem({
+  const token = await context.data.userToken.insertItem({
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     audience: [TokenAudience.ChangePassword],
@@ -61,27 +57,21 @@ async function changePasswordWithTokenTest() {
     }).valueOf(),
   });
 
-  const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
-    mockExpressRequestWithUserToken(token),
-    {
-      password: newPassword,
-    }
-  );
+  const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(mockExpressRequestWithUserToken(token), {
+    password: newPassword,
+  });
 
   const result = await changePasswordWithToken(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetItem(
+  const updatedUser = await context.data.user.assertGetOneByQuery(
     EndpointReusableQueries.getById(result.user.resourceId)
   );
 
   expect(result.user).toMatchObject(userExtractor(updatedUser));
-  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
-    mockExpressRequest(),
-    {
-      password: newPassword,
-      email: user.email,
-    }
-  );
+  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+    password: newPassword,
+    email: user.email,
+  });
 
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);

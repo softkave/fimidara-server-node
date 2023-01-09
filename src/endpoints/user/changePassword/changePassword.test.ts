@@ -44,20 +44,17 @@ test('password changed', async () => {
   const oldHash = rawUser.hash;
   const result = await changePassword(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetItem(
+  const updatedUser = await context.data.user.assertGetOneByQuery(
     EndpointReusableQueries.getById(result.user.resourceId)
   );
 
   expect(updatedUser.hash).not.toEqual(oldHash);
   expect(updatedUser.resourceId).toEqual(rawUser.resourceId);
 
-  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(
-    mockExpressRequest(),
-    {
-      password: newPassword,
-      email: user.email,
-    }
-  );
+  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+    password: newPassword,
+    email: user.email,
+  });
 
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);

@@ -9,13 +9,8 @@ export async function deleteResourceAssignedItems(
   resourceType: AppResourceType,
   assignedItemTypes?: AppResourceType[]
 ) {
-  await context.data.assignedItem.deleteManyItems(
-    AssignedItemQueries.getByAssignedToResource(
-      workspaceId,
-      resourceId,
-      resourceType,
-      assignedItemTypes
-    )
+  await context.data.assignedItem.deleteManyByQuery(
+    AssignedItemQueries.getByAssignedToResource(workspaceId, resourceId, resourceType, assignedItemTypes)
   );
 }
 
@@ -25,11 +20,7 @@ export async function deleteAssignableItemAssignedItems(
   assignedItemId: string,
   assignedItemType: AppResourceType
 ) {
-  await context.data.assignedItem.deleteManyItems(
-    AssignedItemQueries.getByAssignedItem(
-      workspaceId,
-      assignedItemId,
-      assignedItemType
-    )
+  await context.data.assignedItem.deleteManyByQuery(
+    AssignedItemQueries.getByAssignedItem(workspaceId, assignedItemId, assignedItemType)
   );
 }

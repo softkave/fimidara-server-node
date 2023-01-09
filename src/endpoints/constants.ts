@@ -13,4 +13,5 @@ export const endpointConstants = {
   },
   maxPageSize: 100,
   providedResourceIdMaxLength: 50,
+  inputListMax: 1000,
 };

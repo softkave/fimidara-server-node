@@ -13,8 +13,7 @@ export interface ISettledPromise<Value = any, Reason = any> {
   reason?: Reason;
 }
 
-export interface ISettledPromiseWithId<Value = any, Reason = any>
-  extends ISettledPromise<Value, Reason> {
+export interface ISettledPromiseWithId<Value = any, Reason = any> extends ISettledPromise<Value, Reason> {
   id: string | number;
 }
 
@@ -29,18 +28,14 @@ function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
           value: result,
         })
       )
-      .catch(error =>
-        resolve({...p, resolved: false, rejected: true, reason: error})
-      );
+      .catch(error => resolve({...p, resolved: false, rejected: true, reason: error}));
   });
 }
 
 export const waitOnPromisesWithId = <T>(
   promises: IPromiseWithId<T>[] | Dictionary<IPromiseWithId<T>>
 ): Promise<ISettledPromiseWithId<T, any>[]> => {
-  const mappedPromises = map(promises, wrapPromiseWithId) as unknown as Promise<
-    ISettledPromiseWithId<T, any>
-  >[];
+  const mappedPromises = map(promises, wrapPromiseWithId) as unknown as Promise<ISettledPromiseWithId<T, any>>[];
   return Promise.all(mappedPromises);
 };
 
@@ -74,10 +69,7 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function logRejectedPromisesWithIdAndThrow(
-  ctx: IBaseContext,
-  p: ISettledPromiseWithId[]
-) {
+export function logRejectedPromisesWithIdAndThrow(ctx: IBaseContext, p: ISettledPromiseWithId[]) {
   const rejected = p.filter(p => p.rejected);
   if (rejected.length > 0) {
     rejected.forEach(p => {
@@ -87,10 +79,7 @@ export function logRejectedPromisesWithIdAndThrow(
   }
 }
 
-export function logRejectedPromisesAndThrow(
-  ctx: IBaseContext,
-  p: PromiseSettledResult<any>[]
-) {
+export function logRejectedPromisesAndThrow(ctx: IBaseContext, p: PromiseSettledResult<any>[]) {
   const rejected: PromiseRejectedResult[] = p.filter(
     p => p.status === 'rejected'
   ) as unknown as PromiseRejectedResult[];

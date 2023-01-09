@@ -18,26 +18,16 @@ import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
 import {PermissionDeniedError} from '../../user/errors';
+import WorkspaceQueries from '../../workspaces/queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import FolderQueries from '../queries';
-import {
-  checkFolderAuthorization02,
-  folderListExtractor,
-  getRootname,
-} from '../utils';
+import {checkFolderAuthorization02, folderListExtractor, getRootname} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {listFolderContentJoiSchema} from './validation';
 
-const listFolderContent: ListFolderContentEndpoint = async (
-  context,
-  instData
-) => {
+const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    publicPermissibleEndpointAgents
-  );
+  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
 
   let fetchedFolders: IFolder[] = [];
   let fetchedFiles: IFile[] = [];
@@ -46,11 +36,7 @@ const listFolderContent: ListFolderContentEndpoint = async (
   if (data.folderpath) {
     const rootname = getRootname(data.folderpath);
     if (rootname === data.folderpath) {
-      workspace = await context.cacheProviders.workspace.getByRootname(
-        context,
-        rootname
-      );
-
+      workspace = await context.data.workspace.getOneByQuery(WorkspaceQueries.getByRootname(rootname));
       assertWorkspace(workspace);
       const result = await fetchRootLevelContent(context, workspace.resourceId);
       fetchedFiles = result.files;
@@ -97,15 +83,9 @@ const listFolderContent: ListFolderContentEndpoint = async (
     });
   });
 
-  const folderPermittedReads = await waitOnPromises(
-    checkFoldersPermissionQueue
-  );
-
+  const folderPermittedReads = await waitOnPromises(checkFoldersPermissionQueue);
   const filePermittedReads = await waitOnPromises(checkFilesPermissionQueue);
-  let allowedFolders = fetchedFolders.filter(
-    (item, i) => !!folderPermittedReads[i]
-  );
-
+  let allowedFolders = fetchedFolders.filter((item, i) => !!folderPermittedReads[i]);
   let allowedFiles = fetchedFiles.filter((item, i) => !!filePermittedReads[i]);
 
   if (
@@ -117,13 +97,12 @@ const listFolderContent: ListFolderContentEndpoint = async (
     throw new PermissionDeniedError();
   }
 
-  allowedFolders =
-    await populateResourceListWithAssignedPermissionGroupsAndTags(
-      context,
-      workspace.resourceId,
-      allowedFolders,
-      AppResourceType.Folder
-    );
+  allowedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
+    context,
+    workspace.resourceId,
+    allowedFolders,
+    AppResourceType.Folder
+  );
 
   allowedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
@@ -138,37 +117,20 @@ const listFolderContent: ListFolderContentEndpoint = async (
   };
 };
 
-async function fetchRootLevelContent(
-  context: IBaseContext,
-  workspaceId: string
-) {
+async function fetchRootLevelContent(context: IBaseContext, workspaceId: string) {
   const [folders, files] = await Promise.all([
-    context.data.folder.getManyItems(FolderQueries.getRootFolders(workspaceId)),
-    context.data.file.getManyItems(FileQueries.getRootFiles(workspaceId)),
+    context.data.folder.getManyByQuery(FolderQueries.getRootFolders(workspaceId)),
+    context.data.file.getManyByQuery(FileQueries.getRootFiles(workspaceId)),
   ]);
 
   return {folders, files};
 }
 
-async function fetchFolderContent(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFolderMatcher
-) {
-  const {folder, workspace} = await checkFolderAuthorization02(
-    context,
-    agent,
-    matcher,
-    BasicCRUDActions.Read
-  );
-
+async function fetchFolderContent(context: IBaseContext, agent: ISessionAgent, matcher: IFolderMatcher) {
+  const {folder, workspace} = await checkFolderAuthorization02(context, agent, matcher, BasicCRUDActions.Read);
   const [folders, files] = await Promise.all([
-    context.data.folder.getManyItems(
-      FolderQueries.getFoldersByParentId(folder.resourceId)
-    ),
-    context.data.file.getManyItems(
-      FileQueries.getFilesByParentId(folder.resourceId)
-    ),
+    context.data.folder.getManyByQuery(FolderQueries.getFoldersByParentId(folder.resourceId)),
+    context.data.file.getManyByQuery(FileQueries.getFilesByParentId(folder.resourceId)),
   ]);
 
   return {folders, files, workspace};

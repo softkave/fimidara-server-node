@@ -10,16 +10,9 @@ import {
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
-import {
-  assertWorkspace,
-  makeRootnameFromName,
-  workspaceExtractor,
-} from '../utils';
+import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
 import {IAddWorkspaceEndpointParams} from './types';
-import {
-  DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-  DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
-} from './utils';
+import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME} from './utils';
 
 let context: IBaseContext | null = null;
 
@@ -42,45 +35,29 @@ describe('addWorkspace', () => {
       description: faker.company.catchPhraseDescriptor(),
     };
 
-    const result = await insertWorkspaceForTest(
-      context,
-      userToken,
-      companyInput
-    );
+    const result = await insertWorkspaceForTest(context, userToken, companyInput);
     expect(result.workspace).toMatchObject(companyInput);
     expect(result.workspace.publicPermissionGroupId).toBeTruthy();
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      result.workspace.resourceId
+    const workspace = await context.data.workspace.getOneByQuery(
+      EndpointReusableQueries.getById(result.workspace.resourceId)
     );
     assertWorkspace(workspace);
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
-    const adminPermissionGroup =
-      await context.data.permissiongroup.assertGetItem(
-        EndpointReusableQueries.getByWorkspaceAndName(
-          workspace.resourceId,
-          DEFAULT_ADMIN_PERMISSION_GROUP_NAME
-        )
-      );
+    const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
+      EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
+    );
 
-    await context.data.permissiongroup.assertGetItem(
-      EndpointReusableQueries.getByWorkspaceAndName(
-        workspace.resourceId,
-        DEFAULT_PUBLIC_PERMISSION_GROUP_NAME
-      )
+    await context.data.permissiongroup.assertGetOneByQuery(
+      EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME)
     );
 
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetItem(
-        EndpointReusableQueries.getById(userToken.userId)
-      )
+      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(userToken.userId))
     );
 
-    const userWorkspace = user.workspaces.find(
-      item => item.workspaceId === workspace.resourceId
-    );
+    const userWorkspace = user.workspaces.find(item => item.workspaceId === workspace.resourceId);
 
     expect(userWorkspace).toBeTruthy();
     const assignedAdminPermissionGroup = userWorkspace?.permissionGroups.find(

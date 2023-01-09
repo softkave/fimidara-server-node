@@ -38,12 +38,11 @@ describe('replaceItemsByEntity', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} =
-      await insertPermissionGroupForTest(
-        context,
-        userToken,
-        workspace.resourceId
-      );
+    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
     await insertPermissionItemsForTestByEntity(
       context,
@@ -65,12 +64,11 @@ describe('replaceItemsByEntity', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} =
-      await insertPermissionGroupForTest(
-        context,
-        userToken,
-        workspace.resourceId
-      );
+    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
     const itemsOwner: ITestPermissionItemOwner = {
       permissionOwnerId: workspace.resourceId,
@@ -87,14 +85,7 @@ describe('replaceItemsByEntity', () => {
     };
 
     // First insert
-    await insertPermissionItemsForTestByEntity(
-      context,
-      userToken,
-      workspace.resourceId,
-      entity,
-      itemsOwner,
-      itemsBase
-    );
+    await insertPermissionItemsForTestByEntity(context, userToken, workspace.resourceId, entity, itemsOwner, itemsBase);
 
     // Second insert of the very same permission items as the first
     // insert
@@ -107,11 +98,8 @@ describe('replaceItemsByEntity', () => {
       itemsBase
     );
 
-    const permissionGroupItems = await context.data.permissionItem.getManyItems(
-      PermissionItemQueries.getByPermissionEntity(
-        entity.permissionEntityId,
-        entity.permissionEntityType
-      )
+    const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
+      PermissionItemQueries.getByPermissionEntity(entity.permissionEntityId, entity.permissionEntityType)
     );
 
     expect(permissionGroupItems.length).toBe(result.items.length);

@@ -1,23 +1,13 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-export const collaboratorExtractor = (
-  item: IUserWithWorkspace,
-  workspaceId: string
-) => {
+export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
 
   if (!userWorkspace) {
@@ -37,10 +27,7 @@ export const collaboratorExtractor = (
   return collaborator;
 };
 
-export const collaboratorListExtractor = (
-  items: IUserWithWorkspace[],
-  workspaceId: string
-) => {
+export const collaboratorListExtractor = (items: IUserWithWorkspace[], workspaceId: string) => {
   return items.map(item => collaboratorExtractor(item, workspaceId));
 };
 
@@ -83,40 +70,23 @@ export async function checkCollaboratorAuthorization02(
 ) {
   const collaborator = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetItem(
-      EndpointReusableQueries.getById(collaboratorId)
-    )
+    await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(collaboratorId))
   );
 
-  return checkCollaboratorAuthorization(
-    context,
-    agent,
-    workspaceId,
-    collaborator,
-    action,
-    nothrow
-  );
+  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);
 }
 
 export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
 }
 
-export function getCollaboratorWorkspace(
-  user: IUserWithWorkspace,
-  workspaceId: string
-) {
+export function getCollaboratorWorkspace(user: IUserWithWorkspace, workspaceId: string) {
   return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
-export function removeOtherUserWorkspaces(
-  collaborator: IUserWithWorkspace,
-  workspaceId: string
-): IUserWithWorkspace {
+export function removeOtherUserWorkspaces(collaborator: IUserWithWorkspace, workspaceId: string): IUserWithWorkspace {
   return {
     ...collaborator,
-    workspaces: collaborator.workspaces.filter(
-      item => item.workspaceId === workspaceId
-    ),
+    workspaces: collaborator.workspaces.filter(item => item.workspaceId === workspaceId),
   };
 }

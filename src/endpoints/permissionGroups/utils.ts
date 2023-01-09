@@ -80,7 +80,7 @@ export async function checkPermissionGroupAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const permissionGroup = await context.data.permissiongroup.assertGetItem(PermissionGroupQueries.getById(id));
+  const permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(id));
 
   return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
 }
@@ -99,13 +99,13 @@ export async function checkPermissionGroupAuthorization03(
   }
 
   if (input.permissionGroupId) {
-    permissionGroup = await context.data.permissiongroup.assertGetItem(
+    permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
       PermissionGroupQueries.getById(input.permissionGroupId)
     );
   } else if (input.name) {
     const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
 
-    permissionGroup = await context.data.permissiongroup.assertGetItem(
+    permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
       PermissionGroupQueries.getByWorkspaceAndName(workspaceId, input.name)
     );
   }
@@ -122,7 +122,7 @@ export async function checkPermissionGroupsExist(
 ) {
   const permissionGroups = await Promise.all(
     permissionGroupInputs.map(item =>
-      context.data.permissiongroup.assertGetItem(PermissionGroupQueries.getById(item.permissionGroupId))
+      context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(item.permissionGroupId))
     )
   );
 

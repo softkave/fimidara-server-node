@@ -1,6 +1,6 @@
 import {SessionAgentType} from '../definitions/system';
 import OperationError from '../utils/OperationError';
-import {IDataProvideQueryListParams} from './contexts/data-providers/types';
+import {IDataProvideQueryListParams} from './contexts/data/types';
 import {IBaseContext} from './contexts/types';
 import RequestData from './RequestData';
 

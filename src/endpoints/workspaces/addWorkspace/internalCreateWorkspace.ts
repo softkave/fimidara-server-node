@@ -7,22 +7,14 @@ import {getDate, getDateString} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {getDefaultThresholds} from '../../usageRecords/constants';
-import {
-  checkWorkspaceNameExists,
-  checkWorkspaceRootnameExists,
-} from '../checkWorkspaceNameExists';
+import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
-import {
-  addWorkspaceToUserAndAssignAdminPermissionGroup,
-  setupDefaultWorkspacePermissionGroups,
-} from './utils';
+import {addWorkspaceToUserAndAssignAdminPermissionGroup, setupDefaultWorkspacePermissionGroups} from './utils';
 
-export function transformUsageThresholInput(
-  agent: IAgent,
-  input: Required<INewWorkspaceInput>['usageThresholds']
-) {
+export function transformUsageThresholInput(agent: IAgent, input: Required<INewWorkspaceInput>['usageThresholds']) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
   cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
@@ -55,39 +47,35 @@ const internalCreateWorkspace = async (
 
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
-  let workspace: IWorkspace | null =
-    await context.cacheProviders.workspace.insert(context, {
-      createdAt,
-      usageThresholds,
-      createdBy: agent,
-      lastUpdatedAt: createdAt,
-      lastUpdatedBy: agent,
-      name: data.name,
-      rootname: data.rootname,
-      resourceId: getNewIdForResource(AppResourceType.Workspace),
-      description: data.description,
-      billStatus: WorkspaceBillStatus.Ok,
-      billStatusAssignedAt: createdAt,
-      usageThresholdLocks: {},
-    });
+  let workspace: IWorkspace | null = await context.data.workspace.insertItem({
+    createdAt,
+    usageThresholds,
+    createdBy: agent,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: agent,
+    name: data.name,
+    rootname: data.rootname,
+    resourceId: getNewIdForResource(AppResourceType.Workspace),
+    description: data.description,
+    billStatus: WorkspaceBillStatus.Ok,
+    billStatusAssignedAt: createdAt,
+    usageThresholdLocks: {},
+  });
 
-  const {adminPermissionGroup, publicPermissionGroup} =
-    await setupDefaultWorkspacePermissionGroups(context, agent, workspace);
-
-  workspace = await context.cacheProviders.workspace.updateById(
+  const {adminPermissionGroup, publicPermissionGroup} = await setupDefaultWorkspacePermissionGroups(
     context,
-    workspace.resourceId,
+    agent,
+    workspace
+  );
+
+  workspace = await context.data.workspace.getAndUpdateOneByQuery(
+    EndpointReusableQueries.getById(workspace.resourceId),
     {publicPermissionGroupId: publicPermissionGroup.resourceId}
   );
 
   assertWorkspace(workspace);
   if (user) {
-    await addWorkspaceToUserAndAssignAdminPermissionGroup(
-      context,
-      user,
-      workspace,
-      adminPermissionGroup
-    );
+    await addWorkspaceToUserAndAssignAdminPermissionGroup(context, user, workspace, adminPermissionGroup);
   }
 
   return {workspace, adminPermissionGroup, publicPermissionGroup};

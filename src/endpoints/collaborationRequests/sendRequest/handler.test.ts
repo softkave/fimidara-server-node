@@ -50,7 +50,7 @@ describe('sendCollaborationRequest', () => {
     expect(assignedPermissionGroup01).toBeDefined();
     expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
 
-    const savedRequest = await context.data.collaborationRequest.assertGetItem(
+    const savedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getById(request01.resourceId)
     );
 

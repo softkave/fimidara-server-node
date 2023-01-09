@@ -1,8 +1,4 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  SessionAgentType,
-} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, SessionAgentType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteAssignableItemAssignedItems} from '../../assignedItems/deleteAssignedItems';
@@ -19,53 +15,32 @@ import {deleteWorkspaceJoiSchema} from './validation';
 
 const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
-  const agent = await context.session.getAgent(context, instData, [
-    SessionAgentType.User,
-  ]);
+  const agent = await context.session.getAgent(context, instData, [SessionAgentType.User]);
 
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const {workspace} = await checkWorkspaceAuthorization02(
-    context,
-    agent,
-    workspaceId,
-    BasicCRUDActions.Delete
-  );
+  const {workspace} = await checkWorkspaceAuthorization02(context, agent, workspaceId, BasicCRUDActions.Delete);
 
   await waitOnPromises([
     // Collaboration requests
-    context.data.collaborationRequest.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.collaborationRequest.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Program tokens
-    context.data.programAccessToken.deleteManyItems(
-      ProgramAccessTokenQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.programAccessToken.deleteManyByQuery(ProgramAccessTokenQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Client tokens
-    context.data.clientAssignedToken.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.clientAssignedToken.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // PermissionGroups
-    context.data.permissiongroup.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.permissiongroup.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Permission items
-    context.data.permissionItem.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.permissionItem.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Tags
-    context.data.tag.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.tag.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Assigned items
-    context.data.assignedItem.deleteManyItems(
-      EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)
-    ),
+    context.data.assignedItem.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Folders
     // TODO: deleting folders this way may be more expensive, when we can
@@ -79,22 +54,15 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     updateCollaborators(context, workspace.resourceId),
 
     //  Delete the workspace
-    context.cacheProviders.workspace.deleteById(context, workspace.resourceId),
+    context.data.workspace.deleteOneByQuery(EndpointReusableQueries.getById(workspace.resourceId)),
   ]);
 };
 
-async function internalDeleteFilesByWorkspaceId(
-  context: IBaseContext,
-  workspaceId: string
-) {
+async function internalDeleteFilesByWorkspaceId(context: IBaseContext, workspaceId: string) {
   // TODO: should we get files by name path, paginated
-  const files = await context.data.file.getManyItems(
-    FileQueries.getRootFiles(workspaceId)
-  );
+  const files = await context.data.file.getManyByQuery(FileQueries.getRootFiles(workspaceId));
 
-  await context.data.file.deleteManyItems(
-    FileQueries.getRootFiles(workspaceId)
-  );
+  await context.data.file.deleteManyByQuery(FileQueries.getRootFiles(workspaceId));
 
   await context.fileBackend.deleteFiles({
     bucket: context.appVariables.S3Bucket,
@@ -102,13 +70,10 @@ async function internalDeleteFilesByWorkspaceId(
   });
 }
 
-async function internalDeleteFoldersByWorkspaceId(
-  context: IBaseContext,
-  workspaceId: string
-) {
+async function internalDeleteFoldersByWorkspaceId(context: IBaseContext, workspaceId: string) {
   await internalDeleteFolderList(
     context,
-    await context.data.folder.getManyItems(
+    await context.data.folder.getManyByQuery(
       // Root folders
       FolderQueries.getRootFolders(workspaceId)
     )
@@ -116,12 +81,7 @@ async function internalDeleteFoldersByWorkspaceId(
 }
 
 async function updateCollaborators(context: IBaseContext, workspaceId: string) {
-  await deleteAssignableItemAssignedItems(
-    context,
-    workspaceId,
-    workspaceId,
-    AppResourceType.Workspace
-  );
+  await deleteAssignableItemAssignedItems(context, workspaceId, workspaceId, AppResourceType.Workspace);
 }
 
 export default deleteWorkspace;

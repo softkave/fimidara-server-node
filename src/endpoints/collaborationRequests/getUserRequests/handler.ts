@@ -4,7 +4,7 @@ import {GetUserCollaborationRequestsEndpoint} from './types';
 
 const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
-  const requests = await context.data.collaborationRequest.getManyItems(
+  const requests = await context.data.collaborationRequest.getManyByQuery(
     CollaborationRequestQueries.getByUserEmail(user.email)
   );
 

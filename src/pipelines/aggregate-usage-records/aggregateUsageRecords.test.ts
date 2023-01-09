@@ -13,36 +13,24 @@ import {
   UsageSummationType,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getLogicProviders,
-} from '../../endpoints/contexts/BaseContext';
-import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import BaseContext from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
+import {getDataProviders} from '../../endpoints/contexts/utils';
+import EndpointReusableQueries from '../../endpoints/queries';
 import RequestData from '../../endpoints/RequestData';
-import {
-  generateTestFile,
-  generateTestFiles,
-} from '../../endpoints/test-utils/generate-data/file';
+import {generateTestFile, generateTestFiles} from '../../endpoints/test-utils/generate-data/file';
 import {
   generateTestUsageThresholdInputMap,
   generateTestWorkspace,
 } from '../../endpoints/test-utils/generate-data/workspace';
-import {
-  dropMongoConnection,
-  genDbName,
-} from '../../endpoints/test-utils/helpers/mongo';
+import {dropMongoConnection, genDbName} from '../../endpoints/test-utils/helpers/mongo';
 import {
   assertContext,
   getTestEmailProvider,
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/test-utils/test-utils';
-import {
-  getCostForUsage,
-  getUsageForCost,
-} from '../../endpoints/usageRecords/constants';
+import {getCostForUsage, getUsageForCost} from '../../endpoints/usageRecords/constants';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors';
 import {
   insertBandwidthInUsageRecordInput,
@@ -53,18 +41,11 @@ import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspa
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
-import {
-  aggregateRecords,
-  getRecordingMonth,
-  getRecordingYear,
-} from './aggregateUsageRecords';
+import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';
 
 const contexts: IBaseContext[] = [];
 const connections: Connection[] = [];
-const workspaceCacheRefreshIntervalMs = 1000; // 1 second interval
-const reqData = RequestData.fromExpressRequest(
-  mockExpressRequestForPublicAgent()
-);
+const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent());
 
 const runInfo = pipelineRunInfoFactory({
   job: FimidaraPipelineNames.AggregateUsageRecordsJob,
@@ -73,30 +54,19 @@ const runInfo = pipelineRunInfoFactory({
 afterAll(async () => {
   await Promise.all(contexts.map(c => c.dispose()));
   await Promise.all(connections.map(c => dropMongoConnection(c)));
+  await runInfo.logger.close();
 });
 
 async function getContextAndConnection() {
   const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
-
+  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
   const context = new BaseContext(
-    new MongoDBDataProviderContext(connection),
+    getDataProviders(connection),
     getTestEmailProvider(appVariables),
     await getTestFileProvider(appVariables),
-    appVariables,
-    getDataProviders(connection),
-    getCacheProviders(),
-    getLogicProviders()
-  );
-
-  await context.cacheProviders.workspace.setRefreshIntervalMs(
-    context,
-    workspaceCacheRefreshIntervalMs
+    appVariables
   );
 
   contexts.push(context);
@@ -109,9 +79,7 @@ async function insertUsageRecordsForFiles(
   workspace: IWorkspace,
   category: Extract<
     UsageRecordCategory,
-    | UsageRecordCategory.Storage
-    | UsageRecordCategory.BandwidthIn
-    | UsageRecordCategory.BandwidthOut
+    UsageRecordCategory.Storage | UsageRecordCategory.BandwidthIn | UsageRecordCategory.BandwidthOut
   >,
   limit: number,
   exceedLimit = false,
@@ -124,7 +92,6 @@ async function insertUsageRecordsForFiles(
 
   limit = Math.floor(limit);
   let count = 0;
-
   const files = generateTestFiles(workspace, 10);
   const promises = [];
   let usage = random(1, limit - 1, true);
@@ -143,21 +110,9 @@ async function insertUsageRecordsForFiles(
         nothrow
       );
     } else if (category === UsageRecordCategory.BandwidthIn) {
-      p = insertBandwidthInUsageRecordInput(
-        context,
-        reqData,
-        f,
-        BasicCRUDActions.Create,
-        nothrow
-      );
+      p = insertBandwidthInUsageRecordInput(context, reqData, f, BasicCRUDActions.Create, nothrow);
     } else if (category === UsageRecordCategory.BandwidthOut) {
-      p = insertBandwidthOutUsageRecordInput(
-        context,
-        reqData,
-        f,
-        BasicCRUDActions.Create,
-        nothrow
-      );
+      p = insertBandwidthOutUsageRecordInput(context, reqData, f, BasicCRUDActions.Create, nothrow);
     }
 
     promises.push(p);
@@ -182,19 +137,10 @@ async function insertUsageRecordsForFiles(
   return {totalUsage, count};
 }
 
-async function setupForFile(
-  context: IBaseContext,
-  exceedLimit = false,
-  nothrow = true,
-  exceedBy = 0
-) {
+async function setupForFile(context: IBaseContext, exceedLimit = false, nothrow = true, exceedBy = 0) {
   const workspace = generateTestWorkspace();
-  workspace.usageThresholds = transformUsageThresholInput(
-    publicAgent,
-    generateTestUsageThresholdInputMap()
-  );
-
-  await context.cacheProviders.workspace.insert(context, workspace);
+  workspace.usageThresholds = transformUsageThresholInput(publicAgent, generateTestUsageThresholdInputMap());
+  await context.data.workspace.insertItem(workspace);
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
   const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -212,12 +158,8 @@ async function setupForFile(
 
 /**
  *
- * @param wId
- *
- * Checks all locks if null or undefined
- * @param categories
- *
- * Lock expected state if categories is null or undefined
+ * @param wId - Checks all locks if null or undefined
+ * @param categories - Lock expected state if categories is null or undefined
  * @param expectedState
  */
 async function checkLocks(
@@ -233,7 +175,7 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.cacheProviders.workspace.getById(context, wId);
+  const w = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(wId));
   assert(w);
   const locks = w.usageThresholdLocks || {};
   for (const category in categories) {
@@ -245,11 +187,7 @@ async function checkLocks(
   }
 }
 
-async function checkFailedRecordExistsForFile(
-  connection: Connection,
-  w1: IWorkspace,
-  f1: IFile
-) {
+async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorkspace, f1: IFile) {
   const model = getUsageRecordModel(connection);
   const failedRecord = await model
     .findOne({
@@ -263,20 +201,13 @@ async function checkFailedRecordExistsForFile(
     .exec();
 
   expect(failedRecord).toBeDefined();
-  const a = cast<IFileUsageRecordArtifact | undefined>(
-    first(failedRecord?.artifacts)?.artifact
-  );
-
+  const a = cast<IFileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
   expect(a).toBeDefined();
   expect(a?.fileId).toBe(f1.resourceId);
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
-async function assertRecordInsertionFails(
-  context: IBaseContext,
-  connection: Connection,
-  w1: IWorkspace
-) {
+async function assertRecordInsertionFails(context: IBaseContext, connection: Connection, w1: IWorkspace) {
   const f1 = generateTestFile(w1);
   await expect(async () => {
     assertContext(context);
@@ -321,12 +252,8 @@ describe('usage-records-pipeline', () => {
   test('workspace not locked if below threshold', async () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
-    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
-      context
-    );
-    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(
-      context
-    );
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(context);
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(context);
 
     // Run
     assert(connection);
@@ -334,7 +261,6 @@ describe('usage-records-pipeline', () => {
 
     // Assert
     assertContext(context);
-    await context.cacheProviders.workspace.refreshCache(context);
     await checkLocks(context, w1.resourceId, null, false);
     await checkLocks(context, w2.resourceId, null, false);
     await assertRecordLevel2Exists(
@@ -357,14 +283,8 @@ describe('usage-records-pipeline', () => {
   test('category locked if threshold reached', async () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
-    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
-      context,
-      /** exceedLimit */ true
-    );
-
-    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(
-      context
-    );
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(context, /** exceedLimit */ true);
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(context);
 
     // Run
     assert(connection);
@@ -372,7 +292,6 @@ describe('usage-records-pipeline', () => {
 
     // Assert
     assertContext(context);
-    await context.cacheProviders.workspace.refreshCache(context);
     await checkLocks(context, w2.resourceId, null, false);
     await checkLocks(context, w1.resourceId, {
       [UsageRecordCategory.Storage]: true,
@@ -407,7 +326,7 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await context.cacheProviders.workspace.insert(context, workspace);
+    await context.data.workspace.insertItem(workspace);
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -424,7 +343,6 @@ describe('usage-records-pipeline', () => {
 
     // Assert
     assertContext(context);
-    await context.cacheProviders.workspace.refreshCache(context);
     await checkLocks(context, workspace.resourceId, {
       [UsageRecordCategory.Total]: true,
     });
@@ -451,7 +369,7 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await context.cacheProviders.workspace.insert(context, workspace);
+    await context.data.workspace.insertItem(workspace);
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     await insertUsageRecordsForFiles(
@@ -467,19 +385,13 @@ describe('usage-records-pipeline', () => {
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    await context.cacheProviders.workspace.refreshCache(context);
     await checkLocks(context, workspace.resourceId, {
       [UsageRecordCategory.Total]: true,
     });
 
     // Setup
     const exceedBy = 100;
-    await insertUsageRecordsForFiles(
-      context,
-      workspace,
-      UsageRecordCategory.Storage,
-      exceedBy
-    );
+    await insertUsageRecordsForFiles(context, workspace, UsageRecordCategory.Storage, exceedBy);
 
     // Run
     await aggregateRecords(connection, runInfo);

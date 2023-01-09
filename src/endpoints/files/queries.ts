@@ -1,6 +1,6 @@
 import {IFile} from '../../definitions/file';
-import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
@@ -15,9 +15,7 @@ function getByNameAndFolderId(name: string, folderId: string) {
 }
 
 function getFilesByParentId(parentId: string) {
-  return newFilter()
-    .addItem('folderId', parentId, DataProviderFilterValueOperator.Equal)
-    .build();
+  return newFilter().addItem('folderId', parentId, DataProviderFilterValueOperator.Equal).build();
 }
 
 function getByNamePath(workspaceId: string, namePath: string[]) {
@@ -27,11 +25,7 @@ function getByNamePath(workspaceId: string, namePath: string[]) {
     .build();
 }
 
-function getByNamePathAndExtention(
-  workspaceId: string,
-  namePath: string[],
-  extension: string
-) {
+function getByNamePathAndExtention(workspaceId: string, namePath: string[], extension: string) {
   return newFilter()
     .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)

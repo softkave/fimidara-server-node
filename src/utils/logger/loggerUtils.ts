@@ -55,6 +55,7 @@ export function loggerFactory(opts: ICreateLoggerOptions) {
             db: mongoURL.toString(),
             collection: vars.logsCollectionName,
             storeHost: true,
+            options: {useUnifiedTopology: true},
           });
           logger.add(dbTransport);
         }

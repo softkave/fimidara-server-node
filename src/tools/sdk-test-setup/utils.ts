@@ -2,14 +2,9 @@ import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
 import {systemAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getFileProvider,
-  getLogicProviders,
-} from '../../endpoints/contexts/BaseContext';
-import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
+import {getDataProviders} from '../../endpoints/contexts/utils';
 import {internalCreateProgramAccessToken} from '../../endpoints/programAccessTokens/addToken/utils';
 import {getPublicProgramToken} from '../../endpoints/programAccessTokens/utils';
 import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
@@ -20,21 +15,13 @@ import {consoleLogger} from '../../utils/logger/logger';
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
-
-  const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
+  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
   const emailProvider = new NoopEmailProviderContext();
   const ctx = new BaseContext(
-    mongoDBDataProvider,
+    getDataProviders(connection),
     emailProvider,
     getFileProvider(appVariables),
     appVariables,
-    getDataProviders(connection),
-    getCacheProviders(),
-    getLogicProviders(),
     () => connection.close()
   );
 
@@ -54,11 +41,7 @@ async function insertWorkspace(context: IBaseContext) {
   );
 }
 
-async function createProgramAccessToken(
-  context: IBaseContext,
-  workspace: IWorkspace,
-  adminPermissionGroupId: string
-) {
+async function createProgramAccessToken(context: IBaseContext, workspace: IWorkspace, adminPermissionGroupId: string) {
   const token = await internalCreateProgramAccessToken(
     context,
     systemAgent,
@@ -85,11 +68,7 @@ async function createProgramAccessToken(
 export async function setupSDKTestReq() {
   const context = await setupContext();
   const {workspace, adminPermissionGroup} = await insertWorkspace(context);
-  const {token, tokenStr} = await createProgramAccessToken(
-    context,
-    workspace,
-    adminPermissionGroup.resourceId
-  );
+  const {token, tokenStr} = await createProgramAccessToken(context, workspace, adminPermissionGroup.resourceId);
 
   consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
   consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);

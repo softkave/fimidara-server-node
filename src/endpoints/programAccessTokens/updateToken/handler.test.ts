@@ -38,25 +38,19 @@ test('program access token updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token: token01} = await insertProgramAccessTokenForTest(
+  const {token: token01} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId);
+
+  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
   );
 
-  const {permissionGroup: permissionGroup01} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-  const {permissionGroup: permissionGroup02} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
   const tokenUpdateInput = {
     name: faker.lorem.words(3),
@@ -73,14 +67,13 @@ test('program access token updated', async () => {
     ],
   };
 
-  const instData =
-    RequestData.fromExpressRequest<IUpdateProgramAccessTokenEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        tokenId: token01.resourceId,
-        token: tokenUpdateInput,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IUpdateProgramAccessTokenEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      tokenId: token01.resourceId,
+      token: tokenUpdateInput,
+    }
+  );
 
   const result = await updateProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
@@ -90,9 +83,7 @@ test('program access token updated', async () => {
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.programAccessToken.assertGetItem(
-        ClientAssignedTokenQueries.getById(token01.resourceId)
-      ),
+      await context.data.programAccessToken.assertGetOneByQuery(ClientAssignedTokenQueries.getById(token01.resourceId)),
       AppResourceType.ProgramAccessToken
     )
   );

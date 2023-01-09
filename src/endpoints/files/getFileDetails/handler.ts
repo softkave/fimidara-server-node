@@ -1,8 +1,4 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
@@ -11,26 +7,9 @@ import {getFileDetailsJoiSchema} from './validation';
 
 const getFileDetails: GetFileDetailsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileDetailsJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    publicPermissibleEndpointAgents
-  );
-
-  let {file} = await checkFileAuthorization03(
-    context,
-    agent,
-    data,
-    BasicCRUDActions.Read
-  );
-
-  file = await populateAssignedPermissionGroupsAndTags(
-    context,
-    file.workspaceId,
-    file,
-    AppResourceType.File
-  );
-
+  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  let {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Read);
+  file = await populateAssignedPermissionGroupsAndTags(context, file.workspaceId, file, AppResourceType.File);
   return {
     file: fileExtractor(file),
   };

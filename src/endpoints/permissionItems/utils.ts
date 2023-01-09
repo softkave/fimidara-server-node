@@ -1,8 +1,5 @@
 import {uniqWith} from 'lodash';
-import {
-  IPermissionItem,
-  IPublicPermissionItem,
-} from '../../definitions/permissionItem';
+import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -39,8 +36,7 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
 
-export const permissionItemListExtractor =
-  makeListExtract(permissionItemFields);
+export const permissionItemListExtractor = makeListExtract(permissionItemFields);
 
 export function throwPermissionItemNotFound() {
   throw new NotFoundError('Permission item not found');
@@ -71,12 +67,8 @@ export function compactPermissionItems(items: IPermissionItem[]) {
   );
 }
 
-export const publicAccessOpComparator = (
-  item01: IPublicAccessOp,
-  item02: IPublicAccessOp
-) =>
-  item01.action === item02.action &&
-  item01.resourceType === item02.resourceType;
+export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPublicAccessOp) =>
+  item01.action === item02.action && item01.resourceType === item02.resourceType;
 
 export function makePermissionItemInputsFromPublicAccessOps(
   permissionOwnerId: string,
@@ -106,7 +98,7 @@ export async function replacePublicPermissionGroupAccessOpsByPermissionOwner(
   itemResourceId?: string
 ) {
   if (workspace.publicPermissionGroupId) {
-    await context.data.permissionItem.deleteManyItems(
+    await context.data.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByPermissionEntityAndOwner(
         workspace.publicPermissionGroupId,
         AppResourceType.PermissionGroup,

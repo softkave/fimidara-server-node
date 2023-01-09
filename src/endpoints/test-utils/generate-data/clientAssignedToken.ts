@@ -1,10 +1,5 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  IAgent,
-  SessionAgentType,
-} from '../../../definitions/system';
+import {AppResourceType, CURRENT_TOKEN_VERSION, IAgent, SessionAgentType} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 
@@ -23,7 +18,6 @@ export function generateClientAssignedTokenForTest() {
     resourceId: getNewIdForResource(AppResourceType.ClientAssignedToken),
     workspaceId: getNewIdForResource(AppResourceType.Workspace),
     version: CURRENT_TOKEN_VERSION,
-    issuedAt: getDateString(),
   };
 
   return token;

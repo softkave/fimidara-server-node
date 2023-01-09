@@ -58,7 +58,7 @@ export async function checkProgramAccessTokenAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const token = await context.data.programAccessToken.assertGetItem(ProgramAccessTokenQueries.getById(id));
+  const token = await context.data.programAccessToken.assertGetOneByQuery(ProgramAccessTokenQueries.getById(id));
   return checkProgramAccessTokenAuthorization(context, agent, token, action, nothrow);
 }
 

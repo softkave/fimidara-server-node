@@ -18,9 +18,7 @@ describe('init app setup', () => {
   test('app is setup', async () => {
     // setupApp is called internally when getting test context
     assertContext(context);
-    await context.data.appRuntimeState.assertGetItem(
-      EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID)
-    );
+    await context.data.appRuntimeState.assertGetOneByQuery(EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID));
   });
 
   test('app not setup a second time', async () => {

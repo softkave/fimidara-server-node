@@ -91,7 +91,9 @@ export const internalRespondToCollaborationRequest = async (
   user: IUser,
   data: IRespondToCollaborationRequestEndpointParams
 ) => {
-  let request = await context.data.collaborationRequest.assertGetItem(EndpointReusableQueries.getById(data.requestId));
+  let request = await context.data.collaborationRequest.assertGetOneByQuery(
+    EndpointReusableQueries.getById(data.requestId)
+  );
 
   if (user.email !== request.recipientEmail) {
     throw new PermissionDeniedError('User is not the collaboration request recipient');
@@ -103,20 +105,22 @@ export const internalRespondToCollaborationRequest = async (
     throw new ServerStateConflictError(`Collaboration request expired on ${formatDate(request.expiresAt)}`);
   }
 
-  request = await context.data.collaborationRequest.assertUpdateItem(EndpointReusableQueries.getById(data.requestId), {
-    statusHistory: request.statusHistory.concat({
-      date: getDateString(),
-      status: data.response,
-    }),
-  });
+  request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
+    EndpointReusableQueries.getById(data.requestId),
+    {
+      statusHistory: request.statusHistory.concat({
+        date: getDateString(),
+        status: data.response,
+      }),
+    }
+  );
 
-  const workspace = await context.cacheProviders.workspace.getById(context, request.workspaceId);
-
+  const workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(request.workspaceId));
   assertWorkspace(workspace);
   const notifyUser =
     isUserAgent(request.createdBy) || isUserAgent(workspace.createdBy)
       ? // TODO: check if agent is a user or associated type before fetching
-        await context.data.user.assertGetItem(
+        await context.data.user.assertGetOneByQuery(
           EndpointReusableQueries.getById(
             request.createdBy.agentType === SessionAgentType.User
               ? request.createdBy.agentId

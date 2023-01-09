@@ -1,7 +1,7 @@
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType} from '../../definitions/system';
-import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
@@ -10,16 +10,8 @@ function newFilter() {
 
 function getByOwner(ownerId: string, ownerType: AppResourceType) {
   return newFilter()
-    .addItem(
-      'permissionOwnerId',
-      ownerId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionOwnerType',
-      ownerType,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('permissionOwnerId', ownerId, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionOwnerType', ownerType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -29,32 +21,16 @@ function getByResource(
   resourceType: AppResourceType,
   includeWildcard = false
 ) {
-  const filter = newFilter().addItem(
-    'workspaceId',
-    workspaceId,
-    DataProviderFilterValueOperator.Equal
-  );
+  const filter = newFilter().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
 
   if (resourceId) {
-    filter.addItem(
-      'itemResourceId',
-      resourceId,
-      DataProviderFilterValueOperator.Equal
-    );
+    filter.addItem('itemResourceId', resourceId, DataProviderFilterValueOperator.Equal);
   }
 
   if (includeWildcard) {
-    filter.addItem(
-      'itemResourceType',
-      [resourceType, AppResourceType.All],
-      DataProviderFilterValueOperator.In
-    );
+    filter.addItem('itemResourceType', [resourceType, AppResourceType.All], DataProviderFilterValueOperator.In);
   } else {
-    filter.addItem(
-      'itemResourceType',
-      resourceType,
-      DataProviderFilterValueOperator.Equal
-    );
+    filter.addItem('itemResourceType', resourceType, DataProviderFilterValueOperator.Equal);
   }
 
   return filter.build();
@@ -68,37 +44,17 @@ function getByOwnerAndResource(
   includeWildcard = false
 ) {
   const filter = newFilter()
-    .addItem(
-      'permissionOwnerId',
-      ownerId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionOwnerType',
-      ownerType,
-      DataProviderFilterValueOperator.Equal
-    );
+    .addItem('permissionOwnerId', ownerId, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionOwnerType', ownerType, DataProviderFilterValueOperator.Equal);
 
   if (resourceId) {
-    filter.addItem(
-      'itemResourceId',
-      resourceId,
-      DataProviderFilterValueOperator.Equal
-    );
+    filter.addItem('itemResourceId', resourceId, DataProviderFilterValueOperator.Equal);
   }
 
   if (includeWildcard) {
-    filter.addItem(
-      'itemResourceType',
-      [resourceType, AppResourceType.All],
-      DataProviderFilterValueOperator.In
-    );
+    filter.addItem('itemResourceType', [resourceType, AppResourceType.All], DataProviderFilterValueOperator.In);
   } else {
-    filter.addItem(
-      'itemResourceType',
-      resourceType,
-      DataProviderFilterValueOperator.Equal
-    );
+    filter.addItem('itemResourceType', resourceType, DataProviderFilterValueOperator.Equal);
   }
 
   return filter.build();
@@ -106,16 +62,8 @@ function getByOwnerAndResource(
 
 function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
   return newFilter()
-    .addItem(
-      'permissionEntityId',
-      entityId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionEntityType',
-      entityType,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionEntityType', entityType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -126,26 +74,10 @@ function getByPermissionEntityAndOwner(
   ownerType: AppResourceType
 ) {
   return newFilter()
-    .addItem(
-      'permissionEntityId',
-      entityId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionEntityType',
-      entityType,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionOwnerId',
-      ownerId,
-      DataProviderFilterValueOperator.Equal
-    )
-    .addItem(
-      'permissionOwnerType',
-      ownerType,
-      DataProviderFilterValueOperator.Equal
-    )
+    .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionEntityType', entityType, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionOwnerId', ownerId, DataProviderFilterValueOperator.Equal)
+    .addItem('permissionOwnerType', ownerType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 

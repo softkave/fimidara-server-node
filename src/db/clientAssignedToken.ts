@@ -11,7 +11,6 @@ const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
   createdBy: {type: agentSchema},
   createdAt: {type: Date, default: getDate},
   version: {type: Number},
-  issuedAt: {type: Date, default: getDate},
   expires: {type: Date},
   lastUpdatedAt: {type: Date},
   lastUpdatedBy: {type: agentSchema},
@@ -25,11 +24,7 @@ const modelName = 'client-assigned-token';
 const collectionName = 'client-assigned-tokens';
 
 export function getClientAssignedTokenModel(connection: Connection) {
-  const model = connection.model<IClientAssignedToken>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<IClientAssignedToken>(modelName, schema, collectionName);
 
   return model;
 }

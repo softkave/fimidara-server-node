@@ -17,7 +17,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const requests = await context.data.collaborationRequest.getManyItems(
+  const requests = await context.data.collaborationRequest.getManyByQuery(
     EndpointReusableQueries.getByWorkspaceId(workspaceId)
   );
 

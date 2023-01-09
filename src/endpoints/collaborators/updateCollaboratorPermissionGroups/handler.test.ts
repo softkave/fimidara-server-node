@@ -34,45 +34,42 @@ test('collaborator permission groups updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup01} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
-  const {permissionGroup: permissionGroup02} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
-  const instData =
-    RequestData.fromExpressRequest<IUpdateCollaboratorPermissionGroupsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        collaboratorId: user.resourceId,
-        permissionGroups: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 1,
-          },
-          {
-            permissionGroupId: permissionGroup02.resourceId,
-            order: 2,
-          },
-        ],
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IUpdateCollaboratorPermissionGroupsEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      workspaceId: workspace.resourceId,
+      collaboratorId: user.resourceId,
+      permissionGroups: [
+        {
+          permissionGroupId: permissionGroup01.resourceId,
+          order: 1,
+        },
+        {
+          permissionGroupId: permissionGroup02.resourceId,
+          order: 2,
+        },
+      ],
+    }
+  );
 
   const result = await updateCollaboratorPermissionGroups(context, instData);
   assertEndpointResultOk(result);
 
   const updatedCollaborator = await extractCollaborator(
     context,
-    await context.data.user.assertGetItem(UserQueries.getById(user.resourceId)),
+    await context.data.user.assertGetOneByQuery(UserQueries.getById(user.resourceId)),
     workspace.resourceId
   );
 

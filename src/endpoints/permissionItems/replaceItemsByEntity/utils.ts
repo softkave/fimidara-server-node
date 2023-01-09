@@ -34,7 +34,7 @@ export async function internalAddPermissionItemsByEntity(
   });
 
   items = compactPermissionItems(items);
-  await context.data.permissionItem.bulkSaveItems(items);
+  await context.data.permissionItem.insertList(items);
   return items;
 }
 
@@ -43,11 +43,8 @@ export async function internalReplacePermissionItemsByEntity(
   agent: IAgent,
   data: IReplacePermissionItemsByEntityEndpointParams
 ) {
-  await context.data.permissionItem.deleteManyItems(
-    PermissionItemQueries.getByPermissionEntity(
-      data.permissionEntityId,
-      data.permissionEntityType
-    )
+  await context.data.permissionItem.deleteManyByQuery(
+    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId, data.permissionEntityType)
   );
 
   return await internalAddPermissionItemsByEntity(context, agent, data);

@@ -5,10 +5,7 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {
-  ISaveResourceAssignedItemsOptions,
-  saveResourceAssignedItems,
-} from '../../assignedItems/addAssignedItems';
+import {ISaveResourceAssignedItemsOptions, saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
@@ -34,17 +31,16 @@ export const internalCreateProgramAccessToken = async (
     agentType: agent.agentType,
   };
 
-  let token: IProgramAccessToken =
-    await context.data.programAccessToken.saveItem({
-      ...data,
-      createdAt,
-      createdBy,
-      lastUpdatedAt: createdAt,
-      lastUpdatedBy: createdBy,
-      hash,
-      workspaceId: workspace.resourceId,
-      resourceId: getNewIdForResource(AppResourceType.ProgramAccessToken),
-    });
+  let token: IProgramAccessToken = await context.data.programAccessToken.insertItem({
+    ...data,
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
+    hash,
+    workspaceId: workspace.resourceId,
+    resourceId: getNewIdForResource(AppResourceType.ProgramAccessToken),
+  });
 
   await saveResourceAssignedItems(
     context,
@@ -68,8 +64,6 @@ export const internalCreateProgramAccessToken = async (
 };
 
 function generateSecretKey() {
-  const key = crypto
-    .randomBytes(programAccessTokenConstants.tokenSecretKeyLength)
-    .toString('hex');
+  const key = crypto.randomBytes(programAccessTokenConstants.tokenSecretKeyLength).toString('hex');
   return key;
 }

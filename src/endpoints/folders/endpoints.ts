@@ -1,6 +1,7 @@
 import {IFolderMatcher, IPublicFolder} from '../../definitions/folder';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppResourceType, IPublicAccessOpInput} from '../../definitions/system';
+import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
   cloneAndMarkNotRequired,
@@ -42,13 +43,13 @@ const folderPublicAccessOpInputList = new FieldArray()
   .setType(folderPublicAccessOpInput)
   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
-const newFolderInput = new FieldObject<INewFolderInput>().setName('NewFolderInput').setFields({
+const newFolderInput = new FieldObject<ExcludeTags<INewFolderInput>>().setName('NewFolderInput').setFields({
   description: fReusables.descriptionNotRequired,
   folderpath: fReusables.folderpath,
   publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
 });
 
-const updateFolderInput = new FieldObject<IUpdateFolderInput>().setName('UpdateFolderInput').setFields({
+const updateFolderInput = new FieldObject<ExcludeTags<IUpdateFolderInput>>().setName('UpdateFolderInput').setFields({
   description: fReusables.descriptionNotRequired,
   publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
   removePublicAccessOps: cloneAndMarkNotRequired(

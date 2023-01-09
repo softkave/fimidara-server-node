@@ -35,17 +35,13 @@ afterAll(async () => {
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.folder.checkItemExists(
-    FolderQueries.getById(id)
-  );
+  const exists = await context.data.folder.existsByQuery(FolderQueries.getById(id));
 
   expect(exists).toBeFalsy();
 }
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.checkItemExists(
-    FileQueries.getById(id)
-  );
+  const exists = await context.data.file.existsByQuery(FileQueries.getById(id));
 
   expect(exists).toBeFalsy();
 }
@@ -54,31 +50,18 @@ test('folder deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {folder: folder01} = await insertFolderForTest(
-    context,
-    userToken,
-    workspace
-  );
+  const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
 
-  const {folder: folder02} = await insertFolderForTest(
-    context,
-    userToken,
-    workspace,
-    {
-      folderpath: addRootnameToPath(
-        folder01.namePath
-          .concat(generateTestFolderName())
-          .join(folderConstants.nameSeparator),
-        workspace.rootname
-      ),
-    }
-  );
+  const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
+    folderpath: addRootnameToPath(
+      folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+      workspace.rootname
+    ),
+  });
 
   const {file} = await insertFileForTest(context, userToken, workspace, {
     filepath: addRootnameToPath(
-      folder01.namePath
-        .concat(generateTestFolderName())
-        .join(folderConstants.nameSeparator),
+      folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
       workspace.rootname
     ),
   });

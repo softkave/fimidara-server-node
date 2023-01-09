@@ -16,7 +16,9 @@ import {getCollaborationRequestJoiSchema} from './validation';
 const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, getCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const request = await context.data.collaborationRequest.getItem(EndpointReusableQueries.getById(data.requestId));
+  const request = await context.data.collaborationRequest.getOneByQuery(
+    EndpointReusableQueries.getById(data.requestId)
+  );
 
   appAssert(request, new NotFoundError('Collaboration request not found'));
   const isAccepted = last(request.statusHistory)?.status === CollaborationRequestStatusType.Accepted;

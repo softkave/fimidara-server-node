@@ -50,7 +50,7 @@ test('collaboration request declined', async () => {
 
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const updatedRequest = await context.data.collaborationRequest.assertGetItem(
+  const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getById(request01.resourceId)
   );
 

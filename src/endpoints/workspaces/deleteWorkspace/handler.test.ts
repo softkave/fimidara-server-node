@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -39,6 +40,8 @@ test('workspace deleted', async () => {
 
   const result = await deleteWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.cacheProviders.workspace.getById(context, workspace.resourceId);
+  const savedWorkspace = await context.data.workspace.getOneByQuery(
+    EndpointReusableQueries.getById(workspace.resourceId)
+  );
   expect(savedWorkspace).toBeFalsy();
 });

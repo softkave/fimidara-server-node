@@ -29,10 +29,7 @@ let connection: Connection | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
-  connection = await getMongoConnection(
-    context.appVariables.mongoDbURI,
-    context.appVariables.mongoDbDatabaseName
-  );
+  connection = await getMongoConnection(context.appVariables.mongoDbURI, context.appVariables.mongoDbDatabaseName);
 });
 
 afterAll(async () => {
@@ -40,40 +37,26 @@ afterAll(async () => {
   await connection?.close();
 });
 
-function expectToOnlyHaveCategory(
-  records01: IUsageRecord[],
-  category: UsageRecordCategory
-) {
+function expectToOnlyHaveCategory(records01: IUsageRecord[], category: UsageRecordCategory) {
   records01.forEach(record => {
     expect(record.category).toBe(category);
   });
 }
 
-function expectToOnlyHaveFulfillmentStatus(
-  records01: IUsageRecord[],
-  fulfillmentStatus: UsageRecordFulfillmentStatus
-) {
+function expectToOnlyHaveFulfillmentStatus(records01: IUsageRecord[], fulfillmentStatus: UsageRecordFulfillmentStatus) {
   records01.forEach(record => {
     expect(record.fulfillmentStatus).toBe(fulfillmentStatus);
   });
 }
 
-function expectToBeFromDate(
-  records01: IUsageRecord[],
-  fromMonth: number,
-  fromYear: number
-) {
+function expectToBeFromDate(records01: IUsageRecord[], fromMonth: number, fromYear: number) {
   records01.forEach(record => {
     expect(record.month).toBeGreaterThanOrEqual(fromMonth);
     expect(record.year).toBeGreaterThanOrEqual(fromYear);
   });
 }
 
-function expectToBeToDate(
-  records01: IUsageRecord[],
-  toMonth: number,
-  toYear: number
-) {
+function expectToBeToDate(records01: IUsageRecord[], toMonth: number, toYear: number) {
   records01.forEach(record => {
     expect(record.month).toBeLessThanOrEqual(toMonth);
     expect(record.year).toBeLessThanOrEqual(toYear);
@@ -96,11 +79,10 @@ describe('getWorkspaceSummedUsage', () => {
     await model.insertMany(records);
 
     // run
-    const instData =
-      RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {workspaceId: workspace.resourceId}
-      );
+    const instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {workspaceId: workspace.resourceId}
+    );
 
     const result = await getWorkspaceSummedUsage(context, instData);
 
@@ -147,52 +129,46 @@ describe('getWorkspaceSummedUsage', () => {
     );
 
     const allRecords = [...records01, ...records02, ...records03];
-
     assert(connection);
     const model = getUsageRecordModel(connection);
     await model.insertMany(allRecords);
 
     // run
     // with preset category
-    let reqData =
-      RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {workspaceId: workspace.resourceId, categories: [records01Category]}
-      );
+    let reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {workspaceId: workspace.resourceId, query: {category: {$in: [records01Category]}}}
+    );
 
     const result01 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset fulfillment status
-    reqData =
-      RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          fulfillmentStatus: records02FulfillmentStatus,
-        }
-      );
+    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        query: {fulfillmentStatus: records02FulfillmentStatus},
+      }
+    );
 
     const result02 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset from date and to date
-    reqData =
-      RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          fromDate: getDateString(fromDate),
-          toDate: getDateString(toDate),
-          workspaceId: workspace.resourceId,
-        }
-      );
+    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        query: {fromDate: getDateString(fromDate), toDate: getDateString(toDate)},
+      }
+    );
 
     const result03 = await getWorkspaceSummedUsage(context, reqData);
 
     // all records
-    reqData =
-      RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {workspaceId: workspace.resourceId}
-      );
+    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {workspaceId: workspace.resourceId}
+    );
 
     const result04 = await getWorkspaceSummedUsage(context, reqData);
 
@@ -202,10 +178,7 @@ describe('getWorkspaceSummedUsage', () => {
     assertEndpointResultOk(result03);
     assertEndpointResultOk(result04);
     expectToOnlyHaveCategory(result01.records, records01Category);
-    expectToOnlyHaveFulfillmentStatus(
-      result02.records,
-      records02FulfillmentStatus
-    );
+    expectToOnlyHaveFulfillmentStatus(result02.records, records02FulfillmentStatus);
     expectToBeFromDate(result03.records, fromMonth, fromYear);
     expectToBeToDate(result03.records, toMonth, toYear);
   });

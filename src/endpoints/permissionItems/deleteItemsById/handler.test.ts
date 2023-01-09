@@ -30,12 +30,11 @@ describe('deleteItemsById', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} =
-      await insertPermissionGroupForTest(
-        context,
-        userToken,
-        workspace.resourceId
-      );
+    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
     const {items} = await insertPermissionItemsForTestByEntity(
       context,
@@ -52,23 +51,19 @@ describe('deleteItemsById', () => {
       {itemResourceType: AppResourceType.File}
     );
 
-    const instData =
-      RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          itemIds: items.map(item => item.resourceId),
-        }
-      );
+    const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        itemIds: items.map(item => item.resourceId),
+      }
+    );
 
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
 
-    const permissionGroupItems = await context.data.permissionItem.getManyItems(
-      PermissionItemQueries.getByPermissionEntity(
-        permissionGroup.resourceId,
-        AppResourceType.PermissionGroup
-      )
+    const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
+      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId, AppResourceType.PermissionGroup)
     );
 
     expect(permissionGroupItems.length).toBe(0);

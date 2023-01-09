@@ -10,9 +10,7 @@ import {loginJoiSchema} from './validation';
 
 const login: LoginEndpoint = async (context, instData) => {
   const data = validate(instData.data, loginJoiSchema);
-  const user = await context.data.user.getItem(
-    UserQueries.getByEmail(data.email)
-  );
+  const user = await context.data.user.getOneByQuery(UserQueries.getByEmail(data.email));
 
   if (!user) {
     throw new InvalidEmailOrPasswordError();
@@ -25,10 +23,7 @@ const login: LoginEndpoint = async (context, instData) => {
   }
 
   const userToken = await getUserToken(context, user);
-  const clientAssignedToken = await getUserClientAssignedToken(
-    context,
-    user.resourceId
-  );
+  const clientAssignedToken = await getUserClientAssignedToken(context, user.resourceId);
 
   const userWithWorkspaces = await populateUserWorkspaces(context, user);
 

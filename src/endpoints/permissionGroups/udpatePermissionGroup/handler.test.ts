@@ -15,10 +15,7 @@ import {
 import PermissionGroupQueries from '../queries';
 import {permissionGroupExtractor} from '../utils';
 import updatePermissionGroup from './handler';
-import {
-  IUpdatePermissionGroupEndpointParams,
-  IUpdatePermissionGroupInput,
-} from './types';
+import {IUpdatePermissionGroupEndpointParams, IUpdatePermissionGroupInput} from './types';
 
 /**
  * TODO:
@@ -39,26 +36,23 @@ test('permissionGroup updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup00} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup00} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
-  const {permissionGroup: permissionGroup01} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
-  const {permissionGroup: permissionGroup02} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
   const updatePermissionGroupInput: IUpdatePermissionGroupInput = {
     name: faker.lorem.words(2),
@@ -75,14 +69,13 @@ test('permissionGroup updated', async () => {
     ],
   };
 
-  const instData =
-    RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        permissionGroupId: permissionGroup00.resourceId,
-        permissionGroup: updatePermissionGroupInput,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      permissionGroupId: permissionGroup00.resourceId,
+      permissionGroup: updatePermissionGroupInput,
+    }
+  );
 
   const result = await updatePermissionGroup(context, instData);
   assertEndpointResultOk(result);
@@ -90,19 +83,15 @@ test('permissionGroup updated', async () => {
   const updatedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.permissiongroup.assertGetItem(
+    await context.data.permissiongroup.assertGetOneByQuery(
       PermissionGroupQueries.getById(permissionGroup00.resourceId)
     ),
     AppResourceType.PermissionGroup
   );
 
-  expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(
-    result.permissionGroup
-  );
+  expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(result.permissionGroup);
   expect(updatedPermissionGroup.name).toEqual(updatePermissionGroupInput.name);
-  expect(updatedPermissionGroup.description).toEqual(
-    updatePermissionGroupInput.description
-  );
+  expect(updatedPermissionGroup.description).toEqual(updatePermissionGroupInput.description);
   expect(result.permissionGroup.permissionGroups.length).toEqual(2);
   expect(result.permissionGroup.permissionGroups[0]).toMatchObject({
     permissionGroupId: permissionGroup01.resourceId,

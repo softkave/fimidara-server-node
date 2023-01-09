@@ -15,10 +15,7 @@ import {permissionItemIndexer, PermissionItemUtils} from '../utils';
 import {AddPermissionItemsEndpoint} from './types';
 import {addPermissionItemsJoiSchema} from './validation';
 
-const addPermissionItems: AddPermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
+const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData) => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = await getWorkspaceId(agent, data.workspaceId);
@@ -51,7 +48,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
     return item;
   });
 
-  const existingItems = await context.data.permissionItem.getManyItems(
+  const existingItems = await context.data.permissionItem.getManyByQuery(
     PermissionItemQueries.getByHashList(workspaceId, hashList)
   );
 
@@ -60,7 +57,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (
     return !existingItemsMap[item.hash];
   });
 
-  await context.data.permissionItem.bulkSaveItems(newItems);
+  await context.data.permissionItem.insertList(newItems);
   const totalItems = existingItems.concat(newItems);
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(totalItems),

@@ -9,10 +9,7 @@ import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
 
-const removeCollaborator: RemoveCollaboratorEndpoint = async (
-  context,
-  instData
-) => {
+const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData) => {
   const data = validate(instData.data, removeCollaboratorJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -24,7 +21,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
     BasicCRUDActions.Delete
   );
 
-  await context.data.assignedItem.deleteItem(
+  await context.data.assignedItem.deleteOneByQuery(
     AssignedItemQueries.getByMainFields({
       workspaceId,
       assignedItemId: workspaceId,
@@ -36,29 +33,17 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (
 
   await waitOnPromises([
     // Delete permission items that belong to the resource
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByPermissionEntity(
-        collaborator.resourceId,
-        AppResourceType.User
-      )
+    context.data.permissionItem.deleteManyByQuery(
+      PermissionItemQueries.getByPermissionEntity(collaborator.resourceId, AppResourceType.User)
     ),
 
     // Delete permission items that explicitly give access to the resource
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByResource(
-        workspaceId,
-        collaborator.resourceId,
-        AppResourceType.User
-      )
+    context.data.permissionItem.deleteManyByQuery(
+      PermissionItemQueries.getByResource(workspaceId, collaborator.resourceId, AppResourceType.User)
     ),
 
     // Delete all permissionGroups, and user workspace data assigned
-    deleteResourceAssignedItems(
-      context,
-      workspaceId,
-      collaborator.resourceId,
-      AppResourceType.User
-    ),
+    deleteResourceAssignedItems(context, workspaceId, collaborator.resourceId, AppResourceType.User),
   ]);
 };
 

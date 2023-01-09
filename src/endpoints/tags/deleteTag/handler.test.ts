@@ -28,11 +28,7 @@ describe('deleteTag', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {tag} = await insertTagForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {tag} = await insertTagForTest(context, userToken, workspace.resourceId);
 
     const instData = RequestData.fromExpressRequest<IDeleteTagEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
@@ -41,9 +37,7 @@ describe('deleteTag', () => {
 
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
-    const deletedTagExists = await context.data.tag.checkItemExists(
-      EndpointReusableQueries.getById(tag.resourceId)
-    );
+    const deletedTagExists = await context.data.tag.existsByQuery(EndpointReusableQueries.getById(tag.resourceId));
 
     expect(deletedTagExists).toBeFalsy();
   });

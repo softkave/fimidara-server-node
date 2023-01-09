@@ -1,9 +1,5 @@
 import {IFile} from '../../../definitions/file';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
@@ -16,50 +12,29 @@ import {deleteFileJoiSchema} from './validation';
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    publicPermissibleEndpointAgents
-  );
+  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
 
-  const {file} = await checkFileAuthorization03(
-    context,
-    agent,
-    data,
-    BasicCRUDActions.Delete
-  );
+  const {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Delete);
 
   await deleteFileAndArtifacts(context, file);
 };
 
-export async function deleteFileAndArtifacts(
-  context: IBaseContext,
-  file: IFile
-) {
+export async function deleteFileAndArtifacts(context: IBaseContext, file: IFile) {
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
-    context.data.permissionItem.deleteManyItems(
-      PermissionItemQueries.getByResource(
-        file.workspaceId,
-        file.resourceId,
-        AppResourceType.File
-      )
+    context.data.permissionItem.deleteManyByQuery(
+      PermissionItemQueries.getByResource(file.workspaceId, file.resourceId, AppResourceType.File)
     ),
 
     // Delete permission items that are owned by the file
-    context.data.permissionItem.deleteManyItems(
+    context.data.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByOwner(file.resourceId, AppResourceType.File)
     ),
 
     // Delete assigned tags and permissionGroups
-    deleteResourceAssignedItems(
-      context,
-      file.workspaceId,
-      file.resourceId,
-      AppResourceType.File
-    ),
+    deleteResourceAssignedItems(context, file.workspaceId, file.resourceId, AppResourceType.File),
 
-    context.data.file.deleteItem(FileQueries.getById(file.resourceId)),
+    context.data.file.deleteOneByQuery(FileQueries.getById(file.resourceId)),
   ]);
 }
 

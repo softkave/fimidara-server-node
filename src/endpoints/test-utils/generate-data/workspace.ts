@@ -1,9 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {
-  AppResourceType,
-  IAgent,
-  SessionAgentType,
-} from '../../../definitions/system';
+import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDateString} from '../../../utils/dateFns';
@@ -63,10 +59,7 @@ export function generateTestWorkspace() {
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
-    usageThresholds: transformUsageThresholInput(
-      createdBy,
-      generateTestUsageThresholdInputMap()
-    ),
+    usageThresholds: transformUsageThresholInput(createdBy, generateTestUsageThresholdInputMap()),
     usageThresholdLocks: {},
   };
 

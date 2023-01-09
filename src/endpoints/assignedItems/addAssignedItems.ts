@@ -24,7 +24,7 @@ async function getNonExistingAssignedItems<T extends IAssignedItemMainFieldsMatc
   items: T[]
 ): Promise<T[]> {
   const fetchedItems = await Promise.all(
-    items.map(item => context.data.assignedItem.getItem(AssignedItemQueries.getByMainFields(item)))
+    items.map(item => context.data.assignedItem.getOneByQuery(AssignedItemQueries.getByMainFields(item)))
   );
 
   const itemsMap = indexArray(compact(fetchedItems), {
@@ -36,7 +36,7 @@ async function getNonExistingAssignedItems<T extends IAssignedItemMainFieldsMatc
 
 export async function addAssignedItemList(context: IBaseContext, items: IAssignedItem[]) {
   const nonExistingItems = await getNonExistingAssignedItems(context, items);
-  await context.data.assignedItem.bulkSaveItems(nonExistingItems);
+  await context.data.assignedItem.insertList(nonExistingItems);
   return items;
 }
 

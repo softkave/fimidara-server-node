@@ -12,10 +12,7 @@ import {PermissionItemUtils} from '../utils';
 import {GetEntityPermissionItemsEndpoint} from './types';
 import {getEntityPermissionItemsJoiSchema} from './validation';
 
-const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
+const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -30,11 +27,8 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
     permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  const items = await context.data.permissionItem.getManyItems(
-    PermissionItemQueries.getByPermissionEntity(
-      data.permissionEntityId,
-      data.permissionEntityType
-    )
+  const items = await context.data.permissionItem.getManyByQuery(
+    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId, data.permissionEntityType)
   );
 
   return {

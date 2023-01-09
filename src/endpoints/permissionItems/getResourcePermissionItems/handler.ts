@@ -18,10 +18,7 @@ import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
 import {getResourcePermissionItemsJoiSchema} from './validation';
 
-const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
+const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -35,9 +32,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
     permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  const {resources} = await checkResourcesExist(context, agent, workspace, [
-    data,
-  ]);
+  const {resources} = await checkResourcesExist(context, agent, workspace, [data]);
 
   let permissionOwner: IResource | undefined = undefined;
   const resource: IResource | undefined = first(resources);
@@ -57,18 +52,12 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 
   if (
     resource &&
-    (resource.resourceType === AppResourceType.File ||
-      resource.resourceType === AppResourceType.Folder)
+    (resource.resourceType === AppResourceType.File || resource.resourceType === AppResourceType.Folder)
   ) {
-    permissionOwners = getFilePermissionOwners(
-      workspace.resourceId,
-      resource.resource as any,
-      resource.resourceType
-    );
+    permissionOwners = getFilePermissionOwners(workspace.resourceId, resource.resource as any, resource.resourceType);
   } else if (
     permissionOwner &&
-    (permissionOwner.resourceType === AppResourceType.File ||
-      permissionOwner.resourceType === AppResourceType.Folder)
+    (permissionOwner.resourceType === AppResourceType.File || permissionOwner.resourceType === AppResourceType.Folder)
   ) {
     permissionOwners = getFilePermissionOwners(
       workspace.resourceId,
@@ -81,7 +70,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 
   const items2DList = await Promise.all(
     permissionOwners.map(item =>
-      context.data.permissionItem.getManyItems(
+      context.data.permissionItem.getManyByQuery(
         PermissionItemQueries.getByOwnerAndResource(
           item.permissionOwnerId,
           item.permissionOwnerType,

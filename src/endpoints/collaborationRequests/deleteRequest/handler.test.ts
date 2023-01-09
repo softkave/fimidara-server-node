@@ -35,7 +35,7 @@ test('collaboration request deleted', async () => {
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const deletedRequestExists = await context.data.collaborationRequest.checkItemExists(
+  const deletedRequestExists = await context.data.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getById(request.resourceId)
   );
 

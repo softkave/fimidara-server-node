@@ -28,14 +28,13 @@ test('collaborator returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData =
-    RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        collaboratorId: user.resourceId,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      workspaceId: workspace.resourceId,
+      collaboratorId: user.resourceId,
+    }
+  );
 
   const result = await getCollaborator(context, instData);
   assertEndpointResultOk(result);
@@ -43,9 +42,7 @@ test('collaborator returned', async () => {
     collaboratorExtractor(
       await populateUserWorkspaces(
         context,
-        await context.data.user.assertGetItem(
-          EndpointReusableQueries.getById(user.resourceId)
-        )
+        await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(user.resourceId))
       ),
       workspace.resourceId
     )

@@ -14,10 +14,7 @@ export interface IRequestContructorParams<T = any> {
 }
 
 export default class RequestData<T = any> {
-  static fromExpressRequest<DataType = any>(
-    req: IServerRequest,
-    data?: DataType
-  ): RequestData<DataType> {
+  static fromExpressRequest<DataType = any>(req: IServerRequest, data?: DataType): RequestData<DataType> {
     const requestData = new RequestData({
       req,
       data,
@@ -75,9 +72,7 @@ export default class RequestData<T = any> {
 
   getIp() {
     if (this.req) {
-      return Array.isArray(this.req.ips) && this.req.ips.length > 0
-        ? this.req.ips
-        : [this.req.ip];
+      return Array.isArray(this.req.ips) && this.req.ips.length > 0 ? this.req.ips : [this.req.ip];
     }
 
     return [];

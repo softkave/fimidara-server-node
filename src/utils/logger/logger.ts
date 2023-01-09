@@ -1,8 +1,4 @@
-import {
-  decideTransport,
-  FimidaraLoggerServiceNames,
-  loggerFactory,
-} from './loggerUtils';
+import {decideTransport, FimidaraLoggerServiceNames, loggerFactory} from './loggerUtils';
 
 // TODO: lazy create loggers once and wrap in a ref counter that users should
 // release once done.

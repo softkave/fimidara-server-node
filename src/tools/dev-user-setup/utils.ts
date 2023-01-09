@@ -5,31 +5,20 @@ import {CollaborationRequestStatusType} from '../../definitions/collaborationReq
 import {AppResourceType, systemAgent} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
-import {
-  assignWorkspaceToUser,
-  saveResourceAssignedItems,
-} from '../../endpoints/assignedItems/addAssignedItems';
+import {assignWorkspaceToUser, saveResourceAssignedItems} from '../../endpoints/assignedItems/addAssignedItems';
 import {populateAssignedItems} from '../../endpoints/assignedItems/getAssignedItems';
 import CollaborationRequestQueries from '../../endpoints/collaborationRequests/queries';
-import {internalRespondToRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getFileProvider,
-  getLogicProviders,
-} from '../../endpoints/contexts/BaseContext';
-import MongoDBDataProviderContext from '../../endpoints/contexts/MongoDBDataProviderContext';
+import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
+import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
+import {getDataProviders} from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
 import internalConfirmEmailAddress from '../../endpoints/user/confirmEmailAddress/internalConfirmEmailAddress';
 import {internalSignupUser} from '../../endpoints/user/signup/utils';
 import UserQueries from '../../endpoints/user/UserQueries';
-import {
-  getCompleteUserDataByEmail,
-  isUserInWorkspace,
-} from '../../endpoints/user/utils';
+import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/user/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
 import {consoleLogger} from '../../utils/logger/logger';
@@ -49,27 +38,17 @@ export interface ISetupDevUserOptions {
   getUserInfo?: () => Promise<IPromptUserInfoAnswers>;
 }
 
-type AppRuntimeOptions = Required<
-  Pick<ISetupDevUserOptions, 'getUserEmail' | 'getUserInfo'>
->;
+type AppRuntimeOptions = Required<Pick<ISetupDevUserOptions, 'getUserEmail' | 'getUserInfo'>>;
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
-
-  const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
+  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
   const emailProvider = new NoopEmailProviderContext();
   const ctx = new BaseContext(
-    mongoDBDataProvider,
+    getDataProviders(connection),
     emailProvider,
     getFileProvider(appVariables),
     appVariables,
-    getDataProviders(connection),
-    getCacheProviders(),
-    getLogicProviders(),
     () => connection.close()
   );
 
@@ -110,23 +89,12 @@ async function promptUserInfo() {
   return answers as IPromptUserInfoAnswers;
 }
 
-async function isUserAdmin(
-  context: IBaseContext,
-  userId: string,
-  workspaceId: string,
-  adminPermissionGroupId: string
-) {
-  const userData = await populateAssignedItems(
-    context,
-    workspaceId,
-    {resourceId: userId},
-    AppResourceType.User,
-    [AppResourceType.PermissionGroup]
-  );
+async function isUserAdmin(context: IBaseContext, userId: string, workspaceId: string, adminPermissionGroupId: string) {
+  const userData = await populateAssignedItems(context, workspaceId, {resourceId: userId}, AppResourceType.User, [
+    AppResourceType.PermissionGroup,
+  ]);
 
-  const isAdmin = userData.permissionGroups.some(
-    group => group.permissionGroupId === adminPermissionGroupId
-  );
+  const isAdmin = userData.permissionGroups.some(group => group.permissionGroupId === adminPermissionGroupId);
 
   return isAdmin;
 }
@@ -137,12 +105,7 @@ async function makeUserAdmin(
   workspace: IWorkspace,
   adminPermissionGroupId: string
 ) {
-  const isAdmin = await isUserAdmin(
-    context,
-    userId,
-    workspace.resourceId,
-    adminPermissionGroupId
-  );
+  const isAdmin = await isUserAdmin(context, userId, workspace.resourceId, adminPermissionGroupId);
 
   if (!isAdmin) {
     consoleLogger.info('Making user admin');
@@ -168,9 +131,7 @@ async function makeUserAdmin(
 
 async function getUser(context: IBaseContext, options: AppRuntimeOptions) {
   const {email} = await options.getUserEmail();
-  const userExists = await context.data.user.checkItemExists(
-    UserQueries.getByEmail(email)
-  );
+  const userExists = await context.data.user.existsByQuery(UserQueries.getByEmail(email));
 
   let user: IUserWithWorkspace;
   if (userExists) {
@@ -193,50 +154,32 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
 
   const context = await setupContext();
   const workspace = await setupApp(context);
-  const adminPermissionGroup = await context.data.permissiongroup.assertGetItem(
-    EndpointReusableQueries.getByWorkspaceAndName(
-      workspace.resourceId,
-      DEFAULT_ADMIN_PERMISSION_GROUP_NAME
-    )
+  const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
+    EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
   );
 
   const user = await getUser(context, appOptions);
   const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
   if (isInWorkspace) {
-    await makeUserAdmin(
-      context,
-      user.resourceId,
-      workspace,
-      adminPermissionGroup.resourceId
-    );
+    await makeUserAdmin(context, user.resourceId, workspace, adminPermissionGroup.resourceId);
   } else {
-    const request = await context.data.collaborationRequest.getItem(
+    const request = await context.data.collaborationRequest.getOneByQuery(
       CollaborationRequestQueries.getByUserEmail(user.email)
     );
 
     if (request) {
       consoleLogger.info('Existing collaboration request found');
       consoleLogger.info(`Accepting request ${request.resourceId}`);
-      await internalRespondToRequest(context, user, {
+      await internalRespondToCollaborationRequest(context, user, {
         requestId: request.resourceId,
         response: CollaborationRequestStatusType.Accepted,
       });
     } else {
       consoleLogger.info('Adding user to workspace');
-      await assignWorkspaceToUser(
-        context,
-        systemAgent,
-        workspace.resourceId,
-        user
-      );
+      await assignWorkspaceToUser(context, systemAgent, workspace.resourceId, user);
     }
 
-    await makeUserAdmin(
-      context,
-      user.resourceId,
-      workspace,
-      adminPermissionGroup.resourceId
-    );
+    await makeUserAdmin(context, user.resourceId, workspace, adminPermissionGroup.resourceId);
   }
 
   if (!user.isEmailVerified) {
@@ -244,9 +187,7 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
     await internalConfirmEmailAddress(context, user);
   }
 
-  consoleLogger.info(
-    `User ${user.email} is now an admin of workspace ${workspace.name}`
-  );
+  consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
 
   await context.dispose();
   return {user, workspace, adminPermissionGroup};

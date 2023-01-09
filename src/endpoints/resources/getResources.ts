@@ -1,22 +1,10 @@
 import {defaultTo, mapKeys} from 'lodash';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IResourceBase,
-  ISessionAgent,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, IResourceBase, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {
-  IPromiseWithId,
-  ISettledPromiseWithId,
-  waitOnPromisesWithId,
-} from '../../utils/waitOnPromises';
-import {
-  checkAuthorization,
-  makeResourcePermissionOwnerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {IPromiseWithId, ISettledPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
+import {checkAuthorization, makeResourcePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {IFetchResourceItem, IResource} from './types';
@@ -53,10 +41,7 @@ export async function getResources(options: IGetResourcesOptions) {
   const idsGroupedByType: Record<string, string[]> = {};
   const allowedTypesMap = indexArray(allowedTypes);
   const checkedInputResourcesMap = inputResources.reduce((map, item) => {
-    if (
-      allowedTypesMap[AppResourceType.All] ||
-      allowedTypesMap[item.resourceType]
-    ) {
+    if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[item.resourceType]) {
       const ids = defaultTo(idsGroupedByType[item.resourceType], []);
       ids.push(item.resourceId);
       idsGroupedByType[item.resourceType] = ids;
@@ -83,7 +68,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.Workspace:
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.cacheProviders.workspace.getByIds(context, ids),
+          promise: context.data.workspace.getManyByQuery(EndpointReusableQueries.getByIds(ids)),
           resourceType: type,
         });
         break;
@@ -91,7 +76,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.CollaborationRequest:
         promises.push({
           id: AppResourceType.CollaborationRequest,
-          promise: context.data.collaborationRequest.getManyItems(query),
+          promise: context.data.collaborationRequest.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -99,7 +84,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.ProgramAccessToken:
         promises.push({
           id: AppResourceType.ProgramAccessToken,
-          promise: context.data.programAccessToken.getManyItems(query),
+          promise: context.data.programAccessToken.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -107,7 +92,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.ClientAssignedToken:
         promises.push({
           id: AppResourceType.ClientAssignedToken,
-          promise: context.data.clientAssignedToken.getManyItems(query),
+          promise: context.data.clientAssignedToken.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -115,7 +100,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.UserToken:
         promises.push({
           id: AppResourceType.UserToken,
-          promise: context.data.userToken.getManyItems(query),
+          promise: context.data.userToken.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -123,7 +108,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.PermissionGroup:
         promises.push({
           id: AppResourceType.PermissionGroup,
-          promise: context.data.permissiongroup.getManyItems(query),
+          promise: context.data.permissiongroup.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -131,7 +116,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.PermissionItem:
         promises.push({
           id: AppResourceType.PermissionItem,
-          promise: context.data.permissionItem.getManyItems(query),
+          promise: context.data.permissionItem.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -139,7 +124,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.Folder:
         promises.push({
           id: AppResourceType.Folder,
-          promise: context.data.folder.getManyItems(query),
+          promise: context.data.folder.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -147,7 +132,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.File:
         promises.push({
           id: AppResourceType.File,
-          promise: context.data.file.getManyItems(query),
+          promise: context.data.file.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -155,7 +140,7 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.User:
         promises.push({
           id: AppResourceType.User,
-          promise: context.data.user.getManyItems(query),
+          promise: context.data.user.getManyByQuery(query),
           resourceType: type,
         });
         break;
@@ -184,10 +169,7 @@ export async function getResources(options: IGetResourcesOptions) {
     });
   } else {
     const authCheckPromises: IExtendedPromiseWithId<boolean>[] = [];
-    const resourceIndexer = (
-      resourceId: string,
-      resourceType: AppResourceType
-    ) => `${resourceId}-${resourceType}`;
+    const resourceIndexer = (resourceId: string, resourceType: AppResourceType) => `${resourceId}-${resourceType}`;
 
     const inputMap = indexArray(checkedInputResources, {
       indexer: item => resourceIndexer(item.resourceId, item.resourceType),
@@ -198,8 +180,7 @@ export async function getResources(options: IGetResourcesOptions) {
         // TODO: can we do this together, so that we don't waste compute
         item.value?.forEach(resource => {
           const key = resourceIndexer(resource.resourceId, item.resourceType);
-          const resourceAction =
-            inputMap[key]?.action || action || BasicCRUDActions.Read;
+          const resourceAction = inputMap[key]?.action || action || BasicCRUDActions.Read;
 
           const checkPromise = checkAuthorization({
             context,
@@ -207,11 +188,7 @@ export async function getResources(options: IGetResourcesOptions) {
             workspace,
             resource: resource,
             type: item.resourceType,
-            permissionOwners: makeResourcePermissionOwnerList(
-              workspace.resourceId,
-              item.resourceType,
-              resource
-            ),
+            permissionOwners: makeResourcePermissionOwnerList(workspace.resourceId, item.resourceType, resource),
             action: resourceAction,
             nothrow: nothrowOnCheckError,
           });

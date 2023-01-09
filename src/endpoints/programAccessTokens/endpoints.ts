@@ -1,4 +1,5 @@
 import {IPublicProgramAccessToken} from '../../definitions/programAccessToken';
+import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
   FieldArray,
@@ -23,7 +24,7 @@ import {
 } from './getWorkspaceTokens/types';
 import {IUpdateProgramAccessTokenEndpointParams, IUpdateProgramAccessTokenEndpointResult} from './updateToken/types';
 
-const newProgramAccessTokenInput = new FieldObject<INewProgramAccessTokenInput>()
+const newProgramAccessTokenInput = new FieldObject<ExcludeTags<INewProgramAccessTokenInput>>()
   .setName('NewProgramAccessTokenInput')
   .setFields({
     name: fReusables.nameNotRequired,

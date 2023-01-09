@@ -1,4 +1,5 @@
 import {IPublicClientAssignedToken} from '../../definitions/clientAssignedToken';
+import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
   FieldArray,
@@ -24,7 +25,7 @@ import {
 } from './getWorkspaceTokens/types';
 import {IUpdateClientAssignedTokenEndpointParams, IUpdateClientAssignedTokenEndpointResult} from './updateToken/types';
 
-const newClientAssignedTokenInput = new FieldObject<INewClientAssignedTokenInput>()
+const newClientAssignedTokenInput = new FieldObject<ExcludeTags<INewClientAssignedTokenInput>>()
   .setName('NewClientAssignedTokenInput')
   .setFields({
     providedResourceId: fReusables.providedResourceIdNotRequired,

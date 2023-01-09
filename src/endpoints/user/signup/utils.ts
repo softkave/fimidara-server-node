@@ -8,13 +8,8 @@ import {EmailAddressNotAvailableError} from '../errors';
 import UserQueries from '../UserQueries';
 import {ISignupParams} from './types';
 
-export const internalSignupUser = async (
-  context: IBaseContext,
-  data: ISignupParams
-) => {
-  const userExists = await context.data.user.checkItemExists(
-    UserQueries.getByEmail(data.email)
-  );
+export const internalSignupUser = async (context: IBaseContext, data: ISignupParams) => {
+  const userExists = await context.data.user.existsByQuery(UserQueries.getByEmail(data.email));
 
   if (userExists) {
     throw new EmailAddressNotAvailableError();
@@ -22,7 +17,7 @@ export const internalSignupUser = async (
 
   const hash = await argon2.hash(data.password);
   const now = getDateString();
-  const user = await context.data.user.saveItem({
+  const user = await context.data.user.insertItem({
     hash,
     resourceId: getNewIdForResource(AppResourceType.User),
     email: data.email,

@@ -3,21 +3,14 @@ import {
   ICollaborationRequestStatus,
   IPublicCollaborationRequest,
 } from '../../definitions/collaborationRequest';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   populateAssignedPermissionGroupsAndTags,
   populateResourceListWithAssignedPermissionGroupsAndTags,
 } from '../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
@@ -44,8 +37,7 @@ const userCollaborationRequestFields = getFields<IPublicCollaborationRequest>(
         date: getDateString,
       })
     ),
-    permissionGroupsOnAccept: data =>
-      data ? assignedPermissionGroupsListExtractor(data) : [],
+    permissionGroupsOnAccept: data => (data ? assignedPermissionGroupsListExtractor(data) : []),
   },
   req => {
     if (!req.permissionGroupsOnAccept) {
@@ -85,39 +77,23 @@ export async function checkCollaborationRequestAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const request = await context.data.collaborationRequest.assertGetItem(
+  const request = await context.data.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getById(requestId)
   );
 
-  return checkCollaborationRequestAuthorization(
-    context,
-    agent,
-    request,
-    action,
-    nothrow
-  );
+  return checkCollaborationRequestAuthorization(context, agent, request, action, nothrow);
 }
 
-export const collaborationRequestExtractor = makeExtract(
-  userCollaborationRequestFields
-);
+export const collaborationRequestExtractor = makeExtract(userCollaborationRequestFields);
 
-export const collaborationRequestListExtractor = makeListExtract(
-  userCollaborationRequestFields
-);
+export const collaborationRequestListExtractor = makeListExtract(userCollaborationRequestFields);
 
 export function throwCollaborationRequestNotFound() {
   throw new NotFoundError('Collaboration request not found');
 }
 
-export async function populateRequestPermissionGroups(
-  context: IBaseContext,
-  request: ICollaborationRequest
-) {
-  return await populateAssignedPermissionGroupsAndTags<
-    ICollaborationRequest,
-    IPublicCollaborationRequest
-  >(
+export async function populateRequestPermissionGroups(context: IBaseContext, request: ICollaborationRequest) {
+  return await populateAssignedPermissionGroupsAndTags<ICollaborationRequest, IPublicCollaborationRequest>(
     context,
     request.workspaceId,
     request,
@@ -130,10 +106,7 @@ export async function populateRequestPermissionGroups(
   );
 }
 
-export async function populateRequestListPermissionGroups(
-  context: IBaseContext,
-  requests: ICollaborationRequest[]
-) {
+export async function populateRequestListPermissionGroups(context: IBaseContext, requests: ICollaborationRequest[]) {
   if (requests.length === 0) {
     return [];
   }

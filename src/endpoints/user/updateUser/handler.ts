@@ -23,10 +23,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
 
   user = await populateUserWorkspaces(
     context,
-    await context.data.user.assertUpdateItem(
-      UserQueries.getById(user.resourceId),
-      update
-    )
+    await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), update)
   );
 
   // Make the updated user data available to other requests

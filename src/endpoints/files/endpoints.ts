@@ -1,4 +1,5 @@
 import {IFileMatcher, IPublicFile} from '../../definitions/file';
+import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
   cloneAndMarkNotRequired,
@@ -63,11 +64,13 @@ const file = new FieldObject<IPublicFile>().setName('File').setFields({
   description: fReusables.descriptionOrUndefined,
 });
 
-const updateFileDetailsInput = new FieldObject<IUpdateFileDetailsInput>().setName('UpdateFileDetailsInput').setFields({
-  description: fReusables.descriptionNotRequired,
-  mimetype: mimetypeNotRequired,
-  publicAccessAction: uploadFilePublicAccessActionNotRequired,
-});
+const updateFileDetailsInput = new FieldObject<ExcludeTags<IUpdateFileDetailsInput>>()
+  .setName('UpdateFileDetailsInput')
+  .setFields({
+    description: fReusables.descriptionNotRequired,
+    mimetype: mimetypeNotRequired,
+    publicAccessAction: uploadFilePublicAccessActionNotRequired,
+  });
 
 const fileMatcherParts: FieldObjectFields<IFileMatcher> = {
   filepath: fReusables.filepathNotRequired,
@@ -170,7 +173,7 @@ const getFileResult = [
 
 const updloadFileParams = new HttpEndpointMultipartFormdata().setItems(
   asFieldObjectAny(
-    new FieldObject<IUploadFileEndpointParams>().setFields({
+    new FieldObject<ExcludeTags<IUploadFileEndpointParams>>().setFields({
       ...fileMatcherParts,
       data: new FieldBinary().setRequired(true).setDescription('File binary.'),
       description: fReusables.descriptionNotRequired,

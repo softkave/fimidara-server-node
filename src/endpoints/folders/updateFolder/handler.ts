@@ -27,7 +27,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     },
   };
 
-  folder = await context.data.folder.assertUpdateItem(FolderQueries.getById(folder.resourceId), update);
+  folder = await context.data.folder.assertGetAndUpdateOneByQuery(FolderQueries.getById(folder.resourceId), update);
   const hasPublicAccessOpsChanges =
     incomingPublicAccessOps || isNull(incomingPublicAccessOps) || data.folder.removePublicAccessOps;
 

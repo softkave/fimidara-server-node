@@ -42,7 +42,9 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   });
 
   let collaboratorExists = false;
-  const existingUser = await context.data.user.getItem(CollaboratorQueries.getByUserEmail(data.request.recipientEmail));
+  const existingUser = await context.data.user.getOneByQuery(
+    CollaboratorQueries.getByUserEmail(data.request.recipientEmail)
+  );
 
   if (existingUser) {
     const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
@@ -54,7 +56,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     throw new ResourceExistsError('Collaborator with same email address exists');
   }
 
-  const existingRequest = await context.data.collaborationRequest.getItem(
+  const existingRequest = await context.data.collaborationRequest.getOneByQuery(
     CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(workspaceId, data.request.recipientEmail)
   );
 
@@ -74,7 +76,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     agentType: agent.agentType,
   };
 
-  let request = await context.data.collaborationRequest.saveItem({
+  let request = await context.data.collaborationRequest.insertItem({
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,

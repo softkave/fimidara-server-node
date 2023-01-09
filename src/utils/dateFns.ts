@@ -5,7 +5,6 @@ export function getDate(initial?: any) {
     const date = new Date(initial);
     return date;
   }
-
   return new Date();
 }
 
@@ -14,7 +13,6 @@ export function getDateString(initial?: any) {
     const date = new Date(initial);
     return date.toISOString();
   }
-
   return new Date().toISOString();
 }
 
@@ -23,7 +21,6 @@ export function getDateStringIfPresent(initial?: any) {
     const date = new Date(initial);
     return date.toISOString();
   }
-
   return undefined;
 }
 

@@ -32,19 +32,13 @@ const bytesInGb = 1024 * 1024 * 1024;
 
 // price is in USD per byte
 export const usageCosts: Record<UsageRecordCategory, number> = {
-  [UsageRecordCategory.Storage]:
-    usageCostsPerGb[UsageRecordCategory.Storage] / bytesInGb,
-  [UsageRecordCategory.BandwidthIn]:
-    usageCostsPerGb[UsageRecordCategory.BandwidthIn] / bytesInGb,
-  [UsageRecordCategory.BandwidthOut]:
-    usageCostsPerGb[UsageRecordCategory.BandwidthOut] / bytesInGb,
+  [UsageRecordCategory.Storage]: usageCostsPerGb[UsageRecordCategory.Storage] / bytesInGb,
+  [UsageRecordCategory.BandwidthIn]: usageCostsPerGb[UsageRecordCategory.BandwidthIn] / bytesInGb,
+  [UsageRecordCategory.BandwidthOut]: usageCostsPerGb[UsageRecordCategory.BandwidthOut] / bytesInGb,
   [UsageRecordCategory.Total]: 0,
 };
 
-export const getCostForUsage = (
-  catgory: UsageRecordCategory,
-  usage: number
-) => {
+export const getCostForUsage = (catgory: UsageRecordCategory, usage: number) => {
   const costPerUnit = usageCosts[catgory];
   return costPerUnit ? costPerUnit * usage : 0;
 };

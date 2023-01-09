@@ -1,7 +1,7 @@
 import {TokenAudience} from '../../definitions/system';
 import {IUserToken} from '../../definitions/userToken';
-import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 import {} from '../contexts/SessionContext';
 import EndpointReusableQueries from '../queries';
 
@@ -10,9 +10,7 @@ function newFilter() {
 }
 
 function getByUserId(userId: string) {
-  return newFilter()
-    .addItem('userId', userId, DataProviderFilterValueOperator.Equal)
-    .build();
+  return newFilter().addItem('userId', userId, DataProviderFilterValueOperator.Equal).build();
 }
 
 function getByUserIdAndAudience(userId: string, audience: TokenAudience) {

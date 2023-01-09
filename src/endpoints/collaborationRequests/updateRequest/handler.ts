@@ -23,7 +23,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (co
   );
 
   if (!isObjectEmpty(data.request)) {
-    request = await context.data.collaborationRequest.assertUpdateItem(
+    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
       EndpointReusableQueries.getById(data.requestId),
       {
         message: data.request.message || request.message,

@@ -1,28 +1,15 @@
 import {flatten, last} from 'lodash';
-import {
-  IPermissionItem,
-  PermissionItemAppliesTo,
-} from '../../../definitions/permissionItem';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-} from '../../../definitions/system';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {InternalError} from '../../../utils/errors';
 import {indexArray} from '../../../utils/indexArray';
-import {
-  EmailAddressNotVerifiedError,
-  PermissionDeniedError,
-} from '../../user/errors';
-import {DataProviderFilterValueOperator} from '../data-providers/DataProvider';
-import DataProviderFilterBuilder from '../data-providers/DataProviderFilterBuilder';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
+import {DataProviderFilterValueOperator} from '../DataProvider';
+import DataProviderFilterBuilder from '../DataProviderFilterBuilder';
 import {IBaseContext} from '../types';
 import {fetchAndSortPermissionGroups} from './fetchPermissionGroups';
-import {
-  getPermissionEntities,
-  IPermissionEntity,
-} from './getPermissionEntities';
+import {getPermissionEntities, IPermissionEntity} from './getPermissionEntities';
 
 export interface IPermissionOwner {
   permissionOwnerId: string;
@@ -57,33 +44,16 @@ export interface ICheckAuthorizationParams {
 // TODO: make checkAuthorization more performant
 
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
-  const {
-    context,
-    agent,
-    workspace,
-    type,
-    permissionOwners,
-    action,
-    nothrow,
-    resource,
-  } = params;
+  const {context, agent, workspace, type, permissionOwners, action, nothrow, resource} = params;
 
-  if (
-    agent.user &&
-    action !== BasicCRUDActions.Read &&
-    !agent.user.isEmailVerified
-  ) {
+  if (agent.user && action !== BasicCRUDActions.Read && !agent.user.isEmailVerified) {
     // Reject request if user is not verified and action is not read
     throw new EmailAddressNotVerifiedError();
   }
 
   const itemResourceId = params.resource?.resourceId || params.itemResourceId;
 
-  if (
-    resource &&
-    params.itemResourceId &&
-    resource.resourceId !== params.itemResourceId
-  ) {
+  if (resource && params.itemResourceId && resource.resourceId !== params.itemResourceId) {
     throw new InternalError("Resource ID doesn't match item resource ID");
   }
 
@@ -92,49 +62,28 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   }
 
   const agentPermissionEntities = getPermissionEntities(agent, workspace);
-  const authEntities = await fetchAndSortPermissionGroups(
-    context,
-    agentPermissionEntities
-  );
+  const authEntities = await fetchAndSortPermissionGroups(context, agentPermissionEntities);
 
   const queries = authEntities.map(item => {
     return newFilter()
-      .addItem(
-        'permissionEntityId',
-        item.permissionEntityId,
-        DataProviderFilterValueOperator.Equal
-      )
-      .addItem(
-        'permissionEntityType',
-        item.permissionEntityType,
-        DataProviderFilterValueOperator.Equal
-      )
-      .addItem(
-        'itemResourceType',
-        [AppResourceType.All, type],
-        DataProviderFilterValueOperator.In
-      )
-      .addItem(
-        'action',
-        [BasicCRUDActions.All, action],
-        DataProviderFilterValueOperator.In
-      )
+      .addItem('permissionEntityId', item.permissionEntityId, DataProviderFilterValueOperator.Equal)
+      .addItem('permissionEntityType', item.permissionEntityType, DataProviderFilterValueOperator.Equal)
+      .addItem('itemResourceType', [AppResourceType.All, type], DataProviderFilterValueOperator.In)
+      .addItem('action', [BasicCRUDActions.All, action], DataProviderFilterValueOperator.In)
       .build();
   });
 
   const permissionItemsList = await Promise.all(
-    queries.map(query => context.data.permissionItem.getManyItems(query))
+    queries.map(query => context.data.permissionItem.getManyByQuery(query))
   );
 
-  const getPermissionOwnerKey = (item: IPermissionOwner) =>
-    `${item.permissionOwnerId}-${item.permissionOwnerType}`;
+  const getPermissionOwnerKey = (item: IPermissionOwner) => `${item.permissionOwnerId}-${item.permissionOwnerType}`;
 
   const permissionOwnersMap = indexArray(permissionOwners, {
     indexer: getPermissionOwnerKey,
   });
 
-  const getEntityKey = (item: IPermissionEntity) =>
-    `${item.permissionEntityId}-${item.permissionEntityType}`;
+  const getEntityKey = (item: IPermissionEntity) => `${item.permissionEntityId}-${item.permissionEntityType}`;
 
   const entitiesMap = indexArray(authEntities, {
     indexer: getEntityKey,
@@ -147,10 +96,7 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
   const items = flatten(permissionItemsList).filter(item => {
     if (item.itemResourceId && item.itemResourceId !== itemResourceId) {
       return false;
-    } else if (
-      item.appliesTo === PermissionItemAppliesTo.Owner &&
-      item.permissionOwnerId !== itemResourceId
-    ) {
+    } else if (item.appliesTo === PermissionItemAppliesTo.Owner && item.permissionOwnerId !== itemResourceId) {
       return false;
     }
 
@@ -173,16 +119,13 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 
   const LOWER_PRIORITY_WEIGHT = Number.MAX_SAFE_INTEGER;
   const HIGHER_PRIORITY_WEIGHT = Number.MIN_SAFE_INTEGER;
-  const getEntityOrder = (item: IPermissionEntity) =>
-    entitiesMap[getEntityKey(item)]?.order ?? LOWER_PRIORITY_WEIGHT;
+  const getEntityOrder = (item: IPermissionEntity) => entitiesMap[getEntityKey(item)]?.order ?? LOWER_PRIORITY_WEIGHT;
 
   const getEntityWeight = (item: IPermissionEntity) =>
     entityTypeWeight[item.permissionEntityType] ?? LOWER_PRIORITY_WEIGHT;
 
   const isForOwner = (item: IPermissionItem) =>
-    resource &&
-    item.appliesTo === PermissionItemAppliesTo.Owner &&
-    item.permissionOwnerId === resource.resourceId;
+    resource && item.appliesTo === PermissionItemAppliesTo.Owner && item.permissionOwnerId === resource.resourceId;
 
   items.sort((item1, item2) => {
     if (item1.permissionEntityId === item2.permissionEntityId) {
@@ -241,8 +184,7 @@ export function getFilePermissionOwners(
   resource: {idPath: string[]},
   type: AppResourceType.Folder | AppResourceType.File
 ) {
-  let permissionOwners: IPermissionOwner[] =
-    makeWorkspacePermissionOwnerList(workspaceId);
+  let permissionOwners: IPermissionOwner[] = makeWorkspacePermissionOwnerList(workspaceId);
 
   const folderIds =
     type === AppResourceType.File
@@ -268,11 +210,7 @@ export function getFilePermissionOwners(
   return permissionOwners.map((item, index) => ({...item, order: index}));
 }
 
-export function makeResourcePermissionOwnerList(
-  workspaceId: string,
-  type: AppResourceType,
-  resource: any
-) {
+export function makeResourcePermissionOwnerList(workspaceId: string, type: AppResourceType, resource: any) {
   if (type === AppResourceType.Folder || type === AppResourceType.File) {
     return getFilePermissionOwners(workspaceId, resource, type);
   }

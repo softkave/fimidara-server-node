@@ -16,10 +16,7 @@ import {
 import FileQueries from '../queries';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
-import {
-  IUpdateFileDetailsEndpointParams,
-  IUpdateFileDetailsInput,
-} from './types';
+import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -35,25 +32,20 @@ test('file updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file, reqData} = await insertFileForTest(
-    context,
-    userToken,
-    workspace
-  );
+  const {file, reqData} = await insertFileForTest(context, userToken, workspace);
 
   const updateInput: IUpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
   };
 
-  const instData =
-    RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        filepath: addRootnameToPath(file.name, workspace.rootname),
-        file: updateInput,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      filepath: addRootnameToPath(file.name, workspace.rootname),
+      file: updateInput,
+    }
+  );
 
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);
@@ -63,7 +55,7 @@ test('file updated', async () => {
   const updatedFile = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.file.assertGetItem(FileQueries.getById(file.resourceId)),
+    await context.data.file.assertGetOneByQuery(FileQueries.getById(file.resourceId)),
     AppResourceType.File
   );
 

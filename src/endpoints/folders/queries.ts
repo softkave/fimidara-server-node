@@ -1,6 +1,6 @@
 import {IFolder} from '../../definitions/folder';
-import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
@@ -8,18 +8,10 @@ function newFilter() {
 }
 
 function getByName(name: string, parent?: IFolder) {
-  const filter = newFilter().addItem(
-    'name',
-    name,
-    DataProviderFilterValueOperator.Equal
-  );
+  const filter = newFilter().addItem('name', name, DataProviderFilterValueOperator.Equal);
 
   if (parent) {
-    filter.addItem(
-      'parentId',
-      parent.resourceId,
-      DataProviderFilterValueOperator.Equal
-    );
+    filter.addItem('parentId', parent.resourceId, DataProviderFilterValueOperator.Equal);
   } else {
     filter.addItem('parentId', null, DataProviderFilterValueOperator.Equal);
   }
@@ -35,25 +27,15 @@ function folderExistsByNamePath(workspaceId: string, namePath: string[]) {
 }
 
 function getFoldersByParentId(parentId: string | null) {
-  return newFilter()
-    .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
-    .build();
+  return newFilter().addItem('parentId', parentId, DataProviderFilterValueOperator.Equal).build();
 }
 
 // This returns all the folders that have the name path and possibly more
 function getFoldersWithNamePath(workspaceId: string, path: string[]) {
-  const filter = newFilter().addItem(
-    'workspaceId',
-    workspaceId,
-    DataProviderFilterValueOperator.Equal
-  );
+  const filter = newFilter().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
 
   path.forEach((item, index) =>
-    filter.addItemWithStringKey(
-      `namePath.${index}`,
-      item,
-      DataProviderFilterValueOperator.Equal
-    )
+    filter.addItemWithStringKey(`namePath.${index}`, item, DataProviderFilterValueOperator.Equal)
   );
 
   return filter.build();

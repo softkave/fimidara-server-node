@@ -4,12 +4,9 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceNameExists} from '../checkWorkspaceNameExists';
-import {
-  assertWorkspace,
-  checkWorkspaceAuthorization02,
-  workspaceExtractor,
-} from '../utils';
+import {assertWorkspace, checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {UpdateWorkspaceEndpoint} from './types';
 import {updateWorkspaceJoiSchema} from './validation';
 
@@ -17,12 +14,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateWorkspaceJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const {workspace} = await checkWorkspaceAuthorization02(
-    context,
-    agent,
-    workspaceId,
-    BasicCRUDActions.Update
-  );
+  const {workspace} = await checkWorkspaceAuthorization02(context, agent, workspaceId, BasicCRUDActions.Update);
 
   if (data.workspace.name && data.workspace.name !== workspace.name) {
     await checkWorkspaceNameExists(context, data.workspace.name);
@@ -52,9 +44,8 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   //   );
   // }
 
-  const updatedWorkspace = await context.cacheProviders.workspace.updateById(
-    context,
-    workspace.resourceId,
+  const updatedWorkspace = await context.data.workspace.getAndUpdateOneByQuery(
+    EndpointReusableQueries.getById(workspace.resourceId),
     update
   );
 

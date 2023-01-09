@@ -11,12 +11,7 @@ import {updateTagJoiSchema} from './validation';
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkTagAuthorization02(
-    context,
-    agent,
-    data.tagId,
-    BasicCRUDActions.Read
-  );
+  const checkResult = await checkTagAuthorization02(context, agent, data.tagId, BasicCRUDActions.Read);
 
   const workspace = checkResult.workspace;
   let tag = checkResult.tag;
@@ -33,10 +28,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     await checkTagNameExists(context, workspace.resourceId, tagUpdate.name);
   }
 
-  tag = await context.data.tag.assertUpdateItem(
-    EndpointReusableQueries.getById(data.tagId),
-    tagUpdate
-  );
+  tag = await context.data.tag.assertGetAndUpdateOneByQuery(EndpointReusableQueries.getById(data.tagId), tagUpdate);
 
   return {
     tag: tagExtractor(tag),

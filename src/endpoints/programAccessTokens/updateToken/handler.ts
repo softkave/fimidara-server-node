@@ -8,31 +8,16 @@ import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAs
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import ProgramAccessTokenQueries from '../queries';
-import {
-  checkProgramAccessTokenAuthorization02,
-  getPublicProgramToken,
-} from '../utils';
+import {checkProgramAccessTokenAuthorization02, getPublicProgramToken} from '../utils';
 import {UpdateProgramAccessTokenEndpoint} from './types';
 import {updateProgramAccessTokenJoiSchema} from './validation';
 
-const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
-  context,
-  instData
-) => {
+const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const tokenId = getProgramAccessTokenId(
-    agent,
-    data.tokenId,
-    data.onReferenced
-  );
+  const tokenId = getProgramAccessTokenId(agent, data.tokenId, data.onReferenced);
 
-  const checkResult = await checkProgramAccessTokenAuthorization02(
-    context,
-    agent,
-    tokenId,
-    BasicCRUDActions.Read
-  );
+  const checkResult = await checkProgramAccessTokenAuthorization02(context, agent, tokenId, BasicCRUDActions.Read);
 
   const workspace = checkResult.workspace;
   let token = checkResult.token;
@@ -46,14 +31,10 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (
   };
 
   if (tokenUpdate.name && tokenUpdate.name !== token.name) {
-    await checkProgramTokenNameExists(
-      context,
-      workspace.resourceId,
-      tokenUpdate.name
-    );
+    await checkProgramTokenNameExists(context, workspace.resourceId, tokenUpdate.name);
   }
 
-  token = await context.data.programAccessToken.assertUpdateItem(
+  token = await context.data.programAccessToken.assertGetAndUpdateOneByQuery(
     ProgramAccessTokenQueries.getById(tokenId),
     tokenUpdate
   );

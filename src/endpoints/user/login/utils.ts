@@ -28,12 +28,7 @@ export function toLoginResult(
 ): ILoginResult {
   return {
     user: userExtractor(user),
-    token: context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.UserToken,
-      token.expires
-    ),
+    token: context.session.encodeToken(context, token.resourceId, TokenType.UserToken, token.expires),
     clientAssignedToken: context.session.encodeToken(
       context,
       clientAssignedToken.resourceId,
@@ -43,15 +38,8 @@ export function toLoginResult(
   };
 }
 
-export async function getUserClientAssignedToken(
-  context: IBaseContext,
-  userId: string
-) {
-  appAssert(
-    context.appVariables.appWorkspaceId,
-    new ServerError(),
-    'App workspace ID not set'
-  );
+export async function getUserClientAssignedToken(context: IBaseContext, userId: string) {
+  appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set');
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
@@ -63,16 +51,13 @@ export async function getUserClientAssignedToken(
     'App users image upload permission group ID not set'
   );
 
-  let token = await context.data.clientAssignedToken.getItem(
-    EndpointReusableQueries.getByProvidedId(
-      context.appVariables.appWorkspaceId,
-      userId
-    )
+  let token = await context.data.clientAssignedToken.getOneByQuery(
+    EndpointReusableQueries.getByProvidedId(context.appVariables.appWorkspaceId, userId)
   );
 
   if (!token) {
     const createdAt = getDateString();
-    token = await context.data.clientAssignedToken.saveItem({
+    token = await context.data.clientAssignedToken.insertItem({
       createdAt,
       lastUpdatedAt: createdAt,
       lastUpdatedBy: systemAgent,
@@ -81,12 +66,10 @@ export async function getUserClientAssignedToken(
       createdBy: systemAgent,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
-      issuedAt: getDateString(),
     });
 
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      context.appVariables.appWorkspaceId
+    const workspace = await context.data.workspace.getOneByQuery(
+      EndpointReusableQueries.getById(context.appVariables.appWorkspaceId)
     );
     assertWorkspace(workspace);
     addAssignedPermissionGroupList(
@@ -96,13 +79,11 @@ export async function getUserClientAssignedToken(
       [
         {
           order: 1,
-          permissionGroupId:
-            context.appVariables.appWorkspacesImageUploadPermissionGroupId,
+          permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId,
         },
         {
           order: 2,
-          permissionGroupId:
-            context.appVariables.appUsersImageUploadPermissionGroupId,
+          permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId,
         },
       ],
       token.resourceId,
@@ -116,15 +97,12 @@ export async function getUserClientAssignedToken(
 }
 
 export async function getUserToken(context: IBaseContext, user: IUser) {
-  let userToken = await context.data.userToken.getItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.Login
-    )
+  let userToken = await context.data.userToken.getOneByQuery(
+    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.Login)
   );
 
   if (!userToken) {
-    userToken = await context.data.userToken.saveItem({
+    userToken = await context.data.userToken.insertItem({
       resourceId: getNewIdForResource(AppResourceType.UserToken),
       userId: user.resourceId,
       audience: [TokenAudience.Login],

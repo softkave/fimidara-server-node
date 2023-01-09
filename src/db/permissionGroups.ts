@@ -21,12 +21,7 @@ const modelName = 'permission-group';
 const collectionName = 'permission-groups';
 
 export function getPermissionGroupModel(connection: Connection) {
-  const model = connection.model<IPermissionGroup>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+  const model = connection.model<IPermissionGroup>(modelName, schema, collectionName);
   return model;
 }
 

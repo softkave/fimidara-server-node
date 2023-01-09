@@ -11,17 +11,15 @@ async function unlockUsageThresholdLocksMain() {
   try {
     runInfo.logger.info('Unlocking workspace locks job started');
     const appVariables = getAppVariables(extractProdEnvsSchema);
-    const connection = await getMongoConnection(
-      appVariables.mongoDbURI,
-      appVariables.mongoDbDatabaseName
-    );
-
+    const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
     await unlockUsageThresholdLocks(connection);
     await connection.close();
     runInfo.logger.info('Unlocking usage threshold locks job completed');
   } catch (error: any) {
     runInfo.logger.error(error);
   }
+
+  await runInfo.logger.close();
 }
 
 unlockUsageThresholdLocksMain();

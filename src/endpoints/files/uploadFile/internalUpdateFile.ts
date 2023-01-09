@@ -18,12 +18,11 @@ export async function internalUpdateFile(
   existingFile: IFile,
   data: IUploadFileEndpointParams
 ) {
-  const file = await context.data.file.assertUpdateItem(
+  const file = await context.data.file.assertGetAndUpdateOneByQuery(
     EndpointReusableQueries.getById(existingFile.resourceId),
     {
       ...data,
-      extension:
-        data.extension || pathWithDetails.extension || existingFile.extension,
+      extension: data.extension || pathWithDetails.extension || existingFile.extension,
       size: data.data.length,
       lastUpdatedBy: {
         agentId: agent.agentId,
@@ -34,10 +33,7 @@ export async function internalUpdateFile(
   );
 
   if (data.publicAccessAction) {
-    const publicAccessOps = makeFilePublicAccessOps(
-      agent,
-      data.publicAccessAction
-    );
+    const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
 
     await replacePublicPermissionGroupAccessOpsByPermissionOwner(
       context,
@@ -50,15 +46,7 @@ export async function internalUpdateFile(
     );
   }
 
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    data,
-    true
-  );
+  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, true);
 
   return file;
 }

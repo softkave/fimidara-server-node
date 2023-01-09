@@ -16,10 +16,7 @@ import {
   mockExpressRequest,
 } from '../../test-utils/test-utils';
 import UserTokenQueries from '../UserTokenQueries';
-import forgotPassword, {
-  getForgotPasswordExpiration,
-  getForgotPasswordLinkFromToken,
-} from './forgotPassword';
+import forgotPassword, {getForgotPasswordExpiration, getForgotPasswordLinkFromToken} from './forgotPassword';
 import {IForgotPasswordParams} from './types';
 
 /**
@@ -41,20 +38,14 @@ afterAll(async () => {
 test('forgot password with email sent', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IForgotPasswordParams>(
-    mockExpressRequest(),
-    {
-      email: user.email,
-    }
-  );
+  const instData = RequestData.fromExpressRequest<IForgotPasswordParams>(mockExpressRequest(), {
+    email: user.email,
+  });
 
   const result = await forgotPassword(context, instData);
   assertEndpointResultOk(result);
-  const forgotPasswordToken = await context.data.userToken.assertGetItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.ChangePassword
-    )
+  const forgotPasswordToken = await context.data.userToken.assertGetOneByQuery(
+    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.ChangePassword)
   );
 
   // confirm forgot password email was sent
