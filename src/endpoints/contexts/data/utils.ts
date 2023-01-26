@@ -22,9 +22,10 @@ export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>)
 }
 
 export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>) {
+  const pageSize = p?.pageSize || endpointConstants.maxPageSize;
   return {
-    limit: p?.pageSize || endpointConstants.maxPageSize,
-    skip: p?.page || 0,
+    limit: pageSize,
+    skip: (p?.page || 0) * pageSize,
     lean: true,
     projection: p?.projection,
     sort: p?.sort,
