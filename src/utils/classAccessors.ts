@@ -70,23 +70,24 @@ export function makeSetAccessor<T, K extends keyof T>(obj: T, k: K) {
 /**
  * Expects that contrcutor params are not required.
  */
-export function makeClone<T extends ClassConstructor>(klass: T, cloneFrom: InstanceType<T>, addAccessors = true) {
+export function makeClone<T extends ClassConstructor>(cloneFrom: InstanceType<T>, addAccessors = true) {
   return () => {
-    const clone = new klass();
+    assert(cloneFrom.constructor);
+    const clone: InstanceType<T> = new cloneFrom.constructor();
     for (const key in cloneFrom) {
       if (isFunction(cloneFrom[key])) continue;
       clone[key] = cloneFrom[key];
     }
 
     if (addAccessors) {
-      addClassAccessors(clone, klass);
+      addClassAccessors(clone);
     }
 
     return clone;
   };
 }
 
-export function addClassAccessors(instance: AnyObject, klass: ClassConstructor) {
+export function addClassAccessors(instance: AnyObject) {
   for (const key in instance) {
     if (isFunction(instance[key])) continue;
 
@@ -108,9 +109,7 @@ export function addClassAccessors(instance: AnyObject, klass: ClassConstructor) 
   }
 
   const cloneName = 'clone';
-  if (!instance[cloneName]) {
-    instance[cloneName] = makeClone(klass, instance);
-  }
+  instance[cloneName] = makeClone(instance);
 }
 
 // TODO: look into using applyMixins function in './fns.ts' file
@@ -119,7 +118,7 @@ export function withClassAccessors<Klass extends ClassConstructor>(klass: Klass)
     class extends klass {
       constructor(...props: any[]) {
         super(...props);
-        addClassAccessors(this, klass);
+        addClassAccessors(this);
       }
     }
   );

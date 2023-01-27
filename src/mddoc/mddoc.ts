@@ -1,5 +1,11 @@
 import {forEach, isString, uniqWith} from 'lodash';
-import {makeAssertGetAccessor, makeGetAccessor, makeSetAccessor, withClassAccessors} from '../utils/classAccessors';
+import {
+  makeAssertGetAccessor,
+  makeClone,
+  makeGetAccessor,
+  makeSetAccessor,
+  withClassAccessors,
+} from '../utils/classAccessors';
 import {indexArray} from '../utils/indexArray';
 import {AnyObject} from '../utils/types';
 
@@ -121,6 +127,7 @@ export class FieldObject<T = AnyObject> extends FieldBase {
   getDescription = makeGetAccessor(this, 'description');
   assertGetDescription = makeAssertGetAccessor(this, 'description');
   setDescription = makeSetAccessor(this, 'description');
+  clone = makeClone<typeof FieldObject<T>>(this);
 }
 
 export const FieldOrCombination = withClassAccessors(

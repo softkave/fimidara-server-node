@@ -113,7 +113,7 @@ export function mockExpressRequest(token?: IBaseTokenData) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const req: IServerRequest = {
-    user: token,
+    auth: token,
   };
 
   return req;
@@ -123,7 +123,7 @@ export function mockExpressRequestWithUserToken(token: IUserToken) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const req: IServerRequest = {
-    user: {
+    auth: {
       version: CURRENT_TOKEN_VERSION,
       sub: {
         id: token.resourceId,

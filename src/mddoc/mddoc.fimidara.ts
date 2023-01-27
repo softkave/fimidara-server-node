@@ -148,20 +148,29 @@ interface IRawNavItem {
 }
 
 function docEndpointListPaths(endpoints: Array<InstanceType<typeof HttpEndpointDefinition>>) {
-  const records: Array<IRawNavItem> = [];
-  const recordsMap: Record<string, Array<IRawNavItem>> = {};
+  // const records: Array<IRawNavItem> = [];
+  // const recordsMap: Record<string, Array<IRawNavItem>> = {};
+  type PathRecord<T = any> = Record<string, T>;
+  const records: PathRecord<PathRecord> = {};
   endpoints.forEach(endpoint => {
     const pathname = endpoint.assertGetBasePathname();
     const parts = pathname.split('/');
-    parts.forEach((part, i) => {
-      if (!part) return;
-      const parentPath = i > 0 ? parts.slice(0, i).join('/') : '';
-      const parentChildren = parentPath ? recordsMap[parentPath] ?? [] : [];
-    });
+    // parts.forEach((part, i) => {
+    //   if (!part) return;
+    //   const parentPath = i > 0 ? parts.slice(0, i).join('/') : '';
+    //   const parentChildren = parentPath ? recordsMap[parentPath] ?? [] : [];
+    // });
+    parts.reduce((map, part) => {
+      if (!part) return map;
+      map[part] = map[part] ?? {};
+      return map[part];
+    }, records);
   });
 
   const tocFilepath = dir + '/fimidara-rest-api-toc.json';
   return fse.writeFile(tocFilepath, JSON.stringify(records), {encoding: 'utf-8'});
 }
 
-main();
+main()
+  .then(() => console.log('mddoc complete'))
+  .catch(console.error.bind(console));

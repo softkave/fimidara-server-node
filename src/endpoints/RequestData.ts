@@ -18,7 +18,7 @@ export default class RequestData<T = any> {
     const requestData = new RequestData({
       req,
       data,
-      incomingTokenData: req.user,
+      incomingTokenData: req.auth,
     });
 
     return requestData;

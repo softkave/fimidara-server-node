@@ -23,7 +23,7 @@ import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
-  user?: IBaseTokenData;
+  auth?: IBaseTokenData;
 }
 
 export interface IBaseContextDataProviders {

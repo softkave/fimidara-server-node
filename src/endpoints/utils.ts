@@ -19,7 +19,6 @@ export function getPublicErrors(inputError: any) {
   // or was it errors, not sure anymore, this is old code.
   // TODO: Feel free to look into it, cause it could help performance.
   const preppedErrors: Omit<OperationError, 'isPublicError' | 'statusCode'>[] = [];
-
   errors.forEach(
     errorItem =>
       errorItem?.isPublicError &&

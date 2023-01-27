@@ -13,18 +13,12 @@ import signup from './signup/signup';
 import updateUser from './updateUser/handler';
 import userExists from './userExists/handler';
 
-export default function setupAccountRESTEndpoints(
-  ctx: IBaseContext,
-  app: Express
-) {
+export default function setupAccountRESTEndpoints(ctx: IBaseContext, app: Express) {
   const account = {
     signup: wrapEndpointREST(signup, ctx),
     login: wrapEndpointREST(login, ctx),
     forgotPassword: wrapEndpointREST(forgotPassword, ctx),
-    changePasswordWithCurrentPassword: wrapEndpointREST(
-      changePasswordWithCurrentPassword,
-      ctx
-    ),
+    changePasswordWithCurrentPassword: wrapEndpointREST(changePasswordWithCurrentPassword, ctx),
     changePasswordWithToken: wrapEndpointREST(changePasswordWithToken, ctx),
     changePassword: wrapEndpointREST(changePassword, ctx),
     updateUser: wrapEndpointREST(updateUser, ctx),
@@ -37,18 +31,12 @@ export default function setupAccountRESTEndpoints(
   app.post('/account/signup', account.signup);
   app.post('/account/login', account.login);
   app.post('/account/forgotPassword', account.forgotPassword);
-  app.post(
-    '/account/changePasswordWithCurrentPassword',
-    account.changePasswordWithCurrentPassword
-  );
+  app.post('/account/changePasswordWithCurrentPassword', account.changePasswordWithCurrentPassword);
   app.post('/account/changePasswordWithToken', account.changePasswordWithToken);
   app.post('/account/changePassword', account.changePassword);
   app.post('/account/updateUser', account.updateUser);
   app.post('/account/getUserData', account.getUserData);
   app.post('/account/userExists', account.userExists);
   app.post('/account/confirmEmailAddress', account.confirmEmailAddress);
-  app.post(
-    '/account/sendEmailVerificationCode',
-    account.sendEmailVerificationCode
-  );
+  app.post('/account/sendEmailVerificationCode', account.sendEmailVerificationCode);
 }
