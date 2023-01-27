@@ -1,4 +1,4 @@
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicProgramToken} from '../utils';

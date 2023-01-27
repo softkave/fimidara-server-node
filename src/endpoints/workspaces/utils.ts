@@ -1,27 +1,15 @@
 import {identity} from 'lodash';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {
-  IPublicWorkspace,
-  IUsageThreshold,
-  IWorkspace,
-} from '../../definitions/workspace';
-import {getDateString, getDateStringIfPresent} from '../../utilities/dateFns';
-import {
-  getFields,
-  makeExtract,
-  makeExtractIfPresent,
-  makeListExtract,
-} from '../../utilities/extract';
+import {IPublicWorkspace, IUsageThreshold, IWorkspace} from '../../definitions/workspace';
+import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
+import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../../utils/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
+import EndpointReusableQueries from '../queries';
 import {agentExtractor} from '../utils';
 
 const usageThresholdSchema = getFields<IUsageThreshold>({
@@ -31,12 +19,9 @@ const usageThresholdSchema = getFields<IUsageThreshold>({
   budget: true,
 });
 
-const usageThresholdIfExistExtractor =
-  makeExtractIfPresent(usageThresholdSchema);
+const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
 
-const usageThresholdMapSchema = getFields<
-  Partial<Record<UsageRecordCategory, IUsageThreshold>>
->({
+const usageThresholdMapSchema = getFields<Partial<Record<UsageRecordCategory, IUsageThreshold>>>({
   [UsageRecordCategory.Storage]: usageThresholdIfExistExtractor,
   [UsageRecordCategory.BandwidthIn]: usageThresholdIfExistExtractor,
   [UsageRecordCategory.BandwidthOut]: usageThresholdIfExistExtractor,
@@ -45,9 +30,7 @@ const usageThresholdMapSchema = getFields<
   [UsageRecordCategory.Total]: usageThresholdIfExistExtractor,
 });
 
-const usageThresholdMapExtractorIfExist = makeExtractIfPresent(
-  usageThresholdMapSchema
-);
+const usageThresholdMapExtractorIfExist = makeExtractIfPresent(usageThresholdMapSchema);
 
 const workspaceFields = getFields<IPublicWorkspace>({
   resourceId: true,
@@ -72,28 +55,19 @@ export function throwWorkspaceNotFound() {
   throw new NotFoundError('Workspace not found');
 }
 
-export function assertWorkspace(
-  workspace: IWorkspace | null | undefined
-): asserts workspace {
+export function assertWorkspace(workspace: IWorkspace | null | undefined): asserts workspace {
   if (!workspace) {
     throwWorkspaceNotFound();
   }
 }
 
-export async function checkWorkspaceExists(
-  ctx: IBaseContext,
-  workspaceId: string
-) {
-  const w = await ctx.cacheProviders.workspace.getById(ctx, workspaceId);
+export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
+  const w = await ctx.data.workspace.getOneByQuery(EndpointReusableQueries.getById(workspaceId));
   assertWorkspace(w);
   return w;
 }
 
-export async function checkWorkspaceExistsWithAgent(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
-  workspaceId?: string
-) {
+export async function checkWorkspaceExistsWithAgent(ctx: IBaseContext, agent: ISessionAgent, workspaceId?: string) {
   if (!workspaceId) {
     workspaceId = getWorkspaceId(agent, workspaceId);
   }
@@ -108,12 +82,7 @@ export async function checkWorkspaceAuthorization(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  if (
-    agent.user &&
-    agent.user.workspaces.find(
-      item => item.workspaceId === workspace.resourceId
-    )
-  ) {
+  if (agent.user && agent.user.workspaces.find(item => item.workspaceId === workspace.resourceId)) {
     return {agent, workspace};
   }
 
@@ -139,13 +108,7 @@ export async function checkWorkspaceAuthorization02(
   nothrow = false
 ) {
   const workspace = await checkWorkspaceExists(context, id);
-  return checkWorkspaceAuthorization(
-    context,
-    agent,
-    workspace,
-    action,
-    nothrow
-  );
+  return checkWorkspaceAuthorization(context, agent, workspace, action, nothrow);
 }
 
 export abstract class WorkspaceUtils {

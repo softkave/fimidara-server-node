@@ -20,10 +20,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
-import {
-  assertPublicOps,
-  makeEveryFolderPublicAccessOp,
-} from '../addFolder/addFolderTestUtils';
+import {assertPublicOps, makeEveryFolderPublicAccessOp} from '../addFolder/addFolderTestUtils';
 import {folderConstants} from '../constants';
 import FolderQueries from '../queries';
 import {addRootnameToPath, folderExtractor} from '../utils';
@@ -48,17 +45,11 @@ async function updateFolderBaseTest(
   existingFolder?: IFolder
 ) {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
-  insertWorkspaceResult =
-    insertWorkspaceResult ||
-    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+  insertWorkspaceResult = insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
 
   const {folder} = existingFolder
     ? {folder: existingFolder}
-    : await insertFolderForTest(
-        ctx,
-        insertUserResult.userToken,
-        insertWorkspaceResult.workspace
-      );
+    : await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace);
 
   const updateInput: IUpdateFolderInput = {
     description: faker.lorem.words(20),
@@ -80,9 +71,7 @@ async function updateFolderBaseTest(
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
-  const savedFolder = await ctx.data.folder.assertGetItem(
-    FolderQueries.getById(folder.resourceId)
-  );
+  const savedFolder = await ctx.data.folder.assertGetOneByQuery(FolderQueries.getById(folder.resourceId));
 
   expect(result.folder).toMatchObject(folderExtractor(savedFolder));
   return {
@@ -135,10 +124,9 @@ describe('updateFolder', () => {
 
   test('folder updated with public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertWorkspaceResult} =
-      await updateFolderWithPublicAccessOpsTest(context, {
-        publicAccessOps: makeEveryFolderPublicAccessOp(),
-      });
+    const {savedFolder, insertWorkspaceResult} = await updateFolderWithPublicAccessOpsTest(context, {
+      publicAccessOps: makeEveryFolderPublicAccessOp(),
+    });
 
     await assertPublicOps(context, savedFolder, insertWorkspaceResult);
   });
@@ -166,10 +154,6 @@ describe('updateFolder', () => {
       await assertPublicOps(context, savedFolder, insertWorkspaceResult);
     }, [PermissionDeniedError.name]);
 
-    await assertPublicPermissionsDonotExistForOwner(
-      context,
-      insertWorkspaceResult.workspace,
-      savedFolder.resourceId
-    );
+    await assertPublicPermissionsDonotExistForOwner(context, insertWorkspaceResult.workspace, savedFolder.resourceId);
   });
 });

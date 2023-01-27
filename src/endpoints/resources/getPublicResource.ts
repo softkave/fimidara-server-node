@@ -1,5 +1,5 @@
 import {AppResourceType, IResourceBase} from '../../definitions/system';
-import {ServerError} from '../../utilities/errors';
+import {ServerError} from '../../utils/errors';
 import {clientAssignedTokenExtractor} from '../clientAssignedTokens/utils';
 import {collaborationRequestExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';

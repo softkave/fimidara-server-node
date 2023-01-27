@@ -1,10 +1,7 @@
 import sharp = require('sharp');
 import stream = require('stream');
-import {
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
+import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
 import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
 import {checkFileAuthorization03} from '../utils';
@@ -16,19 +13,8 @@ import {getFileJoiSchema} from './validation';
 
 const getFile: GetFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFileJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    publicPermissibleEndpointAgents
-  );
-
-  const {file} = await checkFileAuthorization03(
-    context,
-    agent,
-    data,
-    BasicCRUDActions.Read
-  );
-
+  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Read);
   await insertBandwidthOutUsageRecordInput(context, instData, file);
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,

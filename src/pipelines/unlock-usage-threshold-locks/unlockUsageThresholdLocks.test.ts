@@ -5,6 +5,7 @@ import {getWorkspaceModel} from '../../db/workspace';
 import {systemAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
+import {justInCaseCleanups} from '../../endpoints/test-utils/context/cleanup';
 import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
@@ -24,6 +25,7 @@ afterAll(async () => {
   if (connection) {
     await dropMongoConnection(connection);
   }
+  await justInCaseCleanups();
 });
 
 describe('unlockUsageThresholds', () => {

@@ -2,7 +2,6 @@ import {Request} from 'express';
 import {Logger} from 'winston';
 import {IBaseTokenData} from '../../definitions/system';
 import {IAppVariables} from '../../resources/vars';
-import {UsageRecordLogicProvider} from './data-providers/UsageRecordLogicProvider';
 import {IAppRuntimeStateDataProvider} from './data/appruntimestate/type';
 import {IAssignedItemDataProvider} from './data/assigneditem/type';
 import {IClientAssignedTokenDataProvider} from './data/clientassignedtoken/type';
@@ -13,12 +12,14 @@ import {IPermissionGroupDataProvider} from './data/permissiongroup/type';
 import {IPermissionItemDataProvider} from './data/permissionitem/type';
 import {IProgramAccessTokenDataProvider} from './data/programaccesstoken/type';
 import {ITagDataProvider} from './data/tag/type';
+import {IUsageRecordDataProvider} from './data/usagerecord/type';
 import {IUserDataProvider} from './data/user/type';
 import {IUserTokenDataProvider} from './data/usertoken/type';
 import {IWorkspaceDataProvider} from './data/workspace/type';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
 import {ISessionContext} from './SessionContext';
+import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
@@ -39,6 +40,7 @@ export interface IBaseContextDataProviders {
   appRuntimeState: IAppRuntimeStateDataProvider;
   tag: ITagDataProvider;
   assignedItem: IAssignedItemDataProvider;
+  usageRecord: IUsageRecordDataProvider;
 }
 
 export interface IBaseContext<

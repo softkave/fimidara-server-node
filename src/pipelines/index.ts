@@ -18,16 +18,14 @@ const aggregateUsageRecordsJob = new CronJob(
     try {
       runInfo.logger.info('Aggregate usage records job started');
       const appVariables = extractEnvVariables(extractProdEnvsSchema);
-      const connection = await getMongoConnection(
-        appVariables.mongoDbURI,
-        appVariables.mongoDbDatabaseName
-      );
-
+      const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
       await aggregateRecords(connection, runInfo);
     } catch (err: any) {
       runInfo.logger.info('Error in aggregate usage records job: ');
       runInfo.logger.error(err);
     }
+
+    await runInfo.logger.close();
   },
   /** onComplete */ null,
   /** startNow */ false,
@@ -48,16 +46,15 @@ const unlockWorkspaceLocksJob = new CronJob(
     try {
       runInfo.logger.info('Unlocking workspace locks job started');
       const appVariables = extractEnvVariables(extractProdEnvsSchema);
-      const connection = await getMongoConnection(
-        appVariables.mongoDbURI,
-        appVariables.mongoDbDatabaseName
-      );
+      const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
 
       await unlockUsageThresholdLocks(connection);
     } catch (error: any) {
       runInfo.logger.info('Error in unlocking workspace locks job: ');
       runInfo.logger.error(error);
     }
+
+    await runInfo.logger.close();
   },
   /** onComplete */ null,
   /** startNow */ false,

@@ -12,8 +12,8 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {collaborationRequestExtractor} from '../utils';
-import revokeRequest from './handler';
-import {IRevokeRequestEndpointParams} from './types';
+import revokeCollaborationRequest from './handler';
+import {IRevokeCollaborationRequestEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -30,35 +30,26 @@ test('collaboration request revoked', async () => {
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {request: request01} = await insertRequestForTest(
-    context,
-    userToken,
-    workspace.resourceId,
-    {
-      recipientEmail: user02.email,
-    }
-  );
+  const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
+    recipientEmail: user02.email,
+  });
 
-  const instData = RequestData.fromExpressRequest<IRevokeRequestEndpointParams>(
+  const instData = RequestData.fromExpressRequest<IRevokeCollaborationRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       requestId: request01.resourceId,
     }
   );
 
-  const result = await revokeRequest(context, instData);
+  const result = await revokeCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const updatedRequest = await context.data.collaborationRequest.assertGetItem(
+  const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getById(request01.resourceId)
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(
-    collaborationRequestExtractor(updatedRequest)
-  );
-  expect(
-    updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]
-  ).toMatchObject({
+  expect(result.request).toMatchObject(collaborationRequestExtractor(updatedRequest));
+  expect(updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]).toMatchObject({
     status: CollaborationRequestStatusType.Revoked,
   });
 });

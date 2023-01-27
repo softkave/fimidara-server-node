@@ -1,6 +1,6 @@
 import Joi = require('joi');
 import {IAssignedTagInput} from '../../definitions/tag';
-import {validationSchemas} from '../../utilities/validationUtils';
+import {validationSchemas} from '../../utils/validationUtils';
 import {tagConstants} from './constants';
 
 const assignedTag = Joi.object().keys({

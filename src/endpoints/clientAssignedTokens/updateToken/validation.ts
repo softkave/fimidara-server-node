@@ -1,15 +1,14 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 import {newClientAssignedTokenJoiSchema} from '../addToken/validation';
-import clientAssignedTokenValidationSchemas from '../validation';
+import {IUpdateClientAssignedTokenEndpointParams} from './types';
 
-export const updateClientAssignedTokenPermissionGroupsJoiSchema = Joi.object()
+export const updateClientAssignedTokenJoiSchema = Joi.object<IUpdateClientAssignedTokenEndpointParams>()
   .keys({
     tokenId: validationSchemas.resourceId.allow(null),
     onReferenced: Joi.boolean().allow(null),
     workspaceId: validationSchemas.resourceId.allow(null),
-    providedResourceId:
-      clientAssignedTokenValidationSchemas.providedResourceId.allow(null),
+    providedResourceId: validationSchemas.providedResourceId.allow(null),
     token: newClientAssignedTokenJoiSchema.required(),
   })
   .required();

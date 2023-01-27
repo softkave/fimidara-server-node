@@ -1,6 +1,6 @@
 import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
@@ -23,10 +23,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
 
   user = await populateUserWorkspaces(
     context,
-    await context.data.user.assertUpdateItem(
-      UserQueries.getById(user.resourceId),
-      update
-    )
+    await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), update)
   );
 
   // Make the updated user data available to other requests

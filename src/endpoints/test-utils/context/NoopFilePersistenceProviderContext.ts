@@ -1,4 +1,4 @@
-import {noopAsync} from '../../../utilities/fns';
+import {noopAsync} from '../../../utils/fns';
 import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
 
 export default class NoopFilePersistenceProviderContext

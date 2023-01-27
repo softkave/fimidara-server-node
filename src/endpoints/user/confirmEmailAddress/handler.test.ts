@@ -1,11 +1,7 @@
 import {faker} from '@faker-js/faker';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience} from '../../../definitions/system';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -36,7 +32,7 @@ test('email address is confirmed', async () => {
     password,
   });
 
-  const token = await context.data.userToken.saveItem({
+  const token = await context.data.userToken.insertItem({
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     audience: [TokenAudience.ConfirmEmailAddress],
@@ -44,9 +40,7 @@ test('email address is confirmed', async () => {
     version: CURRENT_TOKEN_VERSION,
   });
 
-  const instData = RequestData.fromExpressRequest(
-    mockExpressRequestWithUserToken(token)
-  );
+  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(token));
 
   const result = await confirmEmailAddress(context, instData);
   assertEndpointResultOk(result);

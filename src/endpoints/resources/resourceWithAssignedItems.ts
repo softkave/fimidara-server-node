@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
-import {indexArray} from '../../utilities/indexArray';
+import {indexArray} from '../../utils/indexArray';
 import {
   populateAssignedPermissionGroupsAndTags,
   populateUserWorkspaces,

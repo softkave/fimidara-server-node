@@ -1,15 +1,12 @@
 import * as Joi from 'joi';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 
-export const respondToRequestJoiSchema = Joi.object()
+export const respondToCollaborationRequestJoiSchema = Joi.object()
   .keys({
     requestId: validationSchemas.resourceId.required(),
     response: Joi.string()
-      .allow(
-        CollaborationRequestStatusType.Accepted,
-        CollaborationRequestStatusType.Declined
-      )
+      .allow(CollaborationRequestStatusType.Accepted, CollaborationRequestStatusType.Declined)
       .required(),
   })
   .required();

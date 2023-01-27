@@ -1,11 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IDeleteRequestEndpointParams {
+export interface IDeleteCollaborationRequestEndpointParams {
   requestId: string;
 }
 
-export type DeleteRequestEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteRequestEndpointParams
->;
+export type DeleteCollaborationRequestEndpoint = Endpoint<IBaseContext, IDeleteCollaborationRequestEndpointParams>;

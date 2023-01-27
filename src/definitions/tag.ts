@@ -22,3 +22,9 @@ export interface IAssignedTag {
 }
 
 export type IPublicTag = ITag;
+
+/**
+ * We aren't launching tags yet, so we want to exclude it for now from endpoint
+ * documentations.
+ */
+export type ExcludeTags<T> = {[K in Exclude<keyof T, 'tags'>]: T[K]};

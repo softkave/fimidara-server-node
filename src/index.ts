@@ -1,22 +1,17 @@
 import cors = require('cors');
 import express = require('express');
-import expressJwt = require('express-jwt');
 import http = require('http');
 import multer = require('multer');
+import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
 import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
 import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
 import {endpointConstants} from './endpoints/constants';
-import BaseContext, {
-  getCacheProviders,
-  getDataProviders,
-  getFileProvider,
-  getLogicProviders,
-} from './endpoints/contexts/BaseContext';
+import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import MongoDBDataProviderContext from './endpoints/contexts/MongoDBDataProviderContext';
 import {IBaseContext} from './endpoints/contexts/types';
+import {getDataProviders} from './endpoints/contexts/utils';
 import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
@@ -32,7 +27,7 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
-import {consoleLogger, logger} from './utilities/logger/logger';
+import {consoleLogger, logger} from './utils/logger/logger';
 
 logger.info('server initialization');
 
@@ -73,7 +68,7 @@ app.use(express.json() as express.RequestHandler);
 function setupJWT(ctx: IBaseContext) {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
-    expressJwt({
+    expressjwt({
       secret: ctx.appVariables.jwtSecret,
       credentialsRequired: false,
       algorithms: ['HS256'],
@@ -83,10 +78,7 @@ function setupJWT(ctx: IBaseContext) {
 
 async function setup() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
-  );
+  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
 
   // Run scripts here
   // await script_AddThresholdToExistingWorkspaces(connection);
@@ -96,16 +88,12 @@ async function setup() {
   // startJobs();
   // End of jobs
 
-  const mongoDBDataProvider = new MongoDBDataProviderContext(connection);
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
-    mongoDBDataProvider,
+    getDataProviders(connection),
     emailProvider,
     getFileProvider(appVariables),
     appVariables,
-    getDataProviders(connection),
-    getCacheProviders(),
-    getLogicProviders(),
     () => connection.close()
   );
 

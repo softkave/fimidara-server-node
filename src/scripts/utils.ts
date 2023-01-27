@@ -1,10 +1,10 @@
 import winston = require('winston');
-import {getDateString} from '../utilities/dateFns';
+import {getDateString} from '../utils/dateFns';
 import {
   decideTransport,
   FimidaraLoggerServiceNames,
   loggerFactory,
-} from '../utilities/logger/loggerUtils';
+} from '../utils/logger/loggerUtils';
 
 export enum FimidaraScriptNames {
   AddThresholdToExistingWorkspaces = 'script_AddThresholdToExistingWorkspaces',

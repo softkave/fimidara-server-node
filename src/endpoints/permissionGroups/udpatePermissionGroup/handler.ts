@@ -1,31 +1,20 @@
 import {omit} from 'lodash';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import PermissionGroupQueries from '../queries';
-import {
-  checkPermissionGroupAuthorization03,
-  permissionGroupExtractor,
-} from '../utils';
+import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
 import {UpdatePermissionGroupEndpoint} from './types';
 import {updatePermissionGroupJoiSchema} from './validation';
 
-const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (
-  context,
-  instData
-) => {
+const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, instData) => {
   const data = validate(instData.data, updatePermissionGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkPermissionGroupAuthorization03(
-    context,
-    agent,
-    data,
-    BasicCRUDActions.Update
-  );
+  const checkResult = await checkPermissionGroupAuthorization03(context, agent, data, BasicCRUDActions.Update);
 
   const workspace = checkResult.workspace;
   let permissionGroup = checkResult.permissionGroup;
@@ -36,14 +25,10 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (
   };
 
   if (update.name && update.name !== permissionGroup.name) {
-    await checkPermissionGroupNameExists(
-      context,
-      workspace.resourceId,
-      update.name
-    );
+    await checkPermissionGroupNameExists(context, workspace.resourceId, update.name);
   }
 
-  permissionGroup = await context.data.permissiongroup.assertUpdateItem(
+  permissionGroup = await context.data.permissiongroup.assertGetAndUpdateOneByQuery(
     PermissionGroupQueries.getById(permissionGroup.resourceId),
     update
   );

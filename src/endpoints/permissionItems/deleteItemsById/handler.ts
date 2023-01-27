@@ -1,19 +1,16 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {checkWorkspaceExists} from '../../workspaces/utils';
 import EndpointReusableQueries from '../../queries';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';
 
-const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (
-  context,
-  instData
-) => {
+const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (context, instData) => {
   const data = validate(instData.data, deletePermissionItemsByIdJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = await getWorkspaceId(agent, data.workspaceId);
@@ -27,7 +24,7 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (
     permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
   });
 
-  await context.data.permissionItem.deleteManyItems(
+  await context.data.permissionItem.deleteManyByQuery(
     EndpointReusableQueries.getByWorkspaceIdAndIds(workspaceId, data.itemIds)
   );
 };

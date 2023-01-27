@@ -1,13 +1,9 @@
 import * as argon2 from 'argon2';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {makeUserSessionAgent} from '../../contexts/SessionContext';
-import {
-  getUserClientAssignedToken,
-  getUserToken,
-  toLoginResult,
-} from '../login/utils';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import UserQueries from '../UserQueries';
 import UserTokenQueries from '../UserTokenQueries';
 import {ChangePasswordEndpoint} from './types';
@@ -20,13 +16,10 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const hash = await argon2.hash(newPassword);
   user = await populateUserWorkspaces(
     context,
-    await context.data.user.assertUpdateItem(
-      UserQueries.getById(user.resourceId),
-      {
-        hash,
-        passwordLastChangedAt: getDateString(),
-      }
-    )
+    await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), {
+      hash,
+      passwordLastChangedAt: getDateString(),
+    })
   );
 
   // Allow other endpoints called with this request to use the updated user data
@@ -37,15 +30,10 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   delete instData.incomingTokenData;
 
   // Delete existing user tokens cause they're no longer valid
-  await context.data.userToken.deleteManyItems(
-    UserTokenQueries.getByUserId(user.resourceId)
-  );
+  await context.data.userToken.deleteManyByQuery(UserTokenQueries.getByUserId(user.resourceId));
 
   const userToken = await getUserToken(context, user);
-  const clientAssignedToken = await getUserClientAssignedToken(
-    context,
-    user.resourceId
-  );
+  const clientAssignedToken = await getUserClientAssignedToken(context, user.resourceId);
 
   // Allow other endpoints called with this request to use the updated user token
   instData.agent = makeUserSessionAgent(userToken, user);

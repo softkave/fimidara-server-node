@@ -1,5 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -8,22 +8,16 @@ import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import {
-  collaborationRequestListExtractor,
-  populateRequestListPermissionGroups,
-} from '../utils';
-import {GetWorkspaceRequestsEndpoint} from './types';
-import {getWorkspaceRequestsJoiSchema} from './validation';
+import {collaborationRequestListExtractor, populateRequestListPermissionGroups} from '../utils';
+import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
+import {getWorkspaceCollaborationRequestsJoiSchema} from './validation';
 
-const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, getWorkspaceRequestsJoiSchema);
+const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoint = async (context, instData) => {
+  const data = validate(instData.data, getWorkspaceCollaborationRequestsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const requests = await context.data.collaborationRequest.getManyItems(
+  const requests = await context.data.collaborationRequest.getManyByQuery(
     EndpointReusableQueries.getByWorkspaceId(workspaceId)
   );
 
@@ -36,9 +30,7 @@ const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
         workspace,
         resource: item,
         type: AppResourceType.CollaborationRequest,
-        permissionOwners: makeWorkspacePermissionOwnerList(
-          workspace.resourceId
-        ),
+        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
         action: BasicCRUDActions.Read,
         nothrow: true,
       })
@@ -50,14 +42,11 @@ const getWorkspaceRequests: GetWorkspaceRequestsEndpoint = async (
     throw new PermissionDeniedError();
   }
 
-  allowedRequests = await populateRequestListPermissionGroups(
-    context,
-    allowedRequests
-  );
+  allowedRequests = await populateRequestListPermissionGroups(context, allowedRequests);
 
   return {
     requests: collaborationRequestListExtractor(allowedRequests),
   };
 };
 
-export default getWorkspaceRequests;
+export default getWorkspaceCollaborationRequests;

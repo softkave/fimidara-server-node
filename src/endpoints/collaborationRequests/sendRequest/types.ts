@@ -1,5 +1,5 @@
 import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IPermissionGroupInput} from '../../../definitions/permissionGroups';
+import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
@@ -7,20 +7,20 @@ export interface ICollaborationRequestInput {
   recipientEmail: string;
   message: string;
   expires?: string;
-  permissionGroupsOnAccept?: IPermissionGroupInput[];
+  permissionGroupsOnAccept?: IAssignPermissionGroupInput[];
 }
 
-export interface ISendRequestEndpointParams {
+export interface ISendCollaborationRequestEndpointParams {
   workspaceId?: string;
   request: ICollaborationRequestInput;
 }
 
-export interface ISendRequestEndpointResult {
+export interface ISendCollaborationRequestEndpointResult {
   request: IPublicCollaborationRequest;
 }
 
-export type SendRequestEndpoint = Endpoint<
+export type SendCollaborationRequestEndpoint = Endpoint<
   IBaseContext,
-  ISendRequestEndpointParams,
-  ISendRequestEndpointResult
+  ISendCollaborationRequestEndpointParams,
+  ISendCollaborationRequestEndpointResult
 >;

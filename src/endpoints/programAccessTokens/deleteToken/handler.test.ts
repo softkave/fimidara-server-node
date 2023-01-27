@@ -32,27 +32,21 @@ test('program access token deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token} = await insertProgramAccessTokenForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
+  const {token} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId);
 
-  const instData =
-    RequestData.fromExpressRequest<IDeleteProgramAccessTokenEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        tokenId: token.resourceId,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IDeleteProgramAccessTokenEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      tokenId: token.resourceId,
+    }
+  );
 
   const result = await deleteProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
 
-  const deletedTokenExists =
-    await context.data.programAccessToken.checkItemExists(
-      ProgramAccessTokenQueries.getById(token.resourceId)
-    );
+  const deletedTokenExists = await context.data.programAccessToken.existsByQuery(
+    ProgramAccessTokenQueries.getById(token.resourceId)
+  );
 
   expect(deletedTokenExists).toBeFalsy();
 });

@@ -24,8 +24,4 @@ export interface IUploadFileEndpointResult {
   file: IPublicFile;
 }
 
-export type UploadFileEndpoint = Endpoint<
-  IBaseContext,
-  IUploadFileEndpointParams,
-  IUploadFileEndpointResult
->;
+export type UploadFileEndpoint = Endpoint<IBaseContext, IUploadFileEndpointParams, IUploadFileEndpointResult>;

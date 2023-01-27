@@ -1,27 +1,24 @@
 import {first, flattenDeep, uniqBy} from 'lodash';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {BasicCRUDActions, AppResourceType} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   getFilePermissionOwners,
   IPermissionOwner,
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IResource} from '../../resources/types';
+import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
 import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
 import {getResourcePermissionItemsJoiSchema} from './validation';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 
-const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
+const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -35,9 +32,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
     permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
   });
 
-  const {resources} = await checkResourcesExist(context, agent, workspace, [
-    data,
-  ]);
+  const {resources} = await checkResourcesExist(context, agent, workspace, [data]);
 
   let permissionOwner: IResource | undefined = undefined;
   const resource: IResource | undefined = first(resources);
@@ -57,18 +52,12 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 
   if (
     resource &&
-    (resource.resourceType === AppResourceType.File ||
-      resource.resourceType === AppResourceType.Folder)
+    (resource.resourceType === AppResourceType.File || resource.resourceType === AppResourceType.Folder)
   ) {
-    permissionOwners = getFilePermissionOwners(
-      workspace.resourceId,
-      resource.resource as any,
-      resource.resourceType
-    );
+    permissionOwners = getFilePermissionOwners(workspace.resourceId, resource.resource as any, resource.resourceType);
   } else if (
     permissionOwner &&
-    (permissionOwner.resourceType === AppResourceType.File ||
-      permissionOwner.resourceType === AppResourceType.Folder)
+    (permissionOwner.resourceType === AppResourceType.File || permissionOwner.resourceType === AppResourceType.Folder)
   ) {
     permissionOwners = getFilePermissionOwners(
       workspace.resourceId,
@@ -81,7 +70,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
 
   const items2DList = await Promise.all(
     permissionOwners.map(item =>
-      context.data.permissionItem.getManyItems(
+      context.data.permissionItem.getManyByQuery(
         PermissionItemQueries.getByOwnerAndResource(
           item.permissionOwnerId,
           item.permissionOwnerType,

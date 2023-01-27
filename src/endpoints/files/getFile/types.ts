@@ -2,14 +2,14 @@ import {IFileMatcher} from '../../../definitions/file';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IImageTransformationParams {
+export type IImageTransformationParams = {
   width?: number;
   height?: number;
-}
+};
 
-export interface IGetFileEndpointParams extends IFileMatcher {
+export type IGetFileEndpointParams = {
   imageTranformation?: IImageTransformationParams;
-}
+} & IFileMatcher;
 
 export interface IGetFileEndpointResult {
   stream: NodeJS.ReadableStream;
@@ -17,8 +17,4 @@ export interface IGetFileEndpointResult {
   contentLength?: number;
 }
 
-export type GetFileEndpoint = Endpoint<
-  IBaseContext,
-  IGetFileEndpointParams,
-  IGetFileEndpointResult
->;
+export type GetFileEndpoint = Endpoint<IBaseContext, IGetFileEndpointParams, IGetFileEndpointResult>;

@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../utilities/validationUtils';
+import {validationSchemas} from '../../utils/validationUtils';
 import {fileConstants} from '../files/constants';
 import {folderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';

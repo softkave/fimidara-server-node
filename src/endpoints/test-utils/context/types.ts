@@ -1,4 +1,4 @@
-import {AnyFn} from '../../../utilities/types';
+import {AnyFn} from '../../../utils/types';
 import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
 import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext, IBaseContextDataProviders} from '../../contexts/types';

@@ -1,4 +1,4 @@
-import {noopAsync} from '../../../utilities/fns';
+import {noopAsync} from '../../../utils/fns';
 import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
 
 export default class NoopEmailProviderContext implements IEmailProviderContext {

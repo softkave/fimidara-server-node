@@ -1,4 +1,4 @@
-import {findItemWithField} from '../../../utilities/fns';
+import {findItemWithField} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {

@@ -1,13 +1,8 @@
 import {URL} from 'url';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../../definitions/system';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience, TokenType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
@@ -20,19 +15,13 @@ export async function withConfirmEmailAddressToken(
 ) {
   const url = new URL(link);
 
-  if (
-    !url.searchParams.has(userConstants.confirmEmailTokenQueryParam) &&
-    !user.isEmailVerified
-  ) {
-    let token = await context.data.userToken.getItem(
-      UserTokenQueries.getByUserIdAndAudience(
-        user.resourceId,
-        TokenAudience.ConfirmEmailAddress
-      )
+  if (!url.searchParams.has(userConstants.confirmEmailTokenQueryParam) && !user.isEmailVerified) {
+    let token = await context.data.userToken.getOneByQuery(
+      UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.ConfirmEmailAddress)
     );
 
     if (!token) {
-      token = await context.data.userToken.saveItem({
+      token = await context.data.userToken.insertItem({
         audience: [TokenAudience.ConfirmEmailAddress],
         issuedAt: getDateString(),
         resourceId: getNewIdForResource(AppResourceType.UserToken),
@@ -41,17 +30,9 @@ export async function withConfirmEmailAddressToken(
       });
     }
 
-    const encodedToken = context.session.encodeToken(
-      context,
-      token.resourceId,
-      TokenType.UserToken,
-      token.expires
-    );
+    const encodedToken = context.session.encodeToken(context, token.resourceId, TokenType.UserToken, token.expires);
 
-    url.searchParams.set(
-      userConstants.confirmEmailTokenQueryParam,
-      encodedToken
-    );
+    url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
 
     link = url.toString();
   }

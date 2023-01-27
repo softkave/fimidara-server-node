@@ -16,13 +16,10 @@ import {
 } from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
-import {appAssert} from '../../utilities/assertion';
-import {ServerError} from '../../utilities/errors';
-import {cast} from '../../utilities/fns';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
+import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
+import {cast} from '../../utils/fns';
+import {populateAssignedPermissionGroupsAndTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import EndpointReusableQueries from '../queries';
@@ -43,10 +40,7 @@ export interface ISessionContext {
     data: RequestData,
     audience?: TokenAudience | TokenAudience[]
   ) => Promise<IUserWithWorkspace>;
-  decodeToken: (
-    ctx: IBaseContext,
-    token: string
-  ) => IBaseTokenData<IGeneralTokenSubject>;
+  decodeToken: (ctx: IBaseContext, token: string) => IBaseTokenData<IGeneralTokenSubject>;
   tokenContainsAudience: (
     ctx: IBaseContext,
     tokenData: IUserToken,
@@ -78,17 +72,13 @@ export default class SessionContext implements ISessionContext {
 
     let userToken: IUserToken | null = null;
     let user: IUserWithWorkspace | null = null;
-    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null =
-      null;
-    let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null =
-      null;
+    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null = null;
+    let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null = null;
     const incomingTokenData = data.incomingTokenData;
 
     switch (incomingTokenData?.sub.type) {
       case TokenType.UserToken: {
-        userToken = await ctx.data.userToken.assertGetItem(
-          UserTokenQueries.getById(incomingTokenData.sub.id)
-        );
+        userToken = await ctx.data.userToken.assertGetOneByQuery(UserTokenQueries.getById(incomingTokenData.sub.id));
 
         if (audience) {
           ctx.session.tokenContainsAudience(ctx, userToken, audience);
@@ -96,15 +86,13 @@ export default class SessionContext implements ISessionContext {
 
         user = await populateUserWorkspaces(
           ctx,
-          await ctx.data.user.assertGetItem(
-            EndpointReusableQueries.getById(userToken.userId)
-          )
+          await ctx.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(userToken.userId))
         );
         break;
       }
 
       case TokenType.ProgramAccessToken: {
-        const pgt = await ctx.data.programAccessToken.assertGetItem(
+        const pgt = await ctx.data.programAccessToken.assertGetOneByQuery(
           ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
         );
 
@@ -118,7 +106,7 @@ export default class SessionContext implements ISessionContext {
       }
 
       case TokenType.ClientAssignedToken: {
-        const clt = await ctx.data.clientAssignedToken.assertGetItem(
+        const clt = await ctx.data.clientAssignedToken.assertGetOneByQuery(
           EndpointReusableQueries.getById(incomingTokenData.sub.id)
         );
 
@@ -159,14 +147,12 @@ export default class SessionContext implements ISessionContext {
       data.agent = agent;
       return agent;
     } else if (programAccessToken) {
-      const agent: ISessionAgent =
-        makeProgramAccessTokenAgent(programAccessToken);
+      const agent: ISessionAgent = makeProgramAccessTokenAgent(programAccessToken);
 
       data.agent = agent;
       return agent;
     } else if (clientAssignedToken) {
-      const agent: ISessionAgent =
-        makeClientAssignedTokenAgent(clientAssignedToken);
+      const agent: ISessionAgent = makeClientAssignedTokenAgent(clientAssignedToken);
 
       data.agent = agent;
       return agent;
@@ -175,17 +161,8 @@ export default class SessionContext implements ISessionContext {
     return makePublicSessionAgent();
   };
 
-  getUser = async (
-    ctx: IBaseContext,
-    data: RequestData,
-    audience?: TokenAudience | TokenAudience[]
-  ) => {
-    const agent = await ctx.session.getAgent(
-      ctx,
-      data,
-      [SessionAgentType.User],
-      audience
-    );
+  getUser = async (ctx: IBaseContext, data: RequestData, audience?: TokenAudience | TokenAudience[]) => {
+    const agent = await ctx.session.getAgent(ctx, data, [SessionAgentType.User], audience);
 
     appAssert(agent.user, new ServerError());
     return agent.user;
@@ -211,9 +188,7 @@ export default class SessionContext implements ISessionContext {
     expectedAudience: TokenAudience | TokenAudience[]
   ) => {
     const audience = cast<TokenAudience[]>(tokenData.audience);
-    const hasAudience = !!audience.find(nextAud =>
-      expectedAudience.includes(nextAud)
-    );
+    const hasAudience = !!audience.find(nextAud => expectedAudience.includes(nextAud));
 
     return hasAudience;
   };
@@ -272,10 +247,7 @@ export function makeProgramAccessTokenAgent(
   };
 }
 
-export function makeUserSessionAgent(
-  userToken: IUserToken,
-  user: IUserWithWorkspace
-): ISessionAgent {
+export function makeUserSessionAgent(userToken: IUserToken, user: IUserWithWorkspace): ISessionAgent {
   return {
     userToken,
     user,
@@ -292,10 +264,7 @@ export function makePublicSessionAgent(): ISessionAgent {
   };
 }
 
-export function getWorkspaceIdNoThrow(
-  agent: ISessionAgent,
-  providedWorkspaceId?: string
-) {
+export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?: string) {
   const workspaceId = providedWorkspaceId
     ? providedWorkspaceId
     : agent.clientAssignedToken
@@ -307,10 +276,7 @@ export function getWorkspaceIdNoThrow(
   return workspaceId;
 }
 
-export function getWorkspaceId(
-  agent: ISessionAgent,
-  providedWorkspaceId?: string
-) {
+export function getWorkspaceId(agent: ISessionAgent, providedWorkspaceId?: string) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
@@ -324,25 +290,13 @@ export function getClientAssignedTokenIdNoThrow(
   inputTokenId?: string | null,
   onReferenced?: boolean
 ) {
-  const tokenId = inputTokenId
-    ? inputTokenId
-    : onReferenced
-    ? agent.clientAssignedToken?.resourceId
-    : null;
+  const tokenId = inputTokenId ? inputTokenId : onReferenced ? agent.clientAssignedToken?.resourceId : null;
 
   return tokenId;
 }
 
-export function getClientAssignedTokenId(
-  agent: ISessionAgent,
-  inputTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = getClientAssignedTokenIdNoThrow(
-    agent,
-    inputTokenId,
-    onReferenced
-  );
+export function getClientAssignedTokenId(agent: ISessionAgent, inputTokenId?: string | null, onReferenced?: boolean) {
+  const tokenId = getClientAssignedTokenIdNoThrow(agent, inputTokenId, onReferenced);
 
   if (!tokenId) {
     throw new InvalidRequestError('Client assigned token ID not provided');
@@ -351,16 +305,8 @@ export function getClientAssignedTokenId(
   return tokenId;
 }
 
-export function getProgramAccessTokenId(
-  agent: ISessionAgent,
-  providedTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = providedTokenId
-    ? providedTokenId
-    : onReferenced
-    ? agent.programAccessToken?.resourceId
-    : null;
+export function getProgramAccessTokenId(agent: ISessionAgent, providedTokenId?: string | null, onReferenced?: boolean) {
+  const tokenId = providedTokenId ? providedTokenId : onReferenced ? agent.programAccessToken?.resourceId : null;
 
   if (!tokenId) {
     throw new InvalidRequestError('Program access token ID not provided');
@@ -398,9 +344,7 @@ export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
   return workspaceId;
 }
 
-export function getActionAgentFromSessionAgent(
-  sessionAgent: ISessionAgent
-): IAgent {
+export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAgent {
   const agent = {
     agentId: sessionAgent.agentId,
     agentType: sessionAgent.agentType,

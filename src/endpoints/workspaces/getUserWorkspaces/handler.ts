@@ -1,14 +1,11 @@
+import EndpointReusableQueries from '../../queries';
 import {workspaceListExtractor} from '../utils';
 import {GetUserWorkspacesEndpoint} from './types';
 
-const getUserWorkspaces: GetUserWorkspacesEndpoint = async (
-  context,
-  instData
-) => {
+const getUserWorkspaces: GetUserWorkspacesEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
-  const workspaces = await context.cacheProviders.workspace.getByIds(
-    context,
-    user.workspaces.map(workspace => workspace.workspaceId)
+  const workspaces = await context.data.workspace.getManyByQuery(
+    EndpointReusableQueries.getByIds(user.workspaces.map(workspace => workspace.workspaceId))
   );
 
   return {

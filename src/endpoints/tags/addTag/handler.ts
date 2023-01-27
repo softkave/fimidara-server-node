@@ -1,11 +1,7 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IAgent,
-} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   makeWorkspacePermissionOwnerList,
@@ -19,11 +15,7 @@ import {addTagJoiSchema} from './validation';
 const addTag: AddTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, addTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExistsWithAgent(
-    context,
-    agent,
-    data.workspaceId
-  );
+  const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
 
   await checkAuthorization({
     context,
@@ -41,7 +33,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     agentType: agent.agentType,
   };
 
-  const tag = await context.data.tag.saveItem({
+  const tag = await context.data.tag.insertItem({
     ...data.tag,
     createdAt,
     createdBy,

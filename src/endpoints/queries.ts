@@ -1,5 +1,5 @@
-import {DataProviderFilterValueOperator} from './contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from './contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from './contexts/DataProvider';
+import DataProviderFilterBuilder from './contexts/DataProviderFilterBuilder';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()
@@ -10,11 +10,7 @@ function getByWorkspaceId(id: string) {
 function getByWorkspaceAndName(workspaceId: string, name: string) {
   return new DataProviderFilterBuilder<{workspaceId: string; name: string}>()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'name',
-      new RegExp(`^${name}$`, 'i'),
-      DataProviderFilterValueOperator.Regex
-    )
+    .addItem('name', new RegExp(`^${name}$`, 'i'), DataProviderFilterValueOperator.Regex)
     .build();
 }
 

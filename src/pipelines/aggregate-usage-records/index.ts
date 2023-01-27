@@ -11,17 +11,15 @@ async function aggregateRecordsMain() {
   try {
     runInfo.logger.info('Aggregate usage records job started');
     const appVariables = getAppVariables(extractProdEnvsSchema);
-    const connection = await getMongoConnection(
-      appVariables.mongoDbURI,
-      appVariables.mongoDbDatabaseName
-    );
-
+    const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
     await aggregateRecords(connection, runInfo);
     await connection.close();
     runInfo.logger.info('Aggregate usage records job completed');
   } catch (error: any) {
     runInfo.logger.error(error);
   }
+
+  await runInfo.logger.close();
 }
 
 aggregateRecordsMain();

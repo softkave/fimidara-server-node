@@ -2,12 +2,8 @@ import {IBaseContext} from '../contexts/types';
 import {ResourceExistsError} from '../errors';
 import EndpointReusableQueries from '../queries';
 
-export async function checkClientTokenNameExists(
-  context: IBaseContext,
-  workspaceId: string,
-  name: string
-) {
-  const itemExists = await context.data.clientAssignedToken.checkItemExists(
+export async function checkClientTokenNameExists(context: IBaseContext, workspaceId: string, name: string) {
+  const itemExists = await context.data.clientAssignedToken.existsByQuery(
     EndpointReusableQueries.getByWorkspaceAndName(workspaceId, name)
   );
 

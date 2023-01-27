@@ -1,7 +1,7 @@
 import OperationError, {
   getErrorMessageFromParams,
   IOperationErrorParameters,
-} from '../../utilities/OperationError';
+} from '../../utils/OperationError';
 import {endpointConstants} from '../constants';
 import {ServerRecommendedActions} from '../types';
 import {throwUserNotFound, throwUserTokenNotFound} from './utils';

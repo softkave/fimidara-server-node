@@ -33,24 +33,19 @@ test('workspace collaborators returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData =
-    RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      workspaceId: workspace.resourceId,
+    }
+  );
 
   const result = await getWorkspaceCollaborators(context, instData);
   assertEndpointResultOk(result);
   const updatedUser = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetItem(
-      EndpointReusableQueries.getById(user.resourceId)
-    )
+    await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(user.resourceId))
   );
 
-  expect(result.collaborators).toContainEqual(
-    collaboratorExtractor(updatedUser, workspace.resourceId)
-  );
+  expect(result.collaborators).toContainEqual(collaboratorExtractor(updatedUser, workspace.resourceId));
 });

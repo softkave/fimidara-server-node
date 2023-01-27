@@ -1,13 +1,9 @@
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {
-  AppResourceType,
-  IAgent,
-  ISessionAgent,
-} from '../../../definitions/system';
+import {AppResourceType, IAgent, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
@@ -59,11 +55,8 @@ export async function internalCreateFile(
   data: IUploadFileEndpointParams,
   file: IFile
 ) {
-  await context.data.file.saveItem(file);
-  const publicAccessOps = makeFilePublicAccessOps(
-    agent,
-    data.publicAccessAction
-  );
+  await context.data.file.insertItem(file);
+  const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
 
   await replacePublicPermissionGroupAccessOpsByPermissionOwner(
     context,
@@ -75,15 +68,7 @@ export async function internalCreateFile(
     file.resourceId
   );
 
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    data,
-    false
-  );
+  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, false);
 
   return file;
 }

@@ -24,8 +24,4 @@ export interface IAddFolderEndpointResult {
   folder: IPublicFolder;
 }
 
-export type AddFolderEndpoint = Endpoint<
-  IBaseContext,
-  IAddFolderEndpointParams,
-  IAddFolderEndpointResult
->;
+export type AddFolderEndpoint = Endpoint<IBaseContext, IAddFolderEndpointParams, IAddFolderEndpointResult>;

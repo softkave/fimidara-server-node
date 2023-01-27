@@ -1,12 +1,5 @@
-import {
-  CollaborationRequestStatusType,
-  ICollaborationRequest,
-} from '../../../definitions/collaborationRequest';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IAgent,
-} from '../../../definitions/system';
+import {CollaborationRequestStatusType, ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
   collaborationRequestEmailHTML,
@@ -14,9 +7,9 @@ import {
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {formatDate, getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
@@ -30,15 +23,12 @@ import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaborationRequestQueries from '../queries';
-import {
-  collaborationRequestExtractor,
-  populateRequestPermissionGroups,
-} from '../utils';
-import {SendRequestEndpoint} from './types';
-import {sendRequestJoiSchema} from './validation';
+import {collaborationRequestExtractor, populateRequestPermissionGroups} from '../utils';
+import {SendCollaborationRequestEndpoint} from './types';
+import {sendCollaborationRequestJoiSchema} from './validation';
 
-const sendRequest: SendRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, sendRequestJoiSchema);
+const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, sendCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
@@ -52,44 +42,30 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
   });
 
   let collaboratorExists = false;
-  const existingUser = await context.data.user.getItem(
+  const existingUser = await context.data.user.getOneByQuery(
     CollaboratorQueries.getByUserEmail(data.request.recipientEmail)
   );
 
   if (existingUser) {
-    const existingUserWithWorkspaces = await populateUserWorkspaces(
-      context,
-      existingUser
-    );
+    const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
 
-    collaboratorExists = !!(
-      existingUser &&
-      getCollaboratorWorkspace(existingUserWithWorkspaces, workspaceId)
-    );
+    collaboratorExists = !!(existingUser && getCollaboratorWorkspace(existingUserWithWorkspaces, workspaceId));
   }
 
   if (collaboratorExists) {
-    throw new ResourceExistsError(
-      'Collaborator with same email address exists'
-    );
+    throw new ResourceExistsError('Collaborator with same email address exists');
   }
 
-  const existingRequest = await context.data.collaborationRequest.getItem(
-    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(
-      workspaceId,
-      data.request.recipientEmail
-    )
+  const existingRequest = await context.data.collaborationRequest.getOneByQuery(
+    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(workspaceId, data.request.recipientEmail)
   );
 
   if (existingRequest) {
-    const status =
-      existingRequest.statusHistory[existingRequest.statusHistory.length - 1];
+    const status = existingRequest.statusHistory[existingRequest.statusHistory.length - 1];
 
     if (status.status === CollaborationRequestStatusType.Pending) {
       throw new ResourceExistsError(
-        `An existing collaboration request to this user was sent on ${formatDate(
-          existingRequest.createdAt
-        )}`
+        `An existing collaboration request to this user was sent on ${formatDate(existingRequest.createdAt)}`
       );
     }
   }
@@ -100,7 +76,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     agentType: agent.agentType,
   };
 
-  let request = await context.data.collaborationRequest.saveItem({
+  let request = await context.data.collaborationRequest.insertItem({
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -119,10 +95,7 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     ],
   });
 
-  if (
-    data.request.permissionGroupsOnAccept &&
-    data.request.permissionGroupsOnAccept.length > 0
-  ) {
+  if (data.request.permissionGroupsOnAccept && data.request.permissionGroupsOnAccept.length > 0) {
     await addAssignedPermissionGroupList(
       context,
       agent,
@@ -134,14 +107,14 @@ const sendRequest: SendRequestEndpoint = async (context, instData) => {
     );
   }
 
-  await sendRequestEmail(context, request, existingUser);
+  await sendCollaborationRequestEmail(context, request, existingUser);
   request = await populateRequestPermissionGroups(context, request);
   return {
     request: collaborationRequestExtractor(request),
   };
 };
 
-async function sendRequestEmail(
+async function sendCollaborationRequestEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
   toUser: IUser | null
@@ -165,4 +138,4 @@ async function sendRequestEmail(
   });
 }
 
-export default sendRequest;
+export default sendCollaborationRequest;

@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {isObjectEmpty} from '../../../utilities/fns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {isObjectEmpty} from '../../../utils/fns';
+import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -9,11 +9,11 @@ import {
   collaborationRequestExtractor,
   populateRequestPermissionGroups,
 } from '../utils';
-import {UpdateRequestEndpoint} from './types';
-import {updateRequestJoiSchema} from './validation';
+import {UpdateCollaborationRequestEndpoint} from './types';
+import {updateCollaborationRequestJoiSchema} from './validation';
 
-const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, updateRequestJoiSchema);
+const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request, workspace} = await checkCollaborationRequestAuthorization02(
     context,
@@ -23,7 +23,7 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
   );
 
   if (!isObjectEmpty(data.request)) {
-    request = await context.data.collaborationRequest.assertUpdateItem(
+    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
       EndpointReusableQueries.getById(data.requestId),
       {
         message: data.request.message || request.message,
@@ -55,4 +55,4 @@ const updateRequest: UpdateRequestEndpoint = async (context, instData) => {
   };
 };
 
-export default updateRequest;
+export default updateCollaborationRequest;

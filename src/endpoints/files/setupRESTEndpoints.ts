@@ -16,10 +16,7 @@ import {IUploadFileEndpointParams} from './uploadFile/types';
 const uploadFilePath = '/files/uploadFile';
 const getFilePath = '/files/getFile';
 
-function handleGetFileResponse(
-  res: Response,
-  result: Awaited<ReturnType<GetFileEndpoint>>
-) {
+function handleGetFileResponse(res: Response, result: Awaited<ReturnType<GetFileEndpoint>>) {
   res
     .set({
       'Content-Length': result.contentLength,
@@ -27,6 +24,11 @@ function handleGetFileResponse(
     })
     .status(endpointConstants.httpStatusCode.ok);
   result.stream.pipe(res);
+}
+
+export interface IGetFileEndpointQueryParams {
+  w?: number;
+  h?: number;
 }
 
 function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
@@ -41,17 +43,13 @@ function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
   };
 }
 
-function extractUploadFilesParamsFromPath(
-  req: Request
-): Partial<IUploadFileEndpointParams> {
+function extractUploadFilesParamsFromPath(req: Request): Partial<IUploadFileEndpointParams> {
   const p = req.path;
   const filepath = endpointDecodeURIComponent(last(p.split(uploadFilePath)));
   return {filepath};
 }
 
-function extractUploadFilesParamsFromFormData(
-  req: Request
-): IUploadFileEndpointParams {
+function extractUploadFilesParamsFromFormData(req: Request): IUploadFileEndpointParams {
   const file = req.file;
   return {
     ...req.body,
@@ -60,36 +58,17 @@ function extractUploadFilesParamsFromFormData(
   };
 }
 
-function extractUploadFilesParamsFromReq(
-  req: Request
-): IUploadFileEndpointParams {
-  return merge(
-    extractUploadFilesParamsFromPath(req),
-    extractUploadFilesParamsFromFormData(req)
-  );
+function extractUploadFilesParamsFromReq(req: Request): IUploadFileEndpointParams {
+  return merge(extractUploadFilesParamsFromPath(req), extractUploadFilesParamsFromFormData(req));
 }
 
-export default function setupFilesRESTEndpoints(
-  ctx: IBaseContext,
-  app: Express,
-  upload: multer.Multer
-) {
+export default function setupFilesRESTEndpoints(ctx: IBaseContext, app: Express, upload: multer.Multer) {
   const endpoints = {
     deleteFile: wrapEndpointREST(deleteFile, ctx),
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
     updateFileDetails: wrapEndpointREST(updateFileDetails, ctx),
-    uploadFile: wrapEndpointREST(
-      uploadFile,
-      ctx,
-      undefined,
-      extractUploadFilesParamsFromReq
-    ),
-    getFile: wrapEndpointREST(
-      getFile,
-      ctx,
-      handleGetFileResponse,
-      extractGetFileParamsFromReq
-    ),
+    uploadFile: wrapEndpointREST(uploadFile, ctx, undefined, extractUploadFilesParamsFromReq),
+    getFile: wrapEndpointREST(getFile, ctx, handleGetFileResponse, extractGetFileParamsFromReq),
   };
 
   // TODO: look into using Content-Disposition header
@@ -98,9 +77,5 @@ export default function setupFilesRESTEndpoints(
   app.delete('/files/deleteFile', endpoints.deleteFile);
   app.post('/files/getFileDetails', endpoints.getFileDetails);
   app.post('/files/updateFileDetails', endpoints.updateFileDetails);
-  app.post(
-    `${uploadFilePath}*`,
-    upload.single(fileConstants.uploadedFileFieldName),
-    endpoints.uploadFile
-  );
+  app.post(`${uploadFilePath}*`, upload.single(fileConstants.uploadedFileFieldName), endpoints.uploadFile);
 }

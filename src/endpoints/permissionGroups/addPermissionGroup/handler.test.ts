@@ -39,13 +39,9 @@ test('permissionGroup permissions group added', async () => {
   const savedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.permissiongroup.assertGetItem(
-      PermissionGroupQueries.getById(permissionGroup.resourceId)
-    ),
+    await context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(permissionGroup.resourceId)),
     AppResourceType.PermissionGroup
   );
 
-  expect(permissionGroupExtractor(savedPermissionGroup)).toMatchObject(
-    permissionGroup
-  );
+  expect(permissionGroupExtractor(savedPermissionGroup)).toMatchObject(permissionGroup);
 });

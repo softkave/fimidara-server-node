@@ -42,9 +42,7 @@ export interface IFilePersistenceProviderContext {
   close: () => Promise<void>;
 }
 
-export class S3FilePersistenceProviderContext
-  implements IFilePersistenceProviderContext
-{
+export class S3FilePersistenceProviderContext implements IFilePersistenceProviderContext {
   protected s3: S3Client;
 
   constructor(region: string) {
@@ -64,9 +62,7 @@ export class S3FilePersistenceProviderContext
     await this.s3.send(command);
   };
 
-  getFile = async (
-    params: IFilePersistenceGetFileParams
-  ): Promise<IPersistedFile> => {
+  getFile = async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
     const command = new GetObjectCommand({
       Bucket: params.bucket,
       Key: params.key,
@@ -127,17 +123,10 @@ export async function ensureAppBucketsReady(
   fileProvider: IFilePersistenceProviderContext,
   appVariables: IAppVariables
 ) {
-  return Promise.all([
-    fileProvider.ensureBucketReady(
-      appVariables.S3Bucket,
-      appVariables.awsRegion
-    ),
-  ]);
+  return Promise.all([fileProvider.ensureBucketReady(appVariables.S3Bucket, appVariables.awsRegion)]);
 }
 
-export function getBufferFromStream(
-  body: NodeJS.ReadableStream
-): Promise<Buffer> {
+export function getBufferFromStream(body: NodeJS.ReadableStream): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     body.once('error', err => reject(err));

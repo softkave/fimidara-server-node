@@ -2,7 +2,7 @@ import {uniqBy} from 'lodash';
 import {ResourceWithPermissionGroupsAndTags} from '../../../definitions/assignedItem';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType} from '../../../definitions/system';
-import {indexArray} from '../../../utilities/indexArray';
+import {indexArray} from '../../../utils/indexArray';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import PermissionGroupQueries from '../../permissionGroups/queries';
 import {IBaseContext} from '../types';
@@ -24,10 +24,7 @@ const addEntity = (
 // Commit a list of entities using their IDs
 const commitEntities = (
   entityIds: Array<string>,
-  permissionGroupsMap: Record<
-    string,
-    ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null
-  >,
+  permissionGroupsMap: Record<string, ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null>,
 
   // Entities originally gotten from the agent performing the operation
   existingEntitiesMap: Record<string, IPermissionEntity>,
@@ -62,13 +59,8 @@ const commitEntities = (
   return container;
 };
 
-const extractUniqueEntitiesAndAssignOrder = (
-  entities: Array<IPermissionEntity>
-) => {
-  const uniqueEntities = uniqBy(
-    entities,
-    <keyof IPermissionEntity>'permissionEntityId'
-  );
+const extractUniqueEntitiesAndAssignOrder = (entities: Array<IPermissionEntity>) => {
+  const uniqueEntities = uniqBy(entities, <keyof IPermissionEntity>'permissionEntityId');
 
   uniqueEntities.forEach((entity, index) => {
     entity.order = index;
@@ -77,14 +69,8 @@ const extractUniqueEntitiesAndAssignOrder = (
   return uniqueEntities;
 };
 
-async function fetchPermissionGroups(
-  context: IBaseContext,
-  inputEntities: Array<IPermissionEntity>
-) {
-  const permissionGroupsMap: Record<
-    string,
-    ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null
-  > = {};
+async function fetchPermissionGroups(context: IBaseContext, inputEntities: Array<IPermissionEntity>) {
+  const permissionGroupsMap: Record<string, ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null> = {};
 
   const permissionGroupEntitiesIds = inputEntities
     .filter(item => {
@@ -104,9 +90,7 @@ async function fetchPermissionGroups(
           return permissionGroupsMap[id];
         }
 
-        const permissionGroup = await context.data.permissiongroup.getItem(
-          PermissionGroupQueries.getById(id)
-        );
+        const permissionGroup = await context.data.permissiongroup.getOneByQuery(PermissionGroupQueries.getById(id));
 
         if (permissionGroup) {
           return populateAssignedPermissionGroupsAndTags(
@@ -129,19 +113,14 @@ async function fetchPermissionGroups(
     permissionGroups.forEach(permissionGroup => {
       if (permissionGroup) {
         permissionGroupsMap[permissionGroup.resourceId] = permissionGroup;
-        permissionGroup.permissionGroups.forEach(item =>
-          iterationIds.push(item.permissionGroupId)
-        );
+        permissionGroup.permissionGroups.forEach(item => iterationIds.push(item.permissionGroupId));
       }
     });
   }
   return permissionGroupsMap;
 }
 
-export async function fetchAndSortPermissionGroups(
-  context: IBaseContext,
-  entities: IPermissionEntity[]
-) {
+export async function fetchAndSortPermissionGroups(context: IBaseContext, entities: IPermissionEntity[]) {
   const permissionGroupsMap = await fetchPermissionGroups(context, entities);
   const processedEntities = commitEntities(
     entities.map(item => item.permissionEntityId),

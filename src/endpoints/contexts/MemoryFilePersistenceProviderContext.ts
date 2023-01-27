@@ -1,5 +1,5 @@
 import {Readable} from 'stream';
-import {noopAsync} from '../../utilities/fns';
+import {noopAsync} from '../../utils/fns';
 import {
   IFilePersistenceDeleteFilesParams,
   IFilePersistenceGetFileParams,

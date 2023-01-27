@@ -1,5 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {getPublicClientToken} from '../../clientAssignedTokens/utils';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {getPublicProgramToken} from '../../programAccessTokens/utils';

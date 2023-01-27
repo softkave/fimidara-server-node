@@ -11,8 +11,8 @@ import {
   InvalidCredentialsError,
 } from '../endpoints/user/errors';
 import {getPublicErrors} from '../endpoints/utils';
-import {ServerError} from '../utilities/errors';
-import {logger} from '../utilities/logger/logger';
+import {ServerError} from '../utils/errors';
+import {logger} from '../utils/logger/logger';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {

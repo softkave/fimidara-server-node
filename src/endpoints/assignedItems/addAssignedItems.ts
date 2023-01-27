@@ -4,13 +4,13 @@ import {
   IAssignedItemMainFieldsMatcher,
   IAssignedPermissionGroupMeta,
 } from '../../definitions/assignedItem';
-import {IPermissionGroupInput} from '../../definitions/permissionGroups';
+import {IAssignPermissionGroupInput} from '../../definitions/permissionGroups';
 import {AppResourceType, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
-import {indexArray} from '../../utilities/indexArray';
-import {getNewIdForResource} from '../../utilities/resourceId';
+import {indexArray} from '../../utils/indexArray';
+import {getNewIdForResource} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
@@ -19,15 +19,12 @@ import {deleteResourceAssignedItems} from './deleteAssignedItems';
 import AssignedItemQueries from './queries';
 import {assignedItemIndexer} from './utils';
 
-async function getNonExistingAssignedItems<
-  T extends IAssignedItemMainFieldsMatcher
->(context: IBaseContext, items: T[]): Promise<T[]> {
+async function getNonExistingAssignedItems<T extends IAssignedItemMainFieldsMatcher>(
+  context: IBaseContext,
+  items: T[]
+): Promise<T[]> {
   const fetchedItems = await Promise.all(
-    items.map(item =>
-      context.data.assignedItem.getItem(
-        AssignedItemQueries.getByMainFields(item)
-      )
-    )
+    items.map(item => context.data.assignedItem.getOneByQuery(AssignedItemQueries.getByMainFields(item)))
   );
 
   const itemsMap = indexArray(compact(fetchedItems), {
@@ -37,12 +34,9 @@ async function getNonExistingAssignedItems<
   return items.filter(item => !itemsMap[assignedItemIndexer(item)]);
 }
 
-export async function addAssignedItemList(
-  context: IBaseContext,
-  items: IAssignedItem[]
-) {
+export async function addAssignedItemList(context: IBaseContext, items: IAssignedItem[]) {
   const nonExistingItems = await getNonExistingAssignedItems(context, items);
-  await context.data.assignedItem.bulkSaveItems(nonExistingItems);
+  await context.data.assignedItem.insertList(nonExistingItems);
   return items;
 }
 
@@ -50,29 +44,20 @@ export async function addAssignedPermissionGroupList(
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace,
-  permissionGroups: IPermissionGroupInput[],
+  permissionGroups: IAssignPermissionGroupInput[],
   assignedToItemId: string,
   assignedToItemType: AppResourceType,
   deleteExisting: boolean,
   skipPermissionGroupsCheck = false
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      assignedToItemId,
-      assignedToItemType,
-      [AppResourceType.PermissionGroup]
-    );
+    await deleteResourceAssignedItems(context, workspace.resourceId, assignedToItemId, assignedToItemType, [
+      AppResourceType.PermissionGroup,
+    ]);
   }
 
   if (!skipPermissionGroupsCheck) {
-    await checkPermissionGroupsExist(
-      context,
-      agent,
-      workspace,
-      permissionGroups
-    );
+    await checkPermissionGroupsExist(context, agent, workspace, permissionGroups);
   }
 
   const items = permissionGroups.map(permissionGroup => {
@@ -106,13 +91,9 @@ export async function addAssignedTagList(
   deleteExisting: boolean
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      assignedToItemId,
-      assignedToItemType,
-      [AppResourceType.Tag]
-    );
+    await deleteResourceAssignedItems(context, workspace.resourceId, assignedToItemId, assignedToItemType, [
+      AppResourceType.Tag,
+    ]);
   }
 
   await checkTagsExist(context, agent, workspace, tags);
@@ -145,7 +126,7 @@ export async function saveResourceAssignedItems(
   resourceType: AppResourceType,
   data: {
     tags?: IAssignedTagInput[];
-    permissionGroups?: IPermissionGroupInput[];
+    permissionGroups?: IAssignPermissionGroupInput[];
   },
   deleteExisting = true,
   options: ISaveResourceAssignedItemsOptions = {}
@@ -164,24 +145,11 @@ export async function saveResourceAssignedItems(
   }
 
   if (data.tags) {
-    await addAssignedTagList(
-      context,
-      agent,
-      workspace,
-      data.tags,
-      resourceId,
-      resourceType,
-      deleteExisting
-    );
+    await addAssignedTagList(context, agent, workspace, data.tags, resourceId, resourceType, deleteExisting);
   }
 }
 
-export async function assignWorkspaceToUser(
-  context: IBaseContext,
-  agent: IAgent,
-  workspaceId: string,
-  user: IUser
-) {
+export async function assignWorkspaceToUser(context: IBaseContext, agent: IAgent, workspaceId: string, user: IUser) {
   const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
     workspaceId,
     assignedToItemId: user.resourceId,

@@ -1,14 +1,9 @@
 import {defaultTo, omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  CURRENT_TOKEN_VERSION,
-  IAgent,
-} from '../../../definitions/system';
-import {getDate, getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {AppResourceType, BasicCRUDActions, CURRENT_TOKEN_VERSION, IAgent} from '../../../definitions/system';
+import {getDate} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
@@ -23,10 +18,7 @@ import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
 import {addClientAssignedTokenJoiSchema} from './validation';
 
-const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
-  context,
-  instData
-) => {
+const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, addClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -43,19 +35,12 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
   let token: IClientAssignedToken | null = null;
 
   if (data.token.name) {
-    await checkClientTokenNameExists(
-      context,
-      workspace.resourceId,
-      data.token.name
-    );
+    await checkClientTokenNameExists(context, workspace.resourceId, data.token.name);
   }
 
   if (data.token.providedResourceId) {
-    token = await context.data.clientAssignedToken.getItem(
-      EndpointReusableQueries.getByProvidedId(
-        workspace.resourceId,
-        data.token.providedResourceId
-      )
+    token = await context.data.clientAssignedToken.getOneByQuery(
+      EndpointReusableQueries.getByProvidedId(workspace.resourceId, data.token.providedResourceId)
     );
   }
 
@@ -66,7 +51,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       agentType: agent.agentType,
     };
 
-    token = await context.data.clientAssignedToken.saveItem({
+    token = {
       ...omit(data.token, 'permissionGroups', 'tags'),
       createdAt,
       createdBy,
@@ -74,12 +59,12 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (
       workspaceId: workspace.resourceId,
       resourceId: getNewIdForResource(AppResourceType.ClientAssignedToken),
       version: CURRENT_TOKEN_VERSION,
-      issuedAt: getDateString(),
       lastUpdatedAt: createdAt,
       lastUpdatedBy: createdBy,
-    });
+    };
+    await context.data.clientAssignedToken.insertItem(token);
   } else {
-    token = await context.data.clientAssignedToken.assertUpdateItem(
+    token = await context.data.clientAssignedToken.assertGetAndUpdateOneByQuery(
       EndpointReusableQueries.getById(token.resourceId),
       {
         ...omit(data.token, 'permissionGroups', 'tags'),

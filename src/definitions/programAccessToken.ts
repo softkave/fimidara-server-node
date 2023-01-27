@@ -1,6 +1,5 @@
 import {IAssignedPermissionGroup} from './permissionGroups';
 import {IAgent} from './system';
-import {IAssignedTag} from './tag';
 
 export interface IProgramAccessToken {
   resourceId: string;
@@ -29,5 +28,5 @@ export interface IPublicProgramAccessToken {
   workspaceId: string;
   permissionGroups: IAssignedPermissionGroup[];
   tokenStr: string;
-  tags: IAssignedTag[];
+  // tags: IAssignedTag[];
 }

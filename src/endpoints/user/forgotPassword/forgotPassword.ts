@@ -1,15 +1,10 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../../definitions/system';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience, TokenType} from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
@@ -20,12 +15,10 @@ import {forgotPasswordJoiSchema} from './validation';
 
 const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
-  const user = await context.data.user.assertGetItem(
-    UserQueries.getByEmail(data.email)
-  );
+  const user = await context.data.user.assertGetOneByQuery(UserQueries.getByEmail(data.email));
 
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = await context.data.userToken.saveItem({
+  const forgotToken = await context.data.userToken.insertItem({
     audience: [TokenAudience.ChangePassword],
     issuedAt: getDateString(),
     resourceId: getNewIdForResource(AppResourceType.UserToken),
@@ -50,10 +43,7 @@ export function getForgotPasswordExpiration() {
   });
 }
 
-export function getForgotPasswordLinkFromToken(
-  context: IBaseContext,
-  forgotToken: IUserToken
-) {
+export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToken: IUserToken) {
   const encodedToken = context.session.encodeToken(
     context,
     forgotToken.resourceId,
@@ -61,9 +51,7 @@ export function getForgotPasswordLinkFromToken(
     forgotToken.expires
   );
 
-  const link = `${context.appVariables.clientDomain}${
-    context.appVariables.changePasswordPath
-  }?${stringify({
+  const link = `${context.appVariables.clientDomain}${context.appVariables.changePasswordPath}?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 

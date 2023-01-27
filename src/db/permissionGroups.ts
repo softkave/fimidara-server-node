@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IPermissionGroup} from '../definitions/permissionGroups';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const permissionGroupsSchema = ensureTypeFields<IPermissionGroup>({
@@ -21,12 +21,7 @@ const modelName = 'permission-group';
 const collectionName = 'permission-groups';
 
 export function getPermissionGroupModel(connection: Connection) {
-  const model = connection.model<IPermissionGroup>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+  const model = connection.model<IPermissionGroup>(modelName, schema, collectionName);
   return model;
 }
 

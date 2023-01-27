@@ -1,79 +1,173 @@
+import {isObject, isObjectLike} from 'lodash';
 import {FilterQuery, Model} from 'mongoose';
-import {cast} from '../../../utilities/fns';
+import {cast} from '../../../utils/fns';
+import {AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {
+  DataProviderLiteralType,
   DataQuery,
+  IArrayFieldQueryOps,
   IBaseDataProvider,
+  IComparisonLiteralFieldQueryOps,
   IDataProvideQueryListParams,
+  INumberLiteralFieldQueryOps,
+  IRecordFieldQueryOps,
 } from './types';
 
-export function getMongoQueryOptions(p?: IDataProvideQueryListParams<any>) {
+export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>) {
   return {
-    limit: p?.pageSize || endpointConstants.maxPageSize,
-    skip: p?.page || 0,
+    lean: true,
+    projection: p?.projection,
+  };
+}
+
+export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>) {
+  const pageSize = p?.pageSize || endpointConstants.maxPageSize;
+  return {
+    limit: pageSize,
+    skip: (p?.page || 0) * pageSize,
     lean: true,
     projection: p?.projection,
     sort: p?.sort,
   };
 }
 
-export abstract class BaseMongoDataProvider<T, Q = DataQuery<T>>
+export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQuery<AnyObject> = DataQuery<T>>
   implements IBaseDataProvider<T, Q>
 {
+  abstract throwNotFound: () => void;
   model: Model<T>;
 
   constructor(model: Model<T>) {
     this.model = model;
   }
 
+  insertItem = async (item: T) => {
+    const doc = new this.model(item);
+    return await doc.save();
+  };
+
   insertList = async (items: T[]) => {
     await this.model.insertMany(items);
   };
 
-  getManyByQuery = async <T1 extends Partial<T> = T>(
-    q: Q,
-    p?: IDataProvideQueryListParams<T>
-  ) => {
+  getManyByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
     const items = await this.model
-      .find(this.getMongoQuery(q), p?.projection, getMongoQueryOptions(p))
+      .find(BaseMongoDataProvider.getMongoQuery(q), p?.projection, getMongoQueryOptionsForMany(p))
+      .lean()
       .exec();
-    return items as unknown as T1[];
+    return items as unknown as T[];
   };
 
-  getOneByQuery = async <T1 extends Partial<T> = T>(
-    q: Q,
-    p?: IDataProvideQueryListParams<T>
-  ) => {
-    const item = await this.model
-      .findOne(this.getMongoQuery(q), p?.projection)
+  getManyByQueries = async (q: Q[], p?: IDataProvideQueryListParams<T>) => {
+    const items = await this.model
+      .find(
+        {$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))},
+        p?.projection,
+        getMongoQueryOptionsForMany(p)
+      )
+      .lean()
       .exec();
-    return item as unknown as T1;
+    return items as unknown as T[];
+  };
+
+  getOneByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
+    const item = await this.model.findOne(BaseMongoDataProvider.getMongoQuery(q), p?.projection).lean().exec();
+    return item as unknown as T | null;
+  };
+
+  assertGetOneByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
+    const item = await this.getOneByQuery(q, p);
+    if (!item) this.throwNotFound();
+    return item as unknown as T;
   };
 
   updateManyByQuery = async (q: Q, d: Partial<T>) => {
-    await this.model.updateMany(this.getMongoQuery(q), d).exec();
+    await this.model.updateMany(BaseMongoDataProvider.getMongoQuery(q), d).exec();
   };
 
-  updateOneByQuery = async <T1 extends Partial<T> = T>(
-    q: Q,
-    d: Partial<T>,
-    p?: IDataProvideQueryListParams<T>
-  ) => {
+  updateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
+    await this.model.updateOne(BaseMongoDataProvider.getMongoQuery(q), d).exec();
+  };
+
+  getAndUpdateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
     const item = await this.model
-      .updateOne(this.getMongoQuery(q), d, getMongoQueryOptions(p))
+      .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(q), d, {...getMongoQueryOptionsForOne(p), new: true})
       .exec();
-    return item as unknown as T1;
+    return item as unknown as T;
+  };
+
+  assertGetAndUpdateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
+    const item = await this.getAndUpdateOneByQuery(q, d, p);
+    if (!item) this.throwNotFound();
+    return item as unknown as T;
   };
 
   existsByQuery = async (q: Q) => {
-    return !!(await this.model.exists(this.getMongoQuery(q)).exec());
+    return !!(await this.model.exists(BaseMongoDataProvider.getMongoQuery(q)).lean().exec());
   };
 
   countByQuery = async (q: Q) => {
-    return await this.model.countDocuments(this.getMongoQuery(q)).exec();
+    return await this.model.countDocuments(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
-  protected getMongoQuery(q: Q) {
-    return cast<FilterQuery<any>>(q);
+  deleteManyByQuery = async (q: Q) => {
+    await this.model.deleteMany(BaseMongoDataProvider.getMongoQuery(q)).exec();
+  };
+
+  deleteManyByQueries = async (q: Q[]) => {
+    await this.model.deleteMany({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))}).exec();
+  };
+
+  deleteOneByQuery = async (q: Q) => {
+    await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
+  };
+
+  static getMongoQuery<Q extends DataQuery<AnyObject>, DataType = Q extends DataQuery<infer U> ? U : AnyObject>(q: Q) {
+    type T = IComparisonLiteralFieldQueryOps &
+      INumberLiteralFieldQueryOps &
+      IArrayFieldQueryOps<any> &
+      IRecordFieldQueryOps<any>;
+    const mq: FilterQuery<DataType> = {};
+    for (const k in q) {
+      const v = q[k];
+      if (isQueryBaseLiteralFn(v)) mq[k] = v;
+      else if (isObject(v)) {
+        const vops = Object.keys(v) as Array<keyof T>;
+        for (const vop of vops) {
+          switch (vop) {
+            case '$objMatch': {
+              const vWithObjMatch = cast<IRecordFieldQueryOps<any>>(v);
+              const objMatchValue = vWithObjMatch['$objMatch'];
+              Object.keys(objMatchValue).forEach(f => {
+                mq[`${k}.${f}`] = objMatchValue[f];
+              });
+              break;
+            }
+            default:
+              mq[k] = v;
+          }
+        }
+      }
+    }
+    return mq;
   }
+}
+
+export function isQueryBaseLiteralFn(q: any): q is DataProviderLiteralType {
+  return !isObjectLike(q);
+}
+
+/**
+ * Runs avery simple loop over the fields in the object and if any field's value
+ * is not "object-like," it turns it into a `$eq` query op. If this is not the
+ * behaviour you're looking for, consider updating the logic and this comment or
+ * create another function.
+ */
+export function toDataQuery<T extends AnyObject, Q extends DataQuery<any> = DataQuery<any>>(d: T) {
+  return Object.keys(d).reduce((q, k) => {
+    const v = d[k];
+    if (!isObjectLike(v)) q[k] = {$eq: v};
+    return q;
+  }, {} as AnyObject) as Q;
 }

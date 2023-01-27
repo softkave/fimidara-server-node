@@ -1,1 +1,1 @@
-export const clientAssignedTokenConstants = {providedResourceMaxLength: 300};
+export const clientAssignedTokenConstants = {};

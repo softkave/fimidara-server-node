@@ -25,9 +25,7 @@ afterAll(async () => {
 });
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.checkItemExists(
-    FileQueries.getById(id)
-  );
+  const exists = await context.data.file.existsByQuery(FileQueries.getById(id));
 
   expect(exists).toBeFalsy();
 }
@@ -36,11 +34,7 @@ test('file deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file, reqData} = await insertFileForTest(
-    context,
-    userToken,
-    workspace
-  );
+  const {file, reqData} = await insertFileForTest(context, userToken, workspace);
 
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithUserToken(userToken),

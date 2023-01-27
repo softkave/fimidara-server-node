@@ -1,19 +1,16 @@
-import {validate} from '../../../utilities/validate';
+import {validate} from '../../../utils/validate';
 import {collaborationRequestExtractor} from '../utils';
-import {RespondToRequestEndpoint} from './types';
-import {internalRespondToRequest} from './utils';
-import {respondToRequestJoiSchema} from './validation';
+import {RespondToCollaborationRequestEndpoint} from './types';
+import {internalRespondToCollaborationRequest} from './utils';
+import {respondToCollaborationRequestJoiSchema} from './validation';
 
-const respondToRequest: RespondToRequestEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, respondToRequestJoiSchema);
+const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, respondToCollaborationRequestJoiSchema);
   const user = await context.session.getUser(context, instData);
-  const request = await internalRespondToRequest(context, user, data);
+  const request = await internalRespondToCollaborationRequest(context, user, data);
   return {
     request: collaborationRequestExtractor(request),
   };
 };
 
-export default respondToRequest;
+export default respondToCollaborationRequest;

@@ -1,6 +1,6 @@
 import {SessionAgentType} from '../definitions/system';
-import OperationError from '../utilities/OperationError';
-import {IDataProvideQueryListParams} from './contexts/data-providers/types';
+import OperationError from '../utils/OperationError';
+import {IDataProvideQueryListParams} from './contexts/data/types';
 import {IBaseContext} from './contexts/types';
 import RequestData from './RequestData';
 
@@ -8,14 +8,12 @@ export interface IBaseEndpointResult {
   errors?: OperationError[];
 }
 
-export type Endpoint<
-  Context extends IBaseContext = IBaseContext,
-  Data = any,
-  Result = any
-> = (
+export type Endpoint<Context extends IBaseContext = IBaseContext, Data = any, Result = any> = (
   context: Context,
   instData: RequestData<Data>
 ) => Promise<Result & IBaseEndpointResult>;
+
+export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R> ? R & IBaseEndpointResult : any;
 
 export enum ServerRecommendedActions {
   LoginAgain = 'LoginAgain',
@@ -38,7 +36,4 @@ export interface IPaginatedResult {
   count: number;
 }
 
-export type IPaginationQuery = Pick<
-  IDataProvideQueryListParams<any>,
-  'page' | 'pageSize'
->;
+export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;

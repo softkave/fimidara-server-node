@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {ITag} from '../definitions/tag';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const tagSchema = ensureTypeFields<ITag>({

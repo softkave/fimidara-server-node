@@ -1,11 +1,7 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IAgent,
-} from '../../../definitions/system';
-import {getDateString} from '../../../utilities/dateFns';
-import {getNewIdForResource} from '../../../utilities/resourceId';
-import {validate} from '../../../utilities/validate';
+import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
+import {getDateString} from '../../../utils/dateFns';
+import {getNewIdForResource} from '../../../utils/resourceId';
+import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
@@ -19,10 +15,7 @@ import {permissionGroupExtractor} from '../utils';
 import {AddPermissionGroupEndpoint} from './types';
 import {addPermissionGroupJoiSchema} from './validation';
 
-const addPermissionGroup: AddPermissionGroupEndpoint = async (
-  context,
-  instData
-) => {
+const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData) => {
   const data = validate(instData.data, addPermissionGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
@@ -36,18 +29,14 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (
     action: BasicCRUDActions.Create,
   });
 
-  await checkPermissionGroupNameExists(
-    context,
-    workspace.resourceId,
-    data.permissionGroup.name
-  );
+  await checkPermissionGroupNameExists(context, workspace.resourceId, data.permissionGroup.name);
   const createdAt = getDateString();
   const createdBy: IAgent = {
     agentId: agent.agentId,
     agentType: agent.agentType,
   };
 
-  let permissionGroup = await context.data.permissiongroup.saveItem({
+  let permissionGroup = await context.data.permissiongroup.insertItem({
     ...data.permissionGroup,
     createdAt,
     createdBy,

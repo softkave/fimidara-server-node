@@ -13,7 +13,7 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {getNewIdForResource} from '../../utilities/resourceId';
+import {getNewIdForResource} from '../../utils/resourceId';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**
@@ -81,10 +81,7 @@ function getEndOfMonth() {
   return d;
 }
 
-async function sumUsageRecordsLevel1(
-  connection: Connection,
-  recordLevel2: IUsageRecord
-) {
+async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsageRecord) {
   let fromDate = recordLevel2.lastUpdatedAt || getStartOfMonth();
   const endDate = getEndOfMonth();
   let totalCount = 0;
@@ -168,15 +165,8 @@ async function getUsageRecordsLevel2(
   return records;
 }
 
-async function incrementRecordLevel2(
-  connection: Connection,
-  recordLevel2: IUsageRecord
-) {
-  const {sumUsage, sumCost, totalCount} = await sumUsageRecordsLevel1(
-    connection,
-    recordLevel2
-  );
-
+async function incrementRecordLevel2(connection: Connection, recordLevel2: IUsageRecord) {
+  const {sumUsage, sumCost} = await sumUsageRecordsLevel1(connection, recordLevel2);
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
   recordLevel2.lastUpdatedAt = new Date();
@@ -189,12 +179,7 @@ async function aggregateRecordsLevel2ExcludingTotal(
   workspaceId: string,
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  const records = await getUsageRecordsLevel2(
-    connection,
-    workspaceId,
-    fulfillmentStatus
-  );
-
+  const records = await getUsageRecordsLevel2(connection, workspaceId, fulfillmentStatus);
   const promises = records.map(r => incrementRecordLevel2(connection, r));
   const results = await Promise.all(promises);
   return results;
@@ -205,16 +190,8 @@ async function aggregateRecordsLevel2(
   workspaceId: string,
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  const records = await aggregateRecordsLevel2ExcludingTotal(
-    connection,
-    workspaceId,
-    fulfillmentStatus
-  );
-
-  const totalRecord = records.find(
-    r => r.category === UsageRecordCategory.Total
-  );
-
+  const records = await aggregateRecordsLevel2ExcludingTotal(connection, workspaceId, fulfillmentStatus);
+  const totalRecord = records.find(r => r.category === UsageRecordCategory.Total);
   assert(totalRecord, 'total record not found');
   totalRecord.usageCost = 0;
   records.forEach(cur => {
@@ -242,10 +219,7 @@ async function aggregateRecordsLevel2(
   return records;
 }
 
-async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
-  connection: Connection,
-  workspace: IWorkspace
-) {
+async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection: Connection, workspace: IWorkspace) {
   const records = await aggregateRecordsLevel2(
     connection,
     workspace.resourceId,
@@ -270,20 +244,11 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
   });
 
   const model = makeWorkspaceModel(connection);
-  await model
-    .updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: locks})
-    .exec();
+  await model.updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: locks}).exec();
 }
 
-async function aggregateDroppedRecordsInWorkspace(
-  connection: Connection,
-  workspace: IWorkspace
-) {
-  await aggregateRecordsLevel2(
-    connection,
-    workspace.resourceId,
-    UsageRecordFulfillmentStatus.Dropped
-  );
+async function aggregateDroppedRecordsInWorkspace(connection: Connection, workspace: IWorkspace) {
+  await aggregateRecordsLevel2(connection, workspace.resourceId, UsageRecordFulfillmentStatus.Dropped);
 }
 
 async function tryAggregateRecordsInWorkspace(
@@ -292,11 +257,7 @@ async function tryAggregateRecordsInWorkspace(
   runInfo: IFimidaraPipelineRunInfo
 ) {
   try {
-    await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
-      connection,
-      workspace
-    );
-
+    await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection, workspace);
     await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
     runInfo.logger.info(
@@ -310,14 +271,8 @@ async function tryAggregateRecordsInWorkspace(
   }
 }
 
-export async function aggregateRecords(
-  connection: Connection,
-  runInfo: IFimidaraPipelineRunInfo
-) {
+export async function aggregateRecords(connection: Connection, runInfo: IFimidaraPipelineRunInfo) {
   const workspaces = await getWorkspaces(connection);
-  const promises = workspaces.map(w =>
-    tryAggregateRecordsInWorkspace(connection, w, runInfo)
-  );
-
+  const promises = workspaces.map(w => tryAggregateRecordsInWorkspace(connection, w, runInfo));
   await Promise.all(promises);
 }

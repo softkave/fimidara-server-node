@@ -1,7 +1,4 @@
-import {
-  IPermissionGroupInput,
-  IPublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
+import {IAssignPermissionGroupInput, IPublicPermissionGroup} from '../../../definitions/permissionGroups';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
@@ -9,7 +6,7 @@ import {Endpoint} from '../../types';
 export interface INewPermissionGroupInput {
   name: string;
   description?: string;
-  permissionGroups?: IPermissionGroupInput[];
+  permissionGroups?: IAssignPermissionGroupInput[];
   tags?: IAssignedTagInput[];
 }
 

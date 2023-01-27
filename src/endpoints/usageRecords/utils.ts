@@ -1,9 +1,5 @@
 import {IFile} from '../../definitions/file';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
@@ -11,29 +7,21 @@ import {
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {IUsageRecordInput} from '../contexts/data-providers/UsageRecordLogicProvider';
 import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
+import {IUsageRecordInput} from '../contexts/UsageRecordLogicProvider';
+import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
+import {errorMessages} from '../messages';
 import RequestData from '../RequestData';
 import {UsageLimitExceededError} from './errors';
 
-async function insertRecord(
-  ctx: IBaseContext,
-  reqData: RequestData,
-  input: IUsageRecordInput,
-  nothrow = false
-) {
+async function insertRecord(ctx: IBaseContext, reqData: RequestData, input: IUsageRecordInput, nothrow = false) {
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
   );
 
-  const allowed = await ctx.logicProviders.usageRecord.insert(
-    ctx,
-    reqData,
-    agent,
-    input
-  );
+  const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
 
   if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
@@ -172,10 +160,7 @@ export function getRecordingPeriod() {
   return {month: m, year: y};
 }
 
-export function getUsageThreshold(
-  w: IWorkspace,
-  category: UsageRecordCategory
-) {
+export function getUsageThreshold(w: IWorkspace, category: UsageRecordCategory) {
   const thresholds = w.usageThresholds || {};
   return thresholds[category];
 }
@@ -188,10 +173,7 @@ export function workspaceHasUsageThresholds(w: IWorkspace) {
   });
 }
 
-export function sumWorkspaceThresholds(
-  w: IWorkspace,
-  exclude?: UsageRecordCategory[]
-) {
+export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCategory[]) {
   const threshold = w.usageThresholds || {};
   return Object.values(UsageRecordCategory).reduce((acc, k) => {
     if (exclude && exclude.includes(k)) {
@@ -201,4 +183,8 @@ export function sumWorkspaceThresholds(
     const usage = threshold[k];
     return usage ? acc + usage.budget : acc;
   }, 0);
+}
+
+export function throwUsageRecordNotFound() {
+  throw new NotFoundError(errorMessages.usageRecordNotFound);
 }

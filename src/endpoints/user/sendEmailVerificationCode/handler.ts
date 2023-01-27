@@ -1,5 +1,5 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {formatDate, getDateString} from '../../../utilities/dateFns';
+import {formatDate, getDateString} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
@@ -9,10 +9,7 @@ import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import {SendEmailVerificationCodeEndpoint} from './types';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
-const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
-  context,
-  instData
-) => {
+const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (context, instData) => {
   const user = await context.session.getUser(context, instData);
 
   if (user.isEmailVerified) {
@@ -44,17 +41,14 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
     firstName: user.firstName,
   });
 
-  await context.data.user.updateItem(UserQueries.getById(user.resourceId), {
+  await context.data.user.updateOneByQuery(UserQueries.getById(user.resourceId), {
     emailVerificationEmailSentAt: getDateString(),
   });
 };
 
 export default sendEmailVerificationCode;
 
-export async function getConfirmEmailLink(
-  context: IBaseContext,
-  user: {resourceId: string; isEmailVerified: boolean}
-) {
+export async function getConfirmEmailLink(context: IBaseContext, user: {resourceId: string; isEmailVerified: boolean}) {
   return await withConfirmEmailAddressToken(
     context,
     user,

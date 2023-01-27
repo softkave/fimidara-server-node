@@ -1,6 +1,6 @@
 import {TokenAudience} from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
-import {getDateString} from '../../../utilities/dateFns';
+import {getDateString} from '../../../utils/dateFns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
@@ -20,30 +20,22 @@ export default async function internalConfirmEmailAddress(
   if (user.isEmailVerified) {
     return await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetItem(
-        UserQueries.getById(user.resourceId)
-      )
+      await context.data.user.assertGetOneByQuery(UserQueries.getById(user.resourceId))
     );
   }
 
   user = await populateUserWorkspaces(
     context,
-    await context.data.user.assertUpdateItem(
-      UserQueries.getById(user.resourceId),
-      {
-        isEmailVerified: true,
-        emailVerifiedAt: getDateString(),
-      }
-    )
+    await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), {
+      isEmailVerified: true,
+      emailVerifiedAt: getDateString(),
+    })
   );
 
   // Delete tokens used for confirming email address
   // cause they are no longer needed
-  await context.data.userToken.deleteItem(
-    UserTokenQueries.getByUserIdAndAudience(
-      user.resourceId,
-      TokenAudience.ConfirmEmailAddress
-    )
+  await context.data.userToken.deleteOneByQuery(
+    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.ConfirmEmailAddress)
   );
 
   return user as IUserWithWorkspace;

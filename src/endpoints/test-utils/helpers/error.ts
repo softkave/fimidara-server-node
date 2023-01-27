@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {isArray} from 'lodash';
-import {AnyFn} from '../../../utilities/types';
+import {AnyFn} from '../../../utils/types';
 
 export function assertResultErrorsIncludes(
   error: any,

@@ -7,7 +7,7 @@ import {
 } from '../../definitions/assignedItem';
 import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
-import {cast} from '../../utilities/fns';
+import {cast} from '../../utils/fns';
 import {IBaseContext} from '../contexts/types';
 import AssignedItemQueries from './queries';
 import {
@@ -17,7 +17,6 @@ import {
 } from './utils';
 
 /**
- *
  * @param context
  * @param workspaceId Use empty string for fetching user workspaces
  * @param resourceId
@@ -32,18 +31,12 @@ export async function getResourceAssignedItems(
   resourceType: AppResourceType,
   assignedItemTypes?: ReadonlyArray<AppResourceType>
 ) {
-  return await context.data.assignedItem.getManyItems(
-    AssignedItemQueries.getByAssignedToResource(
-      workspaceId,
-      resourceId,
-      resourceType,
-      assignedItemTypes
-    )
+  return await context.data.assignedItem.getManyByQuery(
+    AssignedItemQueries.getByAssignedToResource(workspaceId, resourceId, resourceType, assignedItemTypes)
   );
 }
 
 /**
- *
  * @param context
  * @param workspaceId Use empty string for fetching user workspaces
  * @param resourceId
@@ -60,13 +53,7 @@ export async function getResourceAssignedItemsSortedByType(
   resourceType: AppResourceType,
   assignedItemTypes?: ReadonlyArray<AppResourceType>
 ) {
-  const items = await getResourceAssignedItems(
-    context,
-    workspaceId,
-    resourceId,
-    resourceType,
-    assignedItemTypes
-  );
+  const items = await getResourceAssignedItems(context, workspaceId, resourceId, resourceType, assignedItemTypes);
 
   // Add default values if specific assigned item types are specified
   const sortedItems: Record<string, IAssignedItem[]> = assignedItemTypes
@@ -87,18 +74,13 @@ export async function getResourceAssignedItemsSortedByType(
 
 export async function populateAssignedItems<
   T extends IResourceBase,
-  AT extends ReadonlyArray<
-    AppResourceType.PermissionGroup | AppResourceType.Tag
-  >
+  AT extends ReadonlyArray<AppResourceType.PermissionGroup | AppResourceType.Tag>
 >(
   context: IBaseContext,
   workspaceId: string,
   resource: T,
   resourceType: AppResourceType,
-  assignedItemTypes: AT = [
-    AppResourceType.PermissionGroup,
-    AppResourceType.Tag,
-  ] as any
+  assignedItemTypes: AT = [AppResourceType.PermissionGroup, AppResourceType.Tag] as any
 ): Promise<
   typeof assignedItemTypes extends ReadonlyArray<AppResourceType.PermissionGroup>
     ? ResourceWithPermissionGroups<T>
@@ -120,9 +102,7 @@ export async function populateAssignedItems<
   assignedItemTypes?.forEach(type => {
     switch (type) {
       case AppResourceType.PermissionGroup:
-        cast<ResourceWithPermissionGroups<T>>(
-          updatedResource
-        ).permissionGroups = [];
+        cast<ResourceWithPermissionGroups<T>>(updatedResource).permissionGroups = [];
         break;
       case AppResourceType.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = [];
@@ -133,16 +113,12 @@ export async function populateAssignedItems<
   for (const type in sortedItems) {
     switch (type) {
       case AppResourceType.PermissionGroup:
-        cast<ResourceWithPermissionGroups<T>>(
-          updatedResource
-        ).permissionGroups = assignedItemsToAssignedPermissionGroupList(
-          sortedItems[type]
-        );
+        cast<ResourceWithPermissionGroups<T>>(updatedResource).permissionGroups =
+          assignedItemsToAssignedPermissionGroupList(sortedItems[type]);
         break;
 
       case AppResourceType.Tag:
-        cast<ResourceWithTags<T>>(updatedResource).tags =
-          assignedItemsToAssignedTagList(sortedItems[type]);
+        cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(sortedItems[type]);
         break;
     }
   }
@@ -172,8 +148,7 @@ export async function populateAssignedPermissionGroupsAndTags<
   );
 
   const updatedResource: Final = cast<Final>(resource);
-  const permissionGroupsLabel =
-    labels[AppResourceType.PermissionGroup] || 'permissionGroups';
+  const permissionGroupsLabel = labels[AppResourceType.PermissionGroup] || 'permissionGroups';
   const tagsLabel = labels[AppResourceType.Tag] || 'tags';
   if (includePermissionGroups) {
     (updatedResource as any)[permissionGroupsLabel] = [];
@@ -187,16 +162,15 @@ export async function populateAssignedPermissionGroupsAndTags<
     switch (type) {
       case AppResourceType.PermissionGroup:
         if (includePermissionGroups) {
-          (updatedResource as any)[permissionGroupsLabel] =
-            assignedItemsToAssignedPermissionGroupList(sortedItems[type]);
+          (updatedResource as any)[permissionGroupsLabel] = assignedItemsToAssignedPermissionGroupList(
+            sortedItems[type]
+          );
         }
         break;
 
       case AppResourceType.Tag:
         if (includeTags) {
-          (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
-            sortedItems[type]
-          );
+          (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(sortedItems[type]);
         }
         break;
     }
@@ -261,16 +235,15 @@ export async function populateUserWorkspaces<T extends IUser>(
     }
   }
 
-  const assignedPermissionGroupsMap: Record<string, IAssignedItem[]> =
-    assignedPermissionGroupItems.reduce((map, item) => {
-      const workspacePermissionGroupItems = defaultTo(
-        map[item.workspaceId],
-        []
-      );
+  const assignedPermissionGroupsMap: Record<string, IAssignedItem[]> = assignedPermissionGroupItems.reduce(
+    (map, item) => {
+      const workspacePermissionGroupItems = defaultTo(map[item.workspaceId], []);
       workspacePermissionGroupItems.push(item);
       map[item.workspaceId] = workspacePermissionGroupItems;
       return map;
-    }, {} as Record<string, IAssignedItem[]>);
+    },
+    {} as Record<string, IAssignedItem[]>
+  );
 
   updatedResource.workspaces = assignedItemsToAssignedWorkspaceList(
     assignedWorkspaceItems,
@@ -280,11 +253,6 @@ export async function populateUserWorkspaces<T extends IUser>(
   return updatedResource;
 }
 
-export async function populateUserListWithWorkspaces<T extends IUser>(
-  context: IBaseContext,
-  resources: T[]
-) {
-  return await Promise.all(
-    resources.map(resource => populateUserWorkspaces(context, resource))
-  );
+export async function populateUserListWithWorkspaces<T extends IUser>(context: IBaseContext, resources: T[]) {
+  return await Promise.all(resources.map(resource => populateUserWorkspaces(context, resource)));
 }

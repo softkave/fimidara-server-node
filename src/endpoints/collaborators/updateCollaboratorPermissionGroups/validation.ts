@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utilities/validationUtils';
+import {validationSchemas} from '../../../utils/validationUtils';
 import permissionGroupsValidationSchemas from '../../permissionGroups/validation';
 
 export const updateCollaboratorPermissionGroupsJoiSchema = Joi.object()

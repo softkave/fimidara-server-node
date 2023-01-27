@@ -32,46 +32,37 @@ test('program access token added', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup01} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-  const {permissionGroup: permissionGroup02} =
-    await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-  const {token} = await insertProgramAccessTokenForTest(
+  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,
-    workspace.resourceId,
-    {
-      permissionGroups: [
-        {
-          permissionGroupId: permissionGroup01.resourceId,
-          order: 1,
-        },
-        {
-          permissionGroupId: permissionGroup02.resourceId,
-          order: 2,
-        },
-      ],
-    }
+    workspace.resourceId
   );
+
+  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
+
+  const {token} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId, {
+    permissionGroups: [
+      {
+        permissionGroupId: permissionGroup01.resourceId,
+        order: 1,
+      },
+      {
+        permissionGroupId: permissionGroup02.resourceId,
+        order: 2,
+      },
+    ],
+  });
 
   const savedToken = getPublicProgramToken(
     context,
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.programAccessToken.assertGetItem(
-        ProgramAccessTokenQueries.getById(token.resourceId)
-      ),
+      await context.data.programAccessToken.assertGetOneByQuery(ProgramAccessTokenQueries.getById(token.resourceId)),
       AppResourceType.ProgramAccessToken
     )
   );

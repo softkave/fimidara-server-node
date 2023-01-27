@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../../definitions/system';
-import {indexArray} from '../../../utilities/indexArray';
+import {indexArray} from '../../../utils/indexArray';
 import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
 import {

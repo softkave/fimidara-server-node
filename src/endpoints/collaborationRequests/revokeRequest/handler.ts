@@ -1,15 +1,12 @@
-import {
-  CollaborationRequestStatusType,
-  ICollaborationRequest,
-} from '../../../definitions/collaborationRequest';
+import {CollaborationRequestStatusType, ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
 } from '../../../email-templates/collaborationRequestRevoked';
-import {getDateString} from '../../../utilities/dateFns';
-import {validate} from '../../../utilities/validate';
+import {getDateString} from '../../../utils/dateFns';
+import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -18,11 +15,11 @@ import {
   collaborationRequestExtractor,
   populateRequestPermissionGroups,
 } from '../utils';
-import {RevokeRequestEndpoint} from './types';
-import {revokeRequestJoiSchema} from './validation';
+import {RevokeCollaborationRequestEndpoint} from './types';
+import {revokeCollaborationRequestJoiSchema} from './validation';
 
-const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, revokeRequestJoiSchema);
+const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (context, instData) => {
+  const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request} = await checkCollaborationRequestAuthorization02(
     context,
@@ -35,7 +32,7 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   const isRevoked = status.status === CollaborationRequestStatusType.Revoked;
 
   if (!isRevoked) {
-    request = await context.data.collaborationRequest.assertUpdateItem(
+    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
       EndpointReusableQueries.getById(data.requestId),
       {
         statusHistory: request.statusHistory.concat({
@@ -45,14 +42,10 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
       }
     );
 
-    const workspace = await context.cacheProviders.workspace.getById(
-      context,
-      request.workspaceId
-    );
-
+    const workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(request.workspaceId));
     assertWorkspace(workspace);
     if (workspace) {
-      await sendRevokeRequestEmail(context, request, workspace.name);
+      await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
     }
   }
 
@@ -62,7 +55,7 @@ const revokeRequest: RevokeRequestEndpoint = async (context, instData) => {
   };
 };
 
-async function sendRevokeRequestEmail(
+async function sendRevokeCollaborationRequestEmail(
   context: IBaseContext,
   request: ICollaborationRequest,
   workspaceName: string
@@ -89,4 +82,4 @@ async function sendRevokeRequestEmail(
   });
 }
 
-export default revokeRequest;
+export default revokeCollaborationRequest;

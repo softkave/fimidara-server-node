@@ -1,14 +1,10 @@
-import {
-  IUsageRecord,
-  UsageRecordCategory,
-  UsageRecordFulfillmentStatus,
-} from '../../../definitions/usageRecord';
+import {IUsageRecord, UsageRecordCategory, UsageRecordFulfillmentStatus} from '../../../definitions/usageRecord';
 import {DataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IWorkspaceSummedUsageQuery = DataQuery<{
-  categories?: UsageRecordCategory;
+  category?: UsageRecordCategory;
   fromDate?: string;
   toDate?: string;
   fulfillmentStatus?: UsageRecordFulfillmentStatus;
@@ -16,7 +12,7 @@ export type IWorkspaceSummedUsageQuery = DataQuery<{
 
 export interface IGetWorkspaceSummedUsageEndpointParams {
   workspaceId?: string;
-  query: IWorkspaceSummedUsageQuery;
+  query?: IWorkspaceSummedUsageQuery;
 }
 
 export interface IGetWorkspaceSummedUsageEndpointResult {

@@ -39,21 +39,14 @@ test('email verification code sent', async () => {
     user,
     userToken,
     reqData: insertUserReqData,
-  } = await insertUserForTest(
-    context,
-    /**userInput */ {},
-    /**skipAutoVerifyEmail */ true
-  );
+  } = await insertUserForTest(context, /**userInput */ {}, /**skipAutoVerifyEmail */ true);
 
   await waitForWorks(insertUserReqData.pendingPromises);
-  const instData = RequestData.fromExpressRequest(
-    mockExpressRequestWithUserToken(userToken)
-  );
+  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken));
 
-  await context.data.user.assertUpdateItem(
-    UserQueries.getById(user.resourceId),
-    {emailVerificationEmailSentAt: null}
-  );
+  await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), {
+    emailVerificationEmailSentAt: null,
+  });
 
   const result = await sendEmailVerificationCode(context, instData);
   assertEndpointResultOk(result);

@@ -1,11 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IDeleteWorkspaceParams {
+export interface IDeleteWorkspaceEndpointParams {
   workspaceId?: string;
 }
 
-export type DeleteWorkspaceEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteWorkspaceParams
->;
+export type DeleteWorkspaceEndpoint = Endpoint<IBaseContext, IDeleteWorkspaceEndpointParams>;

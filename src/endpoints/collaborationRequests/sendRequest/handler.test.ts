@@ -24,17 +24,13 @@ afterAll(async () => {
   await context?.dispose();
 });
 
-describe('sendRequest', () => {
+describe('sendCollaborationRequest', () => {
   test('collaboration request sent', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {user: user02} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup} = await insertPermissionGroupForTest(context, userToken, workspace.resourceId);
 
     const requestInput: ICollaborationRequestInput = {
       recipientEmail: user02.email,
@@ -48,30 +44,19 @@ describe('sendRequest', () => {
       ],
     };
 
-    const {request: request01} = await insertRequestForTest(
-      context,
-      userToken,
-      workspace.resourceId,
-      requestInput
-    );
+    const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, requestInput);
 
     const assignedPermissionGroup01 = request01.permissionGroupsOnAccept[0];
     expect(assignedPermissionGroup01).toBeDefined();
-    expect(assignedPermissionGroup01.permissionGroupId).toBe(
-      permissionGroup.resourceId
-    );
+    expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
 
-    const savedRequest = await context.data.collaborationRequest.assertGetItem(
+    const savedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getById(request01.resourceId)
     );
 
-    expect(request01).toMatchObject(
-      await populateRequestPermissionGroups(context, savedRequest)
-    );
+    expect(request01).toMatchObject(await populateRequestPermissionGroups(context, savedRequest));
 
-    expect(
-      savedRequest.statusHistory[savedRequest.statusHistory.length - 1]
-    ).toMatchObject({
+    expect(savedRequest.statusHistory[savedRequest.statusHistory.length - 1]).toMatchObject({
       status: CollaborationRequestStatusType.Pending,
     });
   });

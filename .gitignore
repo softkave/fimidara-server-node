@@ -111,3 +111,5 @@ aws-config.json
 
 # Jest output
 jest-output/
+
+mdoc/

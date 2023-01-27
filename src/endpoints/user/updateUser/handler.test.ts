@@ -32,23 +32,18 @@ afterAll(async () => {
 test('user data updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IUpdateUserParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-    }
-  );
+  const instData = RequestData.fromExpressRequest<IUpdateUserParams>(mockExpressRequestWithUserToken(userToken), {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    email: faker.internet.email(),
+  });
 
   const result = await updateUser(context, instData);
   assertEndpointResultOk(result);
 
   const savedUser = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetItem(
-      UserQueries.getById(result.user.resourceId)
-    )
+    await context.data.user.assertGetOneByQuery(UserQueries.getById(result.user.resourceId))
   );
 
   expect(userExtractor(savedUser)).toMatchObject(result.user);

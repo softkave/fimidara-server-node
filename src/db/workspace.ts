@@ -1,11 +1,7 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {UsageRecordCategory} from '../definitions/usageRecord';
-import {
-  IUsageThreshold,
-  IUsageThresholdLock,
-  IWorkspace,
-} from '../definitions/workspace';
-import {getDate} from '../utilities/dateFns';
+import {IUsageThreshold, IUsageThresholdLock, IWorkspace} from '../definitions/workspace';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
@@ -15,9 +11,7 @@ const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
   budget: {type: Number},
 });
 
-const usageThresholdMapSchema = ensureTypeFields<
-  Record<UsageRecordCategory, IUsageThreshold>
->({
+const usageThresholdMapSchema = ensureTypeFields<Record<UsageRecordCategory, IUsageThreshold>>({
   [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
   // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
   // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
@@ -33,9 +27,7 @@ const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
   locked: {type: Boolean},
 });
 
-const usageThresholdLockMapSchema = ensureTypeFields<
-  Record<UsageRecordCategory, IUsageThreshold>
->({
+const usageThresholdLockMapSchema = ensureTypeFields<Record<UsageRecordCategory, IUsageThreshold>>({
   [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
   // [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
   // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
@@ -55,7 +47,7 @@ const workspaceSchema = ensureTypeFields<IWorkspace>({
   description: {type: String},
   publicPermissionGroupId: {type: String},
   billStatusAssignedAt: {type: Date},
-  billStatus: {type: Number},
+  billStatus: {type: String},
   usageThresholds: {
     type: usageThresholdMapSchema,
     default: {},

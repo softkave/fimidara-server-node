@@ -8,10 +8,7 @@ import getUserWorkspaces from './getUserWorkspaces/handler';
 import getWorkspace from './getWorkspace/handler';
 import updateWorkspace from './updateWorkspace/handler';
 
-export default function setupWorkspacesRESTEndpoints(
-  ctx: IBaseContext,
-  app: Express
-) {
+export default function setupWorkspacesRESTEndpoints(ctx: IBaseContext, app: Express) {
   const endpoints = {
     addWorkspace: wrapEndpointREST(addWorkspace, ctx),
     deleteWorkspace: wrapEndpointREST(deleteWorkspace, ctx),

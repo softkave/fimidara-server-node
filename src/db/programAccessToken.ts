@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IProgramAccessToken} from '../definitions/programAccessToken';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {agentSchema, ensureTypeFields} from './utils';
 
 const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({

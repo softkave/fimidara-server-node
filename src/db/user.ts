@@ -1,7 +1,6 @@
-import {Document, Model} from 'mongoose';
+import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUser} from '../definitions/user';
-import {Schema, Connection} from 'mongoose';
-import {getDate} from '../utilities/dateFns';
+import {getDate} from '../utils/dateFns';
 import {ensureTypeFields} from './utils';
 
 const userSchema = ensureTypeFields<IUser>({

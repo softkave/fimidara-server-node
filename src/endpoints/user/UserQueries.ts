@@ -1,6 +1,6 @@
 import {IUser} from '../../definitions/user';
-import {DataProviderFilterValueOperator} from '../contexts/data-providers/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data-providers/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
+import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
@@ -9,21 +9,13 @@ function newFilter() {
 
 function getByEmail(email: string) {
   return newFilter()
-    .addItem(
-      'email',
-      new RegExp(`^${email}$`, 'i'),
-      DataProviderFilterValueOperator.Regex
-    )
+    .addItem('email', new RegExp(`^${email}$`, 'i'), DataProviderFilterValueOperator.Regex)
     .build();
 }
 
 function userExists(email: string) {
   return newFilter()
-    .addItem(
-      'email',
-      new RegExp(`^${email}$`, 'i'),
-      DataProviderFilterValueOperator.Regex
-    )
+    .addItem('email', new RegExp(`^${email}$`, 'i'), DataProviderFilterValueOperator.Regex)
     .build();
 }
 

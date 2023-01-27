@@ -1,24 +1,12 @@
-import {
-  IProgramAccessToken,
-  IPublicProgramAccessToken,
-} from '../../definitions/programAccessToken';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-  TokenType,
-} from '../../definitions/system';
-import {getDateString} from '../../utilities/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utilities/extract';
-import {cast} from '../../utilities/fns';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {IProgramAccessToken, IPublicProgramAccessToken} from '../../definitions/programAccessToken';
+import {AppResourceType, BasicCRUDActions, ISessionAgent, TokenType} from '../../definitions/system';
+import {getDateString} from '../../utils/dateFns';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {cast} from '../../utils/fns';
+import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
-import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import ProgramAccessTokenQueries from './queries';
@@ -34,16 +22,12 @@ const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   lastUpdatedAt: getDateString,
   lastUpdatedBy: agentExtractor,
   tokenStr: true,
-  tags: assignedTagListExtractor,
+  // tags: assignedTagListExtractor,
 });
 
-export const programAccessTokenExtractor = makeExtract(
-  programAccessTokenFields
-);
+export const programAccessTokenExtractor = makeExtract(programAccessTokenFields);
 
-export const programAccessTokenListExtractor = makeListExtract(
-  programAccessTokenFields
-);
+export const programAccessTokenListExtractor = makeListExtract(programAccessTokenFields);
 
 export async function checkProgramAccessTokenAuthorization(
   context: IBaseContext,
@@ -74,27 +58,15 @@ export async function checkProgramAccessTokenAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const token = await context.data.programAccessToken.assertGetItem(
-    ProgramAccessTokenQueries.getById(id)
-  );
-
-  return checkProgramAccessTokenAuthorization(
-    context,
-    agent,
-    token,
-    action,
-    nothrow
-  );
+  const token = await context.data.programAccessToken.assertGetOneByQuery(ProgramAccessTokenQueries.getById(id));
+  return checkProgramAccessTokenAuthorization(context, agent, token, action, nothrow);
 }
 
 export function throwProgramAccessTokenNotFound() {
   throw new NotFoundError('Program access token not found');
 }
 
-export function getPublicProgramToken(
-  context: IBaseContext,
-  token: IProgramAccessToken
-) {
+export function getPublicProgramToken(context: IBaseContext, token: IProgramAccessToken) {
   const tokenStr = context.session.encodeToken(
     context,
     token.resourceId,
