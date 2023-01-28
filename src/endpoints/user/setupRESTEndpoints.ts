@@ -5,6 +5,7 @@ import changePassword from './changePassword/changePassword';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
 import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
 import confirmEmailAddress from './confirmEmailAddress/handler';
+import {userConstants} from './constants';
 import forgotPassword from './forgotPassword/forgotPassword';
 import getUserData from './getUserData/getUserData';
 import login from './login/login';
@@ -28,15 +29,15 @@ export default function setupAccountRESTEndpoints(ctx: IBaseContext, app: Expres
     sendEmailVerificationCode: wrapEndpointREST(sendEmailVerificationCode, ctx),
   };
 
-  app.post('/account/signup', account.signup);
-  app.post('/account/login', account.login);
-  app.post('/account/forgotPassword', account.forgotPassword);
-  app.post('/account/changePasswordWithCurrentPassword', account.changePasswordWithCurrentPassword);
-  app.post('/account/changePasswordWithToken', account.changePasswordWithToken);
-  app.post('/account/changePassword', account.changePassword);
-  app.post('/account/updateUser', account.updateUser);
-  app.post('/account/getUserData', account.getUserData);
-  app.post('/account/userExists', account.userExists);
-  app.post('/account/confirmEmailAddress', account.confirmEmailAddress);
-  app.post('/account/sendEmailVerificationCode', account.sendEmailVerificationCode);
+  app.post(userConstants.routes.signup, account.signup);
+  app.post(userConstants.routes.login, account.login);
+  app.post(userConstants.routes.forgotPassword, account.forgotPassword);
+  app.post(userConstants.routes.changePasswordWithCurrentPassword, account.changePasswordWithCurrentPassword);
+  app.post(userConstants.routes.changePasswordWithToken, account.changePasswordWithToken);
+  app.post(userConstants.routes.changePassword, account.changePassword);
+  app.post(userConstants.routes.updateUser, account.updateUser);
+  app.post(userConstants.routes.getUserData, account.getUserData);
+  app.post(userConstants.routes.userExists, account.userExists);
+  app.post(userConstants.routes.confirmEmailAddress, account.confirmEmailAddress);
+  app.post(userConstants.routes.sendEmailVerificationCode, account.sendEmailVerificationCode);
 }

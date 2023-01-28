@@ -2,6 +2,7 @@ import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import addWorkspace from './addWorkspace/handler';
+import {workspaceConstants} from './constants';
 import deleteWorkspace from './deleteWorkspace/handler';
 import getRequestWorkspace from './getRequestWorkspace/handler';
 import getUserWorkspaces from './getUserWorkspaces/handler';
@@ -18,10 +19,10 @@ export default function setupWorkspacesRESTEndpoints(ctx: IBaseContext, app: Exp
     updateWorkspace: wrapEndpointREST(updateWorkspace, ctx),
   };
 
-  app.post('/workspaces/addWorkspace', endpoints.addWorkspace);
-  app.delete('/workspaces/deleteWorkspace', endpoints.deleteWorkspace);
-  app.post('/workspaces/getUserWorkspaces', endpoints.getUserWorkspaces);
-  app.post('/workspaces/getWorkspace', endpoints.getWorkspace);
-  app.post('/workspaces/getRequestWorkspace', endpoints.getRequestWorkspace);
-  app.post('/workspaces/updateWorkspace', endpoints.updateWorkspace);
+  app.post(workspaceConstants.routes.addWorkspace, endpoints.addWorkspace);
+  app.delete(workspaceConstants.routes.deleteWorkspace, endpoints.deleteWorkspace);
+  app.post(workspaceConstants.routes.getUserWorkspaces, endpoints.getUserWorkspaces);
+  app.post(workspaceConstants.routes.getWorkspace, endpoints.getWorkspace);
+  app.post(workspaceConstants.routes.getRequestWorkspa, endpoints.getRequestWorkspace);
+  app.post(workspaceConstants.routes.updateWorkspace, endpoints.updateWorkspace);
 }

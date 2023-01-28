@@ -1,6 +1,7 @@
 import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
+import {usageRecordConstants} from './constants';
 import getUsageCosts from './getUsageCosts/handler';
 import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler';
 
@@ -10,6 +11,6 @@ export default function setupUsageRecordsRESTEndpoints(ctx: IBaseContext, app: E
     getWorkspaceSummedUsage: wrapEndpointREST(getWorkspaceSummedUsage, ctx),
   };
 
-  app.post('/usageRecords/getUsageCosts', endpoints.getUsageCosts);
-  app.post('/usageRecords/getWorkspaceSummedUsage', endpoints.getWorkspaceSummedUsage);
+  app.post(usageRecordConstants.routes.getUsageCosts, endpoints.getUsageCosts);
+  app.post(usageRecordConstants.routes.getWorkspaceSummedUsage, endpoints.getWorkspaceSummedUsage);
 }

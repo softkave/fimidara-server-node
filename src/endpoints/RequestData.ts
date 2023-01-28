@@ -1,6 +1,6 @@
-import {IBaseTokenData, ISessionAgent} from '../definitions/system';
+import {AppResourceType, IBaseTokenData, ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import {getNewId} from '../utils/resourceId';
+import {getNewIdForResource} from '../utils/resourceId';
 import {IServerRequest} from './contexts/types';
 import {IRequestDataPendingPromise} from './types';
 
@@ -55,7 +55,7 @@ export default class RequestData<T = any> {
   pendingPromises: IRequestDataPendingPromise[] = [];
 
   constructor(arg?: IRequestContructorParams<T>) {
-    this.requestId = getNewId();
+    this.requestId = getNewIdForResource(AppResourceType.EndpointRequest);
     if (!arg) {
       return;
     }

@@ -13,7 +13,7 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
 import {
   IAddPermissionItemsEndpointParams,
   IAddPermissionItemsEndpointResult,
@@ -245,7 +245,7 @@ const deletePermissionItemsByIdParams = new FieldObject<IDeletePermissionItemsBy
   .setDescription('Delete permission items endpoint params.');
 
 export const addPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionItems/addItems')
+  .setBasePathname(permissionItemConstants.routes.addItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addPermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -254,7 +254,7 @@ export const addPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Add permission items endpoint.');
 
 export const getEntityPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionItems/getEntityPermissionItems')
+  .setBasePathname(permissionItemConstants.routes.getEntityPermissionItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getEntityPermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -263,7 +263,7 @@ export const getEntityPermissionItemsEndpointDefinition = new HttpEndpointDefini
   .setDescription('Get entity permission items endpoint.');
 
 export const replacePermissionItemsByEntityEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionItems/replaceItemsByEntity')
+  .setBasePathname(permissionItemConstants.routes.replaceItemsByEntity)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(replacePermissionItemsByEntityParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -272,7 +272,7 @@ export const replacePermissionItemsByEntityEndpointDefinition = new HttpEndpoint
   .setDescription('Replace permission items endpoint.');
 
 export const deletePermissionItemsByIdEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionItems/deleteItemsById')
+  .setBasePathname(permissionItemConstants.routes.deleteItemsById)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deletePermissionItemsByIdParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -281,7 +281,7 @@ export const deletePermissionItemsByIdEndpointDefinition = new HttpEndpointDefin
   .setDescription('Delete permission items endpoint.');
 
 export const getResourcePermissionItemsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionItems/getResourcePermissionItems')
+  .setBasePathname(permissionItemConstants.routes.getResourcePermissionItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getResourcePermissionItemsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

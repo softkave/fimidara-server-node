@@ -14,10 +14,11 @@ import {
   HttpEndpointMethod,
   HttpEndpointResponse,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
-import {fileEndpointsParts} from '../files/endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {fileEndpointsParts} from '../files/endpoints.mddoc';
 import {permissionItemConstants} from '../permissionItems/constants';
 import {IAddFolderEndpointParams, IAddFolderEndpointResult, INewFolderInput} from './addFolder/types';
+import {folderConstants} from './constants';
 import {IDeleteFolderEndpointParams} from './deleteFolder/types';
 import {IGetFolderEndpointParams, IGetFolderEndpointResult} from './getFolder/types';
 import {IListFolderContentEndpointParams, IListFolderContentEndpointResult} from './listFolderContent/types';
@@ -167,7 +168,7 @@ const deleteFolderParams = new FieldObject<IDeleteFolderEndpointParams>()
   .setDescription('Delete folder endpoint params.');
 
 export const addFolderEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/folders/addFolder')
+  .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addFolderParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -176,7 +177,7 @@ export const addFolderEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Add folder endpoint.');
 
 export const getFolderEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/folders/getFolder')
+  .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getFolderParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -185,7 +186,7 @@ export const getFolderEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get folder endpoint.');
 
 export const updateFolderEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/folders/updateFolder')
+  .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateFolderParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -194,7 +195,7 @@ export const updateFolderEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Update folder endpoint.');
 
 export const deleteFolderEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/folders/deleteFolder')
+  .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteFolderParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -203,7 +204,7 @@ export const deleteFolderEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Delete folder endpoint.');
 
 export const listFolderContentEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/folders/listFolderContent')
+  .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(listFolderContentParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

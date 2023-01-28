@@ -5,55 +5,58 @@ import {
   getClientAssignedTokenEndpointDefinition,
   getWorkspaceClientAssignedTokensEndpointDefinition,
   updateClientAssignedTokenEndpointDefinition,
-} from '../endpoints/clientAssignedTokens/endpoints';
+} from '../endpoints/clientAssignedTokens/endpoints.mddoc';
 import {
   getCollaborationRequestEndpointDefinition,
   getWorkspaceCollaborationRequestEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
-} from '../endpoints/collaborationRequests/endpoints';
+} from '../endpoints/collaborationRequests/endpoints.mddoc';
 import {
   getCollaboratorEndpointDefinition,
   getWorkspaceCollaboratorEndpointDefinition,
   removeCollaboratorEndpointDefinition,
   updateCollaboratorPermissionGroupsEndpointDefinition,
-} from '../endpoints/collaborators/endpoints';
+} from '../endpoints/collaborators/endpoints.mddoc';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
   getFileEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
-} from '../endpoints/files/endpoints';
+} from '../endpoints/files/endpoints.mddoc';
 import {
   addFolderEndpointDefinition,
   getFolderEndpointDefinition,
   listFolderContentEndpointDefinition,
   updateFolderEndpointDefinition,
-} from '../endpoints/folders/endpoints';
+} from '../endpoints/folders/endpoints.mddoc';
 import {
   addPermissionGroupEndpointDefinition,
   deletePermissionGroupEndpointDefinition,
   getPermissionGroupEndpointDefinition,
   getWorkspacePermissionGroupsEndpointDefinition,
   updatePermissionGroupEndpointDefinition,
-} from '../endpoints/permissionGroups/endpoints';
+} from '../endpoints/permissionGroups/endpoints.mddoc';
 import {
   addPermissionItemsEndpointDefinition,
   deletePermissionItemsByIdEndpointDefinition,
   getEntityPermissionItemsEndpointDefinition,
   getResourcePermissionItemsEndpointDefinition,
   replacePermissionItemsByEntityEndpointDefinition,
-} from '../endpoints/permissionItems/endpoints';
+} from '../endpoints/permissionItems/endpoints.mddoc';
 import {
   addProgramAccessTokenEndpointDefinition,
   deleteProgramAccessTokenEndpointDefinition,
   getProgramAccessTokenEndpointDefinition,
   getWorkspaceProgramAccessTokenEndpointDefinition,
   updateProgramAccessTokenEndpointDefinition,
-} from '../endpoints/programAccessTokens/endpoints';
-import {getWorkspaceEndpointDefinition, updateWorkspaceEndpointDefinition} from '../endpoints/workspaces/endpoints';
+} from '../endpoints/programAccessTokens/endpoints.mddoc';
+import {
+  getWorkspaceEndpointDefinition,
+  updateWorkspaceEndpointDefinition,
+} from '../endpoints/workspaces/endpoints.mddoc';
 import {docEndpoint, HttpEndpointDefinition} from './mddoc';
 import path = require('path');
 

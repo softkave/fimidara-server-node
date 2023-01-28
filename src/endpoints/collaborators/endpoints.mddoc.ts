@@ -7,7 +7,8 @@ import {
   HttpEndpointMethod,
   HttpEndpointResponse,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {collaboratorConstants} from './constants';
 import {IGetCollaboratorEndpointParams, IGetCollaboratorEndpointResult} from './getCollaborator/types';
 import {
   IGetWorkspaceCollaboratorsEndpointParams,
@@ -105,7 +106,7 @@ const removeCollaboratorParams = new FieldObject<IRemoveCollaboratorEndpointPara
   .setDescription('Remove collaborator endpoint params.');
 
 export const getCollaboratorEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/collaborators/getCollaborator')
+  .setBasePathname(collaboratorConstants.routes.getCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaboratorParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -114,7 +115,7 @@ export const getCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get collaborator endpoint.');
 
 export const updateCollaboratorPermissionGroupsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/collaborators/updateCollaboratorPermissionGroups')
+  .setBasePathname(collaboratorConstants.routes.updateCollaboratorPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateCollaboratorPermissionGroupsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -123,7 +124,7 @@ export const updateCollaboratorPermissionGroupsEndpointDefinition = new HttpEndp
   .setDescription('Update collaborator permission groups endpoint.');
 
 export const removeCollaboratorEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/collaborators/removeCollaborator')
+  .setBasePathname(collaboratorConstants.routes.removeCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(removeCollaboratorParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -132,7 +133,7 @@ export const removeCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Remove collaborator endpoint.');
 
 export const getWorkspaceCollaboratorEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/collaborators/getWorkspaceCollaborators')
+  .setBasePathname(collaboratorConstants.routes.getWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceCollaboratorsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

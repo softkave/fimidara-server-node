@@ -1,6 +1,7 @@
 import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
+import {collaboratorConstants} from './constants';
 import getCollaborator from './getCollaborator/handler';
 import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler';
 import removeCollaborator from './removeCollaborator/handler';
@@ -14,8 +15,11 @@ export default function setupCollaboratorsRESTEndpoints(ctx: IBaseContext, app: 
     updateCollaboratorPermissionGroups: wrapEndpointREST(updateCollaboratorPermissionGroups, ctx),
   };
 
-  app.post('/collaborators/getCollaborator', endpoints.getCollaborator);
-  app.post('/collaborators/getWorkspaceCollaborators', endpoints.getWorkspaceCollaborators);
-  app.post('/collaborators/removeCollaborator', endpoints.removeCollaborator);
-  app.post('/collaborators/updateCollaboratorPermissionGroups', endpoints.updateCollaboratorPermissionGroups);
+  app.post(collaboratorConstants.routes.getCollaborator, endpoints.getCollaborator);
+  app.post(collaboratorConstants.routes.getWorkspaceCollaborators, endpoints.getWorkspaceCollaborators);
+  app.post(collaboratorConstants.routes.removeCollaborator, endpoints.removeCollaborator);
+  app.post(
+    collaboratorConstants.routes.updateCollaboratorPermissionGroups,
+    endpoints.updateCollaboratorPermissionGroups
+  );
 }

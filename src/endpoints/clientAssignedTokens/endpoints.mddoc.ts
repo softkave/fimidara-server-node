@@ -11,12 +11,13 @@ import {
   orUndefinedOrNull,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
 import {
   IAddClientAssignedTokenEndpointParams,
   IAddClientAssignedTokenEndpointResult,
   INewClientAssignedTokenInput,
 } from './addToken/types';
+import {clientAssignedTokenConstants} from './constants';
 import {IDeleteClientAssignedTokenEndpointParams} from './deleteToken/types';
 import {IGetClientAssignedTokenEndpointParams, IGetClientAssignedTokenEndpointResult} from './getToken/types';
 import {
@@ -155,7 +156,7 @@ const deleteClientAssignedTokenParams = new FieldObject<IDeleteClientAssignedTok
   .setDescription('Delete client assigned token endpoint params.');
 
 export const addClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/clientAssignedTokens/addToken')
+  .setBasePathname(clientAssignedTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -164,7 +165,7 @@ export const addClientAssignedTokenEndpointDefinition = new HttpEndpointDefiniti
   .setDescription('Add client assigned token endpoint.');
 
 export const getClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/clientAssignedTokens/getToken')
+  .setBasePathname(clientAssignedTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -173,7 +174,7 @@ export const getClientAssignedTokenEndpointDefinition = new HttpEndpointDefiniti
   .setDescription('Get client assigned token endpoint.');
 
 export const updateClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/clientAssignedTokens/updateToken')
+  .setBasePathname(clientAssignedTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -182,7 +183,7 @@ export const updateClientAssignedTokenEndpointDefinition = new HttpEndpointDefin
   .setDescription('Update client assigned token endpoint.');
 
 export const deleteClientAssignedTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/clientAssignedTokens/deleteToken')
+  .setBasePathname(clientAssignedTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteClientAssignedTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -191,7 +192,7 @@ export const deleteClientAssignedTokenEndpointDefinition = new HttpEndpointDefin
   .setDescription('Delete client assigned token endpoint.');
 
 export const getWorkspaceClientAssignedTokensEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/clientAssignedTokens/getWorkspaceTokens')
+  .setBasePathname(clientAssignedTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceClientAssignedTokensParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

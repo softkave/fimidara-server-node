@@ -2,6 +2,7 @@ import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import addPermissionGroup from './addPermissionGroup/handler';
+import {permissionGroupConstants} from './constants';
 import deletePermissionGroupPermissionsItem from './deletePermissionGroup/handler';
 import getPermissionGroupPermissionsItem from './getPermissionGroup/handler';
 import getWorkspacePermissionGroups from './getWorkspacePermissionGroups/handler';
@@ -16,9 +17,9 @@ export default function setupPermissionGroupsRESTEndpoints(ctx: IBaseContext, ap
     updatePermissionGroup: wrapEndpointREST(updatePermissionGroupPermissionsItem, ctx),
   };
 
-  app.post('/permissionGroups/addPermissionGroup', endpoints.addPermissionGroup);
-  app.delete('/permissionGroups/deletePermissionGroup', endpoints.deletePermissionGroup);
-  app.post('/permissionGroups/getWorkspacePermissionGroups', endpoints.getWorkspacePermissionGroups);
-  app.post('/permissionGroups/getPermissionGroup', endpoints.getPermissionGroup);
-  app.post('/permissionGroups/updatePermissionGroup', endpoints.updatePermissionGroup);
+  app.post(permissionGroupConstants.routes.addPermissionGroup, endpoints.addPermissionGroup);
+  app.delete(permissionGroupConstants.routes.deletePermissionGroup, endpoints.deletePermissionGroup);
+  app.post(permissionGroupConstants.routes.getWorkspacePermissionGroups, endpoints.getWorkspacePermissionGroups);
+  app.post(permissionGroupConstants.routes.getPermissionGroup, endpoints.getPermissionGroup);
+  app.post(permissionGroupConstants.routes.updatePermissionGroup, endpoints.updatePermissionGroup);
 }

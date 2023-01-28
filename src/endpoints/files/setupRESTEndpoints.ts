@@ -13,8 +13,8 @@ import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {IUploadFileEndpointParams} from './uploadFile/types';
 
-const uploadFilePath = '/files/uploadFile';
-const getFilePath = '/files/getFile';
+const uploadFilePath = fileConstants.routes.uploadFile;
+const getFilePath = fileConstants.routes.getFile;
 
 function handleGetFileResponse(res: Response, result: Awaited<ReturnType<GetFileEndpoint>>) {
   res
@@ -74,8 +74,8 @@ export default function setupFilesRESTEndpoints(ctx: IBaseContext, app: Express,
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
   app.get(`${getFilePath}*`, endpoints.getFile);
-  app.delete('/files/deleteFile', endpoints.deleteFile);
-  app.post('/files/getFileDetails', endpoints.getFileDetails);
-  app.post('/files/updateFileDetails', endpoints.updateFileDetails);
+  app.delete(fileConstants.routes.deleteFile, endpoints.deleteFile);
+  app.post(fileConstants.routes.getFileDetails, endpoints.getFileDetails);
+  app.post(fileConstants.routes.updateFileDetails, endpoints.updateFileDetails);
   app.post(`${uploadFilePath}*`, upload.single(fileConstants.uploadedFileFieldName), endpoints.uploadFile);
 }

@@ -26,9 +26,7 @@ export interface IGeneralTokenSubject {
   type: TokenType;
 }
 
-export interface IBaseTokenData<
-  Sub extends IGeneralTokenSubject = IGeneralTokenSubject
-> {
+export interface IBaseTokenData<Sub extends IGeneralTokenSubject = IGeneralTokenSubject> {
   version: number;
   sub: Sub;
   iat: number;
@@ -104,6 +102,9 @@ export enum AppResourceType {
 
   // [internal-only]
   AssignedItem = 'assigned-item',
+
+  // softkave resource
+  EndpointRequest = 'request',
 }
 
 export const validAgentTypes = [
@@ -116,9 +117,7 @@ export const resourceTypeShortNameMaxLen = 7;
 function padShortName(shortName: string) {
   const pad0 = '0';
   if (shortName.length > resourceTypeShortNameMaxLen) {
-    throw new Error(
-      `Resource short name is more than ${resourceTypeShortNameMaxLen} characters`
-    );
+    throw new Error(`Resource short name is more than ${resourceTypeShortNameMaxLen} characters`);
   }
   return shortName.padEnd(resourceTypeShortNameMaxLen, pad0).toLowerCase();
 }
@@ -138,6 +137,7 @@ export const resourceTypeShortNames: Record<AppResourceType, string> = {
   [AppResourceType.Tag]: padShortName('tag'),
   [AppResourceType.AssignedItem]: padShortName('asgnitm'),
   [AppResourceType.UsageRecord]: padShortName('usgrecd'),
+  [AppResourceType.EndpointRequest]: padShortName('endpreq'),
 };
 
 export const shortNameToResourceTypes = reverseMap(resourceTypeShortNames);
@@ -167,17 +167,10 @@ export function getWorkspaceActionList() {
 }
 
 export function getNonWorkspaceActionList() {
-  return [
-    BasicCRUDActions.Create,
-    BasicCRUDActions.Read,
-    BasicCRUDActions.Update,
-    BasicCRUDActions.Delete,
-  ];
+  return [BasicCRUDActions.Create, BasicCRUDActions.Read, BasicCRUDActions.Update, BasicCRUDActions.Delete];
 }
 
-export const appResourceTypesList = Object.values(
-  AppResourceType
-) as Array<AppResourceType>;
+export const appResourceTypesList = Object.values(AppResourceType) as Array<AppResourceType>;
 
 export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
 

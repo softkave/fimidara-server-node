@@ -1,6 +1,7 @@
 import {IAgent, systemAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
+import {endpointConstants} from '../constants';
 
 export const usageRecordConstants = {
   defaultTotalThresholdInUSD: 5,
@@ -16,6 +17,10 @@ export const usageRecordConstants = {
    */
   recordingMonthEndDate: 24,
   stripeReportingMonthEndDate: 26, // 27th of the month
+  routes: {
+    getUsageCosts: `${endpointConstants.apiv1}/usageRecords/getUsageCosts`,
+    getWorkspaceSummedUsage: `${endpointConstants.apiv1}/usageRecords/getWorkspaceSummedUsage`,
+  },
 };
 
 // price is in USD per gb

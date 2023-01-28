@@ -12,8 +12,9 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
 import {IAddWorkspaceEndpointParams, IAddWorkspaceEndpointResult} from './addWorkspace/types';
+import {workspaceConstants} from './constants';
 import {IDeleteWorkspaceEndpointParams} from './deleteWorkspace/types';
 import {IGetWorkspaceEndpointParams, IGetWorkspaceEndpointResult} from './getWorkspace/types';
 import {
@@ -157,7 +158,7 @@ const deleteWorkspaceParams = new FieldObject<IDeleteWorkspaceEndpointParams>()
   .setDescription('Delete workspace endpoint params.');
 
 export const addWorkspaceEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/workspaces/addWorkspace')
+  .setBasePathname(workspaceConstants.routes.addWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -166,7 +167,7 @@ export const addWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Add workspace endpoint.');
 
 export const getWorkspaceEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/workspaces/getWorkspace')
+  .setBasePathname(workspaceConstants.routes.getWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -175,7 +176,7 @@ export const getWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get workspace endpoint.');
 
 export const updateWorkspaceEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/workspaces/updateWorkspace')
+  .setBasePathname(workspaceConstants.routes.updateWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -184,7 +185,7 @@ export const updateWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Update workspace endpoint.');
 
 export const deleteWorkspaceEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/workspaces/deleteWorkspace')
+  .setBasePathname(workspaceConstants.routes.deleteWorkspace)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

@@ -12,12 +12,13 @@ import {
   HttpEndpointResponse,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
 import {
   IAddPermissionGroupEndpointParams,
   IAddPermissionGroupEndpointResult,
   INewPermissionGroupInput,
 } from './addPermissionGroup/types';
+import {permissionGroupConstants} from './constants';
 import {IDeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
 import {IGetPermissionGroupEndpointParams, IGetPermissionGroupEndpointResult} from './getPermissionGroup/types';
 import {
@@ -167,7 +168,7 @@ const deletePermissionGroupParams = new FieldObject<IDeletePermissionGroupEndpoi
   .setDescription('Delete permission group endpoint params.');
 
 export const addPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionGroups/addPermissionGroup')
+  .setBasePathname(permissionGroupConstants.routes.addPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addPermissionGroupParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -176,7 +177,7 @@ export const addPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Add permission group endpoint.');
 
 export const getPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionGroups/getPermissionGroup')
+  .setBasePathname(permissionGroupConstants.routes.getPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getPermissionGroupParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -185,7 +186,7 @@ export const getPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get permission group endpoint.');
 
 export const updatePermissionGroupEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionGroups/updatePermissionGroup')
+  .setBasePathname(permissionGroupConstants.routes.updatePermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updatePermissionGroupParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -194,7 +195,7 @@ export const updatePermissionGroupEndpointDefinition = new HttpEndpointDefinitio
   .setDescription('Update permission group endpoint.');
 
 export const deletePermissionGroupEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionGroups/deletePermissionGroup')
+  .setBasePathname(permissionGroupConstants.routes.deletePermissionGroup)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deletePermissionGroupParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -203,7 +204,7 @@ export const deletePermissionGroupEndpointDefinition = new HttpEndpointDefinitio
   .setDescription('Delete permission group endpoint.');
 
 export const getWorkspacePermissionGroupsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/permissionGroups/getWorkspacePermissionGroups')
+  .setBasePathname(permissionGroupConstants.routes.getWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspacePermissionGroupsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

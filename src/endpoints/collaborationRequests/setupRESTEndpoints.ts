@@ -1,6 +1,7 @@
 import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
+import {collabRequestConstants} from './constants';
 import deleteRequest from './deleteRequest/handler';
 import getRequest from './getRequest/handler';
 import getUserRequests from './getUserRequests/handler';
@@ -22,12 +23,12 @@ export default function setupCollaborationRequestsRESTEndpoints(ctx: IBaseContex
     getRequest: wrapEndpointREST(getRequest, ctx),
   };
 
-  app.post('/collaborationRequests/sendRequest', endpoints.sendRequest);
-  app.delete('/collaborationRequests/deleteRequest', endpoints.deleteRequest);
-  app.post('/collaborationRequests/getWorkspaceRequests', endpoints.getWorkspaceRequests);
-  app.post('/collaborationRequests/getUserRequests', endpoints.getUserRequests);
-  app.post('/collaborationRequests/respondToRequest', endpoints.respondToRequest);
-  app.post('/collaborationRequests/revokeRequest', endpoints.revokeRequest);
-  app.post('/collaborationRequests/updateRequest', endpoints.updateRequest);
-  app.post('/collaborationRequests/getRequest', endpoints.getRequest);
+  app.post(collabRequestConstants.routes.sendRequest, endpoints.sendRequest);
+  app.delete(collabRequestConstants.routes.deleteRequest, endpoints.deleteRequest);
+  app.post(collabRequestConstants.routes.getWorkspaceRequests, endpoints.getWorkspaceRequests);
+  app.post(collabRequestConstants.routes.getUserRequests, endpoints.getUserRequests);
+  app.post(collabRequestConstants.routes.respondToRequest, endpoints.respondToRequest);
+  app.post(collabRequestConstants.routes.revokeRequest, endpoints.revokeRequest);
+  app.post(collabRequestConstants.routes.updateRequest, endpoints.updateRequest);
+  app.post(collabRequestConstants.routes.getRequest, endpoints.getRequest);
 }

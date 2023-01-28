@@ -16,7 +16,8 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {fileConstants} from './constants';
 import {IDeleteFileEndpointParams} from './deleteFile/types';
 import {IGetFileEndpointParams, IImageTransformationParams} from './getFile/types';
 import {IGetFileDetailsEndpointParams, IGetFileDetailsEndpointResult} from './getFileDetails/types';
@@ -201,7 +202,7 @@ const uploadFileResult = [
 ];
 
 export const getFileEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/files/getFile')
+  .setBasePathname(fileConstants.routes.getFile)
   .setParameterPathnames([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setQuery(
@@ -218,7 +219,7 @@ export const getFileEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get file endpoint.');
 
 export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/files/uploadFile')
+  .setBasePathname(fileConstants.routes.uploadFile)
   .setParameterPathnames([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
@@ -228,7 +229,7 @@ export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Upload file endpoint.');
 
 export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/files/getFileDetails')
+  .setBasePathname(fileConstants.routes.getFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -237,7 +238,7 @@ export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Get file details endpoint.');
 
 export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/files/updateFileDetails')
+  .setBasePathname(fileConstants.routes.updateFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -246,7 +247,7 @@ export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setDescription('Update file details endpoint.');
 
 export const deleteFileEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/files/deleteFile')
+  .setBasePathname(fileConstants.routes.deleteFile)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteFileParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)

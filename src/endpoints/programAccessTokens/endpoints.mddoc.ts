@@ -10,12 +10,13 @@ import {
   HttpEndpointResponse,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints';
+import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
 import {
   IAddProgramAccessTokenEndpointParams,
   IAddProgramAccessTokenEndpointResult,
   INewProgramAccessTokenInput,
 } from './addToken/types';
+import {programAccessTokenConstants} from './constants';
 import {IDeleteProgramAccessTokenEndpointParams} from './deleteToken/types';
 import {IGetProgramAccessTokenEndpointParams, IGetProgramAccessTokenEndpointResult} from './getToken/types';
 import {
@@ -143,7 +144,7 @@ const deleteProgramAccessTokenParams = new FieldObject<IDeleteProgramAccessToken
   .setDescription('Delete program access token endpoint params.');
 
 export const addProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/programAccessTokens/addToken')
+  .setBasePathname(programAccessTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -152,7 +153,7 @@ export const addProgramAccessTokenEndpointDefinition = new HttpEndpointDefinitio
   .setDescription('Add program access token endpoint.');
 
 export const getProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/programAccessTokens/getToken')
+  .setBasePathname(programAccessTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -161,7 +162,7 @@ export const getProgramAccessTokenEndpointDefinition = new HttpEndpointDefinitio
   .setDescription('Get program access token endpoint.');
 
 export const updateProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/programAccessTokens/updateToken')
+  .setBasePathname(programAccessTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -170,7 +171,7 @@ export const updateProgramAccessTokenEndpointDefinition = new HttpEndpointDefini
   .setDescription('Update program access token endpoint.');
 
 export const deleteProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/programAccessTokens/deleteToken')
+  .setBasePathname(programAccessTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteProgramAccessTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
@@ -179,7 +180,7 @@ export const deleteProgramAccessTokenEndpointDefinition = new HttpEndpointDefini
   .setDescription('Delete program access token endpoint.');
 
 export const getWorkspaceProgramAccessTokenEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname('/programAccessTokens/getWorkspaceTokens')
+  .setBasePathname(programAccessTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceProgramAccessTokensParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
