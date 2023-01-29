@@ -1,12 +1,12 @@
 import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetWorkspaceProgramAccessTokensEndpointParams {
+export interface IGetWorkspaceProgramAccessTokensEndpointParams extends IPaginationQuery {
   workspaceId?: string;
 }
 
-export interface IGetWorkspaceProgramAccessTokensEndpointResult {
+export interface IGetWorkspaceProgramAccessTokensEndpointResult extends IPaginatedResult {
   tokens: IPublicProgramAccessToken[];
 }
 

@@ -7,6 +7,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {PermissionDeniedError} from '../../user/errors';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken} from '../utils';
@@ -15,12 +16,12 @@ import {getWorkspaceProgramAccessTokenJoiSchema} from './validation';
 
 const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, getWorkspaceProgramAccessTokenJoiSchema);
-
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const tokens = await context.data.programAccessToken.getManyByQuery(
-    ProgramAccessTokenQueries.getByWorkspaceId(workspaceId)
+    ProgramAccessTokenQueries.getByWorkspaceId(workspaceId),
+    data
   );
 
   // TODO: can we do this together, so that we don't waste compute
@@ -40,7 +41,6 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint = 
   );
 
   let allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
-
   if (allowedTokens.length === 0 && tokens.length > 0) {
     throw new PermissionDeniedError();
   }
@@ -53,6 +53,7 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint = 
   );
 
   return {
+    page: getEndpointPageFromInput(data),
     tokens: allowedTokens.map(token => getPublicProgramToken(context, token)),
   };
 };

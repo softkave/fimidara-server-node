@@ -4,6 +4,7 @@ import {getDate} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {IUsageRecordQuery} from '../../contexts/data/usagerecord/type';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {GetWorkspaceSummedUsageEndpoint} from './types';
 import {getWorkspaceSummedUsageJoiSchema} from './validation';
@@ -28,21 +29,17 @@ const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async (context,
     fromMonth = fromDate.getMonth();
     fromYear = fromDate.getFullYear();
   }
-
   if (data.query?.toDate) {
     const toDate = getDate(data.query.toDate);
     toMonth = toDate.getMonth();
     toYear = toDate.getFullYear();
   }
-
   if (fromMonth && toMonth) {
     query.month = {$gte: fromMonth, $lte: toMonth};
   }
-
   if (fromYear && toYear) {
     query.year = {$gte: fromYear, $lte: toYear};
   }
-
   if (data.query?.category) {
     // TODO: correct type
     query.category = data.query.category as any;
@@ -61,10 +58,8 @@ const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async (context,
     };
   }
 
-  const records = await context.data.usageRecord.getManyByQuery(query, {sort: {createdAt: 'desc'}});
-  return {
-    records,
-  };
+  const records = await context.data.usageRecord.getManyByQuery(query, {...data, sort: {createdAt: 'desc'}});
+  return {page: getEndpointPageFromInput(data), records};
 };
 
 export default getWorkspaceSummedUsage;

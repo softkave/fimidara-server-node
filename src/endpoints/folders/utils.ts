@@ -77,7 +77,10 @@ export function splitPathWithDetails(providedPath: string | string[]): IFolderpa
   const name = defaultTo(last(splitPath), '');
   assertWorkspaceRootname(workspaceRootname);
   assertFileOrFolderName(name);
-  const splitParentPath = splitPath.slice(/* workspace rootname is 0 */ 1, /* file or folder name is last item */ -1);
+  const splitParentPath = splitPath.slice(
+    1, // workspace rootname is 0
+    -1 // file or folder name is last item
+  );
   const itemSplitPath = splitPath.slice(/* workspace rootname is 0 */ 1);
   const parentPath = splitParentPath.join(folderConstants.nameSeparator);
   const hasParent = splitParentPath.length > 0;
@@ -93,11 +96,11 @@ export function splitPathWithDetails(providedPath: string | string[]): IFolderpa
   };
 }
 
-export function getRootname(providedPath: string | string[]) {
+export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
   const splitPath = splitFolderpath(providedPath);
-  const workspaceRootname = defaultTo(first(splitPath), '');
-  assertWorkspaceRootname(workspaceRootname);
-  return workspaceRootname;
+  const rootname = first(splitPath);
+  assertWorkspaceRootname(rootname);
+  return {rootname, splitPath};
 }
 
 export async function checkFolderAuthorization(
@@ -122,7 +125,6 @@ export async function checkFolderAuthorization(
   return {agent, workspace, folder};
 }
 
-// With folder path
 export async function checkFolderAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
@@ -155,7 +157,6 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   workspaceRootname: string | string[]
 ): T {
   const rootname = isArray(workspaceRootname) ? last(workspaceRootname) : workspaceRootname;
-
   if (isArray(path)) {
     return <T>[rootname, ...path];
   }

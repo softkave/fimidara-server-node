@@ -171,7 +171,6 @@ export function getNonWorkspaceActionList() {
 }
 
 export const appResourceTypesList = Object.values(AppResourceType) as Array<AppResourceType>;
-
 export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
 
 export interface IAppRuntimeState extends IAppRuntimeVars {

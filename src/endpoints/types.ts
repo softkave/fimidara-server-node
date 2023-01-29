@@ -32,8 +32,10 @@ export interface IRequestDataPendingPromise {
 
 export interface IPaginatedResult {
   page: number;
-  pageSize: number;
-  count: number;
+}
+
+export interface ICountItemsEndpointResult {
+  page: number;
 }
 
 export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;

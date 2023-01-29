@@ -1,13 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
 import {AppResourceType, systemAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {IBaseContext} from '../../contexts/types';
 
-export function generateTestFile(
-  workspace: Pick<IWorkspace, 'rootname' | 'resourceId'>,
-  extra: Partial<IFile> = {}
-) {
+export function generateTestFile(extra: Partial<IFile> = {}) {
   const id = getNewIdForResource(AppResourceType.File);
   const name = faker.lorem.words();
   const createdAt = faker.date.past();
@@ -23,7 +20,7 @@ export function generateTestFile(
     namePath: [name],
     resourceId: id,
     size: faker.datatype.number(),
-    workspaceId: workspace.resourceId,
+    workspaceId: getNewIdForResource(AppResourceType.Workspace),
     extension: faker.system.fileExt(),
     ...extra,
   };
@@ -31,15 +28,16 @@ export function generateTestFile(
   return file;
 }
 
-export function generateTestFiles(
-  workspace: Pick<IWorkspace, 'rootname' | 'resourceId'>,
-  count = 20,
-  extra: Partial<IFile> = {}
-) {
+export function generateTestFiles(count = 20, extra: Partial<IFile> = {}) {
   const files: IFile[] = [];
   for (let i = 0; i < count; i++) {
-    files.push(generateTestFile(workspace, extra));
+    files.push(generateTestFile(extra));
   }
-
   return files;
+}
+
+export async function generateAndInsertTestFiles(ctx: IBaseContext, count = 20, extra: Partial<IFile> = {}) {
+  const items = generateTestFiles(count, extra);
+  await ctx.data.file.insertList(items);
+  return items;
 }

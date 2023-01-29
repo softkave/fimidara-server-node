@@ -39,7 +39,6 @@ export async function createSingleFolder(
   input: INewFolderInput
 ) {
   const {itemSplitPath: splitPath, name} = splitPathWithDetails(input.folderpath);
-
   const existingFolder = await context.data.folder.getOneByQuery(
     FolderQueries.folderExistsByNamePath(workspace.resourceId, splitPath)
   );
@@ -101,7 +100,6 @@ export async function getClosestExistingFolder(context: IBaseContext, workspaceI
 
   const firstNullItemIndex = existingFolders.findIndex(folder => !folder);
   const closestExistingFolderIndex = firstNullItemIndex === -1 ? existingFolders.length - 1 : firstNullItemIndex - 1;
-
   const closestExistingFolder = existingFolders[closestExistingFolderIndex];
   return {closestExistingFolder, closestExistingFolderIndex, existingFolders};
 }
@@ -128,7 +126,6 @@ export async function createFolderList(
       previousFolder = existingFolders[i];
       continue;
     }
-
     if (!hasCheckAuth) {
       // Check if the agent can perform operation
       await checkAuthorization({
@@ -188,7 +185,6 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
   );
 
   folder = await populateAssignedPermissionGroupsAndTags(context, folder.workspaceId, folder, AppResourceType.Folder);
-
   return {
     folder: folderExtractor(folder),
   };

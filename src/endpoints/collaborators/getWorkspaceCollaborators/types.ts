@@ -1,12 +1,12 @@
 import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetWorkspaceCollaboratorsEndpointParams {
+export interface IGetWorkspaceCollaboratorsEndpointParams extends IPaginationQuery {
   workspaceId?: string;
 }
 
-export interface IGetWorkspaceCollaboratorsEndpointResult {
+export interface IGetWorkspaceCollaboratorsEndpointResult extends IPaginatedResult {
   collaborators: IPublicCollaborator[];
 }
 

@@ -34,6 +34,8 @@ const getWorkspaceCollaboratorsParams = new FieldObject<IGetWorkspaceCollaborato
   .setName('GetWorkspaceCollaboratorsEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace collaborators endpoint params.');
@@ -45,7 +47,7 @@ const getWorkspaceCollaboratorsResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspaceCollaboratorsEndpointResult>()
         .setName('GetWorkspaceCollaboratorsEndpointSuccessResult')
-        .setFields({collaborators: new FieldArray().setType(collaborator)})
+        .setFields({collaborators: new FieldArray().setType(collaborator), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace collaborators endpoint success result.')
     ),

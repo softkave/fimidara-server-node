@@ -1,19 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  getWorkspaceActionList,
-  IResourceBase,
-} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, getWorkspaceActionList, IResourceBase} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
-import {
-  IAddPermissionItemsEndpointParams,
-  INewPermissionItemInput,
-} from '../../permissionItems/addItems/types';
+import {IAddPermissionItemsEndpointParams, INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -45,45 +37,35 @@ describe('getResources', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} =
-      await insertPermissionGroupForTest(
-        context,
-        userToken,
-        workspace.resourceId
-      );
-
-    const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(
-      action => ({
-        action: action as BasicCRUDActions,
-        grantAccess: faker.datatype.boolean(),
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-        itemResourceType: AppResourceType.Workspace,
-        permissionEntityId: permissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-        permissionOwnerId: workspace.resourceId,
-        permissionOwnerType: AppResourceType.Workspace,
-        itemResourceId: workspace.resourceId,
-      })
-    );
-
-    const addPermissionItemsReqData =
-      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {items: inputItems, workspaceId: workspace.resourceId}
-      );
-
-    const addPermissionItemsResult = await addPermissionItems(
+    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
       context,
-      addPermissionItemsReqData
+      userToken,
+      workspace.resourceId
     );
 
+    const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+      action: action as BasicCRUDActions,
+      grantAccess: faker.datatype.boolean(),
+      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+      itemResourceType: AppResourceType.Workspace,
+      permissionEntityId: permissionGroup.resourceId,
+      permissionEntityType: AppResourceType.PermissionGroup,
+      permissionOwnerId: workspace.resourceId,
+      permissionOwnerType: AppResourceType.Workspace,
+      itemResourceId: workspace.resourceId,
+    }));
+
+    const addPermissionItemsReqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {items: inputItems, workspaceId: workspace.resourceId}
+    );
+
+    const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     assertEndpointResultOk(addPermissionItemsResult);
     const items = addPermissionItemsResult.items;
     const resourcesInput: IFetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
-    const getKey = (item: IResourceBase, type: AppResourceType) =>
-      `${item.resourceId}-${type}`;
-
+    const getKey = (item: IResourceBase, type: AppResourceType) => `${item.resourceId}-${type}`;
     const addResource = (item: IResourceBase, type: AppResourceType) => {
       resourcesInput.push({resourceId: item.resourceId, resourceType: type});
       resourcesMap[getKey(item, type)] = item;
@@ -92,30 +74,20 @@ describe('getResources', () => {
     addResource(workspace, AppResourceType.Workspace);
     addResource(permissionGroup, AppResourceType.PermissionGroup);
     addResource(
-      collaboratorExtractor(
-        await populateUserWorkspaces(context, rawUser),
-        workspace.resourceId
-      ),
+      collaboratorExtractor(await populateUserWorkspaces(context, rawUser), workspace.resourceId),
       AppResourceType.User
     );
 
     items.forEach(item => addResource(item, AppResourceType.PermissionItem));
-    const instData =
-      RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          resources: resourcesInput,
-        }
-      );
-
+    const instData = RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {workspaceId: workspace.resourceId, resources: resourcesInput}
+    );
     const result = await getResources(context, instData);
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resource.resource).toMatchObject(
-        resourcesMap[getKey(resource.resource, resource.resourceType)]
-      );
+      expect(resource.resource).toMatchObject(resourcesMap[getKey(resource.resource, resource.resourceType)]);
     });
   });
 });

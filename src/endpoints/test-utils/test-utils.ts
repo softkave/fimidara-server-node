@@ -28,7 +28,6 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {IPermissionEntity} from '../contexts/authorization-checks/getPermissionEntities';
 import BaseContext from '../contexts/BaseContext';
-import {} from '../contexts/SessionContext';
 import {IBaseContext, IServerRequest} from '../contexts/types';
 import {getDataProviders} from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
@@ -77,7 +76,6 @@ export function getTestEmailProvider(appVariables: IAppVariables) {
 export async function getTestFileProvider(appVariables: IAppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     const fileProvider = new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-
     return fileProvider;
   } else {
     return new TestMemoryFilePersistenceProviderContext();
@@ -115,7 +113,6 @@ export function mockExpressRequest(token?: IBaseTokenData) {
   const req: IServerRequest = {
     auth: token,
   };
-
   return req;
 }
 
@@ -168,7 +165,6 @@ export async function insertUserForTest(
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
   let rawUser: IUserWithWorkspace;
-
   if (!skipAutoVerifyEmail) {
     rawUser = await internalConfirmEmailAddress(context, result.user);
   } else {
@@ -180,7 +176,6 @@ export async function insertUserForTest(
 
   const tokenData = context.session.decodeToken(context, result.token);
   const userToken = await context.data.userToken.assertGetOneByQuery(UserTokenQueries.getById(tokenData.sub.id));
-
   return {
     rawUser,
     userToken,
@@ -367,7 +362,6 @@ export async function insertPermissionItemsForTestByEntity(
   const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   expectItemsByEntityPresent(result.items, itemsInput, entity.permissionEntityId, entity.permissionEntityType);
-
   return result;
 }
 

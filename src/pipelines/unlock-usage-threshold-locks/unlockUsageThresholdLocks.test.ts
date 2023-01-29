@@ -6,7 +6,7 @@ import {systemAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 import {justInCaseCleanups} from '../../endpoints/test-utils/context/cleanup';
-import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
+import {generateWorkspaceListForTest} from '../../endpoints/test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
@@ -31,7 +31,7 @@ afterAll(async () => {
 describe('unlockUsageThresholds', () => {
   test('usage thresholds unlocked', async () => {
     // setup
-    const workspaces = generateTestWorkspaces(10);
+    const workspaces = generateWorkspaceListForTest(10);
     const locks: IWorkspace['usageThresholdLocks'] = {};
     Object.values(UsageRecordCategory).forEach(k => {
       locks[k] = {

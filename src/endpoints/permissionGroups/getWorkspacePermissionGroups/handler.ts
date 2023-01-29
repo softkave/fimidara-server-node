@@ -7,6 +7,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {PermissionDeniedError} from '../../user/errors';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import PermissionGroupQueries from '../queries';
 import {permissionGroupListExtractor} from '../utils';
@@ -15,11 +16,13 @@ import {getWorkspacePermissionGroupsJoiSchema} from './validation';
 
 const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint = async (context, instData) => {
   const data = validate(instData.data, getWorkspacePermissionGroupsJoiSchema);
-
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const items = await context.data.permissiongroup.getManyByQuery(PermissionGroupQueries.getByWorkspaceId(workspaceId));
+  const items = await context.data.permissiongroup.getManyByQuery(
+    PermissionGroupQueries.getByWorkspaceId(workspaceId),
+    data
+  );
 
   // TODO: can we do this together, so that we don't waste compute
   const permittedReads = await Promise.all(
@@ -38,7 +41,6 @@ const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint = async
   );
 
   let allowedItems = items.filter((item, i) => !!permittedReads[i]);
-
   if (allowedItems.length === 0 && items.length > 0) {
     throw new PermissionDeniedError();
   }
@@ -50,9 +52,7 @@ const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint = async
     AppResourceType.PermissionGroup
   );
 
-  return {
-    permissionGroups: permissionGroupListExtractor(allowedItems),
-  };
+  return {page: getEndpointPageFromInput(data), permissionGroups: permissionGroupListExtractor(allowedItems)};
 };
 
 export default getWorkspacePermissionGroups;

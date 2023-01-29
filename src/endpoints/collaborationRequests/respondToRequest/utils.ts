@@ -82,9 +82,6 @@ async function assignUserRequestPermissionGroups(
 
 /**
  * For internal use only.
- * @param context
- * @param instData
- * @returns
  */
 export const internalRespondToCollaborationRequest = async (
   context: IBaseContext,
@@ -100,7 +97,6 @@ export const internalRespondToCollaborationRequest = async (
   }
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
-
   if (isExpired && request.expiresAt) {
     throw new ServerStateConflictError(`Collaboration request expired on ${formatDate(request.expiresAt)}`);
   }
@@ -134,10 +130,8 @@ export const internalRespondToCollaborationRequest = async (
       email: notifyUser.email,
     });
   }
-
   if (data.response === CollaborationRequestStatusType.Accepted) {
     await assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user);
-
     await assignUserRequestPermissionGroups(context, user, workspace, request);
   }
 

@@ -1,15 +1,15 @@
 import {IPublicPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetEntityPermissionItemsEndpointParams {
+export interface IGetEntityPermissionItemsEndpointParams extends IPaginationQuery {
   workspaceId?: string;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
 }
 
-export interface IGetEntityPermissionItemsEndpointResult {
+export interface IGetEntityPermissionItemsEndpointResult extends IPaginatedResult {
   items: IPublicPermissionItem[];
 }
 

@@ -52,7 +52,6 @@ export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
   if (omitFalsy) {
     fields = compact(fields);
   }
-
   return fields.join(separator);
 }
 
@@ -121,4 +120,13 @@ export function capitalizeFirstLetter(str: string) {
 
 export function uncapitalizeFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+export function calculatePageSize(count: number, pageSize: number, page: number) {
+  count = Math.max(count, 0);
+  pageSize = Math.max(pageSize, 0);
+  page = Math.max(page, 0);
+  if (count === 0 || pageSize === 0 || page === 0) return 0;
+  const maxFullPages = Math.floor(count / pageSize);
+  return page <= maxFullPages ? pageSize : count - maxFullPages * pageSize;
 }

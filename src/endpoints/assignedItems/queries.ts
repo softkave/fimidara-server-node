@@ -12,7 +12,6 @@ function getByAssignedItem(workspaceId: string, assignedItemId: string, assigned
     .addItem('assignedItemId', assignedItemId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedItemType', assignedItemType, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
-
   return filter.build();
 }
 
@@ -30,7 +29,6 @@ function getByAssignedToResource(
   if (assignedItemTypeList) {
     filter.addItem('assignedItemType', assignedItemTypeList, DataProviderFilterValueOperator.In);
   }
-
   if (workspaceId && workspaceId !== '') {
     filter.addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
   }
@@ -45,7 +43,6 @@ function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
     .addItem('assignedToItemId', matcher.assignedToItemId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedToItemType', matcher.assignedToItemType, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
-
   return filter.build();
 }
 

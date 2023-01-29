@@ -15,5 +15,7 @@ export const getWorkspaceSummedUsageJoiSchema = Joi.object<IGetWorkspaceSummedUs
   .keys({
     workspaceId: validationSchemas.resourceId,
     query: queryJoiSchema,
+    page: endpointValidationSchemas.page,
+    pageSize: endpointValidationSchemas.pageSize,
   })
   .required();

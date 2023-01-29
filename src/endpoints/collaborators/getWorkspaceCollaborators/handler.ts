@@ -8,6 +8,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {PermissionDeniedError} from '../../user/errors';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import CollaboratorQueries from '../queries';
 import {collaboratorListExtractor, removeOtherUserWorkspaces} from '../utils';
@@ -20,7 +21,8 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const assignedItems = await context.data.assignedItem.getManyByQuery(
-    AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId, AppResourceType.Workspace)
+    AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId, AppResourceType.Workspace),
+    data
   );
 
   const userIdList = assignedItems.map(item => item.assignedToItemId);
@@ -43,14 +45,13 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   );
 
   const allowedCollaborators = collaborators.filter((item, i) => !!permittedReads[i]);
-
   if (allowedCollaborators.length === 0 && collaborators.length > 0) {
     throw new PermissionDeniedError();
   }
 
   const usersWithWorkspaces = await populateUserListWithWorkspaces(context, allowedCollaborators);
-
   return {
+    page: getEndpointPageFromInput(data),
     collaborators: collaboratorListExtractor(
       usersWithWorkspaces.map(collaborator => removeOtherUserWorkspaces(collaborator, workspace.resourceId)),
       workspace.resourceId

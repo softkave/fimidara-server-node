@@ -7,9 +7,6 @@ const fetchResourceItem = Joi.object().keys({
   resourceType: validationSchemas.resourceType.required(),
 });
 
-const fetchResourceItemList = Joi.array()
-  .items(fetchResourceItem)
-  .max(resourcesConstants.maxFetchItems);
-
+const fetchResourceItemList = Joi.array().items(fetchResourceItem).max(resourcesConstants.maxFetchItems);
 const resourcesValidationSchemas = {fetchResourceItem, fetchResourceItemList};
 export default resourcesValidationSchemas;

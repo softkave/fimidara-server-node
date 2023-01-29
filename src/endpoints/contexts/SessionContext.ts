@@ -79,7 +79,6 @@ export default class SessionContext implements ISessionContext {
     switch (incomingTokenData?.sub.type) {
       case TokenType.UserToken: {
         userToken = await ctx.data.userToken.assertGetOneByQuery(UserTokenQueries.getById(incomingTokenData.sub.id));
-
         if (audience) {
           ctx.session.tokenContainsAudience(ctx, userToken, audience);
         }
@@ -148,12 +147,10 @@ export default class SessionContext implements ISessionContext {
       return agent;
     } else if (programAccessToken) {
       const agent: ISessionAgent = makeProgramAccessTokenAgent(programAccessToken);
-
       data.agent = agent;
       return agent;
     } else if (clientAssignedToken) {
       const agent: ISessionAgent = makeClientAssignedTokenAgent(clientAssignedToken);
-
       data.agent = agent;
       return agent;
     }
@@ -163,7 +160,6 @@ export default class SessionContext implements ISessionContext {
 
   getUser = async (ctx: IBaseContext, data: RequestData, audience?: TokenAudience | TokenAudience[]) => {
     const agent = await ctx.session.getAgent(ctx, data, [SessionAgentType.User], audience);
-
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -189,7 +185,6 @@ export default class SessionContext implements ISessionContext {
   ) => {
     const audience = cast<TokenAudience[]>(tokenData.audience);
     const hasAudience = !!audience.find(nextAud => expectedAudience.includes(nextAud));
-
     return hasAudience;
   };
 
@@ -213,7 +208,6 @@ export default class SessionContext implements ISessionContext {
       const expNumericDate = new Date(expires).getTime();
       payload.exp = expNumericDate / msInSec; // exp is in seconds
     }
-
     if (issuedAt) {
       const iatNumericDate = new Date(issuedAt).getTime();
       payload.iat = iatNumericDate / msInSec; // iat is in seconds
@@ -291,13 +285,11 @@ export function getClientAssignedTokenIdNoThrow(
   onReferenced?: boolean
 ) {
   const tokenId = inputTokenId ? inputTokenId : onReferenced ? agent.clientAssignedToken?.resourceId : null;
-
   return tokenId;
 }
 
 export function getClientAssignedTokenId(agent: ISessionAgent, inputTokenId?: string | null, onReferenced?: boolean) {
   const tokenId = getClientAssignedTokenIdNoThrow(agent, inputTokenId, onReferenced);
-
   if (!tokenId) {
     throw new InvalidRequestError('Client assigned token ID not provided');
   }
@@ -307,7 +299,6 @@ export function getClientAssignedTokenId(agent: ISessionAgent, inputTokenId?: st
 
 export function getProgramAccessTokenId(agent: ISessionAgent, providedTokenId?: string | null, onReferenced?: boolean) {
   const tokenId = providedTokenId ? providedTokenId : onReferenced ? agent.programAccessToken?.resourceId : null;
-
   if (!tokenId) {
     throw new InvalidRequestError('Program access token ID not provided');
   }
@@ -322,7 +313,6 @@ export function assertIncomingToken(
   if (!incomingTokenData) {
     throw new PermissionDeniedError();
   }
-
   if (incomingTokenData.sub.type !== type) {
     throw new PermissionDeniedError();
   }

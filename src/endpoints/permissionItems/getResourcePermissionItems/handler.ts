@@ -10,6 +10,7 @@ import {
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IResource} from '../../resources/types';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
 import checkResourcesExist from '../checkResourcesExist';
@@ -33,10 +34,8 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
   });
 
   const {resources} = await checkResourcesExist(context, agent, workspace, [data]);
-
   let permissionOwner: IResource | undefined = undefined;
   const resource: IResource | undefined = first(resources);
-
   if (data.permissionOwnerId && data.permissionOwnerType) {
     const result = await checkPermissionOwnersExist(context, agent, workspace, [
       {
@@ -44,12 +43,10 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
         permissionOwnerType: data.permissionOwnerType,
       },
     ]);
-
     permissionOwner = first(result.resources);
   }
 
   let permissionOwners: IPermissionOwner[] = [];
-
   if (
     resource &&
     (resource.resourceType === AppResourceType.File || resource.resourceType === AppResourceType.Folder)
@@ -77,7 +74,8 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
           data.itemResourceType,
           undefined, // data.itemResourceId,
           true
-        )
+        ),
+        data
       )
     )
   );
@@ -88,7 +86,6 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
       if (item.itemResourceId && item.itemResourceId !== data.itemResourceId) {
         return false;
       }
-
       if (item.appliesTo === PermissionItemAppliesTo.Owner) {
         return item.permissionOwnerId === data.itemResourceId;
       } else if (item.appliesTo === PermissionItemAppliesTo.Children) {
@@ -101,9 +98,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
     }
   });
 
-  return {
-    items: PermissionItemUtils.extractPublicPermissionItemList(items),
-  };
+  return {page: getEndpointPageFromInput(data), items: PermissionItemUtils.extractPublicPermissionItemList(items)};
 };
 
 export default getResourcePermissionItems;

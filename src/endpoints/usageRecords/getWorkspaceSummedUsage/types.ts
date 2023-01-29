@@ -1,7 +1,7 @@
 import {IUsageRecord, UsageRecordCategory, UsageRecordFulfillmentStatus} from '../../../definitions/usageRecord';
 import {DataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
 export type IWorkspaceSummedUsageQuery = DataQuery<{
   category?: UsageRecordCategory;
@@ -10,12 +10,12 @@ export type IWorkspaceSummedUsageQuery = DataQuery<{
   fulfillmentStatus?: UsageRecordFulfillmentStatus;
 }>;
 
-export interface IGetWorkspaceSummedUsageEndpointParams {
+export interface IGetWorkspaceSummedUsageEndpointParams extends IPaginationQuery {
   workspaceId?: string;
   query?: IWorkspaceSummedUsageQuery;
 }
 
-export interface IGetWorkspaceSummedUsageEndpointResult {
+export interface IGetWorkspaceSummedUsageEndpointResult extends IPaginatedResult {
   records: IUsageRecord[];
 }
 

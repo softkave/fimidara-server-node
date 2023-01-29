@@ -5,7 +5,7 @@ import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {generateTestWorkspaces} from '../../endpoints/test-utils/generate-data/workspace';
+import {generateWorkspaceListForTest} from '../../endpoints/test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
@@ -29,10 +29,7 @@ afterAll(async () => {
   }
 });
 
-function assertThresholds(
-  ut1: IWorkspace['usageThresholds'] = {},
-  ut2: IWorkspace['usageThresholds'] = {}
-) {
+function assertThresholds(ut1: IWorkspace['usageThresholds'] = {}, ut2: IWorkspace['usageThresholds'] = {}) {
   Object.values(UsageRecordCategory).forEach(category => {
     const threshold1 = ut1[category];
     const threshold2 = ut2[category];
@@ -43,7 +40,7 @@ function assertThresholds(
 describe('addThresholdToExistingWorkspaces', () => {
   test('adds usage thresholds to existing workspaces', async () => {
     // setup
-    const workspaces = generateTestWorkspaces(20);
+    const workspaces = generateWorkspaceListForTest(20);
 
     // without usage thresholds
     const workspaces01 = workspaces.slice(0, 10);
@@ -72,8 +69,7 @@ describe('addThresholdToExistingWorkspaces', () => {
 
     // delete lastUpdatedAt cause it's going to be different each time
     if (defaultThresholds[UsageRecordCategory.Total]) {
-      delete cast<any>(defaultThresholds[UsageRecordCategory.Total])
-        .lastUpdatedAt;
+      delete cast<any>(defaultThresholds[UsageRecordCategory.Total]).lastUpdatedAt;
     }
 
     const dbWorkspacesMap = indexArray(dbWorkspaces, {path: 'resourceId'});

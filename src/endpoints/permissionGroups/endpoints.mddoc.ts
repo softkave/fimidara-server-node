@@ -103,6 +103,8 @@ const getWorkspacePermissionGroupsParams = new FieldObject<IGetWorkspacePermissi
   .setName('GetWorkspacePermissionGroupsEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace permission groups endpoint params.');
@@ -114,7 +116,7 @@ const getWorkspacePermissionGroupsResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspacePermissionGroupsEndpointResult>()
         .setName('GetWorkspacePermissionGroupsEndpointSuccessResult')
-        .setFields({permissionGroups: new FieldArray().setType(permissionGroup)})
+        .setFields({permissionGroups: new FieldArray().setType(permissionGroup), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace permission groups endpoint success result.')
     ),

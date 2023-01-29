@@ -100,7 +100,7 @@ const addFolderResult = [
 
 const listFolderContentParams = new FieldObject<IListFolderContentEndpointParams>()
   .setName('ListFolderContentEndpointParams')
-  .setFields(folderMatcherParts)
+  .setFields({...folderMatcherParts, page: fReusables.pageNotRequired, pageSize: fReusables.pageSizeNotRequired})
   .setRequired(true)
   .setDescription('List folder content endpoint params.');
 const listFolderContentResult = [
@@ -114,6 +114,7 @@ const listFolderContentResult = [
         .setFields({
           folders: new FieldArray().setType(folder),
           files: new FieldArray().setType(fileEndpointsParts.file),
+          page: fReusables.page,
         })
         .setRequired(true)
         .setDescription('List folder content endpoint success result.')

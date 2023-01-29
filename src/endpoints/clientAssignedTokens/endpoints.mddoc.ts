@@ -77,6 +77,8 @@ const getWorkspaceClientAssignedTokensParams = new FieldObject<IGetWorkspaceClie
   .setName('GetWorkspaceClientAssignedTokensEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace client assigned tokens endpoint params.');
@@ -89,7 +91,7 @@ const getWorkspaceClientAssignedTokensResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspaceClientAssignedTokensEndpointResult>()
         .setName('GetWorkspaceClientAssignedTokensEndpointSuccessResult')
-        .setFields({tokens: new FieldArray().setType(clientAssignedToken)})
+        .setFields({tokens: new FieldArray().setType(clientAssignedToken), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace client assigned tokens endpoint success result.')
     ),

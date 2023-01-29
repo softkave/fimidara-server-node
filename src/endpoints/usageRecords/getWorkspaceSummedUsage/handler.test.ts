@@ -10,9 +10,10 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {getDateString} from '../../../utils/dateFns';
+import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateUsageRecords} from '../../test-utils/generate-data/usageRecord';
+import {generateAndInsertUsageRecordList, generateUsageRecordList} from '../../test-utils/generate-data/usageRecord';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -69,9 +70,10 @@ describe('getWorkspaceSummedUsage', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const records = generateUsageRecords(workspace.resourceId, 10, {
+    const records = generateUsageRecordList(10, {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      workspaceId: workspace.resourceId,
     });
 
     assert(connection);
@@ -83,7 +85,6 @@ describe('getWorkspaceSummedUsage', () => {
       mockExpressRequestWithUserToken(userToken),
       {workspaceId: workspace.resourceId}
     );
-
     const result = await getWorkspaceSummedUsage(context, instData);
 
     // verify
@@ -108,23 +109,27 @@ describe('getWorkspaceSummedUsage', () => {
     const count = 10;
 
     // with preset category
-    const records01 = generateUsageRecords(workspace.resourceId, count, {
+    const records01 = generateUsageRecordList(count, {
       category: records01Category,
+      workspaceId: workspace.resourceId,
     });
 
     // with preset fulfillment status
-    const records02 = generateUsageRecords(workspace.resourceId, count, {
+    const records02 = generateUsageRecordList(count, {
       fulfillmentStatus: records02FulfillmentStatus,
+      workspaceId: workspace.resourceId,
     });
 
     // with preset from date and to date
-    const records03 = generateUsageRecords(workspace.resourceId, count, {
+    const records03 = generateUsageRecordList(count, {
       month: fromMonth,
       year: fromYear,
+      workspaceId: workspace.resourceId,
     }).concat(
-      generateUsageRecords(workspace.resourceId, count, {
+      generateUsageRecordList(count, {
         month: toMonth,
         year: toYear,
+        workspaceId: workspace.resourceId,
       })
     );
 
@@ -139,7 +144,6 @@ describe('getWorkspaceSummedUsage', () => {
       mockExpressRequestWithUserToken(userToken),
       {workspaceId: workspace.resourceId, query: {category: {$in: [records01Category]}}}
     );
-
     const result01 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset fulfillment status
@@ -150,7 +154,6 @@ describe('getWorkspaceSummedUsage', () => {
         query: {fulfillmentStatus: records02FulfillmentStatus},
       }
     );
-
     const result02 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset from date and to date
@@ -161,7 +164,6 @@ describe('getWorkspaceSummedUsage', () => {
         query: {fromDate: getDateString(fromDate), toDate: getDateString(toDate)},
       }
     );
-
     const result03 = await getWorkspaceSummedUsage(context, reqData);
 
     // all records
@@ -169,7 +171,6 @@ describe('getWorkspaceSummedUsage', () => {
       mockExpressRequestWithUserToken(userToken),
       {workspaceId: workspace.resourceId}
     );
-
     const result04 = await getWorkspaceSummedUsage(context, reqData);
 
     // verify
@@ -181,5 +182,39 @@ describe('getWorkspaceSummedUsage', () => {
     expectToOnlyHaveFulfillmentStatus(result02.records, records02FulfillmentStatus);
     expectToBeFromDate(result03.records, fromMonth, fromYear);
     expectToBeToDate(result03.records, toMonth, toYear);
+  });
+
+  test('pagination', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    await generateAndInsertUsageRecordList(context, 15, {
+      workspaceId: workspace.resourceId,
+      summationType: UsageSummationType.Two,
+    });
+    const count = await context.data.usageRecord.countByQuery({
+      workspaceId: workspace.resourceId,
+      summationType: UsageSummationType.Two,
+    });
+    const pageSize = 10;
+    let page = 0;
+    let instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {page, pageSize, workspaceId: workspace.resourceId}
+    );
+    let result = await getWorkspaceSummedUsage(context, instData);
+    assertEndpointResultOk(result);
+    expect(result.page).toContainEqual(page);
+    expect(result.records).toHaveLength(calculatePageSize(count, pageSize, page));
+
+    page = 1;
+    instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {page, pageSize, workspaceId: workspace.resourceId}
+    );
+    result = await getWorkspaceSummedUsage(context, instData);
+    assertEndpointResultOk(result);
+    expect(result.page).toContainEqual(page);
+    expect(result.records).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

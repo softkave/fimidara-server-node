@@ -8,11 +8,10 @@ import {
 } from '../../../definitions/usageRecord';
 import {getDate} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {IBaseContext} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
-export function generateWorkspaceWithCategoryUsageExceeded(
-  categories: UsageRecordCategory[]
-) {
+export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageRecordCategory[]) {
   const workspace = generateTestWorkspace();
   const usageLocks = defaultTo(workspace.usageThresholdLocks, {});
   categories.forEach(category => {
@@ -41,15 +40,11 @@ function randomFulfillmentStatus() {
   return items[random(0, items.length - 1)];
 }
 
-export function generateUsageRecords(
-  workspaceId: string,
-  count = 10,
-  extra: Partial<IUsageRecord> = {}
-) {
+export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord> = {}) {
   const records: IUsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({
-      workspaceId,
+      workspaceId: getNewIdForResource(AppResourceType.Workspace),
       month: random(0, 11),
       year: random(0, 11),
       resourceId: getNewIdForResource(AppResourceType.UsageRecord),
@@ -68,4 +63,14 @@ export function generateUsageRecords(
   }
 
   return records;
+}
+
+export async function generateAndInsertUsageRecordList(
+  ctx: IBaseContext,
+  count = 20,
+  extra: Partial<IUsageRecord> = {}
+) {
+  const items = generateUsageRecordList(count, extra);
+  await ctx.data.usageRecord.insertList(items);
+  return items;
 }

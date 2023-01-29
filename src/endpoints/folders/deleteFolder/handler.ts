@@ -15,7 +15,6 @@ import {deleteFolderJoiSchema} from './validation';
 async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
   // TODO: should we get files by name path, paginated
   const files = await context.data.file.getManyByQuery(FileQueries.getFilesByParentId(folderId));
-
   await waitOnPromises(
     // Delete file and assigned items
     files.map(file => deleteFileAndArtifacts(context, file))
@@ -71,7 +70,6 @@ export async function internalDeleteFolderList(context: IBaseContext, folders: I
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
-
   const {folder} = await checkFolderAuthorization02(context, agent, data, BasicCRUDActions.Delete);
 
   // TODO: this be fire and forget with retry OR move it to a job

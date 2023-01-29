@@ -107,6 +107,8 @@ const getWorkspaceCollaborationRequestsParams = new FieldObject<IGetWorkspaceCol
   .setName('GetWorkspaceCollaborationRequestsEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace collaboration requests endpoint params.');
@@ -118,7 +120,7 @@ const getWorkspaceCollaborationRequestsResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspaceCollaborationRequestsEndpointResult>()
         .setName('GetWorkspaceCollaborationRequestsEndpointSuccessResult')
-        .setFields({requests: new FieldArray().setType(collaborationRequest)})
+        .setFields({requests: new FieldArray().setType(collaborationRequest), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace collaboration requests endpoint success result.')
     ),

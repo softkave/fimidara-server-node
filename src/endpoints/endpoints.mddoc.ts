@@ -250,12 +250,12 @@ const foldername = new FieldString().setRequired(true).setDescription('Folder na
 const filename = new FieldString().setRequired(true).setDescription('File name.').setExample('my-file');
 const folderpath = new FieldString()
   .setRequired(true)
-  .setDescription('Folder path.')
-  .setExample('/my-outer-folder/my-inner-folder');
+  .setDescription('Folder path with workspace rootname.')
+  .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
 const filepath = new FieldString()
   .setRequired(true)
-  .setDescription('File name.')
-  .setExample('/my-outer-folder/my-image-file.png');
+  .setDescription('File path with workspace rootname.')
+  .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
 const folderNamePath = new FieldArray().setType(foldername).setDescription('List of parent folder names.');
 const action = new FieldString()
   .setRequired(true)
@@ -279,6 +279,15 @@ const appliesTo = new FieldString()
   )
   .setExample(PermissionItemAppliesTo.OwnerAndChildren)
   .setValid(Object.values(PermissionItemAppliesTo));
+const page = new FieldNumber()
+  .setDescription('Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...')
+  .setExample(0)
+  .setMin(endpointConstants.minPage);
+const pageSize = new FieldNumber()
+  .setDescription('Paginated list page size.')
+  .setExample(10)
+  .setMin(endpointConstants.minPageSize)
+  .setMax(endpointConstants.maxPageSize);
 
 export const fReusables = {
   agent,
@@ -312,6 +321,8 @@ export const fReusables = {
   permissionGroupId,
   permissionItemId,
   appliesTo,
+  page,
+  pageSize,
   dateOrUndefined: orUndefined(date),
   idOrUndefined: orUndefined(id),
   idNotRequired: cloneAndMarkNotRequired(id),
@@ -332,4 +343,6 @@ export const fReusables = {
   folderpathNotRequired: cloneAndMarkNotRequired(folderpath),
   filepathNotRequired: cloneAndMarkNotRequired(filepath),
   fileIdNotRequired: cloneAndMarkNotRequired(fileId),
+  pageNotRequired: cloneAndMarkNotRequired(page),
+  pageSizeNotRequired: cloneAndMarkNotRequired(pageSize),
 };

@@ -1,10 +1,10 @@
 import {IPublicFile} from '../../../definitions/file';
 import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export type IListFolderContentEndpointParams = IFolderMatcher;
-export interface IListFolderContentEndpointResult {
+export type IListFolderContentEndpointParams = IFolderMatcher & IPaginationQuery;
+export interface IListFolderContentEndpointResult extends IPaginatedResult {
   folders: IPublicFolder[];
   files: IPublicFile[];
 }

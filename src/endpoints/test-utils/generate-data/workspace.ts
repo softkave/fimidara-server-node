@@ -4,6 +4,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {IBaseContext} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
@@ -40,7 +41,7 @@ export function generateTestUsageThresholdInputMap(
   };
 }
 
-export function generateTestWorkspace() {
+export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
   const createdAt = getDateString();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
@@ -61,16 +62,26 @@ export function generateTestWorkspace() {
     billStatusAssignedAt: createdAt,
     usageThresholds: transformUsageThresholInput(createdBy, generateTestUsageThresholdInputMap()),
     usageThresholdLocks: {},
+    ...seed,
   };
 
   return workspace;
 }
 
-export function generateTestWorkspaces(count = 20) {
+export function generateWorkspaceListForTest(count = 20, seed: Partial<IWorkspace> = {}) {
   const workspaces: IWorkspace[] = [];
   for (let i = 0; i < count; i++) {
     workspaces.push(generateTestWorkspace());
   }
-
   return workspaces;
+}
+
+export async function generateAndInsertWorkspaceListForTest(
+  ctx: IBaseContext,
+  count = 20,
+  extra: Partial<IWorkspace> = {}
+) {
+  const items = generateWorkspaceListForTest(count, extra);
+  await ctx.data.workspace.insertList(items);
+  return items;
 }

@@ -1,4 +1,4 @@
-import {isObject, isObjectLike} from 'lodash';
+import {isNumber, isObject, isObjectLike} from 'lodash';
 import {FilterQuery, Model} from 'mongoose';
 import {cast} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
@@ -21,11 +21,36 @@ export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>)
   };
 }
 
+export function getPage(inputPage?: number) {
+  return isNumber(inputPage)
+    ? Math.min(inputPage, 0) // return 0 if page is negative
+    : undefined;
+}
+
+export function getPageSize(
+  inputPageSize?: number,
+  inputPage?: number,
+  maxPageSize = endpointConstants.maxPageSize,
+  minPageSize = endpointConstants.minPageSize
+) {
+  const pageSize = isNumber(inputPageSize)
+    ? inputPageSize < minPageSize
+      ? minPageSize
+      : inputPageSize
+    : isNumber(inputPage)
+    ? maxPageSize
+    : undefined;
+  if (pageSize) return Math.min(pageSize, maxPageSize);
+  return pageSize;
+}
+
 export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>) {
-  const pageSize = p?.pageSize || endpointConstants.maxPageSize;
+  const inputPage = getPage(p?.page);
+  const pageSize = getPageSize(p?.pageSize, inputPage);
+  const skip = inputPage && pageSize ? Math.min(inputPage, 0) * pageSize : undefined;
   return {
+    skip,
     limit: pageSize,
-    skip: (p?.page || 0) * pageSize,
     lean: true,
     projection: p?.projection,
     sort: p?.sort,

@@ -5,7 +5,7 @@ export interface IFolder {
   workspaceId: string;
   idPath: string[];
   namePath: string[];
-  parentId?: string;
+  parentId?: string | null;
   createdBy: IAgent;
   createdAt: Date | string;
   // maxFileSizeInBytes: number;
@@ -35,6 +35,9 @@ export interface IPublicFolder {
 }
 
 export interface IFolderMatcher {
+  /**
+   * Folder path with workspace rootname, e.g /workspace-rootname/folder-name
+   **/
   folderpath?: string;
   folderId?: string;
 }

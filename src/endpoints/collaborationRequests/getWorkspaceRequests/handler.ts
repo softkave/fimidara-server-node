@@ -7,6 +7,7 @@ import {
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {collaborationRequestListExtractor, populateRequestListPermissionGroups} from '../utils';
 import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
@@ -18,7 +19,8 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const requests = await context.data.collaborationRequest.getManyByQuery(
-    EndpointReusableQueries.getByWorkspaceId(workspaceId)
+    EndpointReusableQueries.getByWorkspaceId(workspaceId),
+    data
   );
 
   // TODO: can we do this together, so that we don't waste compute
@@ -43,10 +45,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   }
 
   allowedRequests = await populateRequestListPermissionGroups(context, allowedRequests);
-
-  return {
-    requests: collaborationRequestListExtractor(allowedRequests),
-  };
+  return {page: getEndpointPageFromInput(data), requests: collaborationRequestListExtractor(allowedRequests)};
 };
 
 export default getWorkspaceCollaborationRequests;

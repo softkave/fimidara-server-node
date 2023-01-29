@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {isString} from 'lodash';
+import {defaultTo, isString} from 'lodash';
 import {IAgent, IPublicAccessOp} from '../definitions/system';
 import {getDateString} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
@@ -7,10 +7,11 @@ import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../
 import OperationError from '../utils/OperationError';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
+import {getPage} from './contexts/data/utils';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import RequestData from './RequestData';
-import {Endpoint, IPublicAgent, IRequestDataPendingPromise} from './types';
+import {Endpoint, IPaginationQuery, IPublicAgent, IRequestDataPendingPromise} from './types';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
@@ -137,4 +138,8 @@ export function withAssignedAgentList<T extends AnyObject>(
 
 export function endpointDecodeURIComponent(d?: any) {
   return d && isString(d) ? decodeURIComponent(d) : undefined;
+}
+
+export function getEndpointPageFromInput(p: IPaginationQuery, defaultPage = 0): number {
+  return defaultTo(getPage(p.page), defaultPage);
 }

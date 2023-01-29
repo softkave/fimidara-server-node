@@ -1,14 +1,15 @@
 import {IPublicWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetUserWorkspacesEndpointResult {
+export interface IGetUserWorkspacesEndpointParams extends IPaginationQuery {}
+
+export interface IGetUserWorkspacesEndpointResult extends IPaginatedResult {
   workspaces: IPublicWorkspace[];
 }
 
 export type GetUserWorkspacesEndpoint = Endpoint<
   IBaseContext,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  {},
+  IGetUserWorkspacesEndpointParams,
   IGetUserWorkspacesEndpointResult
 >;

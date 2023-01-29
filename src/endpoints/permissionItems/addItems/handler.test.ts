@@ -95,7 +95,6 @@ describe('addItems', () => {
     const result = await addPermissionItems(context, instData);
     assertEndpointResultOk(result);
     expectItemsPresent(result.items, items);
-
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId, AppResourceType.PermissionGroup)
     );

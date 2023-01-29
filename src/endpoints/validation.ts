@@ -52,7 +52,12 @@ const op = (schema: Joi.Schema) =>
       : comparisonOpsSchema(schema)
   );
 
+const page = Joi.number().integer();
+const pageSize = Joi.number().integer();
+
 export const endpointValidationSchemas = {
+  page,
+  pageSize,
   op,
   comparisonOps,
   numberLiteralOps,

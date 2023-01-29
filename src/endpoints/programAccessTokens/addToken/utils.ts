@@ -35,9 +35,9 @@ export const internalCreateProgramAccessToken = async (
     ...data,
     createdAt,
     createdBy,
+    hash,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    hash,
     workspaceId: workspace.resourceId,
     resourceId: getNewIdForResource(AppResourceType.ProgramAccessToken),
   });

@@ -26,35 +26,22 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
     nothrowOnCheckError: true,
   });
 
-  resources = await resourceListWithAssignedItems(
-    context,
-    workspaceId,
-    resources
-  );
-
+  resources = await resourceListWithAssignedItems(context, workspaceId, resources);
   resources = getResourcesPartOfWorkspace(workspaceId, resources, true);
   resources = resources.map(resource => {
     switch (resource.resourceType) {
       case AppResourceType.ProgramAccessToken:
-        resource.resource = getPublicProgramToken(
-          context,
-          resource.resource as any
-        );
+        resource.resource = getPublicProgramToken(context, resource.resource as any);
         return resource;
       case AppResourceType.ClientAssignedToken:
-        resource.resource = getPublicClientToken(
-          context,
-          resource.resource as any
-        );
+        resource.resource = getPublicClientToken(context, resource.resource as any);
         return resource;
       default:
         return resource;
     }
   });
 
-  return {
-    resources: getPublicResourceList(resources, workspaceId),
-  };
+  return {resources: getPublicResourceList(resources, workspaceId)};
 };
 
 export default getResources;

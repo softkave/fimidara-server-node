@@ -11,8 +11,4 @@ export interface IGetResourcesEndpointResult {
   resources: IResource[];
 }
 
-export type GetResourcesEndpoint = Endpoint<
-  IBaseContext,
-  IGetResourcesEndpointParams,
-  IGetResourcesEndpointResult
->;
+export type GetResourcesEndpoint = Endpoint<IBaseContext, IGetResourcesEndpointParams, IGetResourcesEndpointResult>;

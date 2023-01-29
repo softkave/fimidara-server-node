@@ -167,6 +167,8 @@ const getResourcePermissionItemsParams = new FieldObject<IGetResourcePermissionI
     itemResourceType: itemResourceType,
     permissionOwnerId: permissionOwnerIdNotRequired,
     permissionOwnerType: permissionOwnerTypeNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription(
@@ -181,7 +183,7 @@ const getResourcePermissionItemsResult = [
     .setResponseBody(
       new FieldObject<IGetResourcePermissionItemsEndpointResult>()
         .setName('GetResourcePermissionItemsEndpointSuccessResult')
-        .setFields({items: new FieldArray().setType(permissionItem)})
+        .setFields({items: new FieldArray().setType(permissionItem), page: fReusables.page})
         .setRequired(true)
         .setDescription(
           'Get resource permission items endpoint result. ' +
@@ -216,7 +218,13 @@ const replacePermissionItemsByEntityResult = [
 
 const getEntityPermissionItemsParams = new FieldObject<IGetEntityPermissionItemsEndpointParams>()
   .setName('getEntityPermissionItemsEndpointParams')
-  .setFields({permissionEntityId, permissionEntityType, workspaceId: fReusables.workspaceIdInputNotRequired})
+  .setFields({
+    permissionEntityId,
+    permissionEntityType,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
+  })
   .setRequired(true)
   .setDescription('Get entity permission items endpoint params.');
 const getEntityPermissionItemsResult = [
@@ -227,7 +235,7 @@ const getEntityPermissionItemsResult = [
     .setResponseBody(
       new FieldObject<IGetEntityPermissionItemsEndpointResult>()
         .setName('getEntityPermissionItemsEndpointSuccessResult')
-        .setFields({items: new FieldArray().setType(permissionItem)})
+        .setFields({items: new FieldArray().setType(permissionItem), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get permission items endpoint success result.')
     ),

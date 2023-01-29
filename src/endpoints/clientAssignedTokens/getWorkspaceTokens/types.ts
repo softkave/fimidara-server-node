@@ -1,12 +1,12 @@
 import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetWorkspaceClientAssignedTokensEndpointParams {
+export interface IGetWorkspaceClientAssignedTokensEndpointParams extends IPaginationQuery {
   workspaceId?: string;
 }
 
-export interface IGetWorkspaceClientAssignedTokensEndpointResult {
+export interface IGetWorkspaceClientAssignedTokensEndpointResult extends IPaginatedResult {
   tokens: IPublicClientAssignedToken[];
 }
 

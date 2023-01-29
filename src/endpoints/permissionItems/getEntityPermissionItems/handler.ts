@@ -5,6 +5,7 @@ import {
   makeWorkspacePermissionOwnerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import PermissionItemQueries from '../queries';
@@ -28,12 +29,10 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
   });
 
   const items = await context.data.permissionItem.getManyByQuery(
-    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId, data.permissionEntityType)
+    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId, data.permissionEntityType),
+    data
   );
-
-  return {
-    items: PermissionItemUtils.extractPublicPermissionItemList(items),
-  };
+  return {page: getEndpointPageFromInput(data), items: PermissionItemUtils.extractPublicPermissionItemList(items)};
 };
 
 export default getEntityPermissionItems;

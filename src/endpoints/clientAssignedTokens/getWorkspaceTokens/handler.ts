@@ -8,6 +8,7 @@ import {
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
+import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicClientToken} from '../utils';
 import {GetWorkspaceClientAssignedTokenEndpoint} from './types';
@@ -15,12 +16,12 @@ import {getWorkspaceClientAssignedTokenJoiSchema} from './validation';
 
 const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, getWorkspaceClientAssignedTokenJoiSchema);
-
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const tokens = await context.data.clientAssignedToken.getManyByQuery(
-    EndpointReusableQueries.getByWorkspaceId(workspaceId)
+    EndpointReusableQueries.getByWorkspaceId(workspaceId),
+    data
   );
 
   // TODO: can we do this together, so that we don't waste compute
@@ -40,7 +41,6 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
   );
 
   let allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
-
   if (allowedTokens.length === 0 && tokens.length > 0) {
     throw new PermissionDeniedError();
   }
@@ -53,6 +53,7 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
   );
 
   return {
+    page: getEndpointPageFromInput(data),
     tokens: allowedTokens.map(token => getPublicClientToken(context, token)),
   };
 };

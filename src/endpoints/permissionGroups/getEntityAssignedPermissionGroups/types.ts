@@ -1,17 +1,17 @@
 import {IPublicPermissionGroup} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export interface IGetWorkspacePermissionGroupsEndpointParams {
+export interface IGetEntityAssignedPermissionGroupsEndpointParams extends IPaginationQuery {
   workspaceId?: string;
 }
 
-export interface IGetWorkspacePermissionGroupsEndpointResult {
+export interface IGetEntityAssignedPermissionGroupsEndpointResult extends IPaginatedResult {
   permissionGroups: IPublicPermissionGroup[];
 }
 
-export type GetWorkspacePermissionGroupsEndpoint = Endpoint<
+export type GetEntityAssignedPermissionGroupsEndpoint = Endpoint<
   IBaseContext,
-  IGetWorkspacePermissionGroupsEndpointParams,
-  IGetWorkspacePermissionGroupsEndpointResult
+  IGetEntityAssignedPermissionGroupsEndpointParams,
+  IGetEntityAssignedPermissionGroupsEndpointResult
 >;

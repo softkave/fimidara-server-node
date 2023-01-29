@@ -6,6 +6,7 @@ export type DataQuerySort<T, K extends keyof T = keyof T> = {
 };
 
 export interface IDataProvideQueryListParams<T> {
+  /** zero-based index */
   page?: number;
   pageSize?: number;
   projection?: ProjectionType<T>;

@@ -46,7 +46,6 @@ import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregate
 const contexts: IBaseContext[] = [];
 const connections: Connection[] = [];
 const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent());
-
 const runInfo = pipelineRunInfoFactory({
   job: FimidaraPipelineNames.AggregateUsageRecordsJob,
 });
@@ -92,7 +91,7 @@ async function insertUsageRecordsForFiles(
 
   limit = Math.floor(limit);
   let count = 0;
-  const files = generateTestFiles(workspace, 10);
+  const files = generateTestFiles(10, {workspaceId: workspace.resourceId});
   const promises = [];
   let usage = random(1, limit - 1, true);
   let totalUsage = usage;

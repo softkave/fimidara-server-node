@@ -152,7 +152,6 @@ export async function getResources(options: IGetResourcesOptions) {
   >;
 
   const resources: Array<IResource> = [];
-
   if (!checkAuth || !agent || !workspace) {
     settledPromises.forEach(item => {
       if (item.resolved) {
@@ -170,7 +169,6 @@ export async function getResources(options: IGetResourcesOptions) {
   } else {
     const authCheckPromises: IExtendedPromiseWithId<boolean>[] = [];
     const resourceIndexer = (resourceId: string, resourceType: AppResourceType) => `${resourceId}-${resourceType}`;
-
     const inputMap = indexArray(checkedInputResources, {
       indexer: item => resourceIndexer(item.resourceId, item.resourceType),
     });
@@ -181,7 +179,6 @@ export async function getResources(options: IGetResourcesOptions) {
         item.value?.forEach(resource => {
           const key = resourceIndexer(resource.resourceId, item.resourceType);
           const resourceAction = inputMap[key]?.action || action || BasicCRUDActions.Read;
-
           const checkPromise = checkAuthorization({
             context,
             agent,
@@ -221,16 +218,9 @@ export async function getResources(options: IGetResourcesOptions) {
 
     settledPromises.forEach(item => {
       if (item.resolved && item.value) {
-        // groupedResources[item.id] = item.value.filter(resource => {
-        //   return settledAuthCheckMap[
-        //     resourceIndexer(resource.resourceId, item.resourceType)
-        //   ];
-        // });
-
         item.value.forEach(resource => {
           const key = resourceIndexer(resource.resourceId, item.resourceType);
           const permitted = settledAuthCheckMap[key];
-
           if (permitted) {
             resources.push({
               resource,
@@ -244,5 +234,4 @@ export async function getResources(options: IGetResourcesOptions) {
   }
 
   return resources;
-  // return groupedResources;
 }

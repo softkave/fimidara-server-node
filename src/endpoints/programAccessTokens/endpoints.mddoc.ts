@@ -72,6 +72,8 @@ const getWorkspaceProgramAccessTokensParams = new FieldObject<IGetWorkspaceProgr
   .setName('GetWorkspaceProgramAccessTokensEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
   .setDescription('Get workspace program access tokens endpoint params.');
@@ -83,7 +85,7 @@ const getWorkspaceProgramAccessTokensResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspaceProgramAccessTokensEndpointResult>()
         .setName('GetWorkspaceProgramAccessTokensEndpointSuccessResult')
-        .setFields({tokens: new FieldArray().setType(programAccessToken)})
+        .setFields({tokens: new FieldArray().setType(programAccessToken), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace program access tokens endpoint success result.')
     ),
