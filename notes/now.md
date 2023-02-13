@@ -8,7 +8,7 @@
 - [ ] add provided resource ID to all the resources
 - [ ] Add to public permission group description what it's for and that it cannot be deleted. Add similar information to admin permission group and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
-- [ ] delete permission items when entity, owner, or resource is deleted
+- [ ] delete permission items when entity, container, or resource is deleted
 - [ ] write more auth check tests, particularly for ones that shouldn't grant access
 - [ ] differentiate between user and collaborator
 - [ ] increase the length of nanoids

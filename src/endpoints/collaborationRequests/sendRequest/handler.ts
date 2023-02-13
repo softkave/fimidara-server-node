@@ -16,7 +16,7 @@ import CollaboratorQueries from '../../collaborators/queries';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
@@ -37,7 +37,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     agent,
     workspace,
     type: AppResourceType.CollaborationRequest,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 

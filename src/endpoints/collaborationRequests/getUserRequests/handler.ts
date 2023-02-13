@@ -12,7 +12,6 @@ const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async
     CollaborationRequestQueries.getByUserEmail(user.email),
     data
   );
-
   return {page: getEndpointPageFromInput(data), requests: collaborationRequestListExtractor(requests)};
 };
 

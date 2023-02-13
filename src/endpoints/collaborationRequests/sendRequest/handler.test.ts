@@ -51,7 +51,7 @@ describe('sendCollaborationRequest', () => {
     expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
 
     const savedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
-      EndpointReusableQueries.getById(request01.resourceId)
+      EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
 
     expect(request01).toMatchObject(await populateRequestPermissionGroups(context, savedRequest));

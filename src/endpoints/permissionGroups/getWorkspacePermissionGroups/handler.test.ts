@@ -75,7 +75,7 @@ describe('getWorkspacePermissionGroups', () => {
     );
     let result = await getWorkspacePermissionGroups(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.permissionGroups).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -85,7 +85,7 @@ describe('getWorkspacePermissionGroups', () => {
     );
     result = await getWorkspacePermissionGroups(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.permissionGroups).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

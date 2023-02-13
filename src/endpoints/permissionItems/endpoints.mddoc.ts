@@ -35,17 +35,17 @@ import {
   IReplacePermissionItemsByEntityEndpointResult,
 } from './replaceItemsByEntity/types';
 
-const itemResourceId = fReusables.workspaceId
+const targetId = fReusables.workspaceId
   .clone()
   .setDescription('Resource ID of the resource to retrieve permission items for.');
-const itemResourceType = fReusables.resourceType
+const targetType = fReusables.resourceType
   .clone()
   .setDescription(
     'Resource type to retrieve permission items for. ' +
       'You can pass only the resource type to retrieve all the permission items ' +
       'that grant access to a resource type, or also pass a resource ID to restrict it to just that resource.'
   );
-const permissionOwnerId = fReusables.workspaceId
+const containerId = fReusables.workspaceId
   .clone()
   .setDescription(
     'Resource ID of the container resource to search under. ' +
@@ -53,7 +53,7 @@ const permissionOwnerId = fReusables.workspaceId
       'Containers serve to subclass permission so that you can for example, ' +
       'grant access to all files in a folder without risking granting permission to all the files in a workspace.'
   );
-const permissionOwnerType = new FieldString()
+const containerType = new FieldString()
   .setDescription(
     'Resource type of the container resource to search under. ' +
       'Defaults to workspace. ' +
@@ -83,21 +83,21 @@ const permissionEntityType = new FieldString()
 const grantAccess = new FieldBoolean().setDescription(
   'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
 );
-const itemResourceIdOrUndefined = orUndefined(itemResourceId);
-const permissionOwnerIdNotRequired = cloneAndMarkNotRequired(permissionOwnerId);
-const permissionOwnerTypeNotRequired = cloneAndMarkNotRequired(permissionOwnerType);
-const itemResourceIdNotRequired = cloneAndMarkNotRequired(itemResourceId);
+const targetIdOrUndefined = orUndefined(targetId);
+const containerIdNotRequired = cloneAndMarkNotRequired(containerId);
+const containerTypeNotRequired = cloneAndMarkNotRequired(containerType);
+const targetIdNotRequired = cloneAndMarkNotRequired(targetId);
 
 const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInput>>()
   .setName('NewPermissionItemInput')
   .setFields({
-    permissionOwnerId,
-    permissionOwnerType,
+    containerId,
+    containerType,
     grantAccess,
     permissionEntityId,
     permissionEntityType,
-    itemResourceType,
-    itemResourceId: itemResourceIdNotRequired,
+    targetType,
+    targetId: targetIdNotRequired,
     action: fReusables.action,
     appliesTo: fReusables.appliesTo,
   });
@@ -105,11 +105,11 @@ const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInp
 const newPermissionItemByEntityInput = new FieldObject<ExcludeTags<INewPermissionItemInputByEntity>>()
   .setName('NewPermissionItemInputByEntity')
   .setFields({
-    permissionOwnerId,
-    permissionOwnerType,
+    containerId,
+    containerType,
     grantAccess,
-    itemResourceType,
-    itemResourceId: itemResourceIdNotRequired,
+    targetType,
+    targetId: targetIdNotRequired,
     action: fReusables.action,
     appliesTo: fReusables.appliesTo,
   });
@@ -122,16 +122,16 @@ const newPermissionItemByEntityInputList = new FieldArray()
   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>().setName('PermissionItem').setFields({
-  permissionOwnerId,
-  permissionOwnerType,
+  containerId,
+  containerType,
   permissionEntityId,
   permissionEntityType,
-  itemResourceType,
+  targetType,
   resourceId: new FieldString(),
   createdBy: fReusables.agent,
   createdAt: fReusables.date,
   workspaceId: fReusables.workspaceId,
-  itemResourceId: itemResourceIdOrUndefined,
+  targetId: targetIdOrUndefined,
   action: fReusables.action,
   grantAccess: new FieldBoolean(),
   appliesTo: fReusables.appliesTo,
@@ -163,10 +163,10 @@ const getResourcePermissionItemsParams = new FieldObject<IGetResourcePermissionI
   .setName('GetResourcePermissionItemsEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
-    itemResourceId: itemResourceIdNotRequired,
-    itemResourceType: itemResourceType,
-    permissionOwnerId: permissionOwnerIdNotRequired,
-    permissionOwnerType: permissionOwnerTypeNotRequired,
+    targetId: targetIdNotRequired,
+    targetType: targetType,
+    containerId: containerIdNotRequired,
+    containerType: containerTypeNotRequired,
     page: fReusables.pageNotRequired,
     pageSize: fReusables.pageSizeNotRequired,
   })

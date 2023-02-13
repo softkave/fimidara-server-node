@@ -6,10 +6,10 @@ import {IGetResourcePermissionItemsEndpointParams} from './types';
 export const getResourcePermissionItemsJoiSchema = Joi.object<IGetResourcePermissionItemsEndpointParams>()
   .keys({
     workspaceId: validationSchemas.resourceId,
-    itemResourceId: validationSchemas.resourceId.allow(null),
-    itemResourceType: validationSchemas.resourceType.required(),
-    permissionOwnerId: validationSchemas.resourceId.allow(null),
-    permissionOwnerType: validationSchemas.resourceType.allow(null),
+    targetId: validationSchemas.resourceId.allow(null),
+    targetType: validationSchemas.resourceType.required(),
+    containerId: validationSchemas.resourceId.allow(null),
+    containerType: validationSchemas.resourceType.allow(null),
     page: endpointValidationSchemas.page,
     pageSize: endpointValidationSchemas.pageSize,
   })

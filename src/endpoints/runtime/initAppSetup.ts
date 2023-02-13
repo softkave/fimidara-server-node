@@ -99,7 +99,7 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
       {
         action: BasicCRUDActions.Read,
         resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       },
     ],
   });
@@ -110,7 +110,7 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
       {
         action: BasicCRUDActions.Read,
         resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       },
     ],
   });
@@ -145,11 +145,11 @@ async function setupImageUploadPermissionGroup(
       workspaceId: workspaceId,
       createdAt: getDateString(),
       createdBy: systemAgent,
-      permissionOwnerId: folderId,
-      permissionOwnerType: AppResourceType.Folder,
+      containerId: folderId,
+      containerType: AppResourceType.Folder,
       permissionEntityId: imageUploadPermissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
-      itemResourceType: AppResourceType.File,
+      targetType: AppResourceType.File,
       grantAccess: true,
       appliesTo: PermissionItemAppliesTo.Children,
     };
@@ -164,7 +164,7 @@ async function setupImageUploadPermissionGroup(
 
 async function isRootWorkspaceSetup(context: IBaseContext) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
-    EndpointReusableQueries.getById(APP_RUNTIME_STATE_DOC_ID)
+    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );
 
   return appRuntimeState;
@@ -179,7 +179,7 @@ async function getRootWorkspace(context: IBaseContext, appRuntimeState: IAppRunt
 
   merge(context.appVariables, appRuntimeVars);
   const workspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getById(appRuntimeState.appWorkspaceId)
+    EndpointReusableQueries.getByResourceId(appRuntimeState.appWorkspaceId)
   );
   assertWorkspace(workspace);
   return workspace;

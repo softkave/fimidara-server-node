@@ -44,7 +44,7 @@ test('collaboration request revoked', async () => {
   const result = await revokeCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getById(request01.resourceId)
+    EndpointReusableQueries.getByResourceId(request01.resourceId)
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);

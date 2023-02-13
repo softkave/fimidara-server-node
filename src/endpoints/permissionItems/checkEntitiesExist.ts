@@ -4,7 +4,7 @@ import {IWorkspace} from '../../definitions/workspace';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
-import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
+import {checkResourcesBelongToWorkspace} from '../resources/isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 /**
@@ -30,10 +30,7 @@ export default async function checkEntitiesExist(
 ) {
   entities.forEach(item => {
     if (!allowedTypes.has(item.permissionEntityType)) {
-      const message = format(
-        'Invalid permission entity type %s',
-        item.permissionEntityType
-      );
+      const message = format('Invalid permission entity type %s', item.permissionEntityType);
 
       throw new InvalidRequestError(message);
     }
@@ -57,5 +54,5 @@ export default async function checkEntitiesExist(
     [AppResourceType.User] // Limit to users only
   );
 
-  checkNotWorkspaceResources(workspace.resourceId, resources, true);
+  checkResourcesBelongToWorkspace(workspace.resourceId, resources, true);
 }

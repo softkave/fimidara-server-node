@@ -18,11 +18,11 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  getFilePermissionOwners,
-  makeWorkspacePermissionOwnerList,
+  getFilePermissionContainers,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import WorkspaceQueries from '../../workspaces/queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderConstants} from '../constants';
@@ -77,15 +77,7 @@ export async function createSingleFolder(
     : [];
 
   publicAccessOps = compactPublicAccessOps(publicAccessOps);
-  await replacePublicPermissionGroupAccessOpsByPermissionOwner(
-    context,
-    agent,
-    workspace,
-    savedFolder.resourceId,
-    AppResourceType.Folder,
-    publicAccessOps
-  );
-
+  await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, savedFolder);
   return savedFolder;
 }
 
@@ -133,9 +125,9 @@ export async function createFolderList(
         agent,
         workspace,
         type: AppResourceType.Folder,
-        permissionOwners: previousFolder
-          ? getFilePermissionOwners(workspace.resourceId, previousFolder, AppResourceType.Folder)
-          : makeWorkspacePermissionOwnerList(workspace.resourceId),
+        permissionContainers: previousFolder
+          ? getFilePermissionContainers(workspace.resourceId, previousFolder, AppResourceType.Folder)
+          : makeWorkspacePermissionContainerList(workspace.resourceId),
         action: BasicCRUDActions.Create,
       });
 

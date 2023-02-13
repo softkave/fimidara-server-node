@@ -1,8 +1,8 @@
 import {AppResourceType, BasicCRUDActions, IAgent} from './system';
 
 export enum PermissionItemAppliesTo {
-  Owner = 'owner',
-  OwnerAndChildren = 'owner-and-children',
+  Container = 'container',
+  ContainerAndChildren = 'container-and-children',
   Children = 'children',
 }
 
@@ -12,19 +12,18 @@ export interface IPermissionItem {
   createdAt: Date | string;
   createdBy: IAgent;
 
-  // Owners are file, folder and workspace.
-  // The action defined in the permission item will affect
-  // the permission owner, and it's children resources.
-  permissionOwnerId: string;
-  permissionOwnerType: AppResourceType;
+  // Containers scope the reach of a permission item to only the resources they
+  // contain. Currently, there's only workspace and folder.
+  containerId: string;
+  containerType: AppResourceType;
 
   // Entities are user token, client assigned token,
   // program access token and permissionGroup permission groups.
   // It's the entity this permission item was created for.
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
-  itemResourceId?: string;
-  itemResourceType: AppResourceType;
+  targetId?: string;
+  targetType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
   appliesTo: PermissionItemAppliesTo;
@@ -36,12 +35,12 @@ export interface IPublicPermissionItem {
   workspaceId: string;
   createdAt: string;
   createdBy: IAgent;
-  permissionOwnerId: string;
-  permissionOwnerType: AppResourceType;
+  containerId: string;
+  containerType: AppResourceType;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
-  itemResourceId?: string;
-  itemResourceType: AppResourceType;
+  targetId?: string;
+  targetType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
   appliesTo: PermissionItemAppliesTo;

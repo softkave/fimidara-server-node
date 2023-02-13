@@ -7,8 +7,4 @@ export interface IGetUserDataResult {
   user: IPublicUserData;
 }
 
-export type GetUserDataEndpoint = Endpoint<
-  IBaseContext,
-  undefined,
-  ILoginResult
->;
+export type GetUserDataEndpoint = Endpoint<IBaseContext, {}, ILoginResult>;

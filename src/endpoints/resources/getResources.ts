@@ -4,7 +4,10 @@ import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {IPromiseWithId, ISettledPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
-import {checkAuthorization, makeResourcePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeResourcePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {IFetchResourceItem, IResource} from './types';
@@ -63,12 +66,12 @@ export async function getResources(options: IGetResourcesOptions) {
 
   const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
   mapKeys(idsGroupedByType, (ids, type) => {
-    const query = EndpointReusableQueries.getByIds(ids);
+    const query = EndpointReusableQueries.getByResourceIdList(ids);
     switch (type) {
       case AppResourceType.Workspace:
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.data.workspace.getManyByQuery(EndpointReusableQueries.getByIds(ids)),
+          promise: context.data.workspace.getManyByQuery(EndpointReusableQueries.getByResourceIdList(ids)),
           resourceType: type,
         });
         break;
@@ -185,7 +188,11 @@ export async function getResources(options: IGetResourcesOptions) {
             workspace,
             resource: resource,
             type: item.resourceType,
-            permissionOwners: makeResourcePermissionOwnerList(workspace.resourceId, item.resourceType, resource),
+            permissionContainers: makeResourcePermissionContainerList(
+              workspace.resourceId,
+              item.resourceType,
+              resource
+            ),
             action: resourceAction,
             nothrow: nothrowOnCheckError,
           });

@@ -21,7 +21,7 @@ function getByUserIdAndAudience(userId: string, audience: TokenAudience) {
 }
 
 export default abstract class UserTokenQueries {
-  static getById = EndpointReusableQueries.getById;
+  static getById = EndpointReusableQueries.getByResourceId;
   static getByUserId = getByUserId;
   static getByUserIdAndAudience = getByUserIdAndAudience;
 }

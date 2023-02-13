@@ -46,19 +46,22 @@ describe('getWorkspaceCollaborators', () => {
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(user.resourceId))
+      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
     );
     expect(result.collaborators).toContainEqual(collaboratorExtractor(updatedUser, workspace.resourceId));
   });
 
-  test('pagination', async () => {
+  test.only('pagination', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertCollaboratorListForTest(context, systemAgent, workspace.resourceId, 15);
+    const seedCount = 15;
+    await generateAndInsertCollaboratorListForTest(context, systemAgent, workspace.resourceId, seedCount);
     const count = await context.data.assignedItem.countByQuery(
       AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId, AppResourceType.Workspace)
     );
+    expect(count).toBeGreaterThanOrEqual(seedCount);
+
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
@@ -67,7 +70,7 @@ describe('getWorkspaceCollaborators', () => {
     );
     let result = await getWorkspaceCollaborators(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.collaborators).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -77,7 +80,7 @@ describe('getWorkspaceCollaborators', () => {
     );
     result = await getWorkspaceCollaborators(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.collaborators).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

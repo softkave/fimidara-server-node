@@ -14,7 +14,12 @@ export interface IRequestContructorParams<T = any> {
 }
 
 export default class RequestData<T = any> {
-  static fromExpressRequest<DataType = any>(req: IServerRequest, data?: DataType): RequestData<DataType> {
+  static fromExpressRequest(req: IServerRequest): RequestData<{}>;
+  static fromExpressRequest<DataType = any>(req: IServerRequest, data: DataType): RequestData<DataType>;
+  static fromExpressRequest<DataType = any>(
+    ...args: [IServerRequest] | [IServerRequest, DataType]
+  ): RequestData<DataType> {
+    const [req, data] = args;
     const requestData = new RequestData({
       req,
       data,

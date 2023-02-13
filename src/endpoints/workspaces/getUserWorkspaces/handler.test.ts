@@ -15,6 +15,7 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import getUserWorkspaces from './handler';
+import {IGetUserWorkspacesEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -33,7 +34,10 @@ describe('getUserWorkspaces', () => {
     const {workspace: workspace01} = await insertWorkspaceForTest(context, userToken);
     const {workspace: workspace02} = await insertWorkspaceForTest(context, userToken);
     const {workspace: workspace03} = await insertWorkspaceForTest(context, userToken);
-    const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken));
+    const instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {}
+    );
     const result = await getUserWorkspaces(context, instData);
     assertEndpointResultOk(result);
     expect(result.workspaces).toHaveLength(3);
@@ -49,22 +53,28 @@ describe('getUserWorkspaces', () => {
     await Promise.all(workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser)));
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(userToken.userId))
+      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
     );
     const count = user.workspaces.length;
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {page, pageSize});
+    let instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {page, pageSize}
+    );
     let result = await getUserWorkspaces(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {page, pageSize});
+    instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {page, pageSize}
+    );
     result = await getUserWorkspaces(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

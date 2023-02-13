@@ -9,7 +9,7 @@ const getUserWorkspaces: GetUserWorkspacesEndpoint = async (context, d) => {
   const data = validate(d.data, getUserWorkspacesJoiSchema);
   const user = await context.session.getUser(context, d);
   const workspaces = await context.data.workspace.getManyByQuery(
-    EndpointReusableQueries.getByIds(user.workspaces.map(workspace => workspace.workspaceId)),
+    EndpointReusableQueries.getByResourceIdList(user.workspaces.map(workspace => workspace.workspaceId)),
     data
   );
   return {page: getEndpointPageFromInput(data), workspaces: workspaceListExtractor(workspaces)};

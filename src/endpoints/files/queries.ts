@@ -1,7 +1,6 @@
 import {IFile} from '../../definitions/file';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
-import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IFile>();
@@ -14,8 +13,15 @@ function getByNameAndFolderId(name: string, folderId: string) {
     .build();
 }
 
-function getFilesByParentId(parentId: string) {
-  return newFilter().addItem('folderId', parentId, DataProviderFilterValueOperator.Equal).build();
+function getFilesByParentId(workspaceId: string, parentId: string | null, idList?: string[]) {
+  const q = newFilter()
+    .addItem('folderId', parentId, DataProviderFilterValueOperator.Equal)
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
+  if (idList) {
+    q.addItem('resourceId', idList, DataProviderFilterValueOperator.In);
+  }
+
+  return q.build();
 }
 
 function getByNamePath(workspaceId: string, namePath: string[]) {
@@ -41,11 +47,9 @@ function getRootFiles(workspaceId: string) {
 }
 
 export default abstract class FileQueries {
-  static getById = EndpointReusableQueries.getById;
   static getFilesByParentId = getFilesByParentId;
   static getByNameAndFolderId = getByNameAndFolderId;
   static getByNamePath = getByNamePath;
   static getRootFiles = getRootFiles;
-  static getByMultipleIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
   static getByNamePathAndExtention = getByNamePathAndExtention;
 }

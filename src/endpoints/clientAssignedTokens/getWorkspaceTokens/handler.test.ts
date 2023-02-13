@@ -24,7 +24,7 @@ afterAll(async () => {
   await context?.dispose();
 });
 
-describe('getWorkspaceTokens', () => {
+describe('getWorkspaceClientAssignedTokens', () => {
   test("workspace's client assigned tokens returned", async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
@@ -55,7 +55,7 @@ describe('getWorkspaceTokens', () => {
     );
     let result = await getWorkspaceClientAssignedTokens(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -65,7 +65,24 @@ describe('getWorkspaceTokens', () => {
     );
     result = await getWorkspaceClientAssignedTokens(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
   });
+
+  // TODO
+  // test('returns all if can read type', async () => {
+  //   assertContext(context);
+  // });
+
+  // test('returns all and excludes denied items if can read type', async () => {
+  //   assertContext(context);
+  // });
+
+  // test('returns specific items if can read specific items', async () => {
+  //   assertContext(context);
+  // });
+
+  // test('throws error if no access', async () => {
+  //   assertContext(context);
+  // });
 });

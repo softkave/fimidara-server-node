@@ -43,7 +43,6 @@ test('client assigned token permission groups updated', async () => {
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
     context,
     userToken,
@@ -76,7 +75,9 @@ test('client assigned token permission groups updated', async () => {
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.clientAssignedToken.assertGetOneByQuery(EndpointReusableQueries.getById(token01.resourceId)),
+      await context.data.clientAssignedToken.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(token01.resourceId)
+      ),
       AppResourceType.ClientAssignedToken
     )
   );
@@ -88,7 +89,6 @@ test('client assigned token permission groups updated', async () => {
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
-
   expect(result.token.permissionGroups[1]).toMatchObject({
     permissionGroupId: permissionGroup02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},

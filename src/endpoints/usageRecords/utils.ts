@@ -20,9 +20,7 @@ async function insertRecord(ctx: IBaseContext, reqData: RequestData, input: IUsa
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
   );
-
   const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
-
   if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
   }

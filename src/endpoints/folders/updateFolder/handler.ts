@@ -1,12 +1,12 @@
-import {isNull, omit} from 'lodash';
+import {omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
 import {getDate, getDateString} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
-import FolderQueries from '../queries';
+import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
+import EndpointReusableQueries from '../../queries';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {UpdateFolderEndpoint} from './types';
 import {updateFolderJoiSchema} from './validation';
@@ -27,9 +27,11 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     },
   };
 
-  folder = await context.data.folder.assertGetAndUpdateOneByQuery(FolderQueries.getById(folder.resourceId), update);
-  const hasPublicAccessOpsChanges =
-    incomingPublicAccessOps || isNull(incomingPublicAccessOps) || data.folder.removePublicAccessOps;
+  folder = await context.data.folder.assertGetAndUpdateOneByQuery(
+    EndpointReusableQueries.getByResourceId(folder.resourceId),
+    update
+  );
+  const hasPublicAccessOpsChanges = !!incomingPublicAccessOps || data.folder.removePublicAccessOps;
 
   if (hasPublicAccessOpsChanges) {
     let publicAccessOps = incomingPublicAccessOps
@@ -44,14 +46,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
       publicAccessOps = [];
     }
 
-    await replacePublicPermissionGroupAccessOpsByPermissionOwner(
-      context,
-      agent,
-      workspace,
-      folder.resourceId,
-      AppResourceType.Folder,
-      publicAccessOps
-    );
+    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, folder);
   }
 
   await saveResourceAssignedItems(
@@ -65,7 +60,6 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   );
 
   folder = await populateAssignedPermissionGroupsAndTags(context, folder.workspaceId, folder, AppResourceType.Folder);
-
   return {folder: folderExtractor(folder)};
 };
 

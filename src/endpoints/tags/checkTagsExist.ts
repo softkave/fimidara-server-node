@@ -4,7 +4,7 @@ import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
 import {IBaseContext} from '../contexts/types';
 import {getResources} from '../resources/getResources';
-import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
+import {checkResourcesBelongToWorkspace} from '../resources/isPartOfOrganization';
 
 export default async function checkTagsExist(
   context: IBaseContext,
@@ -23,7 +23,7 @@ export default async function checkTagsExist(
     checkAuth: true,
   });
 
-  checkNotWorkspaceResources(
+  checkResourcesBelongToWorkspace(
     workspace.resourceId,
     resources,
     // Set to true, since we're only dealing with tags

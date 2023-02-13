@@ -85,22 +85,22 @@ describe('listFolderContent', () => {
     let page = 0;
     let instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {folderpath: workspace.rootname}
+      {page, pageSize, folderpath: workspace.rootname}
     );
     let result = await listFolderContent(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
     expect(result.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
 
     page = 1;
     instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {folderpath: workspace.rootname}
+      {page, pageSize, folderpath: workspace.rootname}
     );
     result = await listFolderContent(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
     expect(result.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
   });

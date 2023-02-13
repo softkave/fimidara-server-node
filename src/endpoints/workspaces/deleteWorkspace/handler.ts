@@ -7,7 +7,6 @@ import {IBaseContext} from '../../contexts/types';
 import FileQueries from '../../files/queries';
 import {internalDeleteFolderList} from '../../folders/deleteFolder/handler';
 import FolderQueries from '../../folders/queries';
-import ProgramAccessTokenQueries from '../../programAccessTokens/queries';
 import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceAuthorization02} from '../utils';
 import {DeleteWorkspaceEndpoint} from './types';
@@ -25,7 +24,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     context.data.collaborationRequest.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Program tokens
-    context.data.programAccessToken.deleteManyByQuery(ProgramAccessTokenQueries.getByWorkspaceId(workspace.resourceId)),
+    context.data.programAccessToken.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
 
     // Client tokens
     context.data.clientAssignedToken.deleteManyByQuery(EndpointReusableQueries.getByWorkspaceId(workspace.resourceId)),
@@ -54,7 +53,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     updateCollaborators(context, workspace.resourceId),
 
     //  Delete the workspace
-    context.data.workspace.deleteOneByQuery(EndpointReusableQueries.getById(workspace.resourceId)),
+    context.data.workspace.deleteOneByQuery(EndpointReusableQueries.getByResourceId(workspace.resourceId)),
   ]);
 };
 

@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {getEndpointPageFromInput} from '../../utils';
@@ -25,7 +25,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
     workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   const items = await context.data.permissionItem.getManyByQuery(

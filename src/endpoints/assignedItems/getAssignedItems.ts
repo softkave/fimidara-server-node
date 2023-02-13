@@ -18,15 +18,14 @@ import {
 
 /**
  * @param context
- * @param workspaceId Use empty string for fetching user workspaces
+ * @param workspaceId - Use `undefined` for fetching user workspaces
  * @param resourceId
  * @param resourceType
  * @param assignedItemTypes
- * @returns
  */
 export async function getResourceAssignedItems(
   context: IBaseContext,
-  workspaceId: string,
+  workspaceId: string | undefined,
   resourceId: string,
   resourceType: AppResourceType,
   assignedItemTypes?: ReadonlyArray<AppResourceType>
@@ -38,17 +37,16 @@ export async function getResourceAssignedItems(
 
 /**
  * @param context
- * @param workspaceId Use empty string for fetching user workspaces
+ * @param workspaceId - Use `undefined` for fetching user workspaces
  * @param resourceId
  * @param resourceType
- * @param assignedItemTypes List of assigned item types to fetch. If not
+ * @param assignedItemTypes - List of assigned item types to fetch. If not
  * specified, all assigned items will be fetched. If specified, result will
  * contain empty arrays if no assigned items of the specified type are found.
- * @returns
  */
 export async function getResourceAssignedItemsSortedByType(
   context: IBaseContext,
-  workspaceId: string,
+  workspaceId: string | undefined,
   resourceId: string,
   resourceType: AppResourceType,
   assignedItemTypes?: ReadonlyArray<AppResourceType>
@@ -212,7 +210,7 @@ export async function populateUserWorkspaces<T extends IUser>(
 ): Promise<T & {workspaces: IUserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
-    /** workspaceId */ '', // Empty string is used to fetch user workspaces
+    /** workspaceId */ undefined,
     resource.resourceId,
     AppResourceType.User
   );

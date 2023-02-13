@@ -15,7 +15,8 @@ export interface IDataProvideQueryListParams<T> {
 
 export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
 
-// TODO: reclassify ops based on Mongo ops, but split comparison into number and other literals
+// TODO: reclassify ops based on Mongo ops, but split comparison into number and
+// other literals
 export interface IComparisonLiteralFieldQueryOps<T extends DataProviderLiteralType = DataProviderLiteralType> {
   $eq?: T;
   $in?: T extends string ? Array<T | RegExp> : Array<T>;

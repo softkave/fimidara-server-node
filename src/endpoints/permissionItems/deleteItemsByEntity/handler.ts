@@ -3,9 +3,10 @@ import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import {default as PermissionItemQueries} from '../queries';
@@ -25,7 +26,7 @@ const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = asy
     workspace,
     action: BasicCRUDActions.GrantPermission,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   await waitOnPromises([
@@ -37,7 +38,9 @@ const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = asy
       );
     }),
 
-    context.data.permissionItem.deleteManyByQuery(PermissionItemQueries.getByIds(data.itemIds, workspace.resourceId)),
+    context.data.permissionItem.deleteManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspace.resourceId, data.itemIds)
+    ),
   ]);
 };
 

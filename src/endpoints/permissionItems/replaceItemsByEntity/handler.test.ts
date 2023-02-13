@@ -9,7 +9,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   ITestPermissionItemByEntityBase,
-  ITestPermissionItemOwner,
+  ITestPermissionItemContainer,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
 
@@ -19,7 +19,7 @@ import PermissionItemQueries from '../queries';
  * [Medium] - Test for collaborator entity
  * [Medium] - Test for program access token entity
  * [Medium] - Test for client assigned token entity
- * [Medium] - Test for different resources and owners
+ * [Medium] - Test for different resources and containers
  * [Medium] - Test that items are not getting duplicated in DB
  */
 
@@ -53,10 +53,10 @@ describe('replaceItemsByEntity', () => {
         permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
-        permissionOwnerId: workspace.resourceId,
-        permissionOwnerType: AppResourceType.Workspace,
+        containerId: workspace.resourceId,
+        containerType: AppResourceType.Workspace,
       },
-      {itemResourceType: AppResourceType.File}
+      {targetType: AppResourceType.File}
     );
   });
 
@@ -70,13 +70,13 @@ describe('replaceItemsByEntity', () => {
       workspace.resourceId
     );
 
-    const itemsOwner: ITestPermissionItemOwner = {
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+    const itemsContainer: ITestPermissionItemContainer = {
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
     };
 
     const itemsBase: ITestPermissionItemByEntityBase = {
-      itemResourceType: AppResourceType.File,
+      targetType: AppResourceType.File,
     };
 
     const entity: IPermissionEntity = {
@@ -85,7 +85,14 @@ describe('replaceItemsByEntity', () => {
     };
 
     // First insert
-    await insertPermissionItemsForTestByEntity(context, userToken, workspace.resourceId, entity, itemsOwner, itemsBase);
+    await insertPermissionItemsForTestByEntity(
+      context,
+      userToken,
+      workspace.resourceId,
+      entity,
+      itemsContainer,
+      itemsBase
+    );
 
     // Second insert of the very same permission items as the first
     // insert
@@ -94,7 +101,7 @@ describe('replaceItemsByEntity', () => {
       userToken,
       workspace.resourceId,
       entity,
-      itemsOwner,
+      itemsContainer,
       itemsBase
     );
 

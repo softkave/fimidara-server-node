@@ -126,7 +126,7 @@ const updatePermissionGroupParams = new FieldObject<IUpdatePermissionGroupEndpoi
   .setName('UpdatePermissionGroupEndpointParams')
   .setFields({
     ...permissionGroupMatcherParts,
-    permissionGroup: partialFieldObject(newPermissionGroupInput),
+    data: partialFieldObject(newPermissionGroupInput),
   })
   .setRequired(true)
   .setDescription('Update permission group endpoint params.');

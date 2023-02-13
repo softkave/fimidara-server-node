@@ -62,7 +62,7 @@ export function assertWorkspace(workspace: IWorkspace | null | undefined): asser
 }
 
 export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
-  const w = await ctx.data.workspace.getOneByQuery(EndpointReusableQueries.getById(workspaceId));
+  const w = await ctx.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(workspaceId));
   assertWorkspace(w);
   return w;
 }
@@ -94,7 +94,7 @@ export async function checkWorkspaceAuthorization(
     nothrow,
     resource: workspace,
     type: AppResourceType.Workspace,
-    permissionOwners: [],
+    permissionContainers: [],
   });
 
   return {agent, workspace};

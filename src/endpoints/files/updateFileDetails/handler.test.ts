@@ -3,6 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -13,7 +14,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import FileQueries from '../queries';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
@@ -32,7 +32,7 @@ test('file updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file, reqData} = await insertFileForTest(context, userToken, workspace);
+  const {file} = await insertFileForTest(context, userToken, workspace);
 
   const updateInput: IUpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
@@ -55,7 +55,7 @@ test('file updated', async () => {
   const updatedFile = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.file.assertGetOneByQuery(FileQueries.getById(file.resourceId)),
+    await context.data.file.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId)),
     AppResourceType.File
   );
 

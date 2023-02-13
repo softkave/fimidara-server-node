@@ -7,14 +7,15 @@ import {IBaseContext} from '../../contexts/types';
 import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
 import FileQueries from '../../files/queries';
 import PermissionItemQueries from '../../permissionItems/queries';
+import EndpointReusableQueries from '../../queries';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization02} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
 
-async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
+async function deleteFilesByFolderId(context: IBaseContext, workspaceId: string, folderId: string) {
   // TODO: should we get files by name path, paginated
-  const files = await context.data.file.getManyByQuery(FileQueries.getFilesByParentId(folderId));
+  const files = await context.data.file.getManyByQuery(FileQueries.getFilesByParentId(workspaceId, folderId));
   await waitOnPromises(
     // Delete file and assigned items
     files.map(file => deleteFileAndArtifacts(context, file))
@@ -29,26 +30,26 @@ async function deleteFilesByFolderId(context: IBaseContext, folderId: string) {
 async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
   // TODO: log jobs that fail so that we can retry them
   await waitOnPromises([
-    deleteFilesByFolderId(context, folder.resourceId),
+    deleteFilesByFolderId(context, folder.workspaceId, folder.resourceId),
     internalDeleteFolderList(
       context,
-      await context.data.folder.getManyByQuery(FolderQueries.getFoldersByParentId(folder.resourceId))
+      await context.data.folder.getManyByQuery(FolderQueries.getByParentId(folder.workspaceId, folder.resourceId))
     ),
   ]);
 
   await waitOnPromises([
     // Delete folder children folders
-    context.data.folder.deleteManyByQuery(FolderQueries.getFoldersByParentId(folder.resourceId)),
+    context.data.folder.deleteManyByQuery(FolderQueries.getByParentId(folder.workspaceId, folder.resourceId)),
 
     // Delete folder
-    context.data.folder.deleteOneByQuery(FolderQueries.getById(folder.resourceId)),
+    context.data.folder.deleteOneByQuery(EndpointReusableQueries.getByResourceId(folder.resourceId)),
 
     // Delete folder assigned items like tags
     deleteResourceAssignedItems(context, folder.workspaceId, folder.resourceId, AppResourceType.Folder),
 
     // Delete permission items that are owned by the folder
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByOwner(folder.resourceId, AppResourceType.Folder)
+      PermissionItemQueries.getByContainer(folder.resourceId, AppResourceType.Folder)
     ),
 
     // Delete permission items that explicitly give access to the folder

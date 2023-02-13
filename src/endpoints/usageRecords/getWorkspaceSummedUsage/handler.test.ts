@@ -191,30 +191,42 @@ describe('getWorkspaceSummedUsage', () => {
     await generateAndInsertUsageRecordList(context, 15, {
       workspaceId: workspace.resourceId,
       summationType: UsageSummationType.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
     const count = await context.data.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
       summationType: UsageSummationType.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
+      {
+        page,
+        pageSize,
+        workspaceId: workspace.resourceId,
+        query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},
+      }
     );
     let result = await getWorkspaceSummedUsage(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.records).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
+      {
+        page,
+        pageSize,
+        workspaceId: workspace.resourceId,
+        query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},
+      }
     );
     result = await getWorkspaceSummedUsage(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.records).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

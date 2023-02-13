@@ -6,8 +6,8 @@ import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
+import EndpointReusableQueries from '../../queries';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
-import ProgramAccessTokenQueries from '../queries';
 import {checkProgramAccessTokenAuthorization02, getPublicProgramToken} from '../utils';
 import {UpdateProgramAccessTokenEndpoint} from './types';
 import {updateProgramAccessTokenJoiSchema} from './validation';
@@ -35,7 +35,7 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (contex
   }
 
   token = await context.data.programAccessToken.assertGetAndUpdateOneByQuery(
-    ProgramAccessTokenQueries.getById(tokenId),
+    EndpointReusableQueries.getByResourceId(tokenId),
     tokenUpdate
   );
 

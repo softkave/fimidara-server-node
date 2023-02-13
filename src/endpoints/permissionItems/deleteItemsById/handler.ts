@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
@@ -21,11 +21,11 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (cont
     workspace,
     action: BasicCRUDActions.GrantPermission,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
   });
 
   await context.data.permissionItem.deleteManyByQuery(
-    EndpointReusableQueries.getByWorkspaceIdAndIds(workspaceId, data.itemIds)
+    EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspaceId, data.itemIds)
   );
 };
 

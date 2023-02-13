@@ -1,8 +1,9 @@
+import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
+  summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
@@ -18,34 +19,37 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const requests = await context.data.collaborationRequest.getManyByQuery(
-    EndpointReusableQueries.getByWorkspaceId(workspaceId),
-    data
-  );
-
-  // TODO: can we do this together, so that we don't waste compute
-  const permittedReads = await Promise.all(
-    requests.map(item =>
-      checkAuthorization({
-        context,
-        agent,
-        workspace,
-        resource: item,
-        type: AppResourceType.CollaborationRequest,
-        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
-        action: BasicCRUDActions.Read,
-        nothrow: true,
-      })
-    )
-  );
-
-  let allowedRequests = requests.filter((item, i) => !!permittedReads[i]);
-  if (allowedRequests.length === 0 && requests.length > 0) {
+  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+    context,
+    agent,
+    workspace,
+    type: AppResourceType.CollaborationRequest,
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    action: BasicCRUDActions.Read,
+  });
+  let requests: Array<ICollaborationRequest> = [];
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    requests = await context.data.collaborationRequest.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    requests = await context.data.collaborationRequest.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.allowedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
 
-  allowedRequests = await populateRequestListPermissionGroups(context, allowedRequests);
-  return {page: getEndpointPageFromInput(data), requests: collaborationRequestListExtractor(allowedRequests)};
+  requests = await populateRequestListPermissionGroups(context, requests);
+  return {page: getEndpointPageFromInput(data), requests: collaborationRequestListExtractor(requests)};
 };
 
 export default getWorkspaceCollaborationRequests;

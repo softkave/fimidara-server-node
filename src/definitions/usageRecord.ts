@@ -18,7 +18,7 @@ export interface IUsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
   action?: BasicCRUDActions;
-  artifact: any;
+  artifact: IFileUsageRecordArtifact | IBandwidthUsageRecordArtifact;
 }
 
 export enum UsageRecordFulfillmentStatus {

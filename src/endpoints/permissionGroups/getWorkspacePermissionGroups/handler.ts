@@ -1,15 +1,16 @@
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
+  summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
+import EndpointReusableQueries from '../../queries';
 import {PermissionDeniedError} from '../../user/errors';
 import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import PermissionGroupQueries from '../queries';
 import {permissionGroupListExtractor} from '../utils';
 import {GetWorkspacePermissionGroupsEndpoint} from './types';
 import {getWorkspacePermissionGroupsJoiSchema} from './validation';
@@ -19,40 +20,42 @@ const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint = async
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const items = await context.data.permissiongroup.getManyByQuery(
-    PermissionGroupQueries.getByWorkspaceId(workspaceId),
-    data
-  );
-
-  // TODO: can we do this together, so that we don't waste compute
-  const permittedReads = await Promise.all(
-    items.map(item =>
-      checkAuthorization({
-        context,
-        agent,
-        workspace,
-        resource: item,
-        type: AppResourceType.PermissionGroup,
-        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
-        action: BasicCRUDActions.Read,
-        nothrow: true,
-      })
-    )
-  );
-
-  let allowedItems = items.filter((item, i) => !!permittedReads[i]);
-  if (allowedItems.length === 0 && items.length > 0) {
+  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+    context,
+    agent,
+    workspace,
+    type: AppResourceType.PermissionGroup,
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    action: BasicCRUDActions.Read,
+  });
+  let items: Array<IPermissionGroup> = [];
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    items = await context.data.permissiongroup.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    items = await context.data.permissiongroup.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.allowedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
 
-  allowedItems = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  items = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    allowedItems,
+    items,
     AppResourceType.PermissionGroup
   );
-
-  return {page: getEndpointPageFromInput(data), permissionGroups: permissionGroupListExtractor(allowedItems)};
+  return {page: getEndpointPageFromInput(data), permissionGroups: permissionGroupListExtractor(items)};
 };
 
 export default getWorkspacePermissionGroups;

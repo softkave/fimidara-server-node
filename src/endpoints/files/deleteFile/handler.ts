@@ -1,14 +1,14 @@
-import {IFile} from '../../../definitions/file';
-import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
-import {validate} from '../../../utils/validate';
-import {waitOnPromises} from '../../../utils/waitOnPromises';
-import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import { IFile } from '../../../definitions/file';
+import { AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents } from '../../../definitions/system';
+import { validate } from '../../../utils/validate';
+import { waitOnPromises } from '../../../utils/waitOnPromises';
+import { deleteResourceAssignedItems } from '../../assignedItems/deleteAssignedItems';
+import { IBaseContext } from '../../contexts/types';
 import PermissionItemQueries from '../../permissionItems/queries';
-import FileQueries from '../queries';
-import {checkFileAuthorization03} from '../utils';
-import {DeleteFileEndpoint} from './types';
-import {deleteFileJoiSchema} from './validation';
+import EndpointReusableQueries from '../../queries';
+import { checkFileAuthorization03 } from '../utils';
+import { DeleteFileEndpoint } from './types';
+import { deleteFileJoiSchema } from './validation';
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
@@ -28,13 +28,12 @@ export async function deleteFileAndArtifacts(context: IBaseContext, file: IFile)
 
     // Delete permission items that are owned by the file
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByOwner(file.resourceId, AppResourceType.File)
+      PermissionItemQueries.getByContainer(file.resourceId, AppResourceType.File)
     ),
 
     // Delete assigned tags and permissionGroups
     deleteResourceAssignedItems(context, file.workspaceId, file.resourceId, AppResourceType.File),
-
-    context.data.file.deleteOneByQuery(FileQueries.getById(file.resourceId)),
+    context.data.file.deleteOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId)),
   ]);
 }
 

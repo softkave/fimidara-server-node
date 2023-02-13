@@ -4,7 +4,7 @@ import EndpointReusableQueries from '../queries';
 
 export async function checkProgramTokenNameExists(context: IBaseContext, workspaceId: string, name: string) {
   const itemExists = await context.data.programAccessToken.existsByQuery(
-    EndpointReusableQueries.getByWorkspaceAndName(workspaceId, name)
+    EndpointReusableQueries.getByWorkspaceIdAndName(workspaceId, name)
   );
 
   if (itemExists) {

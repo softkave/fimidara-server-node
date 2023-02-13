@@ -1,8 +1,7 @@
+import assert from 'assert';
 import {validate} from '../../../utils/validate';
 import {getWorkspaceId} from '../../contexts/SessionContext';
-import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';
 import {getEntityAssignedPermissionGroupsJoiSchema} from './validation';
 
@@ -11,8 +10,8 @@ const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoi
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-
-  return {page: getEndpointPageFromInput(data), permissionGroups: permissionGroupListExtractor([])};
+  assert.fail('Not implemented yet');
+  // return {page: getEndpointPageFromInput(data), permissionGroups: permissionGroupListExtractor([])};
 };
 
 export default getEntityAssignedPermissionGroups;

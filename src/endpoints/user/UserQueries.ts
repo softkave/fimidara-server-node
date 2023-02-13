@@ -20,8 +20,8 @@ function userExists(email: string) {
 }
 
 export default abstract class UserQueries {
-  static getById = EndpointReusableQueries.getById;
-  static getByIds = EndpointReusableQueries.getByIds;
+  static getById = EndpointReusableQueries.getByResourceId;
+  static getByIds = EndpointReusableQueries.getByResourceIdList;
   static userExists = userExists;
   static getByEmail = getByEmail;
 }

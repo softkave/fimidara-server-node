@@ -1,6 +1,7 @@
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   initTestBaseContext,
@@ -9,7 +10,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
-import ProgramAccessTokenQueries from '../queries';
 import {getPublicProgramToken, programAccessTokenExtractor} from '../utils';
 
 /**
@@ -62,7 +62,9 @@ test('program access token added', async () => {
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.programAccessToken.assertGetOneByQuery(ProgramAccessTokenQueries.getById(token.resourceId)),
+      await context.data.programAccessToken.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(token.resourceId)
+      ),
       AppResourceType.ProgramAccessToken
     )
   );

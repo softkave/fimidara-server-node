@@ -89,7 +89,7 @@ export const internalRespondToCollaborationRequest = async (
   data: IRespondToCollaborationRequestEndpointParams
 ) => {
   let request = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getById(data.requestId)
+    EndpointReusableQueries.getByResourceId(data.requestId)
   );
 
   if (user.email !== request.recipientEmail) {
@@ -102,7 +102,7 @@ export const internalRespondToCollaborationRequest = async (
   }
 
   request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getById(data.requestId),
+    EndpointReusableQueries.getByResourceId(data.requestId),
     {
       statusHistory: request.statusHistory.concat({
         date: getDateString(),
@@ -111,13 +111,15 @@ export const internalRespondToCollaborationRequest = async (
     }
   );
 
-  const workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(request.workspaceId));
+  const workspace = await context.data.workspace.getOneByQuery(
+    EndpointReusableQueries.getByResourceId(request.workspaceId)
+  );
   assertWorkspace(workspace);
   const notifyUser =
     isUserAgent(request.createdBy) || isUserAgent(workspace.createdBy)
       ? // TODO: check if agent is a user or associated type before fetching
         await context.data.user.assertGetOneByQuery(
-          EndpointReusableQueries.getById(
+          EndpointReusableQueries.getByResourceId(
             request.createdBy.agentType === SessionAgentType.User
               ? request.createdBy.agentId
               : workspace.createdBy.agentId

@@ -1,15 +1,11 @@
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
-  getFilePermissionOwners,
-  makeWorkspacePermissionOwnerList,
+  getFilePermissionContainers,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
@@ -37,19 +33,11 @@ export async function checkUploadFileAuth(
     workspace,
     type: AppResourceType.File,
     resource: file,
-    permissionOwners: file
-      ? getFilePermissionOwners(
-          workspace.resourceId,
-          file,
-          AppResourceType.File
-        )
+    permissionContainers: file
+      ? getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File)
       : closestExistingFolder
-      ? getFilePermissionOwners(
-          workspace.resourceId,
-          closestExistingFolder,
-          AppResourceType.Folder
-        )
-      : makeWorkspacePermissionOwnerList(workspace.resourceId),
+      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, AppResourceType.Folder)
+      : makeWorkspacePermissionContainerList(workspace.resourceId),
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files
@@ -65,10 +53,7 @@ export async function createFileParentFolders(
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(context, agent, workspace, {
-      folderpath: addRootnameToPath(
-        pathWithDetails.parentPath,
-        workspace.rootname
-      ),
+      folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname),
     });
   }
 

@@ -34,7 +34,6 @@ test('collaboration request declined', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {user: user02, userToken: user02Token} = await insertUserForTest(context);
-
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
     recipientEmail: user02.email,
@@ -51,7 +50,7 @@ test('collaboration request declined', async () => {
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getById(request01.resourceId)
+    EndpointReusableQueries.getByResourceId(request01.resourceId)
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);

@@ -6,6 +6,7 @@ import {
   shortNameToResourceTypes,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
+import {appAssert} from './assertion';
 import OperationError, {getErrorMessageFromParams, IOperationErrorParameters} from './OperationError';
 
 export class InvalidResourceIdError extends OperationError {
@@ -14,7 +15,7 @@ export class InvalidResourceIdError extends OperationError {
 
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Invalid resource id');
+    this.message = getErrorMessageFromParams(props, 'Invalid resource ID');
   }
 }
 
@@ -36,6 +37,17 @@ export function isAppResourceId(resourceId: string) {
   if (!shortName || !shortNameToResourceTypes[shortName]) {
     return false;
   }
-
   return true;
+}
+
+export function tryGetResourceTypeFromId(id: string): AppResourceType | undefined {
+  const shortName = id.slice(0, resourceTypeShortNameMaxLen);
+  const type = shortNameToResourceTypes[shortName];
+  return type;
+}
+
+export function getResourceTypeFromId(id: string) {
+  const type = tryGetResourceTypeFromId(id);
+  appAssert(!!type, new InvalidResourceIdError());
+  return type;
 }

@@ -4,7 +4,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getDate} from '../../../utils/dateFns';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
@@ -19,34 +19,21 @@ export async function internalUpdateFile(
   data: IUploadFileEndpointParams
 ) {
   const file = await context.data.file.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getById(existingFile.resourceId),
+    EndpointReusableQueries.getByResourceId(existingFile.resourceId),
     {
       ...data,
       extension: data.extension || pathWithDetails.extension || existingFile.extension,
       size: data.data.length,
-      lastUpdatedBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
+      lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
       lastUpdatedAt: getDate(),
     }
   );
 
   if (data.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
-
-    await replacePublicPermissionGroupAccessOpsByPermissionOwner(
-      context,
-      agent,
-      workspace,
-      file.resourceId,
-      AppResourceType.File,
-      publicAccessOps,
-      file.resourceId
-    );
+    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
   await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, true);
-
   return file;
 }

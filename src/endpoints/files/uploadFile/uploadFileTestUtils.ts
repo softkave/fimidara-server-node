@@ -11,8 +11,9 @@ import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectItemsByEntityPresent} from '../../test-utils/helpers/permissionItem';
+import {expectPermissionItemsForEntityPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -27,7 +28,6 @@ import deleteFile from '../deleteFile/handler';
 import {IDeleteFileEndpointParams} from '../deleteFile/types';
 import getFile from '../getFile/handler';
 import {IGetFileEndpointParams} from '../getFile/types';
-import FileQueries from '../queries';
 import updateFileDetails from '../updateFileDetails/handler';
 import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
@@ -43,7 +43,6 @@ export const uploadFileBaseTest = async (
 ) => {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
   insertWorkspaceResult = insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-
   const {file, buffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
@@ -51,18 +50,15 @@ export const uploadFileBaseTest = async (
     input,
     type
   );
-
   const persistedFile = await ctx.fileBackend.getFile({
     bucket: ctx.appVariables.S3Bucket,
     key: file.resourceId,
   });
-
   const savedBuffer = persistedFile.body && (await getBufferFromStream(persistedFile.body));
-
   appAssert(savedBuffer);
   expect(buffer.equals(savedBuffer)).toBe(true);
-  const savedFile = await ctx.data.file.assertGetOneByQuery(FileQueries.getById(file.resourceId));
 
+  const savedFile = await ctx.data.file.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId));
   expect(file).toMatchObject(fileExtractor(savedFile));
   return {
     file,
@@ -74,38 +70,12 @@ export const uploadFileBaseTest = async (
 
 export async function assertPublicAccessOps(
   ctx: IBaseContext,
-  resource: {resourceId: string},
-  insertUserResult: IInsertUserForTestResult,
+  resource: {resourceId: string; workspaceId: string},
   insertWorkspaceResult: IInsertWorkspaceForTestResult,
-  publicAccessOpsInput: IPublicAccessOpInput[],
-  resourceType: AppResourceType
+  publicAccessOpsInput: IPublicAccessOpInput[]
 ) {
-  // const agent = await ctx.session.getAgent(
-  //   ctx,
-  //   RequestData.fromExpressRequest(
-  //     mockExpressRequestWithUserToken(insertUserResult.userToken)
-  //   )
-  // );
-
-  // const resourcePublicAccessOpsMap = indexArray(resource.publicAccessOps, {
-  //   indexer: op => op.action + op.resourceType,
-  // });
-
-  // publicAccessOpsInput.forEach(op => {
-  //   expect(
-  //     resourcePublicAccessOpsMap[op.action + op.resourceType]
-  //   ).toMatchObject({
-  //     action: op.action,
-  //     resourceType: op.resourceType,
-  //     markedBy: {
-  //       agentId: agent.agentId,
-  //       agentType: agent.agentType,
-  //     },
-  //   });
-  // });
-
   assert(insertWorkspaceResult.workspace.publicPermissionGroupId);
-  const publicPermissionGroupPermissionitems = (
+  const publicPermissionItems = (
     await ctx.data.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(
         insertWorkspaceResult.workspace.publicPermissionGroupId,
@@ -113,71 +83,59 @@ export async function assertPublicAccessOps(
       )
     )
   ).map(item => {
-    // Adding code to fill in itemResourceId, cause integration-test
-    // using mongo as data backend fails when testing for folders
-    // because the matched object when checking basePermissionItems has
-    // it as 'undefined', and the public permissions do not.
-    // If you can find a better fix, please implement it.
-    return {...item, itemResourceId: item.itemResourceId};
+    // Adding target ID because the following permission items check does
+    // one-to-one item matching, i.e a permission item that gives permisssion to
+    // a type and not to a specific type and resource won't work even though
+    // technically, that permission item should grant access
+    return {...item, targetId: item.targetId};
   });
 
-  const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(
-    resource.resourceId,
-    resourceType,
-    publicAccessOpsInput,
-    resourceType === AppResourceType.File ? resource.resourceId : undefined
-  );
-
-  expectItemsByEntityPresent(
-    publicPermissionGroupPermissionitems,
+  const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(publicAccessOpsInput, resource);
+  expectPermissionItemsForEntityPresent(
+    publicPermissionItems,
     basePermissionItems,
     insertWorkspaceResult.workspace.publicPermissionGroupId,
     AppResourceType.PermissionGroup
   );
 }
 
-export async function assertPublicPermissionsDonotExistForOwner(
+export async function assertPublicPermissionsDonotExistForContainer(
   ctx: IBaseContext,
   workspace: Pick<IWorkspace, 'publicPermissionGroupId'>,
-  ownerId: string
+  containerId: string
 ) {
   assert(workspace.publicPermissionGroupId);
   const publicPermissionGroupPermissionitems = await ctx.data.permissionItem.getManyByQuery(
     PermissionItemQueries.getByPermissionEntity(workspace.publicPermissionGroupId, AppResourceType.PermissionGroup)
   );
 
-  const items = publicPermissionGroupPermissionitems.filter(item => item.permissionOwnerId === ownerId);
-
+  const items = publicPermissionGroupPermissionitems.filter(item => item.containerId === containerId);
   expect(items).toHaveLength(0);
 }
 
 export const uploadFileWithPublicAccessActionTest = async (
   ctx: IBaseContext,
   input: Partial<IUploadFileEndpointParams>,
-  expectedPublicAccessOpsCount: number,
   expectedActions: BasicCRUDActions[],
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   const uploadResult = await uploadFileBaseTest(ctx, input, type, insertUserResult, insertWorkspaceResult);
-
   const {savedFile} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
   await assertPublicAccessOps(
     ctx,
     savedFile,
-    insertUserResult,
     insertWorkspaceResult,
     expectedActions.map(action => {
       return {
         action,
         resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       };
-    }),
-    AppResourceType.File
+    })
   );
 
   return uploadResult;

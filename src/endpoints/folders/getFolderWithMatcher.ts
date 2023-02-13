@@ -8,7 +8,7 @@ import {assertFolder, splitPathWithDetails} from './utils';
 
 export async function getFolderWithMatcher(context: IBaseContext, matcher: IFolderMatcher) {
   if (matcher.folderId) {
-    return await context.data.folder.getOneByQuery(EndpointReusableQueries.getById(matcher.folderId));
+    return await context.data.folder.getOneByQuery(EndpointReusableQueries.getByResourceId(matcher.folderId));
   } else if (matcher.folderpath) {
     const pathWithDetails = splitPathWithDetails(matcher.folderpath);
     const workspace = await context.data.workspace.getOneByQuery(

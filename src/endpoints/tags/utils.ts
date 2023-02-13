@@ -2,7 +2,10 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definition
 import {IAssignedTag, IPublicTag, ITag} from '../../definitions/tag';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
@@ -49,7 +52,7 @@ export async function checkTagAuthorization(
     nothrow,
     resource: tag,
     type: AppResourceType.Tag,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   return {agent, tag, workspace};
@@ -62,7 +65,7 @@ export async function checkTagAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const tag = await context.data.tag.assertGetOneByQuery(EndpointReusableQueries.getById(id));
+  const tag = await context.data.tag.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(id));
 
   return checkTagAuthorization(context, agent, tag, action, nothrow);
 }

@@ -46,7 +46,7 @@ test('password changed with current password', async () => {
   const result = await changePasswordWithCurrentPassword(context, instData);
   assertEndpointResultOk(result);
   const updatedUser = await context.data.user.assertGetOneByQuery(
-    EndpointReusableQueries.getById(result.user.resourceId)
+    EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
 
   expect(updatedUser.hash).not.toEqual(oldHash);

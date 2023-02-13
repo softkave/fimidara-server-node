@@ -54,14 +54,14 @@ describe('getUserRequests', () => {
     let instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(user02Token), {pageSize});
     let result = await getUserCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
     instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(user02Token), {page, pageSize});
     result = await getUserCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

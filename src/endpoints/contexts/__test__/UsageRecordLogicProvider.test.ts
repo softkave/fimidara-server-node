@@ -47,7 +47,7 @@ function assertDeps() {
 }
 
 async function getSumRecords(ctx: IBaseContext, recordId: string) {
-  const record = await ctx.data.usageRecord.assertGetOneByQuery(EndpointReusableQueries.getById(recordId));
+  const record = await ctx.data.usageRecord.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(recordId));
   return {record};
 }
 

@@ -4,7 +4,7 @@ import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utils/dateFns';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {checkAuthorization, getFilePermissionOwners} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization, getFilePermissionContainers} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
@@ -54,7 +54,7 @@ export async function checkFileAuthorization(
     nothrow,
     resource: file,
     type: AppResourceType.File,
-    permissionOwners: getFilePermissionOwners(workspace.resourceId, file, AppResourceType.File),
+    permissionContainers: getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File),
   });
 
   return {agent, file, workspace};
@@ -107,7 +107,6 @@ export function splitfilepathWithDetails(path: string | string[]): ISplitfilepat
   const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
   const splitPathWithoutExtension = [...pathWithDetails.itemSplitPath];
   splitPathWithoutExtension[splitPathWithoutExtension.length - 1] = fileNameWithDetails.nameWithoutExtension;
-
   return {
     ...pathWithDetails,
     ...fileNameWithDetails,
@@ -135,7 +134,7 @@ export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: 
 export async function getWorkspaceFromFileOrFilepath(context: IBaseContext, file?: IFile | null, filepath?: string) {
   let workspace: IWorkspace | null = null;
   if (file) {
-    workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(file.workspaceId));
+    workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(file.workspaceId));
   } else if (filepath) {
     workspace = await getWorkspaceFromFilepath(context, filepath);
   }

@@ -18,8 +18,8 @@ function getByRootname(name: string) {
 }
 
 export default abstract class WorkspaceQueries {
-  static getById = EndpointReusableQueries.getById;
-  static getByIds = EndpointReusableQueries.getByIds;
+  static getById = EndpointReusableQueries.getByResourceId;
+  static getByIds = EndpointReusableQueries.getByResourceIdList;
   static getByName = getByName;
   static getByRootname = getByRootname;
 }

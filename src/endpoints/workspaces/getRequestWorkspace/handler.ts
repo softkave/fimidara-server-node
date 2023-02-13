@@ -14,7 +14,9 @@ export const requestWorkspaceExtractor = makeExtract(requestWorkspaceFields);
 
 const getRequestWorkspace: GetRequestWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, getRequestWorkspaceJoiSchema);
-  const workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(data.workspaceId));
+  const workspace = await context.data.workspace.getOneByQuery(
+    EndpointReusableQueries.getByResourceId(data.workspaceId)
+  );
   assertWorkspace(workspace);
   return {
     workspace: requestWorkspaceExtractor(workspace),

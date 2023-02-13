@@ -4,7 +4,7 @@ import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteAssignableItemAssignedItems, deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
 import {InvalidRequestError} from '../../errors';
 import PermissionItemQueries from '../../permissionItems/queries';
-import PermissionGroupQueries from '../queries';
+import EndpointReusableQueries from '../../queries';
 import {checkPermissionGroupAuthorization03} from '../utils';
 import {DeletePermissionGroupEndpoint} from './types';
 import {deletePermissionGroupJoiSchema} from './validation';
@@ -55,7 +55,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
     ),
 
     // Delete permissionGroup
-    context.data.permissiongroup.deleteOneByQuery(PermissionGroupQueries.getById(permissionGroup.resourceId)),
+    context.data.permissiongroup.deleteOneByQuery(EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)),
   ]);
 };
 

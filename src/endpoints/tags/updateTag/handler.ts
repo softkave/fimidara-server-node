@@ -28,7 +28,10 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     await checkTagNameExists(context, workspace.resourceId, tagUpdate.name);
   }
 
-  tag = await context.data.tag.assertGetAndUpdateOneByQuery(EndpointReusableQueries.getById(data.tagId), tagUpdate);
+  tag = await context.data.tag.assertGetAndUpdateOneByQuery(
+    EndpointReusableQueries.getByResourceId(data.tagId),
+    tagUpdate
+  );
 
   return {
     tag: tagExtractor(tag),

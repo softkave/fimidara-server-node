@@ -69,7 +69,7 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
     });
 
     const workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getById(context.appVariables.appWorkspaceId)
+      EndpointReusableQueries.getByResourceId(context.appVariables.appWorkspaceId)
     );
     assertWorkspace(workspace);
     addAssignedPermissionGroupList(

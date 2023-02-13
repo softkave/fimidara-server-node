@@ -36,7 +36,7 @@ const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>().setNam
     .setDescription(
       "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
     )
-    .setExample(PermissionItemAppliesTo.OwnerAndChildren)
+    .setExample(PermissionItemAppliesTo.ContainerAndChildren)
     .setValid(Object.values(PermissionItemAppliesTo)),
 });
 

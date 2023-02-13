@@ -46,10 +46,10 @@ describe('getEntityPermissionitems', () => {
         permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
-        permissionOwnerId: workspace.resourceId,
-        permissionOwnerType: AppResourceType.Workspace,
+        containerId: workspace.resourceId,
+        containerType: AppResourceType.Workspace,
       },
-      {itemResourceType: AppResourceType.File}
+      {targetType: AppResourceType.File}
     );
 
     const instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsEndpointParams>(
@@ -71,15 +71,15 @@ describe('getEntityPermissionitems', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
       permissionEntityId: user.resourceId,
       permissionEntityType: AppResourceType.User,
     });
     const count = await context.data.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
       permissionEntityId: user.resourceId,
       permissionEntityType: AppResourceType.User,
     });
@@ -97,7 +97,7 @@ describe('getEntityPermissionitems', () => {
     );
     let result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -113,7 +113,7 @@ describe('getEntityPermissionitems', () => {
     );
     result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

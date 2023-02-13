@@ -10,6 +10,7 @@ import {
   assertCanUploadToPublicFile,
   assertPublicAccessOps,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {
@@ -28,7 +29,6 @@ import getFolder from '../getFolder/handler';
 import {IGetFolderEndpointParams} from '../getFolder/types';
 import listFolderContent from '../listFolderContent/handler';
 import {IListFolderContentEndpointParams} from '../listFolderContent/types';
-import FolderQueries from '../queries';
 import updateFolder from '../updateFolder/handler';
 import {IUpdateFolderEndpointParams, IUpdateFolderInput} from '../updateFolder/types';
 import {addRootnameToPath, folderExtractor} from '../utils';
@@ -42,11 +42,10 @@ export const addFolderBaseTest = async (
 ) => {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
   insertWorkspaceResult = insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-
   const {folder} = await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace, input);
-
-  const savedFolder = await ctx.data.folder.assertGetOneByQuery(FolderQueries.getById(folder.resourceId));
-
+  const savedFolder = await ctx.data.folder.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(folder.resourceId)
+  );
   expect(folder).toMatchObject(folderExtractor(savedFolder));
   return {folder, savedFolder, insertUserResult, insertWorkspaceResult};
 };
@@ -54,22 +53,12 @@ export const addFolderBaseTest = async (
 export const addFolderWithPublicAccessOpsTest = async (
   ctx: IBaseContext,
   input: Partial<INewFolderInput> = {},
-  insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
   const uploadResult = await addFolderBaseTest(ctx, input);
   const {savedFolder} = uploadResult;
-  insertUserResult = uploadResult.insertUserResult;
   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(
-    ctx,
-    savedFolder,
-    insertUserResult,
-    insertWorkspaceResult,
-    input.publicAccessOps || [],
-    AppResourceType.Folder
-  );
-
+  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps || []);
   return uploadResult;
 };
 
@@ -126,7 +115,7 @@ export async function assertCanDeletePublicFolder(ctx: IBaseContext, workspace: 
   assertEndpointResultOk(result);
 }
 
-export async function assertPublicOps(
+export async function assertFolderPublicOps(
   ctx: IBaseContext,
   folder: IFolder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
@@ -146,40 +135,28 @@ export async function assertPublicOps(
   );
 
   await assertCanListContentOfPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
-
   await assertCanUpdatePublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
-
   await assertCanReadPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
 
   const filepath = file.namePath.join(folderConstants.nameSeparator);
   await assertCanReadPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
   await assertCanUpdatePublicFile(ctx, insertWorkspaceResult.workspace, filepath);
-
   await assertCanUploadToPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
-
   await assertCanDeletePublicFolder(ctx, insertWorkspaceResult.workspace, folderpath);
 }
 
 export function makeEveryFolderPublicAccessOp() {
-  return getNonWorkspaceActionList().reduce((list, action) => {
-    return list.concat(
-      [AppResourceType.File, AppResourceType.Folder].map(type => ({
+  const actions = getNonWorkspaceActionList();
+  const types = [AppResourceType.File, AppResourceType.Folder];
+  const ops: IPublicAccessOpInput[] = [];
+  actions.forEach(action => {
+    types.forEach(type => {
+      ops.push({
         action,
         resourceType: type,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-      }))
-    );
-  }, [] as IPublicAccessOpInput[]);
-}
-
-export function makeEveryFolderPublicAccessOp02() {
-  return getNonWorkspaceActionList().reduce((list, action) => {
-    return list.concat(
-      [AppResourceType.File, AppResourceType.Folder].map(type => ({
-        action,
-        resourceType: type,
-        appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-      }))
-    );
-  }, [] as IPublicAccessOpInput[]);
+        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+      });
+    });
+  });
+  return ops;
 }

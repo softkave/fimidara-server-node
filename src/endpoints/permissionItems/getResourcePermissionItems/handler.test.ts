@@ -17,7 +17,7 @@ import {
 } from '../../test-utils/test-utils';
 import addPermissionItems from '../addItems/handler';
 import {IAddPermissionItemsEndpointParams, INewPermissionItemInput} from '../addItems/types';
-import getEntityPermissionItems from './handler';
+import {default as getEntityPermissionItems, default as getResourcePermissionItems} from './handler';
 import {IGetResourcePermissionItemsEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
@@ -44,13 +44,13 @@ describe('getResourcePermissionItems', () => {
     const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as BasicCRUDActions,
       grantAccess: faker.datatype.boolean(),
-      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-      itemResourceType: AppResourceType.Workspace,
-      itemResourceId: workspace.resourceId,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+      targetType: AppResourceType.Workspace,
+      targetId: workspace.resourceId,
       permissionEntityId: permissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
     }));
 
     const addPermissionItemsReqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
@@ -64,8 +64,8 @@ describe('getResourcePermissionItems', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId: workspace.resourceId,
-        itemResourceType: AppResourceType.Workspace,
-        itemResourceId: workspace.resourceId,
+        targetType: AppResourceType.Workspace,
+        targetId: workspace.resourceId,
       }
     );
     const result = await getEntityPermissionItems(context, instData);
@@ -75,21 +75,23 @@ describe('getResourcePermissionItems', () => {
 
   test('pagination', async () => {
     assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
-      itemResourceType: AppResourceType.Workspace,
-      itemResourceId: workspace.resourceId,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
+      targetType: AppResourceType.Workspace,
+      targetId: workspace.resourceId,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
     const count = await context.data.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
-      itemResourceType: AppResourceType.Workspace,
-      itemResourceId: workspace.resourceId,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
+      targetType: AppResourceType.Workspace,
+      targetId: workspace.resourceId,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
     const pageSize = 10;
     let page = 0;
@@ -99,13 +101,13 @@ describe('getResourcePermissionItems', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        itemResourceType: AppResourceType.Workspace,
-        itemResourceId: workspace.resourceId,
+        targetType: AppResourceType.Workspace,
+        targetId: workspace.resourceId,
       }
     );
-    let result = await getEntityPermissionItems(context, instData);
+    let result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -115,13 +117,13 @@ describe('getResourcePermissionItems', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        itemResourceType: AppResourceType.Workspace,
-        itemResourceId: workspace.resourceId,
+        targetType: AppResourceType.Workspace,
+        targetId: workspace.resourceId,
       }
     );
-    result = await getEntityPermissionItems(context, instData);
+    result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

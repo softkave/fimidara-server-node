@@ -1,9 +1,5 @@
 import {IAssignedPermissionGroup} from '../../../definitions/permissionGroups';
-import {
-  AppResourceType,
-  ISessionAgent,
-  SessionAgentType,
-} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent, SessionAgentType} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
 
@@ -13,9 +9,7 @@ export interface IPermissionEntity {
   order?: number;
 }
 
-function extractPermissionGroupsData(
-  permissionGroups: IAssignedPermissionGroup[]
-) {
+function extractPermissionGroupsData(permissionGroups: IAssignedPermissionGroup[]) {
   return permissionGroups.map(item => ({
     permissionEntityId: item.permissionGroupId,
     permissionEntityType: AppResourceType.PermissionGroup,
@@ -23,12 +17,8 @@ function extractPermissionGroupsData(
   }));
 }
 
-export function getPermissionEntities(
-  agent: ISessionAgent,
-  workspace: IWorkspace
-): Array<IPermissionEntity> {
+export function getPermissionEntities(agent: ISessionAgent, workspace: IWorkspace): Array<IPermissionEntity> {
   let permissionEntities: Array<IPermissionEntity> = [];
-
   switch (agent.agentType) {
     case SessionAgentType.User: {
       if (agent.user) {
@@ -40,8 +30,7 @@ export function getPermissionEntities(
           },
         ].concat(
           extractPermissionGroupsData(
-            getCollaboratorWorkspace(agent.user, workspace.resourceId)
-              ?.permissionGroups || []
+            getCollaboratorWorkspace(agent.user, workspace.resourceId)?.permissionGroups || []
           )
         );
       }
@@ -56,11 +45,7 @@ export function getPermissionEntities(
             permissionEntityType: AppResourceType.ClientAssignedToken,
             order: 1,
           },
-        ].concat(
-          extractPermissionGroupsData(
-            agent.clientAssignedToken.permissionGroups
-          )
-        );
+        ].concat(extractPermissionGroupsData(agent.clientAssignedToken.permissionGroups));
       }
       break;
     }
@@ -73,9 +58,7 @@ export function getPermissionEntities(
             permissionEntityType: AppResourceType.ProgramAccessToken,
             order: 1,
           },
-        ].concat(
-          extractPermissionGroupsData(agent.programAccessToken.permissionGroups)
-        );
+        ].concat(extractPermissionGroupsData(agent.programAccessToken.permissionGroups));
       }
       break;
     }

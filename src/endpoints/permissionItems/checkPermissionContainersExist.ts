@@ -4,11 +4,11 @@ import {IWorkspace} from '../../definitions/workspace';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
-import {checkNotWorkspaceResources} from '../resources/isPartOfOrganization';
+import {checkResourcesBelongToWorkspace} from '../resources/isPartOfOrganization';
 
-interface IPermissionOwner {
-  permissionOwnerId: string;
-  permissionOwnerType: AppResourceType;
+interface IPermissionContainer {
+  containerId: string;
+  containerType: AppResourceType;
 }
 
 const allowedTypes = new Map();
@@ -16,18 +16,15 @@ allowedTypes.set(AppResourceType.Workspace, true);
 allowedTypes.set(AppResourceType.Folder, true);
 allowedTypes.set(AppResourceType.File, true);
 
-export default async function checkPermissionOwnersExist(
+export default async function checkPermissionContainersExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  items: Array<IPermissionOwner>
+  items: Array<IPermissionContainer>
 ) {
   items.forEach(item => {
-    if (!allowedTypes.has(item.permissionOwnerType)) {
-      const message = format(
-        'Invalid permission owner type %s',
-        item.permissionOwnerType
-      );
+    if (!allowedTypes.has(item.containerType)) {
+      const message = format('Invalid permission container type %s', item.containerType);
 
       throw new InvalidRequestError(message);
     }
@@ -38,13 +35,13 @@ export default async function checkPermissionOwnersExist(
     agent,
     workspace,
     inputResources: items.map(item => ({
-      resourceId: item.permissionOwnerId,
-      resourceType: item.permissionOwnerType,
+      resourceId: item.containerId,
+      resourceType: item.containerType,
     })),
     checkAuth: true,
   });
 
-  checkNotWorkspaceResources(
+  checkResourcesBelongToWorkspace(
     workspace.resourceId,
     resources,
     // We only use workspaces, folders, and files in here

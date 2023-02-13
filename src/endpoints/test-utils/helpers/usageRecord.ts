@@ -11,7 +11,7 @@ export async function updateTestWorkspaceUsageLocks(
   id: string,
   categories: UsageRecordCategory[]
 ) {
-  let workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(id));
+  let workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(id));
   const usageThresholdLocks: IWorkspace['usageThresholdLocks'] = {
     ...defaultTo(workspace?.usageThresholdLocks, {}),
   };
@@ -23,7 +23,7 @@ export async function updateTestWorkspaceUsageLocks(
       lastUpdatedAt: getDate(),
     };
   });
-  workspace = await context.data.workspace.assertGetAndUpdateOneByQuery(EndpointReusableQueries.getById(id), {
+  workspace = await context.data.workspace.assertGetAndUpdateOneByQuery(EndpointReusableQueries.getByResourceId(id), {
     usageThresholdLocks,
   });
   return {workspace};

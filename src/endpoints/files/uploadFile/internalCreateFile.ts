@@ -6,7 +6,7 @@ import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {replacePublicPermissionGroupAccessOpsByPermissionOwner} from '../../permissionItems/utils';
+import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
@@ -57,18 +57,8 @@ export async function internalCreateFile(
 ) {
   await context.data.file.insertItem(file);
   const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
-
-  await replacePublicPermissionGroupAccessOpsByPermissionOwner(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    publicAccessOps,
-    file.resourceId
-  );
+  await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
 
   await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, false);
-
   return file;
 }

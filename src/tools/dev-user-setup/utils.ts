@@ -95,7 +95,6 @@ async function isUserAdmin(context: IBaseContext, userId: string, workspaceId: s
   ]);
 
   const isAdmin = userData.permissionGroups.some(group => group.permissionGroupId === adminPermissionGroupId);
-
   return isAdmin;
 }
 
@@ -132,7 +131,6 @@ async function makeUserAdmin(
 async function getUser(context: IBaseContext, options: AppRuntimeOptions) {
   const {email} = await options.getUserEmail();
   const userExists = await context.data.user.existsByQuery(UserQueries.getByEmail(email));
-
   let user: IUserWithWorkspace;
   if (userExists) {
     user = await getCompleteUserDataByEmail(context, email);
@@ -155,7 +153,7 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   const context = await setupContext();
   const workspace = await setupApp(context);
   const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-    EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
+    EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
   );
 
   const user = await getUser(context, appOptions);
@@ -188,7 +186,6 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   }
 
   consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
-
   await context.dispose();
   return {user, workspace, adminPermissionGroup};
 }

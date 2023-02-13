@@ -17,9 +17,8 @@ import {
   assertCanCreateFolderInPublicFolder,
   assertCanDeletePublicFolder,
   assertCanListContentOfPublicFolder,
-  assertPublicOps,
+  assertFolderPublicOps,
   makeEveryFolderPublicAccessOp,
-  makeEveryFolderPublicAccessOp02,
 } from './addFolderTestUtils';
 
 /**
@@ -46,31 +45,30 @@ describe('addFolder', () => {
 
   test('folder created with public access ops', async () => {
     assertContext(context);
-    const {folder, insertWorkspaceResult} =
-      await addFolderWithPublicAccessOpsTest(context, {
-        publicAccessOps: [
-          {
-            action: BasicCRUDActions.Create,
-            resourceType: AppResourceType.File,
-            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-          },
-          {
-            action: BasicCRUDActions.Read,
-            resourceType: AppResourceType.File,
-            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-          },
-          {
-            action: BasicCRUDActions.Create,
-            resourceType: AppResourceType.Folder,
-            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-          },
-          {
-            action: BasicCRUDActions.Read,
-            resourceType: AppResourceType.Folder,
-            appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-          },
-        ],
-      });
+    const {folder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
+      publicAccessOps: [
+        {
+          action: BasicCRUDActions.Create,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+        {
+          action: BasicCRUDActions.Create,
+          resourceType: AppResourceType.Folder,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.Folder,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+      ],
+    });
 
     const folderpath = folder.namePath.join(folderConstants.nameSeparator);
     const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
@@ -86,53 +84,35 @@ describe('addFolder', () => {
       folder02Path + folderConstants.nameSeparator + generateTestFolderName()
     );
 
-    await assertCanListContentOfPublicFolder(
-      context,
-      insertWorkspaceResult.workspace,
-      folder02Path
-    );
+    await assertCanListContentOfPublicFolder(context, insertWorkspaceResult.workspace, folder02Path);
     const filepath = file.namePath.join(folderConstants.nameSeparator);
-    await assertCanReadPublicFile(
-      context,
-      insertWorkspaceResult.workspace,
-      filepath
-    );
+    await assertCanReadPublicFile(context, insertWorkspaceResult.workspace, filepath);
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFolder(
-        context,
-        insertWorkspaceResult.workspace,
-        folderpath
-      );
+      await assertCanDeletePublicFolder(context, insertWorkspaceResult.workspace, folderpath);
     }, [PermissionDeniedError.name]);
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertCanDeletePublicFile(
-        context,
-        insertWorkspaceResult.workspace,
-        filepath
-      );
+      await assertCanDeletePublicFile(context, insertWorkspaceResult.workspace, filepath);
     }, [PermissionDeniedError.name]);
   });
 
   test('folder created with all public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertWorkspaceResult} =
-      await addFolderWithPublicAccessOpsTest(context, {
-        publicAccessOps: makeEveryFolderPublicAccessOp(),
-      });
+    const {savedFolder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
+      publicAccessOps: makeEveryFolderPublicAccessOp(),
+    });
 
-    await assertPublicOps(context, savedFolder, insertWorkspaceResult);
+    await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 
   test('folder created with all public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertWorkspaceResult} =
-      await addFolderWithPublicAccessOpsTest(context, {
-        publicAccessOps: makeEveryFolderPublicAccessOp02(),
-      });
+    const {savedFolder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
+      publicAccessOps: makeEveryFolderPublicAccessOp(),
+    });
 
-    await assertPublicOps(context, savedFolder, insertWorkspaceResult);
+    await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 });

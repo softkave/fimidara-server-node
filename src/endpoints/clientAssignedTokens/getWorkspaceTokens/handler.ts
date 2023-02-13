@@ -1,9 +1,10 @@
+import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
+  summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
@@ -19,42 +20,44 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceId(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const tokens = await context.data.clientAssignedToken.getManyByQuery(
-    EndpointReusableQueries.getByWorkspaceId(workspaceId),
-    data
-  );
-
-  // TODO: can we do this together, so that we don't waste compute
-  const permittedReads = await Promise.all(
-    tokens.map(item =>
-      checkAuthorization({
-        context,
-        agent,
-        workspace,
-        resource: item,
-        type: AppResourceType.ClientAssignedToken,
-        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
-        action: BasicCRUDActions.Read,
-        nothrow: true,
-      })
-    )
-  );
-
-  let allowedTokens = tokens.filter((item, i) => !!permittedReads[i]);
-  if (allowedTokens.length === 0 && tokens.length > 0) {
+  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+    context,
+    agent,
+    workspace,
+    type: AppResourceType.ClientAssignedToken,
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    action: BasicCRUDActions.Read,
+  });
+  let tokens: Array<IClientAssignedToken> = [];
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    tokens = await context.data.clientAssignedToken.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    tokens = await context.data.clientAssignedToken.getManyByQuery(
+      EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
+        workspaceId,
+        permissionsSummaryReport.allowedResourceIdList
+      ),
+      data
+    );
+  } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
 
-  allowedTokens = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  tokens = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    allowedTokens,
+    tokens,
     AppResourceType.ClientAssignedToken
   );
-
   return {
     page: getEndpointPageFromInput(data),
-    tokens: allowedTokens.map(token => getPublicClientToken(context, token)),
+    tokens: tokens.map(token => getPublicClientToken(context, token)),
   };
 };
 

@@ -1,5 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -11,7 +12,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import PermissionItemQueries from '../queries';
 import deletePermissionItemsByEntity from './handler';
 import {IDeletePermissionItemsByEntityEndpointParams} from './types';
 
@@ -44,10 +44,10 @@ test('permission items deleted', async () => {
       permissionEntityType: AppResourceType.PermissionGroup,
     },
     {
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
     },
-    {itemResourceType: AppResourceType.File}
+    {targetType: AppResourceType.File}
   );
 
   const itemIds = items.map(item => item.resourceId);
@@ -64,7 +64,7 @@ test('permission items deleted', async () => {
   const result = await deletePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   const deletedItems = await context.data.permissionItem.getManyByQuery(
-    PermissionItemQueries.getByIds(itemIds, workspace.resourceId)
+    EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspace.resourceId, itemIds)
   );
 
   expect(deletedItems.length).toEqual(0);

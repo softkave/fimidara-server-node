@@ -12,11 +12,6 @@ function getByUserEmail(userEmail: string) {
     .build();
 }
 
-function getByIds(ids: string[]) {
-  return newFilter().addItem('resourceId', ids, DataProviderFilterValueOperator.In).build();
-}
-
 export default abstract class CollaboratorQueries {
   static getByUserEmail = getByUserEmail;
-  static getByIds = getByIds;
 }

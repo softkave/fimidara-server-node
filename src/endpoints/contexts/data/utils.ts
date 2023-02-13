@@ -23,7 +23,7 @@ export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>)
 
 export function getPage(inputPage?: number) {
   return isNumber(inputPage)
-    ? Math.min(inputPage, 0) // return 0 if page is negative
+    ? Math.max(inputPage, 0) // return 0 if page is negative
     : undefined;
 }
 
@@ -34,9 +34,7 @@ export function getPageSize(
   minPageSize = endpointConstants.minPageSize
 ) {
   const pageSize = isNumber(inputPageSize)
-    ? inputPageSize < minPageSize
-      ? minPageSize
-      : inputPageSize
+    ? Math.max(inputPageSize, minPageSize)
     : isNumber(inputPage)
     ? maxPageSize
     : undefined;
@@ -77,10 +75,9 @@ export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQ
   };
 
   getManyByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
-    const items = await this.model
-      .find(BaseMongoDataProvider.getMongoQuery(q), p?.projection, getMongoQueryOptionsForMany(p))
-      .lean()
-      .exec();
+    const opts = getMongoQueryOptionsForMany(p);
+    const mongoQuery = BaseMongoDataProvider.getMongoQuery(q);
+    const items = await this.model.find(mongoQuery, p?.projection, opts).lean().exec();
     return items as unknown as T[];
   };
 

@@ -6,7 +6,7 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -25,7 +25,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     agent,
     workspace,
     type: AppResourceType.PermissionGroup,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 

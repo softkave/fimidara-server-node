@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -13,7 +14,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import ClientAssignedTokenQueries from '../queries';
 import {getPublicProgramToken, programAccessTokenExtractor} from '../utils';
 import updateProgramAccessToken from './handler';
 import {IUpdateProgramAccessTokenEndpointParams} from './types';
@@ -83,7 +83,9 @@ test('program access token updated', async () => {
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.programAccessToken.assertGetOneByQuery(ClientAssignedTokenQueries.getById(token01.resourceId)),
+      await context.data.programAccessToken.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(token01.resourceId)
+      ),
       AppResourceType.ProgramAccessToken
     )
   );

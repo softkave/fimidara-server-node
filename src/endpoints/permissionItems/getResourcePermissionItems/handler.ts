@@ -4,16 +4,16 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  getFilePermissionOwners,
-  IPermissionOwner,
-  makeWorkspacePermissionOwnerList,
+  getFilePermissionContainers,
+  IPermissionContainer,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IResource} from '../../resources/types';
 import {getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import checkPermissionOwnersExist from '../checkPermissionOwnersExist';
-import checkResourcesExist from '../checkResourcesExist';
+import checkPermissionContainersExist from '../checkPermissionContainersExist';
+import checkPermissionTargetsExist from '../checkResourcesExist';
 import PermissionItemQueries from '../queries';
 import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
@@ -30,49 +30,51 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
     workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
-  const {resources} = await checkResourcesExist(context, agent, workspace, [data]);
-  let permissionOwner: IResource | undefined = undefined;
+  const {resources} = await checkPermissionTargetsExist(context, agent, workspace, [data]);
+  let permissionContainer: IResource | undefined = undefined;
   const resource: IResource | undefined = first(resources);
-  if (data.permissionOwnerId && data.permissionOwnerType) {
-    const result = await checkPermissionOwnersExist(context, agent, workspace, [
-      {
-        permissionOwnerId: data.permissionOwnerId,
-        permissionOwnerType: data.permissionOwnerType,
-      },
+  if (data.containerId && data.containerType) {
+    const result = await checkPermissionContainersExist(context, agent, workspace, [
+      {containerId: data.containerId, containerType: data.containerType},
     ]);
-    permissionOwner = first(result.resources);
+    permissionContainer = first(result.resources);
   }
 
-  let permissionOwners: IPermissionOwner[] = [];
+  let permissionContainers: IPermissionContainer[] = [];
   if (
     resource &&
     (resource.resourceType === AppResourceType.File || resource.resourceType === AppResourceType.Folder)
   ) {
-    permissionOwners = getFilePermissionOwners(workspace.resourceId, resource.resource as any, resource.resourceType);
-  } else if (
-    permissionOwner &&
-    (permissionOwner.resourceType === AppResourceType.File || permissionOwner.resourceType === AppResourceType.Folder)
-  ) {
-    permissionOwners = getFilePermissionOwners(
+    permissionContainers = getFilePermissionContainers(
       workspace.resourceId,
-      permissionOwner.resource as any,
-      permissionOwner.resourceType
+      resource.resource as any,
+      resource.resourceType
+    );
+  } else if (
+    permissionContainer &&
+    (permissionContainer.resourceType === AppResourceType.File ||
+      permissionContainer.resourceType === AppResourceType.Folder)
+  ) {
+    permissionContainers = getFilePermissionContainers(
+      workspace.resourceId,
+      permissionContainer.resource as any,
+      permissionContainer.resourceType
     );
   } else {
-    permissionOwners = makeWorkspacePermissionOwnerList(workspace.resourceId);
+    permissionContainers = makeWorkspacePermissionContainerList(workspace.resourceId);
   }
 
   const items2DList = await Promise.all(
-    permissionOwners.map(item =>
+    permissionContainers.map(item =>
       context.data.permissionItem.getManyByQuery(
-        PermissionItemQueries.getByOwnerAndResource(
-          item.permissionOwnerId,
-          item.permissionOwnerType,
-          data.itemResourceType,
-          undefined, // data.itemResourceId,
+        PermissionItemQueries.getByContainerAndResource(
+          item.containerId,
+          item.containerType,
+          data.targetType,
+          undefined,
           true
         ),
         data
@@ -82,19 +84,21 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (co
 
   let items = uniqBy(flattenDeep(items2DList), 'hash');
   items = items.filter(item => {
-    if (data.itemResourceId) {
-      if (item.itemResourceId && item.itemResourceId !== data.itemResourceId) {
+    if (data.targetId) {
+      if (item.targetId && item.targetId !== data.targetId) {
         return false;
       }
-      if (item.appliesTo === PermissionItemAppliesTo.Owner) {
-        return item.permissionOwnerId === data.itemResourceId;
+      if (item.appliesTo === PermissionItemAppliesTo.Container) {
+        return item.containerId === data.targetId;
       } else if (item.appliesTo === PermissionItemAppliesTo.Children) {
-        return item.permissionOwnerId !== data.itemResourceId;
+        return item.containerId !== data.targetId;
       }
 
       return true;
     } else {
-      return !item.itemResourceId;
+      // Remove item if it has a target ID (i.e for a target) and query is for
+      // target type and not a specific target
+      return !item.targetId;
     }
   });
 

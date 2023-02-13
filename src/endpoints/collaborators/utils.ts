@@ -1,7 +1,10 @@
 import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
@@ -54,7 +57,7 @@ export async function checkCollaboratorAuthorization(
     nothrow,
     resource: collaborator,
     type: AppResourceType.User,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
   });
 
   return {agent, collaborator, workspace};
@@ -70,7 +73,7 @@ export async function checkCollaboratorAuthorization02(
 ) {
   const collaborator = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(collaboratorId))
+    await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(collaboratorId))
   );
 
   return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);

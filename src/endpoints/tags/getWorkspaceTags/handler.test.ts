@@ -55,7 +55,7 @@ describe('getWorkspaceTags', () => {
     );
     let result = await getWorkspaceTags(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tags).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -65,7 +65,7 @@ describe('getWorkspaceTags', () => {
     );
     result = await getWorkspaceTags(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tags).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

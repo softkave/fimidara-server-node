@@ -1,5 +1,6 @@
 import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -10,7 +11,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import ProgramAccessTokenQueries from '../queries';
 import deletePermissionGroup from './handler';
 
 let context: IBaseContext | null = null;
@@ -28,17 +28,13 @@ test('permissionGroup permission group deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {permissionGroup} = await insertPermissionGroupForTest(context, userToken, workspace.resourceId);
-
   const instData = RequestData.fromExpressRequest<IPermissionGroupMatcher>(mockExpressRequestWithUserToken(userToken), {
     permissionGroupId: permissionGroup.resourceId,
   });
-
   const result = await deletePermissionGroup(context, instData);
   assertEndpointResultOk(result);
-
   const deletedPermissionGroupExists = await context.data.programAccessToken.existsByQuery(
-    ProgramAccessTokenQueries.getById(permissionGroup.resourceId)
+    EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
   );
-
   expect(deletedPermissionGroupExists).toBeFalsy();
 });

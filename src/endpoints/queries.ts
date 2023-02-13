@@ -7,30 +7,33 @@ function getByWorkspaceId(id: string) {
     .build();
 }
 
-function getByWorkspaceAndName(workspaceId: string, name: string) {
+function getByWorkspaceIdAndExcludeResourceIdList(workspaceId: string, idList: string[]) {
+  const f = new DataProviderFilterBuilder<{workspaceId: string; resourceId: string}>().addItem(
+    'workspaceId',
+    workspaceId,
+    DataProviderFilterValueOperator.Equal
+  );
+  if (idList.length > 0) {
+    f.addItem('resourceId', idList, DataProviderFilterValueOperator.NotIn);
+  }
+
+  return f.build();
+}
+
+function getByWorkspaceIdAndName(workspaceId: string, name: string) {
   return new DataProviderFilterBuilder<{workspaceId: string; name: string}>()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('name', new RegExp(`^${name}$`, 'i'), DataProviderFilterValueOperator.Regex)
     .build();
 }
 
-function getById(id: string) {
+function getByResourceId(id: string) {
   return new DataProviderFilterBuilder<{resourceId: string}>()
     .addItem('resourceId', id, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getByIdsAndWorkspaceId(ids: string[], workspaceId: string) {
-  return new DataProviderFilterBuilder<{
-    resourceId: string;
-    workspaceId: string;
-  }>()
-    .addItem('resourceId', ids, DataProviderFilterValueOperator.In)
-    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
-function getByIds(ids: string[]) {
+function getByResourceIdList(ids: string[]) {
   return new DataProviderFilterBuilder<{
     resourceId: string;
   }>()
@@ -38,7 +41,7 @@ function getByIds(ids: string[]) {
     .build();
 }
 
-function getByWorkspaceIdAndIds(workspaceId: string, ids: string[]) {
+function getByWorkspaceIdAndResourceIdList(workspaceId: string, ids: string[]) {
   return new DataProviderFilterBuilder<{
     resourceId: string;
     workspaceId: string;
@@ -60,10 +63,10 @@ function getByProvidedId(workspaceId: string, id: string) {
 
 export default abstract class EndpointReusableQueries {
   static getByWorkspaceId = getByWorkspaceId;
-  static getByWorkspaceAndName = getByWorkspaceAndName;
-  static getById = getById;
-  static getByIdsAndWorkspaceId = getByIdsAndWorkspaceId;
-  static getByIds = getByIds;
+  static getByWorkspaceIdAndName = getByWorkspaceIdAndName;
+  static getByResourceId = getByResourceId;
+  static getByResourceIdList = getByResourceIdList;
   static getByProvidedId = getByProvidedId;
-  static getByWorkspaceIdAndIds = getByWorkspaceIdAndIds;
+  static getByWorkspaceIdAndResourceIdList = getByWorkspaceIdAndResourceIdList;
+  static getByWorkspaceIdAndExcludeResourceIdList = getByWorkspaceIdAndExcludeResourceIdList;
 }

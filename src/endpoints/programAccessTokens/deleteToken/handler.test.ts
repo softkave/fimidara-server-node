@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -9,7 +10,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import ProgramAccessTokenQueries from '../queries';
 import deleteProgramAccessToken from './handler';
 import {IDeleteProgramAccessTokenEndpointParams} from './types';
 
@@ -33,7 +33,6 @@ test('program access token deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId);
-
   const instData = RequestData.fromExpressRequest<IDeleteProgramAccessTokenEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
@@ -43,9 +42,8 @@ test('program access token deleted', async () => {
 
   const result = await deleteProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
-
   const deletedTokenExists = await context.data.programAccessToken.existsByQuery(
-    ProgramAccessTokenQueries.getById(token.resourceId)
+    EndpointReusableQueries.getByResourceId(token.resourceId)
   );
 
   expect(deletedTokenExists).toBeFalsy();

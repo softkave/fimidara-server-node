@@ -21,7 +21,6 @@ import {ServerError} from '../../utils/errors';
 import {cast} from '../../utils/fns';
 import {populateAssignedPermissionGroupsAndTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
-import ProgramAccessTokenQueries from '../programAccessTokens/queries';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {CredentialsExpiredError, PermissionDeniedError} from '../user/errors';
@@ -85,16 +84,15 @@ export default class SessionContext implements ISessionContext {
 
         user = await populateUserWorkspaces(
           ctx,
-          await ctx.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(userToken.userId))
+          await ctx.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
         );
         break;
       }
 
       case TokenType.ProgramAccessToken: {
         const pgt = await ctx.data.programAccessToken.assertGetOneByQuery(
-          ProgramAccessTokenQueries.getById(incomingTokenData.sub.id)
+          EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
         );
-
         programAccessToken = await populateAssignedPermissionGroupsAndTags(
           ctx,
           pgt.workspaceId,
@@ -105,14 +103,13 @@ export default class SessionContext implements ISessionContext {
       }
 
       case TokenType.ClientAssignedToken: {
-        const clt = await ctx.data.clientAssignedToken.assertGetOneByQuery(
-          EndpointReusableQueries.getById(incomingTokenData.sub.id)
+        const clientToken = await ctx.data.clientAssignedToken.assertGetOneByQuery(
+          EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
         );
-
         clientAssignedToken = await populateAssignedPermissionGroupsAndTags(
           ctx,
-          clt.workspaceId,
-          clt,
+          clientToken.workspaceId,
+          clientToken,
           AppResourceType.ClientAssignedToken
         );
         break;

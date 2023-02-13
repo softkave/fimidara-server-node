@@ -41,13 +41,13 @@ describe('addItems', () => {
     const items: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as BasicCRUDActions,
       grantAccess: faker.datatype.boolean(),
-      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-      itemResourceType: AppResourceType.Workspace,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+      targetType: AppResourceType.Workspace,
       permissionEntityId: permissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
-      itemResourceId: workspace.resourceId,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
+      targetId: workspace.resourceId,
     }));
 
     const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
@@ -73,13 +73,13 @@ describe('addItems', () => {
     const items: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as BasicCRUDActions,
       grantAccess: faker.datatype.boolean(),
-      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
-      itemResourceType: AppResourceType.Workspace,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+      targetType: AppResourceType.Workspace,
       permissionEntityId: permissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
-      itemResourceId: workspace.resourceId,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
+      targetId: workspace.resourceId,
     }));
 
     const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(

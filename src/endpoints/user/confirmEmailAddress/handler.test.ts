@@ -41,7 +41,6 @@ test('email address is confirmed', async () => {
   });
 
   const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(token));
-
   const result = await confirmEmailAddress(context, instData);
   assertEndpointResultOk(result);
   expect(result.user.isEmailVerified).toBe(true);

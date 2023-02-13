@@ -41,7 +41,7 @@ test('workspace deleted', async () => {
   const result = await deleteWorkspace(context, instData);
   assertEndpointResultOk(result);
   const savedWorkspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getById(workspace.resourceId)
+    EndpointReusableQueries.getByResourceId(workspace.resourceId)
   );
   expect(savedWorkspace).toBeFalsy();
 });

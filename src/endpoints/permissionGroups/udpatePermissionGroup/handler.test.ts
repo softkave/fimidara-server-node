@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -12,7 +13,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import PermissionGroupQueries from '../queries';
 import {permissionGroupExtractor} from '../utils';
 import updatePermissionGroup from './handler';
 import {IUpdatePermissionGroupEndpointParams, IUpdatePermissionGroupInput} from './types';
@@ -73,7 +73,7 @@ test('permissionGroup updated', async () => {
     mockExpressRequestWithUserToken(userToken),
     {
       permissionGroupId: permissionGroup00.resourceId,
-      permissionGroup: updatePermissionGroupInput,
+      data: updatePermissionGroupInput,
     }
   );
 
@@ -84,7 +84,7 @@ test('permissionGroup updated', async () => {
     context,
     workspace.resourceId,
     await context.data.permissiongroup.assertGetOneByQuery(
-      PermissionGroupQueries.getById(permissionGroup00.resourceId)
+      EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
     ),
     AppResourceType.PermissionGroup
   );

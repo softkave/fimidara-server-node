@@ -8,7 +8,7 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
@@ -28,7 +28,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, i
     agent,
     workspace,
     type: AppResourceType.ClientAssignedToken,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 
@@ -65,7 +65,7 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, i
     await context.data.clientAssignedToken.insertItem(token);
   } else {
     token = await context.data.clientAssignedToken.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getById(token.resourceId),
+      EndpointReusableQueries.getByResourceId(token.resourceId),
       {
         ...omit(data.token, 'permissionGroups', 'tags'),
         lastUpdatedAt: getDate(),

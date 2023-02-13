@@ -3,13 +3,16 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent, TokenType} from '../..
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
+import EndpointReusableQueries from '../queries';
 import {agentExtractor} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
-import ProgramAccessTokenQueries from './queries';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
   resourceId: true,
@@ -45,7 +48,7 @@ export async function checkProgramAccessTokenAuthorization(
     nothrow,
     resource: token,
     type: AppResourceType.ProgramAccessToken,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   return {agent, token, workspace};
@@ -58,7 +61,7 @@ export async function checkProgramAccessTokenAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const token = await context.data.programAccessToken.assertGetOneByQuery(ProgramAccessTokenQueries.getById(id));
+  const token = await context.data.programAccessToken.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(id));
   return checkProgramAccessTokenAuthorization(context, agent, token, action, nothrow);
 }
 

@@ -10,7 +10,10 @@ import {
   populateAssignedPermissionGroupsAndTags,
   populateResourceListWithAssignedPermissionGroupsAndTags,
 } from '../assignedItems/getAssignedItems';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
@@ -64,7 +67,7 @@ export async function checkCollaborationRequestAuthorization(
     nothrow,
     resource: request,
     type: AppResourceType.CollaborationRequest,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   return {agent, request, workspace};
@@ -78,7 +81,7 @@ export async function checkCollaborationRequestAuthorization02(
   nothrow = false
 ) {
   const request = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getById(requestId)
+    EndpointReusableQueries.getByResourceId(requestId)
   );
 
   return checkCollaborationRequestAuthorization(context, agent, request, action, nothrow);

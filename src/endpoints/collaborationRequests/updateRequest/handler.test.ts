@@ -76,7 +76,7 @@ describe('updateCollaborationRequest', () => {
     const result = await updateCollaborationRequest(context, instData);
     assertEndpointResultOk(result);
     const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
-      EndpointReusableQueries.getById(request01.resourceId)
+      EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
 
     expect(result.request.resourceId).toEqual(request01.resourceId);

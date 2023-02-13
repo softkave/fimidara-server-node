@@ -45,10 +45,10 @@ describe('deleteItemsById', () => {
         permissionEntityType: AppResourceType.PermissionGroup,
       },
       {
-        permissionOwnerId: workspace.resourceId,
-        permissionOwnerType: AppResourceType.Workspace,
+        containerId: workspace.resourceId,
+        containerType: AppResourceType.Workspace,
       },
-      {itemResourceType: AppResourceType.File}
+      {targetType: AppResourceType.File}
     );
 
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(

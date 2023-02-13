@@ -1,5 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
-import FileQueries from '../../files/queries';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../test-utils/generate-data/folder';
 import {
@@ -13,7 +13,6 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {folderConstants} from '../constants';
-import FolderQueries from '../queries';
 import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
 import {IDeleteFolderEndpointParams} from './types';
@@ -35,13 +34,13 @@ afterAll(async () => {
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.folder.existsByQuery(FolderQueries.getById(id));
+  const exists = await context.data.folder.existsByQuery(EndpointReusableQueries.getByResourceId(id));
 
   expect(exists).toBeFalsy();
 }
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.existsByQuery(FileQueries.getById(id));
+  const exists = await context.data.file.existsByQuery(EndpointReusableQueries.getByResourceId(id));
 
   expect(exists).toBeFalsy();
 }

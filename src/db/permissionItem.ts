@@ -6,12 +6,12 @@ import {agentSchema, ensureTypeFields} from './utils';
 const permissionItemSchema = ensureTypeFields<IPermissionItem>({
   resourceId: {type: String, index: true, unique: true},
   workspaceId: {type: String, index: true},
-  permissionOwnerId: {type: String, index: true},
-  permissionOwnerType: {type: String, index: true},
+  containerId: {type: String, index: true},
+  containerType: {type: String, index: true},
   permissionEntityId: {type: String, index: true},
   permissionEntityType: {type: String, index: true},
-  itemResourceId: {type: String, index: true},
-  itemResourceType: {type: String, index: true},
+  targetId: {type: String, index: true},
+  targetType: {type: String, index: true},
   grantAccess: {type: Boolean, index: true},
   appliesTo: {type: String, index: true},
   action: {type: String, index: true},
@@ -27,11 +27,7 @@ const modelName = 'permission-item';
 const collectionName = 'permission-items';
 
 export function getPermissionItemModel(connection: Connection) {
-  const model = connection.model<IPermissionItem>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<IPermissionItem>(modelName, schema, collectionName);
 
   return model;
 }

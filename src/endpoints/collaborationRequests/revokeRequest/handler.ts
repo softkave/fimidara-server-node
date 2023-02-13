@@ -33,7 +33,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (co
 
   if (!isRevoked) {
     request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getById(data.requestId),
+      EndpointReusableQueries.getByResourceId(data.requestId),
       {
         statusHistory: request.statusHistory.concat({
           date: getDateString(),
@@ -42,7 +42,9 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (co
       }
     );
 
-    const workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(request.workspaceId));
+    const workspace = await context.data.workspace.getOneByQuery(
+      EndpointReusableQueries.getByResourceId(request.workspaceId)
+    );
     assertWorkspace(workspace);
     if (workspace) {
       await sendRevokeCollaborationRequestEmail(context, request, workspace.name);

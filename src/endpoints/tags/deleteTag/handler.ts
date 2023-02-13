@@ -11,7 +11,7 @@ const deleteTag: DeleteTagEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData);
   const {tag} = await checkTagAuthorization02(context, agent, data.tagId, BasicCRUDActions.Delete);
 
-  await waitOnPromises([context.data.tag.deleteOneByQuery(EndpointReusableQueries.getById(tag.resourceId))]);
+  await waitOnPromises([context.data.tag.deleteOneByQuery(EndpointReusableQueries.getByResourceId(tag.resourceId))]);
 };
 
 export default deleteTag;

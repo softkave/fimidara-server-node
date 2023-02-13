@@ -1,6 +1,7 @@
 import {AppResourceType} from '../../../definitions/system';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   initTestBaseContext,
@@ -8,7 +9,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
-import PermissionGroupQueries from '../queries';
 import {permissionGroupExtractor} from '../utils';
 
 /**
@@ -39,7 +39,9 @@ test('permissionGroup permissions group added', async () => {
   const savedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(permissionGroup.resourceId)),
+    await context.data.permissiongroup.assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
+    ),
     AppResourceType.PermissionGroup
   );
 

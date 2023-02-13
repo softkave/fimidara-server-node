@@ -277,7 +277,7 @@ const appliesTo = new FieldString()
   .setDescription(
     "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
   )
-  .setExample(PermissionItemAppliesTo.OwnerAndChildren)
+  .setExample(PermissionItemAppliesTo.ContainerAndChildren)
   .setValid(Object.values(PermissionItemAppliesTo));
 const page = new FieldNumber()
   .setDescription('Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...')

@@ -1,4 +1,5 @@
 import {uniqWith} from 'lodash';
+import {IFile} from '../../definitions/file';
 import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -6,11 +7,13 @@ import {
   IAgent,
   IPublicAccessOp,
   IPublicAccessOpInput,
+  IResourceBase,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey} from '../../utils/fns';
+import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
@@ -23,19 +26,18 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   workspaceId: true,
   createdAt: getDateString,
   createdBy: agentExtractor,
-  permissionOwnerId: true,
-  permissionOwnerType: true,
+  containerId: true,
+  containerType: true,
   permissionEntityId: true,
   permissionEntityType: true,
-  itemResourceId: true,
-  itemResourceType: true,
+  targetId: true,
+  targetType: true,
   action: true,
   grantAccess: true,
   appliesTo: true,
 });
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
-
 export const permissionItemListExtractor = makeListExtract(permissionItemFields);
 
 export function throwPermissionItemNotFound() {
@@ -56,54 +58,69 @@ export function compactPermissionItems(items: IPermissionItem[]) {
     items,
     (item01, item02) =>
       item01.permissionEntityId === item02.permissionEntityId &&
-      item01.permissionEntityType === item02.permissionEntityType &&
-      item01.permissionOwnerId === item02.permissionOwnerId &&
-      item01.permissionOwnerType === item02.permissionOwnerType &&
+      item01.containerId === item02.containerId &&
       item01.action === item02.action &&
       item01.grantAccess === item02.grantAccess &&
       item01.appliesTo === item02.appliesTo &&
-      item01.itemResourceId === item02.itemResourceId &&
-      item01.itemResourceType === item02.itemResourceType
+      item01.targetId === item02.targetId &&
+      item01.targetType === item02.targetType
   );
 }
 
 export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPublicAccessOp) =>
   item01.action === item02.action && item01.resourceType === item02.resourceType;
 
+export function getPublicAccessOpArtifactsFromResource(
+  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
+) {
+  const type = getResourceTypeFromId(resource.resourceId);
+
+  // Choose closest container which'll be the containing folder or workspace for
+  // root-level files and folders
+  const containerId = resource.folderId ?? resource.workspaceId;
+  const containerType = resource.folderId ? AppResourceType.Folder : AppResourceType.Workspace;
+
+  // File public access ops should have target ID because the op targets a
+  // single file, but folder public access ops are blanket permissions. Scoping
+  // is done with `appliesTo` which limits the permissions granted to the
+  // container, or the container and it's children, or just it's children.
+  const targetId = type === AppResourceType.File ? resource.resourceId : undefined;
+  return {containerId, containerType, targetId};
+}
+
 export function makePermissionItemInputsFromPublicAccessOps(
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType,
   ops: IPublicAccessOpInput[],
-  itemResourceId?: string,
+  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>,
   grantAccess = true
 ): INewPermissionItemInputByEntity[] {
+  const {containerId, containerType, targetId} = getPublicAccessOpArtifactsFromResource(resource);
   return ops.map(op => ({
-    permissionOwnerId,
-    permissionOwnerType,
-    itemResourceId,
+    containerId,
+    containerType,
+    targetId,
     action: op.action,
-    itemResourceType: op.resourceType,
+    targetType: op.resourceType,
     appliesTo: op.appliesTo,
     grantAccess,
   }));
 }
 
-export async function replacePublicPermissionGroupAccessOpsByPermissionOwner(
+export async function replacePublicPermissionGroupAccessOps(
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace,
-  permissionOwnerId: string,
-  permissionOwnerType: AppResourceType,
   addOps: IPublicAccessOp[],
-  itemResourceId?: string
+  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
 ) {
+  const {containerId, containerType, targetId} = getPublicAccessOpArtifactsFromResource(resource);
+
   if (workspace.publicPermissionGroupId) {
     await context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntityAndOwner(
+      PermissionItemQueries.getByPermissionEntityAndContainer(
         workspace.publicPermissionGroupId,
         AppResourceType.PermissionGroup,
-        permissionOwnerId,
-        permissionOwnerType
+        containerId,
+        containerType
       )
     );
 
@@ -112,40 +129,33 @@ export async function replacePublicPermissionGroupAccessOpsByPermissionOwner(
         workspaceId: workspace.resourceId,
         permissionEntityId: workspace.publicPermissionGroupId,
         permissionEntityType: AppResourceType.PermissionGroup,
-        items: makePermissionItemInputsFromPublicAccessOps(
-          permissionOwnerId,
-          permissionOwnerType,
-          addOps,
-          itemResourceId
-        ),
+        items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
       });
     }
   }
 }
 
 export interface IPermissionItemBase {
-  permissionOwnerId: string;
-  permissionOwnerType: AppResourceType;
-  itemResourceId?: string;
-  itemResourceType: AppResourceType;
+  containerId: string;
+  containerType: AppResourceType;
+  targetId?: string;
+  targetType: AppResourceType;
   permissionEntityId: string;
   permissionEntityType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess?: boolean;
-  isForPermissionOwner?: boolean;
+  isForPermissionContainer?: boolean;
 }
 
 export const permissionItemIndexer = (item: IPermissionItemBase) => {
   return makeKey([
     item.permissionEntityId,
-    item.permissionEntityType,
-    item.permissionOwnerId,
-    item.permissionOwnerType,
-    item.itemResourceId,
-    item.itemResourceType,
+    item.containerId,
+    item.targetId,
+    item.targetType,
     item.action,
     item.grantAccess,
-    item.isForPermissionOwner,
+    item.isForPermissionContainer,
   ]);
 };
 

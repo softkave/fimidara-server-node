@@ -37,7 +37,9 @@ describe('deleteTag', () => {
 
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
-    const deletedTagExists = await context.data.tag.existsByQuery(EndpointReusableQueries.getById(tag.resourceId));
+    const deletedTagExists = await context.data.tag.existsByQuery(
+      EndpointReusableQueries.getByResourceId(tag.resourceId)
+    );
 
     expect(deletedTagExists).toBeFalsy();
   });

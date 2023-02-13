@@ -39,22 +39,22 @@ describe('addWorkspace', () => {
     expect(result.workspace).toMatchObject(companyInput);
     expect(result.workspace.publicPermissionGroupId).toBeTruthy();
     const workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getById(result.workspace.resourceId)
+      EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
     );
     assertWorkspace(workspace);
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
     const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
+      EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
     );
 
     await context.data.permissiongroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByWorkspaceAndName(workspace.resourceId, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME)
+      EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME)
     );
 
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(userToken.userId))
+      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
     );
 
     const userWorkspace = user.workspaces.find(item => item.workspaceId === workspace.resourceId);

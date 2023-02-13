@@ -107,6 +107,22 @@ export enum AppResourceType {
   EndpointRequest = 'request',
 }
 
+export function getWorkspaceResourceTypeList() {
+  return [
+    AppResourceType.Workspace,
+    AppResourceType.CollaborationRequest,
+    AppResourceType.ProgramAccessToken,
+    AppResourceType.ClientAssignedToken,
+    AppResourceType.PermissionGroup,
+    AppResourceType.PermissionItem,
+    AppResourceType.Folder,
+    AppResourceType.File,
+    AppResourceType.User,
+    AppResourceType.Tag,
+    AppResourceType.UsageRecord,
+  ];
+}
+
 export const validAgentTypes = [
   AppResourceType.User,
   AppResourceType.ProgramAccessToken,

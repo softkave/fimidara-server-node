@@ -64,7 +64,7 @@ async function changePasswordWithTokenTest() {
   const result = await changePasswordWithToken(context, instData);
   assertEndpointResultOk(result);
   const updatedUser = await context.data.user.assertGetOneByQuery(
-    EndpointReusableQueries.getById(result.user.resourceId)
+    EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
 
   expect(result.user).toMatchObject(userExtractor(updatedUser));

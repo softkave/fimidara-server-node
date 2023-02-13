@@ -12,10 +12,14 @@ import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {assertGetWorkspaceIdFromAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
+import EndpointReusableQueries from '../queries';
 import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -67,7 +71,7 @@ export async function checkPermissionGroupAuthorization(
     nothrow,
     resource: permissionGroup,
     type: AppResourceType.PermissionGroup,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   return {agent, permissionGroup, workspace};
@@ -80,8 +84,9 @@ export async function checkPermissionGroupAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(id));
-
+  const permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
   return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
 }
 
@@ -100,7 +105,7 @@ export async function checkPermissionGroupAuthorization03(
 
   if (input.permissionGroupId) {
     permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      PermissionGroupQueries.getById(input.permissionGroupId)
+      EndpointReusableQueries.getByResourceId(input.permissionGroupId)
     );
   } else if (input.name) {
     const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
@@ -122,7 +127,7 @@ export async function checkPermissionGroupsExist(
 ) {
   const permissionGroups = await Promise.all(
     permissionGroupInputs.map(item =>
-      context.data.permissiongroup.assertGetOneByQuery(PermissionGroupQueries.getById(item.permissionGroupId))
+      context.data.permissiongroup.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(item.permissionGroupId))
     )
   );
 
@@ -134,7 +139,7 @@ export async function checkPermissionGroupsExist(
         workspace,
         resource: item,
         type: AppResourceType.PermissionGroup,
-        permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+        permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
         action: BasicCRUDActions.Read,
       })
     )

@@ -4,7 +4,10 @@ import {appAssert} from '../../utils/assertion';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
-import {checkAuthorization, makeWorkspacePermissionOwnerList} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  makeWorkspacePermissionContainerList,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {assertGetWorkspaceIdFromAgent, getClientAssignedTokenIdNoThrow} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
@@ -49,7 +52,7 @@ export async function checkClientAssignedTokenAuthorization(
     action,
     nothrow,
     type: AppResourceType.ClientAssignedToken,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
 
   return {agent, token, workspace};
@@ -62,7 +65,9 @@ export async function checkClientAssignedTokenAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const token = await context.data.clientAssignedToken.assertGetOneByQuery(EndpointReusableQueries.getById(tokenId));
+  const token = await context.data.clientAssignedToken.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(tokenId)
+  );
   return checkClientAssignedTokenAuthorization(context, agent, token, action, nothrow);
 }
 
@@ -87,7 +92,9 @@ export async function checkClientAssignedTokenAuthorization03(
   let token: IClientAssignedToken | null = null;
 
   if (tokenId) {
-    token = await context.data.clientAssignedToken.assertGetOneByQuery(EndpointReusableQueries.getById(tokenId));
+    token = await context.data.clientAssignedToken.assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(tokenId)
+    );
   } else if (input.providedResourceId) {
     const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
 

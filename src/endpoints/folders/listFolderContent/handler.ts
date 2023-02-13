@@ -1,7 +1,6 @@
-import assert from 'assert';
-import {first} from 'lodash';
+import {first, isUndefined} from 'lodash';
 import {IFile} from '../../../definitions/file';
-import {IFolder, IFolderMatcher} from '../../../definitions/folder';
+import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -9,15 +8,15 @@ import {
   publicPermissibleEndpointAgents,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
+import {appAssert} from '../../../utils/assertion';
+import {ServerError} from '../../../utils/errors';
 import {validate} from '../../../utils/validate';
-import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {
-  checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeResourcePermissionContainerList,
+  summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import FileQueries from '../../files/queries';
 import {fileListExtractor} from '../../files/utils';
 import {IPaginationQuery} from '../../types';
 import {PermissionDeniedError} from '../../user/errors';
@@ -32,8 +31,8 @@ import {listFolderContentJoiSchema} from './validation';
 const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
-  let workspace: IWorkspace | null | undefined = null;
-  let result: IFetchFolderContentResult | null = null;
+  let workspace: IWorkspace | null | undefined = null,
+    parentFolder: IFolder | null | undefined = undefined;
 
   // Check if folderpath is rootname only and fetch root-level folders and files
   if (data.folderpath) {
@@ -41,114 +40,139 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
     if (containsRootnameOnly) {
       workspace = await context.data.workspace.getOneByQuery(WorkspaceQueries.getByRootname(rootname));
-      assertWorkspace(workspace);
-      result = await fetchRootLevelContent(context, workspace.resourceId, data);
+      parentFolder = null;
     }
   }
 
   // Fetch using folder matcher if folderpath is not rootname only
-  if (!result) {
-    const result = await fetchFolderContent(context, agent, data, data);
-    workspace = result.workspace;
+  if (isUndefined(parentFolder)) {
+    const checkResult = await checkFolderAuthorization02(
+      context,
+      agent,
+      data,
+      BasicCRUDActions.Read,
+      /** nothrow */ false,
+      workspace ?? undefined
+    );
+    workspace = checkResult.workspace;
+    parentFolder = checkResult.folder;
   }
+
+  // add sort to fetching with IDs
 
   assertWorkspace(workspace);
-  assert(result);
-  const fetchedFolders = result.folders;
-  const fetchedFiles = result.files;
-
-  // TODO: can we do this together, so that we don't waste compute
-  const checkFoldersPermissionQueue = fetchedFolders.map(item => {
-    const w = workspace as IWorkspace;
-    return checkAuthorization({
-      context,
-      agent,
-      workspace: w,
-      resource: item,
-      type: AppResourceType.Folder,
-      permissionOwners: makeWorkspacePermissionOwnerList(w.resourceId),
-      action: BasicCRUDActions.Read,
-      nothrow: true,
-    });
-  });
-
-  const checkFilesPermissionQueue = fetchedFiles.map(item => {
-    const w = workspace as IWorkspace;
-    return checkAuthorization({
-      context,
-      agent,
-      workspace: w,
-      resource: item,
-      type: AppResourceType.File,
-      permissionOwners: makeWorkspacePermissionOwnerList(w.resourceId),
-      action: BasicCRUDActions.Read,
-      nothrow: true,
-    });
-  });
-
-  const folderPermittedReads = await waitOnPromises(checkFoldersPermissionQueue);
-  const filePermittedReads = await waitOnPromises(checkFilesPermissionQueue);
-  let allowedFolders = fetchedFolders.filter((item, i) => !!folderPermittedReads[i]);
-  let allowedFiles = fetchedFiles.filter((item, i) => !!filePermittedReads[i]);
-  if (
-    allowedFolders.length === 0 &&
-    allowedFiles.length === 0 &&
-    allowedFolders.length > 0 &&
-    allowedFiles.length > 0
-  ) {
-    throw new PermissionDeniedError();
-  }
-
-  allowedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  appAssert(!isUndefined(parentFolder), new ServerError(), 'Parent folder should be null or folder, not undefined');
+  let [fetchedFolders, fetchedFiles] = await Promise.all([
+    fetchFolders(context, agent, workspace, parentFolder, data),
+    fetchFiles(context, agent, workspace, parentFolder, data),
+  ]);
+  fetchedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    allowedFolders,
+    fetchedFolders,
     AppResourceType.Folder
   );
-  allowedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  fetchedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    allowedFiles,
+    fetchedFiles,
     AppResourceType.File
   );
 
   return {
-    folders: folderListExtractor(allowedFolders),
-    files: fileListExtractor(allowedFiles),
+    folders: folderListExtractor(fetchedFolders),
+    files: fileListExtractor(fetchedFiles),
     page: getEndpointPageFromInput(data),
   };
 };
 
-interface IFetchFolderContentResult {
-  folders: Array<IFolder>;
-  files: Array<IFile>;
-  workspace?: IWorkspace | null;
-}
-
-async function fetchRootLevelContent(
-  context: IBaseContext,
-  workspaceId: string,
-  p: IPaginationQuery
-): Promise<IFetchFolderContentResult> {
-  const [folders, files] = await Promise.all([
-    context.data.folder.getManyByQuery(FolderQueries.getRootFolders(workspaceId), p),
-    context.data.file.getManyByQuery(FileQueries.getRootFiles(workspaceId), p),
-  ]);
-  return {folders, files};
-}
-
-async function fetchFolderContent(
+async function fetchFolders(
   context: IBaseContext,
   agent: ISessionAgent,
-  matcher: IFolderMatcher,
-  p: IPaginationQuery
-): Promise<IFetchFolderContentResult> {
-  const {folder, workspace} = await checkFolderAuthorization02(context, agent, matcher, BasicCRUDActions.Read);
-  const [folders, files] = await Promise.all([
-    context.data.folder.getManyByQuery(FolderQueries.getFoldersByParentId(folder.resourceId), p),
-    context.data.file.getManyByQuery(FileQueries.getFilesByParentId(folder.resourceId), p),
-  ]);
-  return {folders, files, workspace};
+  workspace: IWorkspace,
+  parentFolder: IFolder | null,
+  pagination: IPaginationQuery
+) {
+  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+    context,
+    agent,
+    workspace,
+    type: AppResourceType.Folder,
+    permissionContainers: makeResourcePermissionContainerList(
+      workspace.resourceId,
+      AppResourceType.Folder,
+      parentFolder
+    ),
+    action: BasicCRUDActions.Read,
+  });
+
+  let fetchedFolders: Array<IFolder> = [];
+  const parentId = parentFolder?.resourceId ?? null;
+
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    fetchedFolders = await context.data.folder.getManyByQuery(
+      FolderQueries.getByParentId(
+        workspace.resourceId,
+        parentId,
+        undefined,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
+      pagination
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    fetchedFolders = await context.data.folder.getManyByQuery(
+      FolderQueries.getByParentId(workspace.resourceId, parentId, permissionsSummaryReport.allowedResourceIdList),
+      pagination
+    );
+  } else if (permissionsSummaryReport.noAccess) {
+    throw new PermissionDeniedError();
+  }
+
+  return fetchedFolders;
+}
+
+async function fetchFiles(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  workspace: IWorkspace,
+  parentFolder: IFolder | null,
+  pagination: IPaginationQuery
+) {
+  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+    context,
+    agent,
+    workspace,
+    type: AppResourceType.Folder,
+    permissionContainers: makeResourcePermissionContainerList(
+      workspace.resourceId,
+      AppResourceType.Folder,
+      parentFolder
+    ),
+    action: BasicCRUDActions.Read,
+  });
+  let fetchedFiles: Array<IFile> = [];
+  const parentId = parentFolder?.resourceId ?? null;
+
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    fetchedFiles = await context.data.file.getManyByQuery(
+      FolderQueries.getByParentId(
+        workspace.resourceId,
+        parentId,
+        undefined,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
+      pagination
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    fetchedFiles = await context.data.file.getManyByQuery(
+      FolderQueries.getByParentId(workspace.resourceId, parentId, permissionsSummaryReport.allowedResourceIdList),
+      pagination
+    );
+  } else if (permissionsSummaryReport.noAccess) {
+    throw new PermissionDeniedError();
+  }
+
+  return fetchedFiles;
 }
 
 export default listFolderContent;

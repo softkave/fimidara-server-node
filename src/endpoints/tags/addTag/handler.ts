@@ -4,7 +4,7 @@ import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
@@ -22,7 +22,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     agent,
     workspace,
     type: AppResourceType.Tag,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspace.resourceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
     action: BasicCRUDActions.Create,
   });
 

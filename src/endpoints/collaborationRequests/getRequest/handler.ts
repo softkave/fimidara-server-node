@@ -17,7 +17,7 @@ const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context,
   const data = validate(instData.data, getCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const request = await context.data.collaborationRequest.getOneByQuery(
-    EndpointReusableQueries.getById(data.requestId)
+    EndpointReusableQueries.getByResourceId(data.requestId)
   );
 
   appAssert(request, new NotFoundError('Collaboration request not found'));

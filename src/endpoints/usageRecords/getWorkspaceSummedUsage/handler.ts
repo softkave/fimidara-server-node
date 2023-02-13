@@ -9,6 +9,7 @@ import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {GetWorkspaceSummedUsageEndpoint} from './types';
 import {getWorkspaceSummedUsageJoiSchema} from './validation';
 
+// TODO: should we include permissions check?
 const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async (context, instData) => {
   const data = validate(instData.data, getWorkspaceSummedUsageJoiSchema);
   const agent = await context.session.getAgent(context, instData);

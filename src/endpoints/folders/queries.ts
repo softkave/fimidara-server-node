@@ -1,7 +1,6 @@
 import {IFolder} from '../../definitions/folder';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
-import EndpointReusableQueries from '../queries';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IFolder>();
@@ -26,8 +25,23 @@ function folderExistsByNamePath(workspaceId: string, namePath: string[]) {
     .build();
 }
 
-function getFoldersByParentId(parentId: string | null) {
-  return newFilter().addItem('parentId', parentId, DataProviderFilterValueOperator.Equal).build();
+function getFoldersByParentId(
+  workspaceId: string,
+  parentId: string | null,
+  includeIdList?: string[],
+  excludeIdList?: string[]
+) {
+  const q = newFilter()
+    .addItem('parentId', parentId, DataProviderFilterValueOperator.Equal)
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
+  if (includeIdList) {
+    q.addItem('resourceId', includeIdList, DataProviderFilterValueOperator.In);
+  }
+  if (excludeIdList) {
+    q.addItem('resourceId', excludeIdList, DataProviderFilterValueOperator.NotIn);
+  }
+
+  return q.build();
 }
 
 // This returns all the folders that have the name path and possibly more
@@ -57,10 +71,8 @@ function getRootFolders(workspaceId: string) {
 }
 
 export default abstract class FolderQueries {
-  static getById = EndpointReusableQueries.getById;
-  static getByMultipleIds = EndpointReusableQueries.getByIdsAndWorkspaceId;
   static getByName = getByName;
-  static getFoldersByParentId = getFoldersByParentId;
+  static getByParentId = getFoldersByParentId;
   static getByNamePath = getByNamePath;
   static folderExistsByNamePath = folderExistsByNamePath;
   static getFoldersWithNamePath = getFoldersWithNamePath;

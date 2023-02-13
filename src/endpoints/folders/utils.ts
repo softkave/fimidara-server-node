@@ -1,9 +1,10 @@
 import {defaultTo, first, isArray, last} from 'lodash';
 import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
 import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {checkAuthorization, getFilePermissionOwners} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization, getFilePermissionContainers} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {agentExtractor} from '../utils';
@@ -108,9 +109,13 @@ export async function checkFolderAuthorization(
   agent: ISessionAgent,
   folder: IFolder,
   action: BasicCRUDActions,
-  nothrow = false
+  nothrow = false,
+  workspace?: IWorkspace
 ) {
-  const workspace = await checkWorkspaceExists(context, folder.workspaceId);
+  if (!workspace) {
+    workspace = await checkWorkspaceExists(context, folder.workspaceId);
+  }
+
   await checkAuthorization({
     context,
     agent,
@@ -119,7 +124,7 @@ export async function checkFolderAuthorization(
     nothrow,
     resource: folder,
     type: AppResourceType.Folder,
-    permissionOwners: getFilePermissionOwners(workspace.resourceId, folder, AppResourceType.Folder),
+    permissionContainers: getFilePermissionContainers(workspace.resourceId, folder, AppResourceType.Folder),
   });
 
   return {agent, workspace, folder};
@@ -130,10 +135,11 @@ export async function checkFolderAuthorization02(
   agent: ISessionAgent,
   matcher: IFolderMatcher,
   action: BasicCRUDActions,
-  nothrow = false
+  nothrow = false,
+  workspace?: IWorkspace
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher);
-  return checkFolderAuthorization(context, agent, folder, action, nothrow);
+  return checkFolderAuthorization(context, agent, folder, action, nothrow, workspace);
 }
 
 export function getFolderName(folder: IFolder) {

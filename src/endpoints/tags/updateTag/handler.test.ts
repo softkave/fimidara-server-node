@@ -48,7 +48,9 @@ describe('updateTag', () => {
     const result = await updateTag(context, instData);
     assertEndpointResultOk(result);
 
-    const updatedTag = await context.data.tag.assertGetOneByQuery(EndpointReusableQueries.getById(tag01.resourceId));
+    const updatedTag = await context.data.tag.assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(tag01.resourceId)
+    );
 
     expect(tagExtractor(updatedTag)).toMatchObject(result.tag);
     expect(updatedTag.name).toBe(tagUpdateInput.name);

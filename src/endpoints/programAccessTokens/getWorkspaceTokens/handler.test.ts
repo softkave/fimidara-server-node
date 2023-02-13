@@ -55,7 +55,7 @@ describe('getWorkspaceProgramAccessTokens', () => {
     );
     let result = await getWorkspaceProgramAccessTokens(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -65,7 +65,7 @@ describe('getWorkspaceProgramAccessTokens', () => {
     );
     result = await getWorkspaceProgramAccessTokens(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

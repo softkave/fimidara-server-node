@@ -35,7 +35,7 @@ export interface IPaginatedResult {
 }
 
 export interface ICountItemsEndpointResult {
-  page: number;
+  count: number;
 }
 
 export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;

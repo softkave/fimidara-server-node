@@ -32,7 +32,7 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (cont
   };
 
   token = await context.data.clientAssignedToken.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getById(token.resourceId),
+    EndpointReusableQueries.getByResourceId(token.resourceId),
     update
   );
 

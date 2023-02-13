@@ -69,7 +69,7 @@ const internalCreateWorkspace = async (
   );
 
   workspace = await context.data.workspace.getAndUpdateOneByQuery(
-    EndpointReusableQueries.getById(workspace.resourceId),
+    EndpointReusableQueries.getByResourceId(workspace.resourceId),
     {publicPermissionGroupId: publicPermissionGroup.resourceId}
   );
 

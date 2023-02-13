@@ -45,7 +45,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   // }
 
   const updatedWorkspace = await context.data.workspace.getAndUpdateOneByQuery(
-    EndpointReusableQueries.getById(workspace.resourceId),
+    EndpointReusableQueries.getByResourceId(workspace.resourceId),
     update
   );
 

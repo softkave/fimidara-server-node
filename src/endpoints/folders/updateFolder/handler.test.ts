@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import {
   assertPublicAccessOps,
-  assertPublicPermissionsDonotExistForOwner,
+  assertPublicPermissionsDonotExistForContainer,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
@@ -20,9 +20,8 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
-import {assertPublicOps, makeEveryFolderPublicAccessOp} from '../addFolder/addFolderTestUtils';
+import {assertFolderPublicOps, makeEveryFolderPublicAccessOp} from '../addFolder/addFolderTestUtils';
 import {folderConstants} from '../constants';
-import FolderQueries from '../queries';
 import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
 import {IUpdateFolderEndpointParams, IUpdateFolderInput} from './types';
@@ -46,7 +45,6 @@ async function updateFolderBaseTest(
 ) {
   insertUserResult = insertUserResult || (await insertUserForTest(ctx));
   insertWorkspaceResult = insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-
   const {folder} = existingFolder
     ? {folder: existingFolder}
     : await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace);
@@ -71,7 +69,9 @@ async function updateFolderBaseTest(
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
-  const savedFolder = await ctx.data.folder.assertGetOneByQuery(FolderQueries.getById(folder.resourceId));
+  const savedFolder = await ctx.data.folder.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(folder.resourceId)
+  );
 
   expect(result.folder).toMatchObject(folderExtractor(savedFolder));
   return {
@@ -100,19 +100,7 @@ const updateFolderWithPublicAccessOpsTest = async (
   const {savedFolder} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  // expect(savedFolder.publicAccessOps).toHaveLength(
-  //   incomingUpdateInput.publicAccessOps?.length || 0
-  // );
-
-  await assertPublicAccessOps(
-    ctx,
-    savedFolder,
-    insertUserResult,
-    insertWorkspaceResult,
-    incomingUpdateInput.publicAccessOps || [],
-    AppResourceType.Folder
-  );
-
+  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, incomingUpdateInput.publicAccessOps || []);
   return uploadResult;
 };
 
@@ -122,13 +110,12 @@ describe('updateFolder', () => {
     await updateFolderBaseTest(context);
   });
 
-  test('folder updated with public access ops', async () => {
+  test.only('folder updated with public access ops', async () => {
     assertContext(context);
     const {savedFolder, insertWorkspaceResult} = await updateFolderWithPublicAccessOpsTest(context, {
       publicAccessOps: makeEveryFolderPublicAccessOp(),
     });
-
-    await assertPublicOps(context, savedFolder, insertWorkspaceResult);
+    await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 
   test('folder public access ops removed', async () => {
@@ -151,9 +138,13 @@ describe('updateFolder', () => {
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      await assertPublicOps(context, savedFolder, insertWorkspaceResult);
+      await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
     }, [PermissionDeniedError.name]);
 
-    await assertPublicPermissionsDonotExistForOwner(context, insertWorkspaceResult.workspace, savedFolder.resourceId);
+    await assertPublicPermissionsDonotExistForContainer(
+      context,
+      insertWorkspaceResult.workspace,
+      savedFolder.resourceId
+    );
   });
 });

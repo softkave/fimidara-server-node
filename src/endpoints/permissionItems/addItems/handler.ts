@@ -6,7 +6,7 @@ import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionOwnerList,
+  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceId} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -26,7 +26,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
     workspace,
     action: BasicCRUDActions.GrantPermission,
     type: AppResourceType.PermissionItem,
-    permissionOwners: makeWorkspacePermissionOwnerList(workspaceId),
+    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
   });
 
   const hashList: string[] = [];

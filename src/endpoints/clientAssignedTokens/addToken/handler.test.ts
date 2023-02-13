@@ -57,7 +57,9 @@ test('client assigned token added', async () => {
     await populateAssignedPermissionGroupsAndTags(
       context,
       workspace.resourceId,
-      await context.data.clientAssignedToken.assertGetOneByQuery(EndpointReusableQueries.getById(token.resourceId)),
+      await context.data.clientAssignedToken.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(token.resourceId)
+      ),
       AppResourceType.ClientAssignedToken
     )
   );

@@ -31,13 +31,13 @@ function makeAdminPermissions(agent: IAgent, workspace: IWorkspace, adminPermiss
         agentId: agent.agentId,
         agentType: agent.agentType,
       },
-      permissionOwnerId: workspace.resourceId,
-      permissionOwnerType: AppResourceType.Workspace,
+      containerId: workspace.resourceId,
+      containerType: AppResourceType.Workspace,
       permissionEntityId: adminPermissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
-      itemResourceType: AppResourceType.All,
+      targetType: AppResourceType.All,
       hash: '',
-      appliesTo: PermissionItemAppliesTo.OwnerAndChildren,
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       grantAccess: true,
     };
 
@@ -51,15 +51,15 @@ function makeAdminPermissions(agent: IAgent, workspace: IWorkspace, adminPermiss
 function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permissiongroup: IPermissionGroup) {
   function makePermission(
     actions: BasicCRUDActions[],
-    itemResourceType: AppResourceType,
-    itemResourceId?: string,
-    appliesTo: PermissionItemAppliesTo = PermissionItemAppliesTo.OwnerAndChildren
+    targetType: AppResourceType,
+    targetId?: string,
+    appliesTo: PermissionItemAppliesTo = PermissionItemAppliesTo.ContainerAndChildren
   ) {
     return actions.map(action => {
       const item: IPermissionItem = {
-        itemResourceType,
+        targetType: targetType,
         action,
-        itemResourceId,
+        targetId: targetId,
         appliesTo,
         resourceId: getNewIdForResource(AppResourceType.PermissionItem),
         workspaceId: workspace.resourceId,
@@ -68,8 +68,8 @@ function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permi
           agentId: agent.agentId,
           agentType: agent.agentType,
         },
-        permissionOwnerId: workspace.resourceId,
-        permissionOwnerType: AppResourceType.Workspace,
+        containerId: workspace.resourceId,
+        containerType: AppResourceType.Workspace,
         permissionEntityId: permissiongroup.resourceId,
         permissionEntityType: AppResourceType.PermissionGroup,
         hash: '',
@@ -91,7 +91,7 @@ function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permi
       [BasicCRUDActions.Read],
       AppResourceType.ProgramAccessToken,
       undefined,
-      PermissionItemAppliesTo.OwnerAndChildren
+      PermissionItemAppliesTo.ContainerAndChildren
     )
   );
 
@@ -100,7 +100,7 @@ function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permi
       [BasicCRUDActions.Read],
       AppResourceType.ClientAssignedToken,
       undefined,
-      PermissionItemAppliesTo.OwnerAndChildren
+      PermissionItemAppliesTo.ContainerAndChildren
     )
   );
 
@@ -109,7 +109,7 @@ function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permi
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.Folder,
       undefined,
-      PermissionItemAppliesTo.OwnerAndChildren
+      PermissionItemAppliesTo.ContainerAndChildren
     )
   );
 
@@ -118,12 +118,17 @@ function makeCollaboratorPermissions(agent: IAgent, workspace: IWorkspace, permi
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.File,
       undefined,
-      PermissionItemAppliesTo.OwnerAndChildren
+      PermissionItemAppliesTo.ContainerAndChildren
     )
   );
 
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.User, undefined, PermissionItemAppliesTo.OwnerAndChildren)
+    makePermission(
+      [BasicCRUDActions.Read],
+      AppResourceType.User,
+      undefined,
+      PermissionItemAppliesTo.ContainerAndChildren
+    )
   );
 
   return permissionItems;

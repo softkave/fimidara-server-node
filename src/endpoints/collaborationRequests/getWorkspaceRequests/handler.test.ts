@@ -51,7 +51,7 @@ describe('getWorkspaceRequests', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertCollaborationRequestListForTest(context, 15, () => ({workspaceId: workspace.resourceId}));
-    const count = await context.data.clientAssignedToken.countByQuery({workspaceId: workspace.resourceId});
+    const count = await context.data.collaborationRequest.countByQuery({workspaceId: workspace.resourceId});
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
@@ -60,7 +60,7 @@ describe('getWorkspaceRequests', () => {
     );
     let result = await getWorkspaceCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
@@ -70,7 +70,7 @@ describe('getWorkspaceRequests', () => {
     );
     result = await getWorkspaceCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toContainEqual(page);
+    expect(result.page).toBe(page);
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

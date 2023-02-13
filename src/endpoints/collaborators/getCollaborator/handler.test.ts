@@ -42,7 +42,7 @@ test('collaborator returned', async () => {
     collaboratorExtractor(
       await populateUserWorkspaces(
         context,
-        await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getById(user.resourceId))
+        await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
       ),
       workspace.resourceId
     )

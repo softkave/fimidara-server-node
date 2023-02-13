@@ -45,7 +45,7 @@ import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregate
 
 const contexts: IBaseContext[] = [];
 const connections: Connection[] = [];
-const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent());
+const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent(), undefined);
 const runInfo = pipelineRunInfoFactory({
   job: FimidaraPipelineNames.AggregateUsageRecordsJob,
 });
@@ -174,7 +174,7 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getById(wId));
+  const w = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(wId));
   assert(w);
   const locks = w.usageThresholdLocks || {};
   for (const category in categories) {
@@ -207,7 +207,7 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorks
 }
 
 async function assertRecordInsertionFails(context: IBaseContext, connection: Connection, w1: IWorkspace) {
-  const f1 = generateTestFile(w1);
+  const f1 = generateTestFile({workspaceId: w1.resourceId});
   await expect(async () => {
     assertContext(context);
     await insertStorageUsageRecordInput(context, reqData, f1);

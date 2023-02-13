@@ -8,7 +8,7 @@ import {assertFile, splitfilepathWithDetails} from './utils';
 
 export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMatcher) {
   if (matcher.fileId) {
-    const file = await context.data.file.getOneByQuery(EndpointReusableQueries.getById(matcher.fileId));
+    const file = await context.data.file.getOneByQuery(EndpointReusableQueries.getByResourceId(matcher.fileId));
 
     return file;
   } else if (matcher.filepath) {
