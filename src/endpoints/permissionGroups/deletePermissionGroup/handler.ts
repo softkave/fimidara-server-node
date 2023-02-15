@@ -1,7 +1,10 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
-import {deleteAssignableItemAssignedItems, deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
+import {
+  deleteAssignableItemAssignedItems,
+  deleteResourceAssignedItems,
+} from '../../assignedItems/deleteAssignedItems';
 import {InvalidRequestError} from '../../errors';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
@@ -35,7 +38,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
 
     // Delete permission items owned by permissionGroup
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId, AppResourceType.PermissionGroup)
+      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     ),
 
     // Delete permissionGroup assigned items
@@ -55,7 +58,9 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
     ),
 
     // Delete permissionGroup
-    context.data.permissiongroup.deleteOneByQuery(EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)),
+    context.data.permissiongroup.deleteOneByQuery(
+      EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
+    ),
   ]);
 };
 

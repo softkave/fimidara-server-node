@@ -55,7 +55,9 @@ test('file updated', async () => {
   const updatedFile = await populateAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,
-    await context.data.file.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId)),
+    await context.data.file.assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(file.resourceId)
+    ),
     AppResourceType.File
   );
 

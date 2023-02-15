@@ -27,7 +27,10 @@ export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> =
   return token;
 }
 
-export function generatePermissionGroupListForTest(count = 20, seed: Partial<IPermissionGroup> = {}) {
+export function generatePermissionGroupListForTest(
+  count = 20,
+  seed: Partial<IPermissionGroup> = {}
+) {
   const items: IPermissionGroup[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generatePermissionGroupForTest(seed));

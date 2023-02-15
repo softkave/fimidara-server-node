@@ -7,7 +7,10 @@ import {
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import {appAssert} from './assertion';
-import OperationError, {getErrorMessageFromParams, IOperationErrorParameters} from './OperationError';
+import OperationError, {
+  getErrorMessageFromParams,
+  IOperationErrorParameters,
+} from './OperationError';
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';

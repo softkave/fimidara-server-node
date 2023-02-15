@@ -37,7 +37,11 @@ test('client assigned token permission groups updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token: token01} = await insertClientAssignedTokenForTest(context, userToken, workspace.resourceId);
+  const {token: token01} = await insertClientAssignedTokenForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,

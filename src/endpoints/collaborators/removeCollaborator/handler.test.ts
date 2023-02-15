@@ -34,14 +34,13 @@ test('collaborator removed', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData =
-    RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        collaboratorId: user.resourceId,
-      }
-    );
+  const instData = RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      workspaceId: workspace.resourceId,
+      collaboratorId: user.resourceId,
+    }
+  );
 
   const result = await removeCollaborator(context, instData);
   assertEndpointResultOk(result);
@@ -52,11 +51,7 @@ test('collaborator removed', async () => {
     AppResourceType.User
   );
 
-  expect(
-    assignedItems.findIndex(
-      item => item.assignedToItemId === workspace.resourceId
-    )
-  ).toBe(-1);
+  expect(assignedItems.findIndex(item => item.assignedToItemId === workspace.resourceId)).toBe(-1);
 
   try {
     await getCollaborator(context, instData);

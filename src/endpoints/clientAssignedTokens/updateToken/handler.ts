@@ -14,7 +14,12 @@ import {updateClientAssignedTokenJoiSchema} from './validation';
 const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkClientAssignedTokenAuthorization03(context, agent, data, BasicCRUDActions.Update);
+  const checkResult = await checkClientAssignedTokenAuthorization03(
+    context,
+    agent,
+    data,
+    BasicCRUDActions.Update
+  );
   const workspace = checkResult.workspace;
   let token = checkResult.token;
 

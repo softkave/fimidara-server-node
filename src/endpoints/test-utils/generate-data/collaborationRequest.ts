@@ -4,7 +4,11 @@ import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/sy
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
-import {defaultGeneratePartialTestDataFn, GeneratePartialTestDataFn, generateTestList} from './utils';
+import {
+  defaultGeneratePartialTestDataFn,
+  GeneratePartialTestDataFn,
+  generateTestList,
+} from './utils';
 
 export function generateCollaborationRequestForTest(seed: Partial<ICollaborationRequest> = {}) {
   const createdAt = getDateString();

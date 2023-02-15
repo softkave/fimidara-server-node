@@ -35,7 +35,9 @@ const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
 
 export const assignedPermissionGroupsExtractor = makeExtract(assignedPermissionGroupsFields);
 
-export const assignedPermissionGroupsListExtractor = makeListExtract(assignedPermissionGroupsFields);
+export const assignedPermissionGroupsListExtractor = makeListExtract(
+  assignedPermissionGroupsFields
+);
 
 const permissionGroupFields = getFields<IPublicPermissionGroup>({
   resourceId: true,
@@ -127,7 +129,9 @@ export async function checkPermissionGroupsExist(
 ) {
   const permissionGroups = await Promise.all(
     permissionGroupInputs.map(item =>
-      context.data.permissiongroup.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(item.permissionGroupId))
+      context.data.permissiongroup.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(item.permissionGroupId)
+      )
     )
   );
 

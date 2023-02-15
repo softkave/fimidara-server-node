@@ -14,49 +14,71 @@ import {
   HttpEndpointMethod,
   HttpEndpointResponse,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
 import {permissionItemConstants} from '../permissionItems/constants';
-import {IAddFolderEndpointParams, IAddFolderEndpointResult, INewFolderInput} from './addFolder/types';
+import {
+  IAddFolderEndpointParams,
+  IAddFolderEndpointResult,
+  INewFolderInput,
+} from './addFolder/types';
 import {folderConstants} from './constants';
 import {IDeleteFolderEndpointParams} from './deleteFolder/types';
 import {IGetFolderEndpointParams, IGetFolderEndpointResult} from './getFolder/types';
-import {IListFolderContentEndpointParams, IListFolderContentEndpointResult} from './listFolderContent/types';
-import {IUpdateFolderEndpointParams, IUpdateFolderEndpointResult, IUpdateFolderInput} from './updateFolder/types';
+import {
+  IListFolderContentEndpointParams,
+  IListFolderContentEndpointResult,
+} from './listFolderContent/types';
+import {
+  IUpdateFolderEndpointParams,
+  IUpdateFolderEndpointResult,
+  IUpdateFolderInput,
+} from './updateFolder/types';
 
-const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>().setName('PublicAccessOpInput').setFields({
-  action: fReusables.nonWorkspaceAction,
-  resourceType: new FieldString()
-    .setRequired(true)
-    .setDescription('Resource type this public access permission applies.')
-    .setExample(AppResourceType.File)
-    .setValid([AppResourceType.Folder, AppResourceType.File]),
-  appliesTo: new FieldString()
-    .setRequired(true)
-    .setDescription(
-      "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
-    )
-    .setExample(PermissionItemAppliesTo.ContainerAndChildren)
-    .setValid(Object.values(PermissionItemAppliesTo)),
-});
+const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>()
+  .setName('PublicAccessOpInput')
+  .setFields({
+    action: fReusables.nonWorkspaceAction,
+    resourceType: new FieldString()
+      .setRequired(true)
+      .setDescription('Resource type this public access permission applies.')
+      .setExample(AppResourceType.File)
+      .setValid([AppResourceType.Folder, AppResourceType.File]),
+    appliesTo: new FieldString()
+      .setRequired(true)
+      .setDescription(
+        "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
+      )
+      .setExample(PermissionItemAppliesTo.ContainerAndChildren)
+      .setValid(Object.values(PermissionItemAppliesTo)),
+  });
 
 const folderPublicAccessOpInputList = new FieldArray()
   .setType(folderPublicAccessOpInput)
   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
-const newFolderInput = new FieldObject<ExcludeTags<INewFolderInput>>().setName('NewFolderInput').setFields({
-  description: fReusables.descriptionNotRequired,
-  folderpath: fReusables.folderpath,
-  publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
-});
+const newFolderInput = new FieldObject<ExcludeTags<INewFolderInput>>()
+  .setName('NewFolderInput')
+  .setFields({
+    description: fReusables.descriptionNotRequired,
+    folderpath: fReusables.folderpath,
+    publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
+  });
 
-const updateFolderInput = new FieldObject<ExcludeTags<IUpdateFolderInput>>().setName('UpdateFolderInput').setFields({
-  description: fReusables.descriptionNotRequired,
-  publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
-  removePublicAccessOps: cloneAndMarkNotRequired(
-    new FieldBoolean().setDescription('Whether to clear all current public access permissions')
-  ),
-});
+const updateFolderInput = new FieldObject<ExcludeTags<IUpdateFolderInput>>()
+  .setName('UpdateFolderInput')
+  .setFields({
+    description: fReusables.descriptionNotRequired,
+    publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
+    removePublicAccessOps: cloneAndMarkNotRequired(
+      new FieldBoolean().setDescription('Whether to clear all current public access permissions')
+    ),
+  });
 
 const folder = new FieldObject<IPublicFolder>().setName('Folder').setFields({
   resourceId: new FieldString(),
@@ -100,7 +122,11 @@ const addFolderResult = [
 
 const listFolderContentParams = new FieldObject<IListFolderContentEndpointParams>()
   .setName('ListFolderContentEndpointParams')
-  .setFields({...folderMatcherParts, page: fReusables.pageNotRequired, pageSize: fReusables.pageSizeNotRequired})
+  .setFields({
+    ...folderMatcherParts,
+    page: fReusables.pageNotRequired,
+    pageSize: fReusables.pageSizeNotRequired,
+  })
   .setRequired(true)
   .setDescription('List folder content endpoint params.');
 const listFolderContentResult = [

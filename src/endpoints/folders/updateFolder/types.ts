@@ -19,4 +19,8 @@ export interface IUpdateFolderEndpointResult {
   folder: IPublicFolder;
 }
 
-export type UpdateFolderEndpoint = Endpoint<IBaseContext, IUpdateFolderEndpointParams, IUpdateFolderEndpointResult>;
+export type UpdateFolderEndpoint = Endpoint<
+  IBaseContext,
+  IUpdateFolderEndpointParams,
+  IUpdateFolderEndpointResult
+>;

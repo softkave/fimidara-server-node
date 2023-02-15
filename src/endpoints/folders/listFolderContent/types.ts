@@ -3,7 +3,10 @@ import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
 
-export type IListFolderContentEndpointParams = IFolderMatcher & IPaginationQuery;
+export type IListFolderContentEndpointParamsBase = IFolderMatcher;
+export type IListFolderContentEndpointParams = IListFolderContentEndpointParamsBase &
+  IPaginationQuery;
+
 export interface IListFolderContentEndpointResult extends IPaginatedResult {
   folders: IPublicFolder[];
   files: IPublicFile[];

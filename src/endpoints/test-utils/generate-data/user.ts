@@ -4,7 +4,11 @@ import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
-import {defaultGeneratePartialTestDataFn, GeneratePartialTestDataFn, generateTestList} from './utils';
+import {
+  defaultGeneratePartialTestDataFn,
+  GeneratePartialTestDataFn,
+  generateTestList,
+} from './utils';
 
 export function generateUserForTest(seed: Partial<IUser> = {}) {
   const createdAt = getDateString();

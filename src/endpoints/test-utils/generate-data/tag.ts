@@ -35,7 +35,11 @@ export function generateTagListForTest(count = 20, seed: Partial<ITag> = {}) {
   return items;
 }
 
-export async function generateAndInsertTagListForTest(ctx: IBaseContext, count = 20, seed: Partial<ITag> = {}) {
+export async function generateAndInsertTagListForTest(
+  ctx: IBaseContext,
+  count = 20,
+  seed: Partial<ITag> = {}
+) {
   const items = generateTagListForTest(count, seed);
   await ctx.data.tag.insertList(items);
   return items;

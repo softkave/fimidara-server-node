@@ -46,23 +46,24 @@ test('collaborator permission groups updated', async () => {
     workspace.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IUpdateCollaboratorPermissionGroupsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
-      workspaceId: workspace.resourceId,
-      collaboratorId: user.resourceId,
-      permissionGroups: [
-        {
-          permissionGroupId: permissionGroup01.resourceId,
-          order: 1,
-        },
-        {
-          permissionGroupId: permissionGroup02.resourceId,
-          order: 2,
-        },
-      ],
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<IUpdateCollaboratorPermissionGroupsEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        collaboratorId: user.resourceId,
+        permissionGroups: [
+          {
+            permissionGroupId: permissionGroup01.resourceId,
+            order: 1,
+          },
+          {
+            permissionGroupId: permissionGroup02.resourceId,
+            order: 2,
+          },
+        ],
+      }
+    );
 
   const result = await updateCollaboratorPermissionGroups(context, instData);
   assertEndpointResultOk(result);

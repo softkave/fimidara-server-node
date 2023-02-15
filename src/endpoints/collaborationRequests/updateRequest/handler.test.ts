@@ -45,14 +45,19 @@ describe('updateCollaborationRequest', () => {
       workspace.resourceId
     );
 
-    const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
-      permissionGroupsOnAccept: [
-        {
-          permissionGroupId: permissionGroup01.resourceId,
-          order: 0,
-        },
-      ],
-    });
+    const {request: request01} = await insertRequestForTest(
+      context,
+      userToken,
+      workspace.resourceId,
+      {
+        permissionGroupsOnAccept: [
+          {
+            permissionGroupId: permissionGroup01.resourceId,
+            order: 0,
+          },
+        ],
+      }
+    );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
@@ -108,14 +113,19 @@ describe('updateCollaborationRequest', () => {
       workspace.resourceId
     );
 
-    const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
-      permissionGroupsOnAccept: [
-        {
-          permissionGroupId: permissionGroup01.resourceId,
-          order: 0,
-        },
-      ],
-    });
+    const {request: request01} = await insertRequestForTest(
+      context,
+      userToken,
+      workspace.resourceId,
+      {
+        permissionGroupsOnAccept: [
+          {
+            permissionGroupId: permissionGroup01.resourceId,
+            order: 0,
+          },
+        ],
+      }
+    );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
@@ -154,14 +164,19 @@ describe('updateCollaborationRequest', () => {
       workspace.resourceId
     );
 
-    const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
-      permissionGroupsOnAccept: [
-        {
-          permissionGroupId: permissionGroup01.resourceId,
-          order: 0,
-        },
-      ],
-    });
+    const {request: request01} = await insertRequestForTest(
+      context,
+      userToken,
+      workspace.resourceId,
+      {
+        permissionGroupsOnAccept: [
+          {
+            permissionGroupId: permissionGroup01.resourceId,
+            order: 0,
+          },
+        ],
+      }
+    );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),

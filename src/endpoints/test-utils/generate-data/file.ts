@@ -37,7 +37,11 @@ export function generateTestFiles(count = 20, extra: Partial<IFile> = {}) {
   return files;
 }
 
-export async function generateAndInsertTestFiles(ctx: IBaseContext, count = 20, extra: Partial<IFile> = {}) {
+export async function generateAndInsertTestFiles(
+  ctx: IBaseContext,
+  count = 20,
+  extra: Partial<IFile> = {}
+) {
   const items = generateTestFiles(count, extra);
   await ctx.data.file.insertList(items);
   return items;

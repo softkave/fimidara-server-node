@@ -28,7 +28,12 @@ export function toLoginResult(
 ): ILoginResult {
   return {
     user: userExtractor(user),
-    token: context.session.encodeToken(context, token.resourceId, TokenType.UserToken, token.expires),
+    token: context.session.encodeToken(
+      context,
+      token.resourceId,
+      TokenType.UserToken,
+      token.expires
+    ),
     clientAssignedToken: context.session.encodeToken(
       context,
       clientAssignedToken.resourceId,

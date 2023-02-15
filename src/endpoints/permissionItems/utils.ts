@@ -118,9 +118,7 @@ export async function replacePublicPermissionGroupAccessOps(
     await context.data.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByPermissionEntityAndContainer(
         workspace.publicPermissionGroupId,
-        AppResourceType.PermissionGroup,
-        containerId,
-        containerType
+        containerId
       )
     );
 

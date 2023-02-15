@@ -34,7 +34,9 @@ export default async function checkPermissionTargetsExist(
     checkAuth: true,
   });
 
-  resources = await resourceListWithAssignedItems(context, workspace.resourceId, resources, [AppResourceType.User]);
+  resources = await resourceListWithAssignedItems(context, workspace.resourceId, resources, [
+    AppResourceType.User,
+  ]);
   checkResourcesBelongToWorkspace(workspace.resourceId, resources, true);
   return {resources};
 }

@@ -16,7 +16,10 @@ import {
   mockExpressRequest,
 } from '../../test-utils/test-utils';
 import UserTokenQueries from '../UserTokenQueries';
-import forgotPassword, {getForgotPasswordExpiration, getForgotPasswordLinkFromToken} from './forgotPassword';
+import forgotPassword, {
+  getForgotPasswordExpiration,
+  getForgotPasswordLinkFromToken,
+} from './forgotPassword';
 import {IForgotPasswordParams} from './types';
 
 /**

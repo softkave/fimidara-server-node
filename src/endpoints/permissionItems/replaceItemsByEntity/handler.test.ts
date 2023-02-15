@@ -106,9 +106,8 @@ describe('replaceItemsByEntity', () => {
     );
 
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(entity.permissionEntityId, entity.permissionEntityType)
+      PermissionItemQueries.getByPermissionEntity(entity.permissionEntityId)
     );
-
     expect(permissionGroupItems.length).toBe(result.items.length);
   });
 });

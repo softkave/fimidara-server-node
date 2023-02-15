@@ -120,9 +120,15 @@ describe('getFile', () => {
       ),
     });
 
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(mockExpressRequestForPublicAgent(), {
-      filepath: addRootnameToPath(file.namePath.join(folderConstants.nameSeparator), workspace.rootname),
-    });
+    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {
+        filepath: addRootnameToPath(
+          file.namePath.join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
+      }
+    );
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
@@ -136,9 +142,15 @@ describe('getFile', () => {
       publicAccessAction: UploadFilePublicAccessActions.Read,
     });
 
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(mockExpressRequestForPublicAgent(), {
-      filepath: addRootnameToPath(file.namePath.join(folderConstants.nameSeparator), workspace.rootname),
-    });
+    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {
+        filepath: addRootnameToPath(
+          file.namePath.join(folderConstants.nameSeparator),
+          workspace.rootname
+        ),
+      }
+    );
 
     const result = await getFile(context, instData);
     assertEndpointResultOk(result);
@@ -151,9 +163,15 @@ describe('getFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     let instData: RequestData | null = null;
     try {
-      instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(mockExpressRequestForPublicAgent(), {
-        filepath: addRootnameToPath(file.namePath.join(folderConstants.nameSeparator), workspace.rootname),
-      });
+      instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+        mockExpressRequestForPublicAgent(),
+        {
+          filepath: addRootnameToPath(
+            file.namePath.join(folderConstants.nameSeparator),
+            workspace.rootname
+          ),
+        }
+      );
 
       await getFile(context, instData);
     } catch (error: any) {
@@ -168,10 +186,15 @@ describe('getFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
 
     // Update usage locks
-    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [UsageRecordCategory.BandwidthOut]);
-    const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(mockExpressRequestWithUserToken(userToken), {
-      filepath: addRootnameToPath(file.name, workspace.rootname),
-    });
+    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
+      UsageRecordCategory.BandwidthOut,
+    ]);
+    const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        filepath: addRootnameToPath(file.name, workspace.rootname),
+      }
+    );
 
     await expectErrorThrown(async () => {
       assertContext(context);

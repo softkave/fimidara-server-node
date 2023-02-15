@@ -2,7 +2,7 @@ import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import PermissionItemQueries from '../queries';
 import {compactPermissionItems, permissionItemIndexer} from '../utils';
@@ -13,7 +13,7 @@ export async function internalAddPermissionItemsByEntity(
   agent: IAgent,
   data: IReplacePermissionItemsByEntityEndpointParams
 ) {
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   let items: IPermissionItem[] = data.items.map(input => {
     const item: IPermissionItem = {
       ...input,
@@ -44,8 +44,7 @@ export async function internalReplacePermissionItemsByEntity(
   data: IReplacePermissionItemsByEntityEndpointParams
 ) {
   await context.data.permissionItem.deleteManyByQuery(
-    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId, data.permissionEntityType)
+    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId)
   );
-
   return await internalAddPermissionItemsByEntity(context, agent, data);
 }

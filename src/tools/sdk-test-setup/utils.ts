@@ -15,7 +15,10 @@ import {consoleLogger} from '../../utils/logger/logger';
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
   const emailProvider = new NoopEmailProviderContext();
   const ctx = new BaseContext(
     getDataProviders(connection),
@@ -41,7 +44,11 @@ async function insertWorkspace(context: IBaseContext) {
   );
 }
 
-async function createProgramAccessToken(context: IBaseContext, workspace: IWorkspace, adminPermissionGroupId: string) {
+async function createProgramAccessToken(
+  context: IBaseContext,
+  workspace: IWorkspace,
+  adminPermissionGroupId: string
+) {
   const token = await internalCreateProgramAccessToken(
     context,
     systemAgent,
@@ -68,7 +75,11 @@ async function createProgramAccessToken(context: IBaseContext, workspace: IWorks
 export async function setupSDKTestReq() {
   const context = await setupContext();
   const {workspace, adminPermissionGroup} = await insertWorkspace(context);
-  const {token, tokenStr} = await createProgramAccessToken(context, workspace, adminPermissionGroup.resourceId);
+  const {token, tokenStr} = await createProgramAccessToken(
+    context,
+    workspace,
+    adminPermissionGroup.resourceId
+  );
 
   consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
   consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);

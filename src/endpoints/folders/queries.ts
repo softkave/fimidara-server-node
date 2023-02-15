@@ -8,7 +8,6 @@ function newFilter() {
 
 function getByName(name: string, parent?: IFolder) {
   const filter = newFilter().addItem('name', name, DataProviderFilterValueOperator.Equal);
-
   if (parent) {
     filter.addItem('parentId', parent.resourceId, DataProviderFilterValueOperator.Equal);
   } else {
@@ -44,17 +43,6 @@ function getFoldersByParentId(
   return q.build();
 }
 
-// This returns all the folders that have the name path and possibly more
-function getFoldersWithNamePath(workspaceId: string, path: string[]) {
-  const filter = newFilter().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
-
-  path.forEach((item, index) =>
-    filter.addItemWithStringKey(`namePath.${index}`, item, DataProviderFilterValueOperator.Equal)
-  );
-
-  return filter.build();
-}
-
 // This returns folders with the exact name path
 function getByNamePath(workspaceId: string, namePath: string[]) {
   return newFilter()
@@ -75,6 +63,5 @@ export default abstract class FolderQueries {
   static getByParentId = getFoldersByParentId;
   static getByNamePath = getByNamePath;
   static folderExistsByNamePath = folderExistsByNamePath;
-  static getFoldersWithNamePath = getFoldersWithNamePath;
-  static getRootFolders = getRootFolders;
+  static getRootContent = getRootFolders;
 }

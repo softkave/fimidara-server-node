@@ -1,12 +1,14 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
-import {IGetWorkspaceTagsEndpointParams} from './types';
+import {IGetWorkspaceTagsEndpointParams, IGetWorkspaceTagsEndpointParamsBase} from './types';
+
+export const getWorkspaceTagBaseJoiSchemaParts: JoiSchemaParts<IGetWorkspaceTagsEndpointParamsBase> =
+  endpointValidationSchemas.optionalWorkspaceIdParts;
 
 export const getWorkspaceTagJoiSchema = Joi.object<IGetWorkspaceTagsEndpointParams>()
   .keys({
-    workspaceId: validationSchemas.resourceId,
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
+    ...getWorkspaceTagBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
   })
   .required();

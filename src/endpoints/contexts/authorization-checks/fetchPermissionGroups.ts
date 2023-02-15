@@ -65,8 +65,14 @@ const extractUniqueEntitiesAndAssignOrder = (entities: Array<IPermissionEntity>)
   return uniqueEntities;
 };
 
-async function fetchPermissionGroups(context: IBaseContext, inputEntities: Array<IPermissionEntity>) {
-  const permissionGroupsMap: Record<string, ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null> = {};
+async function fetchPermissionGroups(
+  context: IBaseContext,
+  inputEntities: Array<IPermissionEntity>
+) {
+  const permissionGroupsMap: Record<
+    string,
+    ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null
+  > = {};
   const permissionGroupEntitiesIds = inputEntities
     .filter(item => {
       return item.permissionEntityType === AppResourceType.PermissionGroup;
@@ -116,7 +122,10 @@ async function fetchPermissionGroups(context: IBaseContext, inputEntities: Array
   return permissionGroupsMap;
 }
 
-export async function fetchAndSortPermissionGroups(context: IBaseContext, entities: IPermissionEntity[]) {
+export async function fetchAndSortPermissionGroups(
+  context: IBaseContext,
+  entities: IPermissionEntity[]
+) {
   const permissionGroupsMap = await fetchPermissionGroups(context, entities);
   const processedEntities = commitEntities(
     entities.map(item => item.permissionEntityId),

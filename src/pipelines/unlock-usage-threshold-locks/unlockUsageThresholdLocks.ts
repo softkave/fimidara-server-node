@@ -30,7 +30,9 @@ export async function unlockUsageThresholdLocks(connection: Connection) {
     }
 
     if (anyLocked) {
-      const p = model.updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: usageThresholdLocks}).exec();
+      const p = model
+        .updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: usageThresholdLocks})
+        .exec();
       promises.push(p);
     }
   }

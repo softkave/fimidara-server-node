@@ -6,7 +6,6 @@ export const workspaceConstants = {
     deleteWorkspace: `${endpointConstants.apiv1}/workspaces/deleteWorkspace`,
     getUserWorkspaces: `${endpointConstants.apiv1}/workspaces/getUserWorkspaces`,
     getWorkspace: `${endpointConstants.apiv1}/workspaces/getWorkspace`,
-    getRequestWorkspa: `${endpointConstants.apiv1}/workspaces/getRequestWorkspace`,
     updateWorkspace: `${endpointConstants.apiv1}/workspaces/updateWorkspace`,
   },
 };

@@ -65,7 +65,9 @@ export async function checkTagAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const tag = await context.data.tag.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(id));
+  const tag = await context.data.tag.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
 
   return checkTagAuthorization(context, agent, tag, action, nothrow);
 }

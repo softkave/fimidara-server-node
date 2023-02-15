@@ -17,7 +17,12 @@ const updateProgramAccessToken: UpdateProgramAccessTokenEndpoint = async (contex
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(agent, data.tokenId, data.onReferenced);
 
-  const checkResult = await checkProgramAccessTokenAuthorization02(context, agent, tokenId, BasicCRUDActions.Read);
+  const checkResult = await checkProgramAccessTokenAuthorization02(
+    context,
+    agent,
+    tokenId,
+    BasicCRUDActions.Read
+  );
 
   const workspace = checkResult.workspace;
   let token = checkResult.token;

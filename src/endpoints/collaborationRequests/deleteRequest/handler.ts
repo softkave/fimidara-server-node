@@ -7,7 +7,10 @@ import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteCollaborationRequestEndpoint} from './types';
 import {deleteCollaborationRequestJoiSchema} from './validation';
 
-const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async (context, instData) => {
+const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, deleteCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {request} = await checkCollaborationRequestAuthorization02(
@@ -17,13 +20,21 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async (co
     BasicCRUDActions.Delete
   );
 
-  await context.data.collaborationRequest.deleteOneByQuery(EndpointReusableQueries.getByResourceId(request.resourceId));
+  await context.data.collaborationRequest.deleteOneByQuery(
+    EndpointReusableQueries.getByResourceId(request.resourceId)
+  );
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByResource(request.workspaceId, request.resourceId, AppResourceType.CollaborationRequest)
+      PermissionItemQueries.getByResource(
+        request.workspaceId,
+        request.resourceId,
+        AppResourceType.CollaborationRequest
+      )
     ),
-    context.data.collaborationRequest.deleteOneByQuery(EndpointReusableQueries.getByResourceId(request.resourceId)),
+    context.data.collaborationRequest.deleteOneByQuery(
+      EndpointReusableQueries.getByResourceId(request.resourceId)
+    ),
   ]);
 };
 

@@ -4,7 +4,10 @@ import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utils/dateFns';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {checkAuthorization, getFilePermissionContainers} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  getFilePermissionContainers,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
@@ -54,7 +57,11 @@ export async function checkFileAuthorization(
     nothrow,
     resource: file,
     type: AppResourceType.File,
-    permissionContainers: getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File),
+    permissionContainers: getFilePermissionContainers(
+      workspace.resourceId,
+      file,
+      AppResourceType.File
+    ),
   });
 
   return {agent, file, workspace};
@@ -98,7 +105,9 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
   };
 }
 
-export interface ISplitfilepathWithDetails extends ISplitFilenameWithDetails, IFolderpathWithDetails {
+export interface ISplitfilepathWithDetails
+  extends ISplitFilenameWithDetails,
+    IFolderpathWithDetails {
   splitPathWithoutExtension: string[];
 }
 
@@ -106,7 +115,8 @@ export function splitfilepathWithDetails(path: string | string[]): ISplitfilepat
   const pathWithDetails = splitPathWithDetails(path);
   const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
   const splitPathWithoutExtension = [...pathWithDetails.itemSplitPath];
-  splitPathWithoutExtension[splitPathWithoutExtension.length - 1] = fileNameWithDetails.nameWithoutExtension;
+  splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
+    fileNameWithDetails.nameWithoutExtension;
   return {
     ...pathWithDetails,
     ...fileNameWithDetails,
@@ -119,7 +129,9 @@ export function throwFileNotFound() {
 }
 
 export function getFilePathWithoutRootname(file: IFile) {
-  return `${file.namePath.join(folderConstants.nameSeparator)}${fileConstants.nameExtensionSeparator}${file.extension}`;
+  return `${file.namePath.join(folderConstants.nameSeparator)}${
+    fileConstants.nameExtensionSeparator
+  }${file.extension}`;
 }
 
 export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: string) {
@@ -131,10 +143,16 @@ export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: 
   return workspace;
 }
 
-export async function getWorkspaceFromFileOrFilepath(context: IBaseContext, file?: IFile | null, filepath?: string) {
+export async function getWorkspaceFromFileOrFilepath(
+  context: IBaseContext,
+  file?: IFile | null,
+  filepath?: string
+) {
   let workspace: IWorkspace | null = null;
   if (file) {
-    workspace = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(file.workspaceId));
+    workspace = await context.data.workspace.getOneByQuery(
+      EndpointReusableQueries.getByResourceId(file.workspaceId)
+    );
   } else if (filepath) {
     workspace = await getWorkspaceFromFilepath(context, filepath);
   }

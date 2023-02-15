@@ -35,7 +35,9 @@ const itemInput = Joi.object<INewPermissionItemInput>().keys({
 const itemInputByEntityList = Joi.array()
   .items(itemInputByEntity)
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
-const itemInputList = Joi.array().items(itemInput).max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+const itemInputList = Joi.array()
+  .items(itemInput)
+  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 const itemIds = Joi.array()
   .items(validationSchemas.resourceId.required())
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)

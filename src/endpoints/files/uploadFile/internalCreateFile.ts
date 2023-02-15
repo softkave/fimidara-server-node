@@ -59,6 +59,14 @@ export async function internalCreateFile(
   const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
   await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
 
-  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, false);
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    workspace,
+    file.resourceId,
+    AppResourceType.File,
+    data,
+    false
+  );
   return file;
 }

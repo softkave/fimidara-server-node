@@ -14,7 +14,12 @@ import {updatePermissionGroupJoiSchema} from './validation';
 const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, instData) => {
   const data = validate(instData.data, updatePermissionGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkPermissionGroupAuthorization03(context, agent, data, BasicCRUDActions.Update);
+  const checkResult = await checkPermissionGroupAuthorization03(
+    context,
+    agent,
+    data,
+    BasicCRUDActions.Update
+  );
   const workspace = checkResult.workspace;
   let permissionGroup = checkResult.permissionGroup;
   const update: Partial<IPermissionGroup> = {

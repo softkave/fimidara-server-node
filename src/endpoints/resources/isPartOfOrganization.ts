@@ -39,7 +39,9 @@ export function getResourcesNotPartOfWorkspace(
   resources: IResource[],
   acknowledgeUserWorkspacesFilledIn: boolean
 ) {
-  return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn));
+  return resources.filter(
+    item => !isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn)
+  );
 }
 
 export function getResourcesPartOfWorkspace(
@@ -47,7 +49,9 @@ export function getResourcesPartOfWorkspace(
   resources: IResource[],
   acknowledgeUserWorkspacesFilledIn: boolean
 ) {
-  return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn));
+  return resources.filter(item =>
+    isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn)
+  );
 }
 
 export function hasResourcesNotPartOfWorkspace(
@@ -55,7 +59,10 @@ export function hasResourcesNotPartOfWorkspace(
   resources: IResource[],
   acknowledgeUserWorkspacesFilledIn: boolean
 ) {
-  return getResourcesNotPartOfWorkspace(workspaceId, resources, acknowledgeUserWorkspacesFilledIn).length > 0;
+  return (
+    getResourcesNotPartOfWorkspace(workspaceId, resources, acknowledgeUserWorkspacesFilledIn)
+      .length > 0
+  );
 }
 
 export function checkResourcesBelongToWorkspace(
@@ -63,7 +70,11 @@ export function checkResourcesBelongToWorkspace(
   resources: IResource[],
   acknowledgeUserWorkspacesFilledIn: boolean
 ) {
-  const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources, acknowledgeUserWorkspacesFilledIn);
+  const outsideResources = getResourcesNotPartOfWorkspace(
+    workspaceId,
+    resources,
+    acknowledgeUserWorkspacesFilledIn
+  );
   if (outsideResources.length) {
     const message = format(
       'The following resources do not belong to workspace %s: \n%O',

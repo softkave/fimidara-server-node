@@ -50,7 +50,6 @@ describe('deleteItemsById', () => {
       },
       {targetType: AppResourceType.File}
     );
-
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {
@@ -58,14 +57,12 @@ describe('deleteItemsById', () => {
         itemIds: items.map(item => item.resourceId),
       }
     );
-
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
 
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId, AppResourceType.PermissionGroup)
+      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
-
     expect(permissionGroupItems.length).toBe(0);
   });
 });

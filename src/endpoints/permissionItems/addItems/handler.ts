@@ -8,7 +8,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import PermissionItemQueries from '../queries';
 import {permissionItemIndexer, PermissionItemUtils} from '../utils';
@@ -18,7 +18,7 @@ import {addPermissionItemsJoiSchema} from './validation';
 const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData) => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = await getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,

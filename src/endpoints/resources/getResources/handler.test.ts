@@ -1,11 +1,19 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, getWorkspaceActionList, IResourceBase} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getWorkspaceActionList,
+  IResourceBase,
+} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
-import {IAddPermissionItemsEndpointParams, INewPermissionItemInput} from '../../permissionItems/addItems/types';
+import {
+  IAddPermissionItemsEndpointParams,
+  INewPermissionItemInput,
+} from '../../permissionItems/addItems/types';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -55,10 +63,11 @@ describe('getResources', () => {
       targetId: workspace.resourceId,
     }));
 
-    const addPermissionItemsReqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {items: inputItems, workspaceId: workspace.resourceId}
-    );
+    const addPermissionItemsReqData =
+      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        mockExpressRequestWithUserToken(userToken),
+        {items: inputItems, workspaceId: workspace.resourceId}
+      );
 
     const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     assertEndpointResultOk(addPermissionItemsResult);
@@ -87,7 +96,9 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resource.resource).toMatchObject(resourcesMap[getKey(resource.resource, resource.resourceType)]);
+      expect(resource.resource).toMatchObject(
+        resourcesMap[getKey(resource.resource, resource.resourceType)]
+      );
     });
   });
 });

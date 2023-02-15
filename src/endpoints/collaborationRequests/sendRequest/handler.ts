@@ -1,4 +1,7 @@
-import {CollaborationRequestStatusType, ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {
+  CollaborationRequestStatusType,
+  ICollaborationRequest,
+} from '../../../definitions/collaborationRequest';
 import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
@@ -18,10 +21,9 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceFromEndpointInput} from '../../utils';
 import CollaborationRequestQueries from '../queries';
 import {collaborationRequestExtractor, populateRequestPermissionGroups} from '../utils';
 import {SendCollaborationRequestEndpoint} from './types';
@@ -30,8 +32,7 @@ import {sendCollaborationRequestJoiSchema} from './validation';
 const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, sendCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   await checkAuthorization({
     context,
     agent,
@@ -49,7 +50,9 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   if (existingUser) {
     const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
 
-    collaboratorExists = !!(existingUser && getCollaboratorWorkspace(existingUserWithWorkspaces, workspaceId));
+    collaboratorExists = !!(
+      existingUser && getCollaboratorWorkspace(existingUserWithWorkspaces, workspace.resourceId)
+    );
   }
 
   if (collaboratorExists) {
@@ -57,15 +60,19 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   }
 
   const existingRequest = await context.data.collaborationRequest.getOneByQuery(
-    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(workspaceId, data.request.recipientEmail)
+    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(
+      workspace.resourceId,
+      data.request.recipientEmail
+    )
   );
 
   if (existingRequest) {
     const status = existingRequest.statusHistory[existingRequest.statusHistory.length - 1];
-
     if (status.status === CollaborationRequestStatusType.Pending) {
       throw new ResourceExistsError(
-        `An existing collaboration request to this user was sent on ${formatDate(existingRequest.createdAt)}`
+        `An existing collaboration request to this user was sent on ${formatDate(
+          existingRequest.createdAt
+        )}`
       );
     }
   }

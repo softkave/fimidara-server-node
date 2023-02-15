@@ -95,8 +95,14 @@ export function throwCollaborationRequestNotFound() {
   throw new NotFoundError('Collaboration request not found');
 }
 
-export async function populateRequestPermissionGroups(context: IBaseContext, request: ICollaborationRequest) {
-  return await populateAssignedPermissionGroupsAndTags<ICollaborationRequest, IPublicCollaborationRequest>(
+export async function populateRequestPermissionGroups(
+  context: IBaseContext,
+  request: ICollaborationRequest
+) {
+  return await populateAssignedPermissionGroupsAndTags<
+    ICollaborationRequest,
+    IPublicCollaborationRequest
+  >(
     context,
     request.workspaceId,
     request,
@@ -109,7 +115,10 @@ export async function populateRequestPermissionGroups(context: IBaseContext, req
   );
 }
 
-export async function populateRequestListPermissionGroups(context: IBaseContext, requests: ICollaborationRequest[]) {
+export async function populateRequestListPermissionGroups(
+  context: IBaseContext,
+  requests: ICollaborationRequest[]
+) {
   if (requests.length === 0) {
     return [];
   }

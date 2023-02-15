@@ -1,4 +1,7 @@
-import {CollaborationRequestStatusType, ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {
+  CollaborationRequestStatusType,
+  ICollaborationRequest,
+} from '../../../definitions/collaborationRequest';
 import {BasicCRUDActions} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
@@ -18,7 +21,10 @@ import {
 import {RevokeCollaborationRequestEndpoint} from './types';
 import {revokeCollaborationRequestJoiSchema} from './validation';
 
-const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (context, instData) => {
+const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request} = await checkCollaborationRequestAuthorization02(

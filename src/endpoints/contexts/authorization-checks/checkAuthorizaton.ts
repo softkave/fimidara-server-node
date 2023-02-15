@@ -135,7 +135,7 @@ export async function fetchAgentPermissionItems(params: ICheckAuthorizationParam
   });
 
   const LOWER_PRIORITY_WEIGHT = Number.MAX_SAFE_INTEGER;
-  const HIGHER_PRIORITY_WEIGHT = Number.MIN_SAFE_INTEGER;
+  const HIGHER_PRIORITY_WEIGHT = 0;
   const entityTypeWeight: Record<string, number> = {
     [AppResourceType.User]: 1,
     [AppResourceType.ClientAssignedToken]: 2,
@@ -264,7 +264,7 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
   }
 }
 
-export function makeWorkspacePermissionContainerList(workspaceId: string) {
+export function makeWorkspacePermissionContainerList(workspaceId: string): IPermissionContainer[] {
   return [
     {
       containerId: workspaceId,
@@ -274,18 +274,26 @@ export function makeWorkspacePermissionContainerList(workspaceId: string) {
   ];
 }
 
+/**
+ *
+ * @param workspaceId
+ * @param resource
+ * @param type
+ * @param excludeResourceIdFromContainers - Exclude the resource's ID from
+ * returned containers. This is useful for files, since they're not permission
+ * containers, or when you don't want the file or folder ID in the returned
+ * container list.
+ */
 export function getFilePermissionContainers(
   workspaceId: string,
   resource: {idPath: string[]},
-  type: AppResourceType.Folder | AppResourceType.File
+  type: AppResourceType.Folder | AppResourceType.File,
+  excludeResourceIdFromContainers = type === AppResourceType.File
 ) {
-  let permissionContainers: IPermissionContainer[] =
-    makeWorkspacePermissionContainerList(workspaceId);
-  const folderIds =
-    type === AppResourceType.File
-      ? // End index is the file's ID so it's non-inclusive
-        resource.idPath.slice(0, resource.idPath.length - 1)
-      : resource.idPath;
+  let permissionContainers = makeWorkspacePermissionContainerList(workspaceId);
+  const folderIds = excludeResourceIdFromContainers
+    ? resource.idPath.slice(0, resource.idPath.length - 1)
+    : resource.idPath;
   permissionContainers = folderIds
     .map(id => ({
       containerId: id,

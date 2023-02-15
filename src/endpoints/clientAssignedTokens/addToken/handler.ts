@@ -1,6 +1,11 @@
 import {defaultTo, omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {AppResourceType, BasicCRUDActions, CURRENT_TOKEN_VERSION, IAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  CURRENT_TOKEN_VERSION,
+  IAgent,
+} from '../../../definitions/system';
 import {getDate} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
@@ -10,9 +15,8 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getWorkspaceFromEndpointInput} from '../../utils';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {getPublicClientToken} from '../utils';
 import {AddClientAssignedTokenEndpoint} from './types';
@@ -21,8 +25,7 @@ import {addClientAssignedTokenJoiSchema} from './validation';
 const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, addClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   await checkAuthorization({
     context,
     agent,
@@ -33,7 +36,6 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, i
   });
 
   let token: IClientAssignedToken | null = null;
-
   if (data.token.name) {
     await checkClientTokenNameExists(context, workspace.resourceId, data.token.name);
   }
@@ -85,7 +87,6 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, i
     AppResourceType.ClientAssignedToken,
     data.token
   );
-
   const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,

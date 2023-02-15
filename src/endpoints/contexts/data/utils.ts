@@ -55,8 +55,10 @@ export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>
   };
 }
 
-export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQuery<AnyObject> = DataQuery<T>>
-  implements IBaseDataProvider<T, Q>
+export abstract class BaseMongoDataProvider<
+  T extends AnyObject,
+  Q extends DataQuery<AnyObject> = DataQuery<T>
+> implements IBaseDataProvider<T, Q>
 {
   abstract throwNotFound: () => void;
   model: Model<T>;
@@ -81,7 +83,7 @@ export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQ
     return items as unknown as T[];
   };
 
-  getManyByQueries = async (q: Q[], p?: IDataProvideQueryListParams<T>) => {
+  getManyByQueryList = async (q: Q[], p?: IDataProvideQueryListParams<T>) => {
     const items = await this.model
       .find(
         {$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))},
@@ -94,7 +96,10 @@ export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQ
   };
 
   getOneByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
-    const item = await this.model.findOne(BaseMongoDataProvider.getMongoQuery(q), p?.projection).lean().exec();
+    const item = await this.model
+      .findOne(BaseMongoDataProvider.getMongoQuery(q), p?.projection)
+      .lean()
+      .exec();
     return item as unknown as T | null;
   };
 
@@ -114,12 +119,19 @@ export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQ
 
   getAndUpdateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
     const item = await this.model
-      .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(q), d, {...getMongoQueryOptionsForOne(p), new: true})
+      .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(q), d, {
+        ...getMongoQueryOptionsForOne(p),
+        new: true,
+      })
       .exec();
     return item as unknown as T;
   };
 
-  assertGetAndUpdateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
+  assertGetAndUpdateOneByQuery = async (
+    q: Q,
+    d: Partial<T>,
+    p?: IDataProvideQueryListParams<T>
+  ) => {
     const item = await this.getAndUpdateOneByQuery(q, d, p);
     if (!item) this.throwNotFound();
     return item as unknown as T;
@@ -133,19 +145,31 @@ export abstract class BaseMongoDataProvider<T extends AnyObject, Q extends DataQ
     return await this.model.countDocuments(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
+  countByQueryList = async (q: Q[]) => {
+    const count = await this.model
+      .countDocuments({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))})
+      .exec();
+    return count;
+  };
+
   deleteManyByQuery = async (q: Q) => {
     await this.model.deleteMany(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
-  deleteManyByQueries = async (q: Q[]) => {
-    await this.model.deleteMany({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))}).exec();
+  deleteManyByQueryList = async (q: Q[]) => {
+    await this.model
+      .deleteMany({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))})
+      .exec();
   };
 
   deleteOneByQuery = async (q: Q) => {
     await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
-  static getMongoQuery<Q extends DataQuery<AnyObject>, DataType = Q extends DataQuery<infer U> ? U : AnyObject>(q: Q) {
+  static getMongoQuery<
+    Q extends DataQuery<AnyObject>,
+    DataType = Q extends DataQuery<infer U> ? U : AnyObject
+  >(q: Q) {
     type T = IComparisonLiteralFieldQueryOps &
       INumberLiteralFieldQueryOps &
       IArrayFieldQueryOps<any> &

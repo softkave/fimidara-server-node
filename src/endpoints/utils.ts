@@ -1,17 +1,30 @@
 import {Request, Response} from 'express';
 import {defaultTo, isString} from 'lodash';
-import {IAgent, IPublicAccessOp} from '../definitions/system';
+import {IAgent, IPublicAccessOp, ISessionAgent} from '../definitions/system';
+import {IWorkspace} from '../definitions/workspace';
+import {appAssert} from '../utils/assertion';
 import {getDateString} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
 import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../utils/extract';
 import OperationError from '../utils/OperationError';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
+import {summarizeAgentPermissionItems} from './contexts/authorization-checks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
+import {getWorkspaceIdFromSessionAgent} from './contexts/SessionContext';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
+import EndpointReusableQueries from './queries';
 import RequestData from './RequestData';
-import {Endpoint, IPaginationQuery, IPublicAgent, IRequestDataPendingPromise} from './types';
+import {
+  Endpoint,
+  IEndpointOptionalWorkspaceIDParam,
+  IPaginationQuery,
+  IPublicAgent,
+  IRequestDataPendingPromise,
+} from './types';
+import {PermissionDeniedError} from './user/errors';
+import {checkWorkspaceExists} from './workspaces/utils';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
@@ -39,7 +52,10 @@ export function getPublicErrors(inputError: any) {
   return preppedErrors;
 }
 
-export const wrapEndpointREST = <Context extends IBaseContext, EndpointType extends Endpoint<Context>>(
+export const wrapEndpointREST = <
+  Context extends IBaseContext,
+  EndpointType extends Endpoint<Context>
+>(
   endpoint: EndpointType,
   context: Context,
   handleResponse?: (res: Response, result: Awaited<ReturnType<EndpointType>>) => void,
@@ -142,4 +158,35 @@ export function endpointDecodeURIComponent(d?: any) {
 
 export function getEndpointPageFromInput(p: IPaginationQuery, defaultPage = 0): number {
   return defaultTo(getPage(p.page), defaultPage);
+}
+
+export function getWorkspaceResourceListQuery(
+  workspace: IWorkspace,
+  permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
+) {
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    return EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
+      workspace.resourceId,
+      permissionsSummaryReport.deniedResourceIdList
+    );
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    return EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
+      workspace.resourceId,
+      permissionsSummaryReport.allowedResourceIdList
+    );
+  } else if (permissionsSummaryReport.noAccess) {
+    throw new PermissionDeniedError();
+  }
+
+  appAssert(false, new ServerError(), 'Control flow should not get here.');
+}
+
+export async function getWorkspaceFromEndpointInput(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  data: IEndpointOptionalWorkspaceIDParam
+) {
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
+  return {workspace};
 }

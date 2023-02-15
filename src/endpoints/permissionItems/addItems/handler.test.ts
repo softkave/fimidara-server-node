@@ -1,6 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, getWorkspaceActionList} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getWorkspaceActionList,
+} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
@@ -96,7 +100,7 @@ describe('addItems', () => {
     assertEndpointResultOk(result);
     expectItemsPresent(result.items, items);
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId, AppResourceType.PermissionGroup)
+      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
 
     expect(permissionGroupItems.length).toBe(result.items.length);

@@ -4,7 +4,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
@@ -13,7 +13,7 @@ import {deletePermissionItemsByIdJoiSchema} from './validation';
 const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (context, instData) => {
   const data = validate(instData.data, deletePermissionItemsByIdJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = await getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,

@@ -1,10 +1,18 @@
 import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {
+  Endpoint,
+  IEndpointOptionalWorkspaceIDParam,
+  IPaginatedResult,
+  IPaginationQuery,
+} from '../../types';
 
-export interface IGetWorkspaceCollaborationRequestsEndpointParams extends IPaginationQuery {
-  workspaceId?: string;
-}
+export interface IGetWorkspaceCollaborationRequestsEndpointParamsBase
+  extends IEndpointOptionalWorkspaceIDParam {}
+
+export interface IGetWorkspaceCollaborationRequestsEndpointParams
+  extends IGetWorkspaceCollaborationRequestsEndpointParamsBase,
+    IPaginationQuery {}
 
 export interface IGetWorkspaceCollaborationRequestsEndpointResult extends IPaginatedResult {
   requests: IPublicCollaborationRequest[];

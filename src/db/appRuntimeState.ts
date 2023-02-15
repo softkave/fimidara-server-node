@@ -17,11 +17,7 @@ const modelName = 'app-runtime-state';
 const collectionName = 'app-runtime-state';
 
 export function getAppRuntimeStateModel(connection: Connection) {
-  const model = connection.model<IAppRuntimeState>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<IAppRuntimeState>(modelName, schema, collectionName);
 
   return model;
 }

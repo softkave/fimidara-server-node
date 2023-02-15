@@ -1,5 +1,10 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, IAgent, IPublicAccessOp} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IAgent,
+  IPublicAccessOp,
+} from '../../../definitions/system';
 import {compactPublicAccessOps} from '../../../definitions/utils';
 import {getDate} from '../../../utils/dateFns';
 import {UploadFilePublicAccessActions} from './types';
@@ -52,9 +57,13 @@ export const makeFilePublicAccessOps = (
     case UploadFilePublicAccessActions.Read:
       return compactPublicAccessOps(existingOps.concat(makeFilePublicReadAccessOps(agent)));
     case UploadFilePublicAccessActions.ReadAndUpdate:
-      return compactPublicAccessOps(existingOps.concat(makeFilePublicReadAndUpdateAccessOps(agent)));
+      return compactPublicAccessOps(
+        existingOps.concat(makeFilePublicReadAndUpdateAccessOps(agent))
+      );
     case UploadFilePublicAccessActions.ReadUpdateAndDelete:
-      return compactPublicAccessOps(existingOps.concat(makeFilePublicReadUpdateAndDeleteAccessOps(agent)));
+      return compactPublicAccessOps(
+        existingOps.concat(makeFilePublicReadUpdateAndDeleteAccessOps(agent))
+      );
     case UploadFilePublicAccessActions.None:
       return [];
     default:

@@ -104,7 +104,7 @@ export enum AppResourceType {
   AssignedItem = 'assigned-item',
 
   // softkave resource
-  EndpointRequest = 'request',
+  EndpointRequest = 'endpoint-request',
 }
 
 export function getWorkspaceResourceTypeList() {
@@ -183,10 +183,15 @@ export function getWorkspaceActionList() {
 }
 
 export function getNonWorkspaceActionList() {
-  return [BasicCRUDActions.Create, BasicCRUDActions.Read, BasicCRUDActions.Update, BasicCRUDActions.Delete];
+  return [
+    BasicCRUDActions.Create,
+    BasicCRUDActions.Read,
+    BasicCRUDActions.Update,
+    BasicCRUDActions.Delete,
+  ];
 }
 
-export const appResourceTypesList = Object.values(AppResourceType) as Array<AppResourceType>;
+export const appResourceTypesList = Object.values(AppResourceType);
 export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
 
 export interface IAppRuntimeState extends IAppRuntimeVars {

@@ -5,7 +5,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
@@ -13,10 +13,13 @@ import {default as PermissionItemQueries} from '../queries';
 import {DeletePermissionItemsByEntityEndpoint} from './types';
 import {deletePermissionItemsByEntityJoiSchema} from './validation';
 
-const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = async (context, instData) => {
+const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, deletePermissionItemsByEntityJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
 
   await checkEntitiesExist(context, agent, workspace, [data]);
@@ -34,7 +37,11 @@ const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = asy
     // to the resources to be deleted
     ...data.itemIds.map(id => {
       return context.data.permissionItem.deleteManyByQuery(
-        PermissionItemQueries.getByResource(workspace.resourceId, id, AppResourceType.PermissionItem)
+        PermissionItemQueries.getByResource(
+          workspace.resourceId,
+          id,
+          AppResourceType.PermissionItem
+        )
       );
     }),
 

@@ -38,7 +38,11 @@ test('program access token updated', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token: token01} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId);
+  const {token: token01} = await insertProgramAccessTokenForTest(
+    context,
+    userToken,
+    workspace.resourceId
+  );
 
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,

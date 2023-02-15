@@ -4,13 +4,18 @@ import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
 import {IPermissionItemBase, permissionItemIndexer} from '../../permissionItems/utils';
 
-export function expectItemsPresent(items: IPermissionItemBase[], expected: INewPermissionItemInput[]) {
+export function expectItemsPresent(
+  items: IPermissionItemBase[],
+  expected: INewPermissionItemInput[]
+) {
   const publicPermissionGroupPermissionitemsMap = indexArray(items, {
     indexer: permissionItemIndexer,
   });
 
   expected.forEach(item => {
-    expect(publicPermissionGroupPermissionitemsMap[permissionItemIndexer(item)]).toMatchObject(item);
+    expect(publicPermissionGroupPermissionitemsMap[permissionItemIndexer(item)]).toMatchObject(
+      item
+    );
   });
 }
 

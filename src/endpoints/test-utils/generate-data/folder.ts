@@ -7,7 +7,9 @@ import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 
 export function generateTestFolderName() {
-  return getRandomIntInclusive(1, 2) % 2 === 0 ? faker.system.commonFileName() : faker.lorem.words();
+  return getRandomIntInclusive(1, 2) % 2 === 0
+    ? faker.system.commonFileName()
+    : faker.lorem.words();
 }
 
 export function generateTestFolder(extra: Partial<IFolder> = {}) {
@@ -39,7 +41,11 @@ export function generateTestFolders(count = 20, extra: Partial<IFolder> = {}) {
   return folders;
 }
 
-export async function generateAndInsertTestFolders(ctx: IBaseContext, count = 20, extra: Partial<IFolder> = {}) {
+export async function generateAndInsertTestFolders(
+  ctx: IBaseContext,
+  count = 20,
+  extra: Partial<IFolder> = {}
+) {
   const items = generateTestFolders(count, extra);
   await ctx.data.folder.insertList(items);
   return items;

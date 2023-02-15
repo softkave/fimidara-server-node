@@ -38,10 +38,7 @@ export function getPublicResource(resource: IResource, workspaceId: string) {
   }
 }
 
-export function getPublicResourceList(
-  resources: IResource[],
-  workspaceId: string
-) {
+export function getPublicResourceList(resources: IResource[], workspaceId: string) {
   return resources.map(item => {
     item.resource = getPublicResource(item, workspaceId) as IResourceBase;
     return item;

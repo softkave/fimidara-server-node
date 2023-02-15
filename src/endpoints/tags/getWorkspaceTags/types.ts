@@ -1,10 +1,17 @@
 import {IPublicTag} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {
+  Endpoint,
+  IEndpointOptionalWorkspaceIDParam,
+  IPaginatedResult,
+  IPaginationQuery,
+} from '../../types';
 
-export interface IGetWorkspaceTagsEndpointParams extends IPaginationQuery {
-  workspaceId?: string;
-}
+export interface IGetWorkspaceTagsEndpointParamsBase extends IEndpointOptionalWorkspaceIDParam {}
+
+export interface IGetWorkspaceTagsEndpointParams
+  extends IGetWorkspaceTagsEndpointParamsBase,
+    IPaginationQuery {}
 
 export interface IGetWorkspaceTagsEndpointResult extends IPaginatedResult {
   tags: IPublicTag[];

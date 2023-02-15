@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {getPublicClientToken} from '../../clientAssignedTokens/utils';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {getPublicProgramToken} from '../../programAccessTokens/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicResourceList} from '../getPublicResource';
@@ -14,7 +14,7 @@ import {getResourcesJoiSchema} from './validation';
 const getResources: GetResourcesEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcesJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   let resources = await fetchResources({
     context,

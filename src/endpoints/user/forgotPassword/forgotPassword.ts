@@ -1,6 +1,11 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience, TokenType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+  TokenType,
+} from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -51,7 +56,9 @@ export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToke
     forgotToken.expires
   );
 
-  const link = `${context.appVariables.clientDomain}${context.appVariables.changePasswordPath}?${stringify({
+  const link = `${context.appVariables.clientDomain}${
+    context.appVariables.changePasswordPath
+  }?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
 

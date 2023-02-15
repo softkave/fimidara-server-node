@@ -1,5 +1,8 @@
 import * as Joi from 'joi';
-import {appResourceTypesList as systemAppResourceTypesList, getWorkspaceActionList} from '../definitions/system';
+import {
+  appResourceTypesList as systemAppResourceTypesList,
+  getWorkspaceActionList,
+} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;

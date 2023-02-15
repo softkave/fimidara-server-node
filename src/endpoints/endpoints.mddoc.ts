@@ -37,7 +37,9 @@ export const endpointStatusCodes = {
 
 const authorizationHeaderItem = new HttpEndpointHeaderItem()
   .setName('Authorization')
-  .setType(new FieldString().setRequired(true).setDescription('Access token.').setExample('Bearer <token>'))
+  .setType(
+    new FieldString().setRequired(true).setDescription('Access token.').setExample('Bearer <token>')
+  )
   .setRequired(true)
   .setDescription('User, client, or program access token.');
 
@@ -101,7 +103,9 @@ const responseContentTypeHeaderItem = new HttpEndpointHeaderItem()
 
 const responseContentLengthHeaderItem = new HttpEndpointHeaderItem()
   .setName('Content-Length')
-  .setType(new FieldString().setRequired(true).setDescription('HTTP response content length in bytes.'))
+  .setType(
+    new FieldString().setRequired(true).setDescription('HTTP response content length in bytes.')
+  )
   .setRequired(true)
   .setDescription('HTTP response content length in bytes.');
 
@@ -130,7 +134,10 @@ export const endpointHttpHeaderItems = {
 };
 
 const errorObject = new FieldObject().setName('OperationError').setFields({
-  name: new FieldString().setRequired(true).setDescription('Error name.').setExample('ValidationError'),
+  name: new FieldString()
+    .setRequired(true)
+    .setDescription('Error name.')
+    .setExample('ValidationError'),
   message: new FieldString()
     .setRequired(true)
     .setDescription('Error message.')
@@ -151,7 +158,9 @@ const errorResponse = new HttpEndpointResponse()
       new FieldObject<IBaseEndpointResult>()
         .setName('EndpointErrorResult')
         .setFields({
-          errors: new FieldArray().setType(errorObject).setDescription('Endpoint call response errors.'),
+          errors: new FieldArray()
+            .setType(errorObject)
+            .setDescription('Endpoint call response errors.'),
         })
         .setRequired(true)
         .setDescription('Endpoint error result.')
@@ -191,27 +200,43 @@ const date = new FieldString().setRequired(false).setDescription('Date string.')
 const id = new FieldString()
   .setRequired(false)
   .setDescription('Resource ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+  );
 const workspaceId = new FieldString()
   .setRequired(false)
   .setDescription('Workspace ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+  );
 const folderId = new FieldString()
   .setRequired(false)
   .setDescription('Folder ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.Folder]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.Folder]}${idSeparator}${customAlphabet('0')()}`
+  );
 const fileId = new FieldString()
   .setRequired(false)
   .setDescription('File ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.File]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.File]}${idSeparator}${customAlphabet('0')()}`
+  );
 const permissionGroupId = new FieldString()
   .setRequired(false)
   .setDescription('Permission group ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.PermissionGroup]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.PermissionGroup]}${idSeparator}${customAlphabet(
+      '0'
+    )()}`
+  );
 const permissionItemId = new FieldString()
   .setRequired(false)
   .setDescription('Permission item ID.')
-  .setExample(`${resourceTypeShortNames[AppResourceType.PermissionItem]}${idSeparator}${customAlphabet('0')()}`);
+  .setExample(
+    `${resourceTypeShortNames[AppResourceType.PermissionItem]}${idSeparator}${customAlphabet(
+      '0'
+    )()}`
+  );
 const idPath = new FieldArray().setType(folderId).setDescription('List of parent folder IDs.');
 const name = new FieldString().setRequired(true).setDescription('Name');
 const description = new FieldString().setRequired(true).setDescription('Description');
@@ -233,21 +258,36 @@ const effectOnReferenced = new FieldBoolean().setDescription(
 const providedResourceId = new FieldString()
   .setDescription('Resource ID provided by you.')
   .setMax(endpointConstants.providedResourceIdMaxLength);
-const workspaceName = new FieldString().setRequired(true).setDescription('Workspace name.').setExample('fimidara');
+const workspaceName = new FieldString()
+  .setRequired(true)
+  .setDescription('Workspace name.')
+  .setExample('fimidara');
 
 // TODO: set allowed characters for rootname and file and folder name
 const workspaceRootname = new FieldString()
   .setRequired(true)
   .setDescription('Workspace root name, must be a URL compatible name.')
   .setExample('fimidara-rootname');
-const firstName = new FieldString().setRequired(true).setDescription('First name.').setExample('Jesus');
-const lastName = new FieldString().setRequired(true).setDescription('Last name.').setExample('Christ');
+const firstName = new FieldString()
+  .setRequired(true)
+  .setDescription('First name.')
+  .setExample('Jesus');
+const lastName = new FieldString()
+  .setRequired(true)
+  .setDescription('Last name.')
+  .setExample('Christ');
 const emailAddress = new FieldString()
   .setRequired(true)
   .setDescription('Email address.')
   .setExample('my-email-address@email-domain.com');
-const foldername = new FieldString().setRequired(true).setDescription('Folder name.').setExample('my-folder');
-const filename = new FieldString().setRequired(true).setDescription('File name.').setExample('my-file');
+const foldername = new FieldString()
+  .setRequired(true)
+  .setDescription('Folder name.')
+  .setExample('my-folder');
+const filename = new FieldString()
+  .setRequired(true)
+  .setDescription('File name.')
+  .setExample('my-file');
 const folderpath = new FieldString()
   .setRequired(true)
   .setDescription('Folder path with workspace rootname.')
@@ -256,7 +296,9 @@ const filepath = new FieldString()
   .setRequired(true)
   .setDescription('File path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
-const folderNamePath = new FieldArray().setType(foldername).setDescription('List of parent folder names.');
+const folderNamePath = new FieldArray()
+  .setType(foldername)
+  .setDescription('List of parent folder names.');
 const action = new FieldString()
   .setRequired(true)
   .setDescription('Action')
@@ -280,7 +322,9 @@ const appliesTo = new FieldString()
   .setExample(PermissionItemAppliesTo.ContainerAndChildren)
   .setValid(Object.values(PermissionItemAppliesTo));
 const page = new FieldNumber()
-  .setDescription('Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...')
+  .setDescription(
+    'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'
+  )
   .setExample(0)
   .setMin(endpointConstants.minPage);
 const pageSize = new FieldNumber()

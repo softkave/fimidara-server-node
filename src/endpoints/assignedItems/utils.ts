@@ -41,9 +41,7 @@ export function assignedItemToAssignedTag(item: IAssignedItem): IAssignedTag {
   };
 }
 
-export function assignedItemsToAssignedTagList(
-  items: IAssignedItem[]
-): IAssignedTag[] {
+export function assignedItemsToAssignedTagList(items: IAssignedItem[]): IAssignedTag[] {
   return (
     items
       // .filter(item => item.assignedItemType === AppResourceType.Tag)
@@ -58,8 +56,7 @@ export function assignedItemToAssignedWorkspace(
   return {
     workspaceId: item.assignedItemId,
     joinedAt: item.assignedAt,
-    permissionGroups:
-      assignedItemsToAssignedPermissionGroupList(permissionGroupItems),
+    permissionGroups: assignedItemsToAssignedPermissionGroupList(permissionGroupItems),
   };
 }
 

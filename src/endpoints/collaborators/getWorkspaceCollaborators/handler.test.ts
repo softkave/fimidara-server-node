@@ -46,9 +46,13 @@ describe('getWorkspaceCollaborators', () => {
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
+      await context.data.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(user.resourceId)
+      )
     );
-    expect(result.collaborators).toContainEqual(collaboratorExtractor(updatedUser, workspace.resourceId));
+    expect(result.collaborators).toContainEqual(
+      collaboratorExtractor(updatedUser, workspace.resourceId)
+    );
   });
 
   test.only('pagination', async () => {
@@ -56,9 +60,18 @@ describe('getWorkspaceCollaborators', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const seedCount = 15;
-    await generateAndInsertCollaboratorListForTest(context, systemAgent, workspace.resourceId, seedCount);
+    await generateAndInsertCollaboratorListForTest(
+      context,
+      systemAgent,
+      workspace.resourceId,
+      seedCount
+    );
     const count = await context.data.assignedItem.countByQuery(
-      AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId, AppResourceType.Workspace)
+      AssignedItemQueries.getByAssignedItem(
+        workspace.resourceId,
+        workspace.resourceId,
+        AppResourceType.Workspace
+      )
     );
     expect(count).toBeGreaterThanOrEqual(seedCount);
 

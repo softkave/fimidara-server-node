@@ -28,7 +28,10 @@ export function generateProgramAccessTokenForTest(seed: Partial<IProgramAccessTo
   return token;
 }
 
-export function generateProgramAccessTokenListForTest(count = 20, seed: Partial<IProgramAccessToken> = {}) {
+export function generateProgramAccessTokenListForTest(
+  count = 20,
+  seed: Partial<IProgramAccessToken> = {}
+) {
   const items: IProgramAccessToken[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generateProgramAccessTokenForTest(seed));

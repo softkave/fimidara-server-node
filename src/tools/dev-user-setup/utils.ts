@@ -5,7 +5,10 @@ import {CollaborationRequestStatusType} from '../../definitions/collaborationReq
 import {AppResourceType, systemAgent} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
-import {assignWorkspaceToUser, saveResourceAssignedItems} from '../../endpoints/assignedItems/addAssignedItems';
+import {
+  assignWorkspaceToUser,
+  saveResourceAssignedItems,
+} from '../../endpoints/assignedItems/addAssignedItems';
 import {populateAssignedItems} from '../../endpoints/assignedItems/getAssignedItems';
 import CollaborationRequestQueries from '../../endpoints/collaborationRequests/queries';
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
@@ -42,7 +45,10 @@ type AppRuntimeOptions = Required<Pick<ISetupDevUserOptions, 'getUserEmail' | 'g
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
   const emailProvider = new NoopEmailProviderContext();
   const ctx = new BaseContext(
     getDataProviders(connection),
@@ -89,12 +95,23 @@ async function promptUserInfo() {
   return answers as IPromptUserInfoAnswers;
 }
 
-async function isUserAdmin(context: IBaseContext, userId: string, workspaceId: string, adminPermissionGroupId: string) {
-  const userData = await populateAssignedItems(context, workspaceId, {resourceId: userId}, AppResourceType.User, [
-    AppResourceType.PermissionGroup,
-  ]);
+async function isUserAdmin(
+  context: IBaseContext,
+  userId: string,
+  workspaceId: string,
+  adminPermissionGroupId: string
+) {
+  const userData = await populateAssignedItems(
+    context,
+    workspaceId,
+    {resourceId: userId},
+    AppResourceType.User,
+    [AppResourceType.PermissionGroup]
+  );
 
-  const isAdmin = userData.permissionGroups.some(group => group.permissionGroupId === adminPermissionGroupId);
+  const isAdmin = userData.permissionGroups.some(
+    group => group.permissionGroupId === adminPermissionGroupId
+  );
   return isAdmin;
 }
 
@@ -153,7 +170,10 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   const context = await setupContext();
   const workspace = await setupApp(context);
   const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-    EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
+    EndpointReusableQueries.getByWorkspaceIdAndName(
+      workspace.resourceId,
+      DEFAULT_ADMIN_PERMISSION_GROUP_NAME
+    )
   );
 
   const user = await getUser(context, appOptions);

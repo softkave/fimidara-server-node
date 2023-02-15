@@ -15,7 +15,10 @@ import {
 } from '../../../email-templates/collaborationRequestResponse';
 import {formatDate, getDateString} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
-import {addAssignedPermissionGroupList, assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
+import {
+  addAssignedPermissionGroupList,
+  assignWorkspaceToUser,
+} from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -98,7 +101,9 @@ export const internalRespondToCollaborationRequest = async (
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
   if (isExpired && request.expiresAt) {
-    throw new ServerStateConflictError(`Collaboration request expired on ${formatDate(request.expiresAt)}`);
+    throw new ServerStateConflictError(
+      `Collaboration request expired on ${formatDate(request.expiresAt)}`
+    );
   }
 
   request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(

@@ -83,7 +83,12 @@ describe('uploadFile', () => {
     const {insertWorkspaceResult, file} = await uploadFileWithPublicAccessActionTest(
       context,
       {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
-      [BasicCRUDActions.Read, BasicCRUDActions.Update, BasicCRUDActions.Delete, BasicCRUDActions.Create]
+      [
+        BasicCRUDActions.Read,
+        BasicCRUDActions.Update,
+        BasicCRUDActions.Delete,
+        BasicCRUDActions.Create,
+      ]
     );
 
     const filepath = file.namePath.join(folderConstants.nameSeparator);
@@ -97,7 +102,10 @@ describe('uploadFile', () => {
     assertContext(context);
     const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
     const update: Partial<IUploadFileEndpointParams> = {
-      filepath: addRootnameToPath(getFilePathWithoutRootname(savedFile), insertWorkspaceResult.workspace.rootname),
+      filepath: addRootnameToPath(
+        getFilePathWithoutRootname(savedFile),
+        insertWorkspaceResult.workspace.rootname
+      ),
       publicAccessAction: UploadFilePublicAccessActions.Read,
     };
 
@@ -115,14 +123,23 @@ describe('uploadFile', () => {
 
   test('public file updated and made non-public', async () => {
     assertContext(context);
-    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileWithPublicAccessActionTest(
-      context,
-      {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
-      [BasicCRUDActions.Read, BasicCRUDActions.Update, BasicCRUDActions.Delete, BasicCRUDActions.Create]
-    );
+    const {savedFile, insertUserResult, insertWorkspaceResult} =
+      await uploadFileWithPublicAccessActionTest(
+        context,
+        {publicAccessAction: UploadFilePublicAccessActions.ReadUpdateAndDelete},
+        [
+          BasicCRUDActions.Read,
+          BasicCRUDActions.Update,
+          BasicCRUDActions.Delete,
+          BasicCRUDActions.Create,
+        ]
+      );
 
     const update: Partial<IUploadFileEndpointParams> = {
-      filepath: addRootnameToPath(getFilePathWithoutRootname(savedFile), insertWorkspaceResult.workspace.rootname),
+      filepath: addRootnameToPath(
+        getFilePathWithoutRootname(savedFile),
+        insertWorkspaceResult.workspace.rootname
+      ),
       publicAccessAction: UploadFilePublicAccessActions.None,
     };
 
@@ -136,7 +153,11 @@ describe('uploadFile', () => {
     );
 
     await assertFileUpdated(context, insertUserResult.userToken, savedFile, updatedFile);
-    await assertPublicPermissionsDonotExistForContainer(context, insertWorkspaceResult.workspace, savedFile.resourceId);
+    await assertPublicPermissionsDonotExistForContainer(
+      context,
+      insertWorkspaceResult.workspace,
+      savedFile.resourceId
+    );
   });
 
   test('file not saved if storage usage is exceeded', async () => {
@@ -145,7 +166,9 @@ describe('uploadFile', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
 
     // Update usage locks
-    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [UsageRecordCategory.Storage]);
+    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
+      UsageRecordCategory.Storage,
+    ]);
     await expectErrorThrown(async () => {
       assertContext(context);
       await insertFileForTest(context, userToken, workspace);

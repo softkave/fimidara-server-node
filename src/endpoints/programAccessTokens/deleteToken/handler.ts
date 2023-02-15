@@ -13,21 +13,37 @@ const deleteProgramAccessToken: DeleteProgramAccessTokenEndpoint = async (contex
   const data = validate(instData.data, deleteProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(agent, data.tokenId, data.onReferenced);
-  const {token} = await checkProgramAccessTokenAuthorization02(context, agent, tokenId, BasicCRUDActions.Delete);
+  const {token} = await checkProgramAccessTokenAuthorization02(
+    context,
+    agent,
+    tokenId,
+    BasicCRUDActions.Delete
+  );
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByResource(token.workspaceId, token.resourceId, AppResourceType.ProgramAccessToken)
+      PermissionItemQueries.getByResource(
+        token.workspaceId,
+        token.resourceId,
+        AppResourceType.ProgramAccessToken
+      )
     ),
 
     // Delete token permission items
     context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(token.resourceId, AppResourceType.ProgramAccessToken)
+      PermissionItemQueries.getByPermissionEntity(token.resourceId)
     ),
 
     // Delete all assigned items
-    deleteResourceAssignedItems(context, token.workspaceId, token.resourceId, AppResourceType.ProgramAccessToken),
-    context.data.programAccessToken.deleteOneByQuery(EndpointReusableQueries.getByResourceId(token.resourceId)),
+    deleteResourceAssignedItems(
+      context,
+      token.workspaceId,
+      token.resourceId,
+      AppResourceType.ProgramAccessToken
+    ),
+    context.data.programAccessToken.deleteOneByQuery(
+      EndpointReusableQueries.getByResourceId(token.resourceId)
+    ),
   ]);
 };
 

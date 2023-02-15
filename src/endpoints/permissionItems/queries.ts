@@ -7,10 +7,9 @@ function newFilter() {
   return new DataProviderFilterBuilder<IPermissionItem>();
 }
 
-function getByContainer(containerId: string, containerType: AppResourceType) {
+function getByContainer(containerId: string) {
   return newFilter()
     .addItem('containerId', containerId, DataProviderFilterValueOperator.Equal)
-    .addItem('containerType', containerType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -20,14 +19,22 @@ function getByResource(
   resourceType: AppResourceType,
   includeWildcardTargetType = false
 ) {
-  const filter = newFilter().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
+  const filter = newFilter().addItem(
+    'workspaceId',
+    workspaceId,
+    DataProviderFilterValueOperator.Equal
+  );
 
   if (resourceId) {
     filter.addItem('targetId', resourceId, DataProviderFilterValueOperator.Equal);
   }
 
   if (includeWildcardTargetType) {
-    filter.addItem('targetType', [resourceType, AppResourceType.All], DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'targetType',
+      [resourceType, AppResourceType.All],
+      DataProviderFilterValueOperator.In
+    );
   } else {
     filter.addItem('targetType', resourceType, DataProviderFilterValueOperator.Equal);
   }
@@ -37,21 +44,26 @@ function getByResource(
 
 function getByContainerAndResource(
   containerId: string,
-  containerType: AppResourceType,
   resourceType: AppResourceType,
   resourceId?: string,
   includeWildcardTargetType = false
 ) {
-  const filter = newFilter()
-    .addItem('containerId', containerId, DataProviderFilterValueOperator.Equal)
-    .addItem('containerType', containerType, DataProviderFilterValueOperator.Equal);
+  const filter = newFilter().addItem(
+    'containerId',
+    containerId,
+    DataProviderFilterValueOperator.Equal
+  );
 
   if (resourceId) {
     filter.addItem('targetId', resourceId, DataProviderFilterValueOperator.Equal);
   }
 
   if (includeWildcardTargetType) {
-    filter.addItem('targetType', [resourceType, AppResourceType.All], DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'targetType',
+      [resourceType, AppResourceType.All],
+      DataProviderFilterValueOperator.In
+    );
   } else {
     filter.addItem('targetType', resourceType, DataProviderFilterValueOperator.Equal);
   }
@@ -59,24 +71,16 @@ function getByContainerAndResource(
   return filter.build();
 }
 
-function getByPermissionEntity(entityId: string, entityType: AppResourceType) {
+function getByPermissionEntity(entityId: string) {
   return newFilter()
     .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
-    .addItem('permissionEntityType', entityType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
-function getByPermissionEntityAndContainer(
-  entityId: string,
-  entityType: AppResourceType,
-  containerId: string,
-  containerType: AppResourceType
-) {
+function getByPermissionEntityAndContainer(entityId: string, containerId: string) {
   return newFilter()
     .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
-    .addItem('permissionEntityType', entityType, DataProviderFilterValueOperator.Equal)
     .addItem('containerId', containerId, DataProviderFilterValueOperator.Equal)
-    .addItem('containerType', containerType, DataProviderFilterValueOperator.Equal)
     .build();
 }
 

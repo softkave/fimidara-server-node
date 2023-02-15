@@ -10,7 +10,12 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (context, ins
   const data = validate(instData.data, getProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const tokenId = getProgramAccessTokenId(agent, data.tokenId, data.onReferenced);
-  let {token} = await checkProgramAccessTokenAuthorization02(context, agent, tokenId, BasicCRUDActions.Read);
+  let {token} = await checkProgramAccessTokenAuthorization02(
+    context,
+    agent,
+    tokenId,
+    BasicCRUDActions.Read
+  );
   token = await populateAssignedPermissionGroupsAndTags(
     context,
     token.workspaceId,

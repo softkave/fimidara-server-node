@@ -5,7 +5,7 @@ import {IPublicWorkspace, IUsageThreshold, IWorkspace} from '../../definitions/w
 import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
 import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../../utils/extract';
 import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
@@ -62,14 +62,20 @@ export function assertWorkspace(workspace: IWorkspace | null | undefined): asser
 }
 
 export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
-  const w = await ctx.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(workspaceId));
+  const w = await ctx.data.workspace.getOneByQuery(
+    EndpointReusableQueries.getByResourceId(workspaceId)
+  );
   assertWorkspace(w);
   return w;
 }
 
-export async function checkWorkspaceExistsWithAgent(ctx: IBaseContext, agent: ISessionAgent, workspaceId?: string) {
+export async function checkWorkspaceExistsWithAgent(
+  ctx: IBaseContext,
+  agent: ISessionAgent,
+  workspaceId?: string
+) {
   if (!workspaceId) {
-    workspaceId = getWorkspaceId(agent, workspaceId);
+    workspaceId = getWorkspaceIdFromSessionAgent(agent, workspaceId);
   }
 
   return checkWorkspaceExists(ctx, workspaceId);

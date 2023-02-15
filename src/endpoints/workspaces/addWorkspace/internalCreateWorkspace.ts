@@ -12,9 +12,15 @@ import {getDefaultThresholds} from '../../usageRecords/constants';
 import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceNameExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
-import {addWorkspaceToUserAndAssignAdminPermissionGroup, setupDefaultWorkspacePermissionGroups} from './utils';
+import {
+  addWorkspaceToUserAndAssignAdminPermissionGroup,
+  setupDefaultWorkspacePermissionGroups,
+} from './utils';
 
-export function transformUsageThresholInput(agent: IAgent, input: Required<INewWorkspaceInput>['usageThresholds']) {
+export function transformUsageThresholInput(
+  agent: IAgent,
+  input: Required<INewWorkspaceInput>['usageThresholds']
+) {
   const usageThresholds: IWorkspace['usageThresholds'] = {};
   cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
@@ -75,7 +81,12 @@ const internalCreateWorkspace = async (
 
   assertWorkspace(workspace);
   if (user) {
-    await addWorkspaceToUserAndAssignAdminPermissionGroup(context, user, workspace, adminPermissionGroup);
+    await addWorkspaceToUserAndAssignAdminPermissionGroup(
+      context,
+      user,
+      workspace,
+      adminPermissionGroup
+    );
   }
 
   return {workspace, adminPermissionGroup, publicPermissionGroup};

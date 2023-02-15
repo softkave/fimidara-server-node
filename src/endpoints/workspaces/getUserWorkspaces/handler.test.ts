@@ -50,10 +50,14 @@ describe('getUserWorkspaces', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
-    await Promise.all(workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser)));
+    await Promise.all(
+      workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser))
+    );
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
+      await context.data.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(userToken.userId)
+      )
     );
     const count = user.workspaces.length;
     const pageSize = 10;

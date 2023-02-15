@@ -13,7 +13,9 @@ export type Endpoint<Context extends IBaseContext = IBaseContext, Data = any, Re
   instData: RequestData<Data>
 ) => Promise<Result & IBaseEndpointResult>;
 
-export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R> ? R & IBaseEndpointResult : any;
+export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R>
+  ? R & IBaseEndpointResult
+  : any;
 
 export enum ServerRecommendedActions {
   LoginAgain = 'LoginAgain',
@@ -38,4 +40,12 @@ export interface ICountItemsEndpointResult {
   count: number;
 }
 
+export interface IEndpointOptionalWorkspaceIDParam {
+  workspaceId?: string;
+}
+
 export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
+export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
+  T,
+  keyof IPaginationQuery
+>;

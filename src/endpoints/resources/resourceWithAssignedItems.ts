@@ -27,10 +27,7 @@ export async function resourceWithAssignedItems(
       );
       return resource;
     case AppResourceType.User:
-      resource.resource = await populateUserWorkspaces(
-        context,
-        resource.resource as IUser
-      );
+      resource.resource = await populateUserWorkspaces(context, resource.resource as IUser);
       return resource;
     case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
@@ -50,9 +47,7 @@ export async function resourceListWithAssignedItems(
   const forTypesMap = indexArray(forTypes);
   return Promise.all(
     resourceList.map(item =>
-      forTypesMap[item.resourceType]
-        ? resourceWithAssignedItems(context, workspaceId, item)
-        : item
+      forTypesMap[item.resourceType] ? resourceWithAssignedItems(context, workspaceId, item) : item
     )
   );
 }

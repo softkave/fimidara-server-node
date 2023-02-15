@@ -27,29 +27,16 @@ import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    publicPermissibleEndpointAgents
-  );
+  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
 
   let file = await getFileWithMatcher(context, data);
   const isNewFile = !file;
-  const workspace = await getWorkspaceFromFileOrFilepath(
-    context,
-    file,
-    data.filepath
-  );
+  const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
 
   if (!file) {
     appAssert(data.filepath, new ValidationError('File path missing'));
     const pathWithDetails = splitFilepathWithDetails(data.filepath);
-    const parentFolder = await createFileParentFolders(
-      context,
-      agent,
-      workspace,
-      pathWithDetails
-    );
+    const parentFolder = await createFileParentFolders(context, agent, workspace, pathWithDetails);
 
     await checkUploadFileAuth(context, agent, workspace, null, parentFolder);
     file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
@@ -76,14 +63,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     file = await internalCreateFile(context, agent, workspace, data, file);
   } else {
     const pathWithDetails = splitFilepathWithDetails(file.namePath);
-    file = await internalUpdateFile(
-      context,
-      agent,
-      workspace,
-      pathWithDetails,
-      file,
-      data
-    );
+    file = await internalUpdateFile(context, agent, workspace, pathWithDetails, file, data);
   }
 
   await context.fileBackend.uploadFile({

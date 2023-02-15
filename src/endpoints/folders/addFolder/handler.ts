@@ -77,11 +77,21 @@ export async function createSingleFolder(
     : [];
 
   publicAccessOps = compactPublicAccessOps(publicAccessOps);
-  await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, savedFolder);
+  await replacePublicPermissionGroupAccessOps(
+    context,
+    agent,
+    workspace,
+    publicAccessOps,
+    savedFolder
+  );
   return savedFolder;
 }
 
-export async function getClosestExistingFolder(context: IBaseContext, workspaceId: string, splitParentPath: string[]) {
+export async function getClosestExistingFolder(
+  context: IBaseContext,
+  workspaceId: string,
+  splitParentPath: string[]
+) {
   const existingFolders = await Promise.all(
     splitParentPath.map((p, i) => {
       return context.data.folder.getOneByQuery(
@@ -91,7 +101,8 @@ export async function getClosestExistingFolder(context: IBaseContext, workspaceI
   );
 
   const firstNullItemIndex = existingFolders.findIndex(folder => !folder);
-  const closestExistingFolderIndex = firstNullItemIndex === -1 ? existingFolders.length - 1 : firstNullItemIndex - 1;
+  const closestExistingFolderIndex =
+    firstNullItemIndex === -1 ? existingFolders.length - 1 : firstNullItemIndex - 1;
   const closestExistingFolder = existingFolders[closestExistingFolderIndex];
   return {closestExistingFolder, closestExistingFolderIndex, existingFolders};
 }
@@ -103,11 +114,8 @@ export async function createFolderList(
   input: INewFolderInput
 ) {
   const pathWithDetails = splitPathWithDetails(input.folderpath);
-  const {closestExistingFolderIndex, closestExistingFolder, existingFolders} = await getClosestExistingFolder(
-    context,
-    workspace.resourceId,
-    pathWithDetails.itemSplitPath
-  );
+  const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
+    await getClosestExistingFolder(context, workspace.resourceId, pathWithDetails.itemSplitPath);
 
   let previousFolder = closestExistingFolder;
   let hasCheckAuth = false;
@@ -126,7 +134,11 @@ export async function createFolderList(
         workspace,
         type: AppResourceType.Folder,
         permissionContainers: previousFolder
-          ? getFilePermissionContainers(workspace.resourceId, previousFolder, AppResourceType.Folder)
+          ? getFilePermissionContainers(
+              workspace.resourceId,
+              previousFolder,
+              AppResourceType.Folder
+            )
           : makeWorkspacePermissionContainerList(workspace.resourceId),
         action: BasicCRUDActions.Create,
       });
@@ -138,7 +150,10 @@ export async function createFolderList(
     const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
     const nextInputPath = pathWithDetails.itemSplitPath.slice(0, i + 1);
     const nextInput: INewFolderInput = {
-      folderpath: addRootnameToPath(nextInputPath.join(folderConstants.nameSeparator), workspace.rootname),
+      folderpath: addRootnameToPath(
+        nextInputPath.join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
     };
 
     if (isMainFolder) {
@@ -176,7 +191,12 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     false
   );
 
-  folder = await populateAssignedPermissionGroupsAndTags(context, folder.workspaceId, folder, AppResourceType.Folder);
+  folder = await populateAssignedPermissionGroupsAndTags(
+    context,
+    folder.workspaceId,
+    folder,
+    AppResourceType.Folder
+  );
   return {
     folder: folderExtractor(folder),
   };

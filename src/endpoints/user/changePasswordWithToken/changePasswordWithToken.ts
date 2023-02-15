@@ -20,7 +20,12 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context,
     UserTokenQueries.getById(instData.incomingTokenData!.sub.id)
   );
 
-  if (!context.session.tokenContainsAudience(context, userToken, [TokenAudience.ChangePassword, TokenAudience.Login])) {
+  if (
+    !context.session.tokenContainsAudience(context, userToken, [
+      TokenAudience.ChangePassword,
+      TokenAudience.Login,
+    ])
+  ) {
     throw new InvalidCredentialsError();
   }
 

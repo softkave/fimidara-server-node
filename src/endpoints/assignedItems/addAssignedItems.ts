@@ -24,7 +24,9 @@ async function getNonExistingAssignedItems<T extends IAssignedItemMainFieldsMatc
   items: T[]
 ): Promise<T[]> {
   const fetchedItems = await Promise.all(
-    items.map(item => context.data.assignedItem.getOneByQuery(AssignedItemQueries.getByMainFields(item)))
+    items.map(item =>
+      context.data.assignedItem.getOneByQuery(AssignedItemQueries.getByMainFields(item))
+    )
   );
 
   const itemsMap = indexArray(compact(fetchedItems), {
@@ -51,9 +53,13 @@ export async function addAssignedPermissionGroupList(
   skipPermissionGroupsCheck = false
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, workspace.resourceId, assignedToItemId, assignedToItemType, [
-      AppResourceType.PermissionGroup,
-    ]);
+    await deleteResourceAssignedItems(
+      context,
+      workspace.resourceId,
+      assignedToItemId,
+      assignedToItemType,
+      [AppResourceType.PermissionGroup]
+    );
   }
 
   if (!skipPermissionGroupsCheck) {
@@ -91,9 +97,13 @@ export async function addAssignedTagList(
   deleteExisting: boolean
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, workspace.resourceId, assignedToItemId, assignedToItemType, [
-      AppResourceType.Tag,
-    ]);
+    await deleteResourceAssignedItems(
+      context,
+      workspace.resourceId,
+      assignedToItemId,
+      assignedToItemType,
+      [AppResourceType.Tag]
+    );
   }
 
   await checkTagsExist(context, agent, workspace, tags);
@@ -145,11 +155,24 @@ export async function saveResourceAssignedItems(
   }
 
   if (data.tags) {
-    await addAssignedTagList(context, agent, workspace, data.tags, resourceId, resourceType, deleteExisting);
+    await addAssignedTagList(
+      context,
+      agent,
+      workspace,
+      data.tags,
+      resourceId,
+      resourceType,
+      deleteExisting
+    );
   }
 }
 
-export async function assignWorkspaceToUser(context: IBaseContext, agent: IAgent, workspaceId: string, user: IUser) {
+export async function assignWorkspaceToUser(
+  context: IBaseContext,
+  agent: IAgent,
+  workspaceId: string,
+  user: IUser
+) {
   const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
     workspaceId,
     assignedToItemId: user.resourceId,

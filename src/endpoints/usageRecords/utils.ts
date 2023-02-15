@@ -1,5 +1,9 @@
 import {IFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  publicPermissibleEndpointAgents,
+} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
@@ -16,7 +20,12 @@ import {errorMessages} from '../messages';
 import RequestData from '../RequestData';
 import {UsageLimitExceededError} from './errors';
 
-async function insertRecord(ctx: IBaseContext, reqData: RequestData, input: IUsageRecordInput, nothrow = false) {
+async function insertRecord(
+  ctx: IBaseContext,
+  reqData: RequestData,
+  input: IUsageRecordInput,
+  nothrow = false
+) {
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
   );

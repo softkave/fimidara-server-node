@@ -25,7 +25,12 @@ export interface IUsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  insert = async (ctx: IBaseContext, reqData: RequestData, agent: IAgent, input: IUsageRecordInput) => {
+  insert = async (
+    ctx: IBaseContext,
+    reqData: RequestData,
+    agent: IAgent,
+    input: IUsageRecordInput
+  ) => {
     const record = this.makeLevel1Record(agent, input);
 
     // TODO: cache or pass in workspace
@@ -60,20 +65,38 @@ export class UsageRecordLogicProvider {
     return record;
   };
 
-  private checkWorkspaceBillStatus = async (ctx: IBaseContext, record: IUsageRecord, workspace: IWorkspace | null) => {
+  private checkWorkspaceBillStatus = async (
+    ctx: IBaseContext,
+    record: IUsageRecord,
+    workspace: IWorkspace | null
+  ) => {
     if (workspace && workspace.billStatus === WorkspaceBillStatus.BillOverdue) {
-      await this.dropRecord(ctx, record, UsageRecordDropReason.BillOverdue, UsageRecordCategory.Total);
+      await this.dropRecord(
+        ctx,
+        record,
+        UsageRecordDropReason.BillOverdue,
+        UsageRecordCategory.Total
+      );
       return true;
     }
 
     return false;
   };
 
-  private checkWorkspaceUsageLocks = async (ctx: IBaseContext, record: IUsageRecord, workspace: IWorkspace | null) => {
+  private checkWorkspaceUsageLocks = async (
+    ctx: IBaseContext,
+    record: IUsageRecord,
+    workspace: IWorkspace | null
+  ) => {
     if (workspace) {
       const usageLocks = workspace.usageThresholdLocks || {};
       if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
-        await this.dropRecord(ctx, record, UsageRecordDropReason.UsageExceeded, UsageRecordCategory.Total);
+        await this.dropRecord(
+          ctx,
+          record,
+          UsageRecordDropReason.UsageExceeded,
+          UsageRecordCategory.Total
+        );
         return true;
       }
 

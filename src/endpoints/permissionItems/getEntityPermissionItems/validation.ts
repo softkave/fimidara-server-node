@@ -1,14 +1,23 @@
 import * as Joi from 'joi';
+import {JoiSchemaParts} from '../../../utils/types';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
-import {IGetEntityPermissionItemsEndpointParams} from './types';
+import {
+  IGetEntityPermissionItemsEndpointParams,
+  IGetEntityPermissionItemsEndpointParamsBase,
+} from './types';
 
-export const getEntityPermissionItemsJoiSchema = Joi.object<IGetEntityPermissionItemsEndpointParams>()
-  .keys({
-    workspaceId: validationSchemas.resourceId,
+export const getEntityPermissionItemsBaseJoiSchemaParts: JoiSchemaParts<IGetEntityPermissionItemsEndpointParamsBase> =
+  {
+    ...endpointValidationSchemas.optionalWorkspaceIdParts,
     permissionEntityId: validationSchemas.resourceId.required(),
     permissionEntityType: validationSchemas.resourceType.required(),
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
-  })
-  .required();
+  };
+
+export const getEntityPermissionItemsJoiSchema =
+  Joi.object<IGetEntityPermissionItemsEndpointParams>()
+    .keys({
+      ...getEntityPermissionItemsBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

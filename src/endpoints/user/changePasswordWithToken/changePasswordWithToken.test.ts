@@ -57,9 +57,12 @@ async function changePasswordWithTokenTest() {
     }).valueOf(),
   });
 
-  const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(mockExpressRequestWithUserToken(token), {
-    password: newPassword,
-  });
+  const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
+    mockExpressRequestWithUserToken(token),
+    {
+      password: newPassword,
+    }
+  );
 
   const result = await changePasswordWithToken(context, instData);
   assertEndpointResultOk(result);

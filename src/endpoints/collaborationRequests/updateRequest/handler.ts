@@ -12,7 +12,10 @@ import {
 import {UpdateCollaborationRequestEndpoint} from './types';
 import {updateCollaborationRequestJoiSchema} from './validation';
 
-const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (context, instData) => {
+const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request, workspace} = await checkCollaborationRequestAuthorization02(

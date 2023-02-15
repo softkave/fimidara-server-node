@@ -73,7 +73,9 @@ export async function checkCollaboratorAuthorization02(
 ) {
   const collaborator = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(collaboratorId))
+    await context.data.user.assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(collaboratorId)
+    )
   );
 
   return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);
@@ -87,7 +89,10 @@ export function getCollaboratorWorkspace(user: IUserWithWorkspace, workspaceId: 
   return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
-export function removeOtherUserWorkspaces(collaborator: IUserWithWorkspace, workspaceId: string): IUserWithWorkspace {
+export function removeOtherUserWorkspaces(
+  collaborator: IUserWithWorkspace,
+  workspaceId: string
+): IUserWithWorkspace {
   return {
     ...collaborator,
     workspaces: collaborator.workspaces.filter(item => item.workspaceId === workspaceId),

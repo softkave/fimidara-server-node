@@ -1,10 +1,18 @@
 import {IPublicCollaborator} from '../../../definitions/user';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {
+  Endpoint,
+  IEndpointOptionalWorkspaceIDParam,
+  IPaginatedResult,
+  IPaginationQuery,
+} from '../../types';
 
-export interface IGetWorkspaceCollaboratorsEndpointParams extends IPaginationQuery {
-  workspaceId?: string;
-}
+export interface IGetWorkspaceCollaboratorsEndpointParamsBase
+  extends IEndpointOptionalWorkspaceIDParam {}
+
+export interface IGetWorkspaceCollaboratorsEndpointParams
+  extends IGetWorkspaceCollaboratorsEndpointParamsBase,
+    IPaginationQuery {}
 
 export interface IGetWorkspaceCollaboratorsEndpointResult extends IPaginatedResult {
   collaborators: IPublicCollaborator[];

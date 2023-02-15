@@ -1,6 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, getWorkspaceActionList} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getWorkspaceActionList,
+} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -17,7 +21,10 @@ import {
 } from '../../test-utils/test-utils';
 import addPermissionItems from '../addItems/handler';
 import {IAddPermissionItemsEndpointParams, INewPermissionItemInput} from '../addItems/types';
-import {default as getEntityPermissionItems, default as getResourcePermissionItems} from './handler';
+import {
+  default as getEntityPermissionItems,
+  default as getResourcePermissionItems,
+} from './handler';
 import {IGetResourcePermissionItemsEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
@@ -53,10 +60,11 @@ describe('getResourcePermissionItems', () => {
       containerType: AppResourceType.Workspace,
     }));
 
-    const addPermissionItemsReqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {items: inputItems, workspaceId: workspace.resourceId}
-    );
+    const addPermissionItemsReqData =
+      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        mockExpressRequestWithUserToken(userToken),
+        {items: inputItems, workspaceId: workspace.resourceId}
+      );
 
     const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     const items = addPermissionItemsResult.items;

@@ -1,5 +1,10 @@
 import {IProgramAccessToken, IPublicProgramAccessToken} from '../../definitions/programAccessToken';
-import {AppResourceType, BasicCRUDActions, ISessionAgent, TokenType} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
+  TokenType,
+} from '../../definitions/system';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
@@ -61,7 +66,9 @@ export async function checkProgramAccessTokenAuthorization02(
   action: BasicCRUDActions,
   nothrow = false
 ) {
-  const token = await context.data.programAccessToken.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(id));
+  const token = await context.data.programAccessToken.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
   return checkProgramAccessTokenAuthorization(context, agent, token, action, nothrow);
 }
 

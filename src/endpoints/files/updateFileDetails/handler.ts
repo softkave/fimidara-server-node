@@ -1,5 +1,9 @@
 import {omit} from 'lodash';
-import {AppResourceType, BasicCRUDActions, publicPermissibleEndpointAgents} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  publicPermissibleEndpointAgents,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
@@ -46,8 +50,21 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
     await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
-  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data.file, true);
-  file = await populateAssignedPermissionGroupsAndTags(context, file.workspaceId, file, AppResourceType.File);
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    workspace,
+    file.resourceId,
+    AppResourceType.File,
+    data.file,
+    true
+  );
+  file = await populateAssignedPermissionGroupsAndTags(
+    context,
+    file.workspaceId,
+    file,
+    AppResourceType.File
+  );
   return {
     file: fileExtractor(file),
   };

@@ -13,7 +13,12 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {
   IAddPermissionItemsEndpointParams,
   IAddPermissionItemsEndpointResult,
@@ -102,7 +107,9 @@ const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInp
     appliesTo: fReusables.appliesTo,
   });
 
-const newPermissionItemByEntityInput = new FieldObject<ExcludeTags<INewPermissionItemInputByEntity>>()
+const newPermissionItemByEntityInput = new FieldObject<
+  ExcludeTags<INewPermissionItemInputByEntity>
+>()
   .setName('NewPermissionItemInputByEntity')
   .setFields({
     containerId,
@@ -121,21 +128,23 @@ const newPermissionItemByEntityInputList = new FieldArray()
   .setType(newPermissionItemByEntityInput)
   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
-const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>().setName('PermissionItem').setFields({
-  containerId,
-  containerType,
-  permissionEntityId,
-  permissionEntityType,
-  targetType,
-  resourceId: new FieldString(),
-  createdBy: fReusables.agent,
-  createdAt: fReusables.date,
-  workspaceId: fReusables.workspaceId,
-  targetId: targetIdOrUndefined,
-  action: fReusables.action,
-  grantAccess: new FieldBoolean(),
-  appliesTo: fReusables.appliesTo,
-});
+const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>()
+  .setName('PermissionItem')
+  .setFields({
+    containerId,
+    containerType,
+    permissionEntityId,
+    permissionEntityType,
+    targetType,
+    resourceId: new FieldString(),
+    createdBy: fReusables.agent,
+    createdAt: fReusables.date,
+    workspaceId: fReusables.workspaceId,
+    targetId: targetIdOrUndefined,
+    action: fReusables.action,
+    grantAccess: new FieldBoolean(),
+    appliesTo: fReusables.appliesTo,
+  });
 
 const addPermissionItemsParams = new FieldObject<IAddPermissionItemsEndpointParams>()
   .setName('AddPermissionItemsEndpointParams')
@@ -159,22 +168,23 @@ const addPermissionItemsResult = [
     ),
 ];
 
-const getResourcePermissionItemsParams = new FieldObject<IGetResourcePermissionItemsEndpointParams>()
-  .setName('GetResourcePermissionItemsEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    targetId: targetIdNotRequired,
-    targetType: targetType,
-    containerId: containerIdNotRequired,
-    containerType: containerTypeNotRequired,
-    page: fReusables.pageNotRequired,
-    pageSize: fReusables.pageSizeNotRequired,
-  })
-  .setRequired(true)
-  .setDescription(
-    'Get resource permission items endpoint params. ' +
-      'Returns all the permission items granting access to a resource or resource type.'
-  );
+const getResourcePermissionItemsParams =
+  new FieldObject<IGetResourcePermissionItemsEndpointParams>()
+    .setName('GetResourcePermissionItemsEndpointParams')
+    .setFields({
+      workspaceId: fReusables.workspaceIdInputNotRequired,
+      targetId: targetIdNotRequired,
+      targetType: targetType,
+      containerId: containerIdNotRequired,
+      containerType: containerTypeNotRequired,
+      page: fReusables.pageNotRequired,
+      pageSize: fReusables.pageSizeNotRequired,
+    })
+    .setRequired(true)
+    .setDescription(
+      'Get resource permission items endpoint params. ' +
+        'Returns all the permission items granting access to a resource or resource type.'
+    );
 const getResourcePermissionItemsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -192,16 +202,17 @@ const getResourcePermissionItemsResult = [
     ),
 ];
 
-const replacePermissionItemsByEntityParams = new FieldObject<IReplacePermissionItemsByEntityEndpointParams>()
-  .setName('ReplacePermissionItemsByEntityEndpointParams')
-  .setFields({
-    permissionEntityId,
-    permissionEntityType,
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    items: newPermissionItemByEntityInputList,
-  })
-  .setRequired(true)
-  .setDescription('Replace permission items by entity endpoint params.');
+const replacePermissionItemsByEntityParams =
+  new FieldObject<IReplacePermissionItemsByEntityEndpointParams>()
+    .setName('ReplacePermissionItemsByEntityEndpointParams')
+    .setFields({
+      permissionEntityId,
+      permissionEntityType,
+      workspaceId: fReusables.workspaceIdInputNotRequired,
+      items: newPermissionItemByEntityInputList,
+    })
+    .setRequired(true)
+    .setDescription('Replace permission items by entity endpoint params.');
 const replacePermissionItemsByEntityResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()

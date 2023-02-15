@@ -190,7 +190,11 @@ async function aggregateRecordsLevel2(
   workspaceId: string,
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  const records = await aggregateRecordsLevel2ExcludingTotal(connection, workspaceId, fulfillmentStatus);
+  const records = await aggregateRecordsLevel2ExcludingTotal(
+    connection,
+    workspaceId,
+    fulfillmentStatus
+  );
   const totalRecord = records.find(r => r.category === UsageRecordCategory.Total);
   assert(totalRecord, 'total record not found');
   totalRecord.usageCost = 0;
@@ -219,7 +223,10 @@ async function aggregateRecordsLevel2(
   return records;
 }
 
-async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection: Connection, workspace: IWorkspace) {
+async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
+  connection: Connection,
+  workspace: IWorkspace
+) {
   const records = await aggregateRecordsLevel2(
     connection,
     workspace.resourceId,
@@ -248,7 +255,11 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection: Con
 }
 
 async function aggregateDroppedRecordsInWorkspace(connection: Connection, workspace: IWorkspace) {
-  await aggregateRecordsLevel2(connection, workspace.resourceId, UsageRecordFulfillmentStatus.Dropped);
+  await aggregateRecordsLevel2(
+    connection,
+    workspace.resourceId,
+    UsageRecordFulfillmentStatus.Dropped
+  );
 }
 
 async function tryAggregateRecordsInWorkspace(

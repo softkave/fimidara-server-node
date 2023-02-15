@@ -1,25 +1,17 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
 import {internalCreateProgramAccessToken} from './utils';
 import {addProgramAccessTokenJoiSchema} from './validation';
 
-const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (
-  context,
-  instData
-) => {
+const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, addProgramAccessTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const token = await internalCreateProgramAccessToken(
-    context,
-    agent,
-    workspace,
-    data.token
-  );
+  const token = await internalCreateProgramAccessToken(context, agent, workspace, data.token);
 
   return {
     token: getPublicProgramToken(context, token),

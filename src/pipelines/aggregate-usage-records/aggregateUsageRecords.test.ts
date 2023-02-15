@@ -60,7 +60,10 @@ async function getContextAndConnection() {
   const appVariables = extractEnvVariables(extractProdEnvsSchema);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
   const context = new BaseContext(
     getDataProviders(connection),
     getTestEmailProvider(appVariables),
@@ -136,9 +139,17 @@ async function insertUsageRecordsForFiles(
   return {totalUsage, count};
 }
 
-async function setupForFile(context: IBaseContext, exceedLimit = false, nothrow = true, exceedBy = 0) {
+async function setupForFile(
+  context: IBaseContext,
+  exceedLimit = false,
+  nothrow = true,
+  exceedBy = 0
+) {
   const workspace = generateTestWorkspace();
-  workspace.usageThresholds = transformUsageThresholInput(publicAgent, generateTestUsageThresholdInputMap());
+  workspace.usageThresholds = transformUsageThresholInput(
+    publicAgent,
+    generateTestUsageThresholdInputMap()
+  );
   await context.data.workspace.insertItem(workspace);
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
@@ -174,7 +185,9 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.data.workspace.getOneByQuery(EndpointReusableQueries.getByResourceId(wId));
+  const w = await context.data.workspace.getOneByQuery(
+    EndpointReusableQueries.getByResourceId(wId)
+  );
   assert(w);
   const locks = w.usageThresholdLocks || {};
   for (const category in categories) {
@@ -206,7 +219,11 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorks
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
-async function assertRecordInsertionFails(context: IBaseContext, connection: Connection, w1: IWorkspace) {
+async function assertRecordInsertionFails(
+  context: IBaseContext,
+  connection: Connection,
+  w1: IWorkspace
+) {
   const f1 = generateTestFile({workspaceId: w1.resourceId});
   await expect(async () => {
     assertContext(context);
@@ -282,7 +299,10 @@ describe('usage-records-pipeline', () => {
   test('category locked if threshold reached', async () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
-    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(context, /** exceedLimit */ true);
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
+      context,
+      /** exceedLimit */ true
+    );
     const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(context);
 
     // Run

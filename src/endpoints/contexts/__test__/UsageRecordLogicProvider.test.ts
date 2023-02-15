@@ -2,7 +2,11 @@ import {faker} from '@faker-js/faker';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {AppResourceType, systemAgent} from '../../../definitions/system';
-import {UsageRecordCategory, UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
+import {
+  UsageRecordCategory,
+  UsageRecordFulfillmentStatus,
+  UsageSummationType,
+} from '../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../definitions/workspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
 import {cast} from '../../../utils/fns';
@@ -47,7 +51,9 @@ function assertDeps() {
 }
 
 async function getSumRecords(ctx: IBaseContext, recordId: string) {
-  const record = await ctx.data.usageRecord.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(recordId));
+  const record = await ctx.data.usageRecord.assertGetOneByQuery(
+    EndpointReusableQueries.getByResourceId(recordId)
+  );
   return {record};
 }
 

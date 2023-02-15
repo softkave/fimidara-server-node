@@ -1,3 +1,5 @@
+import {SchemaMap} from 'joi';
+
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IUpdateItemById<T> {
   id: string;
@@ -19,7 +21,6 @@ export type ConvertTypeOneToTypeTwo<T extends object, One, Two> = {
 };
 
 export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<T, Date, string>;
-
 export type AnyFn = (...args: any) => any;
 
 type Join<K, P> = K extends string | number
@@ -28,7 +29,31 @@ type Join<K, P> = K extends string | number
     : never
   : never;
 
-type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...0[]];
+type Prev = [
+  never,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  ...0[]
+];
 
 export type Paths<T, D extends number = 10> = [D] extends [never]
   ? never
@@ -74,3 +99,5 @@ export type RouteParameters<Route extends string> = string extends Route
       : {[P in GetRouteParameter<Rest>]: string}) &
       (Rest extends `${GetRouteParameter<Rest>}${infer Next}` ? RouteParameters<Next> : unknown)
   : {};
+
+export type JoiSchemaParts<T> = Required<SchemaMap<T>>;

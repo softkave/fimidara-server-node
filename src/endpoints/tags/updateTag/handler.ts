@@ -11,7 +11,12 @@ import {updateTagJoiSchema} from './validation';
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const checkResult = await checkTagAuthorization02(context, agent, data.tagId, BasicCRUDActions.Read);
+  const checkResult = await checkTagAuthorization02(
+    context,
+    agent,
+    data.tagId,
+    BasicCRUDActions.Read
+  );
 
   const workspace = checkResult.workspace;
   let tag = checkResult.tag;

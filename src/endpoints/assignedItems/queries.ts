@@ -8,7 +8,11 @@ function newFilter() {
   return new DataProviderFilterBuilder<IAssignedItem>();
 }
 
-function getByAssignedItem(workspaceId: string, assignedItemId: string, assignedItemType: AppResourceType) {
+function getByAssignedItem(
+  workspaceId: string,
+  assignedItemId: string,
+  assignedItemType: AppResourceType
+) {
   const filter = newFilter()
     .addItem('assignedItemId', assignedItemId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedItemType', assignedItemType, DataProviderFilterValueOperator.Equal)
@@ -27,10 +31,18 @@ function getWorkspaceCollaborators(
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedToItemType', AppResourceType.User, DataProviderFilterValueOperator.Equal);
   if (includedAssignedToItemIdList?.length) {
-    filter.addItem('assignedToItemId', includedAssignedToItemIdList, DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'assignedToItemId',
+      includedAssignedToItemIdList,
+      DataProviderFilterValueOperator.In
+    );
   }
   if (excludedAssgignedToItemIdList?.length) {
-    filter.addItem('assignedToItemId', excludedAssgignedToItemIdList, DataProviderFilterValueOperator.NotIn);
+    filter.addItem(
+      'assignedToItemId',
+      excludedAssgignedToItemIdList,
+      DataProviderFilterValueOperator.NotIn
+    );
   }
   return filter.build();
 }
@@ -62,7 +74,11 @@ function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
     .addItem('assignedItemId', matcher.assignedItemId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedItemType', matcher.assignedItemType, DataProviderFilterValueOperator.Equal)
     .addItem('assignedToItemId', matcher.assignedToItemId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedToItemType', matcher.assignedToItemType, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'assignedToItemType',
+      matcher.assignedToItemType,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();
 }

@@ -17,7 +17,10 @@ function extractPermissionGroupsData(permissionGroups: IAssignedPermissionGroup[
   }));
 }
 
-export function getPermissionEntities(agent: ISessionAgent, workspace: IWorkspace): Array<IPermissionEntity> {
+export function getPermissionEntities(
+  agent: ISessionAgent,
+  workspace: IWorkspace
+): Array<IPermissionEntity> {
   let permissionEntities: Array<IPermissionEntity> = [];
   switch (agent.agentType) {
     case SessionAgentType.User: {

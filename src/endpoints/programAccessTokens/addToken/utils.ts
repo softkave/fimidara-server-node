@@ -5,7 +5,10 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {ISaveResourceAssignedItemsOptions, saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
+import {
+  ISaveResourceAssignedItemsOptions,
+  saveResourceAssignedItems,
+} from '../../assignedItems/addAssignedItems';
 import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';

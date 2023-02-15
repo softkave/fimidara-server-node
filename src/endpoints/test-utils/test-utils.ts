@@ -15,7 +15,12 @@ import {
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IUserToken} from '../../definitions/userToken';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
-import {extractEnvVariables, extractProdEnvsSchema, FileBackendType, IAppVariables} from '../../resources/vars';
+import {
+  extractEnvVariables,
+  extractProdEnvsSchema,
+  FileBackendType,
+  IAppVariables,
+} from '../../resources/vars';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import addClientAssignedToken from '../clientAssignedTokens/addToken/handler';
 import {
@@ -49,7 +54,10 @@ import {
   IReplacePermissionItemsByEntityEndpointParams,
 } from '../permissionItems/replaceItemsByEntity/types';
 import addProgramAccessToken from '../programAccessTokens/addToken/handler';
-import {IAddProgramAccessTokenEndpointParams, INewProgramAccessTokenInput} from '../programAccessTokens/addToken/types';
+import {
+  IAddProgramAccessTokenEndpointParams,
+  INewProgramAccessTokenInput,
+} from '../programAccessTokens/addToken/types';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
@@ -85,7 +93,10 @@ export async function getTestFileProvider(appVariables: IAppVariables) {
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const appVariables = extractEnvVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
   const ctx = new BaseContext(
     getDataProviders(connection),
     getTestEmailProvider(appVariables),
@@ -191,12 +202,16 @@ export async function insertUserForTest(
   } else {
     rawUser = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.user.resourceId))
+      await context.data.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(result.user.resourceId)
+      )
     );
   }
 
   const tokenData = context.session.decodeToken(context, result.token);
-  const userToken = await context.data.userToken.assertGetOneByQuery(UserTokenQueries.getById(tokenData.sub.id));
+  const userToken = await context.data.userToken.assertGetOneByQuery(
+    UserTokenQueries.getById(tokenData.sub.id)
+  );
   return {
     rawUser,
     userToken,
@@ -470,7 +485,10 @@ export async function insertFileForTest(
   imageProps?: IGenerateImageProps
 ) {
   const input: IUploadFileEndpointParams = {
-    filepath: addRootnameToPath([generateTestFolderName()].join(folderConstants.nameSeparator), workspace.rootname),
+    filepath: addRootnameToPath(
+      [generateTestFolderName()].join(folderConstants.nameSeparator),
+      workspace.rootname
+    ),
     description: faker.lorem.paragraph(),
     data: Buffer.from(''), // to fulfill all TS righteousness
     mimetype: 'application/octet-stream',

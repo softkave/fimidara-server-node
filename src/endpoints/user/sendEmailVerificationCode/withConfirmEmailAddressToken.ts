@@ -1,5 +1,10 @@
 import {URL} from 'url';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience, TokenType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAudience,
+  TokenType,
+} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -30,7 +35,12 @@ export async function withConfirmEmailAddressToken(
       });
     }
 
-    const encodedToken = context.session.encodeToken(context, token.resourceId, TokenType.UserToken, token.expires);
+    const encodedToken = context.session.encodeToken(
+      context,
+      token.resourceId,
+      TokenType.UserToken,
+      token.expires
+    );
 
     url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
 

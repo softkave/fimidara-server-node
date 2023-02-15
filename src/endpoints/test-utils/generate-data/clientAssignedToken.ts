@@ -1,5 +1,10 @@
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {AppResourceType, CURRENT_TOKEN_VERSION, IAgent, SessionAgentType} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  IAgent,
+  SessionAgentType,
+} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
@@ -25,7 +30,10 @@ export function generateClientAssignedTokenForTest(seed: Partial<IClientAssigned
   return token;
 }
 
-export function generateClientAssignedTokenListForTest(count = 20, seed: Partial<IClientAssignedToken> = {}) {
+export function generateClientAssignedTokenListForTest(
+  count = 20,
+  seed: Partial<IClientAssignedToken> = {}
+) {
   const items: IClientAssignedToken[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generateClientAssignedTokenForTest(seed));

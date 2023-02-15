@@ -4,7 +4,7 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
+import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import checkPermissionContainersExist from '../checkPermissionContainersExist';
@@ -14,11 +14,14 @@ import {ReplacePermissionItemsByEntityEndpoint} from './types';
 import {internalReplacePermissionItemsByEntity} from './utils';
 import {replacePermissionItemsByEntityJoiSchema} from './validation';
 
-const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = async (context, instData) => {
+const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, replacePermissionItemsByEntityJoiSchema);
 
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkEntitiesExist(context, agent, workspace, [
     {

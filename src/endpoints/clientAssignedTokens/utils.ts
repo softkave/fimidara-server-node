@@ -1,5 +1,13 @@
-import {IClientAssignedToken, IPublicClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {AppResourceType, BasicCRUDActions, ISessionAgent, TokenType} from '../../definitions/system';
+import {
+  IClientAssignedToken,
+  IPublicClientAssignedToken,
+} from '../../definitions/clientAssignedToken';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ISessionAgent,
+  TokenType,
+} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -8,7 +16,10 @@ import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
-import {assertGetWorkspaceIdFromAgent, getClientAssignedTokenIdNoThrow} from '../contexts/SessionContext';
+import {
+  assertGetWorkspaceIdFromAgent,
+  getClientAssignedTokenIdNoThrow,
+} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';

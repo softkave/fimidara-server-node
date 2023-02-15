@@ -4,7 +4,10 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definition
 import {IWorkspace} from '../../definitions/workspace';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {checkAuthorization, getFilePermissionContainers} from '../contexts/authorization-checks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  getFilePermissionContainers,
+} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {agentExtractor} from '../utils';
@@ -124,7 +127,11 @@ export async function checkFolderAuthorization(
     nothrow,
     resource: folder,
     type: AppResourceType.Folder,
-    permissionContainers: getFilePermissionContainers(workspace.resourceId, folder, AppResourceType.Folder),
+    permissionContainers: getFilePermissionContainers(
+      workspace.resourceId,
+      folder,
+      AppResourceType.Folder
+    ),
   });
 
   return {agent, workspace, folder};
@@ -146,7 +153,9 @@ export function getFolderName(folder: IFolder) {
   return folder.namePath.join(folderConstants.nameSeparator);
 }
 
-export function assertWorkspaceRootname(workspaceRootname?: string | null): asserts workspaceRootname {
+export function assertWorkspaceRootname(
+  workspaceRootname?: string | null
+): asserts workspaceRootname {
   if (!workspaceRootname) {
     throw new InvalidRequestError('Workspace rootname not provided');
   }

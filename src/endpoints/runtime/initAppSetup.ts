@@ -93,16 +93,22 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     folderpath: addRootnameToPath(folder02Path, workspace.rootname),
   });
 
-  const workspaceImagesFolder = await createSingleFolder(context, systemAgent, workspace, folder02, {
-    folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname),
-    publicAccessOps: [
-      {
-        action: BasicCRUDActions.Read,
-        resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-      },
-    ],
-  });
+  const workspaceImagesFolder = await createSingleFolder(
+    context,
+    systemAgent,
+    workspace,
+    folder02,
+    {
+      folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname),
+      publicAccessOps: [
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+      ],
+    }
+  );
 
   const userImagesFolder = await createSingleFolder(context, systemAgent, workspace, folder02, {
     folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname),
@@ -137,26 +143,28 @@ async function setupImageUploadPermissionGroup(
     createdBy: systemAgent,
   });
 
-  const permissionItems: IPermissionItem[] = [BasicCRUDActions.Create, BasicCRUDActions.Read].map(action => {
-    const item: IPermissionItem = {
-      action,
-      hash: '',
-      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
-      workspaceId: workspaceId,
-      createdAt: getDateString(),
-      createdBy: systemAgent,
-      containerId: folderId,
-      containerType: AppResourceType.Folder,
-      permissionEntityId: imageUploadPermissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-      targetType: AppResourceType.File,
-      grantAccess: true,
-      appliesTo: PermissionItemAppliesTo.Children,
-    };
+  const permissionItems: IPermissionItem[] = [BasicCRUDActions.Create, BasicCRUDActions.Read].map(
+    action => {
+      const item: IPermissionItem = {
+        action,
+        hash: '',
+        resourceId: getNewIdForResource(AppResourceType.PermissionItem),
+        workspaceId: workspaceId,
+        createdAt: getDateString(),
+        createdBy: systemAgent,
+        containerId: folderId,
+        containerType: AppResourceType.Folder,
+        permissionEntityId: imageUploadPermissionGroup.resourceId,
+        permissionEntityType: AppResourceType.PermissionGroup,
+        targetType: AppResourceType.File,
+        grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.Children,
+      };
 
-    item.hash = permissionItemIndexer(item);
-    return item;
-  });
+      item.hash = permissionItemIndexer(item);
+      return item;
+    }
+  );
 
   await context.data.permissionItem.insertList(permissionItems);
   return imageUploadPermissionGroup;
@@ -173,7 +181,8 @@ async function isRootWorkspaceSetup(context: IBaseContext) {
 async function getRootWorkspace(context: IBaseContext, appRuntimeState: IAppRuntimeState) {
   const appRuntimeVars: IAppRuntimeVars = {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
-    appWorkspacesImageUploadPermissionGroupId: appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
+    appWorkspacesImageUploadPermissionGroupId:
+      appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
     appUsersImageUploadPermissionGroupId: appRuntimeState.appUsersImageUploadPermissionGroupId,
   };
 

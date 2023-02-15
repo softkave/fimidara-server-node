@@ -19,7 +19,10 @@ import {IUserToken} from '../../definitions/userToken';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {cast} from '../../utils/fns';
-import {populateAssignedPermissionGroupsAndTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {
+  populateAssignedPermissionGroupsAndTags,
+  populateUserWorkspaces,
+} from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
@@ -71,20 +74,25 @@ export default class SessionContext implements ISessionContext {
 
     let userToken: IUserToken | null = null;
     let user: IUserWithWorkspace | null = null;
-    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null = null;
+    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null =
+      null;
     let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null = null;
     const incomingTokenData = data.incomingTokenData;
 
     switch (incomingTokenData?.sub.type) {
       case TokenType.UserToken: {
-        userToken = await ctx.data.userToken.assertGetOneByQuery(UserTokenQueries.getById(incomingTokenData.sub.id));
+        userToken = await ctx.data.userToken.assertGetOneByQuery(
+          UserTokenQueries.getById(incomingTokenData.sub.id)
+        );
         if (audience) {
           ctx.session.tokenContainsAudience(ctx, userToken, audience);
         }
 
         user = await populateUserWorkspaces(
           ctx,
-          await ctx.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
+          await ctx.data.user.assertGetOneByQuery(
+            EndpointReusableQueries.getByResourceId(userToken.userId)
+          )
         );
         break;
       }
@@ -155,7 +163,11 @@ export default class SessionContext implements ISessionContext {
     return makePublicSessionAgent();
   };
 
-  getUser = async (ctx: IBaseContext, data: RequestData, audience?: TokenAudience | TokenAudience[]) => {
+  getUser = async (
+    ctx: IBaseContext,
+    data: RequestData,
+    audience?: TokenAudience | TokenAudience[]
+  ) => {
     const agent = await ctx.session.getAgent(ctx, data, [SessionAgentType.User], audience);
     appAssert(agent.user, new ServerError());
     return agent.user;
@@ -238,7 +250,10 @@ export function makeProgramAccessTokenAgent(
   };
 }
 
-export function makeUserSessionAgent(userToken: IUserToken, user: IUserWithWorkspace): ISessionAgent {
+export function makeUserSessionAgent(
+  userToken: IUserToken,
+  user: IUserWithWorkspace
+): ISessionAgent {
   return {
     userToken,
     user,
@@ -267,12 +282,11 @@ export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?
   return workspaceId;
 }
 
-export function getWorkspaceId(agent: ISessionAgent, providedWorkspaceId?: string) {
+export function getWorkspaceIdFromSessionAgent(agent: ISessionAgent, providedWorkspaceId?: string) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
   }
-
   return workspaceId;
 }
 
@@ -281,21 +295,37 @@ export function getClientAssignedTokenIdNoThrow(
   inputTokenId?: string | null,
   onReferenced?: boolean
 ) {
-  const tokenId = inputTokenId ? inputTokenId : onReferenced ? agent.clientAssignedToken?.resourceId : null;
+  const tokenId = inputTokenId
+    ? inputTokenId
+    : onReferenced
+    ? agent.clientAssignedToken?.resourceId
+    : null;
   return tokenId;
 }
 
-export function getClientAssignedTokenId(agent: ISessionAgent, inputTokenId?: string | null, onReferenced?: boolean) {
+export function getClientAssignedTokenId(
+  agent: ISessionAgent,
+  inputTokenId?: string | null,
+  onReferenced?: boolean
+) {
   const tokenId = getClientAssignedTokenIdNoThrow(agent, inputTokenId, onReferenced);
   if (!tokenId) {
     throw new InvalidRequestError('Client assigned token ID not provided');
   }
-
   return tokenId;
 }
 
-export function getProgramAccessTokenId(agent: ISessionAgent, providedTokenId?: string | null, onReferenced?: boolean) {
-  const tokenId = providedTokenId ? providedTokenId : onReferenced ? agent.programAccessToken?.resourceId : null;
+export function getProgramAccessTokenId(
+  agent: ISessionAgent,
+  providedTokenId?: string | null,
+  onReferenced?: boolean
+) {
+  const tokenId = providedTokenId
+    ? providedTokenId
+    : onReferenced
+    ? agent.programAccessToken?.resourceId
+    : null;
+
   if (!tokenId) {
     throw new InvalidRequestError('Program access token ID not provided');
   }
@@ -336,6 +366,5 @@ export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAg
     agentId: sessionAgent.agentId,
     agentType: sessionAgent.agentType,
   };
-
   return agent;
 }

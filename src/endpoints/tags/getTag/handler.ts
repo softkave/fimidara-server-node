@@ -7,12 +7,7 @@ import {getTagJoiSchema} from './validation';
 const getTag: GetTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, getTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {tag} = await checkTagAuthorization02(
-    context,
-    agent,
-    data.tagId,
-    BasicCRUDActions.Read
-  );
+  const {tag} = await checkTagAuthorization02(context, agent, data.tagId, BasicCRUDActions.Read);
 
   return {
     tag: tagExtractor(tag),

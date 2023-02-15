@@ -84,7 +84,11 @@ describe('addFolder', () => {
       folder02Path + folderConstants.nameSeparator + generateTestFolderName()
     );
 
-    await assertCanListContentOfPublicFolder(context, insertWorkspaceResult.workspace, folder02Path);
+    await assertCanListContentOfPublicFolder(
+      context,
+      insertWorkspaceResult.workspace,
+      folder02Path
+    );
     const filepath = file.namePath.join(folderConstants.nameSeparator);
     await assertCanReadPublicFile(context, insertWorkspaceResult.workspace, filepath);
     await expectErrorThrown(async () => {

@@ -1,6 +1,9 @@
 import Joi from 'joi';
 import {merge} from 'lodash';
+import {JoiSchemaParts} from '../utils/types';
+import {validationSchemas} from '../utils/validationUtils';
 import {endpointConstants} from './constants';
+import {IEndpointOptionalWorkspaceIDParam, IPaginationQuery} from './types';
 
 const comparisonOps = (schema: Joi.Schema) => ({
   $eq: schema,
@@ -18,14 +21,18 @@ const numberLiteralOps = (schema: Joi.Schema) => ({
   $lte: schema,
 });
 
-const fullLiteralOps = (schema: Joi.Schema) => merge(numberLiteralOps(schema), comparisonOps(schema));
+const fullLiteralOps = (schema: Joi.Schema) =>
+  merge(numberLiteralOps(schema), comparisonOps(schema));
 const objectOps = (schema: Joi.Schema) => ({
   $objMatch: schema,
 });
 
-const comparisonOpsSchema = (schema: Joi.Schema) => Joi.object(comparisonOps(schema)).unknown(false);
-const numberLiteralOpsSchema = (schema: Joi.Schema) => Joi.object(numberLiteralOps(schema)).unknown(false);
-const fullLiteralOpsSchema = (schema: Joi.Schema) => Joi.object(fullLiteralOps(schema)).unknown(false);
+const comparisonOpsSchema = (schema: Joi.Schema) =>
+  Joi.object(comparisonOps(schema)).unknown(false);
+const numberLiteralOpsSchema = (schema: Joi.Schema) =>
+  Joi.object(numberLiteralOps(schema)).unknown(false);
+const fullLiteralOpsSchema = (schema: Joi.Schema) =>
+  Joi.object(fullLiteralOps(schema)).unknown(false);
 const objectOpsSchema = (schema: Joi.Schema) => Joi.object(objectOps(schema)).unknown(false);
 
 const arrayOps = (schema: Joi.Schema) => ({
@@ -54,10 +61,19 @@ const op = (schema: Joi.Schema) =>
 
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
+const optionalWorkspaceIdParts: JoiSchemaParts<IEndpointOptionalWorkspaceIDParam> = {
+  workspaceId: validationSchemas.resourceId,
+};
+const paginationParts: JoiSchemaParts<IPaginationQuery> = {
+  page,
+  pageSize,
+};
 
 export const endpointValidationSchemas = {
   page,
   pageSize,
+  optionalWorkspaceIdParts,
+  paginationParts,
   op,
   comparisonOps,
   numberLiteralOps,

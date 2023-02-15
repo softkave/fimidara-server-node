@@ -1,12 +1,15 @@
 import * as Joi from 'joi';
+import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
 import folderValidationSchemas from '../validation';
-import {IListFolderContentEndpointParams} from './types';
+import {IListFolderContentEndpointParams, IListFolderContentEndpointParamsBase} from './types';
+
+export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<IListFolderContentEndpointParamsBase> =
+  folderValidationSchemas.folderMatcherParts;
 
 export const listFolderContentJoiSchema = Joi.object<IListFolderContentEndpointParams>()
   .keys({
-    ...folderValidationSchemas.folderMatcherParts,
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
+    ...listFolderContentBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
   })
   .required();

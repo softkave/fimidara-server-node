@@ -3,7 +3,11 @@ import {merge} from 'lodash';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 
-export type GeneratePartialTestDataFn<T> = (index: number, indexItem: T, cache: Record<string, any>) => Partial<T>;
+export type GeneratePartialTestDataFn<T> = (
+  index: number,
+  indexItem: T,
+  cache: Record<string, any>
+) => Partial<T>;
 
 export const defaultGeneratePartialTestDataFn: GeneratePartialTestDataFn<any> = () => ({});
 

@@ -17,7 +17,12 @@ export async function deleteResourceAssignedItems(
   assignedItemTypes?: AppResourceType[]
 ) {
   await context.data.assignedItem.deleteManyByQuery(
-    AssignedItemQueries.getByAssignedToResource(workspaceId, resourceId, resourceType, assignedItemTypes)
+    AssignedItemQueries.getByAssignedToResource(
+      workspaceId,
+      resourceId,
+      resourceType,
+      assignedItemTypes
+    )
   );
 }
 

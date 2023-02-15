@@ -1,5 +1,6 @@
 import {IFile, IFileMatcher} from '../../definitions/file';
 import {IBaseContext} from '../contexts/types';
+import FolderQueries from '../folders/queries';
 import EndpointReusableQueries from '../queries';
 import WorkspaceQueries from '../workspaces/queries';
 import {assertWorkspace} from '../workspaces/utils';
@@ -8,7 +9,9 @@ import {assertFile, splitfilepathWithDetails} from './utils';
 
 export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMatcher) {
   if (matcher.fileId) {
-    const file = await context.data.file.getOneByQuery(EndpointReusableQueries.getByResourceId(matcher.fileId));
+    const file = await context.data.file.getOneByQuery(
+      EndpointReusableQueries.getByResourceId(matcher.fileId)
+    );
 
     return file;
   } else if (matcher.filepath) {
@@ -24,7 +27,10 @@ export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMa
             pathWithDetails.splitPathWithoutExtension,
             pathWithDetails.extension
           )
-        : FileQueries.getByNamePath(workspace.resourceId, pathWithDetails.splitPathWithoutExtension)
+        : FolderQueries.getByNamePath(
+            workspace.resourceId,
+            pathWithDetails.splitPathWithoutExtension
+          )
     );
 
     return file;
@@ -33,7 +39,10 @@ export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMa
   return null;
 }
 
-export async function assertGetSingleFileWithMatcher(context: IBaseContext, matcher: IFileMatcher): Promise<IFile> {
+export async function assertGetSingleFileWithMatcher(
+  context: IBaseContext,
+  matcher: IFileMatcher
+): Promise<IFile> {
   const file = await getFileWithMatcher(context, matcher);
   assertFile(file);
   return file;

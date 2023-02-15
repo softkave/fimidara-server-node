@@ -1,12 +1,18 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
-import {IGetWorkspaceClientAssignedTokensEndpointParams} from './types';
+import {
+  IGetWorkspaceClientAssignedTokensEndpointParams,
+  IGetWorkspaceClientAssignedTokensEndpointParamsBase,
+} from './types';
 
-export const getWorkspaceClientAssignedTokenJoiSchema = Joi.object<IGetWorkspaceClientAssignedTokensEndpointParams>()
-  .keys({
-    workspaceId: validationSchemas.resourceId,
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
-  })
-  .required();
+export const getWorkspaceClientAssignedTokenBaseJoiSchemaParts: JoiSchemaParts<IGetWorkspaceClientAssignedTokensEndpointParamsBase> =
+  endpointValidationSchemas.optionalWorkspaceIdParts;
+
+export const getWorkspaceClientAssignedTokenJoiSchema =
+  Joi.object<IGetWorkspaceClientAssignedTokensEndpointParams>()
+    .keys({
+      ...getWorkspaceClientAssignedTokenBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

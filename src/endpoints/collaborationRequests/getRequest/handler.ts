@@ -21,7 +21,8 @@ const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context,
   );
 
   appAssert(request, new NotFoundError('Collaboration request not found'));
-  const isAccepted = last(request.statusHistory)?.status === CollaborationRequestStatusType.Accepted;
+  const isAccepted =
+    last(request.statusHistory)?.status === CollaborationRequestStatusType.Accepted;
 
   if (request.recipientEmail === agent.user?.email && !isAccepted) {
     // Request sent to user
@@ -29,8 +30,9 @@ const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context,
   }
 
   await checkCollaborationRequestAuthorization(context, agent, request, BasicCRUDActions.Read);
-
-  const populatedRequest = collaborationRequestExtractor(await populateRequestPermissionGroups(context, request));
+  const populatedRequest = collaborationRequestExtractor(
+    await populateRequestPermissionGroups(context, request)
+  );
 
   return {request: populatedRequest};
 };

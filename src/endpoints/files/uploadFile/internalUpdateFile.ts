@@ -34,6 +34,14 @@ export async function internalUpdateFile(
     await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
-  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, AppResourceType.File, data, true);
+  await saveResourceAssignedItems(
+    context,
+    agent,
+    workspace,
+    file.resourceId,
+    AppResourceType.File,
+    data,
+    true
+  );
   return file;
 }

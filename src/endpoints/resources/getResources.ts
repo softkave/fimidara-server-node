@@ -1,9 +1,18 @@
 import {defaultTo, mapKeys} from 'lodash';
-import {AppResourceType, BasicCRUDActions, IResourceBase, ISessionAgent} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  IResourceBase,
+  ISessionAgent,
+} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {IPromiseWithId, ISettledPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
+import {
+  IPromiseWithId,
+  ISettledPromiseWithId,
+  waitOnPromisesWithId,
+} from '../../utils/waitOnPromises';
 import {
   checkAuthorization,
   makeResourcePermissionContainerList,
@@ -71,7 +80,9 @@ export async function getResources(options: IGetResourcesOptions) {
       case AppResourceType.Workspace:
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.data.workspace.getManyByQuery(EndpointReusableQueries.getByResourceIdList(ids)),
+          promise: context.data.workspace.getManyByQuery(
+            EndpointReusableQueries.getByResourceIdList(ids)
+          ),
           resourceType: type,
         });
         break;
@@ -171,7 +182,8 @@ export async function getResources(options: IGetResourcesOptions) {
     });
   } else {
     const authCheckPromises: IExtendedPromiseWithId<boolean>[] = [];
-    const resourceIndexer = (resourceId: string, resourceType: AppResourceType) => `${resourceId}-${resourceType}`;
+    const resourceIndexer = (resourceId: string, resourceType: AppResourceType) =>
+      `${resourceId}-${resourceType}`;
     const inputMap = indexArray(checkedInputResources, {
       indexer: item => resourceIndexer(item.resourceId, item.resourceType),
     });

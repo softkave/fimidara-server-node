@@ -1,54 +1,21 @@
-import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {
-  makeWorkspacePermissionContainerList,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceId} from '../../contexts/SessionContext';
-import EndpointReusableQueries from '../../queries';
-import {PermissionDeniedError} from '../../user/errors';
-import {getEndpointPageFromInput} from '../../utils';
-import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getEndpointPageFromInput, getWorkspaceFromEndpointInput} from '../../utils';
 import {getPublicClientToken} from '../utils';
 import {GetWorkspaceClientAssignedTokenEndpoint} from './types';
+import {getWorkspaceClientAssignedTokensQuery} from './utils';
 import {getWorkspaceClientAssignedTokenJoiSchema} from './validation';
 
-const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint = async (context, instData) => {
+const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, getWorkspaceClientAssignedTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceId(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
-  const permissionsSummaryReport = await summarizeAgentPermissionItems({
-    context,
-    agent,
-    workspace,
-    type: AppResourceType.ClientAssignedToken,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Read,
-  });
-  let tokens: Array<IClientAssignedToken> = [];
-  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    tokens = await context.data.clientAssignedToken.getManyByQuery(
-      EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
-        workspaceId,
-        permissionsSummaryReport.deniedResourceIdList
-      ),
-      data
-    );
-  } else if (permissionsSummaryReport.allowedResourceIdList) {
-    tokens = await context.data.clientAssignedToken.getManyByQuery(
-      EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
-        workspaceId,
-        permissionsSummaryReport.allowedResourceIdList
-      ),
-      data
-    );
-  } else if (permissionsSummaryReport.noAccess) {
-    throw new PermissionDeniedError();
-  }
-
+  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const q = await getWorkspaceClientAssignedTokensQuery(context, agent, workspace);
+  let tokens = await context.data.clientAssignedToken.getManyByQuery(q, data);
   tokens = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,
     workspace.resourceId,

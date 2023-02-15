@@ -36,7 +36,11 @@ export async function checkUploadFileAuth(
     permissionContainers: file
       ? getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File)
       : closestExistingFolder
-      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, AppResourceType.Folder)
+      ? getFilePermissionContainers(
+          workspace.resourceId,
+          closestExistingFolder,
+          AppResourceType.Folder
+        )
       : makeWorkspacePermissionContainerList(workspace.resourceId),
 
     // TODO: should it be create and or update, rather than
