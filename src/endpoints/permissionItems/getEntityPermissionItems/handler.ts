@@ -1,5 +1,9 @@
 import {validate} from '../../../utils/validate';
-import {getEndpointPageFromInput, getWorkspaceFromEndpointInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+  getWorkspaceFromEndpointInput,
+} from '../../utils';
 import checkEntitiesExist from '../checkEntitiesExist';
 import {PermissionItemUtils} from '../utils';
 import {GetEntityPermissionItemsEndpoint} from './types';
@@ -17,6 +21,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   await checkEntitiesExist(context, agent, workspace, [data]);
   const q = await getEntityPermissionItemsQuery(context, agent, workspace, data);
+  applyDefaultEndpointPaginationOptions(data);
   const items = await context.data.permissionItem.getManyByQuery(q, data);
   return {
     page: getEndpointPageFromInput(data),

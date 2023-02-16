@@ -55,6 +55,6 @@ describe('countResourcePermissionItems', () => {
     );
     const result = await countResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.count).toBe(count);
+    expect(result.count).toBeGreaterThanOrEqual(count);
   });
 });

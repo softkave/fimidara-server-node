@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getEndpointPageFromInput} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {tagExtractor} from '../utils';
 import {GetWorkspaceTagEndpoint} from './types';
@@ -11,6 +11,7 @@ const getWorkspaceTags: GetWorkspaceTagEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData);
   const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
   const q = await getWorkspaceTagsQuery(context, agent, workspace);
+  applyDefaultEndpointPaginationOptions(data);
   let tags = await context.data.tag.getManyByQuery(q, data);
   tags = tags.map(tag => tagExtractor(tag));
   return {tags, page: getEndpointPageFromInput(data)};

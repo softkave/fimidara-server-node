@@ -3,7 +3,7 @@ import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import EndpointReusableQueries from '../../queries';
-import {getEndpointPageFromInput} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {collaboratorListExtractor} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
@@ -16,6 +16,7 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const q = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
+  applyDefaultEndpointPaginationOptions(data);
   const assignedItems = await context.data.assignedItem.getManyByQuery(q, data);
   let usersWithWorkspaces: IUserWithWorkspace[] = [];
   if (assignedItems.length > 0) {

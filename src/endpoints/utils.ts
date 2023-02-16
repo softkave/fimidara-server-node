@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {defaultTo, isString} from 'lodash';
+import {defaultTo, isNumber, isString} from 'lodash';
 import {IAgent, IPublicAccessOp, ISessionAgent} from '../definitions/system';
 import {IWorkspace} from '../definitions/workspace';
 import {appAssert} from '../utils/assertion';
@@ -189,4 +189,14 @@ export async function getWorkspaceFromEndpointInput(
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   return {workspace};
+}
+
+export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
+  if (!isNumber(data.page)) {
+    data.page = endpointConstants.minPage;
+  }
+  if (!isNumber(data.pageSize)) {
+    data.pageSize = endpointConstants.maxPageSize;
+  }
+  return data;
 }

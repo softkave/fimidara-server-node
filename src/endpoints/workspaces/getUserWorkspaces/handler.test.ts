@@ -1,5 +1,5 @@
 import {systemAgent} from '../../../definitions/system';
-import {calculatePageSize} from '../../../utils/fns';
+import {calculatePageSize, containsNoneIn, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
@@ -66,19 +66,20 @@ describe('getUserWorkspaces', () => {
       mockExpressRequestWithUserToken(userToken),
       {page, pageSize}
     );
-    let result = await getUserWorkspaces(context, instData);
-    assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
+    const result00 = await getUserWorkspaces(context, instData);
+    assertEndpointResultOk(result00);
+    expect(result00.page).toBe(page);
+    expect(result00.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
       {page, pageSize}
     );
-    result = await getUserWorkspaces(context, instData);
-    assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
+    const result01 = await getUserWorkspaces(context, instData);
+    assertEndpointResultOk(result01);
+    containsNoneIn(result00.workspaces, result01.workspaces, getResourceId);
+    expect(result01.page).toBe(page);
+    expect(result01.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });

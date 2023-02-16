@@ -21,9 +21,9 @@ export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>)
   };
 }
 
-export function getPage(inputPage?: number) {
+export function getPage(inputPage?: number, minPage = endpointConstants.minPage) {
   return isNumber(inputPage)
-    ? Math.max(inputPage, 0) // return 0 if page is negative
+    ? Math.max(inputPage, minPage) // return 0 if page is negative
     : undefined;
 }
 
@@ -43,9 +43,9 @@ export function getPageSize(
 }
 
 export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>) {
-  const inputPage = getPage(p?.page);
-  const pageSize = getPageSize(p?.pageSize, inputPage);
-  const skip = inputPage && pageSize ? Math.min(inputPage, 0) * pageSize : undefined;
+  const page = getPage(p?.page);
+  const pageSize = getPageSize(p?.pageSize, page);
+  const skip = isNumber(page) && isNumber(pageSize) ? Math.max(page, 0) * pageSize : undefined;
   return {
     skip,
     limit: pageSize,

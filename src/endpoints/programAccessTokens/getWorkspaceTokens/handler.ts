@@ -1,7 +1,11 @@
 import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {getEndpointPageFromInput, getWorkspaceFromEndpointInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+  getWorkspaceFromEndpointInput,
+} from '../../utils';
 import {getPublicProgramToken} from '../utils';
 import {GetWorkspaceProgramAccessTokenEndpoint} from './types';
 import {getWorkspaceProgramAccessTokensQuery} from './utils';
@@ -15,6 +19,7 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint = 
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspaceProgramAccessTokensQuery(context, agent, workspace);
+  applyDefaultEndpointPaginationOptions(data);
   let tokens = await context.data.programAccessToken.getManyByQuery(q, data);
   tokens = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,

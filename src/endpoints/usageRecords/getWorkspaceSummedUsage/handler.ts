@@ -1,6 +1,6 @@
 import {validate} from '../../../utils/validate';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import {getEndpointPageFromInput} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {GetWorkspaceSummedUsageEndpoint} from './types';
 import {getWorkspaceSummedUsageQuery} from './utils';
 import {getWorkspaceSummedUsageJoiSchema} from './validation';
@@ -10,6 +10,7 @@ const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async (context,
   const data = validate(instData.data, getWorkspaceSummedUsageJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  applyDefaultEndpointPaginationOptions(data);
   const {query, sort} = await getWorkspaceSummedUsageQuery(context, agent, workspaceId, data);
   const records = await context.data.usageRecord.getManyByQuery(query, {
     ...data,

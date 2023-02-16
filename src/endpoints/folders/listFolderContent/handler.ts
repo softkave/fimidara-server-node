@@ -10,7 +10,7 @@ import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../ass
 import {IBaseContext} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {IPaginationQuery} from '../../types';
-import {getEndpointPageFromInput} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {folderListExtractor} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
@@ -20,6 +20,7 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
+  applyDefaultEndpointPaginationOptions(data);
   let [fetchedFolders, fetchedFiles] = await Promise.all([
     fetchFolders(context, agent, workspace, parentFolder, data),
     fetchFiles(context, agent, workspace, parentFolder, data),

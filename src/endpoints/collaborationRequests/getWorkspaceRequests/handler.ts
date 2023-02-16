@@ -1,5 +1,9 @@
 import {validate} from '../../../utils/validate';
-import {getEndpointPageFromInput, getWorkspaceFromEndpointInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+  getWorkspaceFromEndpointInput,
+} from '../../utils';
 import {collaborationRequestListExtractor, populateRequestListPermissionGroups} from '../utils';
 import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
 import {getWorkspaceCollaborationRequestsQuery} from './utils';
@@ -13,6 +17,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspaceCollaborationRequestsQuery(context, agent, workspace);
+  applyDefaultEndpointPaginationOptions(data);
   let requests = await context.data.collaborationRequest.getManyByQuery(q, data);
   requests = await populateRequestListPermissionGroups(context, requests);
   return {

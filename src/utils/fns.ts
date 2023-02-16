@@ -1,4 +1,5 @@
 import {compact} from 'lodash';
+import {IResourceBase} from '../definitions/system';
 import {indexArray} from './indexArray';
 import {AnyObject} from './types';
 
@@ -31,7 +32,10 @@ export function applyMixins02<C1, C2>(derivedConstructors: C1, baseConstructors:
   return cast(applyMixins(derivedConstructors, baseConstructors));
 }
 
-export function applyMixins03<C1, C2, C3>(derivedConstructors: C1, baseConstructors: [C2, C3]): C1 & C2 & C3 {
+export function applyMixins03<C1, C2, C3>(
+  derivedConstructors: C1,
+  baseConstructors: [C2, C3]
+): C1 & C2 & C3 {
   return cast(applyMixins(derivedConstructors, baseConstructors));
 }
 
@@ -77,7 +81,11 @@ export function reverseMap<K extends string, V extends string>(m: Record<K, V>):
  * the list. Also, the same unique string should be returned for the same item
  * no matter how many times `indexer` is called.
  */
-export function containsEveryItemIn<T2, T1 extends T2>(list1: T1[], list2: T2[], indexer: (item: T2) => string) {
+export function containsEveryItemIn<T2, T1 extends T2>(
+  list1: T1[],
+  list2: T2[],
+  indexer: (item: T2) => string
+) {
   const list1Map = indexArray(list1, {indexer});
   list2.forEach(item1 => {
     const k = indexer(item1);
@@ -92,7 +100,11 @@ export function containsEveryItemIn<T2, T1 extends T2>(list1: T1[], list2: T2[],
  * the list. Also, the same unique string should be returned for the same item
  * no matter how many times `indexer` is called.
  */
-export function containsNoneIn<T2, T1 extends T2>(list1: T1[], list2: T2[], indexer: (item: T2) => string) {
+export function containsNoneIn<T2, T1 extends T2>(
+  list1: T1[],
+  list2: T2[],
+  indexer: (item: T2) => string
+) {
   const list1Map = indexArray(list1, {indexer});
   list2.forEach(item1 => {
     const k = indexer(item1);
@@ -107,7 +119,11 @@ export function containsNoneIn<T2, T1 extends T2>(list1: T1[], list2: T2[], inde
  * unique item in the list. Also, the same unique string should be returned for
  * the same item no matter how many times `indexer` is called.
  */
-export function containsExactly<T2, T1 extends T2>(list1: T1[], list2: T2[], indexer: (item: T2) => string) {
+export function containsExactly<T2, T1 extends T2>(
+  list1: T1[],
+  list2: T2[],
+  indexer: (item: T2) => string
+) {
   expect(list1.length).toEqual(list2.length);
   containsEveryItemIn(list1, list2, indexer);
 }
@@ -146,5 +162,10 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
   page = Math.max(page, 0);
   if (count === 0 || pageSize === 0) return 0;
   const maxFullPages = Math.floor(count / pageSize);
-  return page <= maxFullPages ? pageSize : count - maxFullPages * pageSize;
+  const pageCount = page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
+  return pageCount;
+}
+
+export function getResourceId(resource: IResourceBase) {
+  return resource.resourceId;
 }

@@ -1,5 +1,9 @@
 import {validate} from '../../../utils/validate';
-import {getEndpointPageFromInput, getWorkspaceFromEndpointInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+  getWorkspaceFromEndpointInput,
+} from '../../utils';
 import {PermissionItemUtils} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
 import {getResourcePermissionItemsQuery} from './utils';
@@ -19,6 +23,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const {queries} = await getResourcePermissionItemsQuery(context, agent, workspace, data);
+  applyDefaultEndpointPaginationOptions(data);
   const permissionItems = await context.data.permissionItem.getManyByQueryList(queries, data);
   return {
     page: getEndpointPageFromInput(data),
