@@ -1,3 +1,4 @@
+import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -48,7 +49,6 @@ describe('listFolderContent', () => {
         workspace.rootname
       ),
     });
-
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
         folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
@@ -64,6 +64,59 @@ describe('listFolderContent', () => {
     assertEndpointResultOk(result);
     expect(result.folders).toContainEqual(folder02);
     expect(result.files).toContainEqual(file);
+  });
+
+  test('content type', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
+    const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
+      folderpath: addRootnameToPath(
+        folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
+    });
+    const {file} = await insertFileForTest(context, userToken, workspace, {
+      filepath: addRootnameToPath(
+        folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+        workspace.rootname
+      ),
+    });
+
+    const fetchFilesReqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
+        contentType: [AppResourceType.File],
+      }
+    );
+    const fetchFilesResult = await listFolderContent(context, fetchFilesReqData);
+    assertEndpointResultOk(fetchFilesResult);
+    expect(fetchFilesResult.files).toContainEqual(file);
+
+    const fetchFoldersReqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
+        contentType: [AppResourceType.Folder],
+      }
+    );
+    const fetchFoldersResult = await listFolderContent(context, fetchFoldersReqData);
+    assertEndpointResultOk(fetchFoldersResult);
+    expect(fetchFoldersResult.folders).toContainEqual(folder02);
+
+    const reqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+      mockExpressRequestWithUserToken(userToken),
+      {
+        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
+        contentType: [AppResourceType.Folder, AppResourceType.File],
+      }
+    );
+    const result = await listFolderContent(context, reqData);
+    assertEndpointResultOk(result);
+    expect(fetchFilesResult.files).toContainEqual(file);
+    expect(result.folders).toContainEqual(folder02);
   });
 
   test('pagination', async () => {

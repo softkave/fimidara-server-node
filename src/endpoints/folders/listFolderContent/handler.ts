@@ -21,9 +21,14 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
   const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
   applyDefaultEndpointPaginationOptions(data);
+  const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
   let [fetchedFolders, fetchedFiles] = await Promise.all([
-    fetchFolders(context, agent, workspace, parentFolder, data),
-    fetchFiles(context, agent, workspace, parentFolder, data),
+    contentType.includes(AppResourceType.Folder)
+      ? fetchFolders(context, agent, workspace, parentFolder, data)
+      : [],
+    contentType.includes(AppResourceType.File)
+      ? fetchFiles(context, agent, workspace, parentFolder, data)
+      : [],
   ]);
   fetchedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
     context,

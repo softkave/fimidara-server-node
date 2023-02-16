@@ -124,6 +124,11 @@ const listFolderContentParams = new FieldObject<IListFolderContentEndpointParams
   .setName('ListFolderContentEndpointParams')
   .setFields({
     ...folderMatcherParts,
+    contentType: new FieldString()
+      .setRequired(false)
+      .setDescription('Fetch children files or folders or both.')
+      .setExample(AppResourceType.File)
+      .setValid([AppResourceType.File, AppResourceType.Folder]),
     page: fReusables.pageNotRequired,
     pageSize: fReusables.pageSizeNotRequired,
   })
