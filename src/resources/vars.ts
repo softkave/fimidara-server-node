@@ -117,10 +117,7 @@ export interface IAppRuntimeVars {
   appUsersImageUploadPermissionGroupId: string;
 }
 
-export interface IAppVariables
-  extends ISuppliedVariables,
-    IStaticVariables,
-    IAppRuntimeVars {}
+export interface IAppVariables extends ISuppliedVariables, IStaticVariables, IAppRuntimeVars {}
 
 export type ExtractEnvSchema = Record<
   keyof ISuppliedVariables,
@@ -208,10 +205,7 @@ let appVariables: IAppVariables = cast({
   ...defaultStaticVars,
 });
 
-export function checkRequiredSuppliedVariables(
-  schema: ExtractEnvSchema,
-  base: IAppVariables
-) {
+export function checkRequiredSuppliedVariables(schema: ExtractEnvSchema, base: IAppVariables) {
   // [Env name, key name]
   const missingVariables: Array<[string, string]> = [];
   Object.keys(schema).forEach(key => {
@@ -226,11 +220,7 @@ export function checkRequiredSuppliedVariables(
   if (missingVariables.length > 0) {
     throw new Error(
       ['Missing variables:']
-        .concat(
-          missingVariables.map(
-            ([name, key]) => `Env name: ${name}, Key: ${key}`
-          )
-        )
+        .concat(missingVariables.map(([name, key]) => `Env name: ${name}, Key: ${key}`))
         .join('\n')
     );
   }
@@ -243,9 +233,7 @@ export function extractEnvVariables(
   const envVariables = Object.keys(schema).reduce((accumulator, key) => {
     const meta = schema[key as keyof ISuppliedVariables];
     const variable =
-      process.env[meta.name] ||
-      base[key as keyof ISuppliedVariables] ||
-      meta.defaultValue;
+      process.env[meta.name] ?? base[key as keyof ISuppliedVariables] ?? meta.defaultValue;
 
     // TODO: validate the type or write/find a library for
     // extracting and validating env variables
@@ -270,15 +258,11 @@ export function extractEnvVariables(
   return vars;
 }
 
-export function setAppVariables(
-  ...additionalVars: Array<Partial<IAppVariables>>
-) {
+export function setAppVariables(...additionalVars: Array<Partial<IAppVariables>>) {
   appVariables = merge({}, appVariables, ...additionalVars);
 }
 
-export function setAppVariablesIfUndefined(
-  ...additionalVars: Array<Partial<IAppVariables>>
-) {
+export function setAppVariablesIfUndefined(...additionalVars: Array<Partial<IAppVariables>>) {
   appVariables = mergeWith({}, appVariables, additionalVars, objValue => {
     if (objValue) {
       return objValue;

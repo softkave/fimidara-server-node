@@ -25,7 +25,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
     throw new NotFoundError('File not found');
   }
 
-  if (data.imageTranformation?.width || data.imageTranformation?.height) {
+  if (data.imageTranformation?.width ?? data.imageTranformation?.height) {
     const outputStream = new stream.PassThrough();
     const transformer = sharp()
       .resize({
@@ -43,7 +43,7 @@ const getFile: GetFileEndpoint = async (context, instData) => {
   } else {
     return {
       stream: persistedFile.body,
-      mimetype: file.mimetype || 'application/octet-stream',
+      mimetype: file.mimetype ?? 'application/octet-stream',
       contentLength: persistedFile.contentLength,
     };
   }

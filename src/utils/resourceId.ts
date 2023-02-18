@@ -37,7 +37,7 @@ export function getNewIdForResource(resourceType: AppResourceType, size?: number
 
 export function isAppResourceId(resourceId: string) {
   const shortName = resourceId.slice(0, resourceTypeShortNameMaxLen);
-  if (!shortName || !shortNameToResourceTypes[shortName]) {
+  if (!shortName ?? !shortNameToResourceTypes[shortName]) {
     return false;
   }
   return true;

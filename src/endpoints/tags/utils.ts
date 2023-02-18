@@ -50,7 +50,7 @@ export async function checkTagAuthorization(
     workspace,
     action,
     nothrow,
-    resource: tag,
+    targetId: tag.resourceId,
     type: AppResourceType.Tag,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });

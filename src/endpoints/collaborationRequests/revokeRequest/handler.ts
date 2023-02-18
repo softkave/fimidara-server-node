@@ -16,7 +16,7 @@ import {assertWorkspace} from '../../workspaces/utils';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestExtractor,
-  populateRequestPermissionGroups,
+  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {RevokeCollaborationRequestEndpoint} from './types';
 import {revokeCollaborationRequestJoiSchema} from './validation';
@@ -57,7 +57,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
     }
   }
 
-  request = await populateRequestPermissionGroups(context, request);
+  request = await populateRequestAssignedPermissionGroups(context, request);
   return {
     request: collaborationRequestExtractor(request),
   };

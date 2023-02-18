@@ -228,7 +228,7 @@ export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
       user.resourceId,
       AppResourceType.User,
       /** deleteExisting */ false,
-      /** skipPermissionGroupsCheck */ true
+      /** skipPermissionGroupsExistCheck */ true
     ),
   ]);
 

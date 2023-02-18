@@ -1,6 +1,6 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
 import {GetPermissionGroupEndpoint} from './types';
 import {getPermissionGroupJoiSchema} from './validation';
@@ -15,7 +15,7 @@ const getPermissionGroup: GetPermissionGroupEndpoint = async (context, instData)
     BasicCRUDActions.Read
   );
 
-  permissionGroup = await populateAssignedPermissionGroupsAndTags(
+  permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,
     permissionGroup,

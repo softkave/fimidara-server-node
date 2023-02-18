@@ -53,7 +53,7 @@ export class UsageRecordLogicProvider {
     const record: IUsageRecord = {
       ...getRecordingPeriod(),
       ...input,
-      resourceId: input.resourceId || getNewIdForResource(AppResourceType.UsageRecord),
+      resourceId: input.resourceId ?? getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: getDate(),
       createdBy: agent,
       summationType: UsageSummationType.One,
@@ -89,7 +89,7 @@ export class UsageRecordLogicProvider {
     workspace: IWorkspace | null
   ) => {
     if (workspace) {
-      const usageLocks = workspace.usageThresholdLocks || {};
+      const usageLocks = workspace.usageThresholdLocks ?? {};
       if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
         await this.dropRecord(
           ctx,

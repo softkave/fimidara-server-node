@@ -44,9 +44,9 @@ export const uploadFileBaseTest = async (
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
-  insertUserResult = insertUserResult || (await insertUserForTest(ctx));
+  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
   const {file, buffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,

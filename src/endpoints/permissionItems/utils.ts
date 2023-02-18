@@ -10,16 +10,17 @@ import {
   IResourceBase,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
-import {NotFoundError} from '../errors';
+import {InvalidRequestError, NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
 import PermissionItemQueries from './queries';
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
-import {internalAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
+import {internalFunctionAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   resourceId: true,
@@ -123,10 +124,9 @@ export async function replacePublicPermissionGroupAccessOps(
     );
 
     if (addOps.length > 0) {
-      await internalAddPermissionItemsByEntity(context, agent, {
+      await internalFunctionAddPermissionItemsByEntity(context, agent, {
         workspaceId: workspace.resourceId,
         permissionEntityId: workspace.publicPermissionGroupId,
-        permissionEntityType: AppResourceType.PermissionGroup,
         items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
       });
     }
@@ -135,11 +135,9 @@ export async function replacePublicPermissionGroupAccessOps(
 
 export interface IPermissionItemBase {
   containerId: string;
-  containerType: AppResourceType;
   targetId?: string;
   targetType: AppResourceType;
   permissionEntityId: string;
-  permissionEntityType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess?: boolean;
   isForPermissionContainer?: boolean;
@@ -160,4 +158,14 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
 export abstract class PermissionItemUtils {
   static extractPublicPermissionItem = permissionItemExtractor;
   static extractPublicPermissionItemList = permissionItemListExtractor;
+}
+
+export function getTargetType(data: {targetId?: string; targetType?: AppResourceType}) {
+  const targetType = data.targetType
+    ? data.targetType
+    : data.targetId
+    ? getResourceTypeFromId(data.targetId)
+    : null;
+  appAssert(targetType, new InvalidRequestError('Target ID or target type must be present'));
+  return targetType;
 }

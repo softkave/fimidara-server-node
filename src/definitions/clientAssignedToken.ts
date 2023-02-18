@@ -1,4 +1,3 @@
-import {IAssignedPermissionGroup} from './permissionGroups';
 import {IAgent} from './system';
 
 export interface IClientAssignedToken {
@@ -35,7 +34,6 @@ export interface IPublicClientAssignedToken {
   lastUpdatedBy: IAgent;
   lastUpdatedAt: string;
   workspaceId: string;
-  permissionGroups: IAssignedPermissionGroup[];
   // issuedAt: string;
   expires?: string;
   tokenStr: string;

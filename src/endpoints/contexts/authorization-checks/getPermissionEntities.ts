@@ -1,15 +1,14 @@
-import {IAssignedPermissionGroup} from '../../../definitions/permissionGroups';
+import {IAssignedPermissionGroupMeta} from '../../../definitions/permissionGroups';
 import {AppResourceType, ISessionAgent, SessionAgentType} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
 
 export interface IPermissionEntity {
   permissionEntityId: string;
-  permissionEntityType: AppResourceType;
   order?: number;
 }
 
-function extractPermissionGroupsData(permissionGroups: IAssignedPermissionGroup[]) {
+function extractPermissionGroupsData(permissionGroups: IAssignedPermissionGroupMeta[]) {
   return permissionGroups.map(item => ({
     permissionEntityId: item.permissionGroupId,
     permissionEntityType: AppResourceType.PermissionGroup,
@@ -33,7 +32,7 @@ export function getPermissionEntities(
           },
         ].concat(
           extractPermissionGroupsData(
-            getCollaboratorWorkspace(agent.user, workspace.resourceId)?.permissionGroups || []
+            getCollaboratorWorkspace(agent.user, workspace.resourceId)?.permissionGroups ?? []
           )
         );
       }

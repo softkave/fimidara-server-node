@@ -3,7 +3,7 @@ import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
@@ -55,7 +55,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     data.permissionGroup
   );
 
-  permissionGroup = await populateAssignedPermissionGroupsAndTags(
+  permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,
     permissionGroup,

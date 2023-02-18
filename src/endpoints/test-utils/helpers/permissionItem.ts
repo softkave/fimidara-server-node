@@ -1,4 +1,3 @@
-import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
 import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
@@ -11,7 +10,6 @@ export function expectItemsPresent(
   const publicPermissionGroupPermissionitemsMap = indexArray(items, {
     indexer: permissionItemIndexer,
   });
-
   expected.forEach(item => {
     expect(publicPermissionGroupPermissionitemsMap[permissionItemIndexer(item)]).toMatchObject(
       item
@@ -21,28 +19,24 @@ export function expectItemsPresent(
 
 function permissionItemInputToItemBase(
   input: INewPermissionItemInputByEntity,
-  permissionEntityId: string,
-  permissionEntityType: AppResourceType
+  permissionEntityId: string
 ): IPermissionItemBase {
   return {
     ...input,
     permissionEntityId,
-    permissionEntityType,
   };
 }
 
 export function expectPermissionItemsForEntityPresent(
   expectedItems: IPermissionItemBase[],
   matches: INewPermissionItemInputByEntity[],
-  permissionEntityId: string,
-  permissionEntityType: AppResourceType
+  permissionEntityId: string
 ) {
   const permissionItemsMap = indexArray(expectedItems, {
     indexer: permissionItemIndexer,
   });
-
   matches.forEach(item => {
-    const input = permissionItemInputToItemBase(item, permissionEntityId, permissionEntityType);
+    const input = permissionItemInputToItemBase(item, permissionEntityId);
     const key = permissionItemIndexer(input);
     expect(permissionItemsMap[key]).toMatchObject(item);
   });

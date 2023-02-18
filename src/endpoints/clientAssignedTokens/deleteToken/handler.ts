@@ -35,12 +35,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (cont
     ),
 
     // Delete all assigned items
-    deleteResourceAssignedItems(
-      context,
-      token.workspaceId,
-      token.resourceId,
-      AppResourceType.ClientAssignedToken
-    ),
+    deleteResourceAssignedItems(context, token.workspaceId, token.resourceId),
 
     // Delete client token
     context.data.clientAssignedToken.deleteOneByQuery(

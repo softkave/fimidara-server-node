@@ -1,6 +1,7 @@
 import {format} from 'util';
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
+import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {getResources} from '../resources/getResources';
@@ -23,15 +24,16 @@ export default async function checkEntitiesExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  entities: Array<{
-    permissionEntityId: string;
-    permissionEntityType: AppResourceType;
-  }>
+  entities: Array<string>
 ) {
-  entities.forEach(item => {
-    if (!allowedTypes.has(item.permissionEntityType)) {
-      const message = format('Invalid permission entity type %s', item.permissionEntityType);
+  if (entities.length === 0) {
+    return;
+  }
 
+  entities.forEach(id => {
+    const itemType = getResourceTypeFromId(id);
+    if (!allowedTypes.has(itemType)) {
+      const message = format('Invalid permission entity type %s', itemType);
       throw new InvalidRequestError(message);
     }
   });
@@ -40,19 +42,20 @@ export default async function checkEntitiesExist(
     context,
     agent,
     workspace,
-    inputResources: entities.map(item => ({
-      resourceId: item.permissionEntityId,
-      resourceType: item.permissionEntityType,
+    inputResources: entities.map(id => ({
+      resourceId: id,
+      resourceType: getResourceTypeFromId(id),
     })),
     checkAuth: true,
   });
-
   resources = await resourceListWithAssignedItems(
     context,
     workspace.resourceId,
     resources,
-    [AppResourceType.User] // Limit to users only
+    // Only add assigned items for users since. We're going to check if all the
+    // resources returned are part of the workspace and every other type should
+    // have a workspaceId except user.
+    [AppResourceType.User]
   );
-
-  checkResourcesBelongToWorkspace(workspace.resourceId, resources, true);
+  checkResourcesBelongToWorkspace(workspace.resourceId, resources);
 }

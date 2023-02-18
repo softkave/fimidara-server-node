@@ -1,4 +1,4 @@
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {systemAgent} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
@@ -67,11 +67,7 @@ describe('getWorkspaceCollaborators', () => {
       seedCount
     );
     const count = await context.data.assignedItem.countByQuery(
-      AssignedItemQueries.getByAssignedItem(
-        workspace.resourceId,
-        workspace.resourceId,
-        AppResourceType.Workspace
-      )
+      AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
     );
     expect(count).toBeGreaterThanOrEqual(seedCount);
 

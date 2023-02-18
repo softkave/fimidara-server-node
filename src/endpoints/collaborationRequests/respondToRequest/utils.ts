@@ -1,4 +1,4 @@
-import {IAssignedPermissionGroupMeta} from '../../../definitions/assignedItem';
+import {IAssignedItemAssignedPermissionGroupMeta} from '../../../definitions/assignedItem';
 import {
   CollaborationRequestResponse,
   CollaborationRequestStatusType,
@@ -73,12 +73,12 @@ async function assignUserRequestPermissionGroups(
       workspace,
       permissionGroupsOnAccept.map(item => ({
         permissionGroupId: item.assignedItemId,
-        order: (item.meta as IAssignedPermissionGroupMeta)?.order || 1,
+        order: (item.meta as IAssignedItemAssignedPermissionGroupMeta)?.order ?? 1,
       })),
       user.resourceId,
       AppResourceType.User,
       /** deleteExisting */ false,
-      /** skipPermissionGroupsCheck */ true
+      /** skipPermissionGroupsExistCheck */ true
     );
   }
 }
@@ -121,7 +121,7 @@ export const internalRespondToCollaborationRequest = async (
   );
   assertWorkspace(workspace);
   const notifyUser =
-    isUserAgent(request.createdBy) || isUserAgent(workspace.createdBy)
+    isUserAgent(request.createdBy) ?? isUserAgent(workspace.createdBy)
       ? // TODO: check if agent is a user or associated type before fetching
         await context.data.user.assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(

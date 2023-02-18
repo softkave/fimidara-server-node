@@ -10,7 +10,7 @@ import {getDate} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
@@ -71,32 +71,14 @@ const addClientAssignedToken: AddClientAssignedTokenEndpoint = async (context, i
       {
         ...omit(data.token, 'permissionGroups', 'tags'),
         lastUpdatedAt: getDate(),
-        lastUpdatedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
+        lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
       }
     );
   }
 
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    token.resourceId,
-    AppResourceType.ClientAssignedToken,
-    data.token
-  );
-  const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
-    context,
-    token.workspaceId,
-    token,
-    AppResourceType.ClientAssignedToken
-  );
-
-  return {
-    token: getPublicClientToken(context, tokenWithAssignedItems),
-  };
+  await saveResourceAssignedItems(context, agent, workspace, token.resourceId, data.token);
+  const tokenWithAssignedItems = await populateAssignedTags(context, token.workspaceId, token);
+  return {token: getPublicClientToken(context, tokenWithAssignedItems)};
 };
 
 export default addClientAssignedToken;

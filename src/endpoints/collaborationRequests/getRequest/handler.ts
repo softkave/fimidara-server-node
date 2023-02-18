@@ -8,7 +8,7 @@ import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization,
   collaborationRequestExtractor,
-  populateRequestPermissionGroups,
+  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {GetCollaborationRequestEndpoint} from './types';
 import {getCollaborationRequestJoiSchema} from './validation';
@@ -31,7 +31,7 @@ const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context,
 
   await checkCollaborationRequestAuthorization(context, agent, request, BasicCRUDActions.Read);
   const populatedRequest = collaborationRequestExtractor(
-    await populateRequestPermissionGroups(context, request)
+    await populateRequestAssignedPermissionGroups(context, request)
   );
 
   return {request: populatedRequest};

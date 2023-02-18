@@ -89,7 +89,7 @@ async function insertUsageRecordsForFiles(
   exceedBy = 0
 ) {
   if (exceedLimit) {
-    limit += exceedBy || random(1, limit);
+    limit += exceedBy ?? random(1, limit);
   }
 
   limit = Math.floor(limit);
@@ -189,7 +189,7 @@ async function checkLocks(
     EndpointReusableQueries.getByResourceId(wId)
   );
   assert(w);
-  const locks = w.usageThresholdLocks || {};
+  const locks = w.usageThresholdLocks ?? {};
   for (const category in categories) {
     const expected = categories[category as UsageRecordCategory];
     const lock = locks[category as UsageRecordCategory];

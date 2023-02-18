@@ -94,7 +94,7 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
       token.resourceId,
       AppResourceType.ClientAssignedToken,
       /** deleteExisting */ false,
-      /** skipPermissionGroupsCheck */ true
+      /** skipPermissionGroupsExistCheck */ true
     );
   }
 

@@ -8,7 +8,7 @@ import {getDateString} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -59,12 +59,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
     data.file,
     true
   );
-  file = await populateAssignedPermissionGroupsAndTags(
-    context,
-    file.workspaceId,
-    file,
-    AppResourceType.File
-  );
+  file = await populateAssignedTags(context, file.workspaceId, file, AppResourceType.File);
   return {
     file: fileExtractor(file),
   };

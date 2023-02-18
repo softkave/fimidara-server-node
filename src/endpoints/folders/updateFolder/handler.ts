@@ -8,7 +8,7 @@ import {
 import {getDate, getDateString} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
@@ -40,7 +40,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     EndpointReusableQueries.getByResourceId(folder.resourceId),
     update
   );
-  const hasPublicAccessOpsChanges = !!incomingPublicAccessOps || data.folder.removePublicAccessOps;
+  const hasPublicAccessOpsChanges = !!incomingPublicAccessOps ?? data.folder.removePublicAccessOps;
 
   if (hasPublicAccessOpsChanges) {
     let publicAccessOps = incomingPublicAccessOps
@@ -68,12 +68,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
     true
   );
 
-  folder = await populateAssignedPermissionGroupsAndTags(
-    context,
-    folder.workspaceId,
-    folder,
-    AppResourceType.Folder
-  );
+  folder = await populateAssignedTags(context, folder.workspaceId, folder, AppResourceType.Folder);
   return {folder: folderExtractor(folder)};
 };
 

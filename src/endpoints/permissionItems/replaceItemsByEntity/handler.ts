@@ -1,3 +1,4 @@
+import {compact} from 'lodash';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
@@ -11,7 +12,7 @@ import checkPermissionContainersExist from '../checkPermissionContainersExist';
 import checkPermissionTargetsExist from '../checkResourcesExist';
 import {PermissionItemUtils} from '../utils';
 import {ReplacePermissionItemsByEntityEndpoint} from './types';
-import {internalReplacePermissionItemsByEntity} from './utils';
+import {internalFunctionReplacePermissionItemsByEntity} from './utils';
 import {replacePermissionItemsByEntityJoiSchema} from './validation';
 
 const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = async (
@@ -19,18 +20,18 @@ const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = a
   instData
 ) => {
   const data = validate(instData.data, replacePermissionItemsByEntityJoiSchema);
-
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkEntitiesExist(context, agent, workspace, [
-    {
-      permissionEntityId: data.permissionEntityId,
-      permissionEntityType: data.permissionEntityType,
-    },
+    {permissionEntityId: data.permissionEntityId},
   ]);
-
-  await checkPermissionTargetsExist(context, agent, workspace, data.items);
+  await checkPermissionTargetsExist(
+    context,
+    agent,
+    workspace,
+    compact(data.items.map(item => item.targetId))
+  );
   await checkAuthorization({
     context,
     agent,
@@ -39,10 +40,8 @@ const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = a
     type: AppResourceType.PermissionItem,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
-
   await checkPermissionContainersExist(context, agent, workspace, data.items);
-  const items = await internalReplacePermissionItemsByEntity(context, agent, data);
-
+  const items = await internalFunctionReplacePermissionItemsByEntity(context, agent, data);
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(items),
   };

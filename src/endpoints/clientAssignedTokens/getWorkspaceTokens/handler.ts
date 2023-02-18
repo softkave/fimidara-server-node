@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -21,7 +21,7 @@ const getWorkspaceClientAssignedTokens: GetWorkspaceClientAssignedTokenEndpoint 
   const q = await getWorkspaceClientAssignedTokensQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
   let tokens = await context.data.clientAssignedToken.getManyByQuery(q, data);
-  tokens = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  tokens = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
     tokens,

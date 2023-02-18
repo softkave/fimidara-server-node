@@ -53,7 +53,7 @@ export async function getResources(options: IGetResourcesOptions) {
   const idsGroupedByType: Record<string, string[]> = {};
   const allowedTypesMap = indexArray(allowedTypes);
   const checkedInputResourcesMap = inputResources.reduce((map, item) => {
-    if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[item.resourceType]) {
+    if (allowedTypesMap[AppResourceType.All] ?? allowedTypesMap[item.resourceType]) {
       const ids = defaultTo(idsGroupedByType[item.resourceType], []);
       ids.push(item.resourceId);
       idsGroupedByType[item.resourceType] = ids;
@@ -166,7 +166,7 @@ export async function getResources(options: IGetResourcesOptions) {
   >;
 
   const resources: Array<IResource> = [];
-  if (!checkAuth || !agent || !workspace) {
+  if (!checkAuth ?? !agent ?? !workspace) {
     settledPromises.forEach(item => {
       if (item.resolved) {
         item.value?.forEach(resource => {
@@ -193,12 +193,12 @@ export async function getResources(options: IGetResourcesOptions) {
         // TODO: can we do this together, so that we don't waste compute
         item.value?.forEach(resource => {
           const key = resourceIndexer(resource.resourceId, item.resourceType);
-          const resourceAction = inputMap[key]?.action || action || BasicCRUDActions.Read;
+          const resourceAction = inputMap[key]?.action ?? action ?? BasicCRUDActions.Read;
           const checkPromise = checkAuthorization({
             context,
             agent,
             workspace,
-            resource: resource,
+            targetId: resource.resourceId,
             type: item.resourceType,
             permissionContainers: makeResourcePermissionContainerList(
               workspace.resourceId,
@@ -228,7 +228,7 @@ export async function getResources(options: IGetResourcesOptions) {
     settledAuthCheckPromises.forEach(item => {
       if (item.resolved) {
         const key = resourceIndexer(item.id as string, item.resourceType);
-        settledAuthCheckMap[key] = item.value || false;
+        settledAuthCheckMap[key] = item.value ?? false;
       } else if (item.reason) {
         // Only set when nothrow is false and auth check fails
         throw item.reason;

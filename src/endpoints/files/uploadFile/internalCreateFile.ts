@@ -32,7 +32,7 @@ export function getNewFile(
     lastUpdatedBy: createdBy,
     workspaceId: workspace.resourceId,
     resourceId: fileId,
-    extension: data.extension || pathWithDetails.extension || '',
+    extension: data.extension ?? pathWithDetails.extension ?? '',
     name: pathWithDetails.nameWithoutExtension,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder

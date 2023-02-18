@@ -1,5 +1,4 @@
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -59,14 +58,8 @@ test('client assigned token permission groups updated', async () => {
       tokenId: token01.resourceId,
       token: {
         permissionGroups: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 1,
-          },
-          {
-            permissionGroupId: permissionGroup02.resourceId,
-            order: 2,
-          },
+          {permissionGroupId: permissionGroup01.resourceId, order: 1},
+          {permissionGroupId: permissionGroup02.resourceId, order: 2},
         ],
       },
     }
@@ -76,26 +69,14 @@ test('client assigned token permission groups updated', async () => {
   assertEndpointResultOk(result);
   const updatedToken = getPublicClientToken(
     context,
-    await populateAssignedPermissionGroupsAndTags(
+    await populateAssignedTags(
       context,
       workspace.resourceId,
       await context.data.clientAssignedToken.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(token01.resourceId)
-      ),
-      AppResourceType.ClientAssignedToken
+      )
     )
   );
 
   expect(clientAssignedTokenExtractor(updatedToken)).toMatchObject(result.token);
-  expect(result.token.permissionGroups.length).toEqual(2);
-  expect(result.token.permissionGroups[0]).toMatchObject({
-    permissionGroupId: permissionGroup01.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
-  });
-  expect(result.token.permissionGroups[1]).toMatchObject({
-    permissionGroupId: permissionGroup02.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 2,
-  });
 });

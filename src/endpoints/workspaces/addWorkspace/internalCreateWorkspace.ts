@@ -48,7 +48,7 @@ const internalCreateWorkspace = async (
   const createdAt = getDateString();
   // const usageThresholds = transformUsageThresholInput(
   //   agent,
-  //   data.usageThresholds || {}
+  //   data.usageThresholds ?? {}
   // );
 
   // TODO: replace with user defined usage thresholds when we implement billing

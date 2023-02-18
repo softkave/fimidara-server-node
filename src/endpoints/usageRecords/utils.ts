@@ -168,12 +168,12 @@ export function getRecordingPeriod() {
 }
 
 export function getUsageThreshold(w: IWorkspace, category: UsageRecordCategory) {
-  const thresholds = w.usageThresholds || {};
+  const thresholds = w.usageThresholds ?? {};
   return thresholds[category];
 }
 
 export function workspaceHasUsageThresholds(w: IWorkspace) {
-  const thresholds = w.usageThresholds || {};
+  const thresholds = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).some(k => {
     const usage = thresholds[k];
     return usage && usage.budget > 0;
@@ -181,7 +181,7 @@ export function workspaceHasUsageThresholds(w: IWorkspace) {
 }
 
 export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCategory[]) {
-  const threshold = w.usageThresholds || {};
+  const threshold = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).reduce((acc, k) => {
     if (exclude && exclude.includes(k)) {
       return acc;

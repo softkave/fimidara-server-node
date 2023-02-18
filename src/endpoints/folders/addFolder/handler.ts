@@ -15,7 +15,7 @@ import {ServerError} from '../../../utils/errors';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionContainers,
@@ -191,12 +191,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     false
   );
 
-  folder = await populateAssignedPermissionGroupsAndTags(
-    context,
-    folder.workspaceId,
-    folder,
-    AppResourceType.Folder
-  );
+  folder = await populateAssignedTags(context, folder.workspaceId, folder, AppResourceType.Folder);
   return {
     folder: folderExtractor(folder),
   };

@@ -2,19 +2,20 @@ import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {AppResourceType, systemAgent} from '../../definitions/system';
+import {systemAgent} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {
+  addAssignedPermissionGroupList,
   assignWorkspaceToUser,
   saveResourceAssignedItems,
 } from '../../endpoints/assignedItems/addAssignedItems';
-import {populateAssignedItems} from '../../endpoints/assignedItems/getAssignedItems';
 import CollaborationRequestQueries from '../../endpoints/collaborationRequests/queries';
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
 import {getDataProviders} from '../../endpoints/contexts/utils';
+import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
@@ -101,16 +102,14 @@ async function isUserAdmin(
   workspaceId: string,
   adminPermissionGroupId: string
 ) {
-  const userData = await populateAssignedItems(
+  const {permissionGroupsWithAssignedItems} = await fetchEntityAssignedPermissionGroupList(
     context,
     workspaceId,
-    {resourceId: userId},
-    AppResourceType.User,
-    [AppResourceType.PermissionGroup]
+    userId,
+    true
   );
-
-  const isAdmin = userData.permissionGroups.some(
-    group => group.permissionGroupId === adminPermissionGroupId
+  const isAdmin = permissionGroupsWithAssignedItems.some(
+    item => item.resourceId === adminPermissionGroupId
   );
   return isAdmin;
 }
@@ -122,7 +121,6 @@ async function makeUserAdmin(
   adminPermissionGroupId: string
 ) {
   const isAdmin = await isUserAdmin(context, userId, workspace.resourceId, adminPermissionGroupId);
-
   if (!isAdmin) {
     consoleLogger.info('Making user admin');
     await saveResourceAssignedItems(
@@ -130,17 +128,21 @@ async function makeUserAdmin(
       systemAgent,
       workspace,
       userId,
-      AppResourceType.User,
       {
-        permissionGroups: [
-          {
-            permissionGroupId: adminPermissionGroupId,
-            order: 0,
-          },
-        ],
+        permissionGroups: [{permissionGroupId: adminPermissionGroupId, order: 0}],
       },
       /* deleteExisting */ false,
-      {skipPermissionGroupsCheck: true}
+      {skipPermissionGroupsExistCheck: true}
+    );
+
+    await addAssignedPermissionGroupList(
+      context,
+      systemAgent,
+      workspace,
+      [{permissionGroupId: adminPermissionGroupId, order: 0}],
+      userId,
+      /* deleteExisting */ false,
+      true
     );
   }
 }

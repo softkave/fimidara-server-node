@@ -17,7 +17,7 @@ export async function unlockUsageThresholdLocks(connection: Connection) {
   const workspaces = await model.find({}).lean().exec();
   const promises = [];
   for (const workspace of workspaces) {
-    const usageThresholdLocks = workspace.usageThresholdLocks || {};
+    const usageThresholdLocks = workspace.usageThresholdLocks ?? {};
     const locks = Object.values(usageThresholdLocks);
     let anyLocked = false;
     for (const lock of locks) {

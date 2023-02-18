@@ -69,7 +69,7 @@ export const wrapEndpointREST = <
       if (handleResponse) {
         handleResponse(res, result);
       } else {
-        res.status(endpointConstants.httpStatusCode.ok).json(result || {});
+        res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
     } catch (error) {
       context.logger.error(error);

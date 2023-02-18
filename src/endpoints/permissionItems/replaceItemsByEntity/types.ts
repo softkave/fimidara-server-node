@@ -5,9 +5,8 @@ import {Endpoint} from '../../types';
 
 export interface INewPermissionItemInputByEntity {
   containerId: string;
-  containerType: AppResourceType;
   targetId?: string;
-  targetType: AppResourceType;
+  targetType?: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
   appliesTo: PermissionItemAppliesTo;
@@ -16,7 +15,6 @@ export interface INewPermissionItemInputByEntity {
 export interface IReplacePermissionItemsByEntityEndpointParams {
   workspaceId?: string;
   permissionEntityId: string;
-  permissionEntityType: AppResourceType;
   items: INewPermissionItemInputByEntity[];
 }
 

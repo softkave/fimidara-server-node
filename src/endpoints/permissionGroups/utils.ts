@@ -1,9 +1,10 @@
 import {
-  IAssignedPermissionGroup,
+  IAssignedPermissionGroupMeta,
   IAssignPermissionGroupInput,
   IPermissionGroup,
   IPermissionGroupMatcher,
   IPublicPermissionGroup,
+  IPublicPermissionGroupWithAssignedPermissionGroupsMeta,
 } from '../../definitions/permissionGroups';
 import {AppResourceType, BasicCRUDActions, IAgent, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
@@ -24,9 +25,8 @@ import {assignedTagListExtractor} from '../tags/utils';
 import {agentExtractor} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {PermissionGroupDoesNotExistError} from './errors';
-import PermissionGroupQueries from './queries';
 
-const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
+const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroupMeta>({
   permissionGroupId: true,
   assignedAt: getDateString,
   assignedBy: agentExtractor,
@@ -34,7 +34,6 @@ const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
 });
 
 export const assignedPermissionGroupsExtractor = makeExtract(assignedPermissionGroupsFields);
-
 export const assignedPermissionGroupsListExtractor = makeListExtract(
   assignedPermissionGroupsFields
 );
@@ -48,13 +47,32 @@ const permissionGroupFields = getFields<IPublicPermissionGroup>({
   lastUpdatedBy: agentExtractor,
   name: true,
   description: true,
-  permissionGroups: assignedPermissionGroupsListExtractor,
   tags: assignedTagListExtractor,
 });
 
 export const permissionGroupExtractor = makeExtract(permissionGroupFields);
-
 export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
+
+const permissionGroupWithAssignedMetaFields =
+  getFields<IPublicPermissionGroupWithAssignedPermissionGroupsMeta>({
+    resourceId: true,
+    workspaceId: true,
+    createdAt: getDateString,
+    createdBy: agentExtractor,
+    lastUpdatedAt: getDateString,
+    lastUpdatedBy: agentExtractor,
+    name: true,
+    description: true,
+    tags: assignedTagListExtractor,
+    assignedPermissionGroupsMeta: assignedPermissionGroupsListExtractor,
+  });
+
+export const permissionGroupWithAssignedMetaExtractor = makeExtract(
+  permissionGroupWithAssignedMetaFields
+);
+export const permissionGroupWithAssignedMetaListExtractor = makeListExtract(
+  permissionGroupWithAssignedMetaFields
+);
 
 export async function checkPermissionGroupAuthorization(
   context: IBaseContext,
@@ -64,14 +82,13 @@ export async function checkPermissionGroupAuthorization(
   nothrow = false
 ) {
   const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
-
   await checkAuthorization({
     context,
     agent,
     workspace,
     action,
     nothrow,
-    resource: permissionGroup,
+    targetId: permissionGroup.resourceId,
     type: AppResourceType.PermissionGroup,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
@@ -100,7 +117,6 @@ export async function checkPermissionGroupAuthorization03(
   nothrow = false
 ) {
   let permissionGroup: IPermissionGroup | null = null;
-
   if (!input.permissionGroupId && !input.name) {
     throw new InvalidRequestError('PermissionGroup ID or name not set');
   }
@@ -110,10 +126,9 @@ export async function checkPermissionGroupAuthorization03(
       EndpointReusableQueries.getByResourceId(input.permissionGroupId)
     );
   } else if (input.name) {
-    const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
-
+    const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
     permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      PermissionGroupQueries.getByWorkspaceAndName(workspaceId, input.name)
+      EndpointReusableQueries.getByWorkspaceIdAndName(workspaceId, input.name)
     );
   }
 
@@ -141,7 +156,7 @@ export async function checkPermissionGroupsExist(
         context,
         agent,
         workspace,
-        resource: item,
+        targetId: item.resourceId,
         type: AppResourceType.PermissionGroup,
         permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
         action: BasicCRUDActions.Read,
@@ -153,7 +168,7 @@ export async function checkPermissionGroupsExist(
 }
 
 export function mergePermissionGroupsWithInput(
-  permissionGroups: IAssignedPermissionGroup[],
+  permissionGroups: IAssignedPermissionGroupMeta[],
   input: IAssignPermissionGroupInput[],
   agent: IAgent
 ) {
@@ -163,7 +178,7 @@ export function mergePermissionGroupsWithInput(
     .concat(
       input.map(permissionGroup => ({
         ...permissionGroup,
-        order: permissionGroup.order || Number.MAX_SAFE_INTEGER,
+        order: permissionGroup.order ?? Number.MAX_SAFE_INTEGER,
         assignedAt: getDateString(),
         assignedBy: {
           agentId: agent.agentId,

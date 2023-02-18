@@ -20,7 +20,10 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {PermissionDeniedError} from '../../user/errors';
-import {assertFolderPublicOps, makeEveryFolderPublicAccessOp} from '../addFolder/addFolderTestUtils';
+import {
+  assertFolderPublicOps,
+  makeEveryFolderPublicAccessOp,
+} from '../addFolder/addFolderTestUtils';
 import {folderConstants} from '../constants';
 import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
@@ -43,8 +46,9 @@ async function updateFolderBaseTest(
   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
   existingFolder?: IFolder
 ) {
-  insertUserResult = insertUserResult || (await insertUserForTest(ctx));
-  insertWorkspaceResult = insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
+  insertWorkspaceResult =
+    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
   const {folder} = existingFolder
     ? {folder: existingFolder}
     : await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace);
@@ -100,7 +104,12 @@ const updateFolderWithPublicAccessOpsTest = async (
   const {savedFolder} = uploadResult;
   insertUserResult = uploadResult.insertUserResult;
   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, incomingUpdateInput.publicAccessOps || []);
+  await assertPublicAccessOps(
+    ctx,
+    savedFolder,
+    insertWorkspaceResult,
+    incomingUpdateInput.publicAccessOps ?? []
+  );
   return uploadResult;
 };
 
@@ -112,9 +121,12 @@ describe('updateFolder', () => {
 
   test.only('folder updated with public access ops', async () => {
     assertContext(context);
-    const {savedFolder, insertWorkspaceResult} = await updateFolderWithPublicAccessOpsTest(context, {
-      publicAccessOps: makeEveryFolderPublicAccessOp(),
-    });
+    const {savedFolder, insertWorkspaceResult} = await updateFolderWithPublicAccessOpsTest(
+      context,
+      {
+        publicAccessOps: makeEveryFolderPublicAccessOp(),
+      }
+    );
     await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
   });
 

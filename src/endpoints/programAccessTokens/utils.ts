@@ -51,7 +51,7 @@ export async function checkProgramAccessTokenAuthorization(
     workspace,
     action,
     nothrow,
-    resource: token,
+    targetId: token.resourceId,
     type: AppResourceType.ProgramAccessToken,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });

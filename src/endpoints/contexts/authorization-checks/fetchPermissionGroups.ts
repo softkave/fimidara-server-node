@@ -1,9 +1,9 @@
 import {uniqBy} from 'lodash';
-import {ResourceWithPermissionGroupsAndTags} from '../../../definitions/assignedItem';
+import {ResourceWithTags} from '../../../definitions/assignedItem';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {IBaseContext} from '../types';
 import {IPermissionEntity} from './getPermissionEntities';
@@ -24,7 +24,7 @@ const addEntity = (
 // Commit a list of entities using their IDs
 const commitEntities = (
   entityIds: Array<string>,
-  permissionGroupsMap: Record<string, ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null>,
+  permissionGroupsMap: Record<string, ResourceWithTags<IPermissionGroup> | null>,
 
   // Entities originally gotten from the agent performing the operation
   existingEntitiesMap: Record<string, IPermissionEntity>,
@@ -69,10 +69,7 @@ async function fetchPermissionGroups(
   context: IBaseContext,
   inputEntities: Array<IPermissionEntity>
 ) {
-  const permissionGroupsMap: Record<
-    string,
-    ResourceWithPermissionGroupsAndTags<IPermissionGroup> | null
-  > = {};
+  const permissionGroupsMap: Record<string, ResourceWithTags<IPermissionGroup> | null> = {};
   const permissionGroupEntitiesIds = inputEntities
     .filter(item => {
       return item.permissionEntityType === AppResourceType.PermissionGroup;
@@ -94,7 +91,7 @@ async function fetchPermissionGroups(
           EndpointReusableQueries.getByResourceId(id)
         );
         if (permissionGroup) {
-          return populateAssignedPermissionGroupsAndTags(
+          return populateAssignedTags(
             context,
             permissionGroup.workspaceId,
             permissionGroup,

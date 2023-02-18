@@ -54,7 +54,7 @@ function extractUploadFilesParamsFromFormData(req: Request): IUploadFileEndpoint
   return {
     ...req.body,
     data: file?.buffer,
-    mimetype: req.body.mimetype || file?.mimetype,
+    mimetype: req.body.mimetype ?? file?.mimetype,
   };
 }
 
@@ -62,7 +62,11 @@ function extractUploadFilesParamsFromReq(req: Request): IUploadFileEndpointParam
   return merge(extractUploadFilesParamsFromPath(req), extractUploadFilesParamsFromFormData(req));
 }
 
-export default function setupFilesRESTEndpoints(ctx: IBaseContext, app: Express, upload: multer.Multer) {
+export default function setupFilesRESTEndpoints(
+  ctx: IBaseContext,
+  app: Express,
+  upload: multer.Multer
+) {
   const endpoints = {
     deleteFile: wrapEndpointREST(deleteFile, ctx),
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
@@ -77,5 +81,9 @@ export default function setupFilesRESTEndpoints(ctx: IBaseContext, app: Express,
   app.delete(fileConstants.routes.deleteFile, endpoints.deleteFile);
   app.post(fileConstants.routes.getFileDetails, endpoints.getFileDetails);
   app.post(fileConstants.routes.updateFileDetails, endpoints.updateFileDetails);
-  app.post(`${uploadFilePath}*`, upload.single(fileConstants.uploadedFileFieldName), endpoints.uploadFile);
+  app.post(
+    `${uploadFilePath}*`,
+    upload.single(fileConstants.uploadedFileFieldName),
+    endpoints.uploadFile
+  );
 }

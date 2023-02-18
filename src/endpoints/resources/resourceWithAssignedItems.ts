@@ -1,10 +1,7 @@
 import {AppResourceType} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
+import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
 import {IResource} from './types';
 
@@ -19,12 +16,7 @@ export async function resourceWithAssignedItems(
     case AppResourceType.File:
     case AppResourceType.ClientAssignedToken:
     case AppResourceType.PermissionGroup:
-      resource.resource = await populateAssignedPermissionGroupsAndTags(
-        context,
-        workspaceId,
-        resource.resource,
-        resource.resourceType
-      );
+      resource.resource = await populateAssignedTags(context, workspaceId, resource.resource);
       return resource;
     case AppResourceType.User:
       resource.resource = await populateUserWorkspaces(context, resource.resource as IUser);

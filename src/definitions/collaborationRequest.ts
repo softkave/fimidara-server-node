@@ -1,4 +1,4 @@
-import {IAssignedPermissionGroup} from './permissionGroups';
+import {IAssignedPermissionGroupMeta} from './permissionGroups';
 import {IAgent} from './system';
 
 export enum CollaborationRequestStatusType {
@@ -44,5 +44,5 @@ export interface ICollaborationRequest {
 }
 
 export interface IPublicCollaborationRequest extends ICollaborationRequest {
-  permissionGroupsOnAccept: IAssignedPermissionGroup[];
+  permissionGroupsAssignedOnAcceptingRequest: IAssignedPermissionGroupMeta[];
 }

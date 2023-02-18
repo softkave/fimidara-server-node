@@ -132,7 +132,11 @@ export class FieldObject<T = AnyObject> extends FieldBase {
 
 export const FieldOrCombination = withClassAccessors(
   class FieldOrCombination_ extends FieldBase {
-    constructor(required?: boolean, description?: string, public types?: Array<InstanceType<typeof FieldBase>>) {
+    constructor(
+      required?: boolean,
+      description?: string,
+      public types?: Array<InstanceType<typeof FieldBase>>
+    ) {
       super(required, description);
       this.stringType = (types ?? []).map(f => f.stringType).join(' or ');
     }
@@ -190,7 +194,9 @@ export const HttpEndpointResponse = withClassAccessors(
   class HttpEndpointResponse_ {
     constructor(
       public statusCode?: string,
-      public responseBody?: InstanceType<typeof FieldObject<any>> | InstanceType<typeof FieldBinary>,
+      public responseBody?:
+        | InstanceType<typeof FieldObject<any>>
+        | InstanceType<typeof FieldBinary>,
       public responseHeaders?: InstanceType<typeof HttpEndpointHeaders>
     ) {}
   }
@@ -203,7 +209,9 @@ export const HttpEndpointDefinition = withClassAccessors(
       public method?: HttpEndpointMethod,
       public parameterPathnames?: Array<InstanceType<typeof HttpEndpointParameterPathnameItem>>,
       public query?: InstanceType<typeof FieldObject>,
-      public requestBody?: InstanceType<typeof FieldObject<any>> | InstanceType<typeof HttpEndpointMultipartFormdata>,
+      public requestBody?:
+        | InstanceType<typeof FieldObject<any>>
+        | InstanceType<typeof HttpEndpointMultipartFormdata>,
       public requestHeaders?: InstanceType<typeof HttpEndpointHeaders>,
       public responses?: Array<InstanceType<typeof HttpEndpointResponse>>,
       public name?: string,
@@ -320,7 +328,11 @@ export class MdDocumenter {
     return this;
   }
 
-  insertJsonFieldComments(type: string, required: boolean | undefined, description: string | undefined): MdDocumenter {
+  insertJsonFieldComments(
+    type: string,
+    required: boolean | undefined,
+    description: string | undefined
+  ): MdDocumenter {
     this.insertText('/**')
       .insertNewLine()
       .insertText(' *')
@@ -409,18 +421,27 @@ export class MdDocumenter {
 
     const putType = (text: string | string[], skipFormatting = false) => {
       Array.isArray(text)
-        ? this.insertTableCell(text.map(next => mddoc().insertInlineCode(next).content).join(' or '))
+        ? this.insertTableCell(
+            text.map(next => mddoc().insertInlineCode(next).content).join(' or ')
+          )
         : this.insertTableCell(skipFormatting ? text : this.wrapInlineCode(text));
     };
 
     const putRequired = (text?: boolean | string) => {
-      !ignoreRequired && this.insertTableCell(isString(text) ? text : text ? 'Required' : 'Not required');
+      !ignoreRequired &&
+        this.insertTableCell(isString(text) ? text : text ? 'Required' : 'Not required');
     };
 
-    const putDescription = (text: string | undefined, objects?: InstanceType<typeof FieldObject>[]) => {
+    const putDescription = (
+      text: string | undefined,
+      objects?: InstanceType<typeof FieldObject>[]
+    ) => {
       const m = mddoc();
       objects?.forEach(next => {
-        m.insertText('See below for ').insertInlineCode(next.name).insertText("'s object fields.").insertText(' ');
+        m.insertText('See below for ')
+          .insertInlineCode(next.name)
+          .insertText("'s object fields.")
+          .insertText(' ');
       });
       m.insertText(text);
       this.insertTableCell(m.content).insertNewLine();
@@ -490,8 +511,10 @@ export class MdDocumenter {
         putRequired(arrayField.required);
 
         putDescription(
-          mddoc().insertText(arrayField.description).insertText(' ').insertText(`${arrayFieldType.description}`)
-            .content,
+          mddoc()
+            .insertText(arrayField.description)
+            .insertText(' ')
+            .insertText(`${arrayFieldType.description}`).content,
           isObjectField(arrayFieldType) ? [arrayFieldType] : undefined
         );
       } else if ((currentField as any) instanceof FieldOrCombination) {
@@ -536,11 +559,11 @@ export function isLiteralField(
   | InstanceType<typeof FieldUndefined>
   | InstanceType<typeof FieldNull> {
   return (
-    f instanceof FieldBinary ||
-    f instanceof FieldNumber ||
-    f instanceof FieldString ||
-    f instanceof FieldBoolean ||
-    f instanceof FieldUndefined ||
+    f instanceof FieldBinary ??
+    f instanceof FieldNumber ??
+    f instanceof FieldString ??
+    f instanceof FieldBoolean ??
+    f instanceof FieldUndefined ??
     f instanceof FieldNull
   );
 }
@@ -553,7 +576,9 @@ export function isArrayField(f: any): f is InstanceType<typeof FieldArray> {
   return f instanceof FieldArray;
 }
 
-export function isMultipartFormdata(f: any): f is InstanceType<typeof HttpEndpointMultipartFormdata> {
+export function isMultipartFormdata(
+  f: any
+): f is InstanceType<typeof HttpEndpointMultipartFormdata> {
   return f instanceof HttpEndpointMultipartFormdata;
 }
 
@@ -561,7 +586,9 @@ export function mddoc() {
   return new MdDocumenter();
 }
 
-export function httpHeadersToFieldObject(headers: Array<InstanceType<typeof HttpEndpointHeaderItem>>) {
+export function httpHeadersToFieldObject(
+  headers: Array<InstanceType<typeof HttpEndpointHeaderItem>>
+) {
   const kf = indexArray(headers, {
     indexer: h => h.assertGetName(),
     reducer: h => h.assertGetType(),
@@ -580,11 +607,17 @@ export function httpParameterPathnameToFieldObject(
 }
 
 export function orUndefined(f: InstanceType<typeof FieldBase>) {
-  return new FieldOrCombination().setRequired(false).setDescription(f.description).setTypes([new FieldUndefined(), f]);
+  return new FieldOrCombination()
+    .setRequired(false)
+    .setDescription(f.description)
+    .setTypes([new FieldUndefined(), f]);
 }
 
 export function orNull(f: InstanceType<typeof FieldBase>) {
-  return new FieldOrCombination().setRequired(f.required).setDescription(f.description).setTypes([new FieldNull(), f]);
+  return new FieldOrCombination()
+    .setRequired(f.required)
+    .setDescription(f.description)
+    .setTypes([new FieldNull(), f]);
 }
 
 export function orUndefinedOrNull(f: InstanceType<typeof FieldBase>) {
@@ -663,7 +696,9 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
           .setType(
             new FieldString()
               .setValid(['application/octet-stream'])
-              .setDescription('Binary/Blob type if the type is known or application/octet-stream otherwise.')
+              .setDescription(
+                'Binary/Blob type if the type is known or application/octet-stream otherwise.'
+              )
           )
           .setRequired(true)
           .setDescription('Response body type')
@@ -681,7 +716,12 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
     if (headers.length) {
       m.insertBoldText(title)
         .insertNewLine()
-        .insertObjectAsMdTable(undefined, httpHeadersToFieldObject(headers), hideRequiredCell, /** omitName */ true);
+        .insertObjectAsMdTable(
+          undefined,
+          httpHeadersToFieldObject(headers),
+          hideRequiredCell,
+          /** omitName */ true
+        );
     } else {
       m.insertBoldText(title).insertInlineSeparator().insertText('No headers present');
     }
@@ -691,7 +731,9 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
 
   const putQuery = () => {
     if (endpoint.query) {
-      m.insertBoldText('Request Queries').insertNewLine().insertObjectAsMdTable(undefined, endpoint.query);
+      m.insertBoldText('Request Queries')
+        .insertNewLine()
+        .insertObjectAsMdTable(undefined, endpoint.query);
     } else {
       m.insertBoldText('Request Queries').insertInlineSeparator().insertText('No queries present');
     }
@@ -703,9 +745,14 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
     if (endpoint.parameterPathnames) {
       m.insertBoldText('Request Parameter Pathnames')
         .insertNewLine()
-        .insertObjectAsMdTable(undefined, httpParameterPathnameToFieldObject(endpoint.parameterPathnames));
+        .insertObjectAsMdTable(
+          undefined,
+          httpParameterPathnameToFieldObject(endpoint.parameterPathnames)
+        );
     } else {
-      m.insertBoldText('Request Parameter Pathnames').insertInlineSeparator().insertText('No extra pathnames present');
+      m.insertBoldText('Request Parameter Pathnames')
+        .insertInlineSeparator()
+        .insertText('No extra pathnames present');
     }
 
     m.insertNewLine().insertNewLine();
@@ -714,15 +761,22 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
   const putRequestBodyType = () => {
     const b = endpoint.requestBody;
     if (b instanceof FieldObject) {
-      m.insertBoldText('Request Body Type').insertInlineSeparator().insertInlineCode('application/json');
+      m.insertBoldText('Request Body Type')
+        .insertInlineSeparator()
+        .insertInlineCode('application/json');
     } else if (b instanceof HttpEndpointMultipartFormdata) {
-      m.insertBoldText('Request Body Type').insertInlineSeparator().insertInlineCode('multipart/form-data');
+      m.insertBoldText('Request Body Type')
+        .insertInlineSeparator()
+        .insertInlineCode('multipart/form-data');
     }
 
     m.insertNewLine().insertNewLine();
   };
 
-  const putResponseBodyType = (response: InstanceType<typeof HttpEndpointResponse>, title = 'Response Body Type') => {
+  const putResponseBodyType = (
+    response: InstanceType<typeof HttpEndpointResponse>,
+    title = 'Response Body Type'
+  ) => {
     const b = response.responseBody;
     if (b instanceof FieldObject) {
       m.insertBoldText(title).insertInlineSeparator().insertInlineCode('application/json');
@@ -751,7 +805,9 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
       if (b.getIsSingularBlob()) {
         m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
       } else {
-        m.insertBoldText(title).insertNewLine().insertObjectAsMdTable(undefined, b.assertGetItems(), hideRequiredCell);
+        m.insertBoldText(title)
+          .insertNewLine()
+          .insertObjectAsMdTable(undefined, b.assertGetItems(), hideRequiredCell);
       }
     } else if (b instanceof FieldBinary) {
       m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
@@ -766,8 +822,15 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
       `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Headers`,
       true
     );
-    putResponseBodyType(response, `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body Type`);
-    putBody(response.responseBody, `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body`, true);
+    putResponseBodyType(
+      response,
+      `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body Type`
+    );
+    putBody(
+      response.responseBody,
+      `${response.getStatusCode()} ${MdDocumenter.INLINE_SEPARATOR} Response Body`,
+      true
+    );
   };
 
   putParameterPathnames();
@@ -781,11 +844,15 @@ export function docEndpoint(endpoint: InstanceType<typeof HttpEndpointDefinition
 }
 
 export function docEndpointList(endpoints: Array<InstanceType<typeof HttpEndpointDefinition>>) {
-  return endpoints.map(endpoint => docEndpoint(endpoint)).join(MdDocumenter.NEWLINE + MdDocumenter.NEWLINE);
+  return endpoints
+    .map(endpoint => docEndpoint(endpoint))
+    .join(MdDocumenter.NEWLINE + MdDocumenter.NEWLINE);
 }
 
 export function docEndpointListToC(endpoints: Array<InstanceType<typeof HttpEndpointDefinition>>) {
   return endpoints.map(
-    endpoint => mddoc().insertText(endpoint.basePathname).insertInlineSeparator().insertText(endpoint.method).content
+    endpoint =>
+      mddoc().insertText(endpoint.basePathname).insertInlineSeparator().insertText(endpoint.method)
+        .content
   );
 }

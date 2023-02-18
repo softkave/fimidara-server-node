@@ -1,9 +1,6 @@
-import {IAssignedPermissionGroup} from './permissionGroups';
-
 export interface IUserWorkspace {
   workspaceId: string;
   joinedAt: Date | string;
-  permissionGroups: IAssignedPermissionGroup[];
 }
 
 export interface IUser {

@@ -1,6 +1,6 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkClientAssignedTokenAuthorization03, getPublicClientToken} from '../utils';
 import {GetClientAssignedTokenEndpoint} from './types';
 import {getClientAssignedTokenJoiSchema} from './validation';
@@ -14,13 +14,7 @@ const getClientAssignedToken: GetClientAssignedTokenEndpoint = async (context, i
     data,
     BasicCRUDActions.Read
   );
-  const tokenWithAssignedItems = await populateAssignedPermissionGroupsAndTags(
-    context,
-    token.workspaceId,
-    token,
-    AppResourceType.ClientAssignedToken
-  );
-
+  const tokenWithAssignedItems = await populateAssignedTags(context, token.workspaceId, token);
   return {
     token: getPublicClientToken(context, tokenWithAssignedItems),
   };

@@ -10,7 +10,7 @@ import {
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {InternalError, ServerError} from '../../../utils/errors';
+import {ServerError} from '../../../utils/errors';
 import {makeKey} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
@@ -35,7 +35,6 @@ export interface ICheckAuthorizationParams {
   permissionContainers: IPermissionContainer[];
   action: BasicCRUDActions;
   nothrow?: boolean;
-  resource?: {resourceId: string} | null;
 }
 
 // TODO: What happens if there are permission items that both allow
@@ -74,15 +73,10 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 }
 
 export async function fetchAgentPermissionItems(params: ICheckAuthorizationParams) {
-  const {context, agent, workspace, type, permissionContainers, action, resource} = params;
+  const {context, agent, workspace, type, permissionContainers, action, targetId} = params;
   if (agent.user && !agent.user.isEmailVerified && action !== BasicCRUDActions.Read) {
     // Only read actions are permitted for user's not email verified
     throw new EmailAddressNotVerifiedError();
-  }
-
-  const targetId = params.resource?.resourceId || params.targetId;
-  if (resource && params.targetId && resource.resourceId !== params.targetId) {
-    throw new InternalError("Resource ID doesn't match item resource ID");
   }
 
   const agentPermissionEntities = getPermissionEntities(agent, workspace);
@@ -150,9 +144,9 @@ export async function fetchAgentPermissionItems(params: ICheckAuthorizationParam
 
   // TODO: test that container permissions only apply to container, and so...
   const isPermissionItemForContainer = (item: IPermissionItem) =>
-    resource &&
+    targetId &&
     item.appliesTo === PermissionItemAppliesTo.Container &&
-    item.containerId === resource.resourceId;
+    item.containerId === targetId;
 
   items.sort((item01, item02) => {
     if (item01.permissionEntityId === item02.permissionEntityId) {
@@ -308,7 +302,7 @@ export function makeResourcePermissionContainerList(
   type: AppResourceType,
   resource?: Pick<IFile, 'idPath'> | {} | null
 ) {
-  if ((type === AppResourceType.Folder || type === AppResourceType.File) && resource) {
+  if ((type === AppResourceType.Folder ?? type === AppResourceType.File) && resource) {
     return getFilePermissionContainers(workspaceId, resource as Pick<IFile, 'idPath'>, type);
   }
   return makeWorkspacePermissionContainerList(workspaceId);

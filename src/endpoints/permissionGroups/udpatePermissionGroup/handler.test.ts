@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -80,7 +80,7 @@ test('permissionGroup updated', async () => {
   const result = await updatePermissionGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
+  const updatedPermissionGroup = await populateAssignedTags(
     context,
     workspace.resourceId,
     await context.data.permissiongroup.assertGetOneByQuery(
@@ -92,14 +92,14 @@ test('permissionGroup updated', async () => {
   expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(result.permissionGroup);
   expect(updatedPermissionGroup.name).toEqual(updatePermissionGroupInput.name);
   expect(updatedPermissionGroup.description).toEqual(updatePermissionGroupInput.description);
-  expect(result.permissionGroup.permissionGroups.length).toEqual(2);
-  expect(result.permissionGroup.permissionGroups[0]).toMatchObject({
+  expect(result.permissionGroup.assignedPermissionGroupsMeta.length).toEqual(2);
+  expect(result.permissionGroup.assignedPermissionGroupsMeta[0]).toMatchObject({
     permissionGroupId: permissionGroup01.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 1,
   });
 
-  expect(result.permissionGroup.permissionGroups[1]).toMatchObject({
+  expect(result.permissionGroup.assignedPermissionGroupsMeta[1]).toMatchObject({
     permissionGroupId: permissionGroup02.resourceId,
     assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
     order: 2,

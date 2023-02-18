@@ -8,7 +8,7 @@ import {appAssert} from '../../../utils/assertion';
 import {ValidationError} from '../../../utils/errors';
 import {} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   insertBandwidthInUsageRecordInput,
   insertStorageUsageRecordInput,
@@ -28,7 +28,6 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
-
   let file = await getFileWithMatcher(context, data);
   const isNewFile = !file;
   const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
@@ -37,7 +36,6 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     appAssert(data.filepath, new ValidationError('File path missing'));
     const pathWithDetails = splitFilepathWithDetails(data.filepath);
     const parentFolder = await createFileParentFolders(context, agent, workspace, pathWithDetails);
-
     await checkUploadFileAuth(context, agent, workspace, null, parentFolder);
     file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
   } else {
@@ -75,12 +73,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     contentLength: data.data.byteLength,
   });
 
-  file = await populateAssignedPermissionGroupsAndTags<IFile>(
-    context,
-    file.workspaceId,
-    file,
-    AppResourceType.File
-  );
+  file = await populateAssignedTags<IFile>(context, file.workspaceId, file, AppResourceType.File);
 
   return {
     file: fileExtractor(file),

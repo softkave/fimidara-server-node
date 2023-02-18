@@ -1,6 +1,5 @@
 import {compact} from 'lodash';
 import {IResourceBase} from '../definitions/system';
-import {indexArray} from './indexArray';
 import {AnyObject} from './types';
 
 export function cast<ToType>(resource: any): ToType {
@@ -75,59 +74,6 @@ export function reverseMap<K extends string, V extends string>(m: Record<K, V>):
   return r;
 }
 
-/**
- * Checks that `list1` contains every item in `list2` using the `indexer`
- * provided. The `indexer` should return a unique string for each unique item in
- * the list. Also, the same unique string should be returned for the same item
- * no matter how many times `indexer` is called.
- */
-export function containsEveryItemIn<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  const list1Map = indexArray(list1, {indexer});
-  list2.forEach(item1 => {
-    const k = indexer(item1);
-    const item2 = list1Map[k];
-    expect(item2).toBeTruthy();
-  });
-}
-
-/**
- * Checks that `list1` contains none of the items in `list2` using the `indexer`
- * provided. The `indexer` should return a unique string for each unique item in
- * the list. Also, the same unique string should be returned for the same item
- * no matter how many times `indexer` is called.
- */
-export function containsNoneIn<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  const list1Map = indexArray(list1, {indexer});
-  list2.forEach(item1 => {
-    const k = indexer(item1);
-    const item2 = list1Map[k];
-    expect(item2).toBeFalsy();
-  });
-}
-
-/**
- * Checks that `list1` and `list2` should contain the same items using the
- * `indexer` provided. The `indexer` should return a unique string for each
- * unique item in the list. Also, the same unique string should be returned for
- * the same item no matter how many times `indexer` is called.
- */
-export function containsExactly<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  expect(list1.length).toEqual(list2.length);
-  containsEveryItemIn(list1, list2, indexer);
-}
-
 export function getRandomArbitrary(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -160,7 +106,7 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
   count = Math.max(count, 0);
   pageSize = Math.max(pageSize, 0);
   page = Math.max(page, 0);
-  if (count === 0 || pageSize === 0) return 0;
+  if (count === 0 ?? pageSize === 0) return 0;
   const maxFullPages = Math.floor(count / pageSize);
   const pageCount = page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
   return pageCount;
@@ -168,4 +114,8 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
 
 export function getResourceId(resource: IResourceBase) {
   return resource.resourceId;
+}
+
+export function extractResourceIdList(resources: IResourceBase[]) {
+  return resources.map(getResourceId);
 }

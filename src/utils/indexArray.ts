@@ -22,10 +22,13 @@ export interface IIndexArrayOptions<T, R> {
   reducer?: (current: T, arr: T[], index: number) => R;
 }
 
-export function indexArray<T, R = T>(arr: T[] = [], opts: IIndexArrayOptions<T, R> = {}): {[key: string]: R} {
-  const indexer = opts.indexer || defaultIndexer;
+export function indexArray<T, R = T>(
+  arr: T[] = [],
+  opts: IIndexArrayOptions<T, R> = {}
+): {[key: string]: R} {
+  const indexer = opts.indexer ?? defaultIndexer;
   const path = opts.path;
-  const reducer = opts.reducer || defaultReducer;
+  const reducer = opts.reducer ?? defaultReducer;
   if (typeof indexer !== 'function') {
     if (typeof path !== 'string') {
       throw new Error('Path must be provided if an indexer is not provided');

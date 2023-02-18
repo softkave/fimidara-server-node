@@ -9,7 +9,7 @@ import {
   ISaveResourceAssignedItemsOptions,
   saveResourceAssignedItems,
 } from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
 import {programAccessTokenConstants} from '../constants';
@@ -56,7 +56,7 @@ export const internalCreateProgramAccessToken = async (
     /* options */ assignedItemsOptions
   );
 
-  token = await populateAssignedPermissionGroupsAndTags(
+  token = await populateAssignedTags(
     context,
     token.workspaceId,
     token,

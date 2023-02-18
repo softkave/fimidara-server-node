@@ -22,7 +22,7 @@ export async function internalUpdateFile(
     EndpointReusableQueries.getByResourceId(existingFile.resourceId),
     {
       ...data,
-      extension: data.extension || pathWithDetails.extension || existingFile.extension,
+      extension: data.extension ?? pathWithDetails.extension ?? existingFile.extension,
       size: data.data.length,
       lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
       lastUpdatedAt: getDate(),

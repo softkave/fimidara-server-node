@@ -80,7 +80,7 @@ async function setupDefaultUserCollaborationRequest(
     request.resourceId,
     AppResourceType.CollaborationRequest,
     /** deleteExisting */ false,
-    /** skipPermissionGroupsCheck */ true
+    /** skipPermissionGroupsExistCheck */ true
   );
 }
 

@@ -7,7 +7,7 @@ import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestExtractor,
-  populateRequestPermissionGroups,
+  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {UpdateCollaborationRequestEndpoint} from './types';
 import {updateCollaborationRequestJoiSchema} from './validation';
@@ -29,7 +29,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
     request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
       EndpointReusableQueries.getByResourceId(data.requestId),
       {
-        message: data.request.message || request.message,
+        message: data.request.message ?? request.message,
         expiresAt: data.request.expires,
         lastUpdatedAt: getDateString(),
         lastUpdatedBy: {
@@ -52,7 +52,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
     }
   }
 
-  request = await populateRequestPermissionGroups(context, request);
+  request = await populateRequestAssignedPermissionGroups(context, request);
   return {
     request: collaborationRequestExtractor(request),
   };

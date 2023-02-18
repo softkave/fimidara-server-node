@@ -1,8 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
+import {flatten, isArray} from 'lodash';
 import {getMongoConnection} from '../../db/connection';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
+import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -120,17 +122,13 @@ export function assertEndpointResultOk(result: IBaseEndpointResult) {
 }
 
 export function mockExpressRequest(token?: IBaseTokenData) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const req: IServerRequest = {
     auth: token,
-  };
+  } as unknown as IServerRequest;
   return req;
 }
 
 export function mockExpressRequestWithUserToken(token: IUserToken) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const req: IServerRequest = {
     auth: {
       version: CURRENT_TOKEN_VERSION,
@@ -141,16 +139,13 @@ export function mockExpressRequestWithUserToken(token: IUserToken) {
       iat: new Date(token.issuedAt).getTime(),
       exp: token.expires,
     },
-  };
-
+  } as unknown as IServerRequest;
   return req;
 }
 
 export function mockExpressRequestWithClientToken(
   token: Pick<IClientAssignedToken, 'resourceId' | 'createdAt' | 'expires'>
 ) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const req: IServerRequest = {
     auth: {
       version: CURRENT_TOKEN_VERSION,
@@ -161,8 +156,23 @@ export function mockExpressRequestWithClientToken(
       iat: new Date(token.createdAt).getTime(),
       exp: token.expires ? new Date(token.expires).valueOf() : undefined,
     },
-  };
+  } as unknown as IServerRequest;
+  return req;
+}
 
+export function mockExpressRequestWithProgramToken(
+  token: Pick<IProgramAccessToken, 'resourceId' | 'createdAt'>
+) {
+  const req: IServerRequest = {
+    auth: {
+      version: CURRENT_TOKEN_VERSION,
+      sub: {
+        id: token.resourceId,
+        type: TokenType.ClientAssignedToken,
+      },
+      iat: new Date(token.createdAt).getTime(),
+    },
+  } as unknown as IServerRequest;
   return req;
 }
 
@@ -350,44 +360,40 @@ export async function insertProgramAccessTokenForTest(
 
 export interface ITestPermissionItemContainer {
   containerId: string;
-  containerType: AppResourceType;
-}
-
-export interface ITestPermissionItemByEntityBase extends Partial<INewPermissionItemInputByEntity> {
-  targetType: AppResourceType;
 }
 
 export function makeTestPermissionItemByEntityInputs(
   container: ITestPermissionItemContainer,
-  base: ITestPermissionItemByEntityBase
+  base: Array<Partial<INewPermissionItemInputByEntity>>
 ) {
-  const actionList =
-    base.targetType === AppResourceType.Workspace || base.targetType === AppResourceType.All
-      ? getWorkspaceActionList()
-      : getNonWorkspaceActionList();
-
-  const items: INewPermissionItemInputByEntity[] = actionList.map(action => ({
-    ...base,
-    ...container,
-    action: action as BasicCRUDActions,
-    grantAccess: faker.datatype.boolean(),
-    appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-  }));
-
-  return items;
+  const items = base.map(seed => {
+    const actionList =
+      seed.targetType === AppResourceType.Workspace ?? seed.targetType === AppResourceType.All
+        ? getWorkspaceActionList()
+        : getNonWorkspaceActionList();
+    const items: INewPermissionItemInputByEntity[] = actionList.map(action => ({
+      action: action as BasicCRUDActions,
+      grantAccess: faker.datatype.boolean(),
+      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+      ...seed,
+      ...container,
+    }));
+    return items;
+  });
+  return flatten(items);
 }
 
-export async function insertPermissionItemsForTestByEntity(
+export async function insertPermissionItemsForTestForEntity(
   context: IBaseContext,
-  userToken: IUserToken,
+  req: IServerRequest,
   workspaceId: string,
-  entity: IPermissionEntity,
+  entity: Pick<IPermissionEntity, 'permissionEntityId'>,
   container: ITestPermissionItemContainer,
-  base: ITestPermissionItemByEntityBase
+  base: Partial<INewPermissionItemInputByEntity> | Array<Partial<INewPermissionItemInputByEntity>>
 ) {
-  const itemsInput = makeTestPermissionItemByEntityInputs(container, base);
+  const itemsInput = makeTestPermissionItemByEntityInputs(container, isArray(base) ? base : [base]);
   const instData = RequestData.fromExpressRequest<IReplacePermissionItemsByEntityEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    req,
     {
       ...entity,
       workspaceId: workspaceId,
@@ -397,12 +403,7 @@ export async function insertPermissionItemsForTestByEntity(
 
   const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
-  expectPermissionItemsForEntityPresent(
-    result.items,
-    itemsInput,
-    entity.permissionEntityId,
-    entity.permissionEntityType
-  );
+  expectPermissionItemsForEntityPresent(result.items, itemsInput, entity.permissionEntityId);
   return result;
 }
 

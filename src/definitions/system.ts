@@ -1,6 +1,6 @@
 import {IAppRuntimeVars} from '../resources/vars';
 import {reverseMap} from '../utils/fns';
-import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
+import {ResourceWithTags} from './assignedItem';
 import {IClientAssignedToken} from './clientAssignedToken';
 import {PermissionItemAppliesTo} from './permissionItem';
 import {IProgramAccessToken} from './programAccessToken';
@@ -75,8 +75,8 @@ export interface ISessionAgent {
 
   // One of the following, depending on the agentType
   userToken?: IUserToken;
-  programAccessToken?: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>;
-  clientAssignedToken?: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>;
+  programAccessToken?: ResourceWithTags<IProgramAccessToken>;
+  clientAssignedToken?: ResourceWithTags<IClientAssignedToken>;
   user?: IUserWithWorkspace;
 }
 

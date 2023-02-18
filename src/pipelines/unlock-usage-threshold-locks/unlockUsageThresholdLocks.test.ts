@@ -58,7 +58,7 @@ describe('unlockUsageThresholds', () => {
     const dbWorkspaces = await model.find({}).lean().exec();
     expect(dbWorkspaces.length).toBe(workspaces.length);
     dbWorkspaces.forEach(dbWorkspace => {
-      const locks = dbWorkspace.usageThresholdLocks || {};
+      const locks = dbWorkspace.usageThresholdLocks ?? {};
       Object.values(UsageRecordCategory).forEach(k => {
         expect(locks[k]?.locked).toBe(false);
       });

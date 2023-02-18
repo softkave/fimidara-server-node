@@ -32,7 +32,7 @@ export async function checkUploadFileAuth(
     agent,
     workspace,
     type: AppResourceType.File,
-    resource: file,
+    targetId: file?.resourceId,
     permissionContainers: file
       ? getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File)
       : closestExistingFolder

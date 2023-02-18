@@ -7,7 +7,7 @@ import {
   assertEndpointResultOk,
   initTestBaseContext,
   insertPermissionGroupForTest,
-  insertPermissionItemsForTestByEntity,
+  insertPermissionItemsForTestForEntity,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
@@ -35,7 +35,7 @@ test('permission items deleted', async () => {
     workspace.resourceId
   );
 
-  const {items} = await insertPermissionItemsForTestByEntity(
+  const {items} = await insertPermissionItemsForTestForEntity(
     context,
     userToken,
     workspace.resourceId,

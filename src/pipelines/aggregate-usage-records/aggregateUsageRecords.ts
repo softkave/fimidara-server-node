@@ -82,7 +82,7 @@ function getEndOfMonth() {
 }
 
 async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsageRecord) {
-  let fromDate = recordLevel2.lastUpdatedAt || getStartOfMonth();
+  let fromDate = recordLevel2.lastUpdatedAt ?? getStartOfMonth();
   const endDate = getEndOfMonth();
   let totalCount = 0;
   let lastCount = 0;
@@ -233,8 +233,8 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
     UsageRecordFulfillmentStatus.Fulfilled
   );
 
-  const thresholds = workspace.usageThresholds || {};
-  const locks = workspace.usageThresholdLocks || {};
+  const thresholds = workspace.usageThresholds ?? {};
+  const locks = workspace.usageThresholdLocks ?? {};
   records.forEach(r => {
     const threshold = thresholds[r.category];
     if (threshold && r.usageCost >= threshold.budget) {

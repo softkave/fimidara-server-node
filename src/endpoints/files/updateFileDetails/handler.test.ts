@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
@@ -52,7 +52,7 @@ test('file updated', async () => {
   expect(result.file.resourceId).toEqual(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
-  const updatedFile = await populateAssignedPermissionGroupsAndTags(
+  const updatedFile = await populateAssignedTags(
     context,
     workspace.resourceId,
     await context.data.file.assertGetOneByQuery(

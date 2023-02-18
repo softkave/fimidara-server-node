@@ -1,5 +1,4 @@
 import {AnyObject} from '../utils/types';
-import {IAssignedPermissionGroup} from './permissionGroups';
 import {AppResourceType, IAgent} from './system';
 import {IAssignedTag} from './tag';
 
@@ -17,26 +16,13 @@ export interface IAssignedItem<Meta extends AnyObject = AnyObject> {
 
 export type IAssignedItemMainFieldsMatcher = Pick<
   IAssignedItem,
-  | 'assignedItemId'
-  | 'assignedItemType'
-  | 'assignedToItemId'
-  | 'assignedToItemType'
-  | 'workspaceId'
+  'assignedItemId' | 'assignedToItemId' | 'workspaceId'
 >;
 
-export interface IAssignedPermissionGroupMeta {
+export interface IAssignedItemAssignedPermissionGroupMeta {
   order: number;
 }
 
-export type ResourceWithPermissionGroups<T> = T & {
-  permissionGroups: IAssignedPermissionGroup[];
-};
-
 export type ResourceWithTags<T> = T & {
-  tags: IAssignedTag[];
-};
-
-export type ResourceWithPermissionGroupsAndTags<T> = T & {
-  permissionGroups: IAssignedPermissionGroup[];
   tags: IAssignedTag[];
 };

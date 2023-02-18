@@ -125,7 +125,7 @@ export async function checkFolderAuthorization(
     workspace,
     action,
     nothrow,
-    resource: folder,
+    targetId: folder.resourceId,
     type: AppResourceType.Folder,
     permissionContainers: getFilePermissionContainers(
       workspace.resourceId,

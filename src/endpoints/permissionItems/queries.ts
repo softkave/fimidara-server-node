@@ -28,7 +28,6 @@ function getByResource(
   if (resourceId) {
     filter.addItem('targetId', resourceId, DataProviderFilterValueOperator.Equal);
   }
-
   if (includeWildcardTargetType) {
     filter.addItem(
       'targetType',
@@ -57,7 +56,6 @@ function getByContainerAndResource(
   if (resourceId) {
     filter.addItem('targetId', resourceId, DataProviderFilterValueOperator.Equal);
   }
-
   if (includeWildcardTargetType) {
     filter.addItem(
       'targetType',

@@ -1,4 +1,4 @@
-import {calculatePageSize, containsEveryItemIn} from '../../../utils/fns';
+import {calculatePageSize, expectContainsEveryItemIn} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
@@ -52,7 +52,7 @@ describe('getWorkspaceRequests', () => {
     const result = await getWorkspaceCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
     expect(result.requests.length).toEqual(2);
-    containsEveryItemIn(result.requests, [request01, request02], item => item.resourceId);
+    expectContainsEveryItemIn(result.requests, [request01, request02], item => item.resourceId);
   });
 
   test('pagination', async () => {

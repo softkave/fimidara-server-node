@@ -7,7 +7,7 @@ import {
 } from '../../../../definitions/system';
 import {IUserToken} from '../../../../definitions/userToken';
 import {IWorkspace} from '../../../../definitions/workspace';
-import {containsExactly} from '../../../../utils/fns';
+import {expectContainsExactly} from '../../../../utils/fns';
 import {addAssignedPermissionGroupList} from '../../../assignedItems/addAssignedItems';
 import updatePermissionGroup from '../../../permissionGroups/udpatePermissionGroup/handler';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
@@ -87,7 +87,7 @@ describe('checkAuthorization', () => {
     const permitted = await checkAuthorization({
       context,
       agent,
-      resource: file,
+      targetId: file.resourceId,
       type: AppResourceType.File,
       permissionContainers: getFilePermissionContainers(
         rawWorkspace.resourceId,
@@ -114,7 +114,7 @@ describe('checkAuthorization', () => {
       context,
       workspace,
       agent: agent02,
-      resource: file,
+      targetId: file.resourceId,
       type: AppResourceType.File,
       permissionContainers: getFilePermissionContainers(
         workspace.resourceId,
@@ -143,7 +143,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: agent02,
-        resource: file,
+        targetId: file.resourceId,
         type: AppResourceType.File,
         permissionContainers: getFilePermissionContainers(
           workspace.resourceId,
@@ -178,7 +178,7 @@ describe('checkAuthorization', () => {
       context,
       workspace,
       agent: agent02,
-      resource: file,
+      targetId: file.resourceId,
       type: AppResourceType.File,
       permissionContainers: getFilePermissionContainers(
         workspace.resourceId,
@@ -212,7 +212,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: agent02,
-        resource: file,
+        targetId: file.resourceId,
         type: AppResourceType.File,
         permissionContainers: getFilePermissionContainers(
           workspace.resourceId,
@@ -271,7 +271,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: clientTokenAgent,
-        resource: workspace,
+        targetId: workspace.resourceId,
         type: AppResourceType.Workspace,
         permissionContainers: makeResourcePermissionContainerList(
           workspace.resourceId,
@@ -330,7 +330,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: clientTokenAgent,
-        resource: workspace,
+        targetId: workspace.resourceId,
         type: AppResourceType.Workspace,
         permissionContainers: makeResourcePermissionContainerList(
           workspace.resourceId,
@@ -389,7 +389,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: clientTokenAgent,
-        resource: workspace,
+        targetId: workspace.resourceId,
         type: AppResourceType.Workspace,
         permissionContainers: makeResourcePermissionContainerList(
           workspace.resourceId,
@@ -400,7 +400,7 @@ describe('checkAuthorization', () => {
       });
     expect(hasFullOrLimitedAccess).toBeFalsy();
     expect(noAccess).toBeFalsy();
-    containsExactly(allowedResourceIdList ?? [], [workspace.resourceId], identity);
+    expectContainsExactly(allowedResourceIdList ?? [], [workspace.resourceId], identity);
     expect(deniedResourceIdList).toBeFalsy();
   });
 
@@ -448,7 +448,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: clientTokenAgent,
-        resource: workspace,
+        targetId: workspace.resourceId,
         type: AppResourceType.Workspace,
         permissionContainers: makeResourcePermissionContainerList(
           workspace.resourceId,
@@ -460,7 +460,7 @@ describe('checkAuthorization', () => {
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
     expect(allowedResourceIdList).toBeFalsy();
-    containsExactly(deniedResourceIdList ?? [], [workspace.resourceId], identity);
+    expectContainsExactly(deniedResourceIdList ?? [], [workspace.resourceId], identity);
   });
 
   test('summarizeAgentPermissionItems denied access', async () => {
@@ -506,7 +506,7 @@ describe('checkAuthorization', () => {
         context,
         workspace,
         agent: clientTokenAgent,
-        resource: workspace,
+        targetId: workspace.resourceId,
         type: AppResourceType.Workspace,
         permissionContainers: makeResourcePermissionContainerList(
           workspace.resourceId,
@@ -550,7 +550,7 @@ async function setupForSummarizeAgentPermissionItemsTest() {
     token.resourceId,
     AppResourceType.ClientAssignedToken,
     /** deleteExisting */ false,
-    /** skipPermissionGroupsCheck */ false
+    /** skipPermissionGroupsExistCheck */ false
   );
   const [clientTokenAgent] = await Promise.all([
     context.session.getAgent(

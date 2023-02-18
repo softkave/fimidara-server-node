@@ -22,7 +22,6 @@ import {
 } from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -37,7 +36,6 @@ const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
   expires: getDateString,
   lastUpdatedAt: getDateString,
   lastUpdatedBy: agentExtractor,
-  permissionGroups: assignedPermissionGroupsListExtractor,
   tokenStr: true,
   // tags: assignedTagListExtractor,
   name: true,
@@ -59,9 +57,9 @@ export async function checkClientAssignedTokenAuthorization(
     context,
     agent,
     workspace,
-    resource: token,
     action,
     nothrow,
+    targetId: token.resourceId,
     type: AppResourceType.ClientAssignedToken,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
@@ -107,7 +105,7 @@ export async function checkClientAssignedTokenAuthorization03(
       EndpointReusableQueries.getByResourceId(tokenId)
     );
   } else if (input.providedResourceId) {
-    const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
+    const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
 
     token = await context.data.clientAssignedToken.assertGetOneByQuery(
       EndpointReusableQueries.getByProvidedId(workspaceId, input.providedResourceId)

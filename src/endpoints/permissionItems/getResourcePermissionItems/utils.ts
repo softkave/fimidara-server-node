@@ -51,14 +51,14 @@ export async function getResourcePermissionItemsQuery(
   }
 
   appAssert(
-    resource || permissionContainer,
+    resource ?? permissionContainer,
     new InvalidRequestError('Permission target or container not found')
   );
 
   let permissionContainerList: IPermissionContainer[] = [];
   if (
     resource &&
-    (resource.resourceType === AppResourceType.File ||
+    (resource.resourceType === AppResourceType.File ??
       resource.resourceType === AppResourceType.Folder)
   ) {
     permissionContainerList = getFilePermissionContainers(
@@ -71,7 +71,7 @@ export async function getResourcePermissionItemsQuery(
     );
   } else if (
     permissionContainer &&
-    (permissionContainer.resourceType === AppResourceType.File ||
+    (permissionContainer.resourceType === AppResourceType.File ??
       permissionContainer.resourceType === AppResourceType.Folder)
   ) {
     permissionContainerList = getFilePermissionContainers(

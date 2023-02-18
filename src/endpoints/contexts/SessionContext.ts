@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import {ResourceWithPermissionGroupsAndTags} from '../../definitions/assignedItem';
+import {ResourceWithTags} from '../../definitions/assignedItem';
 import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
 import {IProgramAccessToken} from '../../definitions/programAccessToken';
 import {
@@ -19,10 +19,7 @@ import {IUserToken} from '../../definitions/userToken';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {cast} from '../../utils/fns';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
+import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {InvalidRequestError} from '../errors';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
@@ -74,9 +71,8 @@ export default class SessionContext implements ISessionContext {
 
     let userToken: IUserToken | null = null;
     let user: IUserWithWorkspace | null = null;
-    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null =
-      null;
-    let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null = null;
+    let clientAssignedToken: ResourceWithTags<IClientAssignedToken> | null = null;
+    let programAccessToken: ResourceWithTags<IProgramAccessToken> | null = null;
     const incomingTokenData = data.incomingTokenData;
 
     switch (incomingTokenData?.sub.type) {
@@ -101,7 +97,7 @@ export default class SessionContext implements ISessionContext {
         const pgt = await ctx.data.programAccessToken.assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
         );
-        programAccessToken = await populateAssignedPermissionGroupsAndTags(
+        programAccessToken = await populateAssignedTags(
           ctx,
           pgt.workspaceId,
           pgt,
@@ -114,7 +110,7 @@ export default class SessionContext implements ISessionContext {
         const clientToken = await ctx.data.clientAssignedToken.assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
         );
-        clientAssignedToken = await populateAssignedPermissionGroupsAndTags(
+        clientAssignedToken = await populateAssignedTags(
           ctx,
           clientToken.workspaceId,
           clientToken,
@@ -227,7 +223,7 @@ export default class SessionContext implements ISessionContext {
 }
 
 export function makeClientAssignedTokenAgent(
-  clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>
+  clientAssignedToken: ResourceWithTags<IClientAssignedToken>
 ): ISessionAgent {
   return {
     clientAssignedToken,
@@ -239,7 +235,7 @@ export function makeClientAssignedTokenAgent(
 }
 
 export function makeProgramAccessTokenAgent(
-  programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>
+  programAccessToken: ResourceWithTags<IProgramAccessToken>
 ): ISessionAgent {
   return {
     programAccessToken,

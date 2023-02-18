@@ -7,15 +7,12 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definition
 import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
-  populateAssignedPermissionGroupsAndTags,
-  populateResourceListWithAssignedPermissionGroupsAndTags,
-} from '../assignedItems/getAssignedItems';
-import {
   checkAuthorization,
   makeWorkspacePermissionContainerList,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
+import {fetchEntityAssignedPermissionGroupList} from '../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import EndpointReusableQueries from '../queries';
 import {agentExtractor} from '../utils';
@@ -40,11 +37,12 @@ const userCollaborationRequestFields = getFields<IPublicCollaborationRequest>(
         date: getDateString,
       })
     ),
-    permissionGroupsOnAccept: data => (data ? assignedPermissionGroupsListExtractor(data) : []),
+    permissionGroupsAssignedOnAcceptingRequest: data =>
+      data ? assignedPermissionGroupsListExtractor(data) : [],
   },
   req => {
-    if (!req.permissionGroupsOnAccept) {
-      req.permissionGroupsOnAccept = [];
+    if (!req.permissionGroupsAssignedOnAcceptingRequest) {
+      req.permissionGroupsAssignedOnAcceptingRequest = [];
     }
 
     return req;
@@ -65,7 +63,7 @@ export async function checkCollaborationRequestAuthorization(
     workspace,
     action,
     nothrow,
-    resource: request,
+    targetId: request.resourceId,
     type: AppResourceType.CollaborationRequest,
     permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
   });
@@ -83,58 +81,37 @@ export async function checkCollaborationRequestAuthorization02(
   const request = await context.data.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(requestId)
   );
-
   return checkCollaborationRequestAuthorization(context, agent, request, action, nothrow);
 }
 
 export const collaborationRequestExtractor = makeExtract(userCollaborationRequestFields);
-
 export const collaborationRequestListExtractor = makeListExtract(userCollaborationRequestFields);
 
 export function throwCollaborationRequestNotFound() {
   throw new NotFoundError('Collaboration request not found');
 }
 
-export async function populateRequestPermissionGroups(
+export async function populateRequestAssignedPermissionGroups(
   context: IBaseContext,
   request: ICollaborationRequest
-) {
-  return await populateAssignedPermissionGroupsAndTags<
-    ICollaborationRequest,
-    IPublicCollaborationRequest
-  >(
+): Promise<IPublicCollaborationRequest> {
+  const {immediatelyAssignedPermissionGroupsMeta} = await fetchEntityAssignedPermissionGroupList(
     context,
     request.workspaceId,
-    request,
-    AppResourceType.CollaborationRequest,
-    {
-      [AppResourceType.PermissionGroup]: 'permissionGroupsOnAccept',
-    },
-    /** includePermissionGroups */ true,
-    /** includeTags */ false
+    request.resourceId,
+    false
   );
+  return {
+    ...request,
+    permissionGroupsAssignedOnAcceptingRequest: immediatelyAssignedPermissionGroupsMeta,
+  };
 }
 
 export async function populateRequestListPermissionGroups(
   context: IBaseContext,
   requests: ICollaborationRequest[]
 ) {
-  if (requests.length === 0) {
-    return [];
-  }
-
-  return await populateResourceListWithAssignedPermissionGroupsAndTags<
-    ICollaborationRequest,
-    IPublicCollaborationRequest
-  >(
-    context,
-    requests[0].workspaceId,
-    requests,
-    AppResourceType.CollaborationRequest,
-    {
-      [AppResourceType.PermissionGroup]: 'permissionGroupsOnAccept',
-    },
-    /** includePermissionGroups */ true,
-    /** includeTags */ false
+  return await Promise.all(
+    requests.map(request => populateRequestAssignedPermissionGroups(context, request))
   );
 }

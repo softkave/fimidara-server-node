@@ -12,11 +12,15 @@ export interface IPermissionGroup {
   description?: string;
 }
 
-export interface IAssignedPermissionGroup {
+export interface IAssignedPermissionGroupMeta {
   permissionGroupId: string;
   assignedAt: Date | string;
   assignedBy: IAgent;
   order: number;
+}
+
+export interface IPermissionGroupWithAssignedPermissionGroups extends IPermissionGroup {
+  assignedPermissionGroupsMeta: IAssignedPermissionGroupMeta[];
 }
 
 export interface IPermissionGroupMatcher {
@@ -34,8 +38,13 @@ export interface IPublicPermissionGroup {
   lastUpdatedAt: string;
   name: string;
   description?: string;
-  permissionGroups: IAssignedPermissionGroup[];
   tags: IAssignedTag[];
+}
+
+export type IPublicAssignedPermissionGroupMeta = IAssignedPermissionGroupMeta;
+export interface IPublicPermissionGroupWithAssignedPermissionGroupsMeta
+  extends IPublicPermissionGroup {
+  assignedPermissionGroupsMeta: IAssignedPermissionGroupMeta[];
 }
 
 export interface IAssignPermissionGroupInput {

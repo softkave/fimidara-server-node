@@ -13,7 +13,6 @@ export interface IGetResourcePermissionItemsEndpointParamsBase
   targetId?: string;
   targetType: AppResourceType;
   containerId?: string;
-  containerType?: AppResourceType;
 }
 
 export interface IGetResourcePermissionItemsEndpointParams

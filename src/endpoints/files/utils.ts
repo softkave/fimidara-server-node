@@ -55,7 +55,7 @@ export async function checkFileAuthorization(
     workspace,
     action,
     nothrow,
-    resource: file,
+    targetId: file.resourceId,
     type: AppResourceType.File,
     permissionContainers: getFilePermissionContainers(
       workspace.resourceId,

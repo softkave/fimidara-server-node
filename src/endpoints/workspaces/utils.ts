@@ -98,7 +98,7 @@ export async function checkWorkspaceAuthorization(
     workspace,
     action,
     nothrow,
-    resource: workspace,
+    targetId: workspace.resourceId,
     type: AppResourceType.Workspace,
     permissionContainers: [],
   });

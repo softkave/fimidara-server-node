@@ -1,20 +1,16 @@
 import {AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
+import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
-import {getResources, IGetResourcesOptions} from '../resources/getResources';
+import {getResources, IFetchResourceItemWithAction} from '../resources/getResources';
 import {checkResourcesBelongToWorkspace} from '../resources/isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
-
-interface IPermissionResource {
-  targetId?: string;
-  targetType: AppResourceType;
-}
 
 export default async function checkPermissionTargetsExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  items: Array<IPermissionResource>
+  items: Array<string>
 ) {
   /**
    * TODO:
@@ -25,18 +21,18 @@ export default async function checkPermissionTargetsExist(
     context,
     agent,
     workspace,
-    inputResources: items.reduce((list, item) => {
-      if (item.targetId) {
-        list.push({resourceId: item.targetId, resourceType: item.targetType});
-      }
-      return list;
-    }, [] as IGetResourcesOptions['inputResources']),
+    inputResources: items.map(id => {
+      const fetchResourceItem: IFetchResourceItemWithAction = {
+        resourceId: id,
+        resourceType: getResourceTypeFromId(id),
+      };
+      return fetchResourceItem;
+    }),
     checkAuth: true,
   });
-
   resources = await resourceListWithAssignedItems(context, workspace.resourceId, resources, [
     AppResourceType.User,
   ]);
-  checkResourcesBelongToWorkspace(workspace.resourceId, resources, true);
+  checkResourcesBelongToWorkspace(workspace.resourceId, resources);
   return {resources};
 }

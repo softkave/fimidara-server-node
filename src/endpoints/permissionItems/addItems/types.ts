@@ -5,13 +5,11 @@ import {Endpoint} from '../../types';
 
 export interface INewPermissionItemInput {
   containerId: string;
-  containerType: AppResourceType;
   targetId?: string;
   targetType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
   permissionEntityId: string;
-  permissionEntityType: AppResourceType;
   appliesTo: PermissionItemAppliesTo;
 }
 

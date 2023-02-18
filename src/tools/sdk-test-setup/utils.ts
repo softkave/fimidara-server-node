@@ -64,7 +64,7 @@ async function createProgramAccessToken(
       ],
     },
     {
-      skipPermissionGroupsCheck: true,
+      skipPermissionGroupsExistCheck: true,
     }
   );
 

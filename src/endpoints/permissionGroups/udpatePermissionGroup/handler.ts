@@ -1,10 +1,10 @@
 import {omit} from 'lodash';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {getDateString} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
@@ -36,24 +36,14 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
     EndpointReusableQueries.getByResourceId(permissionGroup.resourceId),
     update
   );
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    permissionGroup.resourceId,
-    AppResourceType.PermissionGroup,
-    data.data
-  );
-  permissionGroup = await populateAssignedPermissionGroupsAndTags(
+  await saveResourceAssignedItems(context, agent, workspace, permissionGroup.resourceId, data.data);
+  permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,
-    permissionGroup,
-    AppResourceType.PermissionGroup
+    permissionGroup
   );
 
-  return {
-    permissionGroup: permissionGroupExtractor(permissionGroup),
-  };
+  return {permissionGroup: permissionGroupExtractor(permissionGroup)};
 };
 
 export default updatePermissionGroup;

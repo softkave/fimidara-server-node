@@ -44,9 +44,9 @@ export const addFolderBaseTest = async (
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
-  insertUserResult = insertUserResult || (await insertUserForTest(ctx));
+  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
   const {folder} = await insertFolderForTest(
     ctx,
     insertUserResult.userToken,
@@ -68,7 +68,7 @@ export const addFolderWithPublicAccessOpsTest = async (
   const uploadResult = await addFolderBaseTest(ctx, input);
   const {savedFolder} = uploadResult;
   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps || []);
+  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps ?? []);
   return uploadResult;
 };
 

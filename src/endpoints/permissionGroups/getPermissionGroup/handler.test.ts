@@ -10,7 +10,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import getProgramAccessToken from './handler';
+import getPermissionGroup from './handler';
 
 let context: IBaseContext | null = null;
 
@@ -34,12 +34,9 @@ test('referenced permissionGroup returned', async () => {
 
   const instData = RequestData.fromExpressRequest<IPermissionGroupMatcher>(
     mockExpressRequestWithUserToken(userToken),
-    {
-      permissionGroupId: permissionGroup.resourceId,
-    }
+    {permissionGroupId: permissionGroup.resourceId}
   );
-
-  const result = await getProgramAccessToken(context, instData);
+  const result = await getPermissionGroup(context, instData);
   assertEndpointResultOk(result);
   expect(result.permissionGroup).toMatchObject(permissionGroup);
 });

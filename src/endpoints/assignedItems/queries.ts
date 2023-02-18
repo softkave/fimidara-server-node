@@ -1,4 +1,4 @@
-import {isUndefined} from 'lodash';
+import {isArray, isUndefined} from 'lodash';
 import {IAssignedItem, IAssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
 import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
@@ -8,14 +8,9 @@ function newFilter() {
   return new DataProviderFilterBuilder<IAssignedItem>();
 }
 
-function getByAssignedItem(
-  workspaceId: string,
-  assignedItemId: string,
-  assignedItemType: AppResourceType
-) {
+function getByAssignedItem(workspaceId: string, assignedItemId: string) {
   const filter = newFilter()
     .addItem('assignedItemId', assignedItemId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedItemType', assignedItemType, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();
 }
@@ -52,13 +47,17 @@ function getWorkspaceCollaborators(
  */
 function getByAssignedToResource(
   workspaceId: string | undefined,
-  assignedToItemId: string,
-  assignedToItemType: AppResourceType,
+  assignedToItemId: string | string[],
   assignedItemTypeList?: ReadonlyArray<AppResourceType>
 ) {
-  const filter = newFilter()
-    .addItem('assignedToItemId', assignedToItemId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedToItemType', assignedToItemType, DataProviderFilterValueOperator.Equal);
+  const filter = newFilter();
+
+  if (isArray(assignedToItemId)) {
+    filter.addItem('assignedToItemId', assignedToItemId, DataProviderFilterValueOperator.In);
+  } else {
+    filter.addItem('assignedToItemId', assignedToItemId, DataProviderFilterValueOperator.Equal);
+  }
+
   if (assignedItemTypeList) {
     filter.addItem('assignedItemType', assignedItemTypeList, DataProviderFilterValueOperator.In);
   }
@@ -72,13 +71,7 @@ function getByAssignedToResource(
 function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
   const filter = newFilter()
     .addItem('assignedItemId', matcher.assignedItemId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedItemType', matcher.assignedItemType, DataProviderFilterValueOperator.Equal)
     .addItem('assignedToItemId', matcher.assignedToItemId, DataProviderFilterValueOperator.Equal)
-    .addItem(
-      'assignedToItemType',
-      matcher.assignedToItemType,
-      DataProviderFilterValueOperator.Equal
-    )
     .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();
 }

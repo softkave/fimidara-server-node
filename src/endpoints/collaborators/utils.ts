@@ -55,7 +55,7 @@ export async function checkCollaboratorAuthorization(
     workspace,
     action,
     nothrow,
-    resource: collaborator,
+    targetId: collaborator.resourceId,
     type: AppResourceType.User,
     permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
   });

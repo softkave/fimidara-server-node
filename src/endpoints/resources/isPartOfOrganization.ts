@@ -1,16 +1,13 @@
 import {format} from 'util';
 import {AppResourceType} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
-import {InternalError} from '../../utils/errors';
+import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {InvalidRequestError} from '../errors';
 import {IResource, IWorkspaceResource} from './types';
 
-export function isResourcePartOfWorkspace(
-  workspaceId: string,
-  resource: IResource,
-  acknowledgeUserWorkspacesFilledIn: boolean
-) {
+export function isResourcePartOfWorkspace(workspaceId: string, resource: IResource) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === workspaceId;
@@ -23,10 +20,8 @@ export function isResourcePartOfWorkspace(
     case AppResourceType.File:
       return (resource.resource as IWorkspaceResource).workspaceId === workspaceId;
     case AppResourceType.User:
-      if (!acknowledgeUserWorkspacesFilledIn) {
-        throw new InternalError('User workspaces not filled in');
-      }
-
+      const user = resource.resource as IUserWithWorkspace;
+      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
       return !!getCollaboratorWorkspace(resource.resource as IUserWithWorkspace, workspaceId);
     case AppResourceType.UserToken:
     default:
@@ -34,47 +29,20 @@ export function isResourcePartOfWorkspace(
   }
 }
 
-export function getResourcesNotPartOfWorkspace(
-  workspaceId: string,
-  resources: IResource[],
-  acknowledgeUserWorkspacesFilledIn: boolean
-) {
-  return resources.filter(
-    item => !isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn)
-  );
+export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+  return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function getResourcesPartOfWorkspace(
-  workspaceId: string,
-  resources: IResource[],
-  acknowledgeUserWorkspacesFilledIn: boolean
-) {
-  return resources.filter(item =>
-    isResourcePartOfWorkspace(workspaceId, item, acknowledgeUserWorkspacesFilledIn)
-  );
+export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+  return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function hasResourcesNotPartOfWorkspace(
-  workspaceId: string,
-  resources: IResource[],
-  acknowledgeUserWorkspacesFilledIn: boolean
-) {
-  return (
-    getResourcesNotPartOfWorkspace(workspaceId, resources, acknowledgeUserWorkspacesFilledIn)
-      .length > 0
-  );
+export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+  return getResourcesNotPartOfWorkspace(workspaceId, resources).length > 0;
 }
 
-export function checkResourcesBelongToWorkspace(
-  workspaceId: string,
-  resources: IResource[],
-  acknowledgeUserWorkspacesFilledIn: boolean
-) {
-  const outsideResources = getResourcesNotPartOfWorkspace(
-    workspaceId,
-    resources,
-    acknowledgeUserWorkspacesFilledIn
-  );
+export function checkResourcesBelongToWorkspace(workspaceId: string, resources: IResource[]) {
+  const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
   if (outsideResources.length) {
     const message = format(
       'The following resources do not belong to workspace %s: \n%O',

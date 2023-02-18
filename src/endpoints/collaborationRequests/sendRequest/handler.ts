@@ -25,7 +25,7 @@ import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import CollaborationRequestQueries from '../queries';
-import {collaborationRequestExtractor, populateRequestPermissionGroups} from '../utils';
+import {collaborationRequestExtractor, populateRequestAssignedPermissionGroups} from '../utils';
 import {SendCollaborationRequestEndpoint} from './types';
 import {sendCollaborationRequestJoiSchema} from './validation';
 
@@ -115,7 +115,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   }
 
   await sendCollaborationRequestEmail(context, request, existingUser);
-  request = await populateRequestPermissionGroups(context, request);
+  request = await populateRequestAssignedPermissionGroups(context, request);
   return {
     request: collaborationRequestExtractor(request),
   };

@@ -1,5 +1,5 @@
 import {systemAgent} from '../../../definitions/system';
-import {calculatePageSize, containsNoneIn, getResourceId} from '../../../utils/fns';
+import {calculatePageSize, expectContainsNoneIn, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
@@ -78,7 +78,7 @@ describe('getUserWorkspaces', () => {
     );
     const result01 = await getUserWorkspaces(context, instData);
     assertEndpointResultOk(result01);
-    containsNoneIn(result00.workspaces, result01.workspaces, getResourceId);
+    expectContainsNoneIn(result00.workspaces, result01.workspaces, getResourceId);
     expect(result01.page).toBe(page);
     expect(result01.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
   });

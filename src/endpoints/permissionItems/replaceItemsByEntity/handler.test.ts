@@ -5,13 +5,14 @@ import {
   assertContext,
   initTestBaseContext,
   insertPermissionGroupForTest,
-  insertPermissionItemsForTestByEntity,
+  insertPermissionItemsForTestForEntity,
   insertUserForTest,
   insertWorkspaceForTest,
-  ITestPermissionItemByEntityBase,
   ITestPermissionItemContainer,
+  mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import PermissionItemQueries from '../queries';
+import {INewPermissionItemInputByEntity} from './types';
 
 /**
  * TODO:
@@ -43,19 +44,12 @@ describe('replaceItemsByEntity', () => {
       userToken,
       workspace.resourceId
     );
-
-    await insertPermissionItemsForTestByEntity(
+    await insertPermissionItemsForTestForEntity(
       context,
-      userToken,
+      mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
-      {
-        permissionEntityId: permissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-      },
-      {
-        containerId: workspace.resourceId,
-        containerType: AppResourceType.Workspace,
-      },
+      {permissionEntityId: permissionGroup.resourceId},
+      {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
   });
@@ -69,25 +63,16 @@ describe('replaceItemsByEntity', () => {
       userToken,
       workspace.resourceId
     );
-
-    const itemsContainer: ITestPermissionItemContainer = {
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-    };
-
-    const itemsBase: ITestPermissionItemByEntityBase = {
+    const itemsContainer: ITestPermissionItemContainer = {containerId: workspace.resourceId};
+    const itemsBase: Partial<INewPermissionItemInputByEntity> = {
       targetType: AppResourceType.File,
     };
-
-    const entity: IPermissionEntity = {
-      permissionEntityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-    };
+    const entity: IPermissionEntity = {permissionEntityId: permissionGroup.resourceId};
 
     // First insert
-    await insertPermissionItemsForTestByEntity(
+    await insertPermissionItemsForTestForEntity(
       context,
-      userToken,
+      mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
       entity,
       itemsContainer,
@@ -96,15 +81,14 @@ describe('replaceItemsByEntity', () => {
 
     // Second insert of the very same permission items as the first
     // insert
-    const result = await insertPermissionItemsForTestByEntity(
+    const result = await insertPermissionItemsForTestForEntity(
       context,
-      userToken,
+      mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
       entity,
       itemsContainer,
       itemsBase
     );
-
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(entity.permissionEntityId)
     );

@@ -6,7 +6,7 @@ import {
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {IPaginationQuery} from '../../types';
@@ -30,13 +30,13 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
       ? fetchFiles(context, agent, workspace, parentFolder, data)
       : [],
   ]);
-  fetchedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  fetchedFolders = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
     fetchedFolders,
     AppResourceType.Folder
   );
-  fetchedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  fetchedFiles = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
     fetchedFiles,
