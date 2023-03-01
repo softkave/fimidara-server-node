@@ -1,11 +1,9 @@
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
   initTestBaseContext,
-  insertPermissionGroupForTest,
   insertProgramAccessTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -30,33 +28,9 @@ afterAll(async () => {
 
 test('program access token added', async () => {
   assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
+  const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-
-  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-
-  const {token} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId, {
-    permissionGroups: [
-      {
-        permissionGroupId: permissionGroup01.resourceId,
-        order: 1,
-      },
-      {
-        permissionGroupId: permissionGroup02.resourceId,
-        order: 2,
-      },
-    ],
-  });
-
+  const {token} = await insertProgramAccessTokenForTest(context, userToken, workspace.resourceId);
   const savedToken = getPublicProgramToken(
     context,
     await populateAssignedTags(
@@ -64,22 +38,8 @@ test('program access token added', async () => {
       workspace.resourceId,
       await context.data.programAccessToken.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(token.resourceId)
-      ),
-      AppResourceType.ProgramAccessToken
+      )
     )
   );
-
   expect(programAccessTokenExtractor(savedToken)).toMatchObject(token);
-  expect(token.permissionGroups.length).toEqual(2);
-  expect(token.permissionGroups[0]).toMatchObject({
-    permissionGroupId: permissionGroup01.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
-  });
-
-  expect(token.permissionGroups[1]).toMatchObject({
-    permissionGroupId: permissionGroup02.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 2,
-  });
 });

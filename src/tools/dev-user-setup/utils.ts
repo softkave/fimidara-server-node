@@ -2,13 +2,12 @@ import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {systemAgent} from '../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
-  saveResourceAssignedItems,
 } from '../../endpoints/assignedItems/addAssignedItems';
 import CollaborationRequestQueries from '../../endpoints/collaborationRequests/queries';
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
@@ -123,21 +122,9 @@ async function makeUserAdmin(
   const isAdmin = await isUserAdmin(context, userId, workspace.resourceId, adminPermissionGroupId);
   if (!isAdmin) {
     consoleLogger.info('Making user admin');
-    await saveResourceAssignedItems(
-      context,
-      systemAgent,
-      workspace,
-      userId,
-      {
-        permissionGroups: [{permissionGroupId: adminPermissionGroupId, order: 0}],
-      },
-      /* deleteExisting */ false,
-      {skipPermissionGroupsExistCheck: true}
-    );
-
     await addAssignedPermissionGroupList(
       context,
-      systemAgent,
+      SYSTEM_SESSION_AGENT,
       workspace,
       [{permissionGroupId: adminPermissionGroupId, order: 0}],
       userId,
@@ -196,7 +183,7 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
       });
     } else {
       consoleLogger.info('Adding user to workspace');
-      await assignWorkspaceToUser(context, systemAgent, workspace.resourceId, user);
+      await assignWorkspaceToUser(context, SYSTEM_SESSION_AGENT, workspace.resourceId, user);
     }
 
     await makeUserAdmin(context, user.resourceId, workspace, adminPermissionGroup.resourceId);

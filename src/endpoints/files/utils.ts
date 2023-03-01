@@ -1,7 +1,6 @@
 import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
@@ -13,23 +12,18 @@ import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import WorkspaceQueries from '../workspaces/queries';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
 
 const fileFields = getFields<IPublicFile>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  ...workspaceResourceFields,
   name: true,
   description: true,
   folderId: true,
   mimetype: true,
-  workspaceId: true,
   size: true,
   encoding: true,
   extension: true,
@@ -52,16 +46,15 @@ export async function checkFileAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
     nothrow,
-    targetId: file.resourceId,
-    type: AppResourceType.File,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      file,
-      AppResourceType.File
-    ),
+    workspaceId: workspace.resourceId,
+    targets: [
+      {
+        targetId: file.resourceId,
+        containerId: getFilePermissionContainers(workspace.resourceId, file),
+      },
+    ],
   });
 
   return {agent, file, workspace};
@@ -88,7 +81,6 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
   const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
   let nameWithoutExtension = splitStr[0];
   let extension: string | undefined = splitStr.slice(1).join(fileConstants.nameExtensionSeparator);
-
   if (extension && !nameWithoutExtension) {
     nameWithoutExtension = extension;
     extension = undefined;

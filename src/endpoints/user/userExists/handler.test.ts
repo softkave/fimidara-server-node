@@ -9,7 +9,7 @@ import {
   mockExpressRequest,
 } from '../../test-utils/test-utils';
 import userExists from './handler';
-import {IUserExistsParams} from './types';
+import {IUserExistsEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -24,12 +24,9 @@ afterAll(async () => {
 test('returns true if user exists', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IUserExistsParams>(
-    mockExpressRequest(),
-    {
-      email: user.email,
-    }
-  );
+  const instData = RequestData.fromExpressRequest<IUserExistsEndpointParams>(mockExpressRequest(), {
+    email: user.email,
+  });
 
   const result = await userExists(context, instData);
   assertEndpointResultOk(result);
@@ -38,12 +35,9 @@ test('returns true if user exists', async () => {
 
 test('returns false if user does not exists', async () => {
   assertContext(context);
-  const instData = RequestData.fromExpressRequest<IUserExistsParams>(
-    mockExpressRequest(),
-    {
-      email: faker.internet.email(),
-    }
-  );
+  const instData = RequestData.fromExpressRequest<IUserExistsEndpointParams>(mockExpressRequest(), {
+    email: faker.internet.email(),
+  });
 
   const result = await userExists(context, instData);
   assertEndpointResultOk(result);

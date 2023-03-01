@@ -29,8 +29,9 @@ test('user signup successful with token creation', async () => {
   };
 
   const result = await insertUserForTest(context, userInput);
-  const savedUser = await context.data.user.assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
-
+  const savedUser = await context.data.user.assertGetOneByQuery(
+    UserQueries.getById(result.user.resourceId)
+  );
   expect(savedUser).toBeTruthy();
   expect(result.userToken).toBeTruthy();
   expect(result.userTokenStr).toBeTruthy();

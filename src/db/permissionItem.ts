@@ -1,23 +1,19 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IPermissionItem} from '../definitions/permissionItem';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const permissionItemSchema = ensureTypeFields<IPermissionItem>({
-  resourceId: {type: String, index: true, unique: true},
-  workspaceId: {type: String, index: true},
+  ...workspaceResourceSchema,
   containerId: {type: String, index: true},
   containerType: {type: String, index: true},
-  permissionEntityId: {type: String, index: true},
-  permissionEntityType: {type: String, index: true},
+  entityId: {type: String, index: true},
+  entityType: {type: String, index: true},
   targetId: {type: String, index: true},
   targetType: {type: String, index: true},
   grantAccess: {type: Boolean, index: true},
   appliesTo: {type: String, index: true},
   action: {type: String, index: true},
   hash: {type: String, index: true},
-  createdAt: {type: Date, default: getDate},
-  createdBy: {type: agentSchema},
 });
 
 export type IPermissionItemDocument = Document<IPermissionItem>;

@@ -1,12 +1,12 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {UsageRecordCategory} from '../definitions/usageRecord';
 import {IUsageThreshold, IUsageThresholdLock, IWorkspace} from '../definitions/workspace';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {getTimestamp} from '../utils/dateFns';
+import {agentSchema, ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
   lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date, default: getDate},
+  lastUpdatedAt: {type: Number, default: getTimestamp},
   category: {type: String},
   budget: {type: Number},
 });
@@ -22,7 +22,7 @@ const usageThresholdMapSchema = ensureTypeFields<Record<UsageRecordCategory, IUs
 
 const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
   lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date, default: getDate},
+  lastUpdatedAt: {type: Number, default: getTimestamp},
   category: {type: String},
   locked: {type: Boolean},
 });
@@ -37,16 +37,12 @@ const usageThresholdLockMapSchema = ensureTypeFields<Record<UsageRecordCategory,
 });
 
 const workspaceSchema = ensureTypeFields<IWorkspace>({
-  resourceId: {type: String, unique: true, index: true},
+  ...workspaceResourceSchema,
   name: {type: String, index: true},
   rootname: {type: String, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate},
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
   description: {type: String},
   publicPermissionGroupId: {type: String},
-  billStatusAssignedAt: {type: Date},
+  billStatusAssignedAt: {type: Number},
   billStatus: {type: String},
   usageThresholds: {
     type: usageThresholdMapSchema,

@@ -4,7 +4,7 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
@@ -20,7 +20,7 @@ export async function getWorkspaceCollaboratorsQuery(
     agent,
     workspace,
     type: AppResourceType.User,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
     action: BasicCRUDActions.Read,
   });
 

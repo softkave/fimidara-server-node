@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -41,13 +40,11 @@ test('permissionGroup updated', async () => {
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
     context,
     userToken,
@@ -57,18 +54,7 @@ test('permissionGroup updated', async () => {
   const updatePermissionGroupInput: IUpdatePermissionGroupInput = {
     name: faker.lorem.words(2),
     description: faker.lorem.words(10),
-    permissionGroups: [
-      {
-        permissionGroupId: permissionGroup01.resourceId,
-        order: 1,
-      },
-      {
-        permissionGroupId: permissionGroup02.resourceId,
-        order: 2,
-      },
-    ],
   };
-
   const instData = RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
@@ -85,23 +71,10 @@ test('permissionGroup updated', async () => {
     workspace.resourceId,
     await context.data.permissiongroup.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
-    ),
-    AppResourceType.PermissionGroup
+    )
   );
 
   expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(result.permissionGroup);
   expect(updatedPermissionGroup.name).toEqual(updatePermissionGroupInput.name);
   expect(updatedPermissionGroup.description).toEqual(updatePermissionGroupInput.description);
-  expect(result.permissionGroup.assignedPermissionGroupsMeta.length).toEqual(2);
-  expect(result.permissionGroup.assignedPermissionGroupsMeta[0]).toMatchObject({
-    permissionGroupId: permissionGroup01.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
-  });
-
-  expect(result.permissionGroup.assignedPermissionGroupsMeta[1]).toMatchObject({
-    permissionGroupId: permissionGroup02.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 2,
-  });
 });

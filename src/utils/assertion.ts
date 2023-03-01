@@ -1,11 +1,12 @@
 import {isString} from 'lodash';
+import {ServerError} from './errors';
 import {logger} from './logger/logger';
 import OperationError from './OperationError';
 import {AnyFn} from './types';
 
 export function appAssert(
   value: any,
-  response?: string | Error | AnyFn,
+  response: string | Error | AnyFn = new ServerError(),
   logMessage?: string
 ): asserts value {
   if (!value) {

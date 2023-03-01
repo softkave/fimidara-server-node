@@ -11,7 +11,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
-import {collaborationRequestExtractor} from '../utils';
+import {collaborationRequestForUserExtractor} from '../utils';
 import revokeCollaborationRequest from './handler';
 import {IRevokeCollaborationRequestEndpointParams} from './types';
 
@@ -30,9 +30,14 @@ test('collaboration request revoked', async () => {
   const {userToken} = await insertUserForTest(context);
   const {user: user02} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {request: request01} = await insertRequestForTest(context, userToken, workspace.resourceId, {
-    recipientEmail: user02.email,
-  });
+  const {request: request01} = await insertRequestForTest(
+    context,
+    userToken,
+    workspace.resourceId,
+    {
+      recipientEmail: user02.email,
+    }
+  );
 
   const instData = RequestData.fromExpressRequest<IRevokeCollaborationRequestEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
@@ -48,7 +53,7 @@ test('collaboration request revoked', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(collaborationRequestExtractor(updatedRequest));
+  expect(result.request).toMatchObject(collaborationRequestForUserExtractor(updatedRequest));
   expect(updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]).toMatchObject({
     status: CollaborationRequestStatusType.Revoked,
   });

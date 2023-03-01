@@ -1,20 +1,17 @@
+import {appMessages} from '../../utils/messages';
 import OperationError, {
   getErrorMessageFromParams,
   IOperationErrorParameters,
 } from '../../utils/OperationError';
 import {endpointConstants} from '../constants';
 import {ServerRecommendedActions} from '../types';
-import {throwUserNotFound, throwUserTokenNotFound} from './utils';
 
 export class EmailAddressNotAvailableError extends OperationError {
   name = 'EmailAddressNotAvailableError';
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Email address is not available'
-    );
+    this.message = getErrorMessageFromParams(props, 'Email address is not available');
   }
 }
 
@@ -24,7 +21,7 @@ export class InvalidCredentialsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Invalid credentials');
+    this.message = getErrorMessageFromParams(props, appMessages.token.invalidCredentials);
   }
 }
 
@@ -43,10 +40,7 @@ export class InvalidEmailOrPasswordError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Invalid email or password'
-    );
+    this.message = getErrorMessageFromParams(props, 'Invalid email or password');
   }
 }
 
@@ -64,10 +58,7 @@ export class EmailAddressVerifiedError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Email address already verified'
-    );
+    this.message = getErrorMessageFromParams(props, 'Email address already verified');
   }
 }
 
@@ -89,14 +80,6 @@ export class IncorrectPasswordError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: IOperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'The password you entered is incorrect'
-    );
+    this.message = getErrorMessageFromParams(props, 'The password you entered is incorrect');
   }
 }
-
-export const userCommonErrors = {
-  notFound: throwUserNotFound,
-  tokenNotFound: throwUserTokenNotFound,
-};

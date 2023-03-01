@@ -1,4 +1,3 @@
-import {AppResourceType} from '../../../definitions/system';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
@@ -47,10 +46,8 @@ test('collaborator removed', async () => {
   const assignedItems = await getResourceAssignedItems(
     context,
     workspace.resourceId,
-    user.resourceId,
-    AppResourceType.User
+    user.resourceId
   );
-
   expect(assignedItems.findIndex(item => item.assignedToItemId === workspace.resourceId)).toBe(-1);
 
   try {

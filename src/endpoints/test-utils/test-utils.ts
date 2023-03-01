@@ -66,7 +66,7 @@ import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 import signup from '../user/signup/signup';
-import {ISignupParams} from '../user/signup/types';
+import {ISignupEndpointParams} from '../user/signup/types';
 import UserTokenQueries from '../user/UserTokenQueries';
 import addWorkspace from '../workspaces/addWorkspace/handler';
 import {IAddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
@@ -188,15 +188,15 @@ export interface IInsertUserForTestResult {
   userToken: IUserToken;
   user: IPublicUserData;
   userTokenStr: string;
-  reqData: RequestData<ISignupParams>;
+  reqData: RequestData<ISignupEndpointParams>;
 }
 
 export async function insertUserForTest(
   context: IBaseContext,
-  userInput: Partial<ISignupParams> = {},
+  userInput: Partial<ISignupEndpointParams> = {},
   skipAutoVerifyEmail = false // Tests that mutate data will fail otherwise
 ): Promise<IInsertUserForTestResult> {
-  const instData = RequestData.fromExpressRequest<ISignupParams>(mockExpressRequest(), {
+  const instData = RequestData.fromExpressRequest<ISignupEndpointParams>(mockExpressRequest(), {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
@@ -275,7 +275,6 @@ export async function insertPermissionGroupForTest(
       permissionGroup: {
         name: faker.lorem.words(3),
         description: faker.lorem.words(10),
-        permissionGroups: [],
         ...permissionGroupInput,
       },
     }
@@ -321,7 +320,6 @@ export async function insertClientAssignedTokenForTest(
     {
       workspaceId,
       token: {
-        permissionGroups: [],
         expires: add(Date.now(), {days: 1}).toISOString(),
         name: faker.lorem.words(3),
         description: faker.lorem.words(10),
@@ -387,7 +385,7 @@ export async function insertPermissionItemsForTestForEntity(
   context: IBaseContext,
   req: IServerRequest,
   workspaceId: string,
-  entity: Pick<IPermissionEntity, 'permissionEntityId'>,
+  entity: Pick<IPermissionEntity, 'entityId'>,
   container: ITestPermissionItemContainer,
   base: Partial<INewPermissionItemInputByEntity> | Array<Partial<INewPermissionItemInputByEntity>>
 ) {
@@ -403,7 +401,7 @@ export async function insertPermissionItemsForTestForEntity(
 
   const result = await replacePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
-  expectPermissionItemsForEntityPresent(result.items, itemsInput, entity.permissionEntityId);
+  expectPermissionItemsForEntityPresent(result.items, itemsInput, entity.entityId);
   return result;
 }
 

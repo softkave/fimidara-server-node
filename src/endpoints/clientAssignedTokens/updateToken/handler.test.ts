@@ -1,3 +1,5 @@
+import {faker} from '@faker-js/faker';
+import {getTimestamp} from '../../../utils/dateFns';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -7,20 +9,13 @@ import {
   assertEndpointResultOk,
   initTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {clientAssignedTokenExtractor, getPublicClientToken} from '../utils';
 import updateClientAssignedToken from './handler';
-import {IUpdateClientAssignedTokenEndpointParams} from './types';
-
-/**
- * TODO:
- * - [Low] Test that hanlder fails if permissionGroup doesn't exist
- * - Test updating other fields
- */
+import {IUpdateClientAssignedTokenEndpointParams, IUpdateClientAssignedTokenInput} from './types';
 
 let context: IBaseContext | null = null;
 
@@ -34,34 +29,24 @@ afterAll(async () => {
 
 test('client assigned token permission groups updated', async () => {
   assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
+  const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token: token01} = await insertClientAssignedTokenForTest(
     context,
     userToken,
     workspace.resourceId
   );
-  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-
+  const update: IUpdateClientAssignedTokenInput = {
+    name: faker.lorem.words(),
+    description: faker.lorem.paragraph(),
+    expires: getTimestamp(),
+    providedResourceId: faker.datatype.uuid(),
+  };
   const instData = RequestData.fromExpressRequest<IUpdateClientAssignedTokenEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       tokenId: token01.resourceId,
-      token: {
-        permissionGroups: [
-          {permissionGroupId: permissionGroup01.resourceId, order: 1},
-          {permissionGroupId: permissionGroup02.resourceId, order: 2},
-        ],
-      },
+      token: update,
     }
   );
 
@@ -79,4 +64,5 @@ test('client assigned token permission groups updated', async () => {
   );
 
   expect(clientAssignedTokenExtractor(updatedToken)).toMatchObject(result.token);
+  expect(updatedToken).toMatchObject(update);
 });

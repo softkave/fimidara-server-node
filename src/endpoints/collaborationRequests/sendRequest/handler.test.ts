@@ -40,14 +40,13 @@ describe('sendCollaborationRequest', () => {
       recipientEmail: user02.email,
       message: faker.lorem.paragraph(),
       expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsOnAccept: [
+      permissionGroupsAssignedOnAcceptingRequest: [
         {
           permissionGroupId: permissionGroup.resourceId,
           order: 0,
         },
       ],
     };
-
     const {request: request01} = await insertRequestForTest(
       context,
       userToken,
@@ -62,11 +61,9 @@ describe('sendCollaborationRequest', () => {
     const savedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
-
     expect(request01).toMatchObject(
       await populateRequestAssignedPermissionGroups(context, savedRequest)
     );
-
     expect(savedRequest.statusHistory[savedRequest.statusHistory.length - 1]).toMatchObject({
       status: CollaborationRequestStatusType.Pending,
     });

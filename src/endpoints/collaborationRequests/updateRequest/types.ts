@@ -1,12 +1,12 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
 import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface IUpdateCollaborationRequestInput {
   message?: string;
-  expires?: string;
-  permissionGroupsOnAccept?: IAssignPermissionGroupInput[];
+  expires?: number;
+  permissionGroupsAssignedOnAcceptingRequest?: IAssignPermissionGroupInput[];
 }
 
 export interface IUpdateCollaborationRequestEndpointParams {
@@ -15,7 +15,7 @@ export interface IUpdateCollaborationRequestEndpointParams {
 }
 
 export interface IUpdateCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+  request: IPublicCollaborationRequestForWorkspace;
 }
 
 export type UpdateCollaborationRequestEndpoint = Endpoint<

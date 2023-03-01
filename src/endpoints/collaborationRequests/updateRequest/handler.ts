@@ -1,12 +1,12 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {BasicCRUDActions} from '../../../definitions/system';
+import {getTimestamp} from '../../../utils/dateFns';
 import {isObjectEmpty} from '../../../utils/fns';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization02,
-  collaborationRequestExtractor,
+  collaborationRequestForWorkspaceExtractor,
   populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {UpdateCollaborationRequestEndpoint} from './types';
@@ -26,36 +26,27 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   );
 
   if (!isObjectEmpty(data.request)) {
-    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getByResourceId(data.requestId),
-      {
-        message: data.request.message ?? request.message,
-        expiresAt: data.request.expires,
-        lastUpdatedAt: getDateString(),
-        lastUpdatedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-      }
-    );
+    request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
+      message: data.request.message ?? request.message,
+      expiresAt: data.request.expires,
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    });
 
-    if (data.request.permissionGroupsOnAccept) {
+    if (data.request.permissionGroupsAssignedOnAcceptingRequest) {
       await addAssignedPermissionGroupList(
         context,
         agent,
-        workspace,
-        data.request.permissionGroupsOnAccept,
+        workspace.resourceId,
+        data.request.permissionGroupsAssignedOnAcceptingRequest,
         request.resourceId,
-        AppResourceType.CollaborationRequest,
         /** deleteExisting */ true
       );
     }
   }
 
   request = await populateRequestAssignedPermissionGroups(context, request);
-  return {
-    request: collaborationRequestExtractor(request),
-  };
+  return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 export default updateCollaborationRequest;

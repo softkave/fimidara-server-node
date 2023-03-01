@@ -1,14 +1,8 @@
-import {IAgent} from './system';
+import {IAgent, IWorkspaceResourceBase} from './system';
 
-export interface ITag {
-  resourceId: string;
+export interface ITag extends IWorkspaceResourceBase {
   name: string;
   description?: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  workspaceId: string;
 }
 
 export interface IAssignedTagInput {
@@ -17,7 +11,7 @@ export interface IAssignedTagInput {
 
 export interface IAssignedTag {
   tagId: string;
-  assignedAt: Date | string;
+  assignedAt: number;
   assignedBy: IAgent;
 }
 

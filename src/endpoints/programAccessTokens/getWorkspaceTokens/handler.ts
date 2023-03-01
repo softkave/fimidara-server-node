@@ -1,4 +1,3 @@
-import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
@@ -21,12 +20,7 @@ const getWorkspaceProgramAccessTokens: GetWorkspaceProgramAccessTokenEndpoint = 
   const q = await getWorkspaceProgramAccessTokensQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
   let tokens = await context.data.programAccessToken.getManyByQuery(q, data);
-  tokens = await populateResourceListWithAssignedTags(
-    context,
-    workspace.resourceId,
-    tokens,
-    AppResourceType.ProgramAccessToken
-  );
+  tokens = await populateResourceListWithAssignedTags(context, workspace.resourceId, tokens);
   return {
     page: getEndpointPageFromInput(data),
     tokens: tokens.map(token => getPublicProgramToken(context, token)),

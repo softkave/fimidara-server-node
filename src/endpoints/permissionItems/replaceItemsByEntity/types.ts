@@ -14,7 +14,7 @@ export interface INewPermissionItemInputByEntity {
 
 export interface IReplacePermissionItemsByEntityEndpointParams {
   workspaceId?: string;
-  permissionEntityId: string;
+  entityId: string;
   items: INewPermissionItemInputByEntity[];
 }
 

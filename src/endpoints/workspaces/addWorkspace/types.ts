@@ -1,8 +1,5 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {
-  IPublicWorkspace,
-  IUsageThreshold,
-} from '../../../definitions/workspace';
+import {IPublicWorkspace, IUsageThreshold} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
@@ -15,10 +12,7 @@ export interface INewWorkspaceInput {
   usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThresholdInput>>;
 }
 
-export type IAddWorkspaceEndpointParams = Omit<
-  INewWorkspaceInput,
-  'usageThresholds'
->;
+export type IAddWorkspaceEndpointParams = Omit<INewWorkspaceInput, 'usageThresholds'>;
 
 export interface IAddWorkspaceEndpointResult {
   workspace: IPublicWorkspace;

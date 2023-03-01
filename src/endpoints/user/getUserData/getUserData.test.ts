@@ -33,9 +33,10 @@ test('user data is returned', async () => {
   const {user, userToken} = await insertUserForTest(context, {
     password,
   });
-
-  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken));
-  const result = await getUserData(context, instData);
+  const result = await getUserData(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+  );
   assertEndpointResultOk(result);
   expect(result.user).toMatchObject(user);
 });

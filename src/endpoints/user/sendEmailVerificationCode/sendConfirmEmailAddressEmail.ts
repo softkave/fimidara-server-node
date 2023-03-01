@@ -6,8 +6,7 @@ import {
 } from '../../../email-templates/confirmEmailAddress';
 import {IBaseContext} from '../../contexts/types';
 
-export interface ISendConfirmEmailAddressEmailParams
-  extends IConfirmEmailAddressEmailProps {
+export interface ISendConfirmEmailAddressEmailParams extends IConfirmEmailAddressEmailProps {
   emailAddress: string;
 }
 

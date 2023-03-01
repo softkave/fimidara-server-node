@@ -66,7 +66,7 @@ const containerType = new FieldString()
       'grant access to all files in a folder without risking granting permission to all the files in a workspace.'
   )
   .setValid([AppResourceType.Workspace, AppResourceType.Folder, AppResourceType.File]);
-const permissionEntityId = fReusables.permissionGroupId
+const entityId = fReusables.permissionGroupId
   .clone()
   .setDescription(
     'Permission entity resource ID. ' +
@@ -90,17 +90,14 @@ const grantAccess = new FieldBoolean().setDescription(
 );
 const targetIdOrUndefined = orUndefined(targetId);
 const containerIdNotRequired = cloneAndMarkNotRequired(containerId);
-const containerTypeNotRequired = cloneAndMarkNotRequired(containerType);
 const targetIdNotRequired = cloneAndMarkNotRequired(targetId);
 
 const newPermissionItemInput = new FieldObject<ExcludeTags<INewPermissionItemInput>>()
   .setName('NewPermissionItemInput')
   .setFields({
     containerId,
-    containerType,
     grantAccess,
-    permissionEntityId,
-    permissionEntityType,
+    entityId,
     targetType,
     targetId: targetIdNotRequired,
     action: fReusables.action,
@@ -113,7 +110,6 @@ const newPermissionItemByEntityInput = new FieldObject<
   .setName('NewPermissionItemInputByEntity')
   .setFields({
     containerId,
-    containerType,
     grantAccess,
     targetType,
     targetId: targetIdNotRequired,
@@ -133,7 +129,7 @@ const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>()
   .setFields({
     containerId,
     containerType,
-    permissionEntityId,
+    entityId,
     permissionEntityType,
     targetType,
     resourceId: new FieldString(),
@@ -176,7 +172,6 @@ const getResourcePermissionItemsParams =
       targetId: targetIdNotRequired,
       targetType: targetType,
       containerId: containerIdNotRequired,
-      containerType: containerTypeNotRequired,
       page: fReusables.pageNotRequired,
       pageSize: fReusables.pageSizeNotRequired,
     })
@@ -206,8 +201,7 @@ const replacePermissionItemsByEntityParams =
   new FieldObject<IReplacePermissionItemsByEntityEndpointParams>()
     .setName('ReplacePermissionItemsByEntityEndpointParams')
     .setFields({
-      permissionEntityId,
-      permissionEntityType,
+      entityId,
       workspaceId: fReusables.workspaceIdInputNotRequired,
       items: newPermissionItemByEntityInputList,
     })
@@ -230,8 +224,7 @@ const replacePermissionItemsByEntityResult = [
 const getEntityPermissionItemsParams = new FieldObject<IGetEntityPermissionItemsEndpointParams>()
   .setName('getEntityPermissionItemsEndpointParams')
   .setFields({
-    permissionEntityId,
-    permissionEntityType,
+    entityId,
     workspaceId: fReusables.workspaceIdInputNotRequired,
     page: fReusables.pageNotRequired,
     pageSize: fReusables.pageSizeNotRequired,

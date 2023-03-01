@@ -5,7 +5,6 @@ import {
   IResourceBase,
   ISessionAgent,
 } from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {
@@ -15,7 +14,7 @@ import {
 } from '../../utils/waitOnPromises';
 import {
   checkAuthorization,
-  makeResourcePermissionContainerList,
+  getResourcePermissionContainers,
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
@@ -32,7 +31,7 @@ export interface IGetResourcesOptions {
   throwOnFetchError?: boolean;
   checkAuth?: boolean;
   agent?: ISessionAgent | null;
-  workspace?: IWorkspace | null;
+  workspaceId?: string | null;
   action?: BasicCRUDActions | null;
   nothrowOnCheckError?: boolean;
 }
@@ -194,13 +193,16 @@ export async function getResources(options: IGetResourcesOptions) {
         item.value?.forEach(resource => {
           const key = resourceIndexer(resource.resourceId, item.resourceType);
           const resourceAction = inputMap[key]?.action ?? action ?? BasicCRUDActions.Read;
+
+          // TODO: when server caching and resolving permission containers is
+          // complete, make just one call to checkAuthorization to check access
           const checkPromise = checkAuthorization({
             context,
             agent,
             workspace,
             targetId: resource.resourceId,
             type: item.resourceType,
-            permissionContainers: makeResourcePermissionContainerList(
+            permissionContainers: getResourcePermissionContainers(
               workspace.resourceId,
               item.resourceType,
               resource

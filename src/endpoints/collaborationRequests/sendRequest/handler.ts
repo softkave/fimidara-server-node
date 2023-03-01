@@ -2,7 +2,7 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
+import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
   collaborationRequestEmailHTML,
@@ -10,22 +10,22 @@ import {
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../email-templates/collaborationRequest';
-import {formatDate, getDateString} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {formatDate, getTimestamp} from '../../../utils/dateFns';
+import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import CollaboratorQueries from '../../collaborators/queries';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import CollaborationRequestQueries from '../queries';
-import {collaborationRequestExtractor, populateRequestAssignedPermissionGroups} from '../utils';
+import {
+  collaborationRequestForWorkspaceExtractor,
+  populateRequestAssignedPermissionGroups,
+} from '../utils';
 import {SendCollaborationRequestEndpoint} from './types';
 import {sendCollaborationRequestJoiSchema} from './validation';
 
@@ -36,9 +36,8 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   await checkAuthorization({
     context,
     agent,
-    workspace,
-    type: AppResourceType.CollaborationRequest,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    targets: [{type: AppResourceType.CollaborationRequest}],
     action: BasicCRUDActions.Create,
   });
 
@@ -49,7 +48,6 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
 
   if (existingUser) {
     const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
-
     collaboratorExists = !!(
       existingUser && getCollaboratorWorkspace(existingUserWithWorkspaces, workspace.resourceId)
     );
@@ -77,18 +75,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     }
   }
 
-  const createdAt = getDateString();
-  const createdBy: IAgent = {
-    agentId: agent.agentId,
-    agentType: agent.agentType,
-  };
-
-  let request = await context.data.collaborationRequest.insertItem({
-    createdAt,
-    createdBy,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
+  let request: ICollaborationRequest = newResource(agent, AppResourceType.CollaborationRequest, {
     message: data.request.message,
     workspaceName: workspace.name,
     workspaceId: workspace.resourceId,
@@ -97,19 +84,22 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
-        date: createdAt,
+        date: getTimestamp(),
       },
     ],
   });
+  await context.semantic.collaborationRequest.insertItem(request);
 
-  if (data.request.permissionGroupsOnAccept && data.request.permissionGroupsOnAccept.length > 0) {
+  if (
+    data.request.permissionGroupsAssignedOnAcceptingRequest &&
+    data.request.permissionGroupsAssignedOnAcceptingRequest.length > 0
+  ) {
     await addAssignedPermissionGroupList(
       context,
       agent,
-      workspace,
-      data.request.permissionGroupsOnAccept,
+      workspace.resourceId,
+      data.request.permissionGroupsAssignedOnAcceptingRequest,
       request.resourceId,
-      AppResourceType.CollaborationRequest,
       /** deleteExisting */ false
     );
   }
@@ -117,7 +107,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   await sendCollaborationRequestEmail(context, request, existingUser);
   request = await populateRequestAssignedPermissionGroups(context, request);
   return {
-    request: collaborationRequestExtractor(request),
+    request: collaborationRequestForWorkspaceExtractor(request),
   };
 };
 

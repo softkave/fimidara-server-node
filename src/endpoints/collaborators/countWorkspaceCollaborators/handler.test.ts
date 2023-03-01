@@ -1,4 +1,4 @@
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -32,16 +32,12 @@ describe('countWorkspaceCollaborators', () => {
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
       context,
-      systemAgent,
+      SYSTEM_SESSION_AGENT,
       workspace.resourceId,
       seedCount
     );
     const count = await context.data.assignedItem.countByQuery(
-      AssignedItemQueries.getByAssignedItem(
-        workspace.resourceId,
-        workspace.resourceId,
-        AppResourceType.Workspace
-      )
+      AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
     );
     expect(count).toBeGreaterThanOrEqual(seedCount);
 

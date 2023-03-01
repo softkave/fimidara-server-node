@@ -1,8 +1,7 @@
 import {defaultTo, first, isArray, last} from 'lodash';
 import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
@@ -10,19 +9,14 @@ import {
 } from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
 const folderFields = getFields<IPublicFolder>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  workspaceId: true,
+  ...workspaceResourceFields,
   parentId: true,
   name: true,
   description: true,
@@ -122,16 +116,15 @@ export async function checkFolderAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
     nothrow,
-    targetId: folder.resourceId,
-    type: AppResourceType.Folder,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      folder,
-      AppResourceType.Folder
-    ),
+    workspaceId: workspace.resourceId,
+    targets: [
+      {
+        targetId: folder.resourceId,
+        containerId: getFilePermissionContainers(workspace.resourceId, folder),
+      },
+    ],
   });
 
   return {agent, workspace, folder};

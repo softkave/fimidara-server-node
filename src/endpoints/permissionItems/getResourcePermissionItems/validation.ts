@@ -11,9 +11,8 @@ export const getResourcePermissionItemsBaseJoiSchemaParts: JoiSchemaParts<IGetRe
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     targetId: validationSchemas.resourceId.allow(null),
-    targetType: validationSchemas.resourceType.required(),
+    targetType: validationSchemas.resourceType.allow(null),
     containerId: validationSchemas.resourceId.allow(null),
-    containerType: validationSchemas.resourceType.allow(null),
   };
 
 export const getResourcePermissionItemsJoiSchema =

@@ -37,6 +37,9 @@ export async function resourceListWithAssignedItems(
   forTypes: AppResourceType[] = Object.values(AppResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);
+
+  // TODO: can we do this together, like query all the assigned items once
+  // instead of individually?
   return Promise.all(
     resourceList.map(item =>
       forTypesMap[item.resourceType] ? resourceWithAssignedItems(context, workspaceId, item) : item

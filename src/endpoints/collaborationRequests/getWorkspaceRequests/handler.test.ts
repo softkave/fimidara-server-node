@@ -1,7 +1,8 @@
-import {calculatePageSize, expectContainsEveryItemIn} from '../../../utils/fns';
+import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
+import {expectContainsEveryItemIn} from '../../test-utils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,

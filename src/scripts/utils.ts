@@ -1,5 +1,5 @@
 import winston = require('winston');
-import {getDateString} from '../utils/dateFns';
+import {getTimestamp} from '../utils/dateFns';
 import {
   decideTransport,
   FimidaraLoggerServiceNames,
@@ -21,7 +21,7 @@ export function scriptRunInfoFactory(
 ): IFimidaraScriptRunInfo {
   return {
     job: opts.job,
-    runId: getDateString(),
+    runId: getTimestamp(),
     logger: loggerFactory({
       transports: decideTransport(),
       meta: {
@@ -32,10 +32,7 @@ export function scriptRunInfoFactory(
   };
 }
 
-export function logScriptMessage(
-  runInfo: IFimidaraScriptRunInfo,
-  message: string
-) {
+export function logScriptMessage(runInfo: IFimidaraScriptRunInfo, message: string) {
   runInfo.logger.info(`script ${runInfo.job}: ${message}`);
 }
 
@@ -47,10 +44,7 @@ export function logScriptSuccessful(runInfo: IFimidaraScriptRunInfo) {
   logScriptMessage(runInfo, 'succeeded');
 }
 
-export function logScriptFailed(
-  runInfo: IFimidaraScriptRunInfo,
-  error?: Error
-) {
+export function logScriptFailed(runInfo: IFimidaraScriptRunInfo, error?: Error) {
   logScriptMessage(runInfo, 'failed');
   if (error) {
     runInfo.logger.error(error);

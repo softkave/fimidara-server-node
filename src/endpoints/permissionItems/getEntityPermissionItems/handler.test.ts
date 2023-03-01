@@ -39,16 +39,10 @@ describe('getEntityPermissionitems', () => {
 
     const {items} = await insertPermissionItemsForTestForEntity(
       context,
-      userToken,
+      mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
-      {
-        permissionEntityId: permissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-      },
-      {
-        containerId: workspace.resourceId,
-        containerType: AppResourceType.Workspace,
-      },
+      {entityId: permissionGroup.resourceId},
+      {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
 
@@ -56,8 +50,7 @@ describe('getEntityPermissionitems', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId: workspace.resourceId,
-        permissionEntityId: permissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
+        entityId: permissionGroup.resourceId,
       }
     );
     const result = await getEntityPermissionItems(context, instData);
@@ -73,14 +66,14 @@ describe('getEntityPermissionitems', () => {
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
+      entityId: user.resourceId,
+      entityType: AppResourceType.User,
     });
     const count = await context.data.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
+      entityId: user.resourceId,
       permissionEntityType: AppResourceType.User,
     });
     const pageSize = 10;
@@ -91,8 +84,7 @@ describe('getEntityPermissionitems', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        permissionEntityId: user.resourceId,
-        permissionEntityType: AppResourceType.User,
+        entityId: user.resourceId,
       }
     );
     let result = await getEntityPermissionItems(context, instData);
@@ -107,8 +99,7 @@ describe('getEntityPermissionitems', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        permissionEntityId: user.resourceId,
-        permissionEntityType: AppResourceType.User,
+        entityId: user.resourceId,
       }
     );
     result = await getEntityPermissionItems(context, instData);

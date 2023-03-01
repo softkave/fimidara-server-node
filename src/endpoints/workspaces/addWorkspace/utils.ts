@@ -5,11 +5,11 @@ import {
   BasicCRUDActions,
   getWorkspaceActionList,
   IAgent,
-  SessionAgentType,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {
   addAssignedPermissionGroupList,
@@ -17,7 +17,6 @@ import {
 } from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {permissionItemIndexer} from '../../permissionItems/utils';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
@@ -29,26 +28,17 @@ function makeAdminPermissions(
   adminPermissionGroup: IPermissionGroup
 ) {
   const permissionItems: IPermissionItem[] = getWorkspaceActionList().map(action => {
-    const item: IPermissionItem = {
+    const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
       action,
-      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
       workspaceId: workspace.resourceId,
-      createdAt: getDateString(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
-      permissionEntityId: adminPermissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
+      entityId: adminPermissionGroup.resourceId,
+      entityType: AppResourceType.PermissionGroup,
       targetType: AppResourceType.All,
-      hash: '',
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       grantAccess: true,
-    };
-
-    item.hash = permissionItemIndexer(item);
+    });
     return item;
   });
 
@@ -67,27 +57,18 @@ function makeCollaboratorPermissions(
     appliesTo: PermissionItemAppliesTo = PermissionItemAppliesTo.ContainerAndChildren
   ) {
     return actions.map(action => {
-      const item: IPermissionItem = {
-        targetType: targetType,
+      const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
         action,
-        targetId: targetId,
         appliesTo,
-        resourceId: getNewIdForResource(AppResourceType.PermissionItem),
+        targetType: targetType,
+        targetId: targetId,
         workspaceId: workspace.resourceId,
-        createdAt: getDateString(),
-        createdBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
         containerId: workspace.resourceId,
         containerType: AppResourceType.Workspace,
-        permissionEntityId: permissiongroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-        hash: '',
+        entityId: permissiongroup.resourceId,
+        entityType: AppResourceType.PermissionGroup,
         grantAccess: true,
-      };
-
-      item.hash = permissionItemIndexer(item);
+      });
       return item;
     });
   }
@@ -150,7 +131,7 @@ export async function setupDefaultWorkspacePermissionGroups(
   agent: IAgent,
   workspace: IWorkspace
 ) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const adminPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
@@ -159,10 +140,8 @@ export async function setupDefaultWorkspacePermissionGroups(
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-    description:
-      'Auto-generated permission group that can access and perform every and all actions on all resources',
+    description: 'Auto-generated permission group with access to every resource in this workspace.',
   };
-
   const publicPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
@@ -171,9 +150,10 @@ export async function setupDefaultWorkspacePermissionGroups(
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
-    description: 'Auto-generated permission group for accessing and performing public operations.',
+    description:
+      'Auto-generated permission group for public/anonymous users. ' +
+      'Assign permissions to this group for resource/actions you want to be publicly accessible.',
   };
-
   const collaboratorPermissionGroup: IPermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
@@ -182,21 +162,19 @@ export async function setupDefaultWorkspacePermissionGroups(
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,
-    description: 'Auto-generated permission group for collaborators.',
+    description:
+      'Auto-generated permission group for collaborators. Open permission group to see permissions.',
   };
-
-  await context.data.permissiongroup.insertList([
+  await context.semantic.permissionGroup.insertList([
     adminPermissionGroup,
     publicPermissionGroup,
     collaboratorPermissionGroup,
   ]);
 
-  const permissionItems: IPermissionItem[] = makeAdminPermissions(
-    agent,
-    workspace,
-    adminPermissionGroup
-  ).concat(makeCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup));
-  await context.data.permissionItem.insertList(permissionItems);
+  const permissionItems = makeAdminPermissions(agent, workspace, adminPermissionGroup).concat(
+    makeCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
+  );
+  await context.semantic.permissionItem.insertList(permissionItems);
   return {
     adminPermissionGroup,
     publicPermissionGroup,
@@ -206,15 +184,11 @@ export async function setupDefaultWorkspacePermissionGroups(
 
 export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
   context: IBaseContext,
+  agent: IAgent,
   user: IUser,
   workspace: IWorkspace,
   adminPermissionGroup: IPermissionGroup
 ) {
-  const agent: IAgent = {
-    agentId: user.resourceId,
-    agentType: SessionAgentType.User,
-  };
-
   await Promise.all([
     // Assign workspace to user
     assignWorkspaceToUser(context, agent, workspace.resourceId, user),
@@ -224,9 +198,8 @@ export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
       context,
       agent,
       workspace,
-      [{permissionGroupId: adminPermissionGroup.resourceId, order: 0}],
+      [{permissionGroupId: adminPermissionGroup.resourceId}],
       user.resourceId,
-      AppResourceType.User,
       /** deleteExisting */ false,
       /** skipPermissionGroupsExistCheck */ true
     ),

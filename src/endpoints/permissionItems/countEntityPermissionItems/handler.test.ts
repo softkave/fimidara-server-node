@@ -32,14 +32,14 @@ describe('countEntityPermissionItems', () => {
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
+      entityId: user.resourceId,
+      entityType: AppResourceType.User,
     });
     const count = await context.data.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
+      entityId: user.resourceId,
       permissionEntityType: AppResourceType.User,
     });
 
@@ -47,8 +47,7 @@ describe('countEntityPermissionItems', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId: workspace.resourceId,
-        permissionEntityId: user.resourceId,
-        permissionEntityType: AppResourceType.User,
+        entityId: user.resourceId,
       }
     );
     const result = await countEntityPermissionItems(context, instData);

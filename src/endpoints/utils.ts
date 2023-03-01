@@ -1,26 +1,38 @@
 import {Request, Response} from 'express';
 import {defaultTo, isNumber, isString} from 'lodash';
-import {IAgent, IPublicAccessOp, ISessionAgent} from '../definitions/system';
+import {
+  IAgent,
+  IPublicAccessOp,
+  IResourceBase,
+  ISessionAgent,
+  IWorkspaceResourceBase,
+} from '../definitions/system';
 import {IWorkspace} from '../definitions/workspace';
 import {appAssert} from '../utils/assertion';
-import {getDateString} from '../utils/dateFns';
+import {getTimestamp} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
-import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../utils/extract';
+import {
+  ExtractFieldsFrom,
+  getFields,
+  makeExtract,
+  makeExtractIfPresent,
+  makeListExtract,
+} from '../utils/extract';
 import OperationError from '../utils/OperationError';
+import {getWorkspaceIdFromSessionAgent} from '../utils/sessionUtils';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorization-checks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
-import {getWorkspaceIdFromSessionAgent} from './contexts/SessionContext';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
 import EndpointReusableQueries from './queries';
 import RequestData from './RequestData';
 import {
+  DeleteResourceCascadeFnsMap,
   Endpoint,
   IEndpointOptionalWorkspaceIDParam,
   IPaginationQuery,
-  IPublicAgent,
   IRequestDataPendingPromise,
 } from './types';
 import {PermissionDeniedError} from './user/errors';
@@ -76,10 +88,7 @@ export const wrapEndpointREST = <
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);
-      const result = {
-        errors: preppedErrors,
-      };
-
+      const result = {errors: preppedErrors};
       if (errors.length > 0 && errors[0].statusCode) {
         statusCode = errors[0].statusCode;
       }
@@ -89,9 +98,10 @@ export const wrapEndpointREST = <
   };
 };
 
-const agentPublicFields = getFields<IPublicAgent>({
+const agentPublicFields = getFields<IAgent>({
   agentId: true,
   agentType: true,
+  tokenId: true,
 });
 
 export const agentExtractor = makeExtract(agentPublicFields);
@@ -100,7 +110,7 @@ export const agentListExtractor = makeListExtract(agentPublicFields);
 
 const publicAccessOpFields = getFields<IPublicAccessOp>({
   action: true,
-  markedAt: getDateString,
+  markedAt: true,
   markedBy: agentExtractor,
   resourceType: true,
   appliesTo: true,
@@ -109,6 +119,19 @@ const publicAccessOpFields = getFields<IPublicAccessOp>({
 export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
 export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
 export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
+
+export const resourceFields: ExtractFieldsFrom<IResourceBase> = {
+  resourceId: true,
+  createdBy: agentExtractor,
+  createdAt: true,
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: true,
+};
+export const workspaceResourceFields: ExtractFieldsFrom<IWorkspaceResourceBase> = {
+  ...resourceFields,
+  providedResourceId: true,
+  workspaceId: true,
+};
 
 export async function waitForWorks(works: IRequestDataPendingPromise[]) {
   await Promise.all(
@@ -123,17 +146,19 @@ export function throwNotFound() {
 }
 
 export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
+type AssignedAgent = {
+  assignedBy: IAgent;
+  assignedAt: number;
+};
 
-export function withAssignedAgent<T extends AnyObject>(
-  agent: IAgent,
-  item: T
-): T & {assignedBy: IAgent; assignedAt: string} {
+export function withAssignedAgent<T extends AnyObject>(agent: IAgent, item: T): T & AssignedAgent {
   return {
     ...item,
-    assignedAt: getDateString(),
+    assignedAt: getTimestamp(),
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
+      tokenId: null,
     },
   };
 }
@@ -141,13 +166,14 @@ export function withAssignedAgent<T extends AnyObject>(
 export function withAssignedAgentList<T extends AnyObject>(
   agent: IAgent,
   items: T[] = []
-): Array<T & {assignedBy: IAgent; assignedAt: string}> {
+): Array<T & AssignedAgent> {
   return items.map(item => ({
     ...item,
-    assignedAt: getDateString(),
+    assignedAt: getTimestamp(),
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
+      tokenId: null,
     },
   }));
 }
@@ -199,4 +225,12 @@ export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
     data.pageSize = endpointConstants.maxPageSize;
   }
   return data;
+}
+
+export async function executeCascadeDelete(
+  context: IBaseContext,
+  id: string,
+  cascadeDef: DeleteResourceCascadeFnsMap
+) {
+  await Promise.all(Object.values(cascadeDef).map(fn => fn(context, id)));
 }

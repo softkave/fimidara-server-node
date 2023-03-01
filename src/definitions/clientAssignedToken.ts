@@ -1,41 +1,18 @@
-import {IAgent} from './system';
+import {IWorkspaceResourceBase} from './system';
 
-export interface IClientAssignedToken {
-  resourceId: string;
-  providedResourceId?: string | null;
+export interface IClientAssignedToken extends IWorkspaceResourceBase {
   name?: string;
   description?: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  workspaceId: string;
   version: number;
 
-  // not same as iat in token, may be a litte bit behind or after
-  // and is a ISO string, where iat is time in seconds
-  // issuedAt: Date | string;
-  expires?: Date | string;
-
-  // environmentId: string;
-  // meta?: Record<string, string | number | boolean | null>;
-  // authURL: string;
-  // tags: IAssignedTag[];
-  // permissionGroups: IAssignedPermissionGroup[];
+  /**
+   * not same as iat in token, may be a litte bit behind or after and is a ISO
+   * string, where iat is time in seconds
+   */
+  expires?: number;
 }
 
-export interface IPublicClientAssignedToken {
-  resourceId: string;
-  providedResourceId?: string | null;
-  name?: string;
-  description?: string;
-  createdAt: string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: string;
-  workspaceId: string;
-  // issuedAt: string;
-  expires?: string;
-  tokenStr: string;
-  // tags: IAssignedTag[];
-}
+export type IPublicClientAssignedToken = IWorkspaceResourceBase &
+  Pick<IClientAssignedToken, 'name' | 'description' | 'expires'> & {
+    tokenStr: string;
+  };

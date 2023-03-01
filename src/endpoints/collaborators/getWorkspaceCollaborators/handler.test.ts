@@ -1,4 +1,4 @@
-import {systemAgent} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
@@ -62,7 +62,7 @@ describe('getWorkspaceCollaborators', () => {
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
       context,
-      systemAgent,
+      SYSTEM_SESSION_AGENT,
       workspace.resourceId,
       seedCount
     );

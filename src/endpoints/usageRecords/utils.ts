@@ -2,7 +2,7 @@ import {IFile} from '../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
-  publicPermissibleEndpointAgents,
+  PUBLIC_PERMISSIBLE_AGENTS,
 } from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
@@ -11,9 +11,9 @@ import {
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
+import {IUsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
-import {IUsageRecordInput} from '../contexts/UsageRecordLogicProvider';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
 import {errorMessages} from '../messages';
@@ -27,7 +27,7 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
+    await ctx.session.getAgent(ctx, reqData, PUBLIC_PERMISSIBLE_AGENTS)
   );
   const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
   if (!allowed && !nothrow) {

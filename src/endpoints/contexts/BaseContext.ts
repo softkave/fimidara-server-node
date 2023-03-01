@@ -5,23 +5,38 @@ import {consoleLogger, logger} from '../../utils/logger/logger';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {IEmailProviderContext} from './EmailProviderContext';
-import {IFilePersistenceProviderContext, S3FilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {
+  IFilePersistenceProviderContext,
+  S3FilePersistenceProviderContext,
+} from './FilePersistenceProviderContext';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
-import {IBaseContext, IBaseContextDataProviders} from './types';
-import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
+import {
+  IBaseContext,
+  IBaseContextDataProviders,
+  IBaseContextLogicProviders,
+  IBaseContextMemoryCacheProviders,
+  IBaseContextSemanticDataProviders,
+} from './types';
 
 export default class BaseContext<
-  T extends IBaseContextDataProviders,
-  E extends IEmailProviderContext,
-  F extends IFilePersistenceProviderContext,
-  V extends IAppVariables
-> implements IBaseContext<T>
+  Data extends IBaseContextDataProviders = IBaseContextDataProviders,
+  Email extends IEmailProviderContext = IEmailProviderContext,
+  FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
+  AppVars extends IAppVariables = IAppVariables,
+  MemoryCache extends IBaseContextMemoryCacheProviders = IBaseContextMemoryCacheProviders,
+  Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
+  SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
+> implements IBaseContext<Data, Email, FileBackend, AppVars, MemoryCache, Logic, SemanticData>
 {
-  data: T;
-  email: E;
-  fileBackend: F;
-  appVariables: V;
+  data: Data;
+  email: Email;
+  fileBackend: FileBackend;
+  appVariables: AppVars;
+  memory: MemoryCache;
+  logic: Logic;
+  semantic: SemanticData;
   session: ISessionContext = new SessionContext();
   logger: Logger = logger;
   clientLogger: Logger = loggerFactory({
@@ -31,12 +46,24 @@ export default class BaseContext<
   usageRecord: UsageRecordLogicProvider;
   disposeFn?: () => Promise<void>;
 
-  constructor(data: T, emailProvider: E, fileBackend: F, appVariables: V, disposeFn?: () => Promise<void>) {
+  constructor(
+    data: Data,
+    emailProvider: Email,
+    fileBackend: FileBackend,
+    appVariables: AppVars,
+    memory: MemoryCache,
+    logic: Logic,
+    semantic: SemanticData,
+    disposeFn?: () => Promise<void>
+  ) {
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
     this.usageRecord = new UsageRecordLogicProvider();
     this.appVariables = appVariables;
+    this.memory = memory;
+    this.logic = logic;
+    this.semantic = semantic;
     this.disposeFn = disposeFn;
   }
 

@@ -1,8 +1,8 @@
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, IAgent, ISessionAgent} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utils/dateFns';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
@@ -19,17 +19,7 @@ export function getNewFile(
   parentFolder: IFolder | null
 ) {
   const fileId = getNewIdForResource(AppResourceType.File);
-  const createdAt = getDateString();
-  const createdBy: IAgent = {
-    agentId: agent.agentId,
-    agentType: agent.agentType,
-  };
-
-  const file = {
-    createdAt,
-    createdBy,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
+  const file = newResource(agent, AppResourceType.File, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
     extension: data.extension ?? pathWithDetails.extension ?? '',
@@ -43,8 +33,7 @@ export function getNewFile(
     size: data.data.length,
     description: data.description,
     encoding: data.encoding,
-  };
-
+  });
   return file;
 }
 
@@ -55,18 +44,9 @@ export async function internalCreateFile(
   data: IUploadFileEndpointParams,
   file: IFile
 ) {
-  await context.data.file.insertItem(file);
+  await context.semantic.file.insertItem(file);
   const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
   await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
-
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    data,
-    false
-  );
+  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, data, false);
   return file;
 }

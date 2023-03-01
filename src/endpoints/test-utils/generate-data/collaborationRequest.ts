@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {
@@ -11,7 +11,7 @@ import {
 } from './utils';
 
 export function generateCollaborationRequestForTest(seed: Partial<ICollaborationRequest> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -47,6 +47,6 @@ export async function generateAndInsertCollaborationRequestListForTest(
   genPartial: GeneratePartialTestDataFn<ICollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
-  await ctx.data.collaborationRequest.insertList(items);
+  await ctx.semantic.collaborationRequest.insertList(items);
   return items;
 }

@@ -17,7 +17,6 @@ import {
   getCollaboratorEndpointDefinition,
   getWorkspaceCollaboratorEndpointDefinition,
   removeCollaboratorEndpointDefinition,
-  updateCollaboratorPermissionGroupsEndpointDefinition,
 } from '../endpoints/collaborators/endpoints.mddoc';
 import {
   deleteFileEndpointDefinition,
@@ -116,7 +115,6 @@ const endpoints = [
 
   // collaborators
   getWorkspaceCollaboratorEndpointDefinition,
-  updateCollaboratorPermissionGroupsEndpointDefinition,
   getCollaboratorEndpointDefinition,
   removeCollaboratorEndpointDefinition,
 ];

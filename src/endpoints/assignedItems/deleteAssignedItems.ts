@@ -1,6 +1,5 @@
 import {AppResourceType} from '../../definitions/system';
 import {IBaseContext} from '../contexts/types';
-import AssignedItemQueries from './queries';
 
 /**
  * @param context
@@ -10,21 +9,15 @@ import AssignedItemQueries from './queries';
  */
 export async function deleteResourceAssignedItems(
   context: IBaseContext,
-  workspaceId: string | undefined,
   resourceId: string | string[],
   assignedItemTypes?: AppResourceType[]
 ) {
-  await context.data.assignedItem.deleteManyByQuery(
-    AssignedItemQueries.getByAssignedToResource(workspaceId, resourceId, assignedItemTypes)
-  );
+  await context.semantic.assignedItem.deleteResourceAssignedItems(resourceId, assignedItemTypes);
 }
 
 export async function deleteAssignableItemAssignedItems(
   context: IBaseContext,
-  workspaceId: string,
   assignedItemId: string
 ) {
-  await context.data.assignedItem.deleteManyByQuery(
-    AssignedItemQueries.getByAssignedItem(workspaceId, assignedItemId)
-  );
+  await context.semantic.assignedItem.deleteAssignedItemResources(assignedItemId);
 }

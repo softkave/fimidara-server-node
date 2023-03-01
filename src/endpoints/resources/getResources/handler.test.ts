@@ -56,7 +56,7 @@ describe('getResources', () => {
       grantAccess: faker.datatype.boolean(),
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       targetType: AppResourceType.Workspace,
-      permissionEntityId: permissionGroup.resourceId,
+      entityId: permissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,

@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definit
 import {IWorkspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import PermissionItemQueries from '../queries';
@@ -12,7 +12,7 @@ export async function getEntityPermissionItemsQuery(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  data: Pick<IGetEntityPermissionItemsEndpointParams, 'permissionEntityId' | 'permissionEntityType'>
+  data: Pick<IGetEntityPermissionItemsEndpointParams, 'entityId'>
 ) {
   await checkAuthorization({
     context,
@@ -20,7 +20,7 @@ export async function getEntityPermissionItemsQuery(
     workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
   });
-  return PermissionItemQueries.getByPermissionEntity(data.permissionEntityId);
+  return PermissionItemQueries.getByPermissionEntity(data.entityId);
 }

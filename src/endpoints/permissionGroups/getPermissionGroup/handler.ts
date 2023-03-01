@@ -1,4 +1,4 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
@@ -18,10 +18,8 @@ const getPermissionGroup: GetPermissionGroupEndpoint = async (context, instData)
   permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,
-    permissionGroup,
-    AppResourceType.PermissionGroup
+    permissionGroup
   );
-
   return {
     permissionGroup: permissionGroupExtractor(permissionGroup),
   };

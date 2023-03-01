@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {getDate} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -20,9 +20,9 @@ export function generateTestFolder(extra: Partial<IFolder> = {}) {
     name,
     createdAt,
     description: faker.lorem.paragraph(),
-    createdBy: systemAgent,
+    createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedAt: faker.date.future(),
-    lastUpdatedBy: systemAgent,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
     idPath: [id],
     namePath: [name],
     resourceId: id,
@@ -47,6 +47,6 @@ export async function generateAndInsertTestFolders(
   extra: Partial<IFolder> = {}
 ) {
   const items = generateTestFolders(count, extra);
-  await ctx.data.folder.insertList(items);
+  await ctx.semantic.folder.insertList(items);
   return items;
 }

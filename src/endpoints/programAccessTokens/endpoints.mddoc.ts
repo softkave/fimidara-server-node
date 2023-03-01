@@ -10,7 +10,12 @@ import {
   HttpEndpointResponse,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {
   IAddProgramAccessTokenEndpointParams,
   IAddProgramAccessTokenEndpointResult,
@@ -18,33 +23,39 @@ import {
 } from './addToken/types';
 import {programAccessTokenConstants} from './constants';
 import {IDeleteProgramAccessTokenEndpointParams} from './deleteToken/types';
-import {IGetProgramAccessTokenEndpointParams, IGetProgramAccessTokenEndpointResult} from './getToken/types';
+import {
+  IGetProgramAccessTokenEndpointParams,
+  IGetProgramAccessTokenEndpointResult,
+} from './getToken/types';
 import {
   IGetWorkspaceProgramAccessTokensEndpointParams,
   IGetWorkspaceProgramAccessTokensEndpointResult,
 } from './getWorkspaceTokens/types';
-import {IUpdateProgramAccessTokenEndpointParams, IUpdateProgramAccessTokenEndpointResult} from './updateToken/types';
+import {
+  IUpdateProgramAccessTokenEndpointParams,
+  IUpdateProgramAccessTokenEndpointResult,
+} from './updateToken/types';
 
 const newProgramAccessTokenInput = new FieldObject<ExcludeTags<INewProgramAccessTokenInput>>()
   .setName('NewProgramAccessTokenInput')
   .setFields({
     name: fReusables.nameNotRequired,
     description: fReusables.descriptionNotRequired,
-    permissionGroups: fReusables.assignPermissionGroupListNotRequired,
   });
 
-const programAccessToken = new FieldObject<IPublicProgramAccessToken>().setName('ProgramAccessToken').setFields({
-  resourceId: new FieldString(),
-  createdBy: fReusables.agent,
-  createdAt: fReusables.date,
-  lastUpdatedBy: fReusables.agent,
-  lastUpdatedAt: fReusables.date,
-  name: fReusables.name,
-  description: fReusables.descriptionOrUndefined,
-  workspaceId: fReusables.workspaceId,
-  permissionGroups: fReusables.assignPermissionGroupList,
-  tokenStr: fReusables.tokenString,
-});
+const programAccessToken = new FieldObject<IPublicProgramAccessToken>()
+  .setName('ProgramAccessToken')
+  .setFields({
+    resourceId: new FieldString(),
+    createdBy: fReusables.agent,
+    createdAt: fReusables.date,
+    lastUpdatedBy: fReusables.agent,
+    lastUpdatedAt: fReusables.date,
+    name: fReusables.name,
+    description: fReusables.descriptionOrUndefined,
+    workspaceId: fReusables.workspaceId,
+    tokenStr: fReusables.tokenString,
+  });
 
 const addProgramAccessTokenParams = new FieldObject<IAddProgramAccessTokenEndpointParams>()
   .setName('AddProgramAccessTokenEndpointParams')
@@ -68,15 +79,16 @@ const addProgramAccessTokenResult = [
     ),
 ];
 
-const getWorkspaceProgramAccessTokensParams = new FieldObject<IGetWorkspaceProgramAccessTokensEndpointParams>()
-  .setName('GetWorkspaceProgramAccessTokensEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    page: fReusables.pageNotRequired,
-    pageSize: fReusables.pageSizeNotRequired,
-  })
-  .setRequired(true)
-  .setDescription('Get workspace program access tokens endpoint params.');
+const getWorkspaceProgramAccessTokensParams =
+  new FieldObject<IGetWorkspaceProgramAccessTokensEndpointParams>()
+    .setName('GetWorkspaceProgramAccessTokensEndpointParams')
+    .setFields({
+      workspaceId: fReusables.workspaceIdInputNotRequired,
+      page: fReusables.pageNotRequired,
+      pageSize: fReusables.pageSizeNotRequired,
+    })
+    .setRequired(true)
+    .setDescription('Get workspace program access tokens endpoint params.');
 const getWorkspaceProgramAccessTokensResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()

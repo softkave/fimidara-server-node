@@ -28,7 +28,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
 
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByResource(
         workspace.resourceId,
         permissionGroup.resourceId,
@@ -37,28 +37,22 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
     ),
 
     // Delete permission items owned by permissionGroup
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     ),
 
     // Delete permissionGroup assigned items
-    deleteResourceAssignedItems(
-      context,
-      permissionGroup.workspaceId,
-      permissionGroup.resourceId,
-      AppResourceType.PermissionGroup
-    ),
+    deleteResourceAssignedItems(context, permissionGroup.workspaceId, permissionGroup.resourceId),
 
     // Remove references where permissionGroup is assigned
     deleteAssignableItemAssignedItems(
       context,
       permissionGroup.workspaceId,
-      permissionGroup.resourceId,
-      AppResourceType.PermissionGroup
+      permissionGroup.resourceId
     ),
 
     // Delete permissionGroup
-    context.data.permissiongroup.deleteOneByQuery(
+    context.semantic.permissionGroup.deleteOneByQuery(
       EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
     ),
   ]);

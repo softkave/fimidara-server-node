@@ -1,4 +1,4 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {getProgramAccessTokenId} from '../../contexts/SessionContext';
@@ -16,13 +16,7 @@ const getProgramAccessToken: GetProgramAccessTokenEndpoint = async (context, ins
     tokenId,
     BasicCRUDActions.Read
   );
-  token = await populateAssignedTags(
-    context,
-    token.workspaceId,
-    token,
-    AppResourceType.ProgramAccessToken
-  );
-
+  token = await populateAssignedTags(context, token.workspaceId, token);
   return {
     token: getPublicProgramToken(context, token),
   };

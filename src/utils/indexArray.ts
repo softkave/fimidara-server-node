@@ -1,4 +1,5 @@
 import {get} from 'lodash';
+import {toArray} from './fns';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {
@@ -23,9 +24,10 @@ export interface IIndexArrayOptions<T, R> {
 }
 
 export function indexArray<T, R = T>(
-  arr: T[] = [],
+  arr: T | T[] = [],
   opts: IIndexArrayOptions<T, R> = {}
 ): {[key: string]: R} {
+  const array = toArray(arr);
   const indexer = opts.indexer ?? defaultIndexer;
   const path = opts.path;
   const reducer = opts.reducer ?? defaultReducer;
@@ -35,9 +37,9 @@ export function indexArray<T, R = T>(
     }
   }
 
-  const result = arr.reduce((accumulator, current, index) => {
-    const key = indexer(current, path as any, arr, index);
-    accumulator[key] = reducer(current, arr, index);
+  const result = array.reduce((accumulator, current, index) => {
+    const key = indexer(current, path as any, array, index);
+    accumulator[key] = reducer(current, array, index);
     return accumulator;
   }, {} as {[key: string]: R});
 

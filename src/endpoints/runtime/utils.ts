@@ -1,7 +1,5 @@
-import {appAssert} from '../../utils/assertion';
-import {ServerError} from '../../utils/errors';
-import {errorMessages} from '../messages';
+import {reuseableErrors} from '../../utils/reusableErrors';
 
 export function throwAppRuntimeStateFound() {
-  appAssert(false, new ServerError(), errorMessages.appRuntimeStateNotFound);
+  throw reuseableErrors.appRuntimeState.notFound();
 }

@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 
 export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -44,6 +44,6 @@ export async function generateAndInsertPermissionGroupListForTest(
   seed: Partial<IPermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
-  await ctx.data.permissiongroup.insertList(items);
+  await ctx.semantic.permissionGroup.insertList(items);
   return items;
 }

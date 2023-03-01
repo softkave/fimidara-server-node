@@ -12,7 +12,7 @@ import {
 import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
 import updateUser from './handler';
-import {IUpdateUserParams} from './types';
+import {IUpdateUserEndpointParams} from './types';
 
 /**
  * TODO:
@@ -32,11 +32,14 @@ afterAll(async () => {
 test('user data updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IUpdateUserParams>(mockExpressRequestWithUserToken(userToken), {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    email: faker.internet.email(),
-  });
+  const instData = RequestData.fromExpressRequest<IUpdateUserEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      email: faker.internet.email(),
+    }
+  );
 
   const result = await updateUser(context, instData);
   assertEndpointResultOk(result);

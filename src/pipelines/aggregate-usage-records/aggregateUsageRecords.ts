@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceType, systemAgent} from '../../definitions/system';
+import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -152,7 +152,7 @@ async function getUsageRecordsLevel2(
         fulfillmentStatus,
         resourceId: getNewIdForResource(AppResourceType.UsageRecord),
         createdAt: new Date(),
-        createdBy: systemAgent,
+        createdBy: SYSTEM_SESSION_AGENT,
         category: k,
         summationType: UsageSummationType.Two,
         usage: 0,
@@ -170,7 +170,7 @@ async function incrementRecordLevel2(connection: Connection, recordLevel2: IUsag
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
   recordLevel2.lastUpdatedAt = new Date();
-  recordLevel2.lastUpdatedBy = systemAgent;
+  recordLevel2.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   return recordLevel2;
 }
 
@@ -208,7 +208,7 @@ async function aggregateRecordsLevel2(
   });
 
   totalRecord.lastUpdatedAt = new Date();
-  totalRecord.lastUpdatedBy = systemAgent;
+  totalRecord.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   const model = makeUsageRecordModel(connection);
   await model.bulkWrite(
     records.map(r => ({
@@ -242,7 +242,7 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
         ...defaultTo(locks[r.category], {}),
         category: r.category,
         lastUpdatedAt: new Date(),
-        lastUpdatedBy: systemAgent,
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         locked: true,
       };
 

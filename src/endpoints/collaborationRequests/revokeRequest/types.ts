@@ -1,4 +1,4 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
@@ -7,7 +7,7 @@ export interface IRevokeCollaborationRequestEndpointParams {
 }
 
 export interface IRevokeCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+  request: IPublicCollaborationRequestForWorkspace;
 }
 
 export type RevokeCollaborationRequestEndpoint = Endpoint<

@@ -1,6 +1,6 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import {IBaseContext} from '../../contexts/types';
@@ -47,7 +47,7 @@ describe('ingestLogs', () => {
       testLogs.push({
         level: 'error',
         message: `Test client log ${i}`,
-        timestamp: getDateString(),
+        timestamp: getTimestamp(),
         stack: randomTag,
         service: FimidaraLoggerServiceNames.Test,
       });

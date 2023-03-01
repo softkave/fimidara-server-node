@@ -4,7 +4,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {IFile} from '../../definitions/file';
-import {BasicCRUDActions, publicAgent} from '../../definitions/system';
+import {BasicCRUDActions, PUBLIC_SESSION_AGENT} from '../../definitions/system';
 import {
   IFileUsageRecordArtifact,
   UsageRecordCategory,
@@ -147,10 +147,10 @@ async function setupForFile(
 ) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
-    publicAgent,
+    PUBLIC_SESSION_AGENT,
     generateTestUsageThresholdInputMap()
   );
-  await context.data.workspace.insertItem(workspace);
+  await context.semantic.workspace.insertItem(workspace);
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
   const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -338,14 +338,14 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategory.Total]: {
         budget: 1000,
         category: UsageRecordCategory.Total,
       },
     });
 
-    await context.data.workspace.insertItem(workspace);
+    await context.semantic.workspace.insertItem(workspace);
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -381,14 +381,14 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategory.Total]: {
         budget: 1000,
         category: UsageRecordCategory.Total,
       },
     });
 
-    await context.data.workspace.insertItem(workspace);
+    await context.semantic.workspace.insertItem(workspace);
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     await insertUsageRecordsForFiles(

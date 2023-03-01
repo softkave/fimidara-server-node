@@ -1,18 +1,15 @@
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IPublicProgramAccessToken} from '../../../definitions/programAccessToken';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface INewProgramAccessTokenInput {
   name: string;
   description?: string;
-  permissionGroups?: IAssignPermissionGroupInput[];
   tags?: IAssignedTagInput[];
 }
 
-export interface IAddProgramAccessTokenEndpointParams {
-  workspaceId?: string;
+export interface IAddProgramAccessTokenEndpointParams extends IEndpointOptionalWorkspaceIDParam {
   token: INewProgramAccessTokenInput;
 }
 

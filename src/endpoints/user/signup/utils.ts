@@ -1,23 +1,23 @@
 import * as argon2 from 'argon2';
-import {AppResourceType} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {IUser} from '../../../definitions/user';
+import {getTimestamp} from '../../../utils/dateFns';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {EmailAddressNotAvailableError} from '../errors';
-import UserQueries from '../UserQueries';
-import {ISignupParams} from './types';
+import {ISignupEndpointParams} from './types';
 
-export const internalSignupUser = async (context: IBaseContext, data: ISignupParams) => {
-  const userExists = await context.data.user.existsByQuery(UserQueries.getByEmail(data.email));
-
+export const internalSignupUser = async (context: IBaseContext, data: ISignupEndpointParams) => {
+  const userExists = await context.semantic.user.existsByEmail(data.email);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
   }
 
   const hash = await argon2.hash(data.password);
-  const now = getDateString();
-  const user = await context.data.user.insertItem({
+  const now = getTimestamp();
+  const user: IUser = newResource(SYSTEM_SESSION_AGENT, AppResourceType.User, {
     hash,
     resourceId: getNewIdForResource(AppResourceType.User),
     email: data.email,
@@ -28,6 +28,6 @@ export const internalSignupUser = async (context: IBaseContext, data: ISignupPar
     isEmailVerified: false,
     lastUpdatedAt: now,
   });
-
+  await context.semantic.user.insertItem(user);
   return await populateUserWorkspaces(context, user);
 };

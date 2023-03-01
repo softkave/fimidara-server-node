@@ -1,9 +1,10 @@
 import {nanoid} from 'nanoid';
 import {
   AppResourceType,
-  resourceTypeShortNameMaxLen,
-  resourceTypeShortNames,
-  shortNameToResourceTypes,
+  RESOURCE_TYPE_SHORT_NAMES,
+  RESOURCE_TYPE_SHORT_NAME_MAX_LEN,
+  RESOURCE_TYPE_SHORT_NAME_PADDING,
+  SHORT_NAME_TO_RESOURCE_TYPE,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import {appAssert} from './assertion';
@@ -26,26 +27,39 @@ export function getNewId(size?: number) {
   return nanoid(size);
 }
 
-export const idSeparator = '_';
+export const ID_SEPARATOR = '_';
+export const ID_0 = ''.padEnd(RESOURCE_TYPE_SHORT_NAME_MAX_LEN, RESOURCE_TYPE_SHORT_NAME_PADDING);
 
 // TODO: write Joi schema
 export function getNewIdForResource(resourceType: AppResourceType, size?: number) {
-  const id = nanoid(size);
-  const shortName = resourceTypeShortNames[resourceType];
-  return `${shortName}${idSeparator}${id}`;
+  let id = ID_0;
+  switch (resourceType) {
+    case AppResourceType.System:
+    case AppResourceType.Public: {
+      id = ID_0;
+      break;
+    }
+
+    default: {
+      id = nanoid(size);
+    }
+  }
+
+  const shortName = RESOURCE_TYPE_SHORT_NAMES[resourceType];
+  return `${shortName}${ID_SEPARATOR}${id}`;
 }
 
 export function isAppResourceId(resourceId: string) {
-  const shortName = resourceId.slice(0, resourceTypeShortNameMaxLen);
-  if (!shortName ?? !shortNameToResourceTypes[shortName]) {
+  const shortName = resourceId.slice(0, RESOURCE_TYPE_SHORT_NAME_MAX_LEN);
+  if (!shortName ?? !SHORT_NAME_TO_RESOURCE_TYPE[shortName]) {
     return false;
   }
   return true;
 }
 
 export function tryGetResourceTypeFromId(id: string): AppResourceType | undefined {
-  const shortName = id.slice(0, resourceTypeShortNameMaxLen);
-  const type = shortNameToResourceTypes[shortName];
+  const shortName = id.slice(0, RESOURCE_TYPE_SHORT_NAME_MAX_LEN);
+  const type = SHORT_NAME_TO_RESOURCE_TYPE[shortName];
   return type;
 }
 

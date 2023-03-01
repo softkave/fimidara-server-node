@@ -50,23 +50,17 @@ describe('updateCollaborationRequest', () => {
       userToken,
       workspace.resourceId,
       {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
+        permissionGroupsAssignedOnAcceptingRequest: [
+          {permissionGroupId: permissionGroup01.resourceId},
         ],
       }
     );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsOnAccept: [
-        {
-          permissionGroupId: permissionGroup02.resourceId,
-          order: 0,
-        },
+      expires: add(Date.now(), {days: 1}).valueOf(),
+      permissionGroupsAssignedOnAcceptingRequest: [
+        {permissionGroupId: permissionGroup02.resourceId},
       ],
     };
 
@@ -93,7 +87,6 @@ describe('updateCollaborationRequest', () => {
       context,
       workspace.resourceId,
       updatedRequest.resourceId,
-      AppResourceType.CollaborationRequest,
       [AppResourceType.PermissionGroup]
     );
 
@@ -118,19 +111,16 @@ describe('updateCollaborationRequest', () => {
       userToken,
       workspace.resourceId,
       {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
+        permissionGroupsAssignedOnAcceptingRequest: [
+          {permissionGroupId: permissionGroup01.resourceId},
         ],
       }
     );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsOnAccept: [],
+      expires: add(Date.now(), {days: 1}).valueOf(),
+      permissionGroupsAssignedOnAcceptingRequest: [],
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
@@ -147,7 +137,6 @@ describe('updateCollaborationRequest', () => {
       context,
       workspace.resourceId,
       result.request.resourceId,
-      AppResourceType.CollaborationRequest,
       [AppResourceType.PermissionGroup]
     );
 
@@ -169,18 +158,15 @@ describe('updateCollaborationRequest', () => {
       userToken,
       workspace.resourceId,
       {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
+        permissionGroupsAssignedOnAcceptingRequest: [
+          {permissionGroupId: permissionGroup01.resourceId},
         ],
       }
     );
 
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
+      expires: add(Date.now(), {days: 1}).valueOf(),
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
@@ -197,7 +183,6 @@ describe('updateCollaborationRequest', () => {
       context,
       workspace.resourceId,
       result.request.resourceId,
-      AppResourceType.CollaborationRequest,
       [AppResourceType.PermissionGroup]
     );
 

@@ -3,7 +3,7 @@ import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IClientLog = {
-  timestamp: string;
+  timestamp: number;
   level: string;
   message: string;
   service: string;
@@ -14,7 +14,4 @@ export interface IIngestLogsEndpointParams {
   logs: IClientLog[];
 }
 
-export type IngestLogsEndpoint = Endpoint<
-  IBaseContext,
-  IIngestLogsEndpointParams
->;
+export type IngestLogsEndpoint = Endpoint<IBaseContext, IIngestLogsEndpointParams>;

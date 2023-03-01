@@ -2,7 +2,7 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   ISessionAgent,
-  publicPermissibleEndpointAgents,
+  PUBLIC_PERMISSIBLE_AGENTS,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
@@ -18,7 +18,7 @@ import {listFolderContentJoiSchema} from './validation';
 
 const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
@@ -33,14 +33,12 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
   fetchedFolders = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
-    fetchedFolders,
-    AppResourceType.Folder
+    fetchedFolders
   );
   fetchedFiles = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
-    fetchedFiles,
-    AppResourceType.File
+    fetchedFiles
   );
 
   return {

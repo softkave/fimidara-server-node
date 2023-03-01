@@ -1,11 +1,12 @@
-import {systemAgent} from '../../../definitions/system';
-import {calculatePageSize, expectContainsNoneIn, getResourceId} from '../../../utils/fns';
+import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../test-utils/generate-data/workspace';
+import {expectContainsNoneIn} from '../../test-utils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -51,7 +52,9 @@ describe('getUserWorkspaces', () => {
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
     await Promise.all(
-      workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser))
+      workspaces.map(w =>
+        assignWorkspaceToUser(context!, SYSTEM_SESSION_AGENT, w.resourceId, rawUser)
+      )
     );
     const user = await populateUserWorkspaces(
       context,

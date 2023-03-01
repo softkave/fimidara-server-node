@@ -6,17 +6,16 @@ import {
   APP_RUNTIME_STATE_DOC_ID,
   BasicCRUDActions,
   IAppRuntimeState,
-  systemAgent,
+  SYSTEM_SESSION_AGENT,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/vars';
-import {getDate, getDateString} from '../../utils/dateFns';
-import {getNewIdForResource} from '../../utils/resourceId';
+import {getTimestamp} from '../../utils/dateFns';
+import {newResource} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext} from '../contexts/types';
 import {createSingleFolder} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
-import {permissionItemIndexer} from '../permissionItems/utils';
 import EndpointReusableQueries from '../queries';
 import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
@@ -40,7 +39,7 @@ async function setupWorkspace(context: IBaseContext, name: string, rootname: str
       rootname,
       description: "System-generated workspace for Fimidara's own operations",
     },
-    systemAgent
+    SYSTEM_SESSION_AGENT
   );
 }
 
@@ -50,13 +49,7 @@ async function setupDefaultUserCollaborationRequest(
   userEmail: string,
   adminPermissionGroupId: string
 ) {
-  const createdAt = getDate();
-  const request = await context.data.collaborationRequest.insertItem({
-    createdAt,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: systemAgent,
-    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
-    createdBy: systemAgent,
+  const request = newResource(SYSTEM_SESSION_AGENT, AppResourceType.CollaborationRequest, {
     message:
       'System-generated collaboration request ' +
       "to the system-generated workspace that manages File's " +
@@ -67,35 +60,32 @@ async function setupDefaultUserCollaborationRequest(
     statusHistory: [
       {
         status: CollaborationRequestStatusType.Pending,
-        date: createdAt,
+        date: getTimestamp(),
       },
     ],
   });
-
+  await context.semantic.collaborationRequest.insertItem(request);
   await addAssignedPermissionGroupList(
     context,
-    systemAgent,
-    workspace,
-    [{order: 0, permissionGroupId: adminPermissionGroupId}],
+    SYSTEM_SESSION_AGENT,
+    workspace.resourceId,
+    [{permissionGroupId: adminPermissionGroupId}],
     request.resourceId,
-    AppResourceType.CollaborationRequest,
     /** deleteExisting */ false,
     /** skipPermissionGroupsExistCheck */ true
   );
 }
 
 async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
-  const folder01 = await createSingleFolder(context, systemAgent, workspace, null, {
+  const folder01 = await createSingleFolder(context, SYSTEM_SESSION_AGENT, workspace, null, {
     folderpath: addRootnameToPath(folder01Path, workspace.rootname),
   });
-
-  const folder02 = await createSingleFolder(context, systemAgent, workspace, folder01, {
+  const folder02 = await createSingleFolder(context, SYSTEM_SESSION_AGENT, workspace, folder01, {
     folderpath: addRootnameToPath(folder02Path, workspace.rootname),
   });
-
   const workspaceImagesFolder = await createSingleFolder(
     context,
-    systemAgent,
+    SYSTEM_SESSION_AGENT,
     workspace,
     folder02,
     {
@@ -110,16 +100,22 @@ async function setupFolders(context: IBaseContext, workspace: IWorkspace) {
     }
   );
 
-  const userImagesFolder = await createSingleFolder(context, systemAgent, workspace, folder02, {
-    folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname),
-    publicAccessOps: [
-      {
-        action: BasicCRUDActions.Read,
-        resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-      },
-    ],
-  });
+  const userImagesFolder = await createSingleFolder(
+    context,
+    SYSTEM_SESSION_AGENT,
+    workspace,
+    folder02,
+    {
+      folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname),
+      publicAccessOps: [
+        {
+          action: BasicCRUDActions.Read,
+          resourceType: AppResourceType.File,
+          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
+        },
+      ],
+    }
+  );
 
   return {folder01, folder02, workspaceImagesFolder, userImagesFolder};
 }
@@ -131,42 +127,38 @@ async function setupImageUploadPermissionGroup(
   description: string,
   folderId: string
 ) {
-  const createdAt = getDate();
-  const imageUploadPermissionGroup = await context.data.permissiongroup.insertItem({
-    name,
-    description,
-    createdAt,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: systemAgent,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
-    workspaceId: workspaceId,
-    createdBy: systemAgent,
-  });
-
+  const imageUploadPermissionGroup = newResource(
+    SYSTEM_SESSION_AGENT,
+    AppResourceType.PermissionGroup,
+    {
+      name,
+      description,
+      workspaceId: workspaceId,
+    }
+  );
+  await context.semantic.permissionGroup.insertItem(imageUploadPermissionGroup);
   const permissionItems: IPermissionItem[] = [BasicCRUDActions.Create, BasicCRUDActions.Read].map(
     action => {
-      const item: IPermissionItem = {
-        action,
-        hash: '',
-        resourceId: getNewIdForResource(AppResourceType.PermissionItem),
-        workspaceId: workspaceId,
-        createdAt: getDateString(),
-        createdBy: systemAgent,
-        containerId: folderId,
-        containerType: AppResourceType.Folder,
-        permissionEntityId: imageUploadPermissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-        targetType: AppResourceType.File,
-        grantAccess: true,
-        appliesTo: PermissionItemAppliesTo.Children,
-      };
-
-      item.hash = permissionItemIndexer(item);
+      const item: IPermissionItem = newResource(
+        SYSTEM_SESSION_AGENT,
+        AppResourceType.PermissionItem,
+        {
+          action,
+          workspaceId: workspaceId,
+          containerId: folderId,
+          containerType: AppResourceType.Folder,
+          entityId: imageUploadPermissionGroup.resourceId,
+          entityType: AppResourceType.PermissionGroup,
+          targetType: AppResourceType.File,
+          grantAccess: true,
+          appliesTo: PermissionItemAppliesTo.Children,
+        }
+      );
       return item;
     }
   );
 
-  await context.data.permissionItem.insertList(permissionItems);
+  await context.semantic.permissionItem.insertList(permissionItems);
   return imageUploadPermissionGroup;
 }
 
@@ -174,7 +166,6 @@ async function isRootWorkspaceSetup(context: IBaseContext) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );
-
   return appRuntimeState;
 }
 
@@ -241,7 +232,6 @@ export async function setupApp(context: IBaseContext) {
     resourceId: APP_RUNTIME_STATE_DOC_ID,
     ...appRuntimeVars,
   });
-
   merge(context.appVariables, appRuntimeVars);
   return workspace;
 }

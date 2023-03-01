@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenFor} from '../../../definitions/system';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {} from '../../contexts/SessionContext';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {assertUserTokenIsSame} from '../../test-utils/helpers/user';
@@ -28,20 +28,22 @@ afterAll(async () => {
 test('email address is confirmed', async () => {
   assertContext(context);
   const password = faker.internet.password();
-  const {user, userTokenStr} = await insertUserForTest(context, {
+  const {user, userTokenStr, rawUser} = await insertUserForTest(context, {
     password,
   });
 
-  const token = await context.data.userToken.insertItem({
+  const token = newResource(makeUserSessionAgent(rawUser), AppResourceType.UserToken, {
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
-    audience: [TokenAudience.ConfirmEmailAddress],
-    issuedAt: getDateString(),
+    audience: [TokenFor.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
   });
+  await context.semantic.userToken.insertItem(token);
 
-  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(token));
-  const result = await confirmEmailAddress(context, instData);
+  const result = await confirmEmailAddress(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(token))
+  );
   assertEndpointResultOk(result);
   expect(result.user.isEmailVerified).toBe(true);
   assertUserTokenIsSame(context, result.token, userTokenStr);

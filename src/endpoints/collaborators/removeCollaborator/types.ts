@@ -1,12 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IRemoveCollaboratorEndpointParams {
-  workspaceId?: string;
+export interface IRemoveCollaboratorEndpointParams extends IEndpointOptionalWorkspaceIDParam {
   collaboratorId: string;
 }
 
-export type RemoveCollaboratorEndpoint = Endpoint<
-  IBaseContext,
-  IRemoveCollaboratorEndpointParams
->;
+export type RemoveCollaboratorEndpoint = Endpoint<IBaseContext, IRemoveCollaboratorEndpointParams>;

@@ -6,12 +6,12 @@ import {
   IAgent,
   IPublicAccessOp,
   ISessionAgent,
-  publicPermissibleEndpointAgents,
+  PUBLIC_PERMISSIBLE_AGENTS,
 } from '../../../definitions/system';
-import {compactPublicAccessOps} from '../../../definitions/utils';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDate, getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -19,7 +19,7 @@ import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
@@ -48,17 +48,7 @@ export async function createSingleFolder(
   }
 
   const folderId = getNewIdForResource(AppResourceType.Folder);
-  const createdAt = getDateString();
-  const createdBy: IAgent = {
-    agentId: agent.agentId,
-    agentType: agent.agentType,
-  };
-
-  const savedFolder = await context.data.folder.insertItem({
-    createdAt,
-    createdBy,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
+  const savedFolder = newResource(agent, AppResourceType.Folder, {
     name,
     workspaceId: workspace.resourceId,
     resourceId: folderId,
@@ -67,16 +57,15 @@ export async function createSingleFolder(
     namePath: parent ? parent.namePath.concat(name) : [name],
     description: input.description,
   });
+  await context.semantic.folder.insertItem(savedFolder);
 
   let publicAccessOps: IPublicAccessOp[] = input.publicAccessOps
     ? input.publicAccessOps.map(op => ({
         ...op,
-        markedAt: getDate(),
+        markedAt: getTimestamp(),
         markedBy: agent,
       }))
     : [];
-
-  publicAccessOps = compactPublicAccessOps(publicAccessOps);
   await replacePublicPermissionGroupAccessOps(
     context,
     agent,
@@ -131,15 +120,15 @@ export async function createFolderList(
       await checkAuthorization({
         context,
         agent,
-        workspace,
-        type: AppResourceType.Folder,
-        permissionContainers: previousFolder
-          ? getFilePermissionContainers(
-              workspace.resourceId,
-              previousFolder,
-              AppResourceType.Folder
-            )
-          : makeWorkspacePermissionContainerList(workspace.resourceId),
+        workspaceId: workspace.resourceId,
+        targets: [
+          {
+            type: AppResourceType.Folder,
+            containerId: previousFolder
+              ? getFilePermissionContainers(workspace.resourceId, previousFolder)
+              : getWorkspacePermissionContainers(workspace.resourceId),
+          },
+        ],
         action: BasicCRUDActions.Create,
       });
 
@@ -174,27 +163,16 @@ export async function createFolderList(
 // TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   const pathWithDetails = splitPathWithDetails(data.folder.folderpath);
   const workspace = await context.data.workspace.getOneByQuery(
     WorkspaceQueries.getByRootname(pathWithDetails.workspaceRootname)
   );
   assertWorkspace(workspace);
   let folder = await createFolderList(context, agent, workspace, data.folder);
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    folder.resourceId,
-    AppResourceType.Folder,
-    data.folder,
-    false
-  );
-
-  folder = await populateAssignedTags(context, folder.workspaceId, folder, AppResourceType.Folder);
-  return {
-    folder: folderExtractor(folder),
-  };
+  await saveResourceAssignedItems(context, agent, workspace, folder.resourceId, data.folder, false);
+  folder = await populateAssignedTags(context, folder.workspaceId, folder);
+  return {folder: folderExtractor(folder)};
 };
 
 export default addFolder;

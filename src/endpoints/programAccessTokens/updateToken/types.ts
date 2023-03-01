@@ -3,8 +3,7 @@ import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {INewProgramAccessTokenInput} from '../addToken/types';
 
-export type IUpdateProgramAccessTokenInput =
-  Partial<INewProgramAccessTokenInput>;
+export type IUpdateProgramAccessTokenInput = Partial<INewProgramAccessTokenInput>;
 
 export interface IUpdateProgramAccessTokenEndpointParams {
   tokenId?: string;

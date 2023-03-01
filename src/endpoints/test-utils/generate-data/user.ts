@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {
@@ -11,7 +11,7 @@ import {
 } from './utils';
 
 export function generateUserForTest(seed: Partial<IUser> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const item: IUser = {
     resourceId: getNewIdForResource(AppResourceType.User),
     createdAt,
@@ -20,7 +20,7 @@ export function generateUserForTest(seed: Partial<IUser> = {}) {
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
     hash: '',
-    passwordLastChangedAt: getDateString(),
+    passwordLastChangedAt: getTimestamp(),
     isEmailVerified: false,
     ...seed,
   };
@@ -41,6 +41,6 @@ export async function generateAndInsertUserListForTest(
   genPartial: GeneratePartialTestDataFn<IUser> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateUserListForTest(count, genPartial);
-  await ctx.data.user.insertList(items);
+  await ctx.semantic.user.insertList(items);
   return items;
 }

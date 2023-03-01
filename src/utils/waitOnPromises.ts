@@ -13,7 +13,8 @@ export interface ISettledPromise<Value = any, Reason = any> {
   reason?: Reason;
 }
 
-export interface ISettledPromiseWithId<Value = any, Reason = any> extends ISettledPromise<Value, Reason> {
+export interface ISettledPromiseWithId<Value = any, Reason = any>
+  extends ISettledPromise<Value, Reason> {
   id: string | number;
 }
 
@@ -35,7 +36,9 @@ function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
 export const waitOnPromisesWithId = <T>(
   promises: IPromiseWithId<T>[] | Dictionary<IPromiseWithId<T>>
 ): Promise<ISettledPromiseWithId<T, any>[]> => {
-  const mappedPromises = map(promises, wrapPromiseWithId) as unknown as Promise<ISettledPromiseWithId<T, any>>[];
+  const mappedPromises = map(promises, wrapPromiseWithId) as unknown as Promise<
+    ISettledPromiseWithId<T, any>
+  >[];
   return Promise.all(mappedPromises);
 };
 

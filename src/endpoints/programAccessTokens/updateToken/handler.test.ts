@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -43,19 +42,16 @@ test('program access token updated', async () => {
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
   );
-
   const tokenUpdateInput = {
     name: faker.lorem.words(3),
     description: faker.lorem.words(10),
@@ -78,7 +74,6 @@ test('program access token updated', async () => {
       token: tokenUpdateInput,
     }
   );
-
   const result = await updateProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
 
@@ -89,24 +84,10 @@ test('program access token updated', async () => {
       workspace.resourceId,
       await context.data.programAccessToken.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(token01.resourceId)
-      ),
-      AppResourceType.ProgramAccessToken
+      )
     )
   );
-
   expect(programAccessTokenExtractor(updatedToken)).toMatchObject(result.token);
   expect(updatedToken.name).toBe(tokenUpdateInput.name);
   expect(updatedToken.description).toBe(tokenUpdateInput.description);
-  expect(result.token.permissionGroups.length).toEqual(2);
-  expect(result.token.permissionGroups[0]).toMatchObject({
-    permissionGroupId: permissionGroup01.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
-  });
-
-  expect(result.token.permissionGroups[1]).toMatchObject({
-    permissionGroupId: permissionGroup02.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 2,
-  });
 });

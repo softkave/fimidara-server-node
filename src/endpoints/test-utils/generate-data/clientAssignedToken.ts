@@ -5,12 +5,12 @@ import {
   IAgent,
   SessionAgentType,
 } from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 
 export function generateClientAssignedTokenForTest(seed: Partial<IClientAssignedToken> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -47,6 +47,6 @@ export async function generateAndInsertClientAssignedTokenListForTest(
   seed: Partial<IClientAssignedToken> = {}
 ) {
   const items = generateClientAssignedTokenListForTest(count, seed);
-  await ctx.data.clientAssignedToken.insertList(items);
+  await ctx.semantic.clientAssignedToken.insertList(items);
   return items;
 }

@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
@@ -17,7 +17,7 @@ export async function getWorkspaceProgramAccessTokensQuery(
     agent,
     workspace,
     type: AppResourceType.ProgramAccessToken,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
     action: BasicCRUDActions.Read,
   });
   return getWorkspaceResourceListQuery(workspace, permissionsSummaryReport);

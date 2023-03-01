@@ -1,5 +1,5 @@
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicProgramToken} from '../utils';
 import {AddProgramAccessTokenEndpoint} from './types';
@@ -12,10 +12,7 @@ const addProgramAccessToken: AddProgramAccessTokenEndpoint = async (context, ins
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const token = await internalCreateProgramAccessToken(context, agent, workspace, data.token);
-
-  return {
-    token: getPublicProgramToken(context, token),
-  };
+  return {token: getPublicProgramToken(context, token)};
 };
 
 export default addProgramAccessToken;

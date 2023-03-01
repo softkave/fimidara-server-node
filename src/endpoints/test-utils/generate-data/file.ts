@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {getDate} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
@@ -14,9 +14,9 @@ export function generateTestFile(extra: Partial<IFile> = {}) {
     createdAt,
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
-    createdBy: systemAgent,
+    createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedAt: faker.date.future(),
-    lastUpdatedBy: systemAgent,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
     idPath: [id],
     namePath: [name],
     resourceId: id,
@@ -43,6 +43,6 @@ export async function generateAndInsertTestFiles(
   extra: Partial<IFile> = {}
 ) {
   const items = generateTestFiles(count, extra);
-  await ctx.data.file.insertList(items);
+  await ctx.semantic.file.insertList(items);
   return items;
 }

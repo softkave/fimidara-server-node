@@ -12,7 +12,7 @@ const countEntityPermissionItems: CountEntityPermissionItemsEndpoint = async (
   const data = validate(instData.data, countEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkEntitiesExist(context, agent, workspace, [data]);
+  await checkEntitiesExist(context, agent, workspace, [data.entityId]);
   const q = await getEntityPermissionItemsQuery(context, agent, workspace, data);
   const count = await context.data.permissionItem.countByQuery(q);
   return {count};

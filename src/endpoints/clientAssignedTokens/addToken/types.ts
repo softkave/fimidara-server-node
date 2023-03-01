@@ -1,20 +1,17 @@
 import {IPublicClientAssignedToken} from '../../../definitions/clientAssignedToken';
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface INewClientAssignedTokenInput {
   providedResourceId?: string;
   name?: string;
   description?: string;
-  expires?: string;
-  permissionGroups?: IAssignPermissionGroupInput[];
+  expires?: number;
   tags?: IAssignedTagInput[];
 }
 
-export interface IAddClientAssignedTokenEndpointParams {
-  workspaceId?: string;
+export interface IAddClientAssignedTokenEndpointParams extends IEndpointOptionalWorkspaceIDParam {
   token: INewClientAssignedTokenInput;
 }
 

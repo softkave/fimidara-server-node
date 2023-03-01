@@ -2,13 +2,14 @@ import {faker} from '@faker-js/faker';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
-import {systemAgent} from '../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 import {justInCaseCleanups} from '../../endpoints/test-utils/context/cleanup';
 import {generateWorkspaceListForTest} from '../../endpoints/test-utils/generate-data/workspace';
 import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 import assert = require('assert');
 
@@ -37,8 +38,8 @@ describe('unlockUsageThresholds', () => {
       locks[k] = {
         locked: true,
         category: k,
-        lastUpdatedAt: new Date(),
-        lastUpdatedBy: systemAgent,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
       };
     });
 

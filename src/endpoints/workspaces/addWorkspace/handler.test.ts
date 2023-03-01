@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../test-utils/helpers/error';
 import {
@@ -45,25 +46,36 @@ describe('addWorkspace', () => {
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
     const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME)
+      EndpointReusableQueries.getByWorkspaceIdAndName(
+        workspace.resourceId,
+        DEFAULT_ADMIN_PERMISSION_GROUP_NAME
+      )
     );
-
     await context.data.permissiongroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByWorkspaceIdAndName(workspace.resourceId, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME)
+      EndpointReusableQueries.getByWorkspaceIdAndName(
+        workspace.resourceId,
+        DEFAULT_PUBLIC_PERMISSION_GROUP_NAME
+      )
     );
 
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(userToken.userId))
+      await context.data.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(userToken.userId)
+      )
     );
-
     const userWorkspace = user.workspaces.find(item => item.workspaceId === workspace.resourceId);
 
     expect(userWorkspace).toBeTruthy();
-    const assignedAdminPermissionGroup = userWorkspace?.permissionGroups.find(
-      item => item.permissionGroupId === adminPermissionGroup.resourceId
+    const userPermissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
+      context,
+      workspace.resourceId,
+      user.resourceId
     );
-
+    const assignedAdminPermissionGroup =
+      userPermissionGroupsResult.permissionGroupsWithAssignedItems.find(
+        item => item.resourceId === adminPermissionGroup.resourceId
+      );
     expect(assignedAdminPermissionGroup).toBeTruthy();
   });
 

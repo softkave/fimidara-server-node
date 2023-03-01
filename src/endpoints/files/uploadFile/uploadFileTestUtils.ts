@@ -102,8 +102,7 @@ export async function assertPublicAccessOps(
   expectPermissionItemsForEntityPresent(
     publicPermissionItems,
     basePermissionItems,
-    insertWorkspaceResult.workspace.publicPermissionGroupId,
-    AppResourceType.PermissionGroup
+    insertWorkspaceResult.workspace.publicPermissionGroupId
   );
 }
 

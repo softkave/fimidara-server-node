@@ -36,9 +36,7 @@ test('password changed', async () => {
   const newPassword = 'bgr984_!hg';
   const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
     mockExpressRequestWithUserToken(userToken),
-    {
-      password: newPassword,
-    }
+    {password: newPassword}
   );
 
   const oldHash = rawUser.hash;

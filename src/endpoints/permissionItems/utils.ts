@@ -1,6 +1,5 @@
-import {uniqWith} from 'lodash';
 import {IFile} from '../../definitions/file';
-import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
+import {IPublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -11,26 +10,22 @@ import {
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
-import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import PermissionItemQueries from './queries';
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 import {internalFunctionAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
-  resourceId: true,
-  workspaceId: true,
-  createdAt: getDateString,
-  createdBy: agentExtractor,
+  ...workspaceResourceFields,
   containerId: true,
   containerType: true,
-  permissionEntityId: true,
-  permissionEntityType: true,
+  entityId: true,
+  entityType: true,
   targetId: true,
   targetType: true,
   action: true,
@@ -43,29 +38,6 @@ export const permissionItemListExtractor = makeListExtract(permissionItemFields)
 
 export function throwPermissionItemNotFound() {
   throw new NotFoundError('Permission item not found');
-}
-
-// TODO: Include a case for removing resourceId with type items
-// when an item with just the resource type exists, cause it
-// serves as an umbrella permission item, when other fields remain
-// the same.
-
-// TODO: Do performance check for compactPermissionItems and
-// re-implement using key-value map of keys generated once using
-// a combination of these fields
-
-export function compactPermissionItems(items: IPermissionItem[]) {
-  return uniqWith(
-    items,
-    (item01, item02) =>
-      item01.permissionEntityId === item02.permissionEntityId &&
-      item01.containerId === item02.containerId &&
-      item01.action === item02.action &&
-      item01.grantAccess === item02.grantAccess &&
-      item01.appliesTo === item02.appliesTo &&
-      item01.targetId === item02.targetId &&
-      item01.targetType === item02.targetType
-  );
 }
 
 export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPublicAccessOp) =>
@@ -116,7 +88,7 @@ export async function replacePublicPermissionGroupAccessOps(
   const {containerId, containerType, targetId} = getPublicAccessOpArtifactsFromResource(resource);
 
   if (workspace.publicPermissionGroupId) {
-    await context.data.permissionItem.deleteManyByQuery(
+    await context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByPermissionEntityAndContainer(
         workspace.publicPermissionGroupId,
         containerId
@@ -126,7 +98,7 @@ export async function replacePublicPermissionGroupAccessOps(
     if (addOps.length > 0) {
       await internalFunctionAddPermissionItemsByEntity(context, agent, {
         workspaceId: workspace.resourceId,
-        permissionEntityId: workspace.publicPermissionGroupId,
+        entityId: workspace.publicPermissionGroupId,
         items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
       });
     }
@@ -137,23 +109,11 @@ export interface IPermissionItemBase {
   containerId: string;
   targetId?: string;
   targetType: AppResourceType;
-  permissionEntityId: string;
+  entityId: string;
   action: BasicCRUDActions;
   grantAccess?: boolean;
   isForPermissionContainer?: boolean;
 }
-
-export const permissionItemIndexer = (item: IPermissionItemBase) => {
-  return makeKey([
-    item.permissionEntityId,
-    item.containerId,
-    item.targetId,
-    item.targetType,
-    item.action,
-    item.grantAccess,
-    item.isForPermissionContainer,
-  ]);
-};
 
 export abstract class PermissionItemUtils {
   static extractPublicPermissionItem = permissionItemExtractor;
@@ -169,3 +129,15 @@ export function getTargetType(data: {targetId?: string; targetType?: AppResource
   appAssert(targetType, new InvalidRequestError('Target ID or target type must be present'));
   return targetType;
 }
+
+export const permissionItemIndexer = (item: IPermissionItemBase) => {
+  return makeKey([
+    item.entityId,
+    item.containerId,
+    item.targetId,
+    item.targetType,
+    item.action,
+    item.grantAccess,
+    item.isForPermissionContainer,
+  ]);
+};

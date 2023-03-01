@@ -9,7 +9,7 @@ import {
 
 export interface IGetEntityPermissionItemsEndpointParamsBase
   extends IEndpointOptionalWorkspaceIDParam {
-  permissionEntityId: string;
+  entityId: string;
 }
 
 export interface IGetEntityPermissionItemsEndpointParams

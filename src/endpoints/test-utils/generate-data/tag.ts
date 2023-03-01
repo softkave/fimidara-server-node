@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 
 export function generateTagForTest(seed: Partial<ITag> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -41,6 +41,6 @@ export async function generateAndInsertTagListForTest(
   seed: Partial<ITag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
-  await ctx.data.tag.insertList(items);
+  await ctx.semantic.tag.insertList(items);
   return items;
 }

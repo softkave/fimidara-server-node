@@ -3,7 +3,7 @@ import {IAppRuntimeState} from '../definitions/system';
 import {ensureTypeFields} from './utils';
 
 const appRuntimeStateSchema = ensureTypeFields<IAppRuntimeState>({
-  resourceId: {type: String, unique: true, index: true},
+  resourceId: {type: String, index: true, unique: true},
   isAppSetup: {type: Boolean, default: false},
   appWorkspaceId: {type: String},
   appWorkspacesImageUploadPermissionGroupId: {type: String},

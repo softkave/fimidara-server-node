@@ -1,5 +1,5 @@
 import {IAssignedPermissionGroupMeta} from './permissionGroups';
-import {IAgent} from './system';
+import {IResourceBase, IWorkspaceResourceBase} from './system';
 
 export enum CollaborationRequestStatusType {
   Accepted = 'accepted',
@@ -14,7 +14,7 @@ export type CollaborationRequestResponse =
 
 export interface ICollaborationRequestStatus {
   status: CollaborationRequestStatusType;
-  date: Date | string;
+  date: number;
 }
 
 export enum CollaborationRequestEmailReason {
@@ -24,25 +24,28 @@ export enum CollaborationRequestEmailReason {
 }
 
 export interface ICollaborationRequestSentEmailHistoryItem {
-  date: Date | string;
+  date: number;
   reason: CollaborationRequestEmailReason;
 }
 
-export interface ICollaborationRequest {
-  resourceId: string;
+export interface ICollaborationRequest extends IWorkspaceResourceBase {
   recipientEmail: string;
   message: string;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  expiresAt?: string;
+  expiresAt?: number;
   workspaceName: string;
-  workspaceId: string;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  readAt?: Date | string;
+  readAt?: number;
   statusHistory: ICollaborationRequestStatus[];
 }
 
-export interface IPublicCollaborationRequest extends ICollaborationRequest {
+export type IPublicCollaborationRequestForUser = Pick<
+  IResourceBase,
+  'resourceId' | 'createdAt' | 'lastUpdatedAt'
+> &
+  Pick<
+    ICollaborationRequest,
+    'message' | 'expiresAt' | 'readAt' | 'recipientEmail' | 'statusHistory' | 'workspaceName'
+  >;
+
+export type IPublicCollaborationRequestForWorkspace = ICollaborationRequest & {
   permissionGroupsAssignedOnAcceptingRequest: IAssignedPermissionGroupMeta[];
-}
+};

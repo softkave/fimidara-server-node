@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
@@ -42,7 +42,7 @@ export function generateTestUsageThresholdInputMap(
 }
 
 export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -82,6 +82,6 @@ export async function generateAndInsertWorkspaceListForTest(
   extra: Partial<IWorkspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await ctx.data.workspace.insertList(items);
+  await ctx.semantic.workspace.insertList(items);
   return items;
 }

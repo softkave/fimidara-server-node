@@ -1,40 +1,25 @@
 import {IProgramAccessToken, IPublicProgramAccessToken} from '../../definitions/programAccessToken';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-  TokenType,
-} from '../../definitions/system';
-import {getDateString} from '../../utils/dateFns';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 const programAccessTokenFields = getFields<IPublicProgramAccessToken>({
-  resourceId: true,
-  createdAt: getDateString,
-  createdBy: agentExtractor,
-  workspaceId: true,
+  ...workspaceResourceFields,
   name: true,
   description: true,
-  permissionGroups: assignedPermissionGroupsListExtractor,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
   tokenStr: true,
   // tags: assignedTagListExtractor,
 });
 
 export const programAccessTokenExtractor = makeExtract(programAccessTokenFields);
-
 export const programAccessTokenListExtractor = makeListExtract(programAccessTokenFields);
 
 export async function checkProgramAccessTokenAuthorization(
@@ -48,14 +33,11 @@ export async function checkProgramAccessTokenAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
     nothrow,
-    targetId: token.resourceId,
-    type: AppResourceType.ProgramAccessToken,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    targets: [{targetId: token.resourceId}],
   });
-
   return {agent, token, workspace};
 }
 
@@ -77,14 +59,11 @@ export function throwProgramAccessTokenNotFound() {
 }
 
 export function getPublicProgramToken(context: IBaseContext, token: IProgramAccessToken) {
-  const tokenStr = context.session.encodeToken(
-    context,
-    token.resourceId,
-    TokenType.ProgramAccessToken,
-    null,
-    token.createdAt
-  );
-
+  const tokenStr = context.session.encodeToken(context, token.resourceId, null, token.createdAt);
   cast<IPublicProgramAccessToken>(token).tokenStr = tokenStr;
   return programAccessTokenExtractor(token);
+}
+
+export function assertProgramToken(token?: IProgramAccessToken | null): asserts token {
+  appAssert(token, reuseableErrors.programToken.notFound());
 }

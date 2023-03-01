@@ -1,8 +1,6 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {endpointValidationSchemas} from '../../validation';
 
 export const getWorkspaceJoiSchema = Joi.object()
-  .keys({
-    workspaceId: validationSchemas.resourceId,
-  })
+  .keys(endpointValidationSchemas.optionalWorkspaceIdParts)
   .required();

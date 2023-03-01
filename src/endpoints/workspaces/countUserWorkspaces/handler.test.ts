@@ -1,4 +1,4 @@
-import {systemAgent} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
@@ -30,7 +30,9 @@ describe('countUserWorkspaces', () => {
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
     await Promise.all(
-      workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser))
+      workspaces.map(w =>
+        assignWorkspaceToUser(context!, SYSTEM_SESSION_AGENT, w.resourceId, rawUser)
+      )
     );
     const user = await populateUserWorkspaces(
       context,

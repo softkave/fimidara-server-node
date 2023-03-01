@@ -8,14 +8,14 @@ import {
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
 } from '../../../email-templates/collaborationRequestRevoked';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import {
   checkCollaborationRequestAuthorization02,
-  collaborationRequestExtractor,
+  collaborationRequestForWorkspaceExtractor,
   populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {RevokeCollaborationRequestEndpoint} from './types';
@@ -36,17 +36,13 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 
   const status = request.statusHistory[request.statusHistory.length - 1];
   const isRevoked = status.status === CollaborationRequestStatusType.Revoked;
-
   if (!isRevoked) {
-    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getByResourceId(data.requestId),
-      {
-        statusHistory: request.statusHistory.concat({
-          date: getDateString(),
-          status: CollaborationRequestStatusType.Revoked,
-        }),
-      }
-    );
+    request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
+      statusHistory: request.statusHistory.concat({
+        date: getTimestamp(),
+        status: CollaborationRequestStatusType.Revoked,
+      }),
+    });
 
     const workspace = await context.data.workspace.getOneByQuery(
       EndpointReusableQueries.getByResourceId(request.workspaceId)
@@ -59,7 +55,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 
   request = await populateRequestAssignedPermissionGroups(context, request);
   return {
-    request: collaborationRequestExtractor(request),
+    request: collaborationRequestForWorkspaceExtractor(request),
   };
 };
 

@@ -1,9 +1,6 @@
 import {validate} from '../../../utils/validate';
 import {getWorkspaceFromEndpointInput} from '../../utils';
-import {
-  assignedPermissionGroupsListExtractor,
-  permissionGroupWithAssignedMetaListExtractor,
-} from '../utils';
+import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';
 import {
   checkReadEntityAssignedPermissionGroups,
@@ -19,20 +16,14 @@ const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoi
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   await checkReadEntityAssignedPermissionGroups(context, agent, workspace, data.entityId);
-  const {permissionGroupsWithAssignedItems, immediatelyAssignedPermissionGroupsMeta} =
-    await fetchEntityAssignedPermissionGroupList(
-      context,
-      workspace.resourceId,
-      data.entityId,
-      data.includeInheritedPermissionGroups
-    );
+  const result = await fetchEntityAssignedPermissionGroupList(
+    context,
+    data.entityId,
+    data.includeInheritedPermissionGroups
+  );
   return {
-    permissionGroups: permissionGroupWithAssignedMetaListExtractor(
-      permissionGroupsWithAssignedItems
-    ),
-    immediateAssignedPermissionGroupsMeta: assignedPermissionGroupsListExtractor(
-      immediatelyAssignedPermissionGroupsMeta
-    ),
+    permissionGroups: permissionGroupListExtractor(result.permissionGroups),
+    immediateAssignedPermissionGroupsMeta: result.inheritanceMap[data.entityId]?.items ?? [],
   };
 };
 

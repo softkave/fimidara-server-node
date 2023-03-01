@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {permissionItemIndexer} from '../../permissionItems/utils';
 import {randomAction, randomPermissionAppliesTo, randomResourceType} from './utils';
 
 export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -23,8 +23,8 @@ export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
     containerId: workspaceId,
     containerType: AppResourceType.Workspace,
-    permissionEntityId: createdBy.agentId,
-    permissionEntityType: AppResourceType.User,
+    entityId: createdBy.agentId,
+    entityType: AppResourceType.User,
     targetId: getNewIdForResource(itemType),
     targetType: itemType,
     action: randomAction(),
@@ -51,6 +51,6 @@ export async function generateAndInsertPermissionItemListForTest(
   seed: Partial<IPermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
-  await ctx.data.permissionItem.insertList(items);
+  await ctx.semantic.permissionItem.insertList(items);
   return items;
 }

@@ -6,8 +6,8 @@ import {
   BasicCRUDActions,
   getNonWorkspaceActionList,
   IAgent,
-  resourceTypeShortNames,
-  validAgentTypes,
+  RESOURCE_TYPE_SHORT_NAMES,
+  VALID_AGENT_TYPES,
 } from '../definitions/system';
 import {
   asFieldObjectAny,
@@ -25,7 +25,7 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../mddoc/mddoc';
-import {idSeparator} from '../utils/resourceId';
+import {ID_SEPARATOR} from '../utils/resourceId';
 import {endpointConstants} from './constants';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {IBaseEndpointResult} from './types';
@@ -194,38 +194,38 @@ const agent = new FieldObject<IAgent>().setName('Agent').setFields({
     .setRequired(true)
     .setDescription('Agent type')
     .setExample(AppResourceType.ProgramAccessToken)
-    .setValid(validAgentTypes),
+    .setValid(VALID_AGENT_TYPES),
 });
 const date = new FieldString().setRequired(false).setDescription('Date string.');
 const id = new FieldString()
   .setRequired(false)
   .setDescription('Resource ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const workspaceId = new FieldString()
   .setRequired(false)
   .setDescription('Workspace ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const folderId = new FieldString()
   .setRequired(false)
   .setDescription('Folder ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Folder]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const fileId = new FieldString()
   .setRequired(false)
   .setDescription('File ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.File]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.File]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const permissionGroupId = new FieldString()
   .setRequired(false)
   .setDescription('Permission group ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.PermissionGroup]}${idSeparator}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionGroup]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
@@ -233,7 +233,7 @@ const permissionItemId = new FieldString()
   .setRequired(false)
   .setDescription('Permission item ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.PermissionItem]}${idSeparator}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionItem]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );

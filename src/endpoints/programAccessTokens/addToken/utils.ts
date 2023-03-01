@@ -3,12 +3,9 @@ import * as crypto from 'crypto';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {
-  ISaveResourceAssignedItemsOptions,
-  saveResourceAssignedItems,
-} from '../../assignedItems/addAssignedItems';
+import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {checkProgramTokenNameExists} from '../checkProgramNameExists';
@@ -22,19 +19,17 @@ export const internalCreateProgramAccessToken = async (
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace,
-  data: INewProgramAccessTokenInput,
-  assignedItemsOptions?: ISaveResourceAssignedItemsOptions
+  data: INewProgramAccessTokenInput
 ) => {
   await checkProgramTokenNameExists(context, workspace.resourceId, data.name);
   const secretKey = generateSecretKey();
   const hash = await argon2.hash(secretKey);
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: agent.agentId,
     agentType: agent.agentType,
   };
-
-  let token: IProgramAccessToken = await context.data.programAccessToken.insertItem({
+  let token: IProgramAccessToken = await context.semantic.programAccessToken.insertItem({
     ...data,
     createdAt,
     createdBy,
@@ -44,25 +39,15 @@ export const internalCreateProgramAccessToken = async (
     workspaceId: workspace.resourceId,
     resourceId: getNewIdForResource(AppResourceType.ProgramAccessToken),
   });
-
   await saveResourceAssignedItems(
     context,
     agent,
     workspace,
     token.resourceId,
-    AppResourceType.ProgramAccessToken,
     data,
-    /* deleteExisting */ false,
-    /* options */ assignedItemsOptions
+    /* deleteExisting */ false
   );
-
-  token = await populateAssignedTags(
-    context,
-    token.workspaceId,
-    token,
-    AppResourceType.ProgramAccessToken
-  );
-
+  token = await populateAssignedTags(context, token.workspaceId, token);
   return token;
 };
 

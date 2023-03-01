@@ -1,4 +1,4 @@
-import {SessionAgentType} from '../definitions/system';
+import {AppResourceType} from '../definitions/system';
 import OperationError from '../utils/OperationError';
 import {IDataProvideQueryListParams} from './contexts/data/types';
 import {IBaseContext} from './contexts/types';
@@ -20,11 +20,6 @@ export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R>
 export enum ServerRecommendedActions {
   LoginAgain = 'LoginAgain',
   Logout = 'Logout',
-}
-
-export interface IPublicAgent {
-  agentId: string;
-  agentType: SessionAgentType;
 }
 
 export interface IRequestDataPendingPromise {
@@ -49,3 +44,6 @@ export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
   T,
   keyof IPaginationQuery
 >;
+
+export type DeleteResourceCascadeFn = (context: IBaseContext, resourceId: string) => Promise<void>;
+export type DeleteResourceCascadeFnsMap = Record<AppResourceType, DeleteResourceCascadeFn>;

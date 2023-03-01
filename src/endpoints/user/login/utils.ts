@@ -2,27 +2,23 @@ import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  systemAgent,
-  TokenAudience,
-  TokenType,
+  ISessionAgent,
+  TokenFor,
 } from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {IUserWithWorkspace} from '../../../definitions/user';
 import {IUserToken} from '../../../definitions/userToken';
 import {appAssert} from '../../../utils/assertion';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {newResource} from '../../../utils/fns';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
-import {assertWorkspace} from '../../workspaces/utils';
-import UserTokenQueries from '../UserTokenQueries';
 import {userExtractor} from '../utils';
 import {ILoginResult} from './types';
 
 export function toLoginResult(
   context: IBaseContext,
-  user: IUser,
+  user: IUserWithWorkspace,
   token: IUserToken,
   clientAssignedToken: IClientAssignedToken
 ): ILoginResult {
@@ -31,68 +27,52 @@ export function toLoginResult(
     token: context.session.encodeToken(
       context,
       token.resourceId,
-      TokenType.UserToken,
+      AppResourceType.UserToken,
       token.expires
     ),
     clientAssignedToken: context.session.encodeToken(
       context,
       clientAssignedToken.resourceId,
-      TokenType.ClientAssignedToken,
+      AppResourceType.ClientAssignedToken,
       token.expires
     ),
   };
 }
 
-export async function getUserClientAssignedToken(context: IBaseContext, userId: string) {
-  appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set');
+export async function getUserClientAssignedToken(context: IBaseContext, agent: ISessionAgent) {
+  appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set.');
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
-    'App workspaces image upload permission group ID not set'
+    'App workspaces image upload permission group ID not set.'
   );
   appAssert(
     context.appVariables.appUsersImageUploadPermissionGroupId,
     new ServerError(),
-    'App users image upload permission group ID not set'
+    'App users image upload permission group ID not set.'
   );
 
-  let token = await context.data.clientAssignedToken.getOneByQuery(
-    EndpointReusableQueries.getByProvidedId(context.appVariables.appWorkspaceId, userId)
+  let token = await context.semantic.clientAssignedToken.getByProvidedId(
+    context.appVariables.appWorkspaceId,
+    agent.agentId
   );
 
   if (!token) {
-    const createdAt = getDateString();
-    token = await context.data.clientAssignedToken.insertItem({
-      createdAt,
-      lastUpdatedAt: createdAt,
-      lastUpdatedBy: systemAgent,
-      resourceId: getNewIdForResource(AppResourceType.ClientAssignedToken),
-      providedResourceId: userId,
-      createdBy: systemAgent,
+    token = newResource(agent, AppResourceType.ClientAssignedToken, {
+      providedResourceId: agent.agentId,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
     });
-
-    const workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(context.appVariables.appWorkspaceId)
-    );
-    assertWorkspace(workspace);
+    context.semantic.clientAssignedToken.insertItem(token);
     addAssignedPermissionGroupList(
       context,
-      systemAgent,
-      workspace,
+      agent,
+      context.appVariables.appWorkspaceId,
       [
-        {
-          order: 1,
-          permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId,
-        },
-        {
-          order: 2,
-          permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId,
-        },
+        {permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId},
+        {permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId},
       ],
       token.resourceId,
-      AppResourceType.ClientAssignedToken,
       /** deleteExisting */ false,
       /** skipPermissionGroupsExistCheck */ true
     );
@@ -101,19 +81,21 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
   return token;
 }
 
-export async function getUserToken(context: IBaseContext, user: IUser) {
-  let userToken = await context.data.userToken.getOneByQuery(
-    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.Login)
+export async function getUserToken(context: IBaseContext, agent: ISessionAgent) {
+  appAssert(
+    agent.agentType === AppResourceType.User,
+    new ServerError(),
+    'Session agent must be a user session agent.'
   );
-
+  let userToken = await context.semantic.userToken.getOneByUserId(agent.agentId, TokenFor.Login);
   if (!userToken) {
-    userToken = await context.data.userToken.insertItem({
-      resourceId: getNewIdForResource(AppResourceType.UserToken),
-      userId: user.resourceId,
-      audience: [TokenAudience.Login],
-      issuedAt: getDateString(),
+    userToken = newResource(agent, AppResourceType.UserToken, {
+      userId: agent.agentId,
+      tokenFor: [TokenFor.Login],
+      issuedAt: getTimestamp(),
       version: CURRENT_TOKEN_VERSION,
     });
+    await context.semantic.userToken.insertItem(userToken);
   }
 
   return userToken;

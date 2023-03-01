@@ -6,7 +6,6 @@ import {
   assertContext,
   initTestBaseContext,
   insertClientAssignedTokenForTest,
-  insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../test-utils/test-utils';
@@ -24,25 +23,9 @@ afterAll(async () => {
 
 test('client assigned token added', async () => {
   assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
+  const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    context,
-    userToken,
-    workspace.resourceId
-  );
-  const {token} = await insertClientAssignedTokenForTest(context, userToken, workspace.resourceId, {
-    permissionGroups: [
-      {permissionGroupId: permissionGroup01.resourceId, order: 1},
-      {permissionGroupId: permissionGroup02.resourceId, order: 2},
-    ],
-  });
-
+  const {token} = await insertClientAssignedTokenForTest(context, userToken, workspace.resourceId);
   const savedToken = getPublicClientToken(
     context,
     await populateAssignedTags(
@@ -53,6 +36,5 @@ test('client assigned token added', async () => {
       )
     )
   );
-
   expect(savedToken).toMatchObject(token);
 });

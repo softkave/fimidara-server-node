@@ -1,7 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {ICollaborationRequest} from '../definitions/collaborationRequest';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const collaborationRequestStatusHistorySchema = {
   status: {type: String},
@@ -9,21 +8,16 @@ const collaborationRequestStatusHistorySchema = {
 };
 
 const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
-  resourceId: {type: String, unique: true, index: true},
+  ...workspaceResourceSchema,
   recipientEmail: {type: String, index: true},
-  workspaceId: {type: String, index: true},
   workspaceName: {type: String},
   message: {type: String},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: () => getDate()},
-  expiresAt: {type: Date},
-  readAt: {type: Date},
+  expiresAt: {type: Number},
+  readAt: {type: Number},
   statusHistory: {
     type: [collaborationRequestStatusHistorySchema],
     default: [],
   },
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
 });
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
@@ -33,11 +27,7 @@ const modelName = 'collaboration-request';
 const collectionName = 'collaboration-requests';
 
 export function getCollaborationRequestModel(connection: Connection) {
-  const model = connection.model<ICollaborationRequest>(
-    modelName,
-    schema,
-    collectionName
-  );
+  const model = connection.model<ICollaborationRequest>(modelName, schema, collectionName);
 
   return model;
 }

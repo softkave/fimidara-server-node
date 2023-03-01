@@ -1,7 +1,10 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
-import {IUsageRecord, IUsageRecordArtifact, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {
+  IUsageRecord,
+  IUsageRecordArtifact,
+  UsageRecordFulfillmentStatus,
+} from '../definitions/usageRecord';
+import {ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
   type: {type: String},
@@ -11,12 +14,7 @@ const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
 });
 
 const usageRecordSchema = ensureTypeFields<IUsageRecord>({
-  resourceId: {type: String, unique: true, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate, index: true},
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
-  workspaceId: {type: String, index: true},
+  ...workspaceResourceSchema,
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},

@@ -2,8 +2,9 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
-  publicPermissibleEndpointAgents,
+  PUBLIC_PERMISSIBLE_AGENTS,
 } from '../../../definitions/system';
+import {noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
 import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
@@ -11,10 +12,38 @@ import {IBaseContext} from '../../contexts/types';
 import {deleteFileAndArtifacts} from '../../files/deleteFile/handler';
 import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
+import {DeleteResourceCascadeFnsMap} from '../../types';
 import FolderQueries from '../queries';
 import {checkFolderAuthorization02} from '../utils';
 import {DeleteFolderEndpoint} from './types';
 import {deleteFolderJoiSchema} from './validation';
+
+const cascade: DeleteResourceCascadeFnsMap = {
+  [AppResourceType.All]: noopAsync,
+  [AppResourceType.System]: noopAsync,
+  [AppResourceType.Public]: noopAsync,
+  [AppResourceType.Workspace]: noopAsync,
+  [AppResourceType.CollaborationRequest]: noopAsync,
+  [AppResourceType.ProgramAccessToken]: (context, id) =>
+    context.semantic.programAccessToken.deleteOneById(id),
+  [AppResourceType.ClientAssignedToken]: noopAsync,
+  [AppResourceType.UserToken]: noopAsync,
+  [AppResourceType.PermissionGroup]: noopAsync,
+  [AppResourceType.PermissionItem]: async (context, id) => {
+    await Promise.all([
+      context.semantic.permissionItem.deleteManyByTargetId(id),
+      context.semantic.permissionItem.deleteManyByEntityId(id),
+    ]);
+  },
+  [AppResourceType.Folder]: noopAsync,
+  [AppResourceType.File]: noopAsync,
+  [AppResourceType.User]: noopAsync,
+  [AppResourceType.Tag]: noopAsync,
+  [AppResourceType.AssignedItem]: (context, id) =>
+    context.semantic.assignedItem.deleteResourceAssignedItems(id),
+  [AppResourceType.UsageRecord]: noopAsync,
+  [AppResourceType.EndpointRequest]: noopAsync,
+};
 
 async function deleteFilesByFolderId(context: IBaseContext, workspaceId: string, folderId: string) {
   // TODO: should we get files by name path, paginated
@@ -46,25 +75,20 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
 
   await waitOnPromises([
     // Delete folder children folders
-    context.data.folder.deleteManyByQuery(
+    context.semantic.folder.deleteManyByQuery(
       FolderQueries.getByParentId(folder.workspaceId, folder.resourceId)
     ),
 
     // Delete folder
-    context.data.folder.deleteOneByQuery(
+    context.semantic.folder.deleteOneByQuery(
       EndpointReusableQueries.getByResourceId(folder.resourceId)
     ),
 
     // Delete folder assigned items like tags
-    deleteResourceAssignedItems(
-      context,
-      folder.workspaceId,
-      folder.resourceId,
-      AppResourceType.Folder
-    ),
+    deleteResourceAssignedItems(context, folder.workspaceId, folder.resourceId),
 
     // Delete permission items that are owned by the folder
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByContainer(folder.resourceId)
     ),
 
@@ -90,7 +114,7 @@ export async function internalDeleteFolderList(context: IBaseContext, folders: I
 
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   const {folder} = await checkFolderAuthorization02(context, agent, data, BasicCRUDActions.Delete);
 
   // TODO: this be fire and forget with retry OR move it to a job

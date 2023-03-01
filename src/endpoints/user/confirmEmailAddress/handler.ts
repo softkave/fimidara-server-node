@@ -1,14 +1,23 @@
-import {TokenAudience} from '../../../definitions/system';
+import {AppResourceType, TokenFor} from '../../../definitions/system';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import internalConfirmEmailAddress from './internalConfirmEmailAddress';
 import {ConfirmEmailAddressEndpoint} from './types';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instData) => {
-  let user = await context.session.getUser(context, instData, [TokenAudience.ConfirmEmailAddress]);
-  user = await internalConfirmEmailAddress(context, user);
-  const userToken = await getUserToken(context, user);
-  const clientAssignedToken = await getUserClientAssignedToken(context, user.resourceId);
-  return toLoginResult(context, user, userToken, clientAssignedToken);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    AppResourceType.User,
+    TokenFor.ConfirmEmailAddress
+  );
+  const [user, userToken, clientAssignedToken] = await Promise.all([
+    internalConfirmEmailAddress(context, agent.agentId, agent.user),
+    getUserToken(context, agent),
+    getUserClientAssignedToken(context, agent),
+  ]);
+  const userWithWorkspaces = await populateUserWorkspaces(context, user);
+  return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);
 };
 
 export default confirmEmailAddress;

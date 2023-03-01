@@ -26,6 +26,7 @@ import {
   forgotPasswordEmailText,
   IForgotPasswordEmailProps,
 } from '../../email-templates/forgotPassword';
+import {getTimestamp} from '../../utils/dateFns';
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =
@@ -46,10 +47,8 @@ export function renderConfirmEmailAddressMedia() {
 }
 
 // Forgot password email
-const forgotPasswordEmailHTMLFile =
-  './tools/email-templates/templates/forgot-password-html.html';
-const forgotPasswordEmailTxtFile =
-  './tools/email-templates/templates/forgot-password-text.txt';
+const forgotPasswordEmailHTMLFile = './tools/email-templates/templates/forgot-password-html.html';
+const forgotPasswordEmailTxtFile = './tools/email-templates/templates/forgot-password-text.txt';
 
 export function renderForgotPasswordMedia() {
   const props: IForgotPasswordEmailProps = {
@@ -75,10 +74,8 @@ export function renderCollaborationRequestMedia() {
     isRecipientAUser: true,
     loginLink: 'https://fimidara.com/accounts/signup',
     signupLink: 'https://fimidara.com/accounts/login',
-    expires: new Date().toISOString(),
-    message:
-      'Test collaboration request message. ' +
-      'Not too long, and not too short.',
+    expires: getTimestamp(),
+    message: 'Test collaboration request message. ' + 'Not too long, and not too short.',
   };
 
   const renderedHTML = collaborationRequestEmailHTML(props);

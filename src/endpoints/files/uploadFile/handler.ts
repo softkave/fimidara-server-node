@@ -1,9 +1,5 @@
 import {IFile} from '../../../definitions/file';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
+import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {ValidationError} from '../../../utils/errors';
 import {} from '../../../utils/fns';
@@ -27,7 +23,7 @@ import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   let file = await getFileWithMatcher(context, data);
   const isNewFile = !file;
   const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
@@ -73,11 +69,8 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     contentLength: data.data.byteLength,
   });
 
-  file = await populateAssignedTags<IFile>(context, file.workspaceId, file, AppResourceType.File);
-
-  return {
-    file: fileExtractor(file),
-  };
+  file = await populateAssignedTags<IFile>(context, file.workspaceId, file);
+  return {file: fileExtractor(file)};
 };
 
 export default uploadFile;

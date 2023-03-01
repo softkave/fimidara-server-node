@@ -37,14 +37,10 @@ test('referenced program access token returned', async () => {
     workspace.resourceId
   );
 
-  const instData =
-    RequestData.fromExpressRequest<IGetProgramAccessTokenEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        tokenId: token01.resourceId,
-      }
-    );
-
+  const instData = RequestData.fromExpressRequest<IGetProgramAccessTokenEndpointParams>(
+    mockExpressRequestWithUserToken(userToken),
+    {tokenId: token01.resourceId}
+  );
   const result = await getProgramAccessToken(context, instData);
   assertEndpointResultOk(result);
   expect(result.token).toEqual(token01);

@@ -1,8 +1,4 @@
-import {
-  IAssignedItem,
-  IAssignedItemAssignedPermissionGroupMeta,
-  IAssignedItemMainFieldsMatcher,
-} from '../../definitions/assignedItem';
+import {IAssignedItem, IAssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
 import {IAssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
 import {IAssignedTag} from '../../definitions/tag';
 import {IUserWorkspace} from '../../definitions/user';
@@ -14,9 +10,9 @@ export function assignedItemToAssignedPermissionGroup(
 ): IAssignedPermissionGroupMeta {
   return {
     permissionGroupId: item.assignedItemId,
-    assignedAt: item.assignedAt,
-    assignedBy: item.assignedBy,
-    order: (item.meta as IAssignedItemAssignedPermissionGroupMeta).order,
+    assignedAt: item.createdAt,
+    assignedBy: item.createdBy,
+    assignedToEntityId: item.assignedToItemId,
   };
 }
 
@@ -29,8 +25,8 @@ export function assignedItemsToAssignedPermissionGroupList(
 export function assignedItemToAssignedTag(item: IAssignedItem): IAssignedTag {
   return {
     tagId: item.assignedItemId,
-    assignedAt: item.assignedAt,
-    assignedBy: item.assignedBy,
+    assignedAt: item.createdAt,
+    assignedBy: item.createdBy,
   };
 }
 
@@ -41,7 +37,7 @@ export function assignedItemsToAssignedTagList(items: IAssignedItem[]): IAssigne
 export function assignedItemToAssignedWorkspace(item: IAssignedItem): IUserWorkspace {
   return {
     workspaceId: item.assignedItemId,
-    joinedAt: item.assignedAt,
+    joinedAt: item.createdAt,
   };
 }
 

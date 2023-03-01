@@ -20,13 +20,13 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (cont
 
   await waitOnPromises([
     // Delete permission items that belong to the token
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByPermissionEntity(token.resourceId)
     ),
 
     // Delete permission items that explicitly give access to the token but belong to other
     // permission carrying resources, e.g a progam access token
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByResource(
         token.workspaceId,
         token.resourceId,
@@ -38,7 +38,7 @@ const deleteClientAssignedToken: DeleteClientAssignedTokenEndpoint = async (cont
     deleteResourceAssignedItems(context, token.workspaceId, token.resourceId),
 
     // Delete client token
-    context.data.clientAssignedToken.deleteOneByQuery(
+    context.semantic.clientAssignedToken.deleteOneByQuery(
       EndpointReusableQueries.getByResourceId(token.resourceId)
     ),
   ]);

@@ -1,10 +1,7 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
@@ -12,7 +9,6 @@ import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
-
   if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
@@ -24,9 +20,7 @@ export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: str
     email: item.email,
     joinedAt: userWorkspace.joinedAt,
     workspaceId: userWorkspace.workspaceId,
-    permissionGroups: userWorkspace.permissionGroups,
   };
-
   return collaborator;
 };
 
@@ -43,7 +37,6 @@ export async function checkCollaboratorAuthorization(
   nothrow = false
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
-
   if (!userWorkspace) {
     throwCollaboratorNotFound();
   }
@@ -52,14 +45,11 @@ export async function checkCollaboratorAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
     nothrow,
-    targetId: collaborator.resourceId,
-    type: AppResourceType.User,
-    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
+    workspaceId: workspace.resourceId,
+    targets: [{targetId: collaborator.resourceId}],
   });
-
   return {agent, collaborator, workspace};
 }
 
@@ -77,7 +67,6 @@ export async function checkCollaboratorAuthorization02(
       EndpointReusableQueries.getByResourceId(collaboratorId)
     )
   );
-
   return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);
 }
 

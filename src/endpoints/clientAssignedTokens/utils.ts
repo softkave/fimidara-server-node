@@ -2,44 +2,30 @@ import {
   IClientAssignedToken,
   IPublicClientAssignedToken,
 } from '../../definitions/clientAssignedToken';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  ISessionAgent,
-  TokenType,
-} from '../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
-import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+import {reuseableErrors} from '../../utils/reusableErrors';
 import {
   assertGetWorkspaceIdFromAgent,
   getClientAssignedTokenIdNoThrow,
-} from '../contexts/SessionContext';
+} from '../../utils/sessionUtils';
+import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {ClientAssignedTokenDoesNotExistError} from './errors';
 
 const clientAssignedTokenFields = getFields<IPublicClientAssignedToken>({
-  resourceId: true,
-  providedResourceId: true,
-  createdAt: getDateString,
-  createdBy: agentExtractor,
-  workspaceId: true,
-  expires: getDateString,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
+  ...workspaceResourceFields,
+  expires: true,
   tokenStr: true,
-  // tags: assignedTagListExtractor,
   name: true,
   description: true,
+  // tags: assignedTagListExtractor,
 });
 
 export const clientAssignedTokenExtractor = makeExtract(clientAssignedTokenFields);
@@ -56,14 +42,11 @@ export async function checkClientAssignedTokenAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
     nothrow,
-    targetId: token.resourceId,
-    type: AppResourceType.ClientAssignedToken,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    targets: [{targetId: token.resourceId}],
   });
-
   return {agent, token, workspace};
 }
 
@@ -93,20 +76,17 @@ export async function checkClientAssignedTokenAuthorization03(
   nothrow = false
 ) {
   const tokenId = getClientAssignedTokenIdNoThrow(agent, input.tokenId, input.onReferenced);
-
   if (!tokenId && !input.providedResourceId) {
     throw new InvalidRequestError('Client assigned token ID or providedResourceId not set');
   }
 
   let token: IClientAssignedToken | null = null;
-
   if (tokenId) {
     token = await context.data.clientAssignedToken.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(tokenId)
     );
   } else if (input.providedResourceId) {
     const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
-
     token = await context.data.clientAssignedToken.assertGetOneByQuery(
       EndpointReusableQueries.getByProvidedId(workspaceId, input.providedResourceId)
     );
@@ -124,11 +104,13 @@ export function getPublicClientToken(context: IBaseContext, token: IClientAssign
   const tokenStr = context.session.encodeToken(
     context,
     token.resourceId,
-    TokenType.ClientAssignedToken,
     token.expires,
     token.createdAt
   );
-
   cast<IPublicClientAssignedToken>(token).tokenStr = tokenStr;
   return clientAssignedTokenExtractor(token);
+}
+
+export function assertClientToken(token?: IClientAssignedToken | null): asserts token {
+  appAssert(token, reuseableErrors.clientToken.notFound());
 }

@@ -7,7 +7,7 @@ import {NotFoundError} from '../../errors';
 import EndpointReusableQueries from '../../queries';
 import {
   checkCollaborationRequestAuthorization,
-  collaborationRequestExtractor,
+  collaborationRequestForUserExtractor,
   populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {GetCollaborationRequestEndpoint} from './types';
@@ -26,11 +26,11 @@ const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context,
 
   if (request.recipientEmail === agent.user?.email && !isAccepted) {
     // Request sent to user
-    return {request: collaborationRequestExtractor(request)};
+    return {request: collaborationRequestForUserExtractor(request)};
   }
 
   await checkCollaborationRequestAuthorization(context, agent, request, BasicCRUDActions.Read);
-  const populatedRequest = collaborationRequestExtractor(
+  const populatedRequest = collaborationRequestForUserExtractor(
     await populateRequestAssignedPermissionGroups(context, request)
   );
 

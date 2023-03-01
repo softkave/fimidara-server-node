@@ -1,4 +1,4 @@
-import {TokenAudience} from '../../definitions/system';
+import {TokenFor} from '../../definitions/system';
 import {IUserToken} from '../../definitions/userToken';
 import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
 import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
@@ -13,7 +13,7 @@ function getByUserId(userId: string) {
   return newFilter().addItem('userId', userId, DataProviderFilterValueOperator.Equal).build();
 }
 
-function getByUserIdAndAudience(userId: string, audience: TokenAudience) {
+function getByUserIdAndAudience(userId: string, audience: TokenFor) {
   return newFilter()
     .addItem('userId', userId, DataProviderFilterValueOperator.Equal)
     .addItem('audience', audience, DataProviderFilterValueOperator.Equal)

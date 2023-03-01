@@ -6,7 +6,7 @@ import {
 import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
-import {saveResourceAssignedItems} from '../assignedItems/addAssignedItems';
+import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {IBaseContext, IServerRequest} from '../contexts/types';
 import {insertPermissionItemsForTestForEntity} from '../test-utils/test-utils';
 
@@ -36,18 +36,14 @@ export async function assignPgListToIdList(
   idList: string[],
   pgListAssignedTo01Input: IAssignPermissionGroupInput[]
 ) {
-  await Promise.all(
-    idList.map(id =>
-      saveResourceAssignedItems(
-        context!,
-        agent,
-        workspace,
-        id,
-        {permissionGroups: pgListAssignedTo01Input},
-        false,
-        {skipPermissionGroupsExistCheck: true}
-      )
-    )
+  await addAssignedPermissionGroupList(
+    context,
+    agent,
+    workspace,
+    pgListAssignedTo01Input,
+    idList,
+    false,
+    true
   );
 }
 
@@ -62,7 +58,7 @@ export async function grantReadPermission(
     context,
     req,
     workspace.resourceId,
-    {permissionEntityId: agentId},
+    {entityId: agentId},
     {containerId: workspace.resourceId},
     targetIdList.map(id => ({targetId: id, action: BasicCRUDActions.Read}))
   );

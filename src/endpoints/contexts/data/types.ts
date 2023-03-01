@@ -13,6 +13,11 @@ export interface IDataProvideQueryListParams<T> {
   sort?: DataQuerySort<T>;
 }
 
+export type IDataProviderQueryParams<T> = Pick<IDataProvideQueryListParams<T>, 'projection'>;
+
+export const INCLUDE_IN_PROJECTION = 1 as const;
+export const EXCLUDE_IN_PROJECTION = 0 as const;
+
 export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
 
 // TODO: reclassify ops based on Mongo ops, but split comparison into number and
@@ -28,6 +33,8 @@ export interface IComparisonLiteralFieldQueryOps<
   // TODO: implement $not and in which bracket should it go?
   // $not?: T;
   $exists?: boolean;
+
+  // TODO: allow only on strings
   $regex?: RegExp;
 }
 
@@ -45,7 +52,7 @@ export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataP
   ? (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null
   : null;
 
-type LiteralDataQuery<T> = {
+export type LiteralDataQuery<T> = {
   [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;
 };
 
@@ -97,16 +104,16 @@ export interface IBaseDataProvider<
   ) => Promise<DataType[]>;
   getOneByQuery: (
     query: QueryType,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType | null>;
   assertGetOneByQuery: (
     query: QueryType,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType>;
   assertGetAndUpdateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType>;
 
   countByQuery: <ExtendedQueryType extends QueryType = QueryType>(
@@ -118,12 +125,12 @@ export interface IBaseDataProvider<
   updateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<void>;
   getAndUpdateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType | null>;
 
   deleteManyByQuery: <ExtendedQueryType extends QueryType = QueryType>(

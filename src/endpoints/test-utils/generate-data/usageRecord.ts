@@ -1,5 +1,5 @@
 import {defaultTo, random} from 'lodash';
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -18,7 +18,7 @@ export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageReco
     usageLocks[category] = {
       category,
       locked: true,
-      lastUpdatedBy: systemAgent,
+      lastUpdatedBy: SYSTEM_SESSION_AGENT,
       lastUpdatedAt: getDate(),
     };
   });
@@ -49,9 +49,9 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
       year: random(0, 11),
       resourceId: getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: new Date(),
-      createdBy: systemAgent,
+      createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedAt: new Date(),
-      lastUpdatedBy: systemAgent,
+      lastUpdatedBy: SYSTEM_SESSION_AGENT,
       category: randomCategory(),
       summationType: randomSummationType() as any,
       fulfillmentStatus: randomFulfillmentStatus(),
@@ -71,6 +71,6 @@ export async function generateAndInsertUsageRecordList(
   extra: Partial<IUsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await ctx.data.usageRecord.insertList(items);
+  await ctx.semantic.usageRecord.insertList(items);
   return items;
 }

@@ -3,7 +3,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -23,9 +23,7 @@ const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = a
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  await checkEntitiesExist(context, agent, workspace, [
-    {permissionEntityId: data.permissionEntityId},
-  ]);
+  await checkEntitiesExist(context, agent, workspace, [data.entityId]);
   await checkPermissionTargetsExist(
     context,
     agent,
@@ -36,9 +34,9 @@ const replacePermissionItemsByEntity: ReplacePermissionItemsByEntityEndpoint = a
     context,
     agent,
     workspace,
-    action: BasicCRUDActions.GrantPermission,
+    action: BasicCRUDActions.Create,
     type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
   });
   await checkPermissionContainersExist(context, agent, workspace, data.items);
   const items = await internalFunctionReplacePermissionItemsByEntity(context, agent, data);

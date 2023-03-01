@@ -1,11 +1,8 @@
 import {omit} from 'lodash';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
+import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
@@ -24,21 +21,15 @@ import {updateFileDetailsJoiSchema} from './validation';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   let {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Update);
 
   if (objectHasData(omit(data.file, 'tags'))) {
-    file = await context.data.file.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getByResourceId(file.resourceId),
-      {
-        ...data.file,
-        lastUpdatedAt: getDateString(),
-        lastUpdatedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
-      }
-    );
+    file = await context.semantic.file.getAndUpdateOneById(file.resourceId, {
+      ...data.file,
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    });
   }
 
   const workspace = await context.data.workspace.getOneByQuery(
@@ -50,16 +41,8 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
     await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    data.file,
-    true
-  );
-  file = await populateAssignedTags(context, file.workspaceId, file, AppResourceType.File);
+  await saveResourceAssignedItems(context, agent, workspace, file.resourceId, data.file, true);
+  file = await populateAssignedTags(context, file.workspaceId, file);
   return {
     file: fileExtractor(file),
   };

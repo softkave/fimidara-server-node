@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType} from '../../../definitions/system';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
@@ -33,7 +32,6 @@ test('file updated', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
-
   const updateInput: IUpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
@@ -46,7 +44,6 @@ test('file updated', async () => {
       file: updateInput,
     }
   );
-
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);
   expect(result.file.resourceId).toEqual(file.resourceId);
@@ -57,10 +54,8 @@ test('file updated', async () => {
     workspace.resourceId,
     await context.data.file.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(file.resourceId)
-    ),
-    AppResourceType.File
+    )
   );
-
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
 });

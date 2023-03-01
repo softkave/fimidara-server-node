@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
-import {systemAgent} from '../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
@@ -40,7 +40,7 @@ async function insertWorkspace(context: IBaseContext) {
       rootname: makeRootnameFromName(companyName),
       description: 'For SDK tests',
     },
-    systemAgent
+    SYSTEM_SESSION_AGENT
   );
 }
 
@@ -49,25 +49,10 @@ async function createProgramAccessToken(
   workspace: IWorkspace,
   adminPermissionGroupId: string
 ) {
-  const token = await internalCreateProgramAccessToken(
-    context,
-    systemAgent,
-    workspace,
-    {
-      name: faker.lorem.words(2),
-      description: 'Program access token for SDK tests',
-      permissionGroups: [
-        {
-          permissionGroupId: adminPermissionGroupId,
-          order: 1,
-        },
-      ],
-    },
-    {
-      skipPermissionGroupsExistCheck: true,
-    }
-  );
-
+  const token = await internalCreateProgramAccessToken(context, SYSTEM_SESSION_AGENT, workspace, {
+    name: faker.lorem.words(2),
+    description: 'Program access token for SDK tests',
+  });
   const tokenStr = getPublicProgramToken(context, token).tokenStr;
   return {token, tokenStr};
 }

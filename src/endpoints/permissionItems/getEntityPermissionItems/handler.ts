@@ -19,7 +19,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkEntitiesExist(context, agent, workspace, [data]);
+  await checkEntitiesExist(context, agent, workspace, [data.entityId]);
   const q = await getEntityPermissionItemsQuery(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
   const items = await context.data.permissionItem.getManyByQuery(q, data);

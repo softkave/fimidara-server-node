@@ -1,10 +1,9 @@
-import {IAssignedItemAssignedPermissionGroupMeta} from '../../../definitions/assignedItem';
 import {
   CollaborationRequestResponse,
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, isUserAgent, SessionAgentType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
@@ -13,8 +12,9 @@ import {
   collaborationRequestResponseEmailTitle,
   ICollaborationRequestResponseEmailProps,
 } from '../../../email-templates/collaborationRequestResponse';
-import {formatDate, getDateString} from '../../../utils/dateFns';
+import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
@@ -59,24 +59,16 @@ async function assignUserRequestPermissionGroups(
   const permissionGroupsOnAccept = await getResourceAssignedItems(
     context,
     request.workspaceId,
-    request.resourceId,
-    AppResourceType.CollaborationRequest
+    request.resourceId
   );
 
   if (permissionGroupsOnAccept.length > 0) {
     await addAssignedPermissionGroupList(
       context,
-      {
-        agentId: user.resourceId,
-        agentType: SessionAgentType.User,
-      },
-      workspace,
-      permissionGroupsOnAccept.map(item => ({
-        permissionGroupId: item.assignedItemId,
-        order: (item.meta as IAssignedItemAssignedPermissionGroupMeta)?.order ?? 1,
-      })),
+      makeUserSessionAgent(user),
+      workspace.resourceId,
+      permissionGroupsOnAccept.map(item => ({permissionGroupId: item.assignedItemId})),
       user.resourceId,
-      AppResourceType.User,
       /** deleteExisting */ false,
       /** skipPermissionGroupsExistCheck */ true
     );
@@ -106,26 +98,24 @@ export const internalRespondToCollaborationRequest = async (
     );
   }
 
-  request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getByResourceId(data.requestId),
-    {
-      statusHistory: request.statusHistory.concat({
-        date: getDateString(),
-        status: data.response,
-      }),
-    }
-  );
+  request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
+    statusHistory: request.statusHistory.concat({
+      date: getTimestamp(),
+      status: data.response,
+    }),
+  });
 
   const workspace = await context.data.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(request.workspaceId)
   );
   assertWorkspace(workspace);
   const notifyUser =
-    isUserAgent(request.createdBy) ?? isUserAgent(workspace.createdBy)
+    request.createdBy.agentType === AppResourceType.User ||
+    workspace.createdBy.agentType === AppResourceType.User
       ? // TODO: check if agent is a user or associated type before fetching
         await context.data.user.assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(
-            request.createdBy.agentType === SessionAgentType.User
+            request.createdBy.agentType === AppResourceType.User
               ? request.createdBy.agentId
               : workspace.createdBy.agentId
           )

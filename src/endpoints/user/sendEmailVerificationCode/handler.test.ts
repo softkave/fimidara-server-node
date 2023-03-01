@@ -14,7 +14,6 @@ import {
   mockExpressRequestWithUserToken,
 } from '../../test-utils/test-utils';
 import {waitForWorks} from '../../utils';
-import UserQueries from '../UserQueries';
 import sendEmailVerificationCode, {getConfirmEmailLink} from './handler';
 
 /**
@@ -38,23 +37,24 @@ test('email verification code sent', async () => {
   const {
     user,
     userToken,
+    rawUser,
     reqData: insertUserReqData,
   } = await insertUserForTest(context, /**userInput */ {}, /**skipAutoVerifyEmail */ true);
-
   await waitForWorks(insertUserReqData.pendingPromises);
-  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken));
-
-  await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), {
+  await context.semantic.user.getAndUpdateOneById(user.resourceId, {
     emailVerificationEmailSentAt: null,
   });
 
-  const result = await sendEmailVerificationCode(context, instData);
+  const result = await sendEmailVerificationCode(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+  );
   assertEndpointResultOk(result);
 
   // confirm sendEmail was called
   const confirmEmailProps: IConfirmEmailAddressEmailProps = {
     firstName: user.firstName,
-    link: await getConfirmEmailLink(context, user),
+    link: await getConfirmEmailLink(context, rawUser),
   };
 
   const html = confirmEmailAddressEmailHTML(confirmEmailProps);

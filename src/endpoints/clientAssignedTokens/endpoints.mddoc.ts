@@ -11,7 +11,12 @@ import {
   orUndefinedOrNull,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {
   IAddClientAssignedTokenEndpointParams,
   IAddClientAssignedTokenEndpointResult,
@@ -19,12 +24,18 @@ import {
 } from './addToken/types';
 import {clientAssignedTokenConstants} from './constants';
 import {IDeleteClientAssignedTokenEndpointParams} from './deleteToken/types';
-import {IGetClientAssignedTokenEndpointParams, IGetClientAssignedTokenEndpointResult} from './getToken/types';
+import {
+  IGetClientAssignedTokenEndpointParams,
+  IGetClientAssignedTokenEndpointResult,
+} from './getToken/types';
 import {
   IGetWorkspaceClientAssignedTokensEndpointParams,
   IGetWorkspaceClientAssignedTokensEndpointResult,
 } from './getWorkspaceTokens/types';
-import {IUpdateClientAssignedTokenEndpointParams, IUpdateClientAssignedTokenEndpointResult} from './updateToken/types';
+import {
+  IUpdateClientAssignedTokenEndpointParams,
+  IUpdateClientAssignedTokenEndpointResult,
+} from './updateToken/types';
 
 const newClientAssignedTokenInput = new FieldObject<ExcludeTags<INewClientAssignedTokenInput>>()
   .setName('NewClientAssignedTokenInput')
@@ -33,23 +44,23 @@ const newClientAssignedTokenInput = new FieldObject<ExcludeTags<INewClientAssign
     name: fReusables.nameNotRequired,
     description: fReusables.descriptionNotRequired,
     expires: fReusables.expiresNotRequired,
-    permissionGroups: fReusables.assignPermissionGroupListNotRequired,
   });
 
-const clientAssignedToken = new FieldObject<IPublicClientAssignedToken>().setName('ClientAssignedToken').setFields({
-  resourceId: new FieldString(),
-  createdBy: fReusables.agent,
-  createdAt: fReusables.date,
-  lastUpdatedBy: fReusables.agent,
-  lastUpdatedAt: fReusables.date,
-  name: fReusables.name,
-  description: fReusables.descriptionOrUndefined,
-  expires: fReusables.expiresOrUndefined,
-  providedResourceId: orUndefinedOrNull(fReusables.providedResourceId),
-  workspaceId: fReusables.workspaceId,
-  permissionGroups: fReusables.assignPermissionGroupList,
-  tokenStr: fReusables.tokenString,
-});
+const clientAssignedToken = new FieldObject<IPublicClientAssignedToken>()
+  .setName('ClientAssignedToken')
+  .setFields({
+    resourceId: new FieldString(),
+    createdBy: fReusables.agent,
+    createdAt: fReusables.date,
+    lastUpdatedBy: fReusables.agent,
+    lastUpdatedAt: fReusables.date,
+    name: fReusables.name,
+    description: fReusables.descriptionOrUndefined,
+    expires: fReusables.expiresOrUndefined,
+    providedResourceId: orUndefinedOrNull(fReusables.providedResourceId),
+    workspaceId: fReusables.workspaceId,
+    tokenStr: fReusables.tokenString,
+  });
 
 const addClientAssignedTokenParams = new FieldObject<IAddClientAssignedTokenEndpointParams>()
   .setName('AddClientAssignedTokenEndpointParams')
@@ -73,15 +84,16 @@ const addClientAssignedTokenResult = [
     ),
 ];
 
-const getWorkspaceClientAssignedTokensParams = new FieldObject<IGetWorkspaceClientAssignedTokensEndpointParams>()
-  .setName('GetWorkspaceClientAssignedTokensEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    page: fReusables.pageNotRequired,
-    pageSize: fReusables.pageSizeNotRequired,
-  })
-  .setRequired(true)
-  .setDescription('Get workspace client assigned tokens endpoint params.');
+const getWorkspaceClientAssignedTokensParams =
+  new FieldObject<IGetWorkspaceClientAssignedTokensEndpointParams>()
+    .setName('GetWorkspaceClientAssignedTokensEndpointParams')
+    .setFields({
+      workspaceId: fReusables.workspaceIdInputNotRequired,
+      page: fReusables.pageNotRequired,
+      pageSize: fReusables.pageSizeNotRequired,
+    })
+    .setRequired(true)
+    .setDescription('Get workspace client assigned tokens endpoint params.');
 
 const getWorkspaceClientAssignedTokensResult = [
   endpointHttpResponseItems.errorResponse,

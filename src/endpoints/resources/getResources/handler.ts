@@ -4,9 +4,9 @@ import {getPublicClientToken} from '../../clientAssignedTokens/utils';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {getPublicProgramToken} from '../../programAccessTokens/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getResourcesPartOfWorkspace} from '../containerCheckFns';
 import {getPublicResourceList} from '../getPublicResource';
 import {getResources as fetchResources} from '../getResources';
-import {getResourcesPartOfWorkspace} from '../isPartOfOrganization';
 import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
@@ -27,7 +27,7 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
   });
 
   resources = await resourceListWithAssignedItems(context, workspaceId, resources);
-  resources = getResourcesPartOfWorkspace(workspaceId, resources, true);
+  resources = getResourcesPartOfWorkspace(workspaceId, resources);
   resources = resources.map(resource => {
     switch (resource.resourceType) {
       case AppResourceType.ProgramAccessToken:

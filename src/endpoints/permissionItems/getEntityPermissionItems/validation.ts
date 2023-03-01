@@ -10,8 +10,7 @@ import {
 export const getEntityPermissionItemsBaseJoiSchemaParts: JoiSchemaParts<IGetEntityPermissionItemsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
-    permissionEntityId: validationSchemas.resourceId.required(),
-    permissionEntityType: validationSchemas.resourceType.required(),
+    entityId: validationSchemas.resourceId.required(),
   };
 
 export const getEntityPermissionItemsJoiSchema =

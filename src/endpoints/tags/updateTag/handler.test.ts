@@ -31,7 +31,6 @@ describe('updateTag', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
-
     const tagUpdateInput: IUpdateTagInput = {
       name: faker.lorem.words(3),
       description: faker.lorem.words(10),
@@ -44,14 +43,12 @@ describe('updateTag', () => {
         tag: tagUpdateInput,
       }
     );
-
     const result = await updateTag(context, instData);
     assertEndpointResultOk(result);
 
     const updatedTag = await context.data.tag.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(tag01.resourceId)
     );
-
     expect(tagExtractor(updatedTag)).toMatchObject(result.tag);
     expect(updatedTag.name).toBe(tagUpdateInput.name);
     expect(updatedTag.description).toBe(tagUpdateInput.description);

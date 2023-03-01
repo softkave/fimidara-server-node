@@ -1,5 +1,10 @@
 import {compact} from 'lodash';
-import {IResourceBase} from '../definitions/system';
+import {AppResourceType, IAgent, IResourceBase, ISessionAgent} from '../definitions/system';
+import {appAssert} from './assertion';
+import {getTimestamp} from './dateFns';
+import {ServerError} from './errors';
+import {getNewIdForResource} from './resourceId';
+import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
 import {AnyObject} from './types';
 
 export function cast<ToType>(resource: any): ToType {
@@ -118,4 +123,32 @@ export function getResourceId(resource: IResourceBase) {
 
 export function extractResourceIdList(resources: IResourceBase[]) {
   return resources.map(getResourceId);
+}
+
+export function toArray<T>(item: T | T[]) {
+  if (Array.isArray(item)) {
+    return item;
+  } else {
+    return [item];
+  }
+}
+
+export const stopControlFlow = (): any =>
+  appAssert(false, new ServerError(), "Control shouldn't get here.");
+
+export function newResource<T extends AnyObject = AnyObject>(
+  agent: IAgent | ISessionAgent,
+  type: AppResourceType,
+  seed?: T
+): IResourceBase & T {
+  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
+  const createdAt = getTimestamp();
+  return {
+    createdBy,
+    createdAt,
+    resourceId: getNewIdForResource(type),
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
+    ...seed,
+  } as IResourceBase & T;
 }

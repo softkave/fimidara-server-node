@@ -48,7 +48,7 @@ describe('replaceItemsByEntity', () => {
       context,
       mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
-      {permissionEntityId: permissionGroup.resourceId},
+      {entityId: permissionGroup.resourceId},
       {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
@@ -67,7 +67,7 @@ describe('replaceItemsByEntity', () => {
     const itemsBase: Partial<INewPermissionItemInputByEntity> = {
       targetType: AppResourceType.File,
     };
-    const entity: IPermissionEntity = {permissionEntityId: permissionGroup.resourceId};
+    const entity: IPermissionEntity = {entityId: permissionGroup.resourceId};
 
     // First insert
     await insertPermissionItemsForTestForEntity(
@@ -90,7 +90,7 @@ describe('replaceItemsByEntity', () => {
       itemsBase
     );
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(entity.permissionEntityId)
+      PermissionItemQueries.getByPermissionEntity(entity.entityId)
     );
     expect(permissionGroupItems.length).toBe(result.items.length);
   });

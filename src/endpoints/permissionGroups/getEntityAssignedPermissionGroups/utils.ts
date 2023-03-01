@@ -1,20 +1,7 @@
-import {
-  IAssignedItem,
-  IAssignedItemAssignedPermissionGroupMeta,
-} from '../../../definitions/assignedItem';
-import {
-  IAssignedPermissionGroupMeta,
-  IPermissionGroupWithAssignedPermissionGroups,
-} from '../../../definitions/permissionGroups';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IAssignedItemQuery} from '../../contexts/data/assigneditem/type';
+import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 
 export async function checkReadEntityAssignedPermissionGroups(
   context: IBaseContext,
@@ -28,11 +15,9 @@ export async function checkReadEntityAssignedPermissionGroups(
     await checkAuthorization({
       context,
       agent,
-      workspace,
+      workspaceId: workspace.resourceId,
       action: BasicCRUDActions.Read,
-      targetId: entityId,
-      type: AppResourceType.PermissionGroup,
-      permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+      targets: [{targetId: entityId}],
     });
     return true;
   }
@@ -42,71 +27,14 @@ export function isFetchingOwnPermissionGroups(agent: ISessionAgent, entityId: st
   return agent.agentId === entityId;
 }
 
-export async function fetchEntityAssignedPermissionGroupIdInheritanceMap(
-  context: IBaseContext,
-  workspaceId: string,
-  entityId: string,
-  includeInheritedPermissionGroups = true
-) {
-  const idInheritanceMap: Record<string, IAssignedPermissionGroupMeta[]> = {};
-  let nextEntityIdList = [entityId];
-  const maxDepth = includeInheritedPermissionGroups ? 1 : 10;
-  for (let depth = 0; nextEntityIdList.length && depth < maxDepth; depth++) {
-    const query: IAssignedItemQuery<IAssignedItemAssignedPermissionGroupMeta> = {
-      workspaceId: workspaceId,
-      assignedItemType: AppResourceType.PermissionGroup,
-      assignedToItemId: {$in: nextEntityIdList},
-    };
-    const assignedItems = await context.data.assignedItem.getManyByQuery(query);
-    const iterationPermissionGroupIdList = assignedItems.map(item => item.assignedItemId);
-    const iterationAssignedItemMeta = assignedItems.map(item => {
-      const assignedPermissionGroup: IAssignedPermissionGroupMeta = {
-        assignedAt: item.assignedAt,
-        assignedBy: item.assignedBy,
-        permissionGroupId: item.assignedToItemId,
-        order: (item as IAssignedItem<IAssignedItemAssignedPermissionGroupMeta>).meta.order,
-      };
-      return assignedPermissionGroup;
-    });
-    nextEntityIdList.forEach(id => {
-      idInheritanceMap[id] = iterationAssignedItemMeta;
-    });
-    nextEntityIdList = iterationPermissionGroupIdList.filter(id => {
-      // Remove already fetched assigned items to avoid recursion. This should
-      // be mitigated seeign we have a max depth but it's still best to avoid it
-      // this way too.
-      return !idInheritanceMap[id];
-    });
-  }
-
-  return idInheritanceMap;
-}
-
 export async function fetchEntityAssignedPermissionGroupList(
   context: IBaseContext,
-  workspaceId: string,
   entityId: string,
   includeInheritedPermissionGroups = true
 ) {
-  const idInheritanceMap = await fetchEntityAssignedPermissionGroupIdInheritanceMap(
+  return await context.semantic.permissions.getEntityAssignedPermissionGroups({
     context,
-    workspaceId,
     entityId,
-    includeInheritedPermissionGroups
-  );
-  const idList = Object.keys(idInheritanceMap).filter(id => {
-    // Remove the entity's ID itself since we're only fetching it's assigned
-    // permission groups
-    return id !== entityId;
+    fetchDeep: includeInheritedPermissionGroups,
   });
-  const query = EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspaceId, idList);
-  const plainPermissionGroups = await context.data.permissiongroup.getManyByQuery(query);
-  const permissionGroupsWithAssignedItems = plainPermissionGroups.map(
-    (permissionGroup): IPermissionGroupWithAssignedPermissionGroups => ({
-      ...permissionGroup,
-      assignedPermissionGroupsMeta: idInheritanceMap[permissionGroup.resourceId],
-    })
-  );
-  const immediatelyAssignedPermissionGroupsMeta = idInheritanceMap[entityId];
-  return {permissionGroupsWithAssignedItems, immediatelyAssignedPermissionGroupsMeta};
 }

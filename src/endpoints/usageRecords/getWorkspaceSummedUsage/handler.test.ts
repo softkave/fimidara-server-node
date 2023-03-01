@@ -9,11 +9,14 @@ import {
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertUsageRecordList, generateUsageRecordList} from '../../test-utils/generate-data/usageRecord';
+import {
+  generateAndInsertUsageRecordList,
+  generateUsageRecordList,
+} from '../../test-utils/generate-data/usageRecord';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -30,7 +33,10 @@ let connection: Connection | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
-  connection = await getMongoConnection(context.appVariables.mongoDbURI, context.appVariables.mongoDbDatabaseName);
+  connection = await getMongoConnection(
+    context.appVariables.mongoDbURI,
+    context.appVariables.mongoDbDatabaseName
+  );
 });
 
 afterAll(async () => {
@@ -44,7 +50,10 @@ function expectToOnlyHaveCategory(records01: IUsageRecord[], category: UsageReco
   });
 }
 
-function expectToOnlyHaveFulfillmentStatus(records01: IUsageRecord[], fulfillmentStatus: UsageRecordFulfillmentStatus) {
+function expectToOnlyHaveFulfillmentStatus(
+  records01: IUsageRecord[],
+  fulfillmentStatus: UsageRecordFulfillmentStatus
+) {
   records01.forEach(record => {
     expect(record.fulfillmentStatus).toBe(fulfillmentStatus);
   });
@@ -161,7 +170,7 @@ describe('getWorkspaceSummedUsage', () => {
       mockExpressRequestWithUserToken(userToken),
       {
         workspaceId: workspace.resourceId,
-        query: {fromDate: getDateString(fromDate), toDate: getDateString(toDate)},
+        query: {fromDate: getTimestamp(fromDate), toDate: getTimestamp(toDate)},
       }
     );
     const result03 = await getWorkspaceSummedUsage(context, reqData);

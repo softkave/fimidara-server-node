@@ -1,11 +1,11 @@
-import {AppResourceType, BasicCRUDActions, IAgent} from './system';
+import {AppResourceType, BasicCRUDActions, IWorkspaceResourceBase} from './system';
 
 export enum UsageRecordCategory {
   Storage = 'storage',
-  BandwidthIn = 'bandwidth-in',
-  BandwidthOut = 'bandwidth-out',
+  BandwidthIn = 'bandwidthIn',
+  BandwidthOut = 'bandwidthOut',
   // Request = 'request',
-  // DatabaseObject = 'db-object',
+  // DatabaseObject = 'dbObject',
   Total = 'total',
 }
 
@@ -41,28 +41,24 @@ export enum UsageSummationType {
   Two = 2,
 }
 
-export interface IUsageRecord {
-  resourceId: string;
-  workspaceId: string;
+export interface IUsageRecord extends IWorkspaceResourceBase {
   category: UsageRecordCategory;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
 
-  // usage is count for requests and db objects
-  // usage is bytes for storage, bandwidth in, and bandwidth out
+  /**
+   * Usage is count for requests and db objects usage is bytes for storage,
+   * bandwidth in, and bandwidth out.
+   */
   usage: number;
   usageCost: number;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
   summationType: UsageSummationType;
 
-  // summation level 1
+  /** Summation level 1 only. */
   artifacts: IUsageRecordArtifact[];
   dropReason?: UsageRecordDropReason;
   dropMessage?: string;
 
-  // summation level 2
+  /** Summation level 2 only. */
   month: number;
   year: number;
 }
@@ -89,19 +85,19 @@ export interface IDatabaseObjectUsageRecordArtifact {
 
 // export interface IUsageRecordReportingPeriod {
 //   resourceId: string;
-//   startDate: Date | string;
-//   endDate: Date | string;
+//   startDate: number;
+//   endDate: number;
 //   month: number;
 //   year: number;
-//   createdAt: Date | string;
-//   createdBy: IAgent;
+//   createdAt: number;
+//   createdBystring
 // }
 
 // export interface IUsageRecordCost {
 //   resourceId: string;
 //   costPerUnit: number;
-//   createdAt: Date | string;
-//   createdBy: IAgent;
+//   createdAt: number;
+//   createdBystring
 //   category: UsageRecordCategory;
-//   effectiveDate: Date | string;
+//   effectiveDate: number;
 // }

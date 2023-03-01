@@ -1,19 +1,12 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IClientAssignedToken} from '../definitions/clientAssignedToken';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const clientAssignedTokenSchema = ensureTypeFields<IClientAssignedToken>({
-  resourceId: {type: String, unique: true, index: true},
-  providedResourceId: {type: String, index: true},
-  workspaceId: {type: String, index: true},
+  ...workspaceResourceSchema,
   name: {type: String, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate},
   version: {type: Number},
-  expires: {type: Date},
-  lastUpdatedAt: {type: Date},
-  lastUpdatedBy: {type: agentSchema},
+  expires: {type: Number},
   description: {type: String},
 });
 

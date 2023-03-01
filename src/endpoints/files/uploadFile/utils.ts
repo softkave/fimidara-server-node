@@ -5,7 +5,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-  makeWorkspacePermissionContainerList,
+  getWorkspacePermissionContainers,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
@@ -30,18 +30,18 @@ export async function checkUploadFileAuth(
   await checkAuthorization({
     context,
     agent,
-    workspace,
-    type: AppResourceType.File,
-    targetId: file?.resourceId,
-    permissionContainers: file
-      ? getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File)
-      : closestExistingFolder
-      ? getFilePermissionContainers(
-          workspace.resourceId,
-          closestExistingFolder,
-          AppResourceType.Folder
-        )
-      : makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    targets: [
+      {
+        type: AppResourceType.File,
+        targetId: file?.resourceId,
+        containerId: file
+          ? getFilePermissionContainers(workspace.resourceId, file)
+          : closestExistingFolder
+          ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+          : getWorkspacePermissionContainers(workspace.resourceId),
+      },
+    ],
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files

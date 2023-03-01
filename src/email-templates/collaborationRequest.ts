@@ -8,21 +8,18 @@ import {
 } from './helpers';
 import {IBaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestEmailProps
-  extends IBaseEmailTemplateProps {
+export interface ICollaborationRequestEmailProps extends IBaseEmailTemplateProps {
   workspaceName: string;
   isRecipientAUser: boolean;
   message?: string;
-  expires?: string;
+  expires?: number;
 }
 
 export function collaborationRequestEmailTitle(workspaceName: string) {
   return `Collaboration request from ${workspaceName}`;
 }
 
-export function collaborationRequestEmailHTML(
-  props: ICollaborationRequestEmailProps
-) {
+export function collaborationRequestEmailHTML(props: ICollaborationRequestEmailProps) {
   const title = collaborationRequestEmailTitle(props.workspaceName);
   return `
 <!DOCTYPE html>
@@ -39,11 +36,7 @@ export function collaborationRequestEmailHTML(
     You have a new collaboration request from <b>${props.workspaceName}</b>.
   </p>
   ${props.message ? `<p>Message: <br />${props.message}</p>` : ''}
-  ${
-    props.expires
-      ? `<p>Expires: <br />${formatDateTime(props.expires)}</p>`
-      : ''
-  }
+  ${props.expires ? `<p>Expires: <br />${formatDateTime(props.expires)}</p>` : ''}
   <p>
     To respond to this request,
     ${
@@ -59,9 +52,7 @@ export function collaborationRequestEmailHTML(
     `;
 }
 
-export function collaborationRequestEmailText(
-  props: ICollaborationRequestEmailProps
-) {
+export function collaborationRequestEmailText(props: ICollaborationRequestEmailProps) {
   let linkText = '';
   const title = collaborationRequestEmailTitle(props.workspaceName);
   if (props.isRecipientAUser) {

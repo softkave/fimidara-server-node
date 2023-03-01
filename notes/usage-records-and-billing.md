@@ -48,7 +48,7 @@ We want to be able to track usage records, so that we can display usage statisti
  *   - Content-Length header before the file comes in
  *   - proxy
  *   - negotiate before sending the file, and add the negotiation ID to the file when it comes in
- * 
+ *
 Monthly usage
 Bill usage = prev + current month
 Prev = prev + current month - deleted
@@ -109,8 +109,8 @@ enum UsageRecordFulfillmentStatus {
 export interface IUsageRecord {
   resourceId: string;
   createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
+  createdBystring
+  lastUpdatedBy?string
   lastUpdatedAt?: Date | string;
   workspaceId: string;
   label: UsageRecordLabel;
@@ -194,8 +194,8 @@ interface IDatabaseObjectUsageRecordArtifact {
 interface IUsageThresholdByLabel {
   resourceId: string;
   createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
+  createdBystring
+  lastUpdatedBy?string
   lastUpdatedAt?: Date | string;
   workspaceId: string;
   label: UsageRecordLabel;
@@ -207,8 +207,8 @@ interface IUsageThresholdByLabel {
 interface ITotalUsageThreshold {
   resourceId: string;
   createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy?: IAgent;
+  createdBystring
+  lastUpdatedBy?string
   lastUpdatedAt?: Date | string;
   workspaceId: string;
   price: number;

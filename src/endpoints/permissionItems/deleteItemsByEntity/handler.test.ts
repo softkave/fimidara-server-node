@@ -34,38 +34,27 @@ test('permission items deleted', async () => {
     userToken,
     workspace.resourceId
   );
-
   const {items} = await insertPermissionItemsForTestForEntity(
     context,
-    userToken,
+    mockExpressRequestWithUserToken(userToken),
     workspace.resourceId,
-    {
-      permissionEntityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-    },
-    {
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-    },
+    {entityId: permissionGroup.resourceId},
+    {containerId: workspace.resourceId},
     {targetType: AppResourceType.File}
   );
-
   const itemIds = items.map(item => item.resourceId);
   const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByEntityEndpointParams>(
     mockExpressRequestWithUserToken(userToken),
     {
       workspaceId: workspace.resourceId,
-      permissionEntityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
+      entityId: permissionGroup.resourceId,
       itemIds: itemIds,
     }
   );
-
   const result = await deletePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
   const deletedItems = await context.data.permissionItem.getManyByQuery(
     EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspace.resourceId, itemIds)
   );
-
   expect(deletedItems.length).toEqual(0);
 });

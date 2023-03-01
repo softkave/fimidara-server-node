@@ -1,11 +1,11 @@
 import {omit} from 'lodash';
 import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
 import {BasicCRUDActions} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import EndpointReusableQueries from '../../queries';
 import {checkClientTokenNameExists} from '../checkClientTokenNameExists';
 import {checkClientAssignedTokenAuthorization03, getPublicClientToken} from '../utils';
 import {UpdateClientAssignedTokenEndpoint} from './types';
@@ -28,14 +28,10 @@ const updateClientAssignedToken: UpdateClientAssignedTokenEndpoint = async (cont
 
   const update: Partial<IClientAssignedToken> = {
     ...omit(data.token, 'permissionGroups', 'tags'),
-    lastUpdatedAt: getDateString(),
-    lastUpdatedBy: {agentId: agent.agentId, agentType: agent.agentType},
+    lastUpdatedAt: getTimestamp(),
+    lastUpdatedBy: getActionAgentFromSessionAgent(agent),
   };
-  token = await context.data.clientAssignedToken.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getByResourceId(token.resourceId),
-    update
-  );
-
+  token = await context.semantic.clientAssignedToken.getAndUpdateOneById(token.resourceId, update);
   await saveResourceAssignedItems(context, agent, workspace, token.resourceId, data.token);
   const tokenWithAssignedItems = await populateAssignedTags(context, token.workspaceId, token);
   return {

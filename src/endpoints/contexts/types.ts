@@ -18,8 +18,55 @@ import {IUserTokenDataProvider} from './data/usertoken/type';
 import {IWorkspaceDataProvider} from './data/workspace/type';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
+import {
+  IAppRuntimeStateMemStoreProvider,
+  IAssignedItemMemStoreProvider,
+  IClientAssignedTokenMemStoreProvider,
+  ICollaborationRequestMemStoreProvider,
+  IFileMemStoreProvider,
+  IFolderMemStoreProvider,
+  IPermissionGroupMemStoreProvider,
+  IPermissionItemMemStoreProvider,
+  IProgramAccessTokenMemStoreProvider,
+  ITagMemStoreProvider,
+  IUsageRecordMemStoreProvider,
+  IUserMemStoreProvider,
+  IUserTokenMemStoreProvider,
+  IWorkspaceMemStoreProvider,
+} from './mem/types';
+import {
+  IAppRuntimeStateMemoryCacheProvider,
+  IAssignedItemMemoryCacheProvider,
+  IClientAssignedTokenMemoryCacheProvider,
+  ICollaborationRequestMemoryCacheProvider,
+  IFileMemoryCacheProvider,
+  IFolderMemoryCacheProvider,
+  IPermissionGroupMemoryCacheProvider,
+  IPermissionItemMemoryCacheProvider,
+  IProgramAccessTokenMemoryCacheProvider,
+  ITagMemoryCacheProvider,
+  IUsageRecordMemoryCacheProvider,
+  IUserMemoryCacheProvider,
+  IUserTokenMemoryCacheProvider,
+  IWorkspaceMemoryCacheProvider,
+} from './memorycache/types';
+import {ISemanticDataAccessAssignedItemProvider} from './semanticdata/assignedItem/types';
+import {ISemanticDataAccessClientAssignedTokenProvider} from './semanticdata/clientAssignedToken/types';
+import {ISemanticDataAccessCollaborationRequestProvider} from './semanticdata/collaborationRequest/types';
+import {ISemanticDataAccessFileProvider} from './semanticdata/file/types';
+import {ISemanticDataAccessFolderProvider} from './semanticdata/folder/types';
+import {ISemanticDataAccessPermissionProvider} from './semanticdata/permission/types';
+import {ISemanticDataAccessPermissionGroupProvider} from './semanticdata/permissionGroup/types';
+import {ISemanticDataAccessPermissionItemProvider} from './semanticdata/permissionItem/types';
+import {ISemanticDataAccessProgramAccessTokenProvider} from './semanticdata/programAccessToken/types';
+import {ISemanticDataAccessTagProvider} from './semanticdata/tag/types';
+import {ISemanticDataAccessUsageRecordProvider} from './semanticdata/usageRecord/types';
+import {ISemanticDataAccessUserProvider} from './semanticdata/user/types';
+import {ISemanticDataAccessUserTokenProvider} from './semanticdata/userToken/types';
+import {ISemanticDataAccessWorkspaceProvider} from './semanticdata/workspace/types';
 import {ISessionContext} from './SessionContext';
-import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
@@ -43,17 +90,79 @@ export interface IBaseContextDataProviders {
   usageRecord: IUsageRecordDataProvider;
 }
 
+export interface IBaseContextMemoryCacheProviders {
+  folder: IFolderMemoryCacheProvider;
+  file: IFileMemoryCacheProvider;
+  clientAssignedToken: IClientAssignedTokenMemoryCacheProvider;
+  programAccessToken: IProgramAccessTokenMemoryCacheProvider;
+  permissionItem: IPermissionItemMemoryCacheProvider;
+  permissionGroup: IPermissionGroupMemoryCacheProvider;
+  workspace: IWorkspaceMemoryCacheProvider;
+  collaborationRequest: ICollaborationRequestMemoryCacheProvider;
+  user: IUserMemoryCacheProvider;
+  userToken: IUserTokenMemoryCacheProvider;
+  appRuntimeState: IAppRuntimeStateMemoryCacheProvider;
+  tag: ITagMemoryCacheProvider;
+  assignedItem: IAssignedItemMemoryCacheProvider;
+  usageRecord: IUsageRecordMemoryCacheProvider;
+}
+
+export interface IBaseContextMemStoreProviders {
+  folder: IFolderMemStoreProvider;
+  file: IFileMemStoreProvider;
+  clientAssignedToken: IClientAssignedTokenMemStoreProvider;
+  programAccessToken: IProgramAccessTokenMemStoreProvider;
+  permissionItem: IPermissionItemMemStoreProvider;
+  permissionGroup: IPermissionGroupMemStoreProvider;
+  workspace: IWorkspaceMemStoreProvider;
+  collaborationRequest: ICollaborationRequestMemStoreProvider;
+  user: IUserMemStoreProvider;
+  userToken: IUserTokenMemStoreProvider;
+  appRuntimeState: IAppRuntimeStateMemStoreProvider;
+  tag: ITagMemStoreProvider;
+  assignedItem: IAssignedItemMemStoreProvider;
+  usageRecord: IUsageRecordMemStoreProvider;
+}
+
+export interface IBaseContextLogicProviders {
+  usageRecord: UsageRecordLogicProvider;
+  permissions: PermissionsLogicProvider;
+}
+
+export interface IBaseContextSemanticDataProviders {
+  permissions: ISemanticDataAccessPermissionProvider;
+  workspace: ISemanticDataAccessWorkspaceProvider;
+  permissionGroup: ISemanticDataAccessPermissionGroupProvider;
+  permissionItem: ISemanticDataAccessPermissionItemProvider;
+  assignedItem: ISemanticDataAccessAssignedItemProvider;
+  clientAssignedToken: ISemanticDataAccessClientAssignedTokenProvider;
+  programAccessToken: ISemanticDataAccessProgramAccessTokenProvider;
+  collaborationRequest: ISemanticDataAccessCollaborationRequestProvider;
+  folder: ISemanticDataAccessFolderProvider;
+  file: ISemanticDataAccessFileProvider;
+  tag: ISemanticDataAccessTagProvider;
+  usageRecord: ISemanticDataAccessUsageRecordProvider;
+  userToken: ISemanticDataAccessUserTokenProvider;
+  user: ISemanticDataAccessUserProvider;
+}
+
 export interface IBaseContext<
-  T extends IBaseContextDataProviders = IBaseContextDataProviders,
-  E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  V extends IAppVariables = IAppVariables
+  Data extends IBaseContextDataProviders = IBaseContextDataProviders,
+  Email extends IEmailProviderContext = IEmailProviderContext,
+  FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
+  AppVars extends IAppVariables = IAppVariables,
+  MemoryCache extends IBaseContextMemoryCacheProviders = IBaseContextMemoryCacheProviders,
+  Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
+  SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
 > {
-  appVariables: V;
+  appVariables: AppVars;
   session: ISessionContext;
-  data: T;
-  email: E;
-  fileBackend: F;
+  data: Data;
+  semantic: SemanticData;
+  memory: MemoryCache;
+  logic: Logic;
+  email: Email;
+  fileBackend: FileBackend;
   logger: Logger;
   clientLogger: Logger;
   usageRecord: UsageRecordLogicProvider;

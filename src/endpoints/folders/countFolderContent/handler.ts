@@ -2,7 +2,7 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   ISessionAgent,
-  publicPermissibleEndpointAgents,
+  PUBLIC_PERMISSIBLE_AGENTS,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
@@ -13,7 +13,7 @@ import {countFolderContentJoiSchema} from './validation';
 
 const countFolderContent: CountFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, countFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
   const [foldersCount, filesCount] = await Promise.all([
     countFolders(context, agent, workspace, parentFolder),

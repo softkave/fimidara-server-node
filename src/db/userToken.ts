@@ -1,15 +1,13 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUserToken} from '../definitions/userToken';
-import {ensureTypeFields} from './utils';
+import {ensureTypeFields, workspaceResourceSchema} from './utils';
 
 const userTokenMongoSchema = ensureTypeFields<IUserToken>({
-  resourceId: {type: String, unique: true, index: true},
+  ...workspaceResourceSchema,
   userId: {type: String, index: true},
   version: {type: Number},
-  issuedAt: {type: Date},
-  audience: {type: [String]},
+  tokenFor: {type: [String]},
   expires: {type: Number},
-  // meta: {type: SchemaTypes.Mixed},
 });
 
 export type IUserTokenDocument = Document<IUserToken>;

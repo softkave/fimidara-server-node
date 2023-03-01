@@ -1,38 +1,15 @@
-import {IAgent} from './system';
+import {IWorkspaceResourceBase} from './system';
 
-export interface IFolder {
-  resourceId: string;
-  workspaceId: string;
+export interface IFolder extends IWorkspaceResourceBase {
   idPath: string[];
   namePath: string[];
   parentId?: string | null;
-  createdBy: IAgent;
-  createdAt: Date | string;
   // maxFileSizeInBytes: number;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
   name: string;
   description?: string;
-
-  // bucketId: string;
-  // environmentId: string;
 }
 
-export interface IPublicFolder {
-  resourceId: string;
-  workspaceId: string;
-  idPath: string[];
-  namePath: string[];
-  parentId?: string;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  // maxFileSizeInBytes: number;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: string;
-  name: string;
-  description?: string;
-  // tags: IAssignedTag[];
-}
+export type IPublicFolder = IFolder;
 
 export interface IFolderMatcher {
   /**

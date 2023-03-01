@@ -3,13 +3,12 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {getDate, getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import {getDefaultThresholds} from '../../usageRecords/constants';
-import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceNameExists';
+import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceExists';
 import {assertWorkspace} from '../utils';
 import {INewWorkspaceInput} from './types';
 import {
@@ -28,7 +27,7 @@ export function transformUsageThresholInput(
     usageThresholds[category] = {
       ...usageThreshold,
       lastUpdatedBy: agent,
-      lastUpdatedAt: getDate(),
+      lastUpdatedAt: getTimestamp(),
     };
   });
   return usageThresholds;
@@ -45,15 +44,12 @@ const internalCreateWorkspace = async (
     checkWorkspaceRootnameExists(context, data.rootname),
   ]);
 
-  const createdAt = getDateString();
-  // const usageThresholds = transformUsageThresholInput(
-  //   agent,
-  //   data.usageThresholds ?? {}
-  // );
+  const createdAt = getTimestamp();
 
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
-  let workspace: IWorkspace | null = await context.data.workspace.insertItem({
+  const id = getNewIdForResource(AppResourceType.Workspace);
+  let workspace: IWorkspace | null = {
     createdAt,
     usageThresholds,
     createdBy: agent,
@@ -61,28 +57,29 @@ const internalCreateWorkspace = async (
     lastUpdatedBy: agent,
     name: data.name,
     rootname: data.rootname,
-    resourceId: getNewIdForResource(AppResourceType.Workspace),
+    resourceId: id,
+    workspaceId: id,
     description: data.description,
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
-  });
+  };
+  await context.semantic.workspace.insertItem(workspace);
 
   const {adminPermissionGroup, publicPermissionGroup} = await setupDefaultWorkspacePermissionGroups(
     context,
     agent,
     workspace
   );
-
-  workspace = await context.data.workspace.getAndUpdateOneByQuery(
-    EndpointReusableQueries.getByResourceId(workspace.resourceId),
-    {publicPermissionGroupId: publicPermissionGroup.resourceId}
-  );
-
+  workspace = await context.semantic.workspace.getAndUpdateOneById(workspace.resourceId, {
+    publicPermissionGroupId: publicPermissionGroup.resourceId,
+  });
   assertWorkspace(workspace);
+
   if (user) {
     await addWorkspaceToUserAndAssignAdminPermissionGroup(
       context,
+      agent,
       user,
       workspace,
       adminPermissionGroup

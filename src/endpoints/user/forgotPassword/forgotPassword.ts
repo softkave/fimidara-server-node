@@ -1,37 +1,31 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  TokenAudience,
-  TokenType,
-} from '../../../definitions/system';
+import {AppResourceType, CURRENT_TOKEN_VERSION, TokenFor} from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
-import {getDateString} from '../../../utils/dateFns';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
-import UserQueries from '../UserQueries';
+import {assertUser} from '../utils';
 import sendChangePasswordEmail from './sendChangePasswordEmail';
 import {ForgotPasswordEndpoint} from './types';
 import {forgotPasswordJoiSchema} from './validation';
 
-const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
+export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
   const data = validate(instData.data, forgotPasswordJoiSchema);
-  const user = await context.data.user.assertGetOneByQuery(UserQueries.getByEmail(data.email));
-
+  const user = await context.semantic.user.getByEmail(data.email);
+  assertUser(user);
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = await context.data.userToken.insertItem({
-    audience: [TokenAudience.ChangePassword],
-    issuedAt: getDateString(),
+  const forgotToken = newResource(makeUserSessionAgent(user), AppResourceType.UserToken, {
+    audience: [TokenFor.ChangePassword],
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
   });
-
+  await context.semantic.userToken.insertItem(forgotToken);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
   await sendChangePasswordEmail(context, {
     expiration,
@@ -39,8 +33,6 @@ const forgotPassword: ForgotPasswordEndpoint = async (context, instData) => {
     emailAddress: user.email,
   });
 };
-
-export default forgotPassword;
 
 export function getForgotPasswordExpiration() {
   return add(new Date(), {
@@ -52,7 +44,7 @@ export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToke
   const encodedToken = context.session.encodeToken(
     context,
     forgotToken.resourceId,
-    TokenType.UserToken,
+    AppResourceType.UserToken,
     forgotToken.expires
   );
 
@@ -64,3 +56,5 @@ export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToke
 
   return link;
 }
+
+export default forgotPassword;

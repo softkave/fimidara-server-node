@@ -6,8 +6,8 @@ import {appAssert} from '../../../utils/assertion';
 import {
   checkAuthorization,
   getFilePermissionContainers,
+  getWorkspacePermissionContainers,
   IPermissionContainer,
-  makeWorkspacePermissionContainerList,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IPermissionItemQuery} from '../../contexts/data/permissionitem/type';
 import {IBaseContext} from '../../contexts/types';
@@ -32,20 +32,22 @@ export async function getResourcePermissionItemsQuery(
     workspace,
     action: BasicCRUDActions.Read,
     type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
   });
 
   let permissionContainer: IResource | undefined = undefined,
     resource: IResource | undefined = undefined;
 
   if (data.targetId) {
-    const targetsCheckResult = await checkPermissionTargetsExist(context, agent, workspace, [data]);
+    const targetsCheckResult = await checkPermissionTargetsExist(context, agent, workspace, [
+      data.targetId,
+    ]);
     resource = first(targetsCheckResult.resources);
   }
 
-  if (!resource && data.containerId && data.containerType) {
+  if (!resource && data.containerId) {
     const containersCheckResult = await checkPermissionContainersExist(context, agent, workspace, [
-      {containerId: data.containerId, containerType: data.containerType},
+      {containerId: data.containerId},
     ]);
     permissionContainer = first(containersCheckResult.resources);
   }
@@ -64,7 +66,7 @@ export async function getResourcePermissionItemsQuery(
     permissionContainerList = getFilePermissionContainers(
       workspace.resourceId,
       resource.resource as any,
-      resource.resourceType,
+      resource.resourceType as AppResourceType.File | AppResourceType.Folder,
       /** Exclude the file or folder ID from it's containers. Folders are
        * containers but we're going to handle the folder separately if the
        * resource is a folder. */ true
@@ -77,10 +79,10 @@ export async function getResourcePermissionItemsQuery(
     permissionContainerList = getFilePermissionContainers(
       workspace.resourceId,
       permissionContainer.resource as any,
-      permissionContainer.resourceType
+      permissionContainer.resourceType as AppResourceType.File | AppResourceType.Folder
     );
   } else {
-    permissionContainerList = makeWorkspacePermissionContainerList(workspace.resourceId);
+    permissionContainerList = getWorkspacePermissionContainers(workspace.resourceId);
   }
 
   const permissionContainerIdList = permissionContainerList.map(p => p.containerId);

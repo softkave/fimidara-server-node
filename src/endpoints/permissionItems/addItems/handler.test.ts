@@ -7,7 +7,7 @@ import {
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
+import {expectPermissionItemsPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -47,21 +47,17 @@ describe('addItems', () => {
       grantAccess: faker.datatype.boolean(),
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       targetType: AppResourceType.Workspace,
-      permissionEntityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
     }));
 
     const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {items, workspaceId: workspace.resourceId}
+      {items, workspaceId: workspace.resourceId, entityId: permissionGroup.resourceId}
     );
 
     const result = await addPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectItemsPresent(result.items, items);
+    expectPermissionItemsPresent(result.items, items);
   });
 
   test('permission items are not duplicated', async () => {
@@ -79,26 +75,21 @@ describe('addItems', () => {
       grantAccess: faker.datatype.boolean(),
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       targetType: AppResourceType.Workspace,
-      permissionEntityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
     }));
 
     const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
       mockExpressRequestWithUserToken(userToken),
-      {items, workspaceId: workspace.resourceId}
+      {items, workspaceId: workspace.resourceId, entityId: permissionGroup.resourceId}
     );
 
     // First insert
     await addPermissionItems(context, instData);
 
-    // Second insert of the very same permission items as the first
-    // insert
+    // Second insert of the very same permission items as the first insert
     const result = await addPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectItemsPresent(result.items, items);
+    expectPermissionItemsPresent(result.items, items);
     const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );

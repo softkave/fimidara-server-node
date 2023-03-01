@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {IProgramAccessToken} from '../../../definitions/programAccessToken';
 import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 
 export function generateProgramAccessTokenForTest(seed: Partial<IProgramAccessToken> = {}) {
-  const createdAt = getDateString();
+  const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: SessionAgentType.User,
@@ -45,6 +45,6 @@ export async function generateAndInsertProgramAccessTokenListForTest(
   seed: Partial<IProgramAccessToken> = {}
 ) {
   const items = generateProgramAccessTokenListForTest(count, seed);
-  await ctx.data.programAccessToken.insertList(items);
+  await ctx.semantic.programAccessToken.insertList(items);
   return items;
 }

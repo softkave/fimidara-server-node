@@ -1,45 +1,36 @@
+import {IResourceBase} from './system';
+
 export interface IUserWorkspace {
   workspaceId: string;
-  joinedAt: Date | string;
+  joinedAt: number;
 }
 
-export interface IUser {
-  resourceId: string;
+export interface IUser extends IResourceBase {
   firstName: string;
   lastName: string;
   email: string;
   hash: string;
-  createdAt: Date | string;
-  lastUpdatedAt: Date | string;
-  passwordLastChangedAt: Date | string;
-
-  // email verification
+  passwordLastChangedAt: number;
   isEmailVerified: boolean;
-  emailVerifiedAt?: Date | string | null;
-  emailVerificationEmailSentAt?: Date | string | null;
+  emailVerifiedAt?: number | null;
+  emailVerificationEmailSentAt?: number | null;
 }
 
 export interface IUserWithWorkspace extends IUser {
   workspaces: IUserWorkspace[];
 }
 
-export interface IPublicUserData {
-  resourceId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  createdAt: string;
-  lastUpdatedAt: string;
-  passwordLastChangedAt: string;
-  isEmailVerified: boolean;
-  emailVerifiedAt?: string | null;
-  emailVerificationEmailSentAt?: string | null;
-  workspaces: IUserWorkspace[];
-}
+export type IPublicUserData = IResourceBase &
+  Pick<
+    IUser,
+    | 'email'
+    | 'firstName'
+    | 'lastName'
+    | 'passwordLastChangedAt'
+    | 'isEmailVerified'
+    | 'emailVerifiedAt'
+    | 'emailVerificationEmailSentAt'
+  > & {workspaces: IUserWorkspace[]};
 
-export interface IPublicCollaborator extends IUserWorkspace {
-  resourceId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+export type IPublicCollaborator = IUserWorkspace &
+  Pick<IUser, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

@@ -1,17 +1,24 @@
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {compact, first, uniq} from 'lodash';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {getDate} from '../../../utils/dateFns';
+import {appAssert} from '../../../utils/assertion';
+import {newResource, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getResourceTypeFromId} from '../../../utils/resourceId';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
-  makeWorkspacePermissionContainerList,
+  uniquePermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
+import {InvalidRequestError} from '../../errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import PermissionItemQueries from '../queries';
-import {permissionItemIndexer, PermissionItemUtils} from '../utils';
+import {
+  checkPermissionContainersExist,
+  checkPermissionEntitiesExist,
+  checkPermissionTargetsExist,
+} from '../checkPermissionArtifacts';
+import {PermissionItemUtils} from '../utils';
 import {AddPermissionItemsEndpoint} from './types';
 import {addPermissionItemsJoiSchema} from './validation';
 
@@ -23,44 +30,77 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
   await checkAuthorization({
     context,
     agent,
-    workspace,
-    action: BasicCRUDActions.GrantPermission,
-    type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
+    workspaceId: workspace.resourceId,
+    action: BasicCRUDActions.Create,
+    targets: [{type: AppResourceType.PermissionItem}],
   });
 
-  const hashList: string[] = [];
-  const inputItems: IPermissionItem[] = data.items.map(input => {
-    const item: IPermissionItem = {
+  const entityIdList = toArray(data.entityId),
+    containerId = data.containerId ?? workspace.resourceId;
+
+  // TODO: check that targets belong to containers
+  // TODO: max items sent in
+
+  const [{resources: targets}] = await Promise.all([
+    checkPermissionTargetsExist(
+      context,
+      agent,
       workspaceId,
-      ...input,
-      resourceId: getNewIdForResource(AppResourceType.PermissionItem),
-      createdAt: getDate(),
-      createdBy: {
-        agentId: agent.agentId,
-        agentType: agent.agentType,
-      },
-      hash: '',
-    };
+      uniq(compact(data.items.map(item => item.targetId))),
+      containerId
+    ),
+    checkPermissionEntitiesExist(context, agent, workspaceId, entityIdList),
+    containerId !== workspaceId &&
+      checkPermissionContainersExist(context, agent, workspaceId, [containerId]),
+  ]);
 
-    item.hash = permissionItemIndexer(item);
-    hashList.push(item.hash);
-    return item;
+  const targetsMap = indexArray(targets, {path: 'resourceId'});
+  let inputItems: IPermissionItem[] = [];
+  entityIdList.forEach(entityId => {
+    data.items.map(input => {
+      let targetType = input.targetType;
+      if (!targetType) {
+        appAssert(
+          input.targetId,
+          new InvalidRequestError('Target type or target ID must be provided.')
+        );
+        targetType = getResourceTypeFromId(input.targetId);
+      }
+
+      if (input.targetId && !targetsMap[input.targetId]) {
+        // Skip input, target not found.
+        return;
+      }
+
+      const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
+        ...input,
+        containerId,
+        entityId,
+        workspaceId,
+        targetType,
+        grantAccess: input.grantAccess ?? true,
+        appliesTo: input.appliesTo ?? PermissionItemAppliesTo.Children,
+        containerType: getResourceTypeFromId(containerId),
+        entityType: getResourceTypeFromId(entityId),
+      });
+      inputItems.push(item);
+    });
   });
 
-  const existingItems = await context.data.permissionItem.getManyByQuery(
-    PermissionItemQueries.getByHashList(workspaceId, hashList)
-  );
-
-  const existingItemsMap = indexArray(existingItems, {path: 'hash'});
-  const newItems = inputItems.filter(item => {
-    return !existingItemsMap[item.hash];
+  const pItemsList = await context.semantic.permissions.getPermissionItemsForEntities({
+    context,
+    entities: entityIdList,
+    sortByDate: true,
+    andQueries: [{containerId}],
   });
-
-  await context.data.permissionItem.insertList(newItems);
-  const totalItems = existingItems.concat(newItems);
+  let permissionItems = first(pItemsList);
+  appAssert(permissionItems);
+  permissionItems = uniquePermissionItems(permissionItems.concat(inputItems));
+  const itemsMap = indexArray(permissionItems, {path: 'resourceId'});
+  inputItems = inputItems.filter(item => !!itemsMap[item.resourceId]);
+  await context.semantic.permissionItem.insertList(inputItems);
   return {
-    items: PermissionItemUtils.extractPublicPermissionItemList(totalItems),
+    items: PermissionItemUtils.extractPublicPermissionItemList(inputItems),
   };
 };
 

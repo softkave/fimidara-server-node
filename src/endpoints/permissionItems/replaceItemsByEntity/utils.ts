@@ -1,6 +1,5 @@
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resourceId';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
@@ -16,18 +15,18 @@ export async function internalFunctionAddPermissionItemsByEntity(
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   let items: IPermissionItem[] = data.items.map(input => {
     const containerType = getResourceTypeFromId(input.containerId);
-    const permissionEntityType = getResourceTypeFromId(data.permissionEntityId);
+    const permissionEntityType = getResourceTypeFromId(data.entityId);
     const targetType = getTargetType(input);
     const item: IPermissionItem = {
       ...input,
       containerType,
-      permissionEntityType,
+      entityType: permissionEntityType,
       targetType,
       workspaceId,
       resourceId: getNewIdForResource(AppResourceType.PermissionItem),
-      createdAt: getDateString(),
+      createdAt: getTimestamp(),
       createdBy: {agentId: agent.agentId, agentType: agent.agentType},
-      permissionEntityId: data.permissionEntityId,
+      entityId: data.entityId,
       hash: '',
     };
 
@@ -36,7 +35,7 @@ export async function internalFunctionAddPermissionItemsByEntity(
   });
 
   items = compactPermissionItems(items);
-  await context.data.permissionItem.insertList(items);
+  await context.semantic.permissionItem.insertList(items);
   return items;
 }
 
@@ -45,8 +44,8 @@ export async function internalFunctionReplacePermissionItemsByEntity(
   agent: IAgent,
   data: IReplacePermissionItemsByEntityEndpointParams
 ) {
-  await context.data.permissionItem.deleteManyByQuery(
-    PermissionItemQueries.getByPermissionEntity(data.permissionEntityId)
+  await context.semantic.permissionItem.deleteManyByQuery(
+    PermissionItemQueries.getByPermissionEntity(data.entityId)
   );
   return await internalFunctionAddPermissionItemsByEntity(context, agent, data);
 }

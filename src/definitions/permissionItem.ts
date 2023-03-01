@@ -1,47 +1,30 @@
-import {AppResourceType, BasicCRUDActions, IAgent} from './system';
+import {AppResourceType, BasicCRUDActions, IWorkspaceResourceBase} from './system';
 
 export enum PermissionItemAppliesTo {
   Container = 'container',
-  ContainerAndChildren = 'container-and-children',
+  ContainerAndChildren = 'containerAndChildren',
   Children = 'children',
 }
 
-export interface IPermissionItem {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-
-  // Containers scope the reach of a permission item to only the resources they
-  // contain. Currently, there's only workspace and folder.
+export interface IPermissionItem extends IWorkspaceResourceBase {
+  /**
+   * Containers scope the reach of a permission item to either the container or
+   * the resources contained within. One of workspace, or folder.
+   */
   containerId: string;
   containerType: AppResourceType;
 
-  // Entities are user token, client assigned token,
-  // program access token and permissionGroup permission groups.
-  // It's the entity this permission item was created for.
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
-  targetId?: string;
-  targetType: AppResourceType;
-  action: BasicCRUDActions;
-  grantAccess: boolean;
-  appliesTo: PermissionItemAppliesTo;
-  hash: string;
-}
-
-export interface IPublicPermissionItem {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: string;
-  createdBy: IAgent;
-  containerId: string;
-  containerType: AppResourceType;
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
+  /**
+   * One of user, client token, program token, or permission group. It's the
+   * entity this permission item was created for.
+   */
+  entityId: string;
+  entityType: AppResourceType;
   targetId?: string;
   targetType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
   appliesTo: PermissionItemAppliesTo;
 }
+
+export type IPublicPermissionItem = IPermissionItem;

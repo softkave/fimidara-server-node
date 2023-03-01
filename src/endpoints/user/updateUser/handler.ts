@@ -1,8 +1,7 @@
 import {IUser} from '../../../definitions/user';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';
@@ -12,7 +11,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateUserJoiSchema);
   const update: Partial<IUser> = {
     ...data,
-    lastUpdatedAt: getDateString(),
+    lastUpdatedAt: getTimestamp(),
   };
 
   if (data.email && data.email.toLowerCase() !== user.email.toLowerCase()) {
@@ -21,17 +20,13 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     update.emailVerificationEmailSentAt = null;
   }
 
-  user = await populateUserWorkspaces(
-    context,
-    await context.data.user.assertGetAndUpdateOneByQuery(UserQueries.getById(user.resourceId), update)
-  );
+  user = await context.semantic.user.getAndUpdateOneById(user.resourceId, update);
+  const userWithWorkspaces = await populateUserWorkspaces(context, user);
 
-  // Make the updated user data available to other requests
-  //  made with this request data
+  // Make the updated user data available to other requests made with this
+  //  request data
   instData.user = user;
-  return {
-    user: userExtractor(user),
-  };
+  return {user: userExtractor(userWithWorkspaces)};
 };
 
 export default updateUser;

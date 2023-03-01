@@ -5,7 +5,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {
-  makeResourcePermissionContainerList,
+  getResourcePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
@@ -28,7 +28,7 @@ export async function listFolderContentQuery(
     workspace,
     action: BasicCRUDActions.Read,
     type: contentType,
-    permissionContainers: makeResourcePermissionContainerList(
+    permissionContainers: getResourcePermissionContainers(
       workspace.resourceId,
       AppResourceType.Folder,
       parentFolder

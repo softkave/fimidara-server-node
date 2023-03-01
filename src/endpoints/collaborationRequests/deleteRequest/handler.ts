@@ -20,19 +20,19 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async (
     BasicCRUDActions.Delete
   );
 
-  await context.data.collaborationRequest.deleteOneByQuery(
+  await context.semantic.collaborationRequest.deleteOneByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );
   await waitOnPromises([
     // Delete permission items that explicitly give access to this resource
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByResource(
         request.workspaceId,
         request.resourceId,
         AppResourceType.CollaborationRequest
       )
     ),
-    context.data.collaborationRequest.deleteOneByQuery(
+    context.semantic.collaborationRequest.deleteOneByQuery(
       EndpointReusableQueries.getByResourceId(request.resourceId)
     ),
   ]);

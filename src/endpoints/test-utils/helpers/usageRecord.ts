@@ -1,8 +1,8 @@
 import {defaultTo} from 'lodash';
-import {systemAgent} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
-import {getDate} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 
@@ -21,15 +21,10 @@ export async function updateTestWorkspaceUsageLocks(
     usageThresholdLocks[category] = {
       category,
       locked: true,
-      lastUpdatedBy: systemAgent,
-      lastUpdatedAt: getDate(),
+      lastUpdatedBy: SYSTEM_SESSION_AGENT,
+      lastUpdatedAt: getTimestamp(),
     };
   });
-  workspace = await context.data.workspace.assertGetAndUpdateOneByQuery(
-    EndpointReusableQueries.getByResourceId(id),
-    {
-      usageThresholdLocks,
-    }
-  );
+  workspace = await context.semantic.workspace.getAndUpdateOneById(id, {usageThresholdLocks});
   return {workspace};
 }

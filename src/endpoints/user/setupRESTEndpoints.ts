@@ -3,7 +3,7 @@ import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import changePassword from './changePassword/changePassword';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
-import changePasswordWithToken from './changePasswordWithToken/changePasswordWithToken';
+import changePasswordWithToken from './changePasswordWithToken/handler';
 import confirmEmailAddress from './confirmEmailAddress/handler';
 import {userConstants} from './constants';
 import forgotPassword from './forgotPassword/forgotPassword';
@@ -32,7 +32,10 @@ export default function setupAccountRESTEndpoints(ctx: IBaseContext, app: Expres
   app.post(userConstants.routes.signup, account.signup);
   app.post(userConstants.routes.login, account.login);
   app.post(userConstants.routes.forgotPassword, account.forgotPassword);
-  app.post(userConstants.routes.changePasswordWithCurrentPassword, account.changePasswordWithCurrentPassword);
+  app.post(
+    userConstants.routes.changePasswordWithCurrentPassword,
+    account.changePasswordWithCurrentPassword
+  );
   app.post(userConstants.routes.changePasswordWithToken, account.changePasswordWithToken);
   app.post(userConstants.routes.changePassword, account.changePassword);
   app.post(userConstants.routes.updateUser, account.updateUser);

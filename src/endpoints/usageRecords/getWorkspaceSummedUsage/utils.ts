@@ -13,7 +13,7 @@ export async function getWorkspaceSummedUsageQuery(
   workspaceId: string,
   data: IGetWorkspaceSummedUsageEndpointParams
 ) {
-  await checkWorkspaceAuthorization02(context, agent, workspaceId, BasicCRUDActions.Read);
+  await checkWorkspaceAuthorization02(context, agent, BasicCRUDActions.Read, workspaceId);
 
   let fromMonth = undefined;
   let toMonth = undefined;

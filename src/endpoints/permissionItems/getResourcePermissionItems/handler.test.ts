@@ -9,7 +9,7 @@ import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../test-utils/generate-data/permissionItem';
-import {expectItemsPresent} from '../../test-utils/helpers/permissionItem';
+import {expectPermissionItemsPresent} from '../../test-utils/helpers/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -54,7 +54,7 @@ describe('getResourcePermissionItems', () => {
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      permissionEntityId: permissionGroup.resourceId,
+      entityId: permissionGroup.resourceId,
       permissionEntityType: AppResourceType.PermissionGroup,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
@@ -78,7 +78,7 @@ describe('getResourcePermissionItems', () => {
     );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectItemsPresent(result.items, items);
+    expectPermissionItemsPresent(result.items, items);
   });
 
   test('pagination', async () => {

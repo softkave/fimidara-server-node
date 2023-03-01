@@ -12,7 +12,12 @@ import {
   HttpEndpointResponse,
   partialFieldObject,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {
   IAddPermissionGroupEndpointParams,
   IAddPermissionGroupEndpointResult,
@@ -20,7 +25,10 @@ import {
 } from './addPermissionGroup/types';
 import {permissionGroupConstants} from './constants';
 import {IDeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
-import {IGetPermissionGroupEndpointParams, IGetPermissionGroupEndpointResult} from './getPermissionGroup/types';
+import {
+  IGetPermissionGroupEndpointParams,
+  IGetPermissionGroupEndpointResult,
+} from './getPermissionGroup/types';
 import {
   IGetWorkspacePermissionGroupsEndpointParams,
   IGetWorkspacePermissionGroupsEndpointResult,
@@ -35,20 +43,20 @@ const newPermissionGroupInput = new FieldObject<ExcludeTags<INewPermissionGroupI
   .setFields({
     name: fReusables.name,
     description: fReusables.descriptionNotRequired,
-    permissionGroups: fReusables.assignPermissionGroupListNotRequired,
   });
 
-const permissionGroup = new FieldObject<ExcludeTags<IPublicPermissionGroup>>().setName('PermissionGroup').setFields({
-  resourceId: new FieldString(),
-  createdBy: fReusables.agent,
-  createdAt: fReusables.date,
-  lastUpdatedBy: fReusables.agent,
-  lastUpdatedAt: fReusables.date,
-  name: fReusables.name,
-  description: fReusables.descriptionOrUndefined,
-  workspaceId: fReusables.workspaceId,
-  permissionGroups: fReusables.assignPermissionGroupList,
-});
+const permissionGroup = new FieldObject<ExcludeTags<IPublicPermissionGroup>>()
+  .setName('PermissionGroup')
+  .setFields({
+    resourceId: new FieldString(),
+    createdBy: fReusables.agent,
+    createdAt: fReusables.date,
+    lastUpdatedBy: fReusables.agent,
+    lastUpdatedAt: fReusables.date,
+    name: fReusables.name,
+    description: fReusables.descriptionOrUndefined,
+    workspaceId: fReusables.workspaceId,
+  });
 
 const permissionGroupId = fReusables.permissionGroupId
   .clone()
@@ -99,15 +107,16 @@ const addPermissionGroupResult = [
     ),
 ];
 
-const getWorkspacePermissionGroupsParams = new FieldObject<IGetWorkspacePermissionGroupsEndpointParams>()
-  .setName('GetWorkspacePermissionGroupsEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    page: fReusables.pageNotRequired,
-    pageSize: fReusables.pageSizeNotRequired,
-  })
-  .setRequired(true)
-  .setDescription('Get workspace permission groups endpoint params.');
+const getWorkspacePermissionGroupsParams =
+  new FieldObject<IGetWorkspacePermissionGroupsEndpointParams>()
+    .setName('GetWorkspacePermissionGroupsEndpointParams')
+    .setFields({
+      workspaceId: fReusables.workspaceIdInputNotRequired,
+      page: fReusables.pageNotRequired,
+      pageSize: fReusables.pageSizeNotRequired,
+    })
+    .setRequired(true)
+    .setDescription('Get workspace permission groups endpoint params.');
 const getWorkspacePermissionGroupsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -116,7 +125,10 @@ const getWorkspacePermissionGroupsResult = [
     .setResponseBody(
       new FieldObject<IGetWorkspacePermissionGroupsEndpointResult>()
         .setName('GetWorkspacePermissionGroupsEndpointSuccessResult')
-        .setFields({permissionGroups: new FieldArray().setType(permissionGroup), page: fReusables.page})
+        .setFields({
+          permissionGroups: new FieldArray().setType(permissionGroup),
+          page: fReusables.page,
+        })
         .setRequired(true)
         .setDescription('Get workspace permission groups endpoint success result.')
     ),

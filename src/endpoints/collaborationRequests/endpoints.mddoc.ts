@@ -55,7 +55,7 @@ const newCollaborationRequestInput = new FieldObject<ICollaborationRequestInput>
     recipientEmail,
     message,
     expires: fReusables.expiresNotRequired,
-    permissionGroupsOnAccept: fReusables.assignPermissionGroupListNotRequired,
+    permissionGroupsAssignedOnAcceptingRequest: fReusables.assignPermissionGroupListNotRequired,
   });
 
 const updateCollaborationRequestInput = new FieldObject<IUpdateCollaborationRequestInput>()
@@ -63,7 +63,7 @@ const updateCollaborationRequestInput = new FieldObject<IUpdateCollaborationRequ
   .setFields({
     message: messageNotRequired,
     expires: fReusables.expiresNotRequired,
-    permissionGroupsOnAccept: fReusables.assignPermissionGroupListNotRequired,
+    permissionGroupsAssignedOnAcceptingRequest: fReusables.assignPermissionGroupListNotRequired,
   });
 
 const collaborationRequestStatus = new FieldObject<ICollaborationRequestStatus>()

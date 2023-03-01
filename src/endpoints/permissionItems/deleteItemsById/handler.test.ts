@@ -38,16 +38,10 @@ describe('deleteItemsById', () => {
 
     const {items} = await insertPermissionItemsForTestForEntity(
       context,
-      userToken,
+      mockExpressRequestWithUserToken(userToken),
       workspace.resourceId,
-      {
-        permissionEntityId: permissionGroup.resourceId,
-        permissionEntityType: AppResourceType.PermissionGroup,
-      },
-      {
-        containerId: workspace.resourceId,
-        containerType: AppResourceType.Workspace,
-      },
+      {entityId: permissionGroup.resourceId},
+      {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(

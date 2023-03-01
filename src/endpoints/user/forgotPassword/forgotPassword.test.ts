@@ -1,11 +1,10 @@
-import {TokenAudience} from '../../../definitions/system';
+import {TokenFor} from '../../../definitions/system';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
   IForgotPasswordEmailProps,
 } from '../../../email-templates/forgotPassword';
-import {} from '../../contexts/SessionContext';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {
@@ -20,7 +19,7 @@ import forgotPassword, {
   getForgotPasswordExpiration,
   getForgotPasswordLinkFromToken,
 } from './forgotPassword';
-import {IForgotPasswordParams} from './types';
+import {IForgotPasswordEndpointParams} from './types';
 
 /**
  * TODO:
@@ -41,14 +40,15 @@ afterAll(async () => {
 test('forgot password with email sent', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IForgotPasswordParams>(mockExpressRequest(), {
-    email: user.email,
-  });
+  const instData = RequestData.fromExpressRequest<IForgotPasswordEndpointParams>(
+    mockExpressRequest(),
+    {email: user.email}
+  );
 
   const result = await forgotPassword(context, instData);
   assertEndpointResultOk(result);
   const forgotPasswordToken = await context.data.userToken.assertGetOneByQuery(
-    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenAudience.ChangePassword)
+    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenFor.ChangePassword)
   );
 
   // confirm forgot password email was sent

@@ -6,11 +6,6 @@ export interface IResource<T extends IResourceBase = IResourceBase> {
   resource: T;
 }
 
-export interface IWorkspaceResource extends IResourceBase {
-  workspaceId: string;
-}
-
 export interface IFetchResourceItem {
   resourceId: string;
-  resourceType: AppResourceType;
 }

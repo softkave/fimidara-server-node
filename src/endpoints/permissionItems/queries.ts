@@ -70,14 +70,12 @@ function getByContainerAndResource(
 }
 
 function getByPermissionEntity(entityId: string) {
-  return newFilter()
-    .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
-    .build();
+  return newFilter().addItem('entityId', entityId, DataProviderFilterValueOperator.Equal).build();
 }
 
 function getByPermissionEntityAndContainer(entityId: string, containerId: string) {
   return newFilter()
-    .addItem('permissionEntityId', entityId, DataProviderFilterValueOperator.Equal)
+    .addItem('entityId', entityId, DataProviderFilterValueOperator.Equal)
     .addItem('containerId', containerId, DataProviderFilterValueOperator.Equal)
     .build();
 }
