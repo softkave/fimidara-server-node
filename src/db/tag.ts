@@ -16,7 +16,6 @@ const collectionName = 'tags';
 
 export function getTagModel(connection: Connection) {
   const model = connection.model<ITag>(modelName, schema, collectionName);
-
   return model;
 }
 

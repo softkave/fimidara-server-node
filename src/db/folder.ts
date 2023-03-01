@@ -19,7 +19,6 @@ const collectionName = 'folders';
 
 export function getFolderDatabaseModel(connection: Connection) {
   const model = connection.model<IFolder>(modelName, schema, collectionName);
-
   return model;
 }
 

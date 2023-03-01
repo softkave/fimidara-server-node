@@ -9,7 +9,7 @@ import {
   getWorkspacePermissionContainers,
   IPermissionContainer,
 } from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IPermissionItemQuery} from '../../contexts/data/permissionitem/type';
+import {IPermissionItemQuery} from '../../contexts/data/permissionItem01/type';
 import {IBaseContext} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {IResource} from '../../resources/types';

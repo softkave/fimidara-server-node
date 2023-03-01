@@ -23,7 +23,6 @@ const collectionName = 'files';
 
 export function getFileModel(connection: Connection) {
   const model = connection.model<IFile>(modelName, schema, collectionName);
-
   return model;
 }
 

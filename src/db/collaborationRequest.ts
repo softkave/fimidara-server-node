@@ -28,7 +28,6 @@ const collectionName = 'collaboration-requests';
 
 export function getCollaborationRequestModel(connection: Connection) {
   const model = connection.model<ICollaborationRequest>(modelName, schema, collectionName);
-
   return model;
 }
 

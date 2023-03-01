@@ -13,7 +13,6 @@ const permissionItemSchema = ensureMongoTypeFields<IPermissionItem>({
   grantAccess: {type: Boolean, index: true},
   appliesTo: {type: String, index: true},
   action: {type: String, index: true},
-  hash: {type: String, index: true},
 });
 
 export type IPermissionItemDocument = Document<IPermissionItem>;
@@ -24,7 +23,6 @@ const collectionName = 'permission-items';
 
 export function getPermissionItemModel(connection: Connection) {
   const model = connection.model<IPermissionItem>(modelName, schema, collectionName);
-
   return model;
 }
 
