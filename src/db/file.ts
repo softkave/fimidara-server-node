@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IFile} from '../definitions/file';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const fileSchema = ensureTypeFields<IFile>({
+const fileSchema = ensureMongoTypeFields<IFile>({
   ...workspaceResourceSchema,
   idPath: {type: [String], default: [], index: true},
   namePath: {type: [String], default: [], index: true},

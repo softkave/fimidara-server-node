@@ -28,10 +28,10 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     const maxDepth = props.fetchDeep ? 100 : 1;
     let nextIdList = [props.entityId];
     const [assignedToItemIndex, assignedItemsMap] = await Promise.all([
-      props.context.memory.assignedItem.getIndex(
+      props.context.memstore.assignedItem.getIndex(
         MemoryCacheIndexKeys.assignedItems.AssignedToItemId
       ),
-      props.context.memory.assignedItem.getDataMap(),
+      props.context.memstore.assignedItem.getDataMap(),
     ]);
 
     for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
@@ -68,7 +68,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       map,
       entityId: props.entityId,
     });
-    const permissionGroupsMap = await props.context.memory.permissionGroup.getDataMap();
+    const permissionGroupsMap = await props.context.memstore.permissionGroup.getDataMap();
     const permissionGroups = sortedItemsList
       .filter(item => getResourceTypeFromId(item.id) === AppResourceType.PermissionGroup)
       .map(item => {
@@ -91,7 +91,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     sortByDate?: boolean;
     sortByContainer?: boolean;
   }) {
-    const permissionEntitiesIndex = await props.context.memory.permissionItem.getIndex(
+    const permissionEntitiesIndex = await props.context.memstore.permissionItem.getIndex(
       MemoryCacheIndexKeys.permissionItems.PermissionEntity
     );
     const pItemsList: IPermissionItem[][] = (props.andQueries ?? []).map(() => []);
@@ -122,7 +122,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
         key: entityId,
         index: permissionEntitiesIndex,
       });
-      let entityPermissionItems = await props.context.memory.permissionItem.getDataList(index);
+      let entityPermissionItems = await props.context.memstore.permissionItem.getDataList(index);
 
       if (props.andQueries) {
         entityPermissionItems.forEach(item => {
@@ -185,15 +185,15 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
   async getEntity(props: {context: IBaseContext; entityId: string}) {
     const type = getResourceTypeFromId(props.entityId);
     if (type === AppResourceType.User)
-      return await props.context.memory.user.getById(props.entityId);
+      return await props.context.memstore.user.getById(props.entityId);
     if (type === AppResourceType.UserToken)
-      return await props.context.memory.userToken.getById(props.entityId);
+      return await props.context.memstore.userToken.getById(props.entityId);
     if (type === AppResourceType.ProgramAccessToken)
-      return await props.context.memory.programAccessToken.getById(props.entityId);
+      return await props.context.memstore.programAccessToken.getById(props.entityId);
     if (type === AppResourceType.ClientAssignedToken)
-      return await props.context.memory.clientAssignedToken.getById(props.entityId);
+      return await props.context.memstore.clientAssignedToken.getById(props.entityId);
     if (type === AppResourceType.PermissionGroup)
-      return await props.context.memory.permissionGroup.getById(props.entityId);
+      return await props.context.memstore.permissionGroup.getById(props.entityId);
     return null;
   }
 }

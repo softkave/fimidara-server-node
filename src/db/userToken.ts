@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUserToken} from '../definitions/userToken';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const userTokenMongoSchema = ensureTypeFields<IUserToken>({
+const userTokenMongoSchema = ensureMongoTypeFields<IUserToken>({
   ...workspaceResourceSchema,
   userId: {type: String, index: true},
   version: {type: Number},

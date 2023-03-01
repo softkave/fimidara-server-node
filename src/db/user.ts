@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUser} from '../definitions/user';
-import {ensureTypeFields, resourceSchema} from './utils';
+import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const userSchema = ensureTypeFields<IUser>({
+const userSchema = ensureMongoTypeFields<IUser>({
   ...resourceSchema,
   email: {type: String, unique: true, index: true, lowercase: true},
   firstName: {type: String, index: true},

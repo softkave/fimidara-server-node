@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
 import {IAssignedItem} from '../definitions/assignedItem';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const assignedItemSchema = ensureTypeFields<IAssignedItem>({
+const assignedItemSchema = ensureMongoTypeFields<IAssignedItem>({
   ...workspaceResourceSchema,
   assignedItemId: {type: String, index: true},
   assignedItemType: {type: String, index: true},

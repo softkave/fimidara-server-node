@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IPermissionItem} from '../definitions/permissionItem';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const permissionItemSchema = ensureTypeFields<IPermissionItem>({
+const permissionItemSchema = ensureMongoTypeFields<IPermissionItem>({
   ...workspaceResourceSchema,
   containerId: {type: String, index: true},
   containerType: {type: String, index: true},

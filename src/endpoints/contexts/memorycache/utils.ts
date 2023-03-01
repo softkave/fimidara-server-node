@@ -1,1 +1,0 @@
-export const INDEX_PLACEHOLDER_VALUE = 1;

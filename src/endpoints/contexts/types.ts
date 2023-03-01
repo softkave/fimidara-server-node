@@ -36,22 +36,6 @@ import {
   IUserTokenMemStoreProvider,
   IWorkspaceMemStoreProvider,
 } from './mem/types';
-import {
-  IAppRuntimeStateMemoryCacheProvider,
-  IAssignedItemMemoryCacheProvider,
-  IClientAssignedTokenMemoryCacheProvider,
-  ICollaborationRequestMemoryCacheProvider,
-  IFileMemoryCacheProvider,
-  IFolderMemoryCacheProvider,
-  IPermissionGroupMemoryCacheProvider,
-  IPermissionItemMemoryCacheProvider,
-  IProgramAccessTokenMemoryCacheProvider,
-  ITagMemoryCacheProvider,
-  IUsageRecordMemoryCacheProvider,
-  IUserMemoryCacheProvider,
-  IUserTokenMemoryCacheProvider,
-  IWorkspaceMemoryCacheProvider,
-} from './memorycache/types';
 import {ISemanticDataAccessAssignedItemProvider} from './semanticdata/assignedItem/types';
 import {ISemanticDataAccessClientAssignedTokenProvider} from './semanticdata/clientAssignedToken/types';
 import {ISemanticDataAccessCollaborationRequestProvider} from './semanticdata/collaborationRequest/types';
@@ -88,23 +72,6 @@ export interface IBaseContextDataProviders {
   tag: ITagDataProvider;
   assignedItem: IAssignedItemDataProvider;
   usageRecord: IUsageRecordDataProvider;
-}
-
-export interface IBaseContextMemoryCacheProviders {
-  folder: IFolderMemoryCacheProvider;
-  file: IFileMemoryCacheProvider;
-  clientAssignedToken: IClientAssignedTokenMemoryCacheProvider;
-  programAccessToken: IProgramAccessTokenMemoryCacheProvider;
-  permissionItem: IPermissionItemMemoryCacheProvider;
-  permissionGroup: IPermissionGroupMemoryCacheProvider;
-  workspace: IWorkspaceMemoryCacheProvider;
-  collaborationRequest: ICollaborationRequestMemoryCacheProvider;
-  user: IUserMemoryCacheProvider;
-  userToken: IUserTokenMemoryCacheProvider;
-  appRuntimeState: IAppRuntimeStateMemoryCacheProvider;
-  tag: ITagMemoryCacheProvider;
-  assignedItem: IAssignedItemMemoryCacheProvider;
-  usageRecord: IUsageRecordMemoryCacheProvider;
 }
 
 export interface IBaseContextMemStoreProviders {
@@ -151,7 +118,7 @@ export interface IBaseContext<
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
   AppVars extends IAppVariables = IAppVariables,
-  MemoryCache extends IBaseContextMemoryCacheProviders = IBaseContextMemoryCacheProviders,
+  MemStore extends IBaseContextMemStoreProviders = IBaseContextMemStoreProviders,
   Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
   SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
 > {
@@ -159,7 +126,7 @@ export interface IBaseContext<
   session: ISessionContext;
   data: Data;
   semantic: SemanticData;
-  memory: MemoryCache;
+  memstore: MemStore;
   logic: Logic;
   email: Email;
   fileBackend: FileBackend;

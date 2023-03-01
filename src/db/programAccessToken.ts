@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IProgramAccessToken} from '../definitions/programAccessToken';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const programAccessTokenSchema = ensureTypeFields<IProgramAccessToken>({
+const programAccessTokenSchema = ensureMongoTypeFields<IProgramAccessToken>({
   ...workspaceResourceSchema,
   name: {type: String, index: true},
   description: {type: String},

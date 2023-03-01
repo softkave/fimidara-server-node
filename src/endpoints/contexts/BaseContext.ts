@@ -34,7 +34,7 @@ export default class BaseContext<
   email: Email;
   fileBackend: FileBackend;
   appVariables: AppVars;
-  memory: MemoryCache;
+  memstore: MemoryCache;
   logic: Logic;
   semantic: SemanticData;
   session: ISessionContext = new SessionContext();
@@ -61,7 +61,7 @@ export default class BaseContext<
     this.fileBackend = fileBackend;
     this.usageRecord = new UsageRecordLogicProvider();
     this.appVariables = appVariables;
-    this.memory = memory;
+    this.memstore = memory;
     this.logic = logic;
     this.semantic = semantic;
     this.disposeFn = disposeFn;

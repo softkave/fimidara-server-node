@@ -4,16 +4,16 @@ import {
   IUsageRecordArtifact,
   UsageRecordFulfillmentStatus,
 } from '../definitions/usageRecord';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
+const artifactSchema = ensureMongoTypeFields<IUsageRecordArtifact>({
   type: {type: String},
   resourceType: {type: String},
   action: {type: String},
   artifact: SchemaTypes.Mixed,
 });
 
-const usageRecordSchema = ensureTypeFields<IUsageRecord>({
+const usageRecordSchema = ensureMongoTypeFields<IUsageRecord>({
   ...workspaceResourceSchema,
   category: {type: String, index: true},
   usage: {type: Number},

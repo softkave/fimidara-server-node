@@ -49,3 +49,8 @@ export type IPublicCollaborationRequestForUser = Pick<
 export type IPublicCollaborationRequestForWorkspace = ICollaborationRequest & {
   permissionGroupsAssignedOnAcceptingRequest: IAssignedPermissionGroupMeta[];
 };
+
+const collaborationRequestStatusHistorySchema = {
+  status: {type: String},
+  date: {type: Date},
+};

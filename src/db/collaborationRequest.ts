@@ -1,13 +1,13 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {ICollaborationRequest} from '../definitions/collaborationRequest';
-import {ensureTypeFields, workspaceResourceSchema} from './utils';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const collaborationRequestStatusHistorySchema = {
   status: {type: String},
   date: {type: Date},
 };
 
-const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
+const collaborationRequestSchema = ensureMongoTypeFields<ICollaborationRequest>({
   ...workspaceResourceSchema,
   recipientEmail: {type: String, index: true},
   workspaceName: {type: String},
