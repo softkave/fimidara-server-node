@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
-import {assertContext, initTestBaseContext, insertUserForTest} from '../../test-utils/test-utils';
+import {assertContext, initTestBaseContext, insertUserForTest} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 
 /**

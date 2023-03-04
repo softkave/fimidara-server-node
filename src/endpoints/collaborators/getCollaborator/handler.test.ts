@@ -8,8 +8,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
 import {IGetCollaboratorEndpointParams} from './types';
@@ -29,7 +29,7 @@ test('collaborator returned', async () => {
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const instData = RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
       collaboratorId: user.resourceId,
@@ -42,7 +42,9 @@ test('collaborator returned', async () => {
     collaboratorExtractor(
       await populateUserWorkspaces(
         context,
-        await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
+        await context.data.user.assertGetOneByQuery(
+          EndpointReusableQueries.getByResourceId(user.resourceId)
+        )
       ),
       workspace.resourceId
     )

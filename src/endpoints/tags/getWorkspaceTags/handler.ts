@@ -12,9 +12,8 @@ const getWorkspaceTags: GetWorkspaceTagEndpoint = async (context, instData) => {
   const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
   const q = await getWorkspaceTagsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  let tags = await context.data.tag.getManyByQuery(q, data);
-  tags = tags.map(tag => tagExtractor(tag));
-  return {tags, page: getEndpointPageFromInput(data)};
+  let tags = await context.semantic.tag.getManyByWorkspaceAndIdList(q, data);
+  return {tags: tags.map(tag => tagExtractor(tag)), page: getEndpointPageFromInput(data)};
 };
 
 export default getWorkspaceTags;

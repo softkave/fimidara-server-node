@@ -4,7 +4,10 @@ import {
   getEndpointPageFromInput,
   getWorkspaceFromEndpointInput,
 } from '../../utils';
-import {collaborationRequestListExtractor, populateRequestListPermissionGroups} from '../utils';
+import {
+  collaborationRequestForWorkspaceListExtractor,
+  populateRequestListPermissionGroups,
+} from '../utils';
 import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
 import {getWorkspaceCollaborationRequestsQuery} from './utils';
 import {getWorkspaceCollaborationRequestsJoiSchema} from './validation';
@@ -18,11 +21,11 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspaceCollaborationRequestsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  let requests = await context.data.collaborationRequest.getManyByQuery(q, data);
+  let requests = await context.semantic.collaborationRequest.getManyByWorkspaceAndIdList(q, data);
   requests = await populateRequestListPermissionGroups(context, requests);
   return {
     page: getEndpointPageFromInput(data),
-    requests: collaborationRequestListExtractor(requests),
+    requests: collaborationRequestForWorkspaceListExtractor(requests),
   };
 };
 

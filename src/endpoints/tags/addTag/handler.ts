@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {tagExtractor} from '../utils';

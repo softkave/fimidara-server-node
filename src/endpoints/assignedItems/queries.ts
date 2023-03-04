@@ -1,8 +1,8 @@
 import {isArray, isUndefined} from 'lodash';
 import {IAssignedItem, IAssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
 import {AppResourceType} from '../../definitions/system';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IAssignedItem>();
@@ -17,24 +17,20 @@ function getByAssignedItem(workspaceId: string, assignedItemId: string) {
 
 function getWorkspaceCollaborators(
   workspaceId: string,
-  includedAssignedToItemIdList?: string[],
+  includedassigneeIdList?: string[],
   excludedAssgignedToItemIdList?: string[]
 ) {
   const filter = newFilter()
     .addItem('assignedItemId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem('assignedItemType', AppResourceType.Workspace, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedToItemType', AppResourceType.User, DataProviderFilterValueOperator.Equal);
-  if (includedAssignedToItemIdList?.length) {
-    filter.addItem(
-      'assignedToItemId',
-      includedAssignedToItemIdList,
-      DataProviderFilterValueOperator.In
-    );
+    .addItem('assigneeType', AppResourceType.User, DataProviderFilterValueOperator.Equal);
+  if (includedassigneeIdList?.length) {
+    filter.addItem('assigneeId', includedassigneeIdList, DataProviderFilterValueOperator.In);
   }
   if (excludedAssgignedToItemIdList?.length) {
     filter.addItem(
-      'assignedToItemId',
+      'assigneeId',
       excludedAssgignedToItemIdList,
       DataProviderFilterValueOperator.NotIn
     );
@@ -47,15 +43,15 @@ function getWorkspaceCollaborators(
  */
 function getByAssignedToResource(
   workspaceId: string | undefined,
-  assignedToItemId: string | string[],
+  assigneeId: string | string[],
   assignedItemTypeList?: ReadonlyArray<AppResourceType>
 ) {
   const filter = newFilter();
 
-  if (isArray(assignedToItemId)) {
-    filter.addItem('assignedToItemId', assignedToItemId, DataProviderFilterValueOperator.In);
+  if (isArray(assigneeId)) {
+    filter.addItem('assigneeId', assigneeId, DataProviderFilterValueOperator.In);
   } else {
-    filter.addItem('assignedToItemId', assignedToItemId, DataProviderFilterValueOperator.Equal);
+    filter.addItem('assigneeId', assigneeId, DataProviderFilterValueOperator.Equal);
   }
 
   if (assignedItemTypeList) {
@@ -71,7 +67,7 @@ function getByAssignedToResource(
 function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
   const filter = newFilter()
     .addItem('assignedItemId', matcher.assignedItemId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedToItemId', matcher.assignedToItemId, DataProviderFilterValueOperator.Equal)
+    .addItem('assigneeId', matcher.assigneeId, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();
 }

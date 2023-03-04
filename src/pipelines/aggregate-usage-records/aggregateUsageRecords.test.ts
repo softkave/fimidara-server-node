@@ -15,21 +15,27 @@ import {
 import {IWorkspace} from '../../definitions/workspace';
 import BaseContext from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
-import {getDataProviders} from '../../endpoints/contexts/utils';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+} from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import RequestData from '../../endpoints/RequestData';
-import {generateTestFile, generateTestFiles} from '../../endpoints/test-utils/generate-data/file';
+import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
 import {
   generateTestUsageThresholdInputMap,
   generateTestWorkspace,
-} from '../../endpoints/test-utils/generate-data/workspace';
-import {dropMongoConnection, genDbName} from '../../endpoints/test-utils/helpers/mongo';
+} from '../../endpoints/testUtils/generateData/workspace';
+import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/mongo';
 import {
   assertContext,
   getTestEmailProvider,
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
-} from '../../endpoints/test-utils/test-utils';
+} from '../../endpoints/testUtils/testUtils';
 import {getCostForUsage, getUsageForCost} from '../../endpoints/usageRecords/constants';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors';
 import {
@@ -64,11 +70,16 @@ async function getContextAndConnection() {
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
   );
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
   const context = new BaseContext(
-    getDataProviders(connection),
+    getDataProviders(models),
     getTestEmailProvider(appVariables),
     await getTestFileProvider(appVariables),
-    appVariables
+    appVariables,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem)
   );
 
   contexts.push(context);

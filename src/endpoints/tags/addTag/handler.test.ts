@@ -1,11 +1,11 @@
 import {IBaseContext} from '../../contexts/types';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {
   assertContext,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 
 let context: IBaseContext | null = null;
 

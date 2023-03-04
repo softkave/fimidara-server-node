@@ -1,14 +1,14 @@
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionGroupListForTest} from '../../test-utils/generate-data/permissionGroup';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspacePermissionGroups from './handler';
 import {ICountWorkspacePermissionGroupsEndpointParams} from './types';
 
@@ -30,11 +30,11 @@ describe('countWorkspacePermissionGroups', () => {
     await generateAndInsertPermissionGroupListForTest(context, 15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.data.permissiongroup.countByQuery({
+    const count = await context.data.permissionGroup.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const instData = RequestData.fromExpressRequest<ICountWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await countWorkspacePermissionGroups(context, instData);

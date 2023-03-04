@@ -1,4 +1,4 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/types';
 import {
   Endpoint,
@@ -15,7 +15,7 @@ export interface IGetWorkspaceCollaborationRequestsEndpointParams
     IPaginationQuery {}
 
 export interface IGetWorkspaceCollaborationRequestsEndpointResult extends IPaginatedResult {
-  requests: IPublicCollaborationRequest[];
+  requests: IPublicCollaborationRequestForWorkspace[];
 }
 
 export type GetWorkspaceCollaborationRequestsEndpoint = Endpoint<

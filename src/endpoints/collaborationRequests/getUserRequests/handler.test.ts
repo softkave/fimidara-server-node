@@ -1,8 +1,8 @@
-import {calculatePageSize} from '../../../utils/fns';
+import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
-import {expectContainsEveryItemIn} from '../../test-utils/helpers/assertion';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -10,8 +10,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getUserCollaborationRequests from './handler';
 
 /**
@@ -42,13 +42,13 @@ describe('getUserRequests', () => {
       {recipientEmail: user02.email}
     );
     const instData = RequestData.fromExpressRequest(
-      mockExpressRequestWithUserToken(user02Token),
+      mockExpressRequestWithAgentToken(user02Token),
       {}
     );
     const result = await getUserCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
     expect(result.requests.length).toEqual(1);
-    expectContainsEveryItemIn(result.requests, [request01], item => item.resourceId);
+    expectContainsEveryItemInForAnyType(result.requests, [request01], getResourceId, getResourceId);
   });
 
   test('pagination', async () => {
@@ -62,7 +62,7 @@ describe('getUserRequests', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(user02Token), {
+    let instData = RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(user02Token), {
       pageSize,
     });
     let result = await getUserCollaborationRequests(context, instData);
@@ -71,7 +71,7 @@ describe('getUserRequests', () => {
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(user02Token), {
+    instData = RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(user02Token), {
       page,
       pageSize,
     });

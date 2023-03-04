@@ -1,22 +1,21 @@
 import {IFile} from '../../definitions/file';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  PUBLIC_PERMISSIBLE_AGENTS,
-} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
+  IUsageRecord,
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
+import {appMessages} from '../../utils/messages';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {IUsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
-import {errorMessages} from '../messages';
 import RequestData from '../RequestData';
 import {UsageLimitExceededError} from './errors';
 
@@ -27,7 +26,7 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await ctx.session.getAgent(ctx, reqData, PUBLIC_PERMISSIBLE_AGENTS)
+    await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
   );
   const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
   if (!allowed && !nothrow) {
@@ -193,5 +192,9 @@ export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCateg
 }
 
 export function throwUsageRecordNotFound() {
-  throw new NotFoundError(errorMessages.usageRecordNotFound);
+  throw new NotFoundError(appMessages.usageRecord.notFound());
+}
+
+export function assertUsageRecord(item?: IUsageRecord | null): asserts item {
+  appAssert(item, reuseableErrors.usageRecord.notFound());
 }

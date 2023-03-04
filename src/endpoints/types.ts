@@ -39,6 +39,10 @@ export interface IEndpointOptionalWorkspaceIDParam {
   workspaceId?: string;
 }
 
+export interface IEndpointWorkspaceResourceParam extends IEndpointOptionalWorkspaceIDParam {
+  providedResourceId?: string;
+}
+
 export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
 export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
   T,

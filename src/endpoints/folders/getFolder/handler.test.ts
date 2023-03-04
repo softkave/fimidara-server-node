@@ -7,8 +7,8 @@ import {
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {addRootnameToPath} from '../utils';
 import getFolder from './handler';
 import {IGetFolderEndpointParams} from './types';
@@ -27,14 +27,10 @@ test('folder returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {folder: folder01} = await insertFolderForTest(
-    context,
-    userToken,
-    workspace
-  );
+  const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
 
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }

@@ -2,15 +2,15 @@ import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {tagExtractor} from '../utils';
 import updateTag from './handler';
 import {IUpdateTagEndpointParams, IUpdateTagInput} from './types';
@@ -37,7 +37,7 @@ describe('updateTag', () => {
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateTagEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         tagId: tag01.resourceId,
         tag: tagUpdateInput,

@@ -1,4 +1,4 @@
-import {IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IWorkspaceResourceBase} from './system';
 
 export interface IFolder extends IWorkspaceResourceBase {
   idPath: string[];
@@ -9,8 +9,7 @@ export interface IFolder extends IWorkspaceResourceBase {
   description?: string;
 }
 
-export type IPublicFolder = IFolder;
-
+export type IPublicFolder = ConvertAgentToPublicAgent<IFolder>;
 export interface IFolderMatcher {
   /**
    * Folder path with workspace rootname, e.g /workspace-rootname/folder-name

@@ -6,7 +6,7 @@ import {
   IAgent,
   IPublicAccessOp,
   ISessionAgent,
-  PUBLIC_PERMISSIBLE_AGENTS,
+  PERMISSION_AGENT_TYPES,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -20,13 +20,11 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
-import WorkspaceQueries from '../../workspaces/queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderConstants} from '../constants';
-import FolderQueries from '../queries';
 import {addRootnameToPath, folderExtractor, splitPathWithDetails} from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
@@ -39,8 +37,9 @@ export async function createSingleFolder(
   input: INewFolderInput
 ) {
   const {itemSplitPath: splitPath, name} = splitPathWithDetails(input.folderpath);
-  const existingFolder = await context.data.folder.getOneByQuery(
-    FolderQueries.folderExistsByNamePath(workspace.resourceId, splitPath)
+  const existingFolder = await context.semantic.folder.getOneByNamePath(
+    workspace.resourceId,
+    splitPath
   );
 
   if (existingFolder) {
@@ -83,9 +82,7 @@ export async function getClosestExistingFolder(
 ) {
   const existingFolders = await Promise.all(
     splitParentPath.map((p, i) => {
-      return context.data.folder.getOneByQuery(
-        FolderQueries.getByNamePath(workspaceId, splitParentPath.slice(0, i + 1))
-      );
+      return context.semantic.folder.getOneByNamePath(workspaceId, splitParentPath.slice(0, i + 1));
     })
   );
 
@@ -121,14 +118,10 @@ export async function createFolderList(
         context,
         agent,
         workspaceId: workspace.resourceId,
-        targets: [
-          {
-            type: AppResourceType.Folder,
-            containerId: previousFolder
-              ? getFilePermissionContainers(workspace.resourceId, previousFolder)
-              : getWorkspacePermissionContainers(workspace.resourceId),
-          },
-        ],
+        containerId: previousFolder
+          ? getFilePermissionContainers(workspace.resourceId, previousFolder)
+          : getWorkspacePermissionContainers(workspace.resourceId),
+        targets: [{type: AppResourceType.Folder}],
         action: BasicCRUDActions.Create,
       });
 
@@ -163,10 +156,10 @@ export async function createFolderList(
 // TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const pathWithDetails = splitPathWithDetails(data.folder.folderpath);
-  const workspace = await context.data.workspace.getOneByQuery(
-    WorkspaceQueries.getByRootname(pathWithDetails.workspaceRootname)
+  const workspace = await context.semantic.workspace.getByRootname(
+    pathWithDetails.workspaceRootname
   );
   assertWorkspace(workspace);
   let folder = await createFolderList(context, agent, workspace, data.folder);

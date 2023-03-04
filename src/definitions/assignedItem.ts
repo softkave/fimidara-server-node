@@ -5,14 +5,14 @@ import {IAssignedTag} from './tag';
 export interface IAssignedItem<Meta extends AnyObject = AnyObject> extends IWorkspaceResourceBase {
   assignedItemId: string;
   assignedItemType: AppResourceType;
-  assignedToItemId: string;
-  assignedToItemType: AppResourceType;
+  assigneeId: string;
+  assigneeType: AppResourceType;
   meta: Meta;
 }
 
 export type IAssignedItemMainFieldsMatcher = Pick<
   IAssignedItem,
-  'assignedItemId' | 'assignedToItemId' | 'workspaceId'
+  'assignedItemId' | 'assigneeId' | 'workspaceId'
 >;
 
 export type ResourceWithTags<T> = T & {

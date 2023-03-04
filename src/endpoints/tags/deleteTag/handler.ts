@@ -13,7 +13,7 @@ const cascade: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Public]: noopAsync,
   [AppResourceType.Workspace]: noopAsync,
   [AppResourceType.CollaborationRequest]: noopAsync,
-  [AppResourceType.ProgramAccessToken]: noopAsync,
+  [AppResourceType.AgentToken]: noopAsync,
   [AppResourceType.ClientAssignedToken]: noopAsync,
   [AppResourceType.UserToken]: noopAsync,
   [AppResourceType.PermissionGroup]: noopAsync,

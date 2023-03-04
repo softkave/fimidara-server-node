@@ -6,8 +6,8 @@ const assignedItemSchema = ensureMongoTypeFields<IAssignedItem>({
   ...workspaceResourceSchema,
   assignedItemId: {type: String, index: true},
   assignedItemType: {type: String, index: true},
-  assignedToItemId: {type: String, index: true},
-  assignedToItemType: {type: String, index: true},
+  assigneeId: {type: String, index: true},
+  assigneeType: {type: String, index: true},
   meta: {type: SchemaTypes.Map},
 });
 

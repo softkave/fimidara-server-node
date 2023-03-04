@@ -2,7 +2,7 @@ import {IFolder} from '../../../definitions/folder';
 import {
   AppResourceType,
   BasicCRUDActions,
-  PUBLIC_PERMISSIBLE_AGENTS,
+  PERMISSION_AGENT_TYPES,
 } from '../../../definitions/system';
 import {noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
@@ -24,10 +24,7 @@ const cascade: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Public]: noopAsync,
   [AppResourceType.Workspace]: noopAsync,
   [AppResourceType.CollaborationRequest]: noopAsync,
-  [AppResourceType.ProgramAccessToken]: (context, id) =>
-    context.semantic.programAccessToken.deleteOneById(id),
-  [AppResourceType.ClientAssignedToken]: noopAsync,
-  [AppResourceType.UserToken]: noopAsync,
+  [AppResourceType.AgentToken]: (context, id) => context.semantic.agentToken.deleteOneById(id),
   [AppResourceType.PermissionGroup]: noopAsync,
   [AppResourceType.PermissionItem]: async (context, id) => {
     await Promise.all([
@@ -114,7 +111,7 @@ export async function internalDeleteFolderList(context: IBaseContext, folders: I
 
 const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {folder} = await checkFolderAuthorization02(context, agent, data, BasicCRUDActions.Delete);
 
   // TODO: this be fire and forget with retry OR move it to a job

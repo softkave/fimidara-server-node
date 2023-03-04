@@ -1,38 +1,24 @@
 import {IFile, IFileMatcher} from '../../definitions/file';
 import {IBaseContext} from '../contexts/types';
-import FolderQueries from '../folders/queries';
-import EndpointReusableQueries from '../queries';
-import WorkspaceQueries from '../workspaces/queries';
 import {assertWorkspace} from '../workspaces/utils';
-import FileQueries from './queries';
 import {assertFile, splitfilepathWithDetails} from './utils';
 
 export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMatcher) {
   if (matcher.fileId) {
-    const file = await context.data.file.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(matcher.fileId)
-    );
-
+    const file = await context.semantic.file.getOneById(matcher.fileId);
+    assertFile(file);
     return file;
   } else if (matcher.filepath) {
     const pathWithDetails = splitfilepathWithDetails(matcher.filepath);
-    const workspace = await context.data.workspace.getOneByQuery(
-      WorkspaceQueries.getByRootname(pathWithDetails.workspaceRootname)
+    const workspace = await context.semantic.workspace.getByRootname(
+      pathWithDetails.workspaceRootname
     );
     assertWorkspace(workspace);
-    const file = await context.data.file.getOneByQuery(
+    const file = await context.semantic.file.getOneByNamePath(
+      workspace.resourceId,
+      pathWithDetails.splitPathWithoutExtension,
       pathWithDetails.extension
-        ? FileQueries.getByNamePathAndExtention(
-            workspace.resourceId,
-            pathWithDetails.splitPathWithoutExtension,
-            pathWithDetails.extension
-          )
-        : FolderQueries.getByNamePath(
-            workspace.resourceId,
-            pathWithDetails.splitPathWithoutExtension
-          )
     );
-
     return file;
   }
 

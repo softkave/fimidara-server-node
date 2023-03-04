@@ -2,15 +2,15 @@ import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionItemListForTest} from '../../test-utils/generate-data/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {default as countResourcePermissionItems} from './handler';
 import {ICountResourcePermissionItemsEndpointParams} from './types';
 
@@ -46,7 +46,7 @@ describe('countResourcePermissionItems', () => {
       appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
     const instData = RequestData.fromExpressRequest<ICountResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         targetType: AppResourceType.Workspace,

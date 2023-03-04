@@ -12,7 +12,7 @@ const countWorkspaceCollaborators: CountWorkspaceCollaboratorsEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
-  const count = await context.data.assignedItem.countByQuery(q);
+  const count = await context.semantic.assignedItem.countManyByWorkspaceAndIdList(q);
   return {count};
 };
 

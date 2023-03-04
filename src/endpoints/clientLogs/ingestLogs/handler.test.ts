@@ -10,7 +10,7 @@ import {
   assertEndpointResultOk,
   initTestBaseContext,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import ingestLogs from './handler';
 import {IClientLog, IIngestLogsEndpointParams} from './types';
 import assert = require('assert');

@@ -7,8 +7,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {deleteWorkspace} from './handler';
 
 /**
@@ -32,7 +32,7 @@ test('workspace deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const result = await deleteWorkspace(
     context,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
     })
   );

@@ -1,18 +1,17 @@
 import {
   ICollaborationRequest,
-  ICollaborationRequestStatus,
   IPublicCollaborationRequestForUser,
   IPublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
+import {IAssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
 import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
-import EndpointReusableQueries from '../queries';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
@@ -25,54 +24,36 @@ const userCollaborationRequestForUserFields = getFields<IPublicCollaborationRequ
   workspaceName: true,
   lastUpdatedAt: true,
   readAt: true,
-  statusHistory: makeListExtract(
-    getFields<ICollaborationRequestStatus>({
-      status: true,
-      date: true,
-    })
-  ),
+  status: true,
+  statusDate: true,
 });
 
 const userCollaborationRequestForWorkspaceFields =
-  getFields<IPublicCollaborationRequestForWorkspace>(
-    {
-      ...workspaceResourceFields,
-      recipientEmail: true,
-      message: true,
-      expiresAt: true,
-      workspaceId: true,
-      workspaceName: true,
-      readAt: true,
-      statusHistory: makeListExtract(
-        getFields<ICollaborationRequestStatus>({
-          status: true,
-          date: true,
-        })
-      ),
-      permissionGroupsAssignedOnAcceptingRequest: data =>
-        data ? assignedPermissionGroupsListExtractor(data) : [],
-    },
-    req => {
-      if (!req.permissionGroupsAssignedOnAcceptingRequest) {
-        req.permissionGroupsAssignedOnAcceptingRequest = [];
-      }
-      return req;
-    }
-  );
+  getFields<IPublicCollaborationRequestForWorkspace>({
+    ...workspaceResourceFields,
+    recipientEmail: true,
+    message: true,
+    expiresAt: true,
+    workspaceId: true,
+    workspaceName: true,
+    readAt: true,
+    status: true,
+    statusDate: true,
+    permissionGroupsAssignedOnAcceptingRequest: data =>
+      data ? assignedPermissionGroupsListExtractor(data) : [],
+  });
 
 export async function checkCollaborationRequestAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   request: ICollaborationRequest,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: BasicCRUDActions
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
   await checkAuthorization({
     context,
     agent,
     action,
-    nothrow,
     workspaceId: workspace.resourceId,
     targets: [{targetId: request.resourceId}],
   });
@@ -83,13 +64,11 @@ export async function checkCollaborationRequestAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   requestId: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: BasicCRUDActions
 ) {
-  const request = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(requestId)
-  );
-  return checkCollaborationRequestAuthorization(context, agent, request, action, nothrow);
+  const request = await context.semantic.collaborationRequest.getOneById(requestId);
+  assertCollaborationRequest(request);
+  return checkCollaborationRequestAuthorization(context, agent, request, action);
 }
 
 export const collaborationRequestForUserExtractor = makeExtract(
@@ -112,7 +91,11 @@ export function throwCollaborationRequestNotFound() {
 export async function populateRequestAssignedPermissionGroups(
   context: IBaseContext,
   request: ICollaborationRequest
-): Promise<IPublicCollaborationRequestForWorkspace> {
+): Promise<
+  ICollaborationRequest & {
+    permissionGroupsAssignedOnAcceptingRequest: IAssignedPermissionGroupMeta[];
+  }
+> {
   const inheritanceMap = await context.semantic.permissions.getEntityInheritanceMap({
     context,
     entityId: request.resourceId,

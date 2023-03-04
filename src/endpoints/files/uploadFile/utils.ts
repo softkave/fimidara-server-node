@@ -6,7 +6,7 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';

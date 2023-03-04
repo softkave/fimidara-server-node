@@ -1,15 +1,15 @@
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertTestFiles} from '../../test-utils/generate-data/file';
-import {generateAndInsertTestFolders} from '../../test-utils/generate-data/folder';
+import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
+import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countFolderContent from './handler';
 import {ICountFolderContentEndpointParams} from './types';
 
@@ -43,7 +43,7 @@ describe('countFolderContent', () => {
       }),
     ]);
     const instData = RequestData.fromExpressRequest<ICountFolderContentEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {folderpath: workspace.rootname}
     );
     const result = await countFolderContent(context, instData);

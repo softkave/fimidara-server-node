@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';

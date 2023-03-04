@@ -1,10 +1,22 @@
 import {EventEmitter} from 'events';
-import {isObject, isString, merge} from 'lodash';
+import {isObject, isString, isUndefined, merge} from 'lodash';
 import {Model} from 'mongoose';
-import {IResourceBase} from '../../../definitions/system';
+import {IAgentToken} from '../../../definitions/agentToken';
+import {IAssignedItem} from '../../../definitions/assignedItem';
+import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IFile} from '../../../definitions/file';
+import {IFolder} from '../../../definitions/folder';
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
+import {ITag} from '../../../definitions/tag';
+import {IUsageRecord} from '../../../definitions/usageRecord';
+import {IUser} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {getResourceId} from '../../../utils/fns';
+import {logger} from '../../../utils/logger/logger';
 import {AnyObject} from '../../../utils/types';
 import {
   DataProviderLiteralType,
@@ -13,60 +25,87 @@ import {
   INumberLiteralFieldQueryOps,
   LiteralDataQuery,
 } from '../data/types';
-import {IMemStore} from './types';
+import {
+  IAgentTokenMemStoreProvider,
+  IAppRuntimeStateMemStoreProvider,
+  IAssignedItemMemStoreProvider,
+  ICollaborationRequestMemStoreProvider,
+  IFileMemStoreProvider,
+  IFolderMemStoreProvider,
+  IMemStore,
+  IPermissionGroupMemStoreProvider,
+  IPermissionItemMemStoreProvider,
+  ITagMemStoreProvider,
+  IUsageRecordMemStoreProvider,
+  IUserMemStoreProvider,
+  IWorkspaceMemStoreProvider,
+} from './types';
 
 type Q = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> & INumberLiteralFieldQueryOps;
 type QK = keyof Q;
 
 function matchItem<T extends AnyObject>(item: T, query: DataQuery<T>) {
   let continueMatching = false;
-  for (const qk in query) {
-    const qv = query[qk];
-    const itemv = item[qk] as any;
-    if (isObject(qv)) {
-      const qvObj = qv as Q;
-      for (const qvk in qvObj) {
-        const qvk1 = qvk as QK;
-        const qvkv = qvObj[qvk1];
-        switch (qvk1) {
+  for (const queryKey in query) {
+    const queryOpObjOrValue = query[queryKey];
+    let itemValue = item[queryKey] as any;
+    if (isUndefined(itemValue)) {
+      itemValue = null;
+    }
+
+    if (isObject(queryOpObjOrValue)) {
+      const queryOpObj = queryOpObjOrValue as Q;
+      for (const opKey in queryOpObj) {
+        const opKeyTyped = opKey as QK;
+        const opValue = queryOpObj[opKeyTyped];
+
+        if (isUndefined(opValue)) {
+          continue;
+        }
+
+        switch (opKeyTyped) {
           case '$eq':
-            continueMatching = itemv === qvkv;
+            continueMatching = itemValue === opValue;
             break;
           case '$in':
-            continueMatching = (qvkv as any[]).includes(itemv);
+            continueMatching = (opValue as any[]).includes(itemValue);
             break;
           case '$ne':
-            continueMatching = itemv !== qvkv;
+            continueMatching = itemValue !== opValue;
             break;
           case '$nin':
-            continueMatching = !(qvkv as any[]).includes(itemv);
+            continueMatching = !(opValue as any[]).includes(itemValue);
             break;
           case '$exists':
-            continueMatching = qk in item === qvkv;
+            continueMatching = queryKey in item === opValue;
             break;
           case '$regex':
-            appAssert(qvkv instanceof RegExp);
-            appAssert(isString(itemv));
-            continueMatching = qvkv.test(itemv);
+            appAssert(opValue instanceof RegExp);
+            appAssert(isString(itemValue));
+            continueMatching = opValue.test(itemValue);
             break;
           case '$gt':
-            continueMatching = (qvkv as number) > itemv;
+            continueMatching = (opValue as number) > itemValue;
             break;
           case '$gte':
-            continueMatching = (qvkv as number) >= itemv;
+            continueMatching = (opValue as number) >= itemValue;
             break;
           case '$lt':
-            continueMatching = (qvkv as number) < itemv;
+            continueMatching = (opValue as number) < itemValue;
             break;
           case '$lte':
-            continueMatching = (qvkv as number) <= itemv;
+            continueMatching = (opValue as number) <= itemValue;
             break;
           default:
-            appAssert(false, new ServerError(), `Unknown query operator ${qvk1} encountered.`);
+            appAssert(
+              false,
+              new ServerError(),
+              `Unknown query operator ${opKeyTyped} encountered.`
+            );
         }
       }
     } else {
-      continueMatching = itemv === qv;
+      continueMatching = itemValue === queryOpObjOrValue;
     }
 
     if (!continueMatching) {
@@ -127,7 +166,7 @@ export class MemStore<T extends AnyObject> extends EventEmitter implements IMemS
   static CREATE_EVENT_NAME = 'create' as const;
   static UPDATE_EVENT_NAME = 'update' as const;
 
-  constructor(private items: T[]) {
+  constructor(private items: T[] = []) {
     super();
   }
 
@@ -167,11 +206,14 @@ export class MemStore<T extends AnyObject> extends EventEmitter implements IMemS
   }
 }
 
-async function handleCreateItemsMongoSync<T extends IResourceBase>(model: Model<T>, items: T[]) {
+export async function handleCreateItemsMongoSync<T extends IResourceBase>(
+  model: Model<T>,
+  items: T[]
+) {
   await model.insertMany(items);
 }
 
-async function handleUpdateItemsMongoSync<T extends IResourceBase>(
+export async function handleUpdateItemsMongoSync<T extends IResourceBase>(
   model: Model<T>,
   items: Array<[T, T]>,
   update: Partial<T>
@@ -179,3 +221,46 @@ async function handleUpdateItemsMongoSync<T extends IResourceBase>(
   const resourceIdList = items.map(([item]) => getResourceId(item));
   await model.updateMany({resourceId: {$in: resourceIdList}}, update);
 }
+
+export function createHandleCreateItemsMongoSyncFn<T extends IResourceBase>(model: Model<T>) {
+  return (items: T[]) => {
+    // TODO: do in jobs and add retry
+    handleCreateItemsMongoSync(model, items).catch(logger.error.bind(logger));
+  };
+}
+
+export function createHandleUpdateItemsMongoSyncFn<T extends IResourceBase>(model: Model<T>) {
+  return (items: Array<[T, T]>, update: Partial<T>) => {
+    // TODO: do in jobs and add retry
+    handleUpdateItemsMongoSync(model, items, update).catch(logger.error.bind(logger));
+  };
+}
+
+export class FolderMemStoreProvider extends MemStore<IFolder> implements IFolderMemStoreProvider {}
+export class FileMemStoreProvider extends MemStore<IFile> implements IFileMemStoreProvider {}
+export class AgentTokenMemStoreProvider
+  extends MemStore<IAgentToken>
+  implements IAgentTokenMemStoreProvider {}
+export class PermissionItemMemStoreProvider
+  extends MemStore<IPermissionItem>
+  implements IPermissionItemMemStoreProvider {}
+export class PermissionGroupMemStoreProvider
+  extends MemStore<IPermissionGroup>
+  implements IPermissionGroupMemStoreProvider {}
+export class WorkspaceMemStoreProvider
+  extends MemStore<IWorkspace>
+  implements IWorkspaceMemStoreProvider {}
+export class CollaborationRequestMemStoreProvider
+  extends MemStore<ICollaborationRequest>
+  implements ICollaborationRequestMemStoreProvider {}
+export class UserMemStoreProvider extends MemStore<IUser> implements IUserMemStoreProvider {}
+export class AppRuntimeStateMemStoreProvider
+  extends MemStore<IAppRuntimeState>
+  implements IAppRuntimeStateMemStoreProvider {}
+export class TagMemStoreProvider extends MemStore<ITag> implements ITagMemStoreProvider {}
+export class AssignedItemMemStoreProvider
+  extends MemStore<IAssignedItem>
+  implements IAssignedItemMemStoreProvider {}
+export class UsageRecordMemStoreProvider
+  extends MemStore<IUsageRecord>
+  implements IUsageRecordMemStoreProvider {}

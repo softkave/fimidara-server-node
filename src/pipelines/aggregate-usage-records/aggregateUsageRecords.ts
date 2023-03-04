@@ -13,6 +13,7 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
+import {getTimestamp} from '../../utils/dateFns';
 import {getNewIdForResource} from '../../utils/resourceId';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
@@ -116,7 +117,7 @@ async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsag
         seconds: 1,
       });
 
-      fromDate = lastDate;
+      fromDate = getTimestamp(lastDate);
     }
   } while (lastCount > 0);
 
@@ -151,8 +152,10 @@ async function getUsageRecordsLevel2(
         year,
         fulfillmentStatus,
         resourceId: getNewIdForResource(AppResourceType.UsageRecord),
-        createdAt: new Date(),
+        createdAt: getTimestamp(),
         createdBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         category: k,
         summationType: UsageSummationType.Two,
         usage: 0,
@@ -169,7 +172,7 @@ async function incrementRecordLevel2(connection: Connection, recordLevel2: IUsag
   const {sumUsage, sumCost} = await sumUsageRecordsLevel1(connection, recordLevel2);
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
-  recordLevel2.lastUpdatedAt = new Date();
+  recordLevel2.lastUpdatedAt = getTimestamp();
   recordLevel2.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   return recordLevel2;
 }
@@ -207,7 +210,7 @@ async function aggregateRecordsLevel2(
     }
   });
 
-  totalRecord.lastUpdatedAt = new Date();
+  totalRecord.lastUpdatedAt = getTimestamp();
   totalRecord.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   const model = makeUsageRecordModel(connection);
   await model.bulkWrite(
@@ -241,7 +244,7 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
       const usageLock: IUsageThresholdLock = {
         ...defaultTo(locks[r.category], {}),
         category: r.category,
-        lastUpdatedAt: new Date(),
+        lastUpdatedAt: getTimestamp(),
         lastUpdatedBy: SYSTEM_SESSION_AGENT,
         locked: true,
       };

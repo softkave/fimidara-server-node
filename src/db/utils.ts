@@ -1,4 +1,4 @@
-import {SchemaTypeOptions} from 'mongoose';
+import {SchemaDefinitionProperty} from 'mongoose';
 import {
   IAgent,
   IPublicAccessOp,
@@ -11,7 +11,8 @@ import {getTimestamp} from '../utils/dateFns';
 // TODO: do deep check to make sure that internal schemas are checked too
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function ensureMongoTypeFields<T extends object>(schema: {
-  [path in keyof Required<T>]: SchemaTypeOptions<T[path]>;
+  // [path in keyof Required<T>]: SchemaTypeOptions<T[path]>;
+  [path in keyof T]?: SchemaDefinitionProperty<T[path]>;
 }) {
   return schema;
 }
@@ -19,7 +20,7 @@ export function ensureMongoTypeFields<T extends object>(schema: {
 export const agentSchema = ensureMongoTypeFields<IAgent>({
   agentId: {type: String},
   agentType: {type: String},
-  tokenId: {type: String},
+  agentTokenId: {type: String},
 });
 
 export const publicAccessOpSchema = ensureMongoTypeFields<IPublicAccessOp>({
@@ -27,7 +28,6 @@ export const publicAccessOpSchema = ensureMongoTypeFields<IPublicAccessOp>({
   markedAt: {type: Number, default: getTimestamp},
   markedBy: {type: agentSchema},
   resourceType: {type: String},
-  appliesTo: {type: String},
 });
 
 export const resourceSchema = ensureMongoTypeFields<IResourceBase>({

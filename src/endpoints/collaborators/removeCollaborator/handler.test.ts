@@ -8,8 +8,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getCollaborator from '../getCollaborator/handler';
 import removeCollaborator from './handler';
 import {IRemoveCollaboratorEndpointParams} from './types';
@@ -34,7 +34,7 @@ test('collaborator removed', async () => {
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const instData = RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
       collaboratorId: user.resourceId,
@@ -48,7 +48,7 @@ test('collaborator removed', async () => {
     workspace.resourceId,
     user.resourceId
   );
-  expect(assignedItems.findIndex(item => item.assignedToItemId === workspace.resourceId)).toBe(-1);
+  expect(assignedItems.findIndex(item => item.assigneeId === workspace.resourceId)).toBe(-1);
 
   try {
     await getCollaborator(context, instData);

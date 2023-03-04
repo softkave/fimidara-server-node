@@ -8,8 +8,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteCollaborationRequest from './handler';
 import {IDeleteCollaborationRequestEndpointParams} from './types';
 
@@ -29,7 +29,7 @@ test('collaboration request deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
   const instData = RequestData.fromExpressRequest<IDeleteCollaborationRequestEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {requestId: request.resourceId}
   );
 

@@ -22,8 +22,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {IFetchResourceItem} from '../types';
 import getResources from './handler';
 import {IGetResourcesEndpointParams} from './types';
@@ -65,7 +65,7 @@ describe('getResources', () => {
 
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+        mockExpressRequestWithAgentToken(userToken),
         {items: inputItems, workspaceId: workspace.resourceId}
       );
 
@@ -89,7 +89,7 @@ describe('getResources', () => {
 
     items.forEach(item => addResource(item, AppResourceType.PermissionItem));
     const instData = RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
     );
     const result = await getResources(context, instData);

@@ -9,8 +9,8 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteFile from './handler';
 import {IDeleteFileEndpointParams} from './types';
 
@@ -35,7 +35,7 @@ test('file deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {filepath: addRootnameToPath(file.name, workspace.rootname)}
   );
   const result = await deleteFile(context, instData);

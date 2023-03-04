@@ -15,8 +15,8 @@ const cascade: DeleteResourceCascadeFnsMap = {
     context.semantic.workspace.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.CollaborationRequest]: (context, workspaceId) =>
     context.semantic.collaborationRequest.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.ProgramAccessToken]: (context, workspaceId) =>
-    context.semantic.programAccessToken.deleteManyByWorkspaceId(workspaceId),
+  [AppResourceType.AgentToken]: (context, workspaceId) =>
+    context.semantic.agentToken.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.ClientAssignedToken]: (context, workspaceId) =>
     context.semantic.clientAssignedToken.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.UserToken]: noopAsync,

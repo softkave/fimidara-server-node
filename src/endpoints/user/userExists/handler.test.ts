@@ -7,7 +7,7 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import userExists from './handler';
 import {IUserExistsEndpointParams} from './types';
 

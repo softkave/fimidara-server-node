@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -10,7 +11,7 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {populateRequestAssignedPermissionGroups} from '../utils';
 import {ICollaborationRequestInput} from './types';
 
@@ -39,13 +40,8 @@ describe('sendCollaborationRequest', () => {
     const requestInput: ICollaborationRequestInput = {
       recipientEmail: user02.email,
       message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsAssignedOnAcceptingRequest: [
-        {
-          permissionGroupId: permissionGroup.resourceId,
-          order: 0,
-        },
-      ],
+      expires: getTimestamp(add(Date.now(), {days: 1})),
+      permissionGroupsAssignedOnAcceptingRequest: [{permissionGroupId: permissionGroup.resourceId}],
     };
     const {request: request01} = await insertRequestForTest(
       context,
@@ -64,8 +60,6 @@ describe('sendCollaborationRequest', () => {
     expect(request01).toMatchObject(
       await populateRequestAssignedPermissionGroups(context, savedRequest)
     );
-    expect(savedRequest.statusHistory[savedRequest.statusHistory.length - 1]).toMatchObject({
-      status: CollaborationRequestStatusType.Pending,
-    });
+    expect(savedRequest.status).toBe(CollaborationRequestStatusType.Pending);
   });
 });

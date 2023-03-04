@@ -3,7 +3,7 @@ import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
   ISessionAgent,
-  TokenFor,
+  TokenAccessScope,
 } from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
 import {IUserToken} from '../../../definitions/userToken';
@@ -87,11 +87,14 @@ export async function getUserToken(context: IBaseContext, agent: ISessionAgent) 
     new ServerError(),
     'Session agent must be a user session agent.'
   );
-  let userToken = await context.semantic.userToken.getOneByUserId(agent.agentId, TokenFor.Login);
+  let userToken = await context.semantic.userToken.getOneByUserId(
+    agent.agentId,
+    TokenAccessScope.Login
+  );
   if (!userToken) {
     userToken = newResource(agent, AppResourceType.UserToken, {
       userId: agent.agentId,
-      tokenFor: [TokenFor.Login],
+      tokenFor: [TokenAccessScope.Login],
       issuedAt: getTimestamp(),
       version: CURRENT_TOKEN_VERSION,
     });

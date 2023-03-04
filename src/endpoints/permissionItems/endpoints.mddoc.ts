@@ -82,7 +82,7 @@ const permissionEntityType = new FieldString()
   .setValid([
     AppResourceType.User,
     AppResourceType.PermissionGroup,
-    AppResourceType.ProgramAccessToken,
+    AppResourceType.AgentToken,
     AppResourceType.ClientAssignedToken,
   ]);
 const grantAccess = new FieldBoolean().setDescription(

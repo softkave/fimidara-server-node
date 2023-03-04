@@ -9,8 +9,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {collaborationRequestForUserExtractor} from '../utils';
 import revokeCollaborationRequest from './handler';
 import {IRevokeCollaborationRequestEndpointParams} from './types';
@@ -40,7 +40,7 @@ test('collaboration request revoked', async () => {
   );
 
   const instData = RequestData.fromExpressRequest<IRevokeCollaborationRequestEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       requestId: request01.resourceId,
     }

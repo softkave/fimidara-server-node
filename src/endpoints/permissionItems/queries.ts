@@ -1,7 +1,7 @@
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType} from '../../definitions/system';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IPermissionItem>();

@@ -1,3 +1,15 @@
+- [ ] Use memstore
+- [ ] Borrow and release logger
+- [ ] Memstore sync to MongoDB
+- [ ] Delete logic
+- [ ] Tokens to agent token
+- [ ] Change events and audit logs
+- [ ] Names should only be alphanumeric
+- [ ] Pipeline and background jobs
+- [ ] Limit assigned permissions depth to 10
+- [ ] Tags and client program tokens on the frontend
+- [ ] Public deny all to remove implicit auth and external entity permissions for collaboration requests
+- [ ] Monorepo using turbo repo
 - [ ] Logs and retries
 - [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place

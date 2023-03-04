@@ -16,15 +16,15 @@ import RequestData from '../../RequestData';
 import {
   generateAndInsertUsageRecordList,
   generateUsageRecordList,
-} from '../../test-utils/generate-data/usageRecord';
+} from '../../testUtils/generateData/usageRecord';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspaceSummedUsage from './handler';
 import {IGetWorkspaceSummedUsageEndpointParams} from './types';
 
@@ -91,7 +91,7 @@ describe('getWorkspaceSummedUsage', () => {
 
     // run
     const instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await getWorkspaceSummedUsage(context, instData);
@@ -150,14 +150,14 @@ describe('getWorkspaceSummedUsage', () => {
     // run
     // with preset category
     let reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, query: {category: {$in: [records01Category]}}}
     );
     const result01 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset fulfillment status
     reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         query: {fulfillmentStatus: records02FulfillmentStatus},
@@ -167,7 +167,7 @@ describe('getWorkspaceSummedUsage', () => {
 
     // with preset from date and to date
     reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         query: {fromDate: getTimestamp(fromDate), toDate: getTimestamp(toDate)},
@@ -177,7 +177,7 @@ describe('getWorkspaceSummedUsage', () => {
 
     // all records
     reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result04 = await getWorkspaceSummedUsage(context, reqData);
@@ -210,7 +210,7 @@ describe('getWorkspaceSummedUsage', () => {
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,
@@ -225,7 +225,7 @@ describe('getWorkspaceSummedUsage', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,

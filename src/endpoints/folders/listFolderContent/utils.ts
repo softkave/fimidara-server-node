@@ -7,12 +7,10 @@ import {ServerError} from '../../../utils/errors';
 import {
   getResourcePermissionContainers,
   summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {PermissionDeniedError} from '../../user/errors';
-import WorkspaceQueries from '../../workspaces/queries';
 import {assertWorkspace} from '../../workspaces/utils';
-import FolderQueries from '../queries';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
@@ -25,30 +23,25 @@ export async function listFolderContentQuery(
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
-    workspace,
+    workspaceId: workspace.resourceId,
     action: BasicCRUDActions.Read,
-    type: contentType,
-    permissionContainers: getResourcePermissionContainers(
-      workspace.resourceId,
-      AppResourceType.Folder,
-      parentFolder
-    ),
+    targets: {type: contentType},
+    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
   });
 
   const parentId = parentFolder?.resourceId ?? null;
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      undefined,
-      permissionsSummaryReport.deniedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+    };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
@@ -69,9 +62,7 @@ export async function getWorkspaceAndParentFolder(
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
     if (containsRootnameOnly) {
-      workspace = await context.data.workspace.getOneByQuery(
-        WorkspaceQueries.getByRootname(rootname)
-      );
+      workspace = await context.semantic.workspace.getByRootname(rootname);
       parentFolder = null;
     }
   }

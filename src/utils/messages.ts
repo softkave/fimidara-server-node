@@ -9,60 +9,62 @@ export const appMessages = {
   },
   user: {
     notFound(id?: string) {
-      return id ? `User with ID ${id} does not exist.` : 'User does not exist.';
-    },
-  },
-  clientToken: {
-    notFound(id?: string) {
-      return id
-        ? `Client assigned token with ID ${id} does not exist.`
-        : 'Client assigned token does not exist.';
-    },
-  },
-  programToken: {
-    notFound(id?: string) {
-      return id
-        ? `Program access token with ID ${id} does not exist.`
-        : 'Program access token does not exist.';
+      return id ? `User with ID ${id} not found.` : 'User not found.';
     },
   },
   permissionGroup: {
     notFound(id?: string) {
-      return id
-        ? `Permission group with ID ${id} does not exist.`
-        : 'Permission group does not exist.';
+      return id ? `Permission group with ID ${id} not found.` : 'Permission group not found.';
+    },
+  },
+  permissionItem: {
+    notFound(id?: string) {
+      return id ? `Permission item with ID ${id} not found.` : 'Permission item not found.';
     },
   },
   collaborationRequest: {
     notFound(id?: string) {
       return id
-        ? `Collaboration request with ID ${id} does not exist.`
-        : 'Collaboration request does not exist.';
+        ? `Collaboration request with ID ${id} not found.`
+        : 'Collaboration request not found.';
     },
   },
   folder: {
     notFound(id?: string) {
-      return id ? `Folder with ID ${id} does not exist.` : 'Folder does not exist.';
+      return id ? `Folder with ID ${id} not found.` : 'Folder not found.';
     },
   },
   tag: {
     notFound(id?: string) {
-      return id ? `Tag with ID ${id} does not exist.` : 'Tag does not exist.';
+      return id ? `Tag with ID ${id} not found.` : 'Tag not found.';
     },
   },
   usageRecord: {
     notFound(id?: string) {
-      return id ? `Usage record with ID ${id} does not exist.` : 'Usage record does not exist.';
+      return id ? `Usage record with ID ${id} not found.` : 'Usage record not found.';
     },
   },
   file: {
     notFound(id?: string) {
-      return id ? `File with ID ${id} does not exist.` : 'File does not exist.';
+      return id ? `File with ID ${id} not found.` : 'File not found.';
     },
   },
   appRuntimeState: {
     notFound() {
       return 'App runtime state not found.';
+    },
+  },
+  agentToken: {
+    notFound(id?: string) {
+      return id ? `Agent token with ID ${id} not found.` : 'Agent token not found.';
+    },
+  },
+  common: {
+    notFound(id?: string) {
+      return id ? `Resource with ID ${id} not found.` : 'Resource not found.';
+    },
+    notImplementedYet(fnName?: string) {
+      return fnName ? `${fnName} not implemented yet.` : 'Not implemented yet.';
     },
   },
 };

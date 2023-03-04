@@ -13,19 +13,14 @@ export const reuseableErrors = {
       return new NotFoundError(appMessages.user.notFound(id));
     },
   },
-  clientToken: {
-    notFound(id?: string) {
-      return new NotFoundError(appMessages.clientToken.notFound(id));
-    },
-  },
-  programToken: {
-    notFound(id?: string) {
-      return new NotFoundError(appMessages.programToken.notFound(id));
-    },
-  },
   permissionGroup: {
     notFound(id?: string) {
       return new NotFoundError(appMessages.permissionGroup.notFound(id));
+    },
+  },
+  permissionItem: {
+    notFound(id?: string) {
+      return new NotFoundError(appMessages.permissionItem.notFound(id));
     },
   },
   credentials: {
@@ -61,6 +56,19 @@ export const reuseableErrors = {
   appRuntimeState: {
     notFound() {
       return new NotFoundError(appMessages.appRuntimeState.notFound());
+    },
+  },
+  agentToken: {
+    notFound(id?: string) {
+      return new NotFoundError(appMessages.agentToken.notFound(id));
+    },
+  },
+  common: {
+    notImplemented() {
+      return new Error(appMessages.common.notImplementedYet());
+    },
+    notFound(id?: string) {
+      return new NotFoundError(appMessages.common.notFound(id));
     },
   },
 };

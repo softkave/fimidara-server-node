@@ -12,7 +12,7 @@ export function assignedItemToAssignedPermissionGroup(
     permissionGroupId: item.assignedItemId,
     assignedAt: item.createdAt,
     assignedBy: item.createdBy,
-    assignedToEntityId: item.assignedToItemId,
+    assigneeEntityId: item.assigneeId,
   };
 }
 
@@ -50,5 +50,5 @@ export function throwAssignedItemNotFound() {
 }
 
 export function assignedItemIndexer(item: IAssignedItemMainFieldsMatcher) {
-  return makeKey([item.workspaceId, item.assignedItemId, item.assignedToItemId]);
+  return makeKey([item.workspaceId, item.assignedItemId, item.assigneeId]);
 }

@@ -1,10 +1,10 @@
 import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import EndpointReusableQueries from '../queries';
+import {assertUser} from '../user/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: string) => {
@@ -33,8 +33,7 @@ export async function checkCollaboratorAuthorization(
   agent: ISessionAgent,
   workspaceId: string,
   collaborator: IUserWithWorkspace,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: BasicCRUDActions
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
   if (!userWorkspace) {
@@ -46,7 +45,6 @@ export async function checkCollaboratorAuthorization(
     context,
     agent,
     action,
-    nothrow,
     workspaceId: workspace.resourceId,
     targets: [{targetId: collaborator.resourceId}],
   });
@@ -58,16 +56,12 @@ export async function checkCollaboratorAuthorization02(
   agent: ISessionAgent,
   workspaceId: string,
   collaboratorId: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: BasicCRUDActions
 ) {
-  const collaborator = await populateUserWorkspaces(
-    context,
-    await context.data.user.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(collaboratorId)
-    )
-  );
-  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);
+  const user = await context.semantic.user.getOneById(collaboratorId);
+  assertUser(user);
+  const collaborator = await populateUserWorkspaces(context, user);
+  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action);
 }
 
 export function throwCollaboratorNotFound() {

@@ -4,17 +4,17 @@ import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../test-utils/generate-data/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../test-utils/generate-data/permissionGroup';
-import {expectContainsExactlyForAnyType} from '../../test-utils/helpers/assertion';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils';
 import {makeKeyFromAssignedPermissionGroupMetaOrInput, toAssignedPgListInput} from '../testUtils';
 import assignPermissionGroups from './handler';
@@ -43,7 +43,7 @@ describe('assignPermissionGroups', () => {
 
     const result01 = await assignPermissionGroups(
       context,
-      RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
         permissionGroups: pgList01Input,
         entityIdList: extractResourceIdList(collaboratorList),
@@ -81,7 +81,7 @@ describe('assignPermissionGroups', () => {
 
     const result01 = await assignPermissionGroups(
       context,
-      RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
         permissionGroups: pgList01Input,
         entityId: collaborator.resourceId,

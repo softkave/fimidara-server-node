@@ -1,4 +1,4 @@
-import {TokenFor} from '../../../definitions/system';
+import {TokenAccessScope} from '../../../definitions/system';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
@@ -13,7 +13,7 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import UserTokenQueries from '../UserTokenQueries';
 import forgotPassword, {
   getForgotPasswordExpiration,
@@ -48,7 +48,10 @@ test('forgot password with email sent', async () => {
   const result = await forgotPassword(context, instData);
   assertEndpointResultOk(result);
   const forgotPasswordToken = await context.data.userToken.assertGetOneByQuery(
-    UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenFor.ChangePassword)
+    UserTokenQueries.getByUserIdAndTokenAccessScope(
+      user.resourceId,
+      TokenAccessScope.ChangePassword
+    )
   );
 
   // confirm forgot password email was sent

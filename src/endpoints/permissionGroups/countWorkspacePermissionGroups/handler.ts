@@ -12,7 +12,7 @@ const countWorkspacePermissionGroups: CountWorkspacePermissionGroupsEndpoint = a
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspacePermissionGroupsQuery(context, agent, workspace);
-  const count = await context.data.permissiongroup.countByQuery(q);
+  const count = await context.semantic.permissionGroup.countManyByWorkspaceAndIdList(q);
   return {count};
 };
 

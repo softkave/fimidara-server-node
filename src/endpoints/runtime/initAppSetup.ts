@@ -163,7 +163,7 @@ async function setupImageUploadPermissionGroup(
 }
 
 async function isRootWorkspaceSetup(context: IBaseContext) {
-  const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
+  const appRuntimeState = await context.semantic.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );
   return appRuntimeState;
@@ -178,7 +178,7 @@ async function getRootWorkspace(context: IBaseContext, appRuntimeState: IAppRunt
   };
 
   merge(context.appVariables, appRuntimeVars);
-  const workspace = await context.data.workspace.getOneByQuery(
+  const workspace = await context.semantic.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(appRuntimeState.appWorkspaceId)
   );
   assertWorkspace(workspace);
@@ -227,7 +227,7 @@ export async function setupApp(context: IBaseContext) {
     appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
   };
 
-  await context.data.appRuntimeState.insertItem({
+  await context.semantic.appRuntimeState.insertItem({
     isAppSetup: true,
     resourceId: APP_RUNTIME_STATE_DOC_ID,
     ...appRuntimeVars,

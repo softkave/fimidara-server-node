@@ -2,7 +2,7 @@ import {IFile} from '../../../definitions/file';
 import {
   AppResourceType,
   BasicCRUDActions,
-  PUBLIC_PERMISSIBLE_AGENTS,
+  PERMISSION_AGENT_TYPES,
 } from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
@@ -16,7 +16,7 @@ import {deleteFileJoiSchema} from './validation';
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Delete);
   await deleteFileAndArtifacts(context, file);
 };

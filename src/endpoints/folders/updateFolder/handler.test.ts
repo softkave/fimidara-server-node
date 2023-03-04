@@ -7,7 +7,7 @@ import {
 } from '../../files/uploadFile/uploadFileTestUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -17,8 +17,8 @@ import {
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../user/errors';
 import {
   assertFolderPublicOps,
@@ -59,7 +59,7 @@ async function updateFolderBaseTest(
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
-    mockExpressRequestWithUserToken(insertUserResult.userToken),
+    mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
       folderpath: addRootnameToPath(
         folder.namePath.join(folderConstants.nameSeparator),

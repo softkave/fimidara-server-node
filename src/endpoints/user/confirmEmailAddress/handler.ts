@@ -1,4 +1,4 @@
-import {AppResourceType, TokenFor} from '../../../definitions/system';
+import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import internalConfirmEmailAddress from './internalConfirmEmailAddress';
@@ -9,7 +9,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instDat
     context,
     instData,
     AppResourceType.User,
-    TokenFor.ConfirmEmailAddress
+    TokenAccessScope.ConfirmEmailAddress
   );
   const [user, userToken, clientAssignedToken] = await Promise.all([
     internalConfirmEmailAddress(context, agent.agentId, agent.user),

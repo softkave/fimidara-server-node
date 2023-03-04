@@ -10,8 +10,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {permissionGroupExtractor} from '../utils';
 import updatePermissionGroup from './handler';
 import {IUpdatePermissionGroupEndpointParams, IUpdatePermissionGroupInput} from './types';
@@ -56,7 +56,7 @@ test('permissionGroup updated', async () => {
     description: faker.lorem.words(10),
   };
   const instData = RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       permissionGroupId: permissionGroup00.resourceId,
       data: updatePermissionGroupInput,
@@ -69,7 +69,7 @@ test('permissionGroup updated', async () => {
   const updatedPermissionGroup = await populateAssignedTags(
     context,
     workspace.resourceId,
-    await context.data.permissiongroup.assertGetOneByQuery(
+    await context.data.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
     )
   );

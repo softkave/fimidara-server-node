@@ -9,19 +9,17 @@ import {
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
-} from '../../../email-templates/collaborationRequest';
+} from '../../../emailTemplates/collaborationRequest';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import CollaboratorQueries from '../../collaborators/queries';
 import {getCollaboratorWorkspace} from '../../collaborators/utils';
-import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../utils';
-import CollaborationRequestQueries from '../queries';
 import {
   collaborationRequestForWorkspaceExtractor,
   populateRequestAssignedPermissionGroups,
@@ -42,9 +40,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   });
 
   let collaboratorExists = false;
-  const existingUser = await context.data.user.getOneByQuery(
-    CollaboratorQueries.getByUserEmail(data.request.recipientEmail)
-  );
+  const existingUser = await context.semantic.user.getByEmail(data.request.recipientEmail);
 
   if (existingUser) {
     const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
@@ -57,16 +53,14 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     throw new ResourceExistsError('Collaborator with same email address exists');
   }
 
-  const existingRequest = await context.data.collaborationRequest.getOneByQuery(
-    CollaborationRequestQueries.getByWorkspaceIdAndUserEmail(
-      workspace.resourceId,
-      data.request.recipientEmail
-    )
+  const existingRequest = await context.semantic.collaborationRequest.getOneByWorkspaceIdEmail(
+    workspace.resourceId,
+    data.request.recipientEmail
   );
 
   if (existingRequest) {
-    const status = existingRequest.statusHistory[existingRequest.statusHistory.length - 1];
-    if (status.status === CollaborationRequestStatusType.Pending) {
+    const status = existingRequest.status;
+    if (status === CollaborationRequestStatusType.Pending) {
       throw new ResourceExistsError(
         `An existing collaboration request to this user was sent on ${formatDate(
           existingRequest.createdAt
@@ -81,12 +75,8 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     workspaceId: workspace.resourceId,
     recipientEmail: data.request.recipientEmail,
     expiresAt: data.request.expires,
-    statusHistory: [
-      {
-        status: CollaborationRequestStatusType.Pending,
-        date: getTimestamp(),
-      },
-    ],
+    status: CollaborationRequestStatusType.Pending,
+    statusDate: getTimestamp(),
   });
   await context.semantic.collaborationRequest.insertItem(request);
 

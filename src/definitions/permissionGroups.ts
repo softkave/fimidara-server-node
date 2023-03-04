@@ -1,4 +1,4 @@
-import {IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
 
 export interface IPermissionGroup extends IWorkspaceResourceBase {
   name: string;
@@ -7,7 +7,7 @@ export interface IPermissionGroup extends IWorkspaceResourceBase {
 
 export interface IAssignedPermissionGroupMeta {
   permissionGroupId: string;
-  assignedToEntityId: string;
+  assigneeEntityId: string;
   assignedAt: number;
   assignedBy: IAgent;
 }
@@ -28,8 +28,10 @@ export interface IPermissionGroupMatcher {
   workspaceId?: string;
 }
 
-export type IPublicPermissionGroup = IPermissionGroup;
-
 export interface IAssignPermissionGroupInput {
   permissionGroupId: string;
 }
+
+export type IPublicPermissionGroup = ConvertAgentToPublicAgent<IPermissionGroup>;
+export type IPublicAssignedPermissionGroupMeta =
+  ConvertAgentToPublicAgent<IAssignedPermissionGroupMeta>;

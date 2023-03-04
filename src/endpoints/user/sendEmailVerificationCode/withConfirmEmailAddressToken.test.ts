@@ -3,13 +3,13 @@ import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
   SYSTEM_SESSION_AGENT,
-  TokenFor,
+  TokenAccessScope,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
-import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
+import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
@@ -28,7 +28,7 @@ async function createTestEmailVerificationToken(userId: string) {
   return await context.semantic.userToken.insertItem(
     newResource(SYSTEM_SESSION_AGENT, AppResourceType.UserToken, {
       userId,
-      audience: [TokenFor.ConfirmEmailAddress],
+      tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
       resourceId: getNewIdForResource(AppResourceType.UserToken),
       version: CURRENT_TOKEN_VERSION,
     })

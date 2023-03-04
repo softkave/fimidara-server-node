@@ -6,9 +6,9 @@ import {
   assertCanReadPublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
+import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../user/errors';
 import {folderConstants} from '../constants';
 import {

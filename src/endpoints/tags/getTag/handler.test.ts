@@ -1,14 +1,14 @@
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getTag from './handler';
 import {IGetTagEndpointParams} from './types';
 
@@ -27,14 +27,10 @@ describe('getTag', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {tag: tag01} = await insertTagForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
 
     const instData = RequestData.fromExpressRequest<IGetTagEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {tagId: tag01.resourceId}
     );
 

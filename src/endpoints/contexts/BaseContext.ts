@@ -16,7 +16,7 @@ import {
   IBaseContext,
   IBaseContextDataProviders,
   IBaseContextLogicProviders,
-  IBaseContextMemoryCacheProviders,
+  IBaseContextMemStoreProviders,
   IBaseContextSemanticDataProviders,
 } from './types';
 
@@ -25,16 +25,16 @@ export default class BaseContext<
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
   AppVars extends IAppVariables = IAppVariables,
-  MemoryCache extends IBaseContextMemoryCacheProviders = IBaseContextMemoryCacheProviders,
+  MemStore extends IBaseContextMemStoreProviders = IBaseContextMemStoreProviders,
   Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
   SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
-> implements IBaseContext<Data, Email, FileBackend, AppVars, MemoryCache, Logic, SemanticData>
+> implements IBaseContext<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
 {
   data: Data;
   email: Email;
   fileBackend: FileBackend;
   appVariables: AppVars;
-  memstore: MemoryCache;
+  memstore: MemStore;
   logic: Logic;
   semantic: SemanticData;
   session: ISessionContext = new SessionContext();
@@ -51,7 +51,7 @@ export default class BaseContext<
     emailProvider: Email,
     fileBackend: FileBackend,
     appVariables: AppVars,
-    memory: MemoryCache,
+    memory: MemStore,
     logic: Logic,
     semantic: SemanticData,
     disposeFn?: () => Promise<void>

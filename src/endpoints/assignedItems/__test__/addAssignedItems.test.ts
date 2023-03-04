@@ -4,15 +4,15 @@ import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
-import {cleanupContext} from '../../test-utils/context/cleanup';
-import {generateAndInsertPermissionGroupListForTest} from '../../test-utils/generate-data/permissionGroup';
-import {expectContainsExactlyForAnyType} from '../../test-utils/helpers/assertion';
+import {cleanupContext} from '../../testUtils/context/cleanup';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
 import {
   assertContext,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {addAssignedPermissionGroupList} from '../addAssignedItems';
 
 let context: IBaseContext | null = null;
@@ -35,11 +35,17 @@ describe('addAssignedItems', () => {
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
     ]);
-    const agent = makeUserSessionAgent(rawUser);
+    const agent = makeUserSessionAgent(rawUser, userToken);
     const pgListAssignedTo01Input = toAssignedPgListInput(pgListAssignedTo01);
     const pgListAssignedTo02Input = toAssignedPgListInput(pgListAssignedTo02);
     const pgList01IdList = extractResourceIdList(pgList01);
-    await assignPgListToIdList(context, agent, workspace, pgList01IdList, pgListAssignedTo01Input);
+    await assignPgListToIdList(
+      context,
+      agent,
+      workspace.resourceId,
+      pgList01IdList,
+      pgListAssignedTo01Input
+    );
 
     const assignedItems = await addAssignedPermissionGroupList(
       context,
@@ -58,7 +64,7 @@ describe('addAssignedItems', () => {
     );
 
     const savedItems = await context.data.assignedItem.getManyByQuery({
-      assignedToItemId: {$in: pgList01IdList},
+      assigneeId: {$in: pgList01IdList},
     });
     expectContainsExactlyForAnyType(
       savedItems,
@@ -77,13 +83,25 @@ describe('addAssignedItems', () => {
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
     ]);
-    const agent = makeUserSessionAgent(rawUser);
+    const agent = makeUserSessionAgent(rawUser, userToken);
     const pgListAssignedTo01Input = toAssignedPgListInput(pgListAssignedTo01);
     const pgListAssignedTo02Input = toAssignedPgListInput(pgListAssignedTo02);
     const pgList01IdList = extractResourceIdList(pgList01);
     await Promise.all([
-      assignPgListToIdList(context, agent, workspace, pgList01IdList, pgListAssignedTo01Input),
-      assignPgListToIdList(context, agent, workspace, pgList01IdList, pgListAssignedTo02Input),
+      assignPgListToIdList(
+        context,
+        agent,
+        workspace.resourceId,
+        pgList01IdList,
+        pgListAssignedTo01Input
+      ),
+      assignPgListToIdList(
+        context,
+        agent,
+        workspace.resourceId,
+        pgList01IdList,
+        pgListAssignedTo02Input
+      ),
     ]);
 
     const assignedItems = await addAssignedPermissionGroupList(
@@ -103,7 +121,7 @@ describe('addAssignedItems', () => {
     );
 
     const savedItems = await context.data.assignedItem.getManyByQuery({
-      assignedToItemId: {$in: pgList01IdList},
+      assigneeId: {$in: pgList01IdList},
     });
     expectContainsExactlyForAnyType(
       savedItems,

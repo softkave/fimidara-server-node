@@ -1,7 +1,7 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {checkAuthorization} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import checkEntitiesExist from '../../permissionItems/checkEntitiesExist';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import {AssignPermissionGroupsEndpoint} from './types';

@@ -117,7 +117,7 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
   return pageCount;
 }
 
-export function getResourceId(resource: IResourceBase) {
+export function getResourceId(resource: Pick<IResourceBase, 'resourceId'>) {
   return resource.resourceId;
 }
 
@@ -131,6 +131,10 @@ export function toArray<T>(item: T | T[]) {
   } else {
     return [item];
   }
+}
+
+export function toCompactArray<T>(item?: T | T[]) {
+  return compact(toArray(item));
 }
 
 export const stopControlFlow = (): any =>

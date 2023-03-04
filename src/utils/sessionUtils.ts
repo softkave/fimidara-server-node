@@ -1,52 +1,34 @@
-import {ResourceWithTags} from '../definitions/assignedItem';
-import {IClientAssignedToken} from '../definitions/clientAssignedToken';
-import {IProgramAccessToken} from '../definitions/programAccessToken';
+import {IAgentToken} from '../definitions/agentToken';
 import {AppResourceType, IAgent, IBaseTokenData, ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import {IUserToken} from '../definitions/userToken';
 import {InvalidRequestError} from '../endpoints/errors';
 import {PermissionDeniedError} from '../endpoints/user/errors';
 import {getResourceTypeFromId} from './resourceId';
 
-export function makeClientAssignedTokenAgent(
-  clientAssignedToken: ResourceWithTags<IClientAssignedToken>
-): ISessionAgent {
+export function makeAgentTokenAgent(agentToken: IAgentToken): ISessionAgent {
   return {
-    clientAssignedToken,
-    agentId: clientAssignedToken.resourceId,
-    agentType: AppResourceType.ClientAssignedToken,
-    tokenId: clientAssignedToken.resourceId,
+    agentToken,
+    agentId: agentToken.resourceId,
+    agentType: AppResourceType.AgentToken,
+    agentTokenId: agentToken.resourceId,
   };
 }
 
-export function makeProgramAccessTokenAgent(
-  programAccessToken: ResourceWithTags<IProgramAccessToken>
-): ISessionAgent {
+export function makeUserSessionAgent(user: IUser, agentToken: IAgentToken): ISessionAgent {
   return {
-    programAccessToken,
-    agentId: programAccessToken.resourceId,
-    agentType: AppResourceType.ProgramAccessToken,
-    tokenId: programAccessToken.resourceId,
-  };
-}
-
-export function makeUserSessionAgent(user: IUser, userToken?: IUserToken): ISessionAgent {
-  return {
-    userToken,
+    agentToken,
     user,
     agentId: user.resourceId,
     agentType: AppResourceType.User,
-    tokenId: userToken?.resourceId ?? null,
+    agentTokenId: agentToken.resourceId,
   };
 }
 
 export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?: string) {
   const workspaceId = providedWorkspaceId
     ? providedWorkspaceId
-    : agent.clientAssignedToken
-    ? agent.clientAssignedToken.workspaceId
-    : agent.programAccessToken
-    ? agent.programAccessToken.workspaceId
+    : agent.agentToken
+    ? agent.agentToken.workspaceId
     : undefined;
   return workspaceId;
 }
@@ -59,32 +41,7 @@ export function getWorkspaceIdFromSessionAgent(agent: ISessionAgent, providedWor
   return workspaceId;
 }
 
-export function getClientAssignedTokenIdNoThrow(
-  agent: ISessionAgent,
-  inputTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = inputTokenId
-    ? inputTokenId
-    : onReferenced
-    ? agent.clientAssignedToken?.resourceId
-    : null;
-  return tokenId;
-}
-
-export function getClientAssignedTokenId(
-  agent: ISessionAgent,
-  inputTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = getClientAssignedTokenIdNoThrow(agent, inputTokenId, onReferenced);
-  if (!tokenId) {
-    throw new InvalidRequestError('Client assigned token ID not provided');
-  }
-  return tokenId;
-}
-
-export function getProgramAccessTokenId(
+export function tryGetAgentTokenId(
   agent: ISessionAgent,
   providedTokenId?: string | null,
   onReferenced?: boolean
@@ -92,13 +49,8 @@ export function getProgramAccessTokenId(
   const tokenId = providedTokenId
     ? providedTokenId
     : onReferenced
-    ? agent.programAccessToken?.resourceId
+    ? agent.agentToken?.resourceId
     : null;
-
-  if (!tokenId) {
-    throw new InvalidRequestError('Program access token ID not provided');
-  }
-
   return tokenId;
 }
 
@@ -116,12 +68,7 @@ export function assertIncomingToken(
 }
 
 export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
-  const workspaceId = agent.clientAssignedToken
-    ? agent.clientAssignedToken.workspaceId
-    : agent.programAccessToken
-    ? agent.programAccessToken.workspaceId
-    : null;
-
+  const workspaceId = agent.agentToken ? agent.agentToken.workspaceId : null;
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
   }
@@ -130,10 +77,10 @@ export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
 }
 
 export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAgent {
-  const agent = {
+  const agent: IAgent = {
     agentId: sessionAgent.agentId,
     agentType: sessionAgent.agentType,
-    tokenId: sessionAgent.tokenId,
+    agentTokenId: sessionAgent.agentTokenId,
   };
   return agent;
 }
@@ -141,8 +88,7 @@ export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAg
 export function isSessionAgent(agent: any): agent is ISessionAgent {
   if (!(agent as ISessionAgent).agentId || !(agent as ISessionAgent).agentType) return false;
   if (
-    (agent as ISessionAgent).programAccessToken ||
-    (agent as ISessionAgent).clientAssignedToken ||
+    (agent as ISessionAgent).agentToken ||
     (agent as ISessionAgent).user ||
     (agent as ISessionAgent).agentType === AppResourceType.System ||
     (agent as ISessionAgent).agentType === AppResourceType.Public

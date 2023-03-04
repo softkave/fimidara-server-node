@@ -2,7 +2,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionItemListForTest} from '../../test-utils/generate-data/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -11,8 +11,8 @@ import {
   insertPermissionItemsForTestForEntity,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getEntityPermissionItems from './handler';
 import {IGetEntityPermissionItemsEndpointParams} from './types';
 
@@ -39,7 +39,7 @@ describe('getEntityPermissionitems', () => {
 
     const {items} = await insertPermissionItemsForTestForEntity(
       context,
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
       {entityId: permissionGroup.resourceId},
       {containerId: workspace.resourceId},
@@ -47,7 +47,7 @@ describe('getEntityPermissionitems', () => {
     );
 
     const instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         entityId: permissionGroup.resourceId,
@@ -79,7 +79,7 @@ describe('getEntityPermissionitems', () => {
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,
@@ -94,7 +94,7 @@ describe('getEntityPermissionitems', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,

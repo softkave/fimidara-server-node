@@ -1,12 +1,15 @@
 import {URL} from 'url';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenFor} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAccessScope,
+} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
-import UserTokenQueries from '../UserTokenQueries';
 
 export async function withConfirmEmailAddressToken(
   context: IBaseContext,
@@ -15,13 +18,14 @@ export async function withConfirmEmailAddressToken(
 ) {
   const url = new URL(link);
   if (!url.searchParams.has(userConstants.confirmEmailTokenQueryParam) && !user.isEmailVerified) {
-    let token = await context.data.userToken.getOneByQuery(
-      UserTokenQueries.getByUserIdAndAudience(user.resourceId, TokenFor.ConfirmEmailAddress)
+    let token = await context.semantic.agentToken.getOneAgentToken(
+      user.resourceId,
+      TokenAccessScope.ConfirmEmailAddress
     );
 
     if (!token) {
       token = newResource(makeUserSessionAgent(user), AppResourceType.UserToken, {
-        audience: [TokenFor.ConfirmEmailAddress],
+        tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
         resourceId: getNewIdForResource(AppResourceType.UserToken),
         userId: user.resourceId,
         version: CURRENT_TOKEN_VERSION,

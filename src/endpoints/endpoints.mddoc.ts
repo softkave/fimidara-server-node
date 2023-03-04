@@ -193,7 +193,7 @@ const agent = new FieldObject<IAgent>().setName('Agent').setFields({
   agentType: new FieldString()
     .setRequired(true)
     .setDescription('Agent type')
-    .setExample(AppResourceType.ProgramAccessToken)
+    .setExample(AppResourceType.AgentToken)
     .setValid(VALID_AGENT_TYPES),
 });
 const date = new FieldString().setRequired(false).setDescription('Date string.');

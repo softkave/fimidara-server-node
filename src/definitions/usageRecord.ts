@@ -1,4 +1,9 @@
-import {AppResourceType, BasicCRUDActions, IWorkspaceResourceBase} from './system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ConvertAgentToPublicAgent,
+  IWorkspaceResourceBase,
+} from './system';
 
 export enum UsageRecordCategory {
   Storage = 'storage',
@@ -63,7 +68,7 @@ export interface IUsageRecord extends IWorkspaceResourceBase {
   year: number;
 }
 
-export type IPublicUsageRecord = IUsageRecord;
+export type IPublicUsageRecord = ConvertAgentToPublicAgent<IUsageRecord>;
 
 export interface IFileUsageRecordArtifact {
   fileId: string;

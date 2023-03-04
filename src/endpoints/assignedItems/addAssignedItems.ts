@@ -8,7 +8,6 @@ import {IWorkspace} from '../../definitions/workspace';
 import {makeKey, newResource} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resourceId';
-import {INCLUDE_IN_PROJECTION} from '../contexts/data/types';
 import {IBaseContext} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
@@ -28,28 +27,18 @@ async function filterExistingItems<T extends IAssignedItem>(
   items: T[],
   comparatorFn?: (item01: T, item02: IAssignedItem) => boolean
 ) {
-  const idList: string[] = [];
-  const pgIdList: string[] = [];
+  const assigneeIdList: string[] = [];
+  const assignedItemIdList: string[] = [];
   items.forEach(item => {
-    idList.push(item.assignedToItemId);
-    pgIdList.push(item.assignedItemId);
+    assigneeIdList.push(item.assigneeId);
+    assignedItemIdList.push(item.assignedItemId);
   });
-  const existingItems = await context.data.assignedItem.getManyByQuery(
-    {
-      workspaceId: workspaceId,
-      assignedToItemId: {$in: idList},
-      assignedItemId: {$in: pgIdList},
-    },
-    {
-      projection: {
-        assignedItemId: INCLUDE_IN_PROJECTION,
-        assignedToItemId: INCLUDE_IN_PROJECTION,
-        resourceId: INCLUDE_IN_PROJECTION,
-      },
-    }
+  const existingItems = await context.semantic.assignedItem.getByAssignedAndAssigneeIds(
+    assignedItemIdList,
+    assigneeIdList
   );
-  const indexer = (item: Pick<IAssignedItem, 'assignedItemId' | 'assignedToItemId'>) =>
-    makeKey([item.assignedItemId, item.assignedToItemId]);
+  const indexer = (item: Pick<IAssignedItem, 'assignedItemId' | 'assigneeId'>) =>
+    makeKey([item.assignedItemId, item.assigneeId]);
   const existingItemsMap = indexArray(existingItems, {indexer});
   const itemIdListToDelete: string[] = [];
   const resolvedItems: T[] = [];
@@ -99,18 +88,18 @@ export async function addAssignedPermissionGroupList(
   agent: IAgent,
   workspaceId: string,
   permissionGroupsInput: IAssignPermissionGroupInput[],
-  assignedToItemId: string | string[],
+  assigneeId: string | string[],
   deleteExisting: boolean,
   skipPermissionGroupsExistCheck = false
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, assignedToItemId, [AppResourceType.PermissionGroup]);
+    await deleteResourceAssignedItems(context, assigneeId, [AppResourceType.PermissionGroup]);
   }
   if (!skipPermissionGroupsExistCheck) {
     await checkPermissionGroupsExist(context, agent, workspaceId, permissionGroupsInput);
   }
 
-  const idList = isArray(assignedToItemId) ? assignedToItemId : [assignedToItemId];
+  const idList = isArray(assigneeId) ? assigneeId : [assigneeId];
   const items: Array<IAssignedItem> = [];
 
   for (const input of permissionGroupsInput) {
@@ -120,8 +109,8 @@ export async function addAssignedPermissionGroupList(
         newResource(agent, AppResourceType.AssignedItem, {
           meta: {},
           workspaceId,
-          assignedToItemId: id,
-          assignedToItemType: getResourceTypeFromId(id),
+          assigneeId: id,
+          assigneeType: getResourceTypeFromId(id),
           resourceId: getNewIdForResource(AppResourceType.AssignedItem),
           assignedItemId: input.permissionGroupId,
           assignedItemType: AppResourceType.PermissionGroup,
@@ -145,11 +134,11 @@ export async function addAssignedTagList(
   agent: IAgent,
   workspace: IWorkspace,
   tags: IAssignedTagInput[],
-  assignedToItemId: string,
+  assigneeId: string,
   deleteExisting: boolean
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, assignedToItemId, [AppResourceType.Tag]);
+    await deleteResourceAssignedItems(context, assigneeId, [AppResourceType.Tag]);
   }
 
   await checkTagsExist(context, agent, workspace, tags);
@@ -157,8 +146,8 @@ export async function addAssignedTagList(
     return withAssignedAgent(
       agent,
       newResource(agent, AppResourceType.AssignedItem, {
-        assignedToItemId,
-        assignedToItemType: getResourceTypeFromId(assignedToItemId),
+        assigneeId,
+        assigneeType: getResourceTypeFromId(assigneeId),
         meta: {},
         resourceId: getNewIdForResource(AppResourceType.AssignedItem),
         assignedItemId: tag.tagId,
@@ -206,8 +195,8 @@ export async function assignWorkspaceToUser(
       agent,
       newResource(agent, AppResourceType.AssignedItem, {
         workspaceId,
-        assignedToItemId: user.resourceId,
-        assignedToItemType: AppResourceType.User,
+        assigneeId: user.resourceId,
+        assigneeType: AppResourceType.User,
         meta: {},
         resourceId: getNewIdForResource(AppResourceType.AssignedItem),
         assignedItemId: workspaceId,

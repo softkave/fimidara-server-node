@@ -7,8 +7,8 @@ import {
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
 import updateUser from './handler';
@@ -33,7 +33,7 @@ test('user data updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const instData = RequestData.fromExpressRequest<IUpdateUserEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),

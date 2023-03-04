@@ -4,7 +4,7 @@ import {
   assertContext,
   initTestBaseContext,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';
 import {IGetUsageCostsEndpointParams} from './types';
@@ -22,11 +22,10 @@ afterAll(async () => {
 describe('getUsageCosts', () => {
   test('should return usage costs', async () => {
     // setup
-    const instData =
-      RequestData.fromExpressRequest<IGetUsageCostsEndpointParams>(
-        mockExpressRequestForPublicAgent(),
-        {}
-      );
+    const instData = RequestData.fromExpressRequest<IGetUsageCostsEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {}
+    );
 
     assertContext(context);
 

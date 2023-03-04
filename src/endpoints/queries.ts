@@ -1,5 +1,5 @@
-import {DataProviderFilterValueOperator} from './contexts/DataProvider';
-import DataProviderFilterBuilder from './contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from './contexts/data/DataProvider';
+import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()

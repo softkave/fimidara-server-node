@@ -1,4 +1,4 @@
-import {TokenFor} from '../../../definitions/system';
+import {TokenAccessScope} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
@@ -25,9 +25,9 @@ export default async function internalConfirmEmailAddress(
     isEmailVerified: true,
     emailVerifiedAt: getTimestamp(),
   });
-  context.semantic.userToken.deleteUserExistingTokens(
+  context.semantic.agentToken.deleteAgentTokens(
     user.resourceId,
-    TokenFor.ConfirmEmailAddress
+    TokenAccessScope.ConfirmEmailAddress
   );
 
   return user;

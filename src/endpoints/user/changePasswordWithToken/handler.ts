@@ -1,4 +1,4 @@
-import {AppResourceType, TokenFor} from '../../../definitions/system';
+import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
 import {assertIncomingToken} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -20,10 +20,11 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context,
   );
 
   assertUserToken(userToken);
-  const canChangePasswordWithToken = context.session.tokenContainsAudience(context, userToken, [
-    TokenFor.ChangePassword,
-    TokenFor.Login,
-  ]);
+  const canChangePasswordWithToken = context.session.tokenContainsTokenAccessScope(
+    context,
+    userToken,
+    [TokenAccessScope.ChangePassword, TokenAccessScope.Login]
+  );
 
   if (!canChangePasswordWithToken || !userToken.expires) {
     throw new InvalidCredentialsError();

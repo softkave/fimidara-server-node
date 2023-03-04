@@ -3,9 +3,10 @@ import {defaultTo, isNumber, isString} from 'lodash';
 import {
   IAgent,
   IPublicAccessOp,
-  IResourceBase,
+  IPublicAgent,
+  IPublicResourceBase,
+  IPublicWorkspaceResourceBase,
   ISessionAgent,
-  IWorkspaceResourceBase,
 } from '../definitions/system';
 import {IWorkspace} from '../definitions/workspace';
 import {appAssert} from '../utils/assertion';
@@ -19,10 +20,11 @@ import {
   makeListExtract,
 } from '../utils/extract';
 import OperationError from '../utils/OperationError';
+import {reuseableErrors} from '../utils/reusableErrors';
 import {getWorkspaceIdFromSessionAgent} from '../utils/sessionUtils';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
-import {summarizeAgentPermissionItems} from './contexts/authorization-checks/checkAuthorizaton';
+import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
@@ -98,10 +100,9 @@ export const wrapEndpointREST = <
   };
 };
 
-const agentPublicFields = getFields<IAgent>({
+const agentPublicFields = getFields<IPublicAgent>({
   agentId: true,
   agentType: true,
-  tokenId: true,
 });
 
 export const agentExtractor = makeExtract(agentPublicFields);
@@ -113,21 +114,20 @@ const publicAccessOpFields = getFields<IPublicAccessOp>({
   markedAt: true,
   markedBy: agentExtractor,
   resourceType: true,
-  appliesTo: true,
 });
 
 export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
 export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
 export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
 
-export const resourceFields: ExtractFieldsFrom<IResourceBase> = {
+export const resourceFields: ExtractFieldsFrom<IPublicResourceBase> = {
   resourceId: true,
   createdBy: agentExtractor,
   createdAt: true,
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
 };
-export const workspaceResourceFields: ExtractFieldsFrom<IWorkspaceResourceBase> = {
+export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResourceBase> = {
   ...resourceFields,
   providedResourceId: true,
   workspaceId: true,
@@ -145,6 +145,10 @@ export function throwNotFound() {
   throw new NotFoundError();
 }
 
+export function throwAgentTokenNotFound() {
+  throw reuseableErrors.agentToken.notFound();
+}
+
 export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
 type AssignedAgent = {
   assignedBy: IAgent;
@@ -158,7 +162,7 @@ export function withAssignedAgent<T extends AnyObject>(agent: IAgent, item: T): 
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
-      tokenId: null,
+      agentTokenId: agent.agentTokenId,
     },
   };
 }
@@ -173,7 +177,7 @@ export function withAssignedAgentList<T extends AnyObject>(
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
-      tokenId: null,
+      agentTokenId: agent.agentTokenId,
     },
   }));
 }
@@ -200,6 +204,27 @@ export function getWorkspaceResourceListQuery(
       workspace.resourceId,
       permissionsSummaryReport.allowedResourceIdList
     );
+  } else if (permissionsSummaryReport.noAccess) {
+    throw new PermissionDeniedError();
+  }
+
+  appAssert(false, new ServerError(), 'Control flow should not get here.');
+}
+
+export function getWorkspaceResourceListQuery00(
+  workspace: IWorkspace,
+  permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
+) {
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    return {
+      workspaceId: workspace.resourceId,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+    };
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    return {
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }

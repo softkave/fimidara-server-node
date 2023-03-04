@@ -1,5 +1,5 @@
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {GetWorkspaceSummedUsageEndpoint} from './types';
 import {getWorkspaceSummedUsageQuery} from './utils';

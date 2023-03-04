@@ -1,15 +1,15 @@
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteTag from './handler';
 import {IDeleteTagEndpointParams} from './types';
 
@@ -31,7 +31,7 @@ describe('deleteTag', () => {
     const {tag} = await insertTagForTest(context, userToken, workspace.resourceId);
 
     const instData = RequestData.fromExpressRequest<IDeleteTagEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {tagId: tag.resourceId}
     );
 

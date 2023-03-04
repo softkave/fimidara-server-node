@@ -2,6 +2,7 @@ import {isString} from 'lodash';
 import {ServerError} from './errors';
 import {logger} from './logger/logger';
 import OperationError from './OperationError';
+import {reuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
 
 export function appAssert(
@@ -24,4 +25,8 @@ export function appAssert(
       throw new Error('Assertion failed');
     }
   }
+}
+
+export function assertNotFound<T>(item?: T): asserts item {
+  appAssert(item, reuseableErrors.common.notFound());
 }

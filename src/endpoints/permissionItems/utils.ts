@@ -1,5 +1,5 @@
 import {IFile} from '../../definitions/file';
-import {IPublicPermissionItem} from '../../definitions/permissionItem';
+import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -13,10 +13,10 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resourceId';
+import {reuseableErrors} from '../../utils/reusableErrors';
 import {IBaseContext} from '../contexts/types';
-import {InvalidRequestError, NotFoundError} from '../errors';
+import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
-import PermissionItemQueries from './queries';
 import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 import {internalFunctionAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
 
@@ -30,14 +30,13 @@ const permissionItemFields = getFields<IPublicPermissionItem>({
   targetType: true,
   action: true,
   grantAccess: true,
-  appliesTo: true,
 });
 
 export const permissionItemExtractor = makeExtract(permissionItemFields);
 export const permissionItemListExtractor = makeListExtract(permissionItemFields);
 
 export function throwPermissionItemNotFound() {
-  throw new NotFoundError('Permission item not found');
+  throw reuseableErrors.permissionItem.notFound();
 }
 
 export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPublicAccessOp) =>
@@ -71,10 +70,9 @@ export function makePermissionItemInputsFromPublicAccessOps(
     containerId,
     containerType,
     targetId,
+    grantAccess,
     action: op.action,
     targetType: op.resourceType,
-    appliesTo: op.appliesTo,
-    grantAccess,
   }));
 }
 
@@ -85,14 +83,12 @@ export async function replacePublicPermissionGroupAccessOps(
   addOps: IPublicAccessOp[],
   resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
 ) {
-  const {containerId, containerType, targetId} = getPublicAccessOpArtifactsFromResource(resource);
+  const {containerId} = getPublicAccessOpArtifactsFromResource(resource);
 
   if (workspace.publicPermissionGroupId) {
-    await context.semantic.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntityAndContainer(
-        workspace.publicPermissionGroupId,
-        containerId
-      )
+    await context.semantic.permissionItem.deleteManyByEntityAndContainerId(
+      workspace.publicPermissionGroupId,
+      containerId
     );
 
     if (addOps.length > 0) {
@@ -141,3 +137,7 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
     item.isForPermissionContainer,
   ]);
 };
+
+export function assertPermissionItem(item?: IPermissionItem | null): asserts item {
+  appAssert(item, reuseableErrors.permissionItem.notFound());
+}

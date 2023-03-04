@@ -4,7 +4,6 @@ import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {IBaseContext} from '../contexts/types';
-import AssignedItemQueries from './queries';
 import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} from './utils';
 
 /**
@@ -19,8 +18,9 @@ export async function getResourceAssignedItems(
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>
 ) {
-  return await context.data.assignedItem.getManyByQuery(
-    AssignedItemQueries.getByAssignedToResource(workspaceId, resourceId, assignedItemTypes)
+  return await context.semantic.assignedItem.getResourceAssignedItems(
+    resourceId,
+    assignedItemTypes
   );
 }
 

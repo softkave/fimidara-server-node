@@ -1,8 +1,8 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
+import {getPublicAgentToken} from '../../agentTokens/utils';
 import {getPublicClientToken} from '../../clientAssignedTokens/utils';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import {getPublicProgramToken} from '../../programAccessTokens/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getResourcesPartOfWorkspace} from '../containerCheckFns';
 import {getPublicResourceList} from '../getPublicResource';
@@ -30,8 +30,8 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
   resources = getResourcesPartOfWorkspace(workspaceId, resources);
   resources = resources.map(resource => {
     switch (resource.resourceType) {
-      case AppResourceType.ProgramAccessToken:
-        resource.resource = getPublicProgramToken(context, resource.resource as any);
+      case AppResourceType.AgentToken:
+        resource.resource = getPublicAgentToken(context, resource.resource as any);
         return resource;
       case AppResourceType.ClientAssignedToken:
         resource.resource = getPublicClientToken(context, resource.resource as any);

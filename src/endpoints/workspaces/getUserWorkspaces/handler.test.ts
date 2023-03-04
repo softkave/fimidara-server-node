@@ -5,16 +5,16 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../test-utils/generate-data/workspace';
-import {expectContainsNoneIn} from '../../test-utils/helpers/assertion';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
+import {expectContainsNoneIn} from '../../testUtils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getUserWorkspaces from './handler';
 import {IGetUserWorkspacesEndpointParams} from './types';
 
@@ -36,7 +36,7 @@ describe('getUserWorkspaces', () => {
     const {workspace: workspace02} = await insertWorkspaceForTest(context, userToken);
     const {workspace: workspace03} = await insertWorkspaceForTest(context, userToken);
     const instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {}
     );
     const result = await getUserWorkspaces(context, instData);
@@ -66,7 +66,7 @@ describe('getUserWorkspaces', () => {
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize}
     );
     const result00 = await getUserWorkspaces(context, instData);
@@ -76,7 +76,7 @@ describe('getUserWorkspaces', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize}
     );
     const result01 = await getUserWorkspaces(context, instData);

@@ -13,8 +13,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import updateCollaborationRequest from './handler';
 import {IUpdateCollaborationRequestEndpointParams, IUpdateCollaborationRequestInput} from './types';
 
@@ -65,7 +65,7 @@ describe('updateCollaborationRequest', () => {
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         requestId: request01.resourceId,
         request: updateCollaborationRequestInput,
@@ -124,7 +124,7 @@ describe('updateCollaborationRequest', () => {
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         requestId: request01.resourceId,
         request: updateCollaborationRequestInput,
@@ -170,7 +170,7 @@ describe('updateCollaborationRequest', () => {
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         requestId: request01.resourceId,
         request: updateCollaborationRequestInput,

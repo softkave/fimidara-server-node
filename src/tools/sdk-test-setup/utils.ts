@@ -2,12 +2,18 @@ import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
 import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
+import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
+import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {IBaseContext} from '../../endpoints/contexts/types';
-import {getDataProviders} from '../../endpoints/contexts/utils';
-import {internalCreateProgramAccessToken} from '../../endpoints/programAccessTokens/addToken/utils';
-import {getPublicProgramToken} from '../../endpoints/programAccessTokens/utils';
-import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+} from '../../endpoints/contexts/utils';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
@@ -20,11 +26,17 @@ async function setupContext() {
     appVariables.mongoDbDatabaseName
   );
   const emailProvider = new NoopEmailProviderContext();
+  const models = getMongoModels(connection);
+  const data = getDataProviders(models);
+  const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(connection),
+    data,
     emailProvider,
     getFileProvider(appVariables),
     appVariables,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
     () => connection.close()
   );
 
@@ -44,23 +56,23 @@ async function insertWorkspace(context: IBaseContext) {
   );
 }
 
-async function createProgramAccessToken(
+async function createAgentToken(
   context: IBaseContext,
   workspace: IWorkspace,
   adminPermissionGroupId: string
 ) {
-  const token = await internalCreateProgramAccessToken(context, SYSTEM_SESSION_AGENT, workspace, {
+  const token = await internalCreateAgentToken(context, SYSTEM_SESSION_AGENT, workspace, {
     name: faker.lorem.words(2),
     description: 'Program access token for SDK tests',
   });
-  const tokenStr = getPublicProgramToken(context, token).tokenStr;
+  const tokenStr = getPublicAgentToken(context, token).tokenStr;
   return {token, tokenStr};
 }
 
 export async function setupSDKTestReq() {
   const context = await setupContext();
   const {workspace, adminPermissionGroup} = await insertWorkspace(context);
-  const {token, tokenStr} = await createProgramAccessToken(
+  const {token, tokenStr} = await createAgentToken(
     context,
     workspace,
     adminPermissionGroup.resourceId

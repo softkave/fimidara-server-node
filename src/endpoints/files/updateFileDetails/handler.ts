@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
+import {BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -7,7 +7,6 @@ import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
-import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
@@ -21,7 +20,7 @@ import {updateFileDetailsJoiSchema} from './validation';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Update);
 
   if (objectHasData(omit(data.file, 'tags'))) {
@@ -32,9 +31,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
     });
   }
 
-  const workspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(file.workspaceId)
-  );
+  const workspace = await context.semantic.workspace.getOneById(file.workspaceId);
   assertWorkspace(workspace);
   if (data.file.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(agent, data.file.publicAccessAction);

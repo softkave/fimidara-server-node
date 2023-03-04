@@ -1,5 +1,9 @@
 import {add} from 'date-fns';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenFor} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAccessScope,
+} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -13,8 +17,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {IChangePasswordParameters} from '../changePassword/types';
 import {userConstants} from '../constants';
 import login from '../login/login';
@@ -50,7 +54,7 @@ async function changePasswordWithTokenTest() {
   const token = newResource(makeUserSessionAgent(rawUser), AppResourceType.UserToken, {
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
-    audience: [TokenFor.ChangePassword],
+    tokenAccessScope: [TokenAccessScope.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: getTimestamp(
       add(new Date(), {
@@ -63,7 +67,7 @@ async function changePasswordWithTokenTest() {
   const result = await changePasswordWithToken(
     context,
     RequestData.fromExpressRequest<IChangePasswordParameters>(
-      mockExpressRequestWithUserToken(token),
+      mockExpressRequestWithAgentToken(token),
       {password: newPassword}
     )
   );

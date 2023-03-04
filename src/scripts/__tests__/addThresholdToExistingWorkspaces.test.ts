@@ -5,8 +5,8 @@ import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {generateWorkspaceListForTest} from '../../endpoints/test-utils/generate-data/workspace';
-import {dropMongoConnection} from '../../endpoints/test-utils/helpers/mongo';
+import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
+import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {cast} from '../../utils/fns';
@@ -29,7 +29,10 @@ afterAll(async () => {
   }
 });
 
-function assertThresholds(ut1: IWorkspace['usageThresholds'] = {}, ut2: IWorkspace['usageThresholds'] = {}) {
+function assertThresholds(
+  ut1: IWorkspace['usageThresholds'] = {},
+  ut2: IWorkspace['usageThresholds'] = {}
+) {
   Object.values(UsageRecordCategory).forEach(category => {
     const threshold1 = ut1[category];
     const threshold2 = ut2[category];
@@ -45,7 +48,7 @@ describe('addThresholdToExistingWorkspaces', () => {
     // without usage thresholds
     const workspaces01 = workspaces.slice(0, 10);
     forEach(workspaces01, workspace => {
-      workspace.usageThresholds = undefined;
+      workspace.usageThresholds = {};
     });
 
     // with usage thresholds

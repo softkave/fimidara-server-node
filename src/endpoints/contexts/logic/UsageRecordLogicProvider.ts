@@ -14,6 +14,7 @@ import {getNewIdForResource} from '../../../utils/resourceId';
 import RequestData from '../../RequestData';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
+import {assertWorkspace} from '../../workspaces/utils';
 import {IBaseContext} from '../types';
 
 export interface IUsageRecordInput {
@@ -34,7 +35,8 @@ export class UsageRecordLogicProvider {
     const record = this.makeLevel1Record(agent, input);
 
     // TODO: cache or pass in workspace
-    const workspace = await ctx.data.workspace.getOneByQuery({resourceId: record.workspaceId});
+    const workspace = await ctx.semantic.workspace.deleteOneById(record.workspaceId);
+    assertWorkspace(workspace);
     const billOverdue = await this.checkWorkspaceBillStatus(ctx, record, workspace);
     if (billOverdue) {
       return false;

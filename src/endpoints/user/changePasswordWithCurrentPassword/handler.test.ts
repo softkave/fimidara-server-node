@@ -8,8 +8,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import {userExtractor} from '../utils';
@@ -35,7 +35,7 @@ test('password changed with current password', async () => {
 
   const newPassword = 'gt5_g3!op0';
   const instData = RequestData.fromExpressRequest<IChangePasswordWithCurrentPasswordEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       currentPassword: oldPassword,
       password: newPassword,

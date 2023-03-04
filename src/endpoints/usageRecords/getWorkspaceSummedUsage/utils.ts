@@ -2,7 +2,7 @@ import {BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
 import {getDate} from '../../../utils/dateFns';
 import {DataQuerySort} from '../../contexts/data/types';
-import {IUsageRecordQuery} from '../../contexts/data/usageRecord01/type';
+import {IUsageRecordQuery} from '../../contexts/data/usageRecord/type';
 import {IBaseContext} from '../../contexts/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {IGetWorkspaceSummedUsageEndpointParams} from './types';

@@ -1,3 +1,4 @@
+import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {collaborationRequestForUserExtractor} from '../utils';
 import {RespondToCollaborationRequestEndpoint} from './types';
@@ -9,8 +10,8 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint = asy
   instData
 ) => {
   const data = validate(instData.data, respondToCollaborationRequestJoiSchema);
-  const user = await context.session.getUser(context, instData);
-  const request = await internalRespondToCollaborationRequest(context, user, data);
+  const agent = await context.session.getAgent(context, instData, AppResourceType.User);
+  const request = await internalRespondToCollaborationRequest(context, agent, data);
   return {
     request: collaborationRequestForUserExtractor(request),
   };

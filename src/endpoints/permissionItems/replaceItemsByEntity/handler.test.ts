@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../../definitions/system';
-import {IPermissionEntity} from '../../contexts/authorization-checks/getPermissionEntities';
+import {IPermissionEntity} from '../../contexts/authorizationChecks/getPermissionEntities';
 import {IBaseContext} from '../../contexts/types';
 import {
   assertContext,
@@ -9,8 +9,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   ITestPermissionItemContainer,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import PermissionItemQueries from '../queries';
 import {INewPermissionItemInputByEntity} from './types';
 
@@ -46,7 +46,7 @@ describe('replaceItemsByEntity', () => {
     );
     await insertPermissionItemsForTestForEntity(
       context,
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
       {entityId: permissionGroup.resourceId},
       {containerId: workspace.resourceId},
@@ -72,7 +72,7 @@ describe('replaceItemsByEntity', () => {
     // First insert
     await insertPermissionItemsForTestForEntity(
       context,
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
       entity,
       itemsContainer,
@@ -83,7 +83,7 @@ describe('replaceItemsByEntity', () => {
     // insert
     const result = await insertPermissionItemsForTestForEntity(
       context,
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
       entity,
       itemsContainer,

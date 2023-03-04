@@ -8,8 +8,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import {userExtractor} from '../utils';
@@ -35,7 +35,7 @@ test('password changed', async () => {
 
   const newPassword = 'bgr984_!hg';
   const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {password: newPassword}
   );
 

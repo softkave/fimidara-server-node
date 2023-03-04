@@ -11,7 +11,7 @@ export async function resourceWithAssignedItems(
   resource: IResource
 ) {
   switch (resource.resourceType) {
-    case AppResourceType.ProgramAccessToken:
+    case AppResourceType.AgentToken:
     case AppResourceType.Folder:
     case AppResourceType.File:
     case AppResourceType.ClientAssignedToken:

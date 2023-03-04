@@ -6,8 +6,8 @@ import {
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getUserData from './getUserData';
 
 /**
@@ -35,7 +35,7 @@ test('user data is returned', async () => {
   });
   const result = await getUserData(
     context,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
   assertEndpointResultOk(result);
   expect(result.user).toMatchObject(user);

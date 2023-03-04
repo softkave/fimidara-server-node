@@ -4,7 +4,7 @@ import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
   getWorkspacePermissionContainers,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import checkEntitiesExist from '../checkEntitiesExist';

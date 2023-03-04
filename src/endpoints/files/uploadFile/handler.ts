@@ -1,5 +1,5 @@
 import {IFile} from '../../../definitions/file';
-import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
+import {BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {ValidationError} from '../../../utils/errors';
 import {} from '../../../utils/fns';
@@ -23,7 +23,7 @@ import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let file = await getFileWithMatcher(context, data);
   const isNewFile = !file;
   const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);

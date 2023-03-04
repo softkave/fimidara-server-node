@@ -1,6 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
+import {IAgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
@@ -8,21 +7,15 @@ import {
   ISessionAgent,
   ITokenSubjectDefault,
   PUBLIC_SESSION_AGENT,
-  TokenFor,
+  TokenAccessScope,
 } from '../../definitions/system';
 import {IUser} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {cast, toArray} from '../../utils/fns';
-import {getResourceTypeFromId} from '../../utils/resourceId';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {
-  makeClientAssignedTokenAgent,
-  makeProgramAccessTokenAgent,
-  makeUserSessionAgent,
-} from '../../utils/sessionUtils';
+import {makeAgentTokenAgent, makeUserSessionAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
 import {
   CredentialsExpiredError,
@@ -36,18 +29,18 @@ export interface ISessionContext {
     ctx: IBaseContext,
     data: RequestData,
     permittedAgentTypes?: AppResourceType | AppResourceType[],
-    audience?: TokenFor | TokenFor[]
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<ISessionAgent>;
   getUser: (
     ctx: IBaseContext,
     data: RequestData,
-    audience?: TokenFor | TokenFor[]
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<IUser>;
   decodeToken: (ctx: IBaseContext, token: string) => IBaseTokenData<ITokenSubjectDefault>;
-  tokenContainsAudience: (
+  tokenContainsTokenAccessScope: (
     ctx: IBaseContext,
-    tokenData: IUserToken,
-    expectedAudience: TokenFor | TokenFor[]
+    tokenData: IAgentToken,
+    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
     ctx: IBaseContext,
@@ -63,88 +56,56 @@ export default class SessionContext implements ISessionContext {
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
       AppResourceType.User,
-      AppResourceType.ClientAssignedToken,
-      AppResourceType.ProgramAccessToken,
+      AppResourceType.AgentToken,
     ],
-    audience: TokenFor | TokenFor[] = TokenFor.Login
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScope.Login
   ) => {
     if (data.agent) {
       return data.agent;
     }
 
-    let userToken: IUserToken | null = null,
-      user: IUser | null = null,
-      clientAssignedToken: IClientAssignedToken | null = null,
-      programAccessToken: IProgramAccessToken | null = null;
+    let user: IUser | null = null;
     const incomingTokenData = data.incomingTokenData;
     appAssert(incomingTokenData, new PermissionDeniedError());
-    const tokenType = getResourceTypeFromId(incomingTokenData.sub.id);
+    const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
+    appAssert(agentToken, new InvalidCredentialsError());
 
-    switch (tokenType) {
-      case AppResourceType.UserToken: {
-        userToken = await ctx.semantic.userToken.getOneById(incomingTokenData.sub.id);
-        appAssert(userToken, new InvalidCredentialsError());
-        if (audience) {
-          ctx.session.tokenContainsAudience(ctx, userToken, audience);
-        }
-
-        user = await ctx.semantic.user.getOneById(userToken.userId);
-        appAssert(user, reuseableErrors.user.notFound());
-        break;
-      }
-
-      case AppResourceType.ProgramAccessToken: {
-        const programToken = await ctx.semantic.programAccessToken.getOneById(
-          incomingTokenData.sub.id
-        );
-        appAssert(programToken, new InvalidCredentialsError());
-        break;
-      }
-
-      case AppResourceType.ClientAssignedToken: {
-        const clientToken = await ctx.semantic.clientAssignedToken.getOneById(
-          incomingTokenData.sub.id
-        );
-        appAssert(clientToken, new InvalidCredentialsError());
-        break;
-      }
+    if (agentToken.agentType === AppResourceType.User) {
+      appAssert(agentToken.separateEntityId);
+      user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
+      appAssert(user, reuseableErrors.user.notFound());
     }
 
     if (permittedAgentTypes?.length) {
-      const permittedAgent = toArray(permittedAgentTypes).find(type => {
-        switch (type) {
-          case AppResourceType.User:
-            return !!userToken;
-          case AppResourceType.ProgramAccessToken:
-            return !!programAccessToken;
-          case AppResourceType.ClientAssignedToken:
-            return !!clientAssignedToken;
-          case AppResourceType.Public:
-            return true;
-          default:
-            return false;
-        }
-      });
+      const permittedAgent = toArray(permittedAgentTypes).find(
+        type => type === agentToken.agentType
+      );
 
       if (!permittedAgent) {
         throw new PermissionDeniedError();
       }
     }
 
-    if (userToken) {
+    if (tokenAccessScope) {
+      ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
+    }
+
+    if (user) {
       appAssert(user, new ServerError());
-      return (data.agent = makeUserSessionAgent(user, userToken));
-    } else if (programAccessToken) {
-      return (data.agent = makeProgramAccessTokenAgent(programAccessToken));
-    } else if (clientAssignedToken) {
-      return (data.agent = makeClientAssignedTokenAgent(clientAssignedToken));
+      return (data.agent = makeUserSessionAgent(user, agentToken));
+    } else if (agentToken) {
+      return (data.agent = makeAgentTokenAgent(agentToken));
     }
 
     return PUBLIC_SESSION_AGENT;
   };
 
-  getUser = async (ctx: IBaseContext, data: RequestData, audience?: TokenFor | TokenFor[]) => {
-    const agent = await ctx.session.getAgent(ctx, data, [AppResourceType.User], audience);
+  getUser = async (
+    ctx: IBaseContext,
+    data: RequestData,
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+  ) => {
+    const agent = await ctx.session.getAgent(ctx, data, [AppResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -163,14 +124,16 @@ export default class SessionContext implements ISessionContext {
     return tokenData;
   };
 
-  tokenContainsAudience = (
+  tokenContainsTokenAccessScope = (
     ctx: IBaseContext,
-    tokenData: IUserToken,
-    expectedAudience: TokenFor | TokenFor[]
+    tokenData: IAgentToken,
+    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const audience = cast<TokenFor[]>(tokenData.tokenFor);
-    const hasAudience = !!audience.find(nextAud => expectedAudience.includes(nextAud));
-    return hasAudience;
+    const tokenAccessScope = cast<TokenAccessScope[]>(tokenData.accessScope);
+    const hasTokenAccessScope = !!tokenAccessScope.find(nextAud =>
+      expectedTokenAccessScope.includes(nextAud)
+    );
+    return hasTokenAccessScope;
   };
 
   encodeToken = (

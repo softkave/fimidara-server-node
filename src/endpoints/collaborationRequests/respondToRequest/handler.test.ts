@@ -9,8 +9,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {collaborationRequestForUserExtractor} from '../utils';
 import respondToCollaborationRequest from './handler';
 import {IRespondToCollaborationRequestEndpointParams} from './types';
@@ -39,19 +39,16 @@ test('collaboration request declined', async () => {
     context,
     userToken,
     workspace.resourceId,
-    {
-      recipientEmail: user02.email,
-    }
+    {recipientEmail: user02.email}
   );
 
   const instData = RequestData.fromExpressRequest<IRespondToCollaborationRequestEndpointParams>(
-    mockExpressRequestWithUserToken(user02Token),
+    mockExpressRequestWithAgentToken(user02Token),
     {
       requestId: request01.resourceId,
       response: CollaborationRequestStatusType.Accepted,
     }
   );
-
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
@@ -60,7 +57,5 @@ test('collaboration request declined', async () => {
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toMatchObject(collaborationRequestForUserExtractor(updatedRequest));
-  expect(updatedRequest.statusHistory[updatedRequest.statusHistory.length - 1]).toMatchObject({
-    status: CollaborationRequestStatusType.Accepted,
-  });
+  expect(updatedRequest.status).toBe(CollaborationRequestStatusType.Accepted);
 });

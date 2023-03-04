@@ -1,5 +1,6 @@
 import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {ServerError} from '../../utils/errors';
+import {agentTokenExtractor} from '../agentTokens/utils';
 import {clientAssignedTokenExtractor} from '../clientAssignedTokens/utils';
 import {collaborationRequestForUserExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
@@ -7,7 +8,6 @@ import {fileExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
-import {programAccessTokenExtractor} from '../programAccessTokens/utils';
 import {workspaceExtractor} from '../workspaces/utils';
 import {IResource} from './types';
 
@@ -17,8 +17,8 @@ export function getPublicResource(resource: IResource, workspaceId: string) {
       return workspaceExtractor(resource.resource);
     case AppResourceType.CollaborationRequest:
       return collaborationRequestForUserExtractor(resource.resource);
-    case AppResourceType.ProgramAccessToken:
-      return programAccessTokenExtractor(resource.resource);
+    case AppResourceType.AgentToken:
+      return agentTokenExtractor(resource.resource);
     case AppResourceType.ClientAssignedToken:
       return clientAssignedTokenExtractor(resource.resource);
     case AppResourceType.UserToken:

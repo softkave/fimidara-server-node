@@ -1,13 +1,13 @@
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countUserCollaborationRequests from './handler';
 
 let context: IBaseContext | null = null;
@@ -25,8 +25,10 @@ describe('countUserRequests', () => {
     assertContext(context);
     const {user: user02, userToken: user02Token} = await insertUserForTest(context);
     const count = 5;
-    await generateAndInsertCollaborationRequestListForTest(context, count, () => ({recipientEmail: user02.email}));
-    const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(user02Token));
+    await generateAndInsertCollaborationRequestListForTest(context, count, () => ({
+      recipientEmail: user02.email,
+    }));
+    const instData = RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(user02Token));
     const result = await countUserCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

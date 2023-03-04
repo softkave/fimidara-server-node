@@ -4,20 +4,25 @@ import http = require('http');
 import multer = require('multer');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
-import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
+import setupAgentTokensRESTEndpoints from './endpoints/agentTokens/setupRESTEndpoints';
 import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
 import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
 import {endpointConstants} from './endpoints/constants';
 import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
 import {IBaseContext} from './endpoints/contexts/types';
-import {getDataProviders} from './endpoints/contexts/utils';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+} from './endpoints/contexts/utils';
 import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
 import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
-import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
@@ -78,7 +83,10 @@ function setupJWT(ctx: IBaseContext) {
 
 async function setup() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+  const connection = await getMongoConnection(
+    appVariables.mongoDbURI,
+    appVariables.mongoDbDatabaseName
+  );
 
   // Run scripts here
   // await script_AddThresholdToExistingWorkspaces(connection);
@@ -88,12 +96,17 @@ async function setup() {
   // startJobs();
   // End of jobs
 
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
   const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
-    getDataProviders(connection),
+    getDataProviders(models),
     emailProvider,
     getFileProvider(appVariables),
     appVariables,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
     () => connection.close()
   );
 
@@ -101,7 +114,6 @@ async function setup() {
   ctx.logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
-  setupClientAssignedTokensRESTEndpoints(ctx, app);
   setupCollaborationRequestsRESTEndpoints(ctx, app);
   setupCollaboratorsRESTEndpoints(ctx, app);
   setupFilesRESTEndpoints(ctx, app, upload);
@@ -109,7 +121,7 @@ async function setup() {
   setupWorkspacesRESTEndpoints(ctx, app);
   setupPermissionItemsRESTEndpoints(ctx, app);
   setupPermissionGroupsRESTEndpoints(ctx, app);
-  setupProgramAccessTokensRESTEndpoints(ctx, app);
+  setupAgentTokensRESTEndpoints(ctx, app);
   setupAccountRESTEndpoints(ctx, app);
   setupResourcesRESTEndpoints(ctx, app);
   setupTagsRESTEndpoints(ctx, app);

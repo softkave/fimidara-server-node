@@ -5,7 +5,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import mongoose from 'mongoose';
-import {dropMongoConnection} from '../endpoints/test-utils/helpers/mongo';
+import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {
   ExtractEnvSchema,
   extractEnvVariables,

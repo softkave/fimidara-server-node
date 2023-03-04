@@ -1,8 +1,8 @@
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
-import {expectContainsEveryItemIn} from '../../test-utils/helpers/assertion';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -10,8 +10,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspaceCollaborationRequests from './handler';
 import {IGetWorkspaceCollaborationRequestsEndpointParams} from './types';
 
@@ -47,7 +47,7 @@ describe('getWorkspaceRequests', () => {
     );
     const instData =
       RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+        mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
     const result = await getWorkspaceCollaborationRequests(context, instData);
@@ -69,7 +69,7 @@ describe('getWorkspaceRequests', () => {
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     let result = await getWorkspaceCollaborationRequests(context, instData);
@@ -79,7 +79,7 @@ describe('getWorkspaceRequests', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     result = await getWorkspaceCollaborationRequests(context, instData);

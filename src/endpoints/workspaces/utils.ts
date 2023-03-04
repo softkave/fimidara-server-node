@@ -1,27 +1,26 @@
 import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
+  IPublicUsageThreshold,
+  IPublicUsageThresholdLock,
   IPublicWorkspace,
-  IUsageThreshold,
-  IUsageThresholdLock,
   IWorkspace,
 } from '../../definitions/workspace';
 import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
-import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
-import EndpointReusableQueries from '../queries';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 
-const usageThresholdSchema = getFields<IUsageThreshold>({
+const usageThresholdSchema = getFields<IPublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
   budget: true,
 });
-const usageThresholdLockSchema = getFields<IUsageThresholdLock>({
+const usageThresholdLockSchema = getFields<IPublicUsageThresholdLock>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
@@ -40,7 +39,7 @@ const workspaceFields = getFields<IPublicWorkspace>({
   billStatus: true,
   billStatusAssignedAt: true,
   usageThresholds: data => {
-    const extract = {} as IWorkspace['usageThresholds'];
+    const extract = {} as IPublicWorkspace['usageThresholds'];
     for (const key in data) {
       extract[key as UsageRecordCategory] = usageThresholdIfExistExtractor(
         data[key as UsageRecordCategory]
@@ -49,7 +48,7 @@ const workspaceFields = getFields<IPublicWorkspace>({
     return extract;
   },
   usageThresholdLocks: data => {
-    const extract = {} as IWorkspace['usageThresholdLocks'];
+    const extract = {} as IPublicWorkspace['usageThresholdLocks'];
     for (const key in data) {
       extract[key as UsageRecordCategory] = usageThresholdLockIfExistExtractor(
         data[key as UsageRecordCategory]
@@ -73,9 +72,7 @@ export function assertWorkspace(workspace: IWorkspace | null | undefined): asser
 }
 
 export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
-  const w = await ctx.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(workspaceId)
-  );
+  const w = await ctx.semantic.workspace.getOneById(workspaceId);
   assertWorkspace(w);
   return w;
 }
@@ -95,14 +92,12 @@ export async function checkWorkspaceAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: BasicCRUDActions
 ) {
   await checkAuthorization({
     context,
     agent,
     action,
-    nothrow,
     workspaceId: workspace.resourceId,
     targets: [{targetId: workspace.resourceId}],
   });
@@ -113,12 +108,11 @@ export async function checkWorkspaceAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   action: BasicCRUDActions,
-  id?: string,
-  nothrow = false
+  id?: string
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  return checkWorkspaceAuthorization(context, agent, workspace, action, nothrow);
+  return checkWorkspaceAuthorization(context, agent, workspace, action);
 }
 
 export abstract class WorkspaceUtils {

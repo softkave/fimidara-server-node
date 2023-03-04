@@ -7,7 +7,7 @@ import {
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import login from './login';
 import {ILoginParams} from './types';
 
@@ -34,13 +34,10 @@ test('user login successful with token reuse', async () => {
     password,
   });
 
-  const instData = RequestData.fromExpressRequest<ILoginParams>(
-    mockExpressRequest(),
-    {
-      password,
-      email: user.email,
-    }
-  );
+  const instData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+    password,
+    email: user.email,
+  });
 
   const result = await login(context, instData);
   assertEndpointResultOk(result);

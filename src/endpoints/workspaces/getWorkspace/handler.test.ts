@@ -6,8 +6,8 @@ import {
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspace from './handler';
 
 let context: IBaseContext | null = null;
@@ -26,7 +26,7 @@ test('workspace returned', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const result = await getWorkspace(
     context,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
     })
   );

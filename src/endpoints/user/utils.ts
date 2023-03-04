@@ -1,13 +1,10 @@
 import {IPublicUserData, IUser, IUserWithWorkspace, IUserWorkspace} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
-import {NotFoundError} from '../errors';
 import {agentExtractor} from '../utils';
-import UserQueries from './UserQueries';
 
 const publicUserWorkspaceFields = getFields<IUserWorkspace>({
   workspaceId: true,
@@ -36,11 +33,7 @@ const publicUserFields = getFields<IPublicUserData>({
 export const userExtractor = makeExtract(publicUserFields);
 
 export function throwUserNotFound() {
-  throw new NotFoundError('User not found');
-}
-
-export function throwUserTokenNotFound() {
-  throw new NotFoundError('User token not found');
+  throw reuseableErrors.user.notFound();
 }
 
 export function isUserInWorkspace(user: IUserWithWorkspace, workspaceId: string) {
@@ -51,18 +44,14 @@ export function assertUser(user?: IUser | null): asserts user {
   appAssert(user, reuseableErrors.user.notFound());
 }
 
-export function assertUserToken(userToken?: IUserToken | null): asserts userToken {
-  appAssert(userToken, reuseableErrors.credentials.invalidCredentials());
-}
-
 export async function getUserWithWorkspaceById(context: IBaseContext, userId: string) {
-  const user = await context.data.user.getOneByQuery(UserQueries.getById(userId));
+  const user = await context.semantic.user.getOneById(userId);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }
 
 export async function getCompleteUserDataByEmail(context: IBaseContext, email: string) {
-  const user = await context.data.user.getOneByQuery(UserQueries.getByEmail(email));
+  const user = await context.semantic.user.getByEmail(email);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }

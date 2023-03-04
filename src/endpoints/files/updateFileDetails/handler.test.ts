@@ -11,8 +11,8 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
@@ -38,7 +38,7 @@ test('file updated', async () => {
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       filepath: addRootnameToPath(file.name, workspace.rootname),
       file: updateInput,

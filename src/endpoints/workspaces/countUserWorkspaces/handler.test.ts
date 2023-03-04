@@ -4,14 +4,14 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../test-utils/generate-data/workspace';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countUserWorkspaces from './handler';
 
 let context: IBaseContext | null = null;
@@ -41,7 +41,10 @@ describe('countUserWorkspaces', () => {
       )
     );
     const count = user.workspaces.length;
-    const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {});
+    const instData = RequestData.fromExpressRequest(
+      mockExpressRequestWithAgentToken(userToken),
+      {}
+    );
     const result = await countUserWorkspaces(context, instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

@@ -2,15 +2,15 @@ import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
@@ -39,7 +39,7 @@ describe('updateWorkspce', () => {
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         workspace: workspaceUpdateInput,
@@ -62,7 +62,7 @@ describe('updateWorkspce', () => {
     await expectErrorThrown(async () => {
       assertContext(context);
       const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+        mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
           workspace: {name: workspace.name},
@@ -80,7 +80,7 @@ describe('updateWorkspce', () => {
     await expectErrorThrown(async () => {
       assertContext(context);
       const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+        mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
           workspace: {name: workspace.name},

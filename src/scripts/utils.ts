@@ -12,7 +12,7 @@ export enum FimidaraScriptNames {
 
 export interface IFimidaraScriptRunInfo {
   job: FimidaraScriptNames;
-  runId: string;
+  runId: string | number;
   logger: winston.Logger;
 }
 

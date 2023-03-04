@@ -14,7 +14,7 @@ export class PermissionsLogicProvider {
         return item01.assignedAt - item02.assignedAt;
       });
       items.forEach(item => {
-        const entry = map[item.assignedToEntityId];
+        const entry = map[item.assigneeEntityId];
         sortEntry(entry);
       });
     };

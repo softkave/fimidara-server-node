@@ -1,40 +1,20 @@
-import {last} from 'lodash';
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {BasicCRUDActions} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
+import {reuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
-import {NotFoundError} from '../../errors';
-import EndpointReusableQueries from '../../queries';
-import {
-  checkCollaborationRequestAuthorization,
-  collaborationRequestForUserExtractor,
-  populateRequestAssignedPermissionGroups,
-} from '../utils';
-import {GetCollaborationRequestEndpoint} from './types';
+import {assertCollaborationRequest, collaborationRequestForUserExtractor} from '../utils';
+import {GetUserCollaborationRequestEndpoint} from './types';
 import {getCollaborationRequestJoiSchema} from './validation';
 
-const getCollaborationRequest: GetCollaborationRequestEndpoint = async (context, instData) => {
+const getCollaborationRequest: GetUserCollaborationRequestEndpoint = async (context, instData) => {
   const data = validate(instData.data, getCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const request = await context.data.collaborationRequest.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(data.requestId)
+  const request = await context.semantic.collaborationRequest.getOneById(data.requestId);
+  assertCollaborationRequest(request);
+  appAssert(
+    request.recipientEmail !== agent.user?.email,
+    reuseableErrors.collaborationRequest.notFound()
   );
-
-  appAssert(request, new NotFoundError('Collaboration request not found'));
-  const isAccepted =
-    last(request.statusHistory)?.status === CollaborationRequestStatusType.Accepted;
-
-  if (request.recipientEmail === agent.user?.email && !isAccepted) {
-    // Request sent to user
-    return {request: collaborationRequestForUserExtractor(request)};
-  }
-
-  await checkCollaborationRequestAuthorization(context, agent, request, BasicCRUDActions.Read);
-  const populatedRequest = collaborationRequestForUserExtractor(
-    await populateRequestAssignedPermissionGroups(context, request)
-  );
-
-  return {request: populatedRequest};
+  return {request: collaborationRequestForUserExtractor(request)};
 };
 
 export default getCollaborationRequest;

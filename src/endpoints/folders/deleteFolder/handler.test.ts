@@ -1,7 +1,7 @@
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
+import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -10,8 +10,8 @@ import {
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {folderConstants} from '../constants';
 import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
@@ -34,7 +34,9 @@ afterAll(async () => {
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.folder.existsByQuery(EndpointReusableQueries.getByResourceId(id));
+  const exists = await context.data.folder.existsByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
 
   expect(exists).toBeFalsy();
 }
@@ -66,7 +68,7 @@ test('folder deleted', async () => {
   });
 
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }

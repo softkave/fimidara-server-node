@@ -81,7 +81,7 @@ function makeCollaboratorPermissions(
   permissionItems = permissionItems.concat(
     makePermission(
       [BasicCRUDActions.Read],
-      AppResourceType.ProgramAccessToken,
+      AppResourceType.AgentToken,
       undefined,
       PermissionItemAppliesTo.ContainerAndChildren
     )

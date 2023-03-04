@@ -3,13 +3,13 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {
   assertContext,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
 import {IAddWorkspaceEndpointParams} from './types';
@@ -45,13 +45,13 @@ describe('addWorkspace', () => {
     assertWorkspace(workspace);
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
-    const adminPermissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
+    const adminPermissionGroup = await context.data.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByWorkspaceIdAndName(
         workspace.resourceId,
         DEFAULT_ADMIN_PERMISSION_GROUP_NAME
       )
     );
-    await context.data.permissiongroup.assertGetOneByQuery(
+    await context.data.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByWorkspaceIdAndName(
         workspace.resourceId,
         DEFAULT_PUBLIC_PERMISSION_GROUP_NAME

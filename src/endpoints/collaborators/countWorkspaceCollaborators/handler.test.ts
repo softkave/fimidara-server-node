@@ -2,15 +2,15 @@ import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../test-utils/generate-data/collaborator';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspaceCollaborators from './handler';
 import {ICountWorkspaceCollaboratorsEndpointParams} from './types';
 
@@ -42,7 +42,7 @@ describe('countWorkspaceCollaborators', () => {
     expect(count).toBeGreaterThanOrEqual(seedCount);
 
     const instData = RequestData.fromExpressRequest<ICountWorkspaceCollaboratorsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await countWorkspaceCollaborators(context, instData);

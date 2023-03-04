@@ -10,7 +10,7 @@ const artifactSchema = ensureMongoTypeFields<IUsageRecordArtifact>({
   type: {type: String},
   resourceType: {type: String},
   action: {type: String},
-  artifact: SchemaTypes.Mixed,
+  artifact: SchemaTypes.Map,
 });
 
 const usageRecordSchema = ensureMongoTypeFields<IUsageRecord>({

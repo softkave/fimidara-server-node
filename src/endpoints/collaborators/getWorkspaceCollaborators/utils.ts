@@ -2,11 +2,7 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definit
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import AssignedItemQueries from '../../assignedItems/queries';
-import {
-  getWorkspacePermissionContainers,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {PermissionDeniedError} from '../../user/errors';
 
@@ -18,23 +14,21 @@ export async function getWorkspaceCollaboratorsQuery(
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
-    workspace,
-    type: AppResourceType.User,
-    permissionContainers: getWorkspacePermissionContainers(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    targets: {type: AppResourceType.User},
     action: BasicCRUDActions.Read,
   });
 
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return AssignedItemQueries.getWorkspaceCollaborators(
-      workspace.resourceId,
-      undefined,
-      permissionsSummaryReport.deniedResourceIdList
-    );
+    return {
+      workspaceId: workspace.resourceId,
+      excludedResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+    };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return AssignedItemQueries.getWorkspaceCollaborators(
-      workspace.resourceId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
+    return {
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }

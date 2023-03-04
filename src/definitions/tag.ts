@@ -1,4 +1,4 @@
-import {IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
 
 export interface ITag extends IWorkspaceResourceBase {
   name: string;
@@ -15,7 +15,8 @@ export interface IAssignedTag {
   assignedBy: IAgent;
 }
 
-export type IPublicTag = ITag;
+export type IPublicTag = ConvertAgentToPublicAgent<ITag>;
+export type IPublicAssignedTag = ConvertAgentToPublicAgent<IAssignedTag>;
 
 /**
  * We aren't launching tags yet, so we want to exclude it for now from endpoint

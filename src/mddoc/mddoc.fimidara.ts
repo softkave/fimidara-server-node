@@ -1,11 +1,11 @@
 import * as fse from 'fs-extra';
 import {
-  addClientAssignedTokenEndpointDefinition,
-  deleteClientAssignedTokenEndpointDefinition,
-  getClientAssignedTokenEndpointDefinition,
-  getWorkspaceClientAssignedTokensEndpointDefinition,
-  updateClientAssignedTokenEndpointDefinition,
-} from '../endpoints/clientAssignedTokens/endpoints.mddoc';
+  addAgentTokenEndpointDefinition,
+  deleteAgentTokenEndpointDefinition,
+  getAgentTokenEndpointDefinition,
+  getWorkspaceAgentTokenEndpointDefinition,
+  updateAgentTokenEndpointDefinition,
+} from '../endpoints/agentTokens/endpoints.mddoc';
 import {
   getCollaborationRequestEndpointDefinition,
   getWorkspaceCollaborationRequestEndpointDefinition,
@@ -46,13 +46,6 @@ import {
   replacePermissionItemsByEntityEndpointDefinition,
 } from '../endpoints/permissionItems/endpoints.mddoc';
 import {
-  addProgramAccessTokenEndpointDefinition,
-  deleteProgramAccessTokenEndpointDefinition,
-  getProgramAccessTokenEndpointDefinition,
-  getWorkspaceProgramAccessTokenEndpointDefinition,
-  updateProgramAccessTokenEndpointDefinition,
-} from '../endpoints/programAccessTokens/endpoints.mddoc';
-import {
   getWorkspaceEndpointDefinition,
   updateWorkspaceEndpointDefinition,
 } from '../endpoints/workspaces/endpoints.mddoc';
@@ -78,19 +71,12 @@ const endpoints = [
   updateFileDetailsEndpointDefinition,
   deleteFileEndpointDefinition,
 
-  // program access tokens
-  getWorkspaceProgramAccessTokenEndpointDefinition,
-  addProgramAccessTokenEndpointDefinition,
-  updateProgramAccessTokenEndpointDefinition,
-  getProgramAccessTokenEndpointDefinition,
-  deleteProgramAccessTokenEndpointDefinition,
-
-  // client assigned tokens
-  getWorkspaceClientAssignedTokensEndpointDefinition,
-  addClientAssignedTokenEndpointDefinition,
-  updateClientAssignedTokenEndpointDefinition,
-  getClientAssignedTokenEndpointDefinition,
-  deleteClientAssignedTokenEndpointDefinition,
+  // agent tokens
+  getWorkspaceAgentTokenEndpointDefinition,
+  addAgentTokenEndpointDefinition,
+  updateAgentTokenEndpointDefinition,
+  getAgentTokenEndpointDefinition,
+  deleteAgentTokenEndpointDefinition,
 
   // permission groups
   getWorkspacePermissionGroupsEndpointDefinition,

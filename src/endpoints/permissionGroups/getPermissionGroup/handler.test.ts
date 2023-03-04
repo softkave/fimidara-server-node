@@ -8,8 +8,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getPermissionGroup from './handler';
 
 let context: IBaseContext | null = null;
@@ -33,7 +33,7 @@ test('referenced permissionGroup returned', async () => {
   );
 
   const instData = RequestData.fromExpressRequest<IPermissionGroupMatcher>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {permissionGroupId: permissionGroup.resourceId}
   );
   const result = await getPermissionGroup(context, instData);

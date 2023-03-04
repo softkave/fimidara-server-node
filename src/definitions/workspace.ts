@@ -1,4 +1,4 @@
-import {IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
 import {UsageRecordCategory} from './usageRecord';
 
 export interface IUsageThreshold {
@@ -39,4 +39,6 @@ export interface IWorkspace extends IWorkspaceResourceBase {
   usageThresholdLocks: Partial<Record<UsageRecordCategory, IUsageThresholdLock>>;
 }
 
-export type IPublicWorkspace = IWorkspace;
+export type IPublicWorkspace = ConvertAgentToPublicAgent<IWorkspace>;
+export type IPublicUsageThreshold = ConvertAgentToPublicAgent<IUsageThreshold>;
+export type IPublicUsageThresholdLock = ConvertAgentToPublicAgent<IUsageThresholdLock>;

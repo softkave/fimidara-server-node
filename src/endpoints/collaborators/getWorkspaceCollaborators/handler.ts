@@ -1,8 +1,7 @@
 import {IUserWithWorkspace} from '../../../definitions/user';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import EndpointReusableQueries from '../../queries';
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {collaboratorListExtractor} from '../utils';
@@ -17,13 +16,11 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const q = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await context.data.assignedItem.getManyByQuery(q, data);
+  const assignedItems = await context.semantic.assignedItem.getManyByWorkspaceAndIdList(q, data);
   let usersWithWorkspaces: IUserWithWorkspace[] = [];
   if (assignedItems.length > 0) {
-    const userIdList = assignedItems.map(item => item.assignedToItemId);
-    const users = await context.data.user.getManyByQuery(
-      EndpointReusableQueries.getByResourceIdList(userIdList)
-    );
+    const userIdList = assignedItems.map(item => item.assigneeId);
+    const users = await context.semantic.user.getManyByIdList(userIdList);
 
     // TODO: only populate the calling workspace
     usersWithWorkspaces = await populateUserListWithWorkspaces(context, users);

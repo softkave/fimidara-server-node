@@ -1,10 +1,9 @@
-import {AppResourceType, BasicCRUDActions, IWorkspaceResourceBase} from './system';
-
-export enum PermissionItemAppliesTo {
-  Container = 'container',
-  ContainerAndChildren = 'containerAndChildren',
-  Children = 'children',
-}
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  ConvertAgentToPublicAgent,
+  IWorkspaceResourceBase,
+} from './system';
 
 export interface IPermissionItem extends IWorkspaceResourceBase {
   /**
@@ -24,7 +23,6 @@ export interface IPermissionItem extends IWorkspaceResourceBase {
   targetType: AppResourceType;
   action: BasicCRUDActions;
   grantAccess: boolean;
-  appliesTo: PermissionItemAppliesTo;
 }
 
-export type IPublicPermissionItem = IPermissionItem;
+export type IPublicPermissionItem = ConvertAgentToPublicAgent<IPermissionItem>;

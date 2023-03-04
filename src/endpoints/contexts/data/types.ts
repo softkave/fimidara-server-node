@@ -1,4 +1,16 @@
 import {ProjectionType, SortOrder} from 'mongoose';
+import {IAgentToken} from '../../../definitions/agentToken';
+import {IAssignedItem} from '../../../definitions/assignedItem';
+import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IFile} from '../../../definitions/file';
+import {IFolder} from '../../../definitions/folder';
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IAppRuntimeState} from '../../../definitions/system';
+import {ITag} from '../../../definitions/tag';
+import {IUsageRecord} from '../../../definitions/usageRecord';
+import {IUser} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {AnyObject} from '../../../utils/types';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
@@ -22,9 +34,7 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 
 // TODO: reclassify ops based on Mongo ops, but split comparison into number and
 // other literals
-export interface IComparisonLiteralFieldQueryOps<
-  T extends DataProviderLiteralType = DataProviderLiteralType
-> {
+export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
   $in?: Array<T | null>;
   $ne?: T | null;
@@ -48,9 +58,10 @@ export interface INumberLiteralFieldQueryOps {
   $lte?: number;
 }
 
-export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
-  ? (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null
-  : null;
+export type ILiteralFieldQueryOps<T = DataProviderLiteralType> =
+  | (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps)
+  | T
+  | null;
 
 export type LiteralDataQuery<T> = {
   [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;
@@ -143,3 +154,28 @@ export interface IBaseDataProvider<
     query: ExtendedQueryType
   ) => Promise<void>;
 }
+
+export type IAgentTokenQuery = DataQuery<IAgentToken>;
+export type IAgentTokenDataProvider = IBaseDataProvider<IAgentToken>;
+export type IAppRuntimeStateQuery = DataQuery<IAppRuntimeState>;
+export type IAppRuntimeStateDataProvider = IBaseDataProvider<IAppRuntimeState>;
+export type IAssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<IAssignedItem<T>>;
+export type IAssignedItemDataProvider = IBaseDataProvider<IAssignedItem>;
+export type ICollaborationRequestQuery = DataQuery<ICollaborationRequest>;
+export type ICollaborationRequestDataProvider = IBaseDataProvider<ICollaborationRequest>;
+export type IFileQuery = DataQuery<IFile>;
+export type IFileDataProvider = IBaseDataProvider<IFile>;
+export type IFolderQuery = DataQuery<IFolder>;
+export type IFolderDataProvider = IBaseDataProvider<IFolder>;
+export type IPermissionGroupQuery = DataQuery<IPermissionGroup>;
+export type IPermissionGroupDataProvider = IBaseDataProvider<IPermissionGroup>;
+export type IPermissionItemQuery = DataQuery<IPermissionItem>;
+export type IPermissionItemDataProvider = IBaseDataProvider<IPermissionItem>;
+export type ITagQuery = DataQuery<ITag>;
+export type ITagDataProvider = IBaseDataProvider<ITag>;
+export type IUsageRecordQuery = DataQuery<IUsageRecord>;
+export type IUsageRecordDataProvider = IBaseDataProvider<IUsageRecord>;
+export type IUserQuery = DataQuery<IUser>;
+export type IUserDataProvider = IBaseDataProvider<IUser>;
+export type IWorkspaceQuery = DataQuery<IWorkspace>;
+export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;

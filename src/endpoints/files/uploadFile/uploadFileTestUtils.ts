@@ -13,7 +13,7 @@ import PermissionItemQueries from '../../permissionItems/queries';
 import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectPermissionItemsForEntityPresent} from '../../test-utils/helpers/permissionItem';
+import {expectPermissionItemsForEntityPresent} from '../../testUtils/helpers/permissionItem';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -22,8 +22,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteFile from '../deleteFile/handler';
 import {IDeleteFileEndpointParams} from '../deleteFile/types';
 import getFile from '../getFile/handler';
@@ -164,7 +164,7 @@ export async function assertFileUpdated(
 ) {
   const agent = await ctx.session.getAgent(
     ctx,
-    RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken))
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
 
   expect(savedFile.description).not.toBe(updatedFile.description);

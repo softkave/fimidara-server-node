@@ -8,8 +8,8 @@ import {
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionItemListForTest} from '../../test-utils/generate-data/permissionItem';
-import {expectPermissionItemsPresent} from '../../test-utils/helpers/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
+import {expectPermissionItemsPresent} from '../../testUtils/helpers/permissionItem';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -17,8 +17,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import addPermissionItems from '../addItems/handler';
 import {IAddPermissionItemsEndpointParams, INewPermissionItemInput} from '../addItems/types';
 import {
@@ -62,14 +62,14 @@ describe('getResourcePermissionItems', () => {
 
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+        mockExpressRequestWithAgentToken(userToken),
         {items: inputItems, workspaceId: workspace.resourceId}
       );
 
     const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     const items = addPermissionItemsResult.items;
     const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         targetType: AppResourceType.Workspace,
@@ -104,7 +104,7 @@ describe('getResourcePermissionItems', () => {
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,
@@ -120,7 +120,7 @@ describe('getResourcePermissionItems', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         page,
         pageSize,

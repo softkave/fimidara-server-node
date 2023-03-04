@@ -1,14 +1,14 @@
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertTagListForTest} from '../../test-utils/generate-data/tag';
+import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspaceTags from './handler';
 import {ICountWorkspaceTagsEndpointParams} from './types';
 
@@ -30,7 +30,7 @@ describe('countWorkspaceTags', () => {
     await generateAndInsertTagListForTest(context, 15, {workspaceId: workspace.resourceId});
     const count = await context.data.tag.countByQuery({workspaceId: workspace.resourceId});
     const instData = RequestData.fromExpressRequest<ICountWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await countWorkspaceTags(context, instData);

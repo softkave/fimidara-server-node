@@ -1,6 +1,10 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenFor} from '../../../definitions/system';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAccessScope,
+} from '../../../definitions/system';
 import {IUserToken} from '../../../definitions/userToken';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -19,7 +23,7 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   assertUser(user);
   const expiration = getForgotPasswordExpiration();
   const forgotToken = newResource(makeUserSessionAgent(user), AppResourceType.UserToken, {
-    audience: [TokenFor.ChangePassword],
+    tokenAccessScope: [TokenAccessScope.ChangePassword],
     resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,

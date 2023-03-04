@@ -9,8 +9,8 @@ import {
   insertPermissionItemsForTestForEntity,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import PermissionItemQueries from '../queries';
 import getEntityPermissionItems from './handler';
 import {IDeletePermissionItemsByIdEndpointParams} from './types';
@@ -38,14 +38,14 @@ describe('deleteItemsById', () => {
 
     const {items} = await insertPermissionItemsForTestForEntity(
       context,
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
       {entityId: permissionGroup.resourceId},
       {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         itemIds: items.map(item => item.resourceId),

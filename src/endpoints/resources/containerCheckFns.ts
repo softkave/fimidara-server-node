@@ -14,7 +14,7 @@ export function isResourcePartOfWorkspace(workspaceId: string, resource: IResour
     case AppResourceType.Workspace:
       return resource.resourceId === workspaceId;
     case AppResourceType.CollaborationRequest:
-    case AppResourceType.ProgramAccessToken:
+    case AppResourceType.AgentToken:
     case AppResourceType.ClientAssignedToken:
     case AppResourceType.PermissionGroup:
     case AppResourceType.PermissionItem:
@@ -35,7 +35,7 @@ export function isResourcePartOfContainer(containerId: string, resource: IResour
     case AppResourceType.Workspace:
       return resource.resourceId === containerId;
     case AppResourceType.CollaborationRequest:
-    case AppResourceType.ProgramAccessToken:
+    case AppResourceType.AgentToken:
     case AppResourceType.ClientAssignedToken:
     case AppResourceType.PermissionGroup:
     case AppResourceType.PermissionItem:

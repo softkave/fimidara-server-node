@@ -1,5 +1,5 @@
-import {compact, first, uniq} from 'lodash';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {compact, uniq} from 'lodash';
+import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {newResource, toArray} from '../../../utils/fns';
@@ -9,8 +9,9 @@ import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorization,
+  sortOutPermissionItems,
   uniquePermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {InvalidRequestError} from '../../errors';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {
@@ -56,46 +57,42 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
 
   const targetsMap = indexArray(targets, {path: 'resourceId'});
   let inputItems: IPermissionItem[] = [];
-  entityIdList.forEach(entityId => {
-    data.items.map(input => {
-      let targetType = input.targetType;
-      if (!targetType) {
-        appAssert(
-          input.targetId,
-          new InvalidRequestError('Target type or target ID must be provided.')
-        );
-        targetType = getResourceTypeFromId(input.targetId);
-      }
+  data.items.forEach(input => {
+    let targetType = input.targetType;
+    if (!targetType) {
+      appAssert(
+        input.targetId,
+        new InvalidRequestError('Target type or target ID must be provided.')
+      );
+      targetType = getResourceTypeFromId(input.targetId);
+    }
 
-      if (input.targetId && !targetsMap[input.targetId]) {
-        // Skip input, target not found.
-        return;
-      }
+    if (input.targetId && !targetsMap[input.targetId]) {
+      // Skip input, target not found.
+      return;
+    }
 
-      const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
-        ...input,
-        containerId,
-        entityId,
-        workspaceId,
-        targetType,
-        grantAccess: input.grantAccess ?? true,
-        appliesTo: input.appliesTo ?? PermissionItemAppliesTo.Children,
-        containerType: getResourceTypeFromId(containerId),
-        entityType: getResourceTypeFromId(entityId),
-      });
-      inputItems.push(item);
+    const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
+      ...input,
+      containerId,
+      workspaceId,
+      targetType,
+      entityId: data.entityId,
+      grantAccess: input.grantAccess ?? true,
+      containerType: getResourceTypeFromId(containerId),
+      entityType: getResourceTypeFromId(data.entityId),
     });
+    inputItems.push(item);
   });
 
-  const pItemsList = await context.semantic.permissions.getPermissionItemsForEntities({
+  let permissionItems = await context.semantic.permissions.getEntitiesPermissionItems({
     context,
-    entities: entityIdList,
+    containerId,
+    entityId: entityIdList,
     sortByDate: true,
-    andQueries: [{containerId}],
   });
-  let permissionItems = first(pItemsList);
-  appAssert(permissionItems);
-  permissionItems = uniquePermissionItems(permissionItems.concat(inputItems));
+  ({items: permissionItems} = sortOutPermissionItems(permissionItems));
+  ({items: permissionItems} = uniquePermissionItems(permissionItems.concat(inputItems)));
   const itemsMap = indexArray(permissionItems, {path: 'resourceId'});
   inputItems = inputItems.filter(item => !!itemsMap[item.resourceId]);
   await context.semantic.permissionItem.insertList(inputItems);

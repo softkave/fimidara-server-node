@@ -2,11 +2,6 @@ import {Connection, Document, Model, Schema} from 'mongoose';
 import {ICollaborationRequest} from '../definitions/collaborationRequest';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const collaborationRequestStatusHistorySchema = {
-  status: {type: String},
-  date: {type: Date},
-};
-
 const collaborationRequestSchema = ensureMongoTypeFields<ICollaborationRequest>({
   ...workspaceResourceSchema,
   recipientEmail: {type: String, index: true},
@@ -14,10 +9,8 @@ const collaborationRequestSchema = ensureMongoTypeFields<ICollaborationRequest>(
   message: {type: String},
   expiresAt: {type: Number},
   readAt: {type: Number},
-  statusHistory: {
-    type: [collaborationRequestStatusHistorySchema],
-    default: [],
-  },
+  status: {type: String},
+  statusDate: {type: Number},
 });
 
 export type ICollaborationRequestDocument = Document<ICollaborationRequest>;

@@ -6,9 +6,9 @@ import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
+import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -18,8 +18,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
@@ -46,7 +46,7 @@ describe('getFile', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(context, userToken, workspace);
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
 
@@ -78,7 +78,7 @@ describe('getFile', () => {
     const expectedWidth = 300;
     const expectedHeight = 300;
     const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(file.name, workspace.rootname),
         imageTranformation: {
@@ -190,7 +190,7 @@ describe('getFile', () => {
       UsageRecordCategory.BandwidthOut,
     ]);
     const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(file.name, workspace.rootname),
       }

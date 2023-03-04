@@ -11,8 +11,7 @@ import {getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 const permissionEntityAllowedTypes = new Map();
-permissionEntityAllowedTypes.set(AppResourceType.ClientAssignedToken, true);
-permissionEntityAllowedTypes.set(AppResourceType.ProgramAccessToken, true);
+permissionEntityAllowedTypes.set(AppResourceType.AgentToken, true);
 permissionEntityAllowedTypes.set(AppResourceType.PermissionGroup, true);
 permissionEntityAllowedTypes.set(AppResourceType.User, true);
 

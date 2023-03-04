@@ -7,7 +7,7 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {permissionGroupExtractor} from '../utils';
 
 /**
@@ -38,7 +38,7 @@ describe('addPermissionGroup', () => {
     const savedPermissionGroup = await populateAssignedTags(
       context,
       workspace.resourceId,
-      await context.data.permissiongroup.assertGetOneByQuery(
+      await context.data.permissionGroup.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
       )
     );

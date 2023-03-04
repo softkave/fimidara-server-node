@@ -13,7 +13,7 @@ export enum FimidaraPipelineNames {
 
 export interface IFimidaraPipelineRunInfo {
   job: FimidaraPipelineNames;
-  runId: string;
+  runId: string | number;
   logger: winston.Logger;
 }
 

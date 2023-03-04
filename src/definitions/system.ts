@@ -1,15 +1,12 @@
 import {reverseMap} from '../utils/fns';
-import {getNewIdForResource} from '../utils/resourceId';
-import {ResourceWithTags} from './assignedItem';
-import {IClientAssignedToken} from './clientAssignedToken';
-import {PermissionItemAppliesTo} from './permissionItem';
-import {IProgramAccessToken} from './programAccessToken';
+import {getNewIdForResource, ID_SIZE} from '../utils/resourceId';
+import {AnyObject} from '../utils/types';
+import {IAgentToken} from './agentToken';
 import {IUser} from './user';
-import {IUserToken} from './userToken';
 
 export const CURRENT_TOKEN_VERSION = 1;
 
-export enum TokenFor {
+export enum TokenAccessScope {
   Login = 'login',
   ChangePassword = 'changePassword',
   ConfirmEmailAddress = 'confirmEmail',
@@ -26,10 +23,6 @@ export interface IBaseTokenData<Sub extends ITokenSubjectDefault = ITokenSubject
   exp?: number;
 }
 
-export interface IAgentPersistedToken {
-  tokenFor: TokenFor[];
-}
-
 export interface IAgent {
   agentId: string;
 
@@ -37,13 +30,20 @@ export interface IAgent {
    * One of user token, program token, client token, system or public.
    */
   agentType: AppResourceType;
-  tokenId: string | null;
+  agentTokenId: string;
 }
 
+export type IPublicAgent = Pick<IAgent, 'agentId' | 'agentType'>;
+export type ConvertAgentToPublicAgent<T> = {
+  [K in keyof T]: NonNullable<T[K]> extends IAgent
+    ? IPublicAgent
+    : NonNullable<T[K]> extends AnyObject
+    ? ConvertAgentToPublicAgent<NonNullable<T[K]>>
+    : T[K];
+};
+
 export interface ISessionAgent extends IAgent {
-  userToken?: IUserToken;
-  programAccessToken?: ResourceWithTags<IProgramAccessToken>;
-  clientAssignedToken?: ResourceWithTags<IClientAssignedToken>;
+  agentToken?: IAgentToken;
   user?: IUser;
 }
 
@@ -53,9 +53,7 @@ export enum AppResourceType {
   Public = 'public',
   Workspace = 'workspace',
   CollaborationRequest = 'collaborationRequest',
-  ProgramAccessToken = 'programAccessToken',
-  ClientAssignedToken = 'clientAssignedToken',
-  UserToken = 'userToken',
+  AgentToken = 'agentToken',
   PermissionGroup = 'permissionGroup',
   PermissionItem = 'permissionItem',
   Folder = 'folder',
@@ -67,9 +65,8 @@ export enum AppResourceType {
   EndpointRequest = 'endpointRequest',
 }
 
-export const PUBLIC_PERMISSIBLE_AGENTS = [
-  AppResourceType.ClientAssignedToken,
-  AppResourceType.ProgramAccessToken,
+export const PERMISSION_AGENT_TYPES = [
+  AppResourceType.AgentToken,
   AppResourceType.User,
   AppResourceType.Public,
 ];
@@ -79,8 +76,7 @@ export function getWorkspaceResourceTypeList() {
     AppResourceType.All,
     AppResourceType.Workspace,
     AppResourceType.CollaborationRequest,
-    AppResourceType.ProgramAccessToken,
-    AppResourceType.ClientAssignedToken,
+    AppResourceType.AgentToken,
     AppResourceType.PermissionGroup,
     AppResourceType.PermissionItem,
     AppResourceType.Folder,
@@ -91,12 +87,7 @@ export function getWorkspaceResourceTypeList() {
   ];
 }
 
-export const VALID_AGENT_TYPES = [
-  AppResourceType.User,
-  AppResourceType.ProgramAccessToken,
-  AppResourceType.ClientAssignedToken,
-];
-
+export const VALID_AGENT_TYPES = [AppResourceType.User, AppResourceType.AgentToken];
 export const RESOURCE_TYPE_SHORT_NAME_MAX_LEN = 7;
 export const RESOURCE_TYPE_SHORT_NAME_PADDING = '0';
 
@@ -117,9 +108,7 @@ export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
   [AppResourceType.Public]: padShortName('public'),
   [AppResourceType.Workspace]: padShortName('wrkspce'),
   [AppResourceType.CollaborationRequest]: padShortName('coreqst'),
-  [AppResourceType.ProgramAccessToken]: padShortName('pgtoken'),
-  [AppResourceType.ClientAssignedToken]: padShortName('cltoken'),
-  [AppResourceType.UserToken]: padShortName('ustoken'),
+  [AppResourceType.AgentToken]: padShortName('agtoken'),
   [AppResourceType.PermissionGroup]: padShortName('pmgroup'),
   [AppResourceType.PermissionItem]: padShortName('prmitem'),
   [AppResourceType.Folder]: padShortName('folder'),
@@ -166,9 +155,9 @@ export function getNonWorkspaceActionList() {
 }
 
 export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
-export const APP_RUNTIME_STATE_DOC_ID = 'appRuntimeState';
+export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
 
-export interface IAppRuntimeState {
+export interface IAppRuntimeState extends IResourceBase {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
   appWorkspaceId: string;
@@ -179,7 +168,6 @@ export interface IAppRuntimeState {
 export interface IPublicAccessOpInput {
   action: BasicCRUDActions;
   resourceType: AppResourceType;
-  appliesTo: PermissionItemAppliesTo;
 }
 
 export interface IPublicAccessOp {
@@ -189,9 +177,9 @@ export interface IPublicAccessOp {
   /**
    * Whether is the operation is allowed for the resource and it's children.
    */
-  appliesTo: PermissionItemAppliesTo;
+
   markedAt: number;
-  markedBy: IAgent;
+  markedBy: IPublicAgent;
 }
 
 export interface IResourceBase {
@@ -207,14 +195,17 @@ export interface IWorkspaceResourceBase extends IResourceBase {
   providedResourceId?: string | null;
 }
 
+export type IPublicResourceBase = ConvertAgentToPublicAgent<IResourceBase>;
+export type IPublicWorkspaceResourceBase = ConvertAgentToPublicAgent<IWorkspaceResourceBase>;
+
 export const SYSTEM_SESSION_AGENT: ISessionAgent = {
   agentId: getNewIdForResource(AppResourceType.System),
   agentType: AppResourceType.System,
-  tokenId: null,
+  agentTokenId: getNewIdForResource(AppResourceType.AgentToken, ID_SIZE, true),
 };
 
 export const PUBLIC_SESSION_AGENT: ISessionAgent = {
   agentId: getNewIdForResource(AppResourceType.Public),
   agentType: AppResourceType.Public,
-  tokenId: null,
+  agentTokenId: getNewIdForResource(AppResourceType.AgentToken, ID_SIZE, true),
 };

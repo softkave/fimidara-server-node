@@ -16,7 +16,7 @@ import {
 } from '../../files/uploadFile/uploadFileTestUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
+import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -25,7 +25,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {folderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
 import {IDeleteFolderEndpointParams} from '../deleteFolder/types';

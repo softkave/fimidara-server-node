@@ -3,15 +3,15 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {updateTestWorkspaceUsageLocks} from '../../test-utils/helpers/usageRecord';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
   assertContext,
   initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
 import {getFilePathWithoutRootname} from '../utils';

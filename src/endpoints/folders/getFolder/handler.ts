@@ -1,4 +1,4 @@
-import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
+import {BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
@@ -7,7 +7,7 @@ import {getFolderJoiSchema} from './validation';
 
 const getFolder: GetFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, getFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let {folder} = await checkFolderAuthorization02(context, agent, data, BasicCRUDActions.Read);
   folder = await populateAssignedTags(context, folder.workspaceId, folder);
   return {

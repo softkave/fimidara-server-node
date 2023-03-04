@@ -1,6 +1,6 @@
 import {omit} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
-import {BasicCRUDActions, PUBLIC_PERMISSIBLE_AGENTS} from '../../../definitions/system';
+import {BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -13,7 +13,7 @@ import {updateFolderJoiSchema} from './validation';
 
 const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PUBLIC_PERMISSIBLE_AGENTS);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let {workspace, folder} = await checkFolderAuthorization02(
     context,
     agent,

@@ -11,7 +11,6 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import {assertWorkspace} from '../../workspaces/utils';
 import {
   checkCollaborationRequestAuthorization02,
@@ -34,19 +33,14 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
     BasicCRUDActions.Update
   );
 
-  const status = request.statusHistory[request.statusHistory.length - 1];
-  const isRevoked = status.status === CollaborationRequestStatusType.Revoked;
+  const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
   if (!isRevoked) {
     request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
-      statusHistory: request.statusHistory.concat({
-        date: getTimestamp(),
-        status: CollaborationRequestStatusType.Revoked,
-      }),
+      statusDate: getTimestamp(),
+      status: CollaborationRequestStatusType.Revoked,
     });
 
-    const workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(request.workspaceId)
-    );
+    const workspace = await context.semantic.workspace.getOneById(request.workspaceId);
     assertWorkspace(workspace);
     if (workspace) {
       await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
@@ -71,13 +65,11 @@ async function sendRevokeCollaborationRequestEmail(
     signupLink,
     loginLink,
   });
-
   const text = collaborationRequestRevokedEmailText({
     workspaceName,
     signupLink,
     loginLink,
   });
-
   await context.email.sendEmail(context, {
     subject: collaborationRequestRevokedEmailTitle(workspaceName),
     body: {html, text},

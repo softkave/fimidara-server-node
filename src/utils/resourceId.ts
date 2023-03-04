@@ -27,22 +27,19 @@ export function getNewId(size?: number) {
   return nanoid(size);
 }
 
+export const ID_SIZE = 21;
 export const ID_SEPARATOR = '_';
 export const ID_0 = ''.padEnd(RESOURCE_TYPE_SHORT_NAME_MAX_LEN, RESOURCE_TYPE_SHORT_NAME_PADDING);
 
 // TODO: write Joi schema
-export function getNewIdForResource(resourceType: AppResourceType, size?: number) {
+export function getNewIdForResource(
+  resourceType: AppResourceType,
+  size = ID_SIZE,
+  id0 = resourceType === AppResourceType.System || resourceType === AppResourceType.Public
+) {
   let id = ID_0;
-  switch (resourceType) {
-    case AppResourceType.System:
-    case AppResourceType.Public: {
-      id = ID_0;
-      break;
-    }
-
-    default: {
-      id = nanoid(size);
-    }
+  if (!id0) {
+    id = nanoid(size);
   }
 
   const shortName = RESOURCE_TYPE_SHORT_NAMES[resourceType];

@@ -18,10 +18,7 @@ const cascade: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Public]: noopAsync,
   [AppResourceType.Workspace]: noopAsync,
   [AppResourceType.CollaborationRequest]: noopAsync,
-  [AppResourceType.ProgramAccessToken]: (context, id) =>
-    context.semantic.programAccessToken.deleteOneById(id),
-  [AppResourceType.ClientAssignedToken]: noopAsync,
-  [AppResourceType.UserToken]: noopAsync,
+  [AppResourceType.AgentToken]: (context, id) => context.semantic.agentToken.deleteOneById(id),
   [AppResourceType.PermissionGroup]: noopAsync,
   [AppResourceType.PermissionItem]: async (context, id) => {
     await Promise.all([
@@ -54,7 +51,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData)
     AssignedItemQueries.getByMainFields({
       workspaceId,
       assignedItemId: workspaceId,
-      assignedToItemId: collaborator.resourceId,
+      assigneeId: collaborator.resourceId,
     })
   );
 
