@@ -1,8 +1,11 @@
 import {BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
-import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
+import {
+  IUsageRecord,
+  UsageRecordFulfillmentStatus,
+  UsageSummationType,
+} from '../../../definitions/usageRecord';
 import {getDate} from '../../../utils/dateFns';
-import {DataQuerySort} from '../../contexts/data/types';
-import {IUsageRecordQuery} from '../../contexts/data/usageRecord/type';
+import {DataQuerySort, IUsageRecordQuery, LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {IGetWorkspaceSummedUsageEndpointParams} from './types';
@@ -19,7 +22,7 @@ export async function getWorkspaceSummedUsageQuery(
   let toMonth = undefined;
   let fromYear = undefined;
   let toYear = undefined;
-  const query: IUsageRecordQuery = {
+  const query: LiteralDataQuery<IUsageRecord> = {
     workspaceId: {$eq: workspaceId},
     summationType: {$eq: UsageSummationType.Two},
   };
@@ -50,11 +53,10 @@ export async function getWorkspaceSummedUsageQuery(
     query.fulfillmentStatus = {
       // TODO: correct type
       $eq: data.query.fulfillmentStatus as any,
-      $ne: UsageRecordFulfillmentStatus.Undecided,
     };
   } else {
     query.fulfillmentStatus = {
-      $ne: UsageRecordFulfillmentStatus.Undecided,
+      $in: [UsageRecordFulfillmentStatus.Fulfilled, UsageRecordFulfillmentStatus.Dropped],
     };
   }
 

@@ -1,5 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -21,11 +22,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.existsByQuery(EndpointReusableQueries.getByResourceId(id));
+  const exists = await context.semantic.file.existsByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
   expect(exists).toBeFalsy();
 }
 

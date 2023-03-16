@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -28,6 +29,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -69,7 +71,7 @@ test('permissionGroup updated', async () => {
   const updatedPermissionGroup = await populateAssignedTags(
     context,
     workspace.resourceId,
-    await context.data.permissionGroup.assertGetOneByQuery(
+    await context.semantic.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
     )
   );

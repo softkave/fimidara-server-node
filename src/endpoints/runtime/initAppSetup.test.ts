@@ -11,6 +11,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -18,7 +19,7 @@ describe('init app setup', () => {
   test('app is setup', async () => {
     // setupApp is called internally when getting test context
     assertContext(context);
-    await context.data.appRuntimeState.assertGetOneByQuery(
+    await context.semantic.appRuntimeState.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
     );
   });

@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -23,6 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -37,7 +39,7 @@ test('workspace deleted', async () => {
     })
   );
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.data.workspace.getOneByQuery(
+  const savedWorkspace = await context.semantic.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(workspace.resourceId)
   );
   expect(savedWorkspace).toBeFalsy();

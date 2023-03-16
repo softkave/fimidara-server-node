@@ -1,12 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   getNonWorkspaceActionList,
   IPublicAccessOpInput,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {IPublicWorkspace, IWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
@@ -53,7 +52,7 @@ export const addFolderBaseTest = async (
     insertWorkspaceResult.workspace,
     input
   );
-  const savedFolder = await ctx.data.folder.assertGetOneByQuery(
+  const savedFolder = await ctx.semantic.folder.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(folder.resourceId)
   );
   expect(folder).toMatchObject(folderExtractor(savedFolder));
@@ -74,7 +73,7 @@ export const addFolderWithPublicAccessOpsTest = async (
 
 export async function assertCanCreateFolderInPublicFolder(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: IPublicWorkspace,
   folderpath: string
 ) {
   return await insertFolderForTest(ctx, null, workspace, {
@@ -84,7 +83,7 @@ export async function assertCanCreateFolderInPublicFolder(
 
 export async function assertCanReadPublicFolder(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
@@ -101,7 +100,7 @@ export async function assertCanReadPublicFolder(
 
 export async function assertCanUpdatePublicFolder(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   folderpath: string
 ) {
   const updateInput: IUpdateFolderInput = {
@@ -122,7 +121,7 @@ export async function assertCanUpdatePublicFolder(
 
 export async function assertCanListContentOfPublicFolder(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
@@ -136,14 +135,12 @@ export async function assertCanListContentOfPublicFolder(
 
 export async function assertCanDeletePublicFolder(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   folderpath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {
-      folderpath: addRootnameToPath(folderpath, workspace.rootname),
-    }
+    {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
   const result = await deleteFolder(ctx, instData);
@@ -189,7 +186,6 @@ export function makeEveryFolderPublicAccessOp() {
       ops.push({
         action,
         resourceType: type,
-        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       });
     });
   });

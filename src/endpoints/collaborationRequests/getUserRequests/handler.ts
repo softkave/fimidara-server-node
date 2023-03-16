@@ -8,7 +8,7 @@ const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async
   const data = validate(d.data, getUserRequestsJoiSchema);
   const user = await context.session.getUser(context, d);
   applyDefaultEndpointPaginationOptions(data);
-  const requests = await context.semantic.collaborationRequest.getByEmail(user.email, data);
+  const requests = await context.semantic.collaborationRequest.getManyByEmail(user.email, data);
   return {
     page: getEndpointPageFromInput(data),
     requests: collaborationRequestForUserListExtractor(requests),

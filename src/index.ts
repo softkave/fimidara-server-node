@@ -21,6 +21,7 @@ import {
 import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
+import {consoleLogger, logger} from './endpoints/globalUtils';
 import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
@@ -32,7 +33,6 @@ import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoi
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
-import {consoleLogger, logger} from './utils/logger/logger';
 
 logger.info('server initialization');
 
@@ -111,7 +111,7 @@ async function setup() {
   );
 
   const defaultWorkspace = await setupApp(ctx);
-  ctx.logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
   setupCollaborationRequestsRESTEndpoints(ctx, app);

@@ -1,4 +1,5 @@
 import {IWorkspace} from '../../../../definitions/workspace';
+import {reuseableErrors} from '../../../../utils/reusableErrors';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessWorkspaceProvider} from './types';
 
@@ -12,5 +13,9 @@ export class MemorySemanticDataAccessWorkspace
 
   async existsByRootname(rootname: string): Promise<boolean> {
     return !!(await this.getByRootname(rootname));
+  }
+
+  async workspaceExistsByName(name: string): Promise<boolean> {
+    throw reuseableErrors.common.notImplemented();
   }
 }

@@ -1,5 +1,6 @@
 import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -19,6 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 

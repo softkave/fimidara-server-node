@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import checkEntitiesExist from '../../permissionItems/checkEntitiesExist';
+import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import {AssignPermissionGroupsEndpoint} from './types';
 import {assignPermissionGroupsJoiSchema} from './validation';
@@ -18,9 +18,14 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
     action: BasicCRUDActions.GrantPermission,
     targets: [{type: AppResourceType.PermissionGroup}],
   });
-
   const entityIdList = data.entityIdList ? data.entityIdList : data.entityId ? [data.entityId] : [];
-  await checkEntitiesExist(context, agent, workspace, entityIdList);
+  await checkPermissionEntitiesExist(
+    context,
+    agent,
+    workspace.resourceId,
+    entityIdList,
+    BasicCRUDActions.Read
+  );
   await addAssignedPermissionGroupList(
     context,
     agent,

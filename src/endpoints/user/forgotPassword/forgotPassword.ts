@@ -1,14 +1,13 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
+  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
-import {IUserToken} from '../../../definitions/userToken';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
@@ -22,14 +21,18 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   const user = await context.semantic.user.getByEmail(data.email);
   assertUser(user);
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource(makeUserSessionAgent(user), AppResourceType.UserToken, {
+  const forgotToken: IAgentToken = newResource(AppResourceType.AgentToken, {
     tokenAccessScope: [TokenAccessScope.ChangePassword],
-    resourceId: getNewIdForResource(AppResourceType.UserToken),
     userId: user.resourceId,
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
+    separateEntityId: user.resourceId,
+    workspaceId: null,
+    agentType: AppResourceType.User,
+    createdBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.userToken.insertItem(forgotToken);
+  await context.semantic.agentToken.insertItem(forgotToken);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
   await sendChangePasswordEmail(context, {
     expiration,
@@ -44,20 +47,17 @@ export function getForgotPasswordExpiration() {
   });
 }
 
-export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToken: IUserToken) {
+export function getForgotPasswordLinkFromToken(context: IBaseContext, forgotToken: IAgentToken) {
   const encodedToken = context.session.encodeToken(
     context,
     forgotToken.resourceId,
-    AppResourceType.UserToken,
     forgotToken.expires
   );
-
   const link = `${context.appVariables.clientDomain}${
     context.appVariables.changePasswordPath
   }?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
-
   return link;
 }
 

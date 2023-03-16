@@ -2,7 +2,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
@@ -19,7 +19,7 @@ export function getNewFile(
   parentFolder: IFolder | null
 ) {
   const fileId = getNewIdForResource(AppResourceType.File);
-  const file = newResource(agent, AppResourceType.File, {
+  const file = newWorkspaceResource(agent, AppResourceType.File, workspace.resourceId, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
     extension: data.extension ?? pathWithDetails.extension ?? '',

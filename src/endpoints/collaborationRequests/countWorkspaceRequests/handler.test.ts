@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {
@@ -19,6 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -30,7 +32,7 @@ describe('countWorkspaceRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(context, 15, () => ({
       workspaceId: workspace.resourceId,
     }));
-    const count = await context.data.collaborationRequest.countByQuery({
+    const count = await context.semantic.collaborationRequest.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const instData =

@@ -1,11 +1,17 @@
 import {compact} from 'lodash';
-import {AppResourceType, IAgent, IResourceBase, ISessionAgent} from '../definitions/system';
+import {
+  AppResourceType,
+  IAgent,
+  IResourceBase,
+  ISessionAgent,
+  IWorkspaceResourceBase,
+} from '../definitions/system';
 import {appAssert} from './assertion';
 import {getTimestamp} from './dateFns';
 import {ServerError} from './errors';
 import {getNewIdForResource} from './resourceId';
 import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
-import {AnyObject} from './types';
+import {AnyFn, AnyObject} from './types';
 
 export function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
@@ -137,22 +143,54 @@ export function toCompactArray<T>(item?: T | T[]) {
   return compact(toArray(item));
 }
 
-export const stopControlFlow = (): any =>
-  appAssert(false, new ServerError(), "Control shouldn't get here.");
+export const stopControlFlow = (error = new ServerError()): any =>
+  appAssert(false, error, "Control shouldn't get here.");
 
 export function newResource<T extends AnyObject = AnyObject>(
-  agent: IAgent | ISessionAgent,
   type: AppResourceType,
   seed?: T
 ): IResourceBase & T {
-  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
   const createdAt = getTimestamp();
   return {
+    createdAt,
+    resourceId: getNewIdForResource(type),
+    lastUpdatedAt: createdAt,
+    ...seed,
+  } as IResourceBase & T;
+}
+
+export function newWorkspaceResource<T extends AnyObject = AnyObject>(
+  agent: IAgent | ISessionAgent,
+  type: AppResourceType,
+  workspaceId: string,
+  seed?: T
+): IWorkspaceResourceBase & T {
+  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
+  const createdAt = getTimestamp();
+  const item: IWorkspaceResourceBase = {
     createdBy,
     createdAt,
+    workspaceId,
     resourceId: getNewIdForResource(type),
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     ...seed,
-  } as IResourceBase & T;
+  };
+  return item as T & IWorkspaceResourceBase;
+}
+
+export function loop(count = 1, fn: AnyFn) {
+  while (count > 0) {
+    fn();
+    count -= 1;
+  }
+}
+
+export function loopAndCollate<Fn extends AnyFn>(count = 1, fn: Fn): Array<ReturnType<Fn>> {
+  const result: Array<ReturnType<Fn>> = [];
+  while (count > 0) {
+    result.push(fn());
+    count -= 1;
+  }
+  return result;
 }

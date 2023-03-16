@@ -47,6 +47,8 @@ export interface ISessionAgent extends IAgent {
   user?: IUser;
 }
 
+// TODO: separate data resources from symbolic resources (resources that are not
+// saved in DB).
 export enum AppResourceType {
   All = '*',
   System = 'system',
@@ -70,6 +72,14 @@ export const PERMISSION_AGENT_TYPES = [
   AppResourceType.User,
   AppResourceType.Public,
 ];
+
+export const PERMISSION_ENTITY_TYPES = [
+  AppResourceType.User,
+  AppResourceType.AgentToken,
+  AppResourceType.PermissionGroup,
+];
+
+export const PERMISSION_CONTAINER_TYPES = [AppResourceType.Workspace, AppResourceType.Folder];
 
 export function getWorkspaceResourceTypeList() {
   return [
@@ -185,14 +195,14 @@ export interface IPublicAccessOp {
 export interface IResourceBase {
   resourceId: string;
   createdAt: number;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
   lastUpdatedAt: number;
 }
 
 export interface IWorkspaceResourceBase extends IResourceBase {
   workspaceId: string;
   providedResourceId?: string | null;
+  lastUpdatedBy: IAgent;
+  createdBy: IAgent;
 }
 
 export type IPublicResourceBase = ConvertAgentToPublicAgent<IResourceBase>;

@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -45,17 +45,19 @@ export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
-    agentType: SessionAgentType.User,
+    agentType: AppResourceType.User,
+    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-
   const name = faker.company.name();
+  const resourceId = getNewIdForResource(AppResourceType.Workspace);
   const workspace: IWorkspace = {
     createdAt,
     createdBy,
     name,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.Workspace),
+    resourceId,
+    workspaceId: resourceId,
     rootname: makeRootnameFromName(name),
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatus.Ok,
@@ -64,7 +66,6 @@ export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
     usageThresholdLocks: {},
     ...seed,
   };
-
   return workspace;
 }
 

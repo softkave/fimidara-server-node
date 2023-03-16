@@ -38,6 +38,8 @@ const newAgentTokenInput = new FieldObject<ExcludeTags<INewAgentTokenInput>>()
   .setFields({
     name: fReusables.nameNotRequired,
     description: fReusables.descriptionNotRequired,
+    expires: fReusables.expiresNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
   });
 
 const agentToken = new FieldObject<IPublicAgentToken>().setName('AgentToken').setFields({
@@ -50,6 +52,8 @@ const agentToken = new FieldObject<IPublicAgentToken>().setName('AgentToken').se
   description: fReusables.descriptionOrUndefined,
   workspaceId: fReusables.workspaceId,
   tokenStr: fReusables.tokenString,
+  expires: fReusables.expiresOrUndefined,
+  providedResourceId: fReusables.providedResourceIdOrUndefined,
 });
 
 const addAgentTokenParams = new FieldObject<IAddAgentTokenEndpointParams>()
@@ -100,9 +104,11 @@ const getWorkspaceAgentTokensResult = [
 const updateAgentTokenParams = new FieldObject<IUpdateAgentTokenEndpointParams>()
   .setName('UpdateAgentTokenEndpointParams')
   .setFields({
+    workspaceId: fReusables.workspaceIdInputNotRequired,
     tokenId: fReusables.idNotRequired,
     onReferenced: fReusables.effectOnReferencedNotRequired,
     token: partialFieldObject(newAgentTokenInput),
+    providedResourceId: fReusables.providedResourceIdNotRequired,
   })
   .setRequired(true)
   .setDescription('Update program access token endpoint params.');
@@ -123,6 +129,8 @@ const updateAgentTokenResult = [
 const getAgentTokenParams = new FieldObject<IGetAgentTokenEndpointParams>()
   .setName('UpdateAgentTokenEndpointParams')
   .setFields({
+    workspaceId: fReusables.workspaceIdInputNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
     tokenId: fReusables.idNotRequired,
     onReferenced: fReusables.effectOnReferencedNotRequired,
   })

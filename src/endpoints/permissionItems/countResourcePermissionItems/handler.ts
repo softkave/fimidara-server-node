@@ -11,8 +11,8 @@ const countResourcePermissionItems: CountResourcePermissionItemsEndpoint = async
   const data = validate(instData.data, countResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const {queries} = await getResourcePermissionItemsQuery(context, agent, workspace, data);
-  const count = await context.semantic.permissionItem.countByQueryList(queries);
+  const q = await getResourcePermissionItemsQuery(context, agent, workspace, data);
+  const count = await context.semantic.permissionItem.countByQuery(q);
   return {count};
 };
 

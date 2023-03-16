@@ -74,7 +74,6 @@ export async function getWorkspaceAndParentFolder(
       agent,
       matcher,
       BasicCRUDActions.Read,
-      /** nothrow */ false,
       workspace ?? undefined
     );
     ({workspace, folder: parentFolder} = checkResult);

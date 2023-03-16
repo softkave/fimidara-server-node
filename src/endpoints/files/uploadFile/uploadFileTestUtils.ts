@@ -1,9 +1,8 @@
 import {faker} from '@faker-js/faker';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {IFile} from '../../../definitions/file';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions, IPublicAccessOpInput} from '../../../definitions/system';
-import {IUserToken} from '../../../definitions/userToken';
-import {IWorkspace} from '../../../definitions/workspace';
+import {IPublicWorkspace, IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {} from '../../../utils/fns';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
@@ -26,8 +25,8 @@ import {
 } from '../../testUtils/testUtils';
 import deleteFile from '../deleteFile/handler';
 import {IDeleteFileEndpointParams} from '../deleteFile/types';
-import getFile from '../getFile/handler';
-import {IGetFileEndpointParams} from '../getFile/types';
+import getFile from '../readFile/handler';
+import {IReadFileEndpointParams} from '../readFile/types';
 import updateFileDetails from '../updateFileDetails/handler';
 import {
   IUpdateFileDetailsEndpointParams,
@@ -62,7 +61,7 @@ export const uploadFileBaseTest = async (
   appAssert(savedBuffer);
   expect(buffer.equals(savedBuffer)).toBe(true);
 
-  const savedFile = await ctx.data.file.assertGetOneByQuery(
+  const savedFile = await ctx.semantic.file.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(file.resourceId)
   );
   expect(file).toMatchObject(fileExtractor(savedFile));
@@ -78,11 +77,12 @@ export async function assertPublicAccessOps(
   ctx: IBaseContext,
   resource: {resourceId: string; workspaceId: string},
   insertWorkspaceResult: IInsertWorkspaceForTestResult,
-  publicAccessOpsInput: IPublicAccessOpInput[]
+  publicAccessOpsInput: IPublicAccessOpInput[],
+  containerId = resource.workspaceId
 ) {
   assert(insertWorkspaceResult.workspace.publicPermissionGroupId);
   const publicPermissionItems = (
-    await ctx.data.permissionItem.getManyByQuery(
+    await ctx.semantic.permissionItem.getManyByLiteralDataQuery(
       PermissionItemQueries.getByPermissionEntity(
         insertWorkspaceResult.workspace.publicPermissionGroupId
       )
@@ -94,7 +94,6 @@ export async function assertPublicAccessOps(
     // technically, that permission item should grant access
     return {...item, targetId: item.targetId};
   });
-
   const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(
     publicAccessOpsInput,
     resource
@@ -102,7 +101,8 @@ export async function assertPublicAccessOps(
   expectPermissionItemsForEntityPresent(
     publicPermissionItems,
     basePermissionItems,
-    insertWorkspaceResult.workspace.publicPermissionGroupId
+    insertWorkspaceResult.workspace.publicPermissionGroupId,
+    containerId
   );
 }
 
@@ -112,9 +112,10 @@ export async function assertPublicPermissionsDonotExistForContainer(
   containerId: string
 ) {
   assert(workspace.publicPermissionGroupId);
-  const publicPermissionGroupPermissionitems = await ctx.data.permissionItem.getManyByQuery(
-    PermissionItemQueries.getByPermissionEntity(workspace.publicPermissionGroupId)
-  );
+  const publicPermissionGroupPermissionitems =
+    await ctx.semantic.permissionItem.getManyByLiteralDataQuery(
+      PermissionItemQueries.getByPermissionEntity(workspace.publicPermissionGroupId)
+    );
 
   const items = publicPermissionGroupPermissionitems.filter(
     item => item.containerId === containerId
@@ -148,9 +149,9 @@ export const uploadFileWithPublicAccessActionTest = async (
       return {
         action,
         resourceType: AppResourceType.File,
-        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       };
-    })
+    }),
+    savedFile.folderId
   );
 
   return uploadResult;
@@ -158,7 +159,7 @@ export const uploadFileWithPublicAccessActionTest = async (
 
 export async function assertFileUpdated(
   ctx: IBaseContext,
-  userToken: IUserToken,
+  userToken: IAgentToken,
   savedFile: IFile,
   updatedFile: IFile
 ) {
@@ -181,14 +182,12 @@ export async function assertFileUpdated(
 
 export async function assertCanReadPublicFile(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   filepath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+  const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {
-      filepath: addRootnameToPath(filepath, workspace.rootname),
-    }
+    {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
   const result = await getFile(ctx, instData);
@@ -197,7 +196,7 @@ export async function assertCanReadPublicFile(
 
 export async function assertCanUploadToPublicFile(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: IPublicWorkspace,
   filepath: string
 ) {
   return await insertFileForTest(ctx, null, workspace, {
@@ -207,7 +206,7 @@ export async function assertCanUploadToPublicFile(
 
 export async function assertCanUpdatePublicFile(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   filepath: string
 ) {
   const updateInput: IUpdateFileDetailsInput = {
@@ -229,14 +228,12 @@ export async function assertCanUpdatePublicFile(
 
 export async function assertCanDeletePublicFile(
   ctx: IBaseContext,
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   filepath: string
 ) {
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {
-      filepath: addRootnameToPath(filepath, workspace.rootname),
-    }
+    {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
   const result = await deleteFile(ctx, instData);

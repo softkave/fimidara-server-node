@@ -1,13 +1,14 @@
 import {faker} from '@faker-js/faker';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
+  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
@@ -26,24 +27,26 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
 test('email address is confirmed', async () => {
   assertContext(context);
   const password = faker.internet.password();
-  const {user, userTokenStr, rawUser} = await insertUserForTest(context, {
+  const {user, userTokenStr} = await insertUserForTest(context, {
     password,
   });
-
-  const token = newResource(makeUserSessionAgent(rawUser), AppResourceType.UserToken, {
-    resourceId: getNewIdForResource(AppResourceType.UserToken),
-    userId: user.resourceId,
+  const token: IAgentToken = newResource(AppResourceType.All, {
+    separateEntityId: user.resourceId,
     tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
+    workspaceId: null,
+    agentType: AppResourceType.User,
+    createdBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.userToken.insertItem(token);
-
+  await context.semantic.agentToken.insertItem(token);
   const result = await confirmEmailAddress(
     context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))

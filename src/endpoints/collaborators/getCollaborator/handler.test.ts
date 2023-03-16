@@ -1,5 +1,6 @@
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -42,7 +44,7 @@ test('collaborator returned', async () => {
     collaboratorExtractor(
       await populateUserWorkspaces(
         context,
-        await context.data.user.assertGetOneByQuery(
+        await context.semantic.user.assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(user.resourceId)
         )
       ),

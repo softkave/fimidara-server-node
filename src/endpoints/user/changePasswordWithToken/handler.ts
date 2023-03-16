@@ -1,25 +1,24 @@
-import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
-import {assertIncomingToken} from '../../../utils/sessionUtils';
+import {TokenAccessScope} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
+import {assertAgentToken} from '../../agentTokens/utils';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
 import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
-import {assertUserToken, userExtractor} from '../utils';
+import {userExtractor} from '../utils';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, changePasswordJoiSchema);
-  assertIncomingToken(instData.incomingTokenData, AppResourceType.UserToken);
-  const userToken = await context.semantic.userToken.getOneById(
+  const userToken = await context.semantic.agentToken.getOneById(
     // It's okay to disable this check because incomingTokenData exists cause of
     // the assertIncomingToken check
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     instData.incomingTokenData!.sub.id
   );
 
-  assertUserToken(userToken);
+  assertAgentToken(userToken);
   const canChangePasswordWithToken = context.session.tokenContainsTokenAccessScope(
     context,
     userToken,

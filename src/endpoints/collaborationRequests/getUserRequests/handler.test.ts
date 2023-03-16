@@ -1,5 +1,6 @@
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
@@ -26,6 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -57,7 +59,7 @@ describe('getUserRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(context, 15, () => ({
       recipientEmail: user02.email,
     }));
-    const count = await context.data.collaborationRequest.countByQuery({
+    const count = await context.semantic.collaborationRequest.countByQuery({
       recipientEmail: user02.email,
     });
     const pageSize = 10;

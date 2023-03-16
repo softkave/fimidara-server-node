@@ -1,6 +1,7 @@
 import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {
@@ -34,6 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -128,13 +130,13 @@ describe('listFolderContent', () => {
       generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId}),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
-      context.data.folder.countByQuery({
+      context.semantic.folder.countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      context.data.file.countByQuery({
+      context.semantic.file.countByQuery({
         workspaceId: workspace.resourceId,
-        parentId: null,
+        folderId: null,
       }),
     ]);
     const pageSize = 10;

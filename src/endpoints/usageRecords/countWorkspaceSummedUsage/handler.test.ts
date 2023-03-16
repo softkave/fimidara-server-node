@@ -1,6 +1,7 @@
 import assert = require('assert');
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -34,7 +36,7 @@ describe('countWorkspaceSummedUsage', () => {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
-    const count = await context.data.usageRecord.countByQuery({
+    const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,

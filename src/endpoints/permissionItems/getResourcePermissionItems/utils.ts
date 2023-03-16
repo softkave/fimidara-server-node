@@ -1,4 +1,6 @@
 import {first} from 'lodash';
+import {IFile} from '../../../definitions/file';
+import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -7,8 +9,9 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
-import {InvalidRequestError} from '../../errors';
+import {InvalidRequestError, NotFoundError} from '../../errors';
 import {IResource} from '../../resources/types';
 import {
   checkPermissionContainersExist,
@@ -16,9 +19,6 @@ import {
 } from '../checkPermissionArtifacts';
 import {IGetResourcePermissionItemsEndpointParamsBase} from './types';
 
-/**
- * TODO: Use this query after testing in checkAuthorization
- */
 export async function getResourcePermissionItemsQuery(
   context: IBaseContext,
   agent: ISessionAgent,
@@ -32,75 +32,68 @@ export async function getResourcePermissionItemsQuery(
     action: BasicCRUDActions.Read,
     targets: {type: AppResourceType.PermissionItem},
   });
+  appAssert(
+    data.targetId || data.targetType,
+    new InvalidRequestError('Provide target ID or target type.')
+  );
 
-  let permissionContainer: IResource | undefined = undefined,
-    resource: IResource | undefined = undefined;
+  let target: IResource | undefined = undefined,
+    containerId = data.containerId ?? workspace.resourceId,
+    permissionContainer: IResource | undefined = undefined;
 
   if (data.targetId) {
     const targetsCheckResult = await checkPermissionTargetsExist(
       context,
       agent,
       workspace.resourceId,
-      [data.targetId]
+      [data.targetId],
+      BasicCRUDActions.Read
     );
-    resource = first(targetsCheckResult.resources);
+    target = first(targetsCheckResult.resources);
+    appAssert(target, new NotFoundError('Permission target not found.'));
   }
 
-  if (!resource && data.containerId) {
+  if (containerId !== workspace.resourceId) {
     const containersCheckResult = await checkPermissionContainersExist(
       context,
       agent,
       workspace.resourceId,
-      [data.containerId]
+      [containerId],
+      BasicCRUDActions.Read
     );
     permissionContainer = first(containersCheckResult.resources);
+    appAssert(permissionContainer, new NotFoundError('Permission container not found.'));
   }
 
-  appAssert(
-    resource ?? permissionContainer,
-    new InvalidRequestError('Permission target or container not found')
-  );
-
-  let permissionContainerList: string[] = [];
+  let containerIdList: string[] = [];
   if (
-    resource &&
-    (resource.resourceType === AppResourceType.File ??
-      resource.resourceType === AppResourceType.Folder)
+    target &&
+    (target.resourceType === AppResourceType.File || target.resourceType === AppResourceType.Folder)
   ) {
-    permissionContainerList = getFilePermissionContainers(
+    containerIdList = getFilePermissionContainers(
       workspace.resourceId,
-      resource.resource as any
+      target.resource as unknown as Pick<IFile, 'idPath'>
     );
   } else if (
     permissionContainer &&
-    (permissionContainer.resourceType === AppResourceType.File ??
+    (permissionContainer.resourceType === AppResourceType.File ||
       permissionContainer.resourceType === AppResourceType.Folder)
   ) {
-    permissionContainerList = getFilePermissionContainers(
+    containerIdList = getFilePermissionContainers(
       workspace.resourceId,
-      permissionContainer.resource as any
+      permissionContainer.resource as unknown as Pick<IFile, 'idPath'>
     );
   } else {
-    permissionContainerList = getWorkspacePermissionContainers(workspace.resourceId);
+    containerIdList = getWorkspacePermissionContainers(workspace.resourceId);
   }
 
-  const queries: IPermissionItemQuery[] = [
-    {
-      workspaceId: data.workspaceId,
-      containerId: {$in: permissionContainer},
-      targetType: {$in: [AppResourceType.All, data.targetType] as any[]},
-      targetId: data.targetId ? {$in: [data.targetId, null]} : null,
-    },
-  ];
-
-  if (resource && resource.resourceType === AppResourceType.Folder) {
-    queries.push({
-      workspaceId: data.workspaceId,
-      containerId: resource.resourceId,
-      targetType: {$in: [AppResourceType.All, data.targetType] as any[]},
-      targetId: data.targetId ? {$in: [data.targetId, null]} : null,
-    });
-  }
-
-  return {queries};
+  const query: LiteralDataQuery<IPermissionItem> = {
+    workspaceId: data.workspaceId,
+    containerId: {$in: containerIdList},
+    targetType: data.targetType
+      ? {$in: [AppResourceType.All, data.targetType]}
+      : {$eq: AppResourceType.All},
+    targetId: data.targetId ? {$in: [data.targetId, null]} : null,
+  };
+  return query;
 }

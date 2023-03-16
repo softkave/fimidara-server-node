@@ -11,7 +11,7 @@ import {
 export interface IGetResourcePermissionItemsEndpointParamsBase
   extends IEndpointOptionalWorkspaceIDParam {
   targetId?: string;
-  targetType: AppResourceType;
+  targetType?: AppResourceType;
   containerId?: string;
 }
 

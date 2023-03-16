@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -22,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -46,7 +48,7 @@ describe('updateTag', () => {
     const result = await updateTag(context, instData);
     assertEndpointResultOk(result);
 
-    const updatedTag = await context.data.tag.assertGetOneByQuery(
+    const updatedTag = await context.semantic.tag.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(tag01.resourceId)
     );
     expect(tagExtractor(updatedTag)).toMatchObject(result.tag);

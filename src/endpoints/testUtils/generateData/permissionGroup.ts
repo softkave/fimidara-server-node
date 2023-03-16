@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
@@ -9,9 +9,9 @@ export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> =
   const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
-    agentType: SessionAgentType.User,
+    agentType: AppResourceType.User,
+    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-
   const token: IPermissionGroup = {
     createdAt,
     createdBy,
@@ -23,7 +23,6 @@ export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> =
     description: faker.lorem.sentence(),
     ...seed,
   };
-
   return token;
 }
 

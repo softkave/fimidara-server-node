@@ -19,7 +19,13 @@ import {dropMongoConnection} from '../../testUtils/helpers/mongo';
 import BaseContext from '../BaseContext';
 import {IUsageRecordInput} from '../logic/UsageRecordLogicProvider';
 import {IBaseContext} from '../types';
-import {getDataProviders} from '../utils';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+} from '../utils';
 import assert = require('assert');
 
 let connection: Connection | null = null;
@@ -31,16 +37,22 @@ beforeAll(async () => {
   testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
   const emptyObject = cast<any>({close() {}, dispose() {}});
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
   context = new BaseContext(
-    getDataProviders(connection),
+    getDataProviders(models),
     /** emailProvider  */ emptyObject,
     /** fileBackend    */ emptyObject,
     /** appVariables   */ emptyObject,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
     () => dropMongoConnection(connection)
   );
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -51,7 +63,7 @@ function assertDeps() {
 }
 
 async function getSumRecords(ctx: IBaseContext, recordId: string) {
-  const record = await ctx.data.usageRecord.assertGetOneByQuery(
+  const record = await ctx.semantic.usageRecord.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
   return {record};

@@ -1,5 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -25,10 +25,15 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
   });
 
   await checkPermissionGroupNameExists(context, workspace.resourceId, data.permissionGroup.name);
-  let permissionGroup = newResource(agent, AppResourceType.PermissionGroup, {
-    ...data.permissionGroup,
-    workspaceId: workspace.resourceId,
-  });
+  let permissionGroup = newWorkspaceResource(
+    agent,
+    AppResourceType.PermissionGroup,
+    workspace.resourceId,
+    {
+      ...data.permissionGroup,
+      workspaceId: workspace.resourceId,
+    }
+  );
   await context.semantic.permissionGroup.insertItem(permissionGroup);
   await saveResourceAssignedItems(
     context,

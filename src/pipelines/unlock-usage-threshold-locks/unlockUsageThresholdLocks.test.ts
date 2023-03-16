@@ -23,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   if (connection) {
     await dropMongoConnection(connection);
   }

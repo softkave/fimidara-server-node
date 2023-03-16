@@ -2,13 +2,13 @@ import {add} from 'date-fns';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
+  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -40,19 +40,16 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
 async function changePasswordWithTokenTest() {
   assertContext(context);
   const oldPassword = 'abd784_!';
-  const {user, rawUser} = await insertUserForTest(context, {
-    password: oldPassword,
-  });
-
+  const {user} = await insertUserForTest(context, {password: oldPassword});
   const newPassword = 'abd784_!new';
-  const token = newResource(makeUserSessionAgent(rawUser), AppResourceType.UserToken, {
-    resourceId: getNewIdForResource(AppResourceType.UserToken),
+  const token = newResource(AppResourceType.AgentToken, {
     userId: user.resourceId,
     tokenAccessScope: [TokenAccessScope.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
@@ -61,9 +58,13 @@ async function changePasswordWithTokenTest() {
         days: userConstants.changePasswordTokenExpDurationInDays,
       })
     ),
+    separateEntityId: user.resourceId,
+    agentType: AppResourceType.User,
+    workspaceId: null,
+    createdBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.userToken.insertItem(token);
-
+  await context.semantic.agentToken.insertItem(token);
   const result = await changePasswordWithToken(
     context,
     RequestData.fromExpressRequest<IChangePasswordParameters>(
@@ -72,16 +73,14 @@ async function changePasswordWithTokenTest() {
     )
   );
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetOneByQuery(
+  const updatedUser = await context.semantic.user.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
-
   expect(result.user).toMatchObject(userExtractor(updatedUser));
   const loginReqData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
     password: newPassword,
     email: user.email,
   });
-
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
   expect(loginResult.user).toMatchObject(userExtractor(updatedUser));

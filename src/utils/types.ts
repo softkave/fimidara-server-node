@@ -21,7 +21,7 @@ export type ConvertTypeOneToTypeTwo<T extends object, One, Two> = {
 };
 
 export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<T, Date, string>;
-export type AnyFn = (...args: any) => any;
+export type AnyFn<Args extends unknown[] = any, Result = any> = (...args: Args) => Result;
 
 type Join<K, P> = K extends string | number
   ? P extends string | number
@@ -101,3 +101,6 @@ export type RouteParameters<Route extends string> = string extends Route
   : {};
 
 export type JoiSchemaParts<T> = Required<SchemaMap<T>>;
+export type PartialRecord<K extends string | number | symbol, T> = {
+  [P in K]?: T;
+};

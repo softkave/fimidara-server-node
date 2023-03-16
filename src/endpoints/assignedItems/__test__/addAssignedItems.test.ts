@@ -3,8 +3,8 @@ import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
-import {cleanupContext} from '../../testUtils/context/cleanup';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
 import {
@@ -22,7 +22,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await cleanupContext(context);
+  await disposeGlobalUtils();
+  await context?.dispose();
 });
 
 describe('addAssignedItems', () => {
@@ -63,7 +64,7 @@ describe('addAssignedItems', () => {
       pgInputKey
     );
 
-    const savedItems = await context.data.assignedItem.getManyByQuery({
+    const savedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery({
       assigneeId: {$in: pgList01IdList},
     });
     expectContainsExactlyForAnyType(
@@ -120,7 +121,7 @@ describe('addAssignedItems', () => {
       pgInputKey
     );
 
-    const savedItems = await context.data.assignedItem.getManyByQuery({
+    const savedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery({
       assigneeId: {$in: pgList01IdList},
     });
     expectContainsExactlyForAnyType(

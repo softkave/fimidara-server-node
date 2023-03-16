@@ -1,5 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -22,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -53,7 +55,7 @@ test('permission items deleted', async () => {
   );
   const result = await deletePermissionItemsByEntity(context, instData);
   assertEndpointResultOk(result);
-  const deletedItems = await context.data.permissionItem.getManyByQuery(
+  const deletedItems = await context.semantic.permissionItem.getManyByQuery(
     EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspace.resourceId, itemIds)
   );
   expect(deletedItems.length).toEqual(0);

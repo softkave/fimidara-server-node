@@ -1,5 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {
@@ -20,6 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -35,14 +37,12 @@ describe('countEntityPermissionItems', () => {
       entityId: user.resourceId,
       entityType: AppResourceType.User,
     });
-    const count = await context.data.permissionItem.countByQuery({
+    const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
       entityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
     });
-
     const instData = RequestData.fromExpressRequest<ICountEntityPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {

@@ -6,17 +6,17 @@ import {IBaseContext} from '../contexts/types';
 import {endpointDecodeURIComponent, wrapEndpointREST} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
-import getFile from './getFile/handler';
-import {GetFileEndpoint, IGetFileEndpointParams} from './getFile/types';
 import getFileDetails from './getFileDetails/handler';
+import readFile from './readFile/handler';
+import {IReadFileEndpointParams, ReadFileEndpoint} from './readFile/types';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {IUploadFileEndpointParams} from './uploadFile/types';
 
 const uploadFilePath = fileConstants.routes.uploadFile;
-const getFilePath = fileConstants.routes.getFile;
+const readFilePath = fileConstants.routes.readFile;
 
-function handleGetFileResponse(res: Response, result: Awaited<ReturnType<GetFileEndpoint>>) {
+function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFileEndpoint>>) {
   res
     .set({
       'Content-Length': result.contentLength,
@@ -26,14 +26,14 @@ function handleGetFileResponse(res: Response, result: Awaited<ReturnType<GetFile
   result.stream.pipe(res);
 }
 
-export interface IGetFileEndpointQueryParams {
+export interface IReadFileEndpointQueryParams {
   w?: number;
   h?: number;
 }
 
-function extractGetFileParamsFromReq(req: Request): IGetFileEndpointParams {
+function extractReadFileParamsFromReq(req: Request): IReadFileEndpointParams {
   const p = req.path;
-  const filepath = endpointDecodeURIComponent(last(p.split(getFilePath)));
+  const filepath = endpointDecodeURIComponent(last(p.split(readFilePath)));
   const width = endpointDecodeURIComponent(req.query.w);
   const height = endpointDecodeURIComponent(req.query.h);
   return {
@@ -72,12 +72,12 @@ export default function setupFilesRESTEndpoints(
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
     updateFileDetails: wrapEndpointREST(updateFileDetails, ctx),
     uploadFile: wrapEndpointREST(uploadFile, ctx, undefined, extractUploadFilesParamsFromReq),
-    getFile: wrapEndpointREST(getFile, ctx, handleGetFileResponse, extractGetFileParamsFromReq),
+    readFile: wrapEndpointREST(readFile, ctx, handleReadFileResponse, extractReadFileParamsFromReq),
   };
 
   // TODO: look into using Content-Disposition header
   // TODO: look into using ETags
-  app.get(`${getFilePath}*`, endpoints.getFile);
+  app.get(`${readFilePath}*`, endpoints.readFile);
   app.delete(fileConstants.routes.deleteFile, endpoints.deleteFile);
   app.post(fileConstants.routes.getFileDetails, endpoints.getFileDetails);
   app.post(fileConstants.routes.updateFileDetails, endpoints.updateFileDetails);

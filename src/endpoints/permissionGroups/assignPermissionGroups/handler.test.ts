@@ -3,6 +3,7 @@ import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
@@ -26,6 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -34,7 +36,7 @@ describe('assignPermissionGroups', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const agent = makeUserSessionAgent(rawUser);
+    const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
       generateAndInsertCollaboratorListForTest(context, agent, workspace.resourceId, 2),
@@ -70,7 +72,7 @@ describe('assignPermissionGroups', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const agent = makeUserSessionAgent(rawUser);
+    const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
       generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
       generateAndInsertCollaboratorListForTest(context, agent, workspace.resourceId, 1),

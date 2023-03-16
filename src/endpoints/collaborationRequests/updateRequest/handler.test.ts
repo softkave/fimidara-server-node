@@ -3,6 +3,7 @@ import {add} from 'date-fns';
 import {AppResourceType} from '../../../definitions/system';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -25,6 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -74,7 +76,7 @@ describe('updateCollaborationRequest', () => {
 
     const result = await updateCollaborationRequest(context, instData);
     assertEndpointResultOk(result);
-    const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
+    const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
 

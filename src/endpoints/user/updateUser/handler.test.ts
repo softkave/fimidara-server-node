@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -26,6 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -46,7 +48,7 @@ test('user data updated', async () => {
 
   const savedUser = await populateUserWorkspaces(
     context,
-    await context.data.user.assertGetOneByQuery(UserQueries.getById(result.user.resourceId))
+    await context.semantic.user.assertGetOneByQuery(UserQueries.getById(result.user.resourceId))
   );
 
   expect(userExtractor(savedUser)).toMatchObject(result.user);

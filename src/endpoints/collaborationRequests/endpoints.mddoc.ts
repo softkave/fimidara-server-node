@@ -1,7 +1,6 @@
 import {
   CollaborationRequestStatusType,
   ICollaborationRequestStatus,
-  IPublicCollaborationRequest,
 } from '../../definitions/collaborationRequest';
 import {
   asFieldObjectAny,
@@ -20,10 +19,6 @@ import {
   fReusables,
 } from '../endpoints.mddoc';
 import {collabRequestConstants} from './constants';
-import {
-  IGetCollaborationRequestEndpointParams,
-  IGetCollaborationRequestEndpointResult,
-} from './getRequest/types';
 import {
   IGetWorkspaceCollaborationRequestsEndpointParams,
   IGetWorkspaceCollaborationRequestsEndpointResult,
@@ -163,13 +158,36 @@ const updateCollaborationRequestResult = [
     ),
 ];
 
-const getCollaborationRequestParams = new FieldObject<IGetCollaborationRequestEndpointParams>()
-  .setName('GetCollaborationRequestEndpointParams')
-  .setFields({
-    requestId: fReusables.id,
-  })
-  .setRequired(true)
-  .setDescription('Get collaboration request endpoint params.');
+const getCollaborationRequestForUserParams =
+  new FieldObject<IGetCollaborationRequestForUserEndpointParams>()
+    .setName('GetCollaborationRequestEndpointParams')
+    .setFields({
+      requestId: fReusables.id,
+    })
+    .setRequired(true)
+    .setDescription('Get collaboration request endpoint params.');
+const getCollaborationRequestResult = [
+  endpointHttpResponseItems.errorResponse,
+  new HttpEndpointResponse()
+    .setStatusCode(endpointStatusCodes.success)
+    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setResponseBody(
+      new FieldObject<IGetCollaborationRequestEndpointResult>()
+        .setName('GetCollaborationRequestEndpointSuccessResult')
+        .setFields({request: collaborationRequest})
+        .setRequired(true)
+        .setDescription('Get collaboration request endpoint success result.')
+    ),
+];
+
+const getCollaborationRequestForWorkspaceParams =
+  new FieldObject<IGetCollaborationRequestEndpointParams>()
+    .setName('GetCollaborationRequestEndpointParams')
+    .setFields({
+      requestId: fReusables.id,
+    })
+    .setRequired(true)
+    .setDescription('Get collaboration request endpoint params.');
 const getCollaborationRequestResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()

@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -20,6 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -35,7 +37,7 @@ test('collaboration request deleted', async () => {
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const deletedRequestExists = await context.data.collaborationRequest.existsByQuery(
+  const deletedRequestExists = await context.semantic.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );
 

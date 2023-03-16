@@ -63,6 +63,9 @@ export const appMessages = {
     notFound(id?: string) {
       return id ? `Resource with ID ${id} not found.` : 'Resource not found.';
     },
+    permissionDenied(id?: string) {
+      return id ? `Permission denied for resource with ID ${id}.` : 'Permission denied.';
+    },
     notImplementedYet(fnName?: string) {
       return fnName ? `${fnName} not implemented yet.` : 'Not implemented yet.';
     },

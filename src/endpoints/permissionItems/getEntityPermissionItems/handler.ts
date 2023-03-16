@@ -1,10 +1,11 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
   getWorkspaceFromEndpointInput,
 } from '../../utils';
-import checkEntitiesExist from '../checkEntitiesExist';
+import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
 import {PermissionItemUtils} from '../utils';
 import {GetEntityPermissionItemsEndpoint} from './types';
 import {getEntityPermissionItemsQuery} from './utils';
@@ -19,10 +20,19 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkEntitiesExist(context, agent, workspace, [data.entityId]);
-  const q = await getEntityPermissionItemsQuery(context, agent, workspace, data);
+  await checkPermissionEntitiesExist(
+    context,
+    agent,
+    workspace.resourceId,
+    [data.entityId],
+    BasicCRUDActions.Read
+  );
+  await getEntityPermissionItemsQuery(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const items = await context.data.permissionItem.getManyByQuery(q, data);
+  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery(
+    {entityId: data.entityId},
+    data
+  );
   return {
     page: getEndpointPageFromInput(data),
     items: PermissionItemUtils.extractPublicPermissionItemList(items),

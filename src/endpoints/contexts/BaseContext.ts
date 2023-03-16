@@ -1,7 +1,6 @@
 import {Logger} from 'winston';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
 import {waitTimeout} from '../../utils/fns';
-import {consoleLogger, logger} from '../../utils/logger/logger';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {IEmailProviderContext} from './EmailProviderContext';
@@ -38,7 +37,6 @@ export default class BaseContext<
   logic: Logic;
   semantic: SemanticData;
   session: ISessionContext = new SessionContext();
-  logger: Logger = logger;
   clientLogger: Logger = loggerFactory({
     transports: ['mongodb'],
     meta: {service: FimidaraLoggerServiceNames.WebClient},
@@ -71,10 +69,8 @@ export default class BaseContext<
 
   dispose = async () => {
     const promises = [this.fileBackend.close(), this.email.close()];
-    logRejectedPromisesAndThrow(this, await Promise.allSettled(promises));
-    this.logger.close();
+    logRejectedPromisesAndThrow(await Promise.allSettled(promises));
     this.clientLogger.close();
-    consoleLogger.close();
     if (this.disposeFn) {
       await this.disposeFn();
     }

@@ -6,7 +6,7 @@ import {
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {getDate} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
@@ -19,7 +19,7 @@ export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageReco
       category,
       locked: true,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
-      lastUpdatedAt: getDate(),
+      lastUpdatedAt: getTimestamp(),
     };
   });
   return workspace;
@@ -48,9 +48,9 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
       month: random(0, 11),
       year: random(0, 11),
       resourceId: getNewIdForResource(AppResourceType.UsageRecord),
-      createdAt: new Date(),
+      createdAt: getTimestamp(),
       createdBy: SYSTEM_SESSION_AGENT,
-      lastUpdatedAt: new Date(),
+      lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
       category: randomCategory(),
       summationType: randomSummationType() as any,
@@ -61,7 +61,6 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
       ...extra,
     });
   }
-
   return records;
 }
 

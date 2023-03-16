@@ -9,7 +9,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import RequestData from '../../RequestData';
 import {getCostForUsage} from '../../usageRecords/constants';
@@ -35,7 +35,7 @@ export class UsageRecordLogicProvider {
     const record = this.makeLevel1Record(agent, input);
 
     // TODO: cache or pass in workspace
-    const workspace = await ctx.semantic.workspace.deleteOneById(record.workspaceId);
+    const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId);
     assertWorkspace(workspace);
     const billOverdue = await this.checkWorkspaceBillStatus(ctx, record, workspace);
     if (billOverdue) {
@@ -52,15 +52,20 @@ export class UsageRecordLogicProvider {
   };
 
   private makeLevel1Record = (agent: IAgent, input: IUsageRecordInput) => {
-    const record: IUsageRecord = newResource(agent, AppResourceType.UsageRecord, {
-      ...getRecordingPeriod(),
-      ...input,
-      resourceId: input.resourceId ?? getNewIdForResource(AppResourceType.UsageRecord),
-      summationType: UsageSummationType.One,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
-      artifacts: defaultTo(input.artifacts, []),
-      usageCost: getCostForUsage(input.category, input.usage),
-    });
+    const record: IUsageRecord = newWorkspaceResource(
+      agent,
+      AppResourceType.UsageRecord,
+      input.workspaceId,
+      {
+        ...getRecordingPeriod(),
+        ...input,
+        resourceId: input.resourceId ?? getNewIdForResource(AppResourceType.UsageRecord),
+        summationType: UsageSummationType.One,
+        fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
+        artifacts: defaultTo(input.artifacts, []),
+        usageCost: getCostForUsage(input.category, input.usage),
+      }
+    );
 
     return record;
   };

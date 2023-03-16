@@ -44,7 +44,7 @@ const cascade: DeleteResourceCascadeFnsMap = {
 
 async function deleteFilesByFolderId(context: IBaseContext, workspaceId: string, folderId: string) {
   // TODO: should we get files by name path, paginated
-  const files = await context.data.file.getManyByQuery(
+  const files = await context.semantic.file.getManyByLiteralDataQuery(
     FolderQueries.getByParentId(workspaceId, folderId)
   );
   await waitOnPromises(
@@ -64,7 +64,7 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
     deleteFilesByFolderId(context, folder.workspaceId, folder.resourceId),
     internalDeleteFolderList(
       context,
-      await context.data.folder.getManyByQuery(
+      await context.semantic.folder.getManyByLiteralDataQuery(
         FolderQueries.getByParentId(folder.workspaceId, folder.resourceId)
       )
     ),
@@ -90,7 +90,7 @@ async function internalDeleteFolder(context: IBaseContext, folder: IFolder) {
     ),
 
     // Delete permission items that explicitly give access to the folder
-    context.data.permissionItem.deleteManyByQuery(
+    context.semantic.permissionItem.deleteManyByQuery(
       PermissionItemQueries.getByResource(
         folder.workspaceId,
         folder.resourceId,

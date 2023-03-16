@@ -1,8 +1,10 @@
 import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
@@ -25,6 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -56,10 +59,11 @@ describe('getUserWorkspaces', () => {
         assignWorkspaceToUser(context!, SYSTEM_SESSION_AGENT, w.resourceId, rawUser)
       )
     );
+    appAssert(userToken.separateEntityId);
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(userToken.userId)
+      await context.semantic.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(userToken.separateEntityId)
       )
     );
     const count = user.workspaces.length;

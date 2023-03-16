@@ -7,8 +7,8 @@ import {GetUserDataEndpoint} from './types';
 const getUserData: GetUserDataEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
   const [userToken, clientAssignedToken] = await Promise.all([
-    getUserToken(context, agent),
-    getUserClientAssignedToken(context, agent),
+    getUserToken(context, agent.agentId),
+    getUserClientAssignedToken(context, agent.agentId),
   ]);
   const user = agent.user;
   assertUser(user);

@@ -3,6 +3,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
@@ -40,6 +41,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 

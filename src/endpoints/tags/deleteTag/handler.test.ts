@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -20,6 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -37,7 +39,7 @@ describe('deleteTag', () => {
 
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
-    const deletedTagExists = await context.data.tag.existsByQuery(
+    const deletedTagExists = await context.semantic.tag.existsByQuery(
       EndpointReusableQueries.getByResourceId(tag.resourceId)
     );
 

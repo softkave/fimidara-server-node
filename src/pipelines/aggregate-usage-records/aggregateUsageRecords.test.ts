@@ -22,6 +22,7 @@ import {
   getMongoModels,
   getSemanticDataProviders,
 } from '../../endpoints/contexts/utils';
+import {disposeGlobalUtils} from '../../endpoints/globalUtils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import RequestData from '../../endpoints/RequestData';
 import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
@@ -57,6 +58,7 @@ const runInfo = pipelineRunInfoFactory({
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await Promise.all(contexts.map(c => c.dispose()));
   await Promise.all(connections.map(c => dropMongoConnection(c)));
   await runInfo.logger.close();
@@ -196,7 +198,7 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.data.workspace.getOneByQuery(
+  const w = await context.semantic.workspace.getOneByLiteralDataQuery(
     EndpointReusableQueries.getByResourceId(wId)
   );
   assert(w);

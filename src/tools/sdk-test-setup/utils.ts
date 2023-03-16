@@ -13,11 +13,11 @@ import {
   getMongoModels,
   getSemanticDataProviders,
 } from '../../endpoints/contexts/utils';
+import {consoleLogger} from '../../endpoints/globalUtils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
-import {consoleLogger} from '../../utils/logger/logger';
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);

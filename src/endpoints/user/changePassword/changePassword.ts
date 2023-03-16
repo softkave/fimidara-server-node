@@ -20,14 +20,14 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const completeUserData = await populateUserWorkspaces(context, updatedUser);
 
   // Delete user token and incomingTokenData since they are no longer valid
-  delete instData.agent?.userToken;
+  delete instData.agent?.agentToken;
   delete instData.incomingTokenData;
 
   // Delete existing user tokens cause they're no longer valid
-  await context.semantic.userToken.deleteUserExistingTokens(completeUserData.resourceId);
+  await context.semantic.agentToken.deleteAgentTokens(completeUserData.resourceId);
   const [userToken, clientAssignedToken] = await Promise.all([
-    getUserToken(context, agent),
-    getUserClientAssignedToken(context, agent),
+    getUserToken(context, agent.agentId),
+    getUserClientAssignedToken(context, agent.agentId),
   ]);
   instData.user = completeUserData;
   return toLoginResult(context, completeUserData, userToken, clientAssignedToken);

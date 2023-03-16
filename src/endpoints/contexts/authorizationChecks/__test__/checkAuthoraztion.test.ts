@@ -8,6 +8,7 @@ import {
 import {IWorkspace} from '../../../../definitions/workspace';
 import {appAssert} from '../../../../utils/assertion';
 import {addAssignedPermissionGroupList} from '../../../assignedItems/addAssignedItems';
+import {disposeGlobalUtils} from '../../../globalUtils';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGroups/testUtils';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
 import {
@@ -47,6 +48,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 

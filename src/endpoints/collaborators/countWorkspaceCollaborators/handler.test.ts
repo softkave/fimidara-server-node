@@ -1,6 +1,7 @@
 import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -36,7 +38,7 @@ describe('countWorkspaceCollaborators', () => {
       workspace.resourceId,
       seedCount
     );
-    const count = await context.data.assignedItem.countByQuery(
+    const count = await context.semantic.assignedItem.countByQuery(
       AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
     );
     expect(count).toBeGreaterThanOrEqual(seedCount);

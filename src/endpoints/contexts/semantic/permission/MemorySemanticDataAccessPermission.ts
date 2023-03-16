@@ -3,7 +3,7 @@ import {
   IAssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
 } from '../../../../definitions/permissionGroups';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
+import {IPermissionItem} from '../../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions, IResourceBase} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {ServerError} from '../../../../utils/errors';
@@ -79,7 +79,6 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     strictTargetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
     containerId?: string | string[];
-    appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
     sortByDate?: boolean;
     sortByContainer?: boolean;
     sortByEntity?: boolean;
@@ -135,7 +134,6 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     strictTargetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
     containerId?: string | string[];
-    appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   }) {
     const query: LiteralDataQuery<IPermissionItem> = this.getEntitiesPermissionItemsQuery(props);
     appAssert(false, new ServerError(), 'Not implemented');
@@ -145,12 +143,8 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<IResourceBase> = {resourceId: props.entityId};
     if (type === AppResourceType.User) return await props.context.memstore.user.readItem(query);
-    if (type === AppResourceType.UserToken)
-      return await props.context.memstore.userToken.readItem(query);
     if (type === AppResourceType.AgentToken)
       return await props.context.memstore.agentToken.readItem(query);
-    if (type === AppResourceType.ClientAssignedToken)
-      return await props.context.memstore.clientAssignedToken.readItem(query);
     if (type === AppResourceType.PermissionGroup)
       return await props.context.memstore.permissionGroup.readItem(query);
     return null;
@@ -163,7 +157,6 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     strictTargetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
     containerId?: string | string[];
-    appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   }) {
     let query: LiteralDataQuery<IPermissionItem> = {};
 
@@ -172,7 +165,6 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     >[0];
     const keys: Array<[T, keyof IPermissionItem]> = [
       ['action', 'action'],
-      ['appliesTo', 'appliesTo'],
       ['containerId', 'containerId'],
       ['targetType', 'containerType'],
       ['entityId', 'entityId'],

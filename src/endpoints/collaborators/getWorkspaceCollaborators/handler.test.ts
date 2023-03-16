@@ -3,6 +3,7 @@ import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
@@ -30,6 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -46,7 +48,7 @@ describe('getWorkspaceCollaborators', () => {
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(
+      await context.semantic.user.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(user.resourceId)
       )
     );
@@ -66,7 +68,7 @@ describe('getWorkspaceCollaborators', () => {
       workspace.resourceId,
       seedCount
     );
-    const count = await context.data.assignedItem.countByQuery(
+    const count = await context.semantic.assignedItem.countByQuery(
       AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
     );
     expect(count).toBeGreaterThanOrEqual(seedCount);

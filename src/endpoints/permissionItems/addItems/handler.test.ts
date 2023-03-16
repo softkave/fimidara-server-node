@@ -5,6 +5,7 @@ import {
   getWorkspaceActionList,
 } from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {expectPermissionItemsPresent} from '../../testUtils/helpers/permissionItem';
 import {
@@ -27,6 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -53,7 +55,12 @@ describe('addItems', () => {
     );
     const result = await addPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectPermissionItemsPresent(result.items, items);
+    expectPermissionItemsPresent(
+      permissionGroup.resourceId,
+      workspace.resourceId,
+      result.items,
+      items
+    );
   });
 
   test('permission items are not duplicated', async () => {
@@ -95,8 +102,13 @@ describe('addItems', () => {
     // Second insert of the very same permission items as the first insert
     const result = await addPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectPermissionItemsPresent(result.items, itemsUniq);
-    const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
+    expectPermissionItemsPresent(
+      permissionGroup.resourceId,
+      workspace.resourceId,
+      result.items,
+      itemsUniq
+    );
+    const permissionGroupItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
 

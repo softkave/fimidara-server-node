@@ -4,7 +4,6 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
-import {agentExtractor} from '../utils';
 
 const publicUserWorkspaceFields = getFields<IUserWorkspace>({
   workspaceId: true,
@@ -26,8 +25,6 @@ const publicUserFields = getFields<IPublicUserData>({
   emailVerificationEmailSentAt: true,
   passwordLastChangedAt: true,
   workspaces: userWorkspaceListExtractor,
-  createdBy: agentExtractor,
-  lastUpdatedBy: agentExtractor,
 });
 
 export const userExtractor = makeExtract(publicUserFields);

@@ -4,8 +4,9 @@ import {
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
   IForgotPasswordEmailProps,
-} from '../../../email-templates/forgotPassword';
+} from '../../../emailTemplates/forgotPassword';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -34,6 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -47,7 +49,7 @@ test('forgot password with email sent', async () => {
 
   const result = await forgotPassword(context, instData);
   assertEndpointResultOk(result);
-  const forgotPasswordToken = await context.data.userToken.assertGetOneByQuery(
+  const forgotPasswordToken = await context.semantic.agentToken.assertGetOneByQuery(
     UserTokenQueries.getByUserIdAndTokenAccessScope(
       user.resourceId,
       TokenAccessScope.ChangePassword

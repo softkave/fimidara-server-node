@@ -1,12 +1,11 @@
-import {IClientAssignedToken} from '../../../definitions/clientAssignedToken';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  ISessionAgent,
+  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
-import {IUserToken} from '../../../definitions/userToken';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
@@ -19,27 +18,21 @@ import {ILoginResult} from './types';
 export function toLoginResult(
   context: IBaseContext,
   user: IUserWithWorkspace,
-  token: IUserToken,
-  clientAssignedToken: IClientAssignedToken
+  token: IAgentToken,
+  clientAssignedToken: IAgentToken
 ): ILoginResult {
   return {
     user: userExtractor(user),
-    token: context.session.encodeToken(
-      context,
-      token.resourceId,
-      AppResourceType.UserToken,
-      token.expires
-    ),
+    token: context.session.encodeToken(context, token.resourceId, token.expires),
     clientAssignedToken: context.session.encodeToken(
       context,
       clientAssignedToken.resourceId,
-      AppResourceType.ClientAssignedToken,
       token.expires
     ),
   };
 }
 
-export async function getUserClientAssignedToken(context: IBaseContext, agent: ISessionAgent) {
+export async function getUserClientAssignedToken(context: IBaseContext, userId: string) {
   appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set.');
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
@@ -52,21 +45,25 @@ export async function getUserClientAssignedToken(context: IBaseContext, agent: I
     'App users image upload permission group ID not set.'
   );
 
-  let token = await context.semantic.clientAssignedToken.getByProvidedId(
+  let token = await context.semantic.agentToken.getByProvidedId(
     context.appVariables.appWorkspaceId,
-    agent.agentId
+    userId
   );
 
   if (!token) {
-    token = newResource(agent, AppResourceType.ClientAssignedToken, {
-      providedResourceId: agent.agentId,
+    token = newResource(AppResourceType.AgentToken, {
+      providedResourceId: userId,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
+      separateEntityId: null,
+      agentType: AppResourceType.AgentToken,
+      createdBy: SYSTEM_SESSION_AGENT,
+      lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
-    context.semantic.clientAssignedToken.insertItem(token);
+    context.semantic.agentToken.insertItem(token);
     addAssignedPermissionGroupList(
       context,
-      agent,
+      SYSTEM_SESSION_AGENT,
       context.appVariables.appWorkspaceId,
       [
         {permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId},
@@ -81,24 +78,24 @@ export async function getUserClientAssignedToken(context: IBaseContext, agent: I
   return token;
 }
 
-export async function getUserToken(context: IBaseContext, agent: ISessionAgent) {
-  appAssert(
-    agent.agentType === AppResourceType.User,
-    new ServerError(),
-    'Session agent must be a user session agent.'
-  );
-  let userToken = await context.semantic.userToken.getOneByUserId(
-    agent.agentId,
+export async function getUserToken(context: IBaseContext, userId: string) {
+  let userToken = await context.semantic.agentToken.getOneAgentToken(
+    userId,
     TokenAccessScope.Login
   );
   if (!userToken) {
-    userToken = newResource(agent, AppResourceType.UserToken, {
-      userId: agent.agentId,
+    userToken = newResource(AppResourceType.AgentToken, {
+      userId: userId,
       tokenFor: [TokenAccessScope.Login],
       issuedAt: getTimestamp(),
       version: CURRENT_TOKEN_VERSION,
+      separateEntityId: userId,
+      workspaceId: null,
+      agentType: AppResourceType.User,
+      createdBy: SYSTEM_SESSION_AGENT,
+      lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
-    await context.semantic.userToken.insertItem(userToken);
+    await context.semantic.agentToken.insertItem(userToken);
   }
 
   return userToken;

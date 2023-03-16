@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -9,9 +9,9 @@ export function generateTagForTest(seed: Partial<ITag> = {}) {
   const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
-    agentType: SessionAgentType.User,
+    agentType: AppResourceType.User,
+    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-
   const token: ITag = {
     createdAt,
     createdBy,
@@ -23,7 +23,6 @@ export function generateTagForTest(seed: Partial<ITag> = {}) {
     description: faker.lorem.sentence(),
     ...seed,
   };
-
   return token;
 }
 

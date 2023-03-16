@@ -10,7 +10,7 @@ export const fileConstants = {
   maxFileHeight: 10000, // px
   uploadedFileFieldName: 'data',
   routes: {
-    getFile: `${endpointConstants.apiv1}/files/getFile`,
+    readFile: `${endpointConstants.apiv1}/files/readFile`,
     deleteFile: `${endpointConstants.apiv1}/files/deleteFile`,
     getFileDetails: `${endpointConstants.apiv1}/files/getFileDetails`,
     updateFileDetails: `${endpointConstants.apiv1}/files/updateFileDetails`,

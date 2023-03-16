@@ -4,16 +4,13 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 
 export async function updateTestWorkspaceUsageLocks(
   context: IBaseContext,
   id: string,
   categories: UsageRecordCategory[]
 ) {
-  let workspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(id)
-  );
+  let workspace = await context.semantic.workspace.getOneById(id);
   const usageThresholdLocks: IWorkspace['usageThresholdLocks'] = {
     ...defaultTo(workspace?.usageThresholdLocks, {}),
   };

@@ -11,8 +11,8 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {makeKey, toArray} from '../../../utils/fns';
-import {logger} from '../../../utils/logger/logger';
 import {getResourceTypeFromId} from '../../../utils/resourceId';
+import {logger} from '../../globalUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../types';
 
@@ -31,6 +31,22 @@ export interface ICheckAuthorizationParams {
 }
 
 type AccessMap = Partial<Record<string, IPermissionItem>>;
+export interface IAuthAccessCheckers {
+  checkForTargetId: (
+    action: BasicCRUDActions,
+    targetId: string,
+    nothrow?: boolean
+  ) => IPermissionItem | false;
+  checkForTargetType: (
+    action: BasicCRUDActions,
+    type: AppResourceType,
+    nothrow?: boolean
+  ) => IPermissionItem | false;
+  checkUsingCheckAuthParams: ({
+    targets,
+    action,
+  }: Pick<ICheckAuthorizationParams, 'targets' | 'action'>) => void;
+}
 
 function newAccessChecker(
   itemsAllowingAccess: AccessMap,
@@ -80,7 +96,7 @@ function newAccessChecker(
     return handleNoAccess(undefined, nothrow);
   };
 
-  const accessChecker = {
+  const accessChecker: IAuthAccessCheckers = {
     checkForTargetId: (action: BasicCRUDActions, targetId: string, nothrow = false) => {
       const type = getResourceTypeFromId(targetId);
       const keys = keyFn({action, targetId, targetType: type});

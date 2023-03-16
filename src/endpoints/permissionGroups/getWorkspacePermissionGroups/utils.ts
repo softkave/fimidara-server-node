@@ -2,7 +2,7 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definit
 import {IWorkspace} from '../../../definitions/workspace';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {getWorkspaceResourceListQuery} from '../../utils';
+import {getWorkspaceResourceListQuery00} from '../../utils';
 
 export async function getWorkspacePermissionGroupsQuery(
   context: IBaseContext,
@@ -16,5 +16,5 @@ export async function getWorkspacePermissionGroupsQuery(
     targets: {type: AppResourceType.PermissionGroup},
     action: BasicCRUDActions.Read,
   });
-  return getWorkspaceResourceListQuery(workspace, permissionsSummaryReport);
+  return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);
 }

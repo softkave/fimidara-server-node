@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -26,6 +27,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await context?.dispose();
+  await disposeGlobalUtils();
 });
 
 test('program access token deleted', async () => {
@@ -42,7 +44,7 @@ test('program access token deleted', async () => {
 
   const result = await deleteAgentToken(context, instData);
   assertEndpointResultOk(result);
-  const deletedTokenExists = await context.data.agentToken.existsByQuery(
+  const deletedTokenExists = await context.semantic.agentToken.existsByQuery(
     EndpointReusableQueries.getByResourceId(token.resourceId)
   );
 

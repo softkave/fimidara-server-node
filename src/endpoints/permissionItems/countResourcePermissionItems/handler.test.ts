@@ -1,6 +1,6 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {
@@ -21,6 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -35,15 +36,13 @@ describe('countResourcePermissionItems', () => {
       containerType: AppResourceType.Workspace,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
-    const count = await context.data.permissionItem.countByQuery({
+    const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
     const instData = RequestData.fromExpressRequest<ICountResourcePermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),

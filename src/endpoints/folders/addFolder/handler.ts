@@ -11,7 +11,7 @@ import {
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
@@ -47,7 +47,7 @@ export async function createSingleFolder(
   }
 
   const folderId = getNewIdForResource(AppResourceType.Folder);
-  const savedFolder = newResource(agent, AppResourceType.Folder, {
+  const savedFolder = newWorkspaceResource(agent, AppResourceType.Folder, workspace.resourceId, {
     name,
     workspaceId: workspace.resourceId,
     resourceId: folderId,

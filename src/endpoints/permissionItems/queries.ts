@@ -80,18 +80,10 @@ function getByPermissionEntityAndContainer(entityId: string, containerId: string
     .build();
 }
 
-function getByHashList(workspaceId: string, hashList: string[]) {
-  return newFilter()
-    .addItem('hash', hashList, DataProviderFilterValueOperator.In)
-    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .build();
-}
-
 export default abstract class PermissionItemQueries {
   static getByContainer = getByContainer;
   static getByPermissionEntity = getByPermissionEntity;
   static getByResource = getByResource;
   static getByPermissionEntityAndContainer = getByPermissionEntityAndContainer;
   static getByContainerAndResource = getByContainerAndResource;
-  static getByHashList = getByHashList;
 }

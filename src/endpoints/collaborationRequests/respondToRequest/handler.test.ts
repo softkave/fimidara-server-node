@@ -1,5 +1,6 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -27,6 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -51,7 +53,7 @@ test('collaboration request declined', async () => {
   );
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
+  const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(request01.resourceId)
   );
 

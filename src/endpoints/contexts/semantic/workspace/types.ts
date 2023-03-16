@@ -5,4 +5,5 @@ export interface ISemanticDataAccessWorkspaceProvider
   extends ISemanticDataAccessWorkspaceResourceProvider<IWorkspace> {
   getByRootname(name: string): Promise<IWorkspace | null>;
   existsByRootname(name: string): Promise<boolean>;
+  workspaceExistsByName(name: string): Promise<boolean>;
 }

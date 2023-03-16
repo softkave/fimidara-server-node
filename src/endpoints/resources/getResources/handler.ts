@@ -1,8 +1,10 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getWorkspaceResourceTypeList,
+} from '../../../definitions/system';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {getPublicAgentToken} from '../../agentTokens/utils';
-import {getPublicClientToken} from '../../clientAssignedTokens/utils';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getResourcesPartOfWorkspace} from '../containerCheckFns';
 import {getPublicResourceList} from '../getPublicResource';
@@ -11,6 +13,7 @@ import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
 
+const allowedTypes = getWorkspaceResourceTypeList().filter(type => type !== AppResourceType.All);
 const getResources: GetResourcesEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcesJoiSchema);
   const agent = await context.session.getAgent(context, instData);
@@ -19,28 +22,15 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
   let resources = await fetchResources({
     context,
     agent,
-    workspace,
+    allowedTypes,
+    workspaceId: workspace.resourceId,
     inputResources: data.resources,
     checkAuth: true,
     action: BasicCRUDActions.Read,
     nothrowOnCheckError: true,
   });
-
   resources = await resourceListWithAssignedItems(context, workspaceId, resources);
   resources = getResourcesPartOfWorkspace(workspaceId, resources);
-  resources = resources.map(resource => {
-    switch (resource.resourceType) {
-      case AppResourceType.AgentToken:
-        resource.resource = getPublicAgentToken(context, resource.resource as any);
-        return resource;
-      case AppResourceType.ClientAssignedToken:
-        resource.resource = getPublicClientToken(context, resource.resource as any);
-        return resource;
-      default:
-        return resource;
-    }
-  });
-
   return {resources: getPublicResourceList(resources, workspaceId)};
 };
 

@@ -1,5 +1,6 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
@@ -24,6 +25,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await context?.dispose();
+  await disposeGlobalUtils();
 });
 
 test('program access token added', async () => {
@@ -36,7 +38,7 @@ test('program access token added', async () => {
     await populateAssignedTags(
       context,
       workspace.resourceId,
-      await context.data.agentToken.assertGetOneByQuery(
+      await context.semantic.agentToken.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(token.resourceId)
       )
     )

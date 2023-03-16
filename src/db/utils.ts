@@ -32,9 +32,7 @@ export const publicAccessOpSchema = ensureMongoTypeFields<IPublicAccessOp>({
 
 export const resourceSchema = ensureMongoTypeFields<IResourceBase>({
   resourceId: {type: String, unique: true, index: true},
-  createdBy: {type: agentSchema},
   createdAt: {type: Number, default: getTimestamp},
-  lastUpdatedBy: {type: agentSchema},
   lastUpdatedAt: {type: Number, default: getTimestamp},
 });
 
@@ -42,4 +40,6 @@ export const workspaceResourceSchema = ensureMongoTypeFields<IWorkspaceResourceB
   ...resourceSchema,
   workspaceId: {type: String, index: true},
   providedResourceId: {type: String, index: true},
+  createdBy: {type: agentSchema},
+  lastUpdatedBy: {type: agentSchema},
 });

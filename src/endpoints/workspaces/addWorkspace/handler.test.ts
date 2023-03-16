@@ -1,6 +1,8 @@
 import {faker} from '@faker-js/faker';
+import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -22,6 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -39,29 +42,30 @@ describe('addWorkspace', () => {
     const result = await insertWorkspaceForTest(context, userToken, companyInput);
     expect(result.workspace).toMatchObject(companyInput);
     expect(result.workspace.publicPermissionGroupId).toBeTruthy();
-    const workspace = await context.data.workspace.getOneByQuery(
+    const workspace = await context.semantic.workspace.getOneByLiteralDataQuery(
       EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
     );
     assertWorkspace(workspace);
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
-    const adminPermissionGroup = await context.data.permissionGroup.assertGetOneByQuery(
+    const adminPermissionGroup = await context.semantic.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByWorkspaceIdAndName(
         workspace.resourceId,
         DEFAULT_ADMIN_PERMISSION_GROUP_NAME
       )
     );
-    await context.data.permissionGroup.assertGetOneByQuery(
+    await context.semantic.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByWorkspaceIdAndName(
         workspace.resourceId,
         DEFAULT_PUBLIC_PERMISSION_GROUP_NAME
       )
     );
 
+    appAssert(userToken.separateEntityId);
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(userToken.userId)
+      await context.semantic.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(userToken.separateEntityId)
       )
     );
     const userWorkspace = user.workspaces.find(item => item.workspaceId === workspace.resourceId);
@@ -69,13 +73,11 @@ describe('addWorkspace', () => {
     expect(userWorkspace).toBeTruthy();
     const userPermissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
       context,
-      workspace.resourceId,
-      user.resourceId
+      userToken.separateEntityId
     );
-    const assignedAdminPermissionGroup =
-      userPermissionGroupsResult.permissionGroupsWithAssignedItems.find(
-        item => item.resourceId === adminPermissionGroup.resourceId
-      );
+    const assignedAdminPermissionGroup = userPermissionGroupsResult.permissionGroups.find(
+      item => item.resourceId === adminPermissionGroup.resourceId
+    );
     expect(assignedAdminPermissionGroup).toBeTruthy();
   });
 

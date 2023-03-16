@@ -7,7 +7,7 @@ import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
-} from '../../../email-templates/collaborationRequestRevoked';
+} from '../../../emailTemplates/collaborationRequestRevoked';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';

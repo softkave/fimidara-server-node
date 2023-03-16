@@ -15,8 +15,6 @@ const cascade: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Workspace]: noopAsync,
   [AppResourceType.CollaborationRequest]: noopAsync,
   [AppResourceType.AgentToken]: (context, id) => context.semantic.agentToken.deleteOneById(id),
-  [AppResourceType.ClientAssignedToken]: noopAsync,
-  [AppResourceType.UserToken]: noopAsync,
   [AppResourceType.PermissionGroup]: noopAsync,
   [AppResourceType.PermissionItem]: async (context, id) => {
     await Promise.all([

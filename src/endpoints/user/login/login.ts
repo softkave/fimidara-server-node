@@ -1,5 +1,4 @@
 import * as argon2 from 'argon2';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {InvalidEmailOrPasswordError} from '../errors';
@@ -19,15 +18,11 @@ const login: LoginEndpoint = async (context, instData) => {
     throw new InvalidEmailOrPasswordError();
   }
 
-  const agent = makeUserSessionAgent(user);
   const [userToken, clientAssignedToken, userWithWorkspaces] = await Promise.all([
-    getUserToken(context, agent),
-    getUserClientAssignedToken(context, agent),
+    getUserToken(context, user.resourceId),
+    getUserClientAssignedToken(context, user.resourceId),
     populateUserWorkspaces(context, user),
   ]);
-
-  // Make the user token available to other requests made with this request data
-  instData.agent = agent;
   return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);
 };
 

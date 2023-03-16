@@ -1,5 +1,5 @@
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -9,7 +9,7 @@ import {
 import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {
   addAssignedPermissionGroupList,
@@ -28,17 +28,20 @@ function makeAdminPermissions(
   adminPermissionGroup: IPermissionGroup
 ) {
   const permissionItems: IPermissionItem[] = getWorkspaceActionList().map(action => {
-    const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
-      action,
-      workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-      entityId: adminPermissionGroup.resourceId,
-      entityType: AppResourceType.PermissionGroup,
-      targetType: AppResourceType.All,
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-      grantAccess: true,
-    });
+    const item: IPermissionItem = newWorkspaceResource(
+      agent,
+      AppResourceType.PermissionItem,
+      workspace.resourceId,
+      {
+        action,
+        containerId: workspace.resourceId,
+        containerType: AppResourceType.Workspace,
+        entityId: adminPermissionGroup.resourceId,
+        entityType: AppResourceType.PermissionGroup,
+        targetType: AppResourceType.All,
+        grantAccess: true,
+      }
+    );
     return item;
   });
 
@@ -53,22 +56,24 @@ function makeCollaboratorPermissions(
   function makePermission(
     actions: BasicCRUDActions[],
     targetType: AppResourceType,
-    targetId?: string,
-    appliesTo: PermissionItemAppliesTo = PermissionItemAppliesTo.ContainerAndChildren
+    targetId?: string
   ) {
     return actions.map(action => {
-      const item: IPermissionItem = newResource(agent, AppResourceType.PermissionItem, {
-        action,
-        appliesTo,
-        targetType: targetType,
-        targetId: targetId,
-        workspaceId: workspace.resourceId,
-        containerId: workspace.resourceId,
-        containerType: AppResourceType.Workspace,
-        entityId: permissiongroup.resourceId,
-        entityType: AppResourceType.PermissionGroup,
-        grantAccess: true,
-      });
+      const item: IPermissionItem = newWorkspaceResource(
+        agent,
+        AppResourceType.PermissionItem,
+        workspace.resourceId,
+        {
+          action,
+          targetType: targetType,
+          targetId: targetId,
+          containerId: workspace.resourceId,
+          containerType: AppResourceType.Workspace,
+          entityId: permissiongroup.resourceId,
+          entityType: AppResourceType.PermissionGroup,
+          grantAccess: true,
+        }
+      );
       return item;
     });
   }
@@ -77,50 +82,25 @@ function makeCollaboratorPermissions(
   permissionItems = permissionItems.concat(
     makePermission([BasicCRUDActions.Read], AppResourceType.Workspace, workspace.resourceId)
   );
-
   permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.AgentToken,
-      undefined,
-      PermissionItemAppliesTo.ContainerAndChildren
-    )
+    makePermission([BasicCRUDActions.Read], AppResourceType.AgentToken, undefined)
   );
-
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.ClientAssignedToken,
-      undefined,
-      PermissionItemAppliesTo.ContainerAndChildren
-    )
-  );
-
   permissionItems = permissionItems.concat(
     makePermission(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.Folder,
-      undefined,
-      PermissionItemAppliesTo.ContainerAndChildren
+      undefined
     )
   );
-
   permissionItems = permissionItems.concat(
     makePermission(
       [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
       AppResourceType.File,
-      undefined,
-      PermissionItemAppliesTo.ContainerAndChildren
+      undefined
     )
   );
-
   permissionItems = permissionItems.concat(
-    makePermission(
-      [BasicCRUDActions.Read],
-      AppResourceType.User,
-      undefined,
-      PermissionItemAppliesTo.ContainerAndChildren
-    )
+    makePermission([BasicCRUDActions.Read], AppResourceType.User, undefined)
   );
 
   return permissionItems;
@@ -197,7 +177,7 @@ export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
     addAssignedPermissionGroupList(
       context,
       agent,
-      workspace,
+      workspace.resourceId,
       [{permissionGroupId: adminPermissionGroup.resourceId}],
       user.resourceId,
       /** deleteExisting */ false,

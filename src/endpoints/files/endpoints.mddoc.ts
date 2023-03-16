@@ -16,18 +16,27 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {fileConstants} from './constants';
 import {IDeleteFileEndpointParams} from './deleteFile/types';
-import {IGetFileEndpointParams, IImageTransformationParams} from './getFile/types';
 import {IGetFileDetailsEndpointParams, IGetFileDetailsEndpointResult} from './getFileDetails/types';
+import {IGetFileEndpointParams, IImageTransformationParams} from './readFile/types';
 import {IGetFileEndpointQueryParams} from './setupRESTEndpoints';
 import {
   IUpdateFileDetailsEndpointParams,
   IUpdateFileDetailsEndpointResult,
   IUpdateFileDetailsInput,
 } from './updateFileDetails/types';
-import {IUploadFileEndpointParams, IUploadFileEndpointResult, UploadFilePublicAccessActions} from './uploadFile/types';
+import {
+  IUploadFileEndpointParams,
+  IUploadFileEndpointResult,
+  UploadFilePublicAccessActions,
+} from './uploadFile/types';
 
 const mimetype = new FieldString().setDescription('File MIME type');
 const encoding = new FieldString().setDescription('File encoding');
@@ -43,7 +52,9 @@ const encodingOrUndefined = orUndefined(encoding);
 const mimetypeNotRequired = cloneAndMarkNotRequired(mimetype);
 const encodingNotRequired = cloneAndMarkNotRequired(encoding);
 const extensionNotRequired = cloneAndMarkNotRequired(extension);
-const uploadFilePublicAccessActionNotRequired = cloneAndMarkNotRequired(uploadFilePublicAccessAction);
+const uploadFilePublicAccessActionNotRequired = cloneAndMarkNotRequired(
+  uploadFilePublicAccessAction
+);
 const widthNotRequired = cloneAndMarkNotRequired(width);
 const heightNotRequired = cloneAndMarkNotRequired(height);
 
@@ -82,7 +93,9 @@ const filepathParameterPathname = new HttpEndpointParameterPathnameItem()
   .setName('filepath')
   .setType(
     new FieldString()
-      .setDescription('File path. You can pass the filepath either in the URL or in the request body.')
+      .setDescription(
+        'File path. You can pass the filepath either in the URL or in the request body.'
+      )
       .setExample('/my-folder/my-file.png')
   );
 

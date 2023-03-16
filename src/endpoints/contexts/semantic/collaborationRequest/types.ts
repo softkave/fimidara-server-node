@@ -4,7 +4,7 @@ import {ISemanticDataAccessWorkspaceResourceProvider} from '../types';
 
 export interface ISemanticDataAccessCollaborationRequestProvider
   extends ISemanticDataAccessWorkspaceResourceProvider<ICollaborationRequest> {
-  getByEmail(
+  getManyByEmail(
     email: string,
     options?: IDataProvideQueryListParams<ICollaborationRequest>
   ): Promise<ICollaborationRequest[]>;

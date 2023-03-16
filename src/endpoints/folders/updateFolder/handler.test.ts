@@ -5,6 +5,7 @@ import {
   assertPublicAccessOps,
   assertPublicPermissionsDonotExistForContainer,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -36,6 +37,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -73,7 +75,7 @@ async function updateFolderBaseTest(
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
-  const savedFolder = await ctx.data.folder.assertGetOneByQuery(
+  const savedFolder = await ctx.semantic.folder.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(folder.resourceId)
   );
 

@@ -24,7 +24,6 @@ export function generateUserForTest(seed: Partial<IUser> = {}) {
     isEmailVerified: false,
     ...seed,
   };
-
   return item;
 }
 

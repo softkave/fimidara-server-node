@@ -1,11 +1,11 @@
 import {isArray} from 'lodash';
 import {IAssignedItem} from '../../definitions/assignedItem';
 import {IAssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {AppResourceType, IAgent} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
-import {makeKey, newResource} from '../../utils/fns';
+import {makeKey, newWorkspaceResource} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
@@ -106,9 +106,8 @@ export async function addAssignedPermissionGroupList(
     for (const id of idList) {
       const item = withAssignedAgent(
         agent,
-        newResource(agent, AppResourceType.AssignedItem, {
+        newWorkspaceResource(agent, AppResourceType.AssignedItem, workspaceId, {
           meta: {},
-          workspaceId,
           assigneeId: id,
           assigneeType: getResourceTypeFromId(id),
           resourceId: getNewIdForResource(AppResourceType.AssignedItem),
@@ -141,18 +140,17 @@ export async function addAssignedTagList(
     await deleteResourceAssignedItems(context, assigneeId, [AppResourceType.Tag]);
   }
 
-  await checkTagsExist(context, agent, workspace, tags);
+  await checkTagsExist(context, agent, workspace, tags, BasicCRUDActions.Read);
   const items = tags.map(tag => {
     return withAssignedAgent(
       agent,
-      newResource(agent, AppResourceType.AssignedItem, {
+      newWorkspaceResource(agent, AppResourceType.AssignedItem, workspace.resourceId, {
         assigneeId,
         assigneeType: getResourceTypeFromId(assigneeId),
         meta: {},
         resourceId: getNewIdForResource(AppResourceType.AssignedItem),
         assignedItemId: tag.tagId,
         assignedItemType: AppResourceType.PermissionGroup,
-        workspaceId: workspace.resourceId,
       })
     );
   });
@@ -193,8 +191,7 @@ export async function assignWorkspaceToUser(
   const items: IAssignedItem[] = [
     withAssignedAgent(
       agent,
-      newResource(agent, AppResourceType.AssignedItem, {
-        workspaceId,
+      newWorkspaceResource(agent, AppResourceType.AssignedItem, workspaceId, {
         assigneeId: user.resourceId,
         assigneeType: AppResourceType.User,
         meta: {},

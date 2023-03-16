@@ -59,6 +59,7 @@ import {
 } from './mem/Mem';
 import {IMemStore} from './mem/types';
 import {MemorySemanticDataAccessAgentToken} from './semantic/agentToken/MemorySemanticDataAccessAgentToken';
+import {MemorySemanticDataAccessAppRuntimeState} from './semantic/appRuntimeState/MemorySemanticDataAccessAppRuntimeState';
 import {MemorySemanticDataAccessAssignedItem} from './semantic/assignedItem/MemorySemanticDataAccessAssignedItem';
 import {MemorySemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/MemorySemanticDataAccessCollaborationRequest';
 import {MemorySemanticDataAccessFile} from './semantic/file/MemorySemanticDataAccessFile';
@@ -222,6 +223,10 @@ export function getSemanticDataProviders(
     tag: new MemorySemanticDataAccessTag(memstores.tag, assertTag),
     assignedItem: new MemorySemanticDataAccessAssignedItem(memstores.assignedItem, assertNotFound),
     usageRecord: new MemorySemanticDataAccessUsageRecord(memstores.usageRecord, assertUsageRecord),
+    appRuntimeState: new MemorySemanticDataAccessAppRuntimeState(
+      memstores.appRuntimeState,
+      assertNotFound
+    ),
   };
 }
 

@@ -1,4 +1,4 @@
-import {DataQuery} from './types';
+import {LiteralDataQuery} from './types';
 
 export enum DataProviderFilterValueOperator {
   Equal,
@@ -61,5 +61,5 @@ export interface IDataProviderFilterBuilder<T extends {[key: string]: any}> {
     key: K,
     value: IDataProviderFilterValue<T[K]>
   ) => IDataProviderFilterBuilder<T>;
-  build: () => DataQuery<T>;
+  build: () => LiteralDataQuery<T>;
 }

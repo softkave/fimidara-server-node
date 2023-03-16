@@ -1,5 +1,12 @@
 import {format} from 'util';
-import {AppResourceType, ISessionAgent} from '../../definitions/system';
+import {
+  AppResourceType,
+  BasicCRUDActions,
+  getWorkspaceResourceTypeList,
+  ISessionAgent,
+  PERMISSION_CONTAINER_TYPES,
+  PERMISSION_ENTITY_TYPES,
+} from '../../definitions/system';
 import {getResourceTypeFromId} from '../../utils/resourceId';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
@@ -10,16 +17,12 @@ import {
 import {getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
-const permissionEntityAllowedTypes = new Map();
-permissionEntityAllowedTypes.set(AppResourceType.AgentToken, true);
-permissionEntityAllowedTypes.set(AppResourceType.PermissionGroup, true);
-permissionEntityAllowedTypes.set(AppResourceType.User, true);
-
 export async function checkPermissionEntitiesExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspaceId: string,
-  entities: Array<string>
+  entities: Array<string>,
+  action: BasicCRUDActions
 ) {
   if (entities.length === 0) {
     return;
@@ -27,7 +30,7 @@ export async function checkPermissionEntitiesExist(
 
   entities.forEach(id => {
     const itemType = getResourceTypeFromId(id);
-    if (!permissionEntityAllowedTypes.has(itemType)) {
+    if (!PERMISSION_ENTITY_TYPES.includes(itemType)) {
       const message = format('Invalid permission entity type %s', itemType);
       throw new InvalidRequestError(message);
     }
@@ -37,9 +40,10 @@ export async function checkPermissionEntitiesExist(
     context,
     agent,
     workspaceId,
+    action,
+    allowedTypes: PERMISSION_ENTITY_TYPES,
     inputResources: entities.map(id => ({
       resourceId: id,
-      resourceType: getResourceTypeFromId(id),
     })),
     checkAuth: true,
   });
@@ -55,19 +59,16 @@ export async function checkPermissionEntitiesExist(
   checkResourcesBelongToWorkspace(workspaceId, resources);
 }
 
-const permissionContainerAllowedTypes = new Map();
-permissionContainerAllowedTypes.set(AppResourceType.Workspace, true);
-permissionContainerAllowedTypes.set(AppResourceType.Folder, true);
-
 export async function checkPermissionContainersExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspaceId: string,
-  items: Array<string>
+  items: Array<string>,
+  action: BasicCRUDActions
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
-    if (!permissionContainerAllowedTypes.has(containerType)) {
+    if (!PERMISSION_CONTAINER_TYPES.includes(containerType)) {
       const message = format('Invalid permission container type %s', containerType);
       throw new InvalidRequestError(message);
     }
@@ -77,6 +78,8 @@ export async function checkPermissionContainersExist(
     context,
     agent,
     workspaceId,
+    action,
+    allowedTypes: PERMISSION_CONTAINER_TYPES,
     inputResources: items.map(id => {
       const containerType = getResourceTypeFromId(id);
       return {resourceId: id, resourceType: containerType};
@@ -87,11 +90,14 @@ export async function checkPermissionContainersExist(
   return {resources};
 }
 
+const targetTypes = getWorkspaceResourceTypeList().filter(type => type !== AppResourceType.All);
+
 export async function checkPermissionTargetsExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspaceId: string,
   items: Array<string>,
+  action: BasicCRUDActions,
   containerId?: string
 ) {
   /**
@@ -107,6 +113,8 @@ export async function checkPermissionTargetsExist(
     context,
     agent,
     workspaceId,
+    action,
+    allowedTypes: targetTypes,
     inputResources: items.map(id => ({resourceId: id})),
     checkAuth: true,
   });

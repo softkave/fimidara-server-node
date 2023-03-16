@@ -17,8 +17,8 @@ import {reuseableErrors} from '../../utils/reusableErrors';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
-import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
-import {internalFunctionAddPermissionItemsByEntity} from './replaceItemsByEntity/utils';
+import {INewPermissionItemInput} from './addItems/types';
+import {internalAddPermissionItems} from './addItems/utils';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   ...workspaceResourceFields,
@@ -43,7 +43,7 @@ export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPubli
   item01.action === item02.action && item01.resourceType === item02.resourceType;
 
 export function getPublicAccessOpArtifactsFromResource(
-  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
+  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'folderId' | 'workspaceId'>
 ) {
   const type = getResourceTypeFromId(resource.resourceId);
 
@@ -62,13 +62,11 @@ export function getPublicAccessOpArtifactsFromResource(
 
 export function makePermissionItemInputsFromPublicAccessOps(
   ops: IPublicAccessOpInput[],
-  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>,
+  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'folderId' | 'workspaceId'>,
   grantAccess = true
-): INewPermissionItemInputByEntity[] {
-  const {containerId, containerType, targetId} = getPublicAccessOpArtifactsFromResource(resource);
+): INewPermissionItemInput[] {
+  const {targetId} = getPublicAccessOpArtifactsFromResource(resource);
   return ops.map(op => ({
-    containerId,
-    containerType,
     targetId,
     grantAccess,
     action: op.action,
@@ -83,21 +81,12 @@ export async function replacePublicPermissionGroupAccessOps(
   addOps: IPublicAccessOp[],
   resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
 ) {
-  const {containerId} = getPublicAccessOpArtifactsFromResource(resource);
-
   if (workspace.publicPermissionGroupId) {
-    await context.semantic.permissionItem.deleteManyByEntityAndContainerId(
-      workspace.publicPermissionGroupId,
-      containerId
-    );
-
-    if (addOps.length > 0) {
-      await internalFunctionAddPermissionItemsByEntity(context, agent, {
-        workspaceId: workspace.resourceId,
-        entityId: workspace.publicPermissionGroupId,
-        items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
-      });
-    }
+    await internalAddPermissionItems(context, agent, workspace.resourceId, {
+      workspaceId: workspace.resourceId,
+      entityId: workspace.publicPermissionGroupId,
+      items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
+    });
   }
 }
 
@@ -136,6 +125,10 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
     item.grantAccess,
     item.isForPermissionContainer,
   ]);
+};
+
+export const newPermissionItemInputIndexer = (item: INewPermissionItemInput) => {
+  return makeKey([item.targetId, item.targetType, item.action, item.grantAccess]);
 };
 
 export function assertPermissionItem(item?: IPermissionItem | null): asserts item {

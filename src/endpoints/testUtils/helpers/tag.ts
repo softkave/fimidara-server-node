@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {IUserToken} from '../../../definitions/userToken';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import addTag from '../../tags/addTag/handler';
@@ -12,7 +12,7 @@ import {
 
 export async function insertTagForTest(
   context: IBaseContext,
-  userToken: IUserToken | null,
+  userToken: IAgentToken | null,
   workspaceId: string,
   tagInput: Partial<INewTagInput> = {}
 ) {

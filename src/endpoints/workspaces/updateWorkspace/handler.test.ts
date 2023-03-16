@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -22,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -49,7 +51,7 @@ describe('updateWorkspce', () => {
     const result = await updateWorkspace(context, instData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
-    const updatedWorkspace = await context.data.workspace.getOneByQuery(
+    const updatedWorkspace = await context.semantic.workspace.getOneByLiteralDataQuery(
       EndpointReusableQueries.getByResourceId(workspace.resourceId)
     );
     expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);

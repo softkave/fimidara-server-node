@@ -36,7 +36,7 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 // other literals
 export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
-  $in?: Array<T | null>;
+  $in?: T[] | Array<T | null>;
   $ne?: T | null;
   $nin?: Array<T | null>;
 
@@ -93,6 +93,33 @@ export type DataQuery<T> = {
     : void;
 };
 
+export enum BulkOpType {
+  InsertOne = 1,
+  ReplaceOne,
+  UpdateOne,
+  UpdateMany,
+  DeleteOne,
+  DeleteMany,
+}
+
+export type BulkOpItem<T> =
+  | {type: BulkOpType.InsertOne; item: T}
+  // | {type: BulkOpType.ReplaceOne,
+  //     replaceOne: {query: DataQuery<T>; item: T};
+  //   }
+  | {
+      type: BulkOpType.UpdateOne;
+      query: DataQuery<T>;
+      update: Partial<T>;
+    }
+  | {
+      type: BulkOpType.UpdateMany;
+      query: DataQuery<T>;
+      update: Partial<T>;
+    }
+  | {type: BulkOpType.DeleteOne; query: DataQuery<T>}
+  | {type: BulkOpType.DeleteMany; query: DataQuery<T>};
+
 // TODO: infer resulting type from projection, otherwise default to full object
 export interface IBaseDataProvider<
   DataType,
@@ -100,11 +127,9 @@ export interface IBaseDataProvider<
 > {
   insertItem: (items: DataType) => Promise<DataType>;
   insertList: (items: DataType[]) => Promise<void>;
-
   existsByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<boolean>;
-
   getManyByQuery: (
     query: QueryType,
     otherProps?: IDataProvideQueryListParams<DataType>
@@ -126,12 +151,10 @@ export interface IBaseDataProvider<
     data: Partial<DataType>,
     otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType>;
-
   countByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<number>;
   countByQueryList: (query: QueryType[]) => Promise<number>;
-
   updateManyByQuery: (query: QueryType, data: Partial<DataType>) => Promise<void>;
   updateOneByQuery: (
     query: QueryType,
@@ -143,7 +166,6 @@ export interface IBaseDataProvider<
     data: Partial<DataType>,
     otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType | null>;
-
   deleteManyByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<void>;
@@ -153,6 +175,7 @@ export interface IBaseDataProvider<
   deleteOneByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<void>;
+  bulkOps(ops: Array<BulkOpItem<DataType>>): Promise<void>;
 }
 
 export type IAgentTokenQuery = DataQuery<IAgentToken>;

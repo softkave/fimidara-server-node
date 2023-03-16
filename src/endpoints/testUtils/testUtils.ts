@@ -22,6 +22,7 @@ import {
 import {getTimestamp} from '../../utils/dateFns';
 import addAgentToken from '../agentTokens/addToken/handler';
 import {IAddAgentTokenEndpointParams, INewAgentTokenInput} from '../agentTokens/addToken/types';
+import {assertAgentToken} from '../agentTokens/utils';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import sendRequest from '../collaborationRequests/sendRequest/handler';
 import {
@@ -49,19 +50,18 @@ import {
   IAddPermissionGroupEndpointParams,
   INewPermissionGroupInput,
 } from '../permissionGroups/addPermissionGroup/types';
-import replacePermissionItemsByEntity from '../permissionItems/replaceItemsByEntity/handler';
+import addPermissionItems from '../permissionItems/addItems/handler';
 import {
-  INewPermissionItemInputByEntity,
-  IReplacePermissionItemsByEntityEndpointParams,
-} from '../permissionItems/replaceItemsByEntity/types';
-import EndpointReusableQueries from '../queries';
+  IAddPermissionItemsEndpointParams,
+  INewPermissionItemInput,
+} from '../permissionItems/addItems/types';
 import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
 import signup from '../user/signup/signup';
 import {ISignupEndpointParams} from '../user/signup/types';
-import UserTokenQueries from '../user/UserTokenQueries';
+import {assertUser} from '../user/utils';
 import addWorkspace from '../workspaces/addWorkspace/handler';
 import {IAddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';
@@ -176,18 +176,14 @@ export async function insertUserForTest(
     const user = await internalConfirmEmailAddress(context, result.user.resourceId);
     rawUser = await populateUserWorkspaces(context, user);
   } else {
-    rawUser = await populateUserWorkspaces(
-      context,
-      await context.data.user.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(result.user.resourceId)
-      )
-    );
+    const user = await context.semantic.user.getOneById(result.user.resourceId);
+    assertUser(user);
+    rawUser = await populateUserWorkspaces(context, user);
   }
 
   const tokenData = context.session.decodeToken(context, result.token);
-  const userToken = await context.data.agentToken.assertGetOneByQuery(
-    UserTokenQueries.getById(tokenData.sub.id)
-  );
+  const userToken = await context.semantic.agentToken.getOneById(tokenData.sub.id);
+  assertAgentToken(userToken);
   return {
     rawUser,
     userToken,
@@ -221,9 +217,7 @@ export async function insertWorkspaceForTest(
 
   const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const rawWorkspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
-  );
+  const rawWorkspace = await context.semantic.workspace.getOneById(result.workspace.resourceId);
   assert(rawWorkspace);
   return {rawWorkspace, workspace: result.workspace};
 }
@@ -305,14 +299,14 @@ export interface ITestPermissionItemContainer {
 
 export function makeTestPermissionItemByEntityInputs(
   container: ITestPermissionItemContainer,
-  base: Array<Partial<INewPermissionItemInputByEntity>>
+  base: Array<Partial<INewPermissionItemInput>>
 ) {
   const items = base.map(seed => {
     const actionList =
       seed.targetType === AppResourceType.Workspace ?? seed.targetType === AppResourceType.All
         ? getWorkspaceActionList()
         : getNonWorkspaceActionList();
-    const items: INewPermissionItemInputByEntity[] = actionList.map(action => ({
+    const items: INewPermissionItemInput[] = actionList.map(action => ({
       action: action as BasicCRUDActions,
       grantAccess: faker.datatype.boolean(),
       ...seed,
@@ -329,21 +323,17 @@ export async function insertPermissionItemsForTestForEntity(
   workspaceId: string,
   entityId: string,
   container: ITestPermissionItemContainer,
-  base: Partial<INewPermissionItemInputByEntity> | Array<Partial<INewPermissionItemInputByEntity>>
+  base: Partial<INewPermissionItemInput> | Array<Partial<INewPermissionItemInput>>
 ) {
   const itemsInput = makeTestPermissionItemByEntityInputs(container, isArray(base) ? base : [base]);
-  const instData = RequestData.fromExpressRequest<IReplacePermissionItemsByEntityEndpointParams>(
-    req,
-    {
-      entityId,
-      workspaceId: workspaceId,
-      items: itemsInput,
-    }
-  );
-
-  const result = await replacePermissionItemsByEntity(context, instData);
+  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(req, {
+    entityId,
+    workspaceId: workspaceId,
+    items: itemsInput,
+  });
+  const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
-  expectPermissionItemsForEntityPresent(result.items, itemsInput, entityId);
+  expectPermissionItemsForEntityPresent(result.items, itemsInput, entityId, container.containerId);
   return result;
 }
 
@@ -352,9 +342,9 @@ export async function insertPermissionItemsForTestUsingItems(
   userToken: IAgentToken,
   workspaceId: string,
   entityId: string,
-  items: INewPermissionItemInputByEntity[]
+  items: INewPermissionItemInput[]
 ) {
-  const instData = RequestData.fromExpressRequest<IReplacePermissionItemsByEntityEndpointParams>(
+  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       entityId,
@@ -362,8 +352,7 @@ export async function insertPermissionItemsForTestUsingItems(
       workspaceId: workspaceId,
     }
   );
-
-  const result = await replacePermissionItemsByEntity(context, instData);
+  const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
   expect(result.items.length).toEqual(items.length);
   return result;
@@ -372,7 +361,7 @@ export async function insertPermissionItemsForTestUsingItems(
 export async function insertFolderForTest(
   context: IBaseContext,
   userToken: IAgentToken | null,
-  workspace: IWorkspace,
+  workspace: IPublicWorkspace,
   folderInput: Partial<INewFolderInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<IAddFolderEndpointParams>(
@@ -420,7 +409,7 @@ export function generateTestTextFile() {
 export async function insertFileForTest(
   context: IBaseContext,
   userToken: IAgentToken | null, // Pass null for public agent
-  workspace: IWorkspace,
+  workspace: Pick<IWorkspace, 'rootname'>,
   fileInput: Partial<IUploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps

@@ -1,5 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
@@ -19,11 +19,9 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     targets: [{type: AppResourceType.Tag}],
     action: BasicCRUDActions.Create,
   });
-
   await checkTagNameExists(context, workspace.resourceId, data.tag.name);
-  const tag = newResource(agent, AppResourceType.Tag, {
+  const tag = newWorkspaceResource(agent, AppResourceType.Tag, workspace.resourceId, {
     ...data.tag,
-    workspaceId: workspace.resourceId,
   });
   await context.semantic.tag.insertItem(tag);
   return {

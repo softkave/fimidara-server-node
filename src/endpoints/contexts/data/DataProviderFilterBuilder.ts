@@ -1,5 +1,4 @@
 import {isUndefined} from 'lodash';
-import {DataQuery} from './data/types';
 import {
   DataProviderFilterValueOperator,
   DataProviderGetValueType,
@@ -7,6 +6,7 @@ import {
   IDataProviderFilterBuilder,
   IDataProviderFilterValue,
 } from './DataProvider';
+import {LiteralDataQuery} from './types';
 
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   implements IDataProviderFilterBuilder<T>
@@ -49,8 +49,8 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
     return this;
   }
 
-  build(): DataQuery<T> {
-    const q: DataQuery<T> = {};
+  build(): LiteralDataQuery<T> {
+    const q: LiteralDataQuery<T> = {};
     for (const k in this.data) {
       // TODO: handle logical op and other ops
       // TODO: fix the type issue on assigning the value to the op below

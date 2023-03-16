@@ -14,8 +14,8 @@ import {
 
 export type IWorkspaceSummedUsageQuery = DataQuery<{
   category?: UsageRecordCategory;
-  fromDate?: string;
-  toDate?: string;
+  fromDate?: number;
+  toDate?: number;
   fulfillmentStatus?: UsageRecordFulfillmentStatus;
 }>;
 

@@ -2,12 +2,11 @@ import {URL} from 'url';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
+  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 
@@ -24,21 +23,19 @@ export async function withConfirmEmailAddressToken(
     );
 
     if (!token) {
-      token = newResource(makeUserSessionAgent(user), AppResourceType.UserToken, {
+      token = newResource(AppResourceType.AgentToken, {
         tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
-        resourceId: getNewIdForResource(AppResourceType.UserToken),
         userId: user.resourceId,
         version: CURRENT_TOKEN_VERSION,
+        separateEntityId: user.resourceId,
+        workspaceId: null,
+        agentType: AppResourceType.User,
+        createdBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
       });
-      await context.semantic.userToken.insertItem(token);
+      await context.semantic.agentToken.insertItem(token);
     }
-
-    const encodedToken = context.session.encodeToken(
-      context,
-      token.resourceId,
-      AppResourceType.UserToken,
-      token.expires
-    );
+    const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
     url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
     link = url.toString();
   }

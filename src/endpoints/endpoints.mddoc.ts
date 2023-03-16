@@ -381,6 +381,7 @@ export const fReusables = {
   ),
   effectOnReferencedNotRequired: cloneAndMarkNotRequired(effectOnReferenced),
   providedResourceIdNotRequired: cloneAndMarkNotRequired(providedResourceId),
+  providedResourceIdOrUndefined: orUndefined(providedResourceId),
   workspaceNameNotRequired: cloneAndMarkNotRequired(workspaceName),
   folderIdOrUndefined: orUndefined(folderId),
   folderIdNotRequied: cloneAndMarkNotRequired(folderId),

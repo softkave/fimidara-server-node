@@ -12,7 +12,7 @@ const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async (context,
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   applyDefaultEndpointPaginationOptions(data);
   const {query, sort} = await getWorkspaceSummedUsageQuery(context, agent, workspaceId, data);
-  const records = await context.data.usageRecord.getManyByQuery(query, {
+  const records = await context.semantic.usageRecord.getManyByLiteralDataQuery(query, {
     ...data,
     sort,
   });

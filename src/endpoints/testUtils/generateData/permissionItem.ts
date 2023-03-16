@@ -1,25 +1,26 @@
 import {faker} from '@faker-js/faker';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
-import {permissionItemIndexer} from '../../permissionItems/utils';
-import {randomAction, randomPermissionAppliesTo, randomResourceType} from './utils';
+import {randomAction, randomResourceType} from './utils';
 
 export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {}) {
   const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
-    agentType: SessionAgentType.User,
+    agentType: AppResourceType.User,
+    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-
   const workspaceId = getNewIdForResource(AppResourceType.Workspace);
   const itemType = randomResourceType();
   const item: IPermissionItem = {
     createdAt,
     createdBy,
     workspaceId,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
     containerId: workspaceId,
     containerType: AppResourceType.Workspace,
@@ -29,11 +30,8 @@ export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {
     targetType: itemType,
     action: randomAction(),
     grantAccess: faker.datatype.boolean(),
-    appliesTo: randomPermissionAppliesTo(),
-    hash: '',
     ...seed,
   };
-  item.hash = permissionItemIndexer(item);
   return item;
 }
 

@@ -7,14 +7,18 @@ export type IImageTransformationParams = {
   height?: number;
 };
 
-export type IGetFileEndpointParams = {
+export type IReadFileEndpointParams = {
   imageTranformation?: IImageTransformationParams;
 } & IFileMatcher;
 
-export interface IGetFileEndpointResult {
+export interface IReadFileEndpointResult {
   stream: NodeJS.ReadableStream;
   mimetype?: string;
   contentLength?: number;
 }
 
-export type GetFileEndpoint = Endpoint<IBaseContext, IGetFileEndpointParams, IGetFileEndpointResult>;
+export type ReadFileEndpoint = Endpoint<
+  IBaseContext,
+  IReadFileEndpointParams,
+  IReadFileEndpointResult
+>;

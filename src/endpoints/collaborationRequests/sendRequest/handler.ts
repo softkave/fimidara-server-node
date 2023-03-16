@@ -11,7 +11,7 @@ import {
   ICollaborationRequestEmailProps,
 } from '../../../emailTemplates/collaborationRequest';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -69,15 +69,19 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     }
   }
 
-  let request: ICollaborationRequest = newResource(agent, AppResourceType.CollaborationRequest, {
-    message: data.request.message,
-    workspaceName: workspace.name,
-    workspaceId: workspace.resourceId,
-    recipientEmail: data.request.recipientEmail,
-    expiresAt: data.request.expires,
-    status: CollaborationRequestStatusType.Pending,
-    statusDate: getTimestamp(),
-  });
+  let request: ICollaborationRequest = newWorkspaceResource(
+    agent,
+    AppResourceType.CollaborationRequest,
+    workspace.resourceId,
+    {
+      message: data.request.message,
+      workspaceName: workspace.name,
+      recipientEmail: data.request.recipientEmail,
+      expiresAt: data.request.expires,
+      status: CollaborationRequestStatusType.Pending,
+      statusDate: getTimestamp(),
+    }
+  );
   await context.semantic.collaborationRequest.insertItem(request);
 
   if (

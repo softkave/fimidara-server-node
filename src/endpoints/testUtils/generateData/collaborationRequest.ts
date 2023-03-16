@@ -1,6 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {AppResourceType, IAgent, SessionAgentType} from '../../../definitions/system';
+import {
+  CollaborationRequestStatusType,
+  ICollaborationRequest,
+} from '../../../definitions/collaborationRequest';
+import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
@@ -14,9 +17,9 @@ export function generateCollaborationRequestForTest(seed: Partial<ICollaboration
   const createdAt = getTimestamp();
   const createdBy: IAgent = {
     agentId: getNewIdForResource(AppResourceType.User),
-    agentType: SessionAgentType.User,
+    agentType: AppResourceType.User,
+    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-
   const item: ICollaborationRequest = {
     createdAt,
     createdBy,
@@ -27,10 +30,10 @@ export function generateCollaborationRequestForTest(seed: Partial<ICollaboration
     workspaceId: getNewIdForResource(AppResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
-    statusHistory: [],
+    status: CollaborationRequestStatusType.Pending,
+    statusDate: getTimestamp(),
     ...seed,
   };
-
   return item;
 }
 

@@ -1,5 +1,5 @@
 import {uniqBy} from 'lodash';
-import {AppResourceType, ISessionAgent} from '../../definitions/system';
+import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
 import {IBaseContext} from '../contexts/types';
@@ -10,19 +10,21 @@ export default async function checkTagsExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  items: Array<IAssignedTagInput>
+  items: Array<IAssignedTagInput>,
+  action: BasicCRUDActions
 ) {
   const resources = await getResources({
     context,
     agent,
-    workspace,
+    action,
+    allowedTypes: [AppResourceType.Tag],
+    workspaceId: workspace.resourceId,
     inputResources: uniqBy(items, 'tagId').map(({tagId}) => ({
       resourceId: tagId,
       resourceType: AppResourceType.Tag,
     })),
     checkAuth: true,
   });
-
   checkResourcesBelongToWorkspace(workspace.resourceId, resources);
   return {resources};
 }

@@ -1,5 +1,5 @@
 import {IResourceBase} from '../../../definitions/system';
-import {IDataProvideQueryListParams} from '../data/types';
+import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 
 export interface ISemanticDataAccessBaseProvider<T extends IResourceBase> {
   insertItem(item: T): Promise<void>;
@@ -12,6 +12,14 @@ export interface ISemanticDataAccessBaseProvider<T extends IResourceBase> {
   getAndUpdateOneById(id: string, update: Partial<T>): Promise<T>;
   deleteOneById(id: string): Promise<void>;
   deleteManyByIdList(idList: string[]): Promise<void>;
+  getOneByLiteralDataQuery(q: LiteralDataQuery<T>): Promise<T | null>;
+  getManyByLiteralDataQuery(
+    q: LiteralDataQuery<T>,
+    options?: IDataProvideQueryListParams<T>
+  ): Promise<T[]>;
+  countByQuery(q: LiteralDataQuery<T>): Promise<number>;
+  assertGetOneByQuery(q: LiteralDataQuery<T>): Promise<T>;
+  existsByQuery(q: LiteralDataQuery<T>): Promise<boolean>;
 }
 
 export interface ISemanticDataAccessWorkspaceResourceProvider<

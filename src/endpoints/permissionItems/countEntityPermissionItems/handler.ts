@@ -1,3 +1,4 @@
+import {BasicCRUDActions} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
@@ -12,9 +13,17 @@ const countEntityPermissionItems: CountEntityPermissionItemsEndpoint = async (
   const data = validate(instData.data, countEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkPermissionEntitiesExist(context, agent, workspace.resourceId, [data.entityId]);
-  const q = await getEntityPermissionItemsQuery(context, agent, workspace, data);
-  const count = await context.data.permissionItem.countByQuery(q);
+  await checkPermissionEntitiesExist(
+    context,
+    agent,
+    workspace.resourceId,
+    [data.entityId],
+    BasicCRUDActions.Read
+  );
+  await getEntityPermissionItemsQuery(context, agent, workspace, data);
+  const count = await context.semantic.permissionItem.countByQuery({
+    entityId: data.entityId,
+  });
   return {count};
 };
 

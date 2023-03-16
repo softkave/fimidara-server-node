@@ -9,7 +9,7 @@ const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint = async (cont
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const {query} = await getWorkspaceSummedUsageQuery(context, agent, workspaceId, data);
-  const count = await context.semantic.usageRecord.countManyByWorkspaceAndIdList(query);
+  const count = await context.semantic.usageRecord.countByQuery(query);
   return {count};
 };
 

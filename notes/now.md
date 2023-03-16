@@ -1,11 +1,16 @@
-- [ ] Use memstore
-- [ ] Borrow and release logger
 - [ ] Memstore sync to MongoDB
+  - [ ] One sync b4 request ends so each request mutation should be tied to transaction rolled back if final sync doesn't work or isn't ensured.
+  - [ ] OR for the time, sync on all mutation updates.
 - [ ] Delete logic
-- [ ] Tokens to agent token
 - [ ] Change events and audit logs
-- [ ] Names should only be alphanumeric
+- [ ] Email and names should be shorter for regex and only contain alphanumeric chars
 - [ ] Pipeline and background jobs
+- [ ] App end
+  - [ ] Complete mongo sync
+  - [ ] Resumeable deletes
+  - [ ] save logs
+  - [ ] Graceful application updates
+- [ ] List for endpoints that result list
 - [ ] Limit assigned permissions depth to 10
 - [ ] Tags and client program tokens on the frontend
 - [ ] Public deny all to remove implicit auth and external entity permissions for collaboration requests

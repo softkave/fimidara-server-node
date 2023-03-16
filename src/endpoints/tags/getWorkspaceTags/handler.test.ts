@@ -1,5 +1,6 @@
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -46,7 +48,7 @@ describe('getWorkspaceTags', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertTagListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.data.tag.countByQuery({workspaceId: workspace.resourceId});
+    const count = await context.semantic.tag.countByQuery({workspaceId: workspace.resourceId});
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(

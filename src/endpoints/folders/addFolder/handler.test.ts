@@ -1,4 +1,3 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import {
@@ -6,6 +5,7 @@ import {
   assertCanReadPublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
@@ -34,6 +34,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -50,22 +51,18 @@ describe('addFolder', () => {
         {
           action: BasicCRUDActions.Create,
           resourceType: AppResourceType.File,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
         },
         {
           action: BasicCRUDActions.Read,
           resourceType: AppResourceType.File,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
         },
         {
           action: BasicCRUDActions.Create,
           resourceType: AppResourceType.Folder,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
         },
         {
           action: BasicCRUDActions.Read,
           resourceType: AppResourceType.Folder,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
         },
       ],
     });

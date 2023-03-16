@@ -35,6 +35,7 @@ import {
   IWorkspaceMemStoreProvider,
 } from './mem/types';
 import {ISemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
+import {ISemanticDataAccessAppRuntimeStateProvider} from './semantic/appRuntimeState/types';
 import {ISemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
 import {ISemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
 import {ISemanticDataAccessFileProvider} from './semantic/file/types';
@@ -101,6 +102,7 @@ export interface IBaseContextSemanticDataProviders {
   tag: ISemanticDataAccessTagProvider;
   usageRecord: ISemanticDataAccessUsageRecordProvider;
   user: ISemanticDataAccessUserProvider;
+  appRuntimeState: ISemanticDataAccessAppRuntimeStateProvider;
 }
 
 export interface IBaseContext<
@@ -120,7 +122,6 @@ export interface IBaseContext<
   logic: Logic;
   email: Email;
   fileBackend: FileBackend;
-  logger: Logger;
   clientLogger: Logger;
   usageRecord: UsageRecordLogicProvider;
   init: () => Promise<void>;

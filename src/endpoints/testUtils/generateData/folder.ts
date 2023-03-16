@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
 import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
-import {getDate} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {IBaseContext} from '../../contexts/types';
@@ -15,13 +15,13 @@ export function generateTestFolderName() {
 export function generateTestFolder(extra: Partial<IFolder> = {}) {
   const id = getNewIdForResource(AppResourceType.Folder);
   const name = faker.lorem.words();
-  const createdAt = getDate();
+  const createdAt = getTimestamp();
   const folder: IFolder = {
     name,
     createdAt,
     description: faker.lorem.paragraph(),
     createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedAt: faker.date.future(),
+    lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
     idPath: [id],
     namePath: [name],
@@ -29,7 +29,6 @@ export function generateTestFolder(extra: Partial<IFolder> = {}) {
     workspaceId: getNewIdForResource(AppResourceType.Workspace),
     ...extra,
   };
-
   return folder;
 }
 

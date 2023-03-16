@@ -1,10 +1,10 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -23,8 +23,8 @@ import {
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
 import {UploadFilePublicAccessActions} from '../uploadFile/types';
-import getFile from './handler';
-import {IGetFileEndpointParams} from './types';
+import readFile from './handler';
+import {IReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
 
@@ -36,27 +36,26 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
-describe('getFile', () => {
+describe('readFile', () => {
   test('file returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(context, userToken, workspace);
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
-
-    const result = await getFile(context, instData);
+    const result = await readFile(context, instData);
     assertEndpointResultOk(result);
     const savedFile = await context.fileBackend.getFile({
       bucket: context.appVariables.S3Bucket,
       key: file.resourceId,
     });
-
     const savedBuffer = savedFile.body && (await getBufferFromStream(savedFile.body));
     const resultBuffer = await getBufferFromStream(result.stream);
     assert(savedBuffer);
@@ -74,10 +73,9 @@ describe('getFile', () => {
       width: startWidth,
       height: startHeight,
     });
-
     const expectedWidth = 300;
     const expectedHeight = 300;
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(file.name, workspace.rootname),
@@ -87,8 +85,7 @@ describe('getFile', () => {
         },
       }
     );
-
-    const result = await getFile(context, instData);
+    const result = await readFile(context, instData);
     assertEndpointResultOk(result);
     const resultBuffer = await getBufferFromStream(result.stream);
     assert(resultBuffer);
@@ -108,19 +105,16 @@ describe('getFile', () => {
         {
           action: BasicCRUDActions.Read,
           resourceType: AppResourceType.File,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
         },
       ],
     });
-
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
         folder.namePath.concat([generateTestFolderName()]).join(folderConstants.nameSeparator),
         workspace.rootname
       ),
     });
-
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
         filepath: addRootnameToPath(
@@ -129,8 +123,7 @@ describe('getFile', () => {
         ),
       }
     );
-
-    const result = await getFile(context, instData);
+    const result = await readFile(context, instData);
     assertEndpointResultOk(result);
   });
 
@@ -141,8 +134,7 @@ describe('getFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace, {
       publicAccessAction: UploadFilePublicAccessActions.Read,
     });
-
-    const instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
         filepath: addRootnameToPath(
@@ -151,8 +143,7 @@ describe('getFile', () => {
         ),
       }
     );
-
-    const result = await getFile(context, instData);
+    const result = await readFile(context, instData);
     assertEndpointResultOk(result);
   });
 
@@ -163,7 +154,7 @@ describe('getFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     let instData: RequestData | null = null;
     try {
-      instData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+      instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {
           filepath: addRootnameToPath(
@@ -172,8 +163,7 @@ describe('getFile', () => {
           ),
         }
       );
-
-      await getFile(context, instData);
+      await readFile(context, instData);
     } catch (error: any) {
       expect(error?.name).toBe(PermissionDeniedError.name);
     }
@@ -189,16 +179,13 @@ describe('getFile', () => {
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
       UsageRecordCategory.BandwidthOut,
     ]);
-    const reqData = RequestData.fromExpressRequest<IGetFileEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        filepath: addRootnameToPath(file.name, workspace.rootname),
-      }
+      {filepath: addRootnameToPath(file.name, workspace.rootname)}
     );
-
     await expectErrorThrown(async () => {
       assertContext(context);
-      await getFile(context, reqData);
+      await readFile(context, reqData);
     }, [UsageLimitExceededError.name]);
   });
 });

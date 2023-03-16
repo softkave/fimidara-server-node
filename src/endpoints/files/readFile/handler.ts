@@ -5,14 +5,14 @@ import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
 import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
 import {checkFileAuthorization03} from '../utils';
-import {GetFileEndpoint} from './types';
-import {getFileJoiSchema} from './validation';
+import {ReadFileEndpoint} from './types';
+import {readFileJoiSchema} from './validation';
 
 // TODO: implement accept ranges, cache control, etags, etc.
 // see aws s3 sdk getObject function
 
-const getFile: GetFileEndpoint = async (context, instData) => {
-  const data = validate(instData.data, getFileJoiSchema);
+const readFile: ReadFileEndpoint = async (context, instData) => {
+  const data = validate(instData.data, readFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Read);
   await insertBandwidthOutUsageRecordInput(context, instData, file);
@@ -49,4 +49,4 @@ const getFile: GetFileEndpoint = async (context, instData) => {
   }
 };
 
-export default getFile;
+export default readFile;

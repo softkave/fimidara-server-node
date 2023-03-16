@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
@@ -17,7 +17,7 @@ export const internalSignupUser = async (context: IBaseContext, data: ISignupEnd
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
-  const user: IUser = newResource(SYSTEM_SESSION_AGENT, AppResourceType.User, {
+  const user: IUser = newResource(AppResourceType.User, {
     hash,
     resourceId: getNewIdForResource(AppResourceType.User),
     email: data.email,

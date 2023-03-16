@@ -1,5 +1,6 @@
 import {IResourceBase} from '../../../definitions/system';
 import {reuseableErrors} from '../../../utils/reusableErrors';
+import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 import {IMemStore} from '../mem/types';
 import {
   ISemanticDataAccessBaseProvider,
@@ -47,6 +48,40 @@ export class SemanticDataAccessBaseProvider<T extends IResourceBase>
   async deleteOneById(id: string): Promise<void> {
     throw reuseableErrors.common.notImplemented();
   }
+
+  async countManyByIdList(idList: string[]): Promise<number> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async getManyByIdList(
+    idList: string[],
+    options?: IDataProvideQueryListParams<T> | undefined
+  ): Promise<T[]> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async countByQuery(q: LiteralDataQuery<T>): Promise<number> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async getManyByLiteralDataQuery(
+    q: LiteralDataQuery<T>,
+    options?: IDataProvideQueryListParams<T> | undefined
+  ): Promise<T[]> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async assertGetOneByQuery(q: LiteralDataQuery<T>): Promise<T> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async existsByQuery(q: LiteralDataQuery<T>): Promise<boolean> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async getOneByLiteralDataQuery(q: LiteralDataQuery<T>): Promise<T | null> {
+    throw reuseableErrors.common.notImplemented();
+  }
 }
 
 export class SemanticDataAccessWorkspaceResourceProvider<
@@ -76,6 +111,29 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   }
 
   async deleteManyByWorkspaceId(workspaceId: string): Promise<void> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async countManyByIdList(idList: string[]): Promise<number> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async countManyByWorkspaceAndIdList(q: {
+    workspaceId: string;
+    resourceIdList?: string[] | undefined;
+    excludeResourceIdList?: string[] | undefined;
+  }): Promise<number> {
+    throw reuseableErrors.common.notImplemented();
+  }
+
+  async getManyByWorkspaceAndIdList(
+    q: {
+      workspaceId: string;
+      resourceIdList?: string[] | undefined;
+      excludeResourceIdList?: string[] | undefined;
+    },
+    options?: IDataProvideQueryListParams<T> | undefined
+  ): Promise<T[]> {
     throw reuseableErrors.common.notImplemented();
   }
 }

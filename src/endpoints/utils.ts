@@ -28,6 +28,7 @@ import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/chec
 import {getPage} from './contexts/data/utils';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {NotFoundError} from './errors';
+import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import RequestData from './RequestData';
 import {
@@ -86,7 +87,7 @@ export const wrapEndpointREST = <
         res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
     } catch (error) {
-      context.logger.error(error);
+      logger.error(error);
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);
@@ -122,15 +123,15 @@ export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields)
 
 export const resourceFields: ExtractFieldsFrom<IPublicResourceBase> = {
   resourceId: true,
-  createdBy: agentExtractor,
   createdAt: true,
-  lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
 };
 export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResourceBase> = {
   ...resourceFields,
   providedResourceId: true,
   workspaceId: true,
+  createdBy: agentExtractor,
+  lastUpdatedBy: agentExtractor,
 };
 
 export async function waitForWorks(works: IRequestDataPendingPromise[]) {

@@ -1,5 +1,6 @@
 import {calculatePageSize, findItemWithField} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -68,7 +70,7 @@ describe('getWorkspacePermissionGroups', () => {
     await generateAndInsertPermissionGroupListForTest(context, 15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.data.permissionGroup.countByQuery({
+    const count = await context.semantic.permissionGroup.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const pageSize = 10;

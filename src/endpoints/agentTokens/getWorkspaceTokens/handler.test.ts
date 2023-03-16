@@ -1,5 +1,6 @@
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {
@@ -21,6 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -54,7 +56,9 @@ describe('getWorkspaceAgentTokens', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertAgentTokenListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.data.agentToken.countByQuery({workspaceId: workspace.resourceId});
+    const count = await context.semantic.agentToken.countByQuery({
+      workspaceId: workspace.resourceId,
+    });
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspaceAgentTokensEndpointParams>(

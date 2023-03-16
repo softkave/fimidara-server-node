@@ -12,6 +12,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   generateAndInsertUsageRecordList,
@@ -40,6 +41,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
   await connection?.close();
 });
@@ -202,7 +204,7 @@ describe('getWorkspaceSummedUsage', () => {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
-    const count = await context.data.usageRecord.countByQuery({
+    const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,

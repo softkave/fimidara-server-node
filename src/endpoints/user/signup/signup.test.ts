@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import {assertContext, initTestBaseContext, insertUserForTest} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 
@@ -16,6 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -29,7 +31,7 @@ test('user signup successful with token creation', async () => {
   };
 
   const result = await insertUserForTest(context, userInput);
-  const savedUser = await context.data.user.assertGetOneByQuery(
+  const savedUser = await context.semantic.user.assertGetOneByQuery(
     UserQueries.getById(result.user.resourceId)
   );
   expect(savedUser).toBeTruthy();

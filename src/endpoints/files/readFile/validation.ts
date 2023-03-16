@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 import {fileConstants} from '../constants';
 import fileValidationSchemas from '../validation';
 
-export const getFileJoiSchema = Joi.object()
+export const readFileJoiSchema = Joi.object()
   .keys({
     ...fileValidationSchemas.fileMatcherParts,
     imageTranformation: Joi.object()

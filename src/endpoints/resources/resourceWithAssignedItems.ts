@@ -14,7 +14,6 @@ export async function resourceWithAssignedItems(
     case AppResourceType.AgentToken:
     case AppResourceType.Folder:
     case AppResourceType.File:
-    case AppResourceType.ClientAssignedToken:
     case AppResourceType.PermissionGroup:
       resource.resource = await populateAssignedTags(context, workspaceId, resource.resource);
       return resource;
@@ -24,7 +23,6 @@ export async function resourceWithAssignedItems(
     case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
     case AppResourceType.PermissionItem:
-    case AppResourceType.UserToken:
     default:
       return resource;
   }

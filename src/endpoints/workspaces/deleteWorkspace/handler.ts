@@ -17,9 +17,6 @@ const cascade: DeleteResourceCascadeFnsMap = {
     context.semantic.collaborationRequest.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.AgentToken]: (context, workspaceId) =>
     context.semantic.agentToken.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.ClientAssignedToken]: (context, workspaceId) =>
-    context.semantic.clientAssignedToken.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.UserToken]: noopAsync,
   [AppResourceType.PermissionGroup]: (context, workspaceId) =>
     context.semantic.permissionGroup.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.PermissionItem]: (context, workspaceId) =>
@@ -42,7 +39,7 @@ const cascade: DeleteResourceCascadeFnsMap = {
   [AppResourceType.EndpointRequest]: noopAsync,
 };
 
-export const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
+const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
   const {workspace} = await checkWorkspaceAuthorization02(
@@ -54,3 +51,5 @@ export const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData
 
   await executeCascadeDelete(context, workspace.resourceId, cascade);
 };
+
+export default deleteWorkspace;

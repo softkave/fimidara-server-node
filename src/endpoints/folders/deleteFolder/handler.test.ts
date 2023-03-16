@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
@@ -30,11 +31,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.folder.existsByQuery(
+  const exists = await context.semantic.folder.existsByQuery(
     EndpointReusableQueries.getByResourceId(id)
   );
 
@@ -42,7 +44,9 @@ async function assertFolderDeleted(context: IBaseContext, id: string) {
 }
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.existsByQuery(EndpointReusableQueries.getByResourceId(id));
+  const exists = await context.semantic.file.existsByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
 
   expect(exists).toBeFalsy();
 }

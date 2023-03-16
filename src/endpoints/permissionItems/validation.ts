@@ -1,13 +1,8 @@
 import Joi = require('joi');
-import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {validationSchemas} from '../../utils/validationUtils';
 import {INewPermissionItemInput} from './addItems/types';
 import {permissionItemConstants} from './constants';
-import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
 
-const appliesTo = Joi.string()
-  .valid(...Object.values(PermissionItemAppliesTo))
-  .default(PermissionItemAppliesTo.ContainerAndChildren);
 const targetParts = {
   targetId: validationSchemas.resourceId.allow(null).when('targetType', {
     is: Joi.any().valid(null, undefined),
@@ -18,20 +13,15 @@ const targetParts = {
     then: validationSchemas.resourceType.required(),
   }),
 };
-const itemInputByEntity = Joi.object<INewPermissionItemInputByEntity>().keys({
+const itemInputByEntity = Joi.object<INewPermissionItemInput>().keys({
   ...targetParts,
-  appliesTo,
-  containerId: validationSchemas.resourceId.required(),
   action: validationSchemas.crudAction.required(),
   grantAccess: Joi.boolean().required(),
 });
 const itemInput = Joi.object<INewPermissionItemInput>().keys({
   ...targetParts,
-  appliesTo,
-  containerId: validationSchemas.resourceId.required(),
   action: validationSchemas.crudAction.required(),
   grantAccess: Joi.boolean().required(),
-  entityId: validationSchemas.resourceId.required(),
 });
 const itemInputByEntityList = Joi.array()
   .items(itemInputByEntity)
@@ -46,7 +36,6 @@ const itemIds = Joi.array()
 const publicAccessOp = Joi.object().keys({
   action: validationSchemas.crudAction.required(),
   resourceType: validationSchemas.resourceType.required(),
-  appliesTo: appliesTo.required(),
 });
 const publicAccessOpList = Joi.array()
   .items(publicAccessOp)
@@ -58,7 +47,6 @@ const permissionItemValidationSchemas = {
   itemIds,
   itemInput,
   itemInputList,
-  appliesTo,
   publicAccessOp,
   publicAccessOpList,
 };

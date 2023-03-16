@@ -1,23 +1,25 @@
-import {defaultTo, mapKeys} from 'lodash';
+import {mapKeys} from 'lodash';
 import {
   AppResourceType,
   BasicCRUDActions,
   IResourceBase,
   ISessionAgent,
 } from '../../definitions/system';
+import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
+import {appMessages} from '../../utils/messages';
 import {getResourceTypeFromId} from '../../utils/resourceId';
+import {PartialRecord} from '../../utils/types';
+import {IPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
 import {
-  IPromiseWithId,
-  ISettledPromiseWithId,
-  waitOnPromisesWithId,
-} from '../../utils/waitOnPromises';
-import {
-  checkAuthorization,
+  getAuthorizationAccessChecker,
   getResourcePermissionContainers,
+  IAuthAccessCheckers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
+import {PermissionDeniedError} from '../user/errors';
 import {IFetchResourceItem, IResource} from './types';
 
 export type IFetchResourceItemWithAction = IFetchResourceItem & {
@@ -27,13 +29,17 @@ export type IFetchResourceItemWithAction = IFetchResourceItem & {
 export interface IGetResourcesOptions {
   context: IBaseContext;
   inputResources: Array<IFetchResourceItemWithAction>;
-  allowedTypes?: AppResourceType[];
+  allowedTypes: AppResourceType[];
   throwOnFetchError?: boolean;
   checkAuth?: boolean;
-  agent?: ISessionAgent | null;
-  workspaceId?: string | null;
-  action?: BasicCRUDActions | null;
+  agent: ISessionAgent;
+  workspaceId: string;
+  action: BasicCRUDActions;
   nothrowOnCheckError?: boolean;
+}
+
+interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
+  resourceType: AppResourceType;
 }
 
 export async function getResources(options: IGetResourcesOptions) {
@@ -43,38 +49,118 @@ export async function getResources(options: IGetResourcesOptions) {
     agent,
     workspaceId,
     nothrowOnCheckError,
-    allowedTypes = [AppResourceType.All],
-    action = BasicCRUDActions.Read,
+    action,
+    allowedTypes,
     throwOnFetchError = true,
     checkAuth = true,
   } = options;
 
-  const idsGroupedByType: Record<string, string[]> = {};
+  const mapByTypeToIdList: PartialRecord<string, string[]> = {};
   const allowedTypesMap = indexArray(allowedTypes);
   const checkedInputResourcesMap = inputResources.reduce((map, item) => {
-    const resourceType = getResourceTypeFromId(item.resourceId);
-    if (allowedTypesMap[AppResourceType.All] ?? allowedTypesMap[resourceType]) {
-      const ids = defaultTo(idsGroupedByType[resourceType], []);
+    const type = getResourceTypeFromId(item.resourceId);
+    if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[type]) {
+      let ids = mapByTypeToIdList[type];
+      if (!ids) {
+        mapByTypeToIdList[type] = ids = [];
+      }
+
       ids.push(item.resourceId);
-      idsGroupedByType[resourceType] = ids;
-      map[makeKey([item.resourceId, resourceType])] = item;
+      map[makeKey([item.resourceId, type])] = item;
     }
-
     return map;
-  }, {} as Record<string, IFetchResourceItemWithAction>);
+  }, {} as PartialRecord<string, IFetchResourceItemWithAction>);
 
-  const checkedInputResources = Object.values(checkedInputResourcesMap);
+  const settledPromises = await fetchResources(context, mapByTypeToIdList);
+  const resources: Array<IResource> = [];
 
-  interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
-    resourceType: AppResourceType;
+  if (!checkAuth) {
+    settledPromises.forEach(item => {
+      if (item.resolved) {
+        item.value?.forEach(resource => {
+          resources.push({
+            resource,
+            resourceId: resource.resourceId,
+            resourceType: getResourceTypeFromId(resource.resourceId),
+          });
+        });
+      } else if (throwOnFetchError) {
+        throw item.reason;
+      }
+    });
+  } else {
+    const authCheckPromises: IExtendedPromiseWithId<IAuthAccessCheckers>[] = [];
+    settledPromises.forEach(item => {
+      if (item.resolved) {
+        // TODO: can we do this together, so that we don't waste compute
+        item.value?.forEach(resource => {
+          const resourceType = getResourceTypeFromId(resource.resourceId);
+          const key = resource.resourceId;
+          const resourceAction =
+            checkedInputResourcesMap[key]?.action ?? action ?? BasicCRUDActions.Read;
+
+          // TODO: when server caching and resolving permission containers is
+          // complete, make just one call to checkAuthorization to check access
+          const accessChecker = getAuthorizationAccessChecker({
+            context,
+            agent,
+            workspaceId,
+            targets: {targetId: resource.resourceId},
+            containerId: getResourcePermissionContainers(workspaceId, resource),
+            action: resourceAction,
+          });
+          authCheckPromises.push({
+            id: resource.resourceId,
+            promise: accessChecker,
+            resourceType: resourceType,
+          });
+        });
+      } else if (throwOnFetchError) {
+        throw item.reason;
+      }
+    });
+
+    const settledAuthCheckPromises = await waitOnPromisesWithId(authCheckPromises);
+    const settledAuthCheckMap = indexArray(settledAuthCheckPromises, {
+      indexer: item => item.id as string,
+      reducer: item => {
+        if (item.resolved) {
+          const input = checkedInputResourcesMap[item.id];
+          const inputAction = input?.action ?? action;
+          return item.value.checkForTargetId(inputAction, item.id as string, nothrowOnCheckError);
+        } else {
+          throw item.reason ?? new ServerError();
+        }
+      },
+    });
+    settledPromises.forEach(item => {
+      if (item.resolved) {
+        item.value.forEach(resource => {
+          const permitted = settledAuthCheckMap[resource.resourceId];
+          if (permitted) {
+            resources.push({
+              resource,
+              resourceId: resource.resourceId,
+              resourceType: getResourceTypeFromId(resource.resourceId),
+            });
+          } else if (!nothrowOnCheckError) {
+            throw new PermissionDeniedError(appMessages.common.permissionDenied());
+          }
+        });
+      }
+    });
   }
 
-  interface IExtendedSettledPromiseWithId<T> extends ISettledPromiseWithId<T> {
-    resourceType: AppResourceType;
-  }
+  return resources;
+}
 
+async function fetchResources(
+  context: IBaseContext,
+  idsGroupedByType: PartialRecord<string, string[]>
+) {
   const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
   mapKeys(idsGroupedByType, (ids, type) => {
+    appAssert(ids);
     switch (type) {
       case AppResourceType.Workspace:
         promises.push({
@@ -142,95 +228,5 @@ export async function getResources(options: IGetResourcesOptions) {
     }
   });
 
-  const settledPromises = (await waitOnPromisesWithId(promises)) as Array<
-    IExtendedSettledPromiseWithId<IResourceBase[]>
-  >;
-
-  const resources: Array<IResource> = [];
-  if (!checkAuth || !agent || !workspaceId) {
-    settledPromises.forEach(item => {
-      if (item.resolved) {
-        item.value?.forEach(resource => {
-          resources.push({
-            resource,
-            resourceId: resource.resourceId,
-            resourceType: getResourceTypeFromId(resource.resourceId),
-          });
-        });
-      } else if (throwOnFetchError) {
-        throw item.reason;
-      }
-    });
-  } else {
-    const authCheckPromises: IExtendedPromiseWithId<boolean>[] = [];
-    const resourceIndexer = (resourceId: string, resourceType: AppResourceType) =>
-      `${resourceId}-${resourceType}`;
-    const inputMap = indexArray(checkedInputResources, {
-      indexer: item => resourceIndexer(item.resourceId, getResourceTypeFromId(item.resourceId)),
-    });
-
-    settledPromises.forEach(item => {
-      if (item.resolved) {
-        // TODO: can we do this together, so that we don't waste compute
-        item.value?.forEach(resource => {
-          const resourceType = getResourceTypeFromId(resource.resourceId);
-          const key = resourceIndexer(resource.resourceId, resourceType);
-          const resourceAction = inputMap[key]?.action ?? action ?? BasicCRUDActions.Read;
-
-          // TODO: when server caching and resolving permission containers is
-          // complete, make just one call to checkAuthorization to check access
-          const checkPromise = checkAuthorization({
-            context,
-            agent,
-            workspaceId,
-            targets: {targetId: resource.resourceId},
-            containerId: getResourcePermissionContainers(workspaceId, resource),
-            action: resourceAction,
-            nothrow: nothrowOnCheckError,
-          });
-
-          authCheckPromises.push({
-            id: resource.resourceId,
-            promise: checkPromise,
-            resourceType: resourceType,
-          });
-        });
-      } else if (throwOnFetchError) {
-        throw item.reason;
-      }
-    });
-
-    const settledAuthCheckPromises = (await waitOnPromisesWithId(
-      authCheckPromises
-    )) as IExtendedSettledPromiseWithId<boolean>[];
-
-    const settledAuthCheckMap: Record<string, boolean> = {};
-    settledAuthCheckPromises.forEach(item => {
-      if (item.resolved) {
-        const key = resourceIndexer(item.id as string, resourceType);
-        settledAuthCheckMap[key] = item.value ?? false;
-      } else if (item.reason) {
-        // Only set when nothrow is false and auth check fails
-        throw item.reason;
-      }
-    });
-
-    settledPromises.forEach(item => {
-      if (item.resolved && item.value) {
-        item.value.forEach(resource => {
-          const key = resourceIndexer(resource.resourceId, resourceType);
-          const permitted = settledAuthCheckMap[key];
-          if (permitted) {
-            resources.push({
-              resource,
-              resourceId: resource.resourceId,
-              resourceType: resourceType,
-            });
-          }
-        });
-      }
-    });
-  }
-
-  return resources;
+  return await waitOnPromisesWithId(promises);
 }

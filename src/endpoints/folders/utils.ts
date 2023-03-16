@@ -106,7 +106,6 @@ export async function checkFolderAuthorization(
   agent: ISessionAgent,
   folder: IFolder,
   action: BasicCRUDActions,
-  nothrow = false,
   workspace?: IWorkspace
 ) {
   if (!workspace) {
@@ -117,14 +116,9 @@ export async function checkFolderAuthorization(
     context,
     agent,
     action,
-    nothrow,
     workspaceId: workspace.resourceId,
-    targets: [
-      {
-        targetId: folder.resourceId,
-        containerId: getFilePermissionContainers(workspace.resourceId, folder),
-      },
-    ],
+    containerId: getFilePermissionContainers(workspace.resourceId, folder),
+    targets: [{targetId: folder.resourceId}],
   });
 
   return {agent, workspace, folder};
@@ -135,11 +129,10 @@ export async function checkFolderAuthorization02(
   agent: ISessionAgent,
   matcher: IFolderMatcher,
   action: BasicCRUDActions,
-  nothrow = false,
   workspace?: IWorkspace
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher);
-  return checkFolderAuthorization(context, agent, folder, action, nothrow, workspace);
+  return checkFolderAuthorization(context, agent, folder, action, workspace);
 }
 
 export function getFolderName(folder: IFolder) {

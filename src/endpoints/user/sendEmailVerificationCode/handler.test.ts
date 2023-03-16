@@ -3,8 +3,9 @@ import {
   confirmEmailAddressEmailText,
   confirmEmailAddressEmailTitle,
   IConfirmEmailAddressEmailProps,
-} from '../../../email-templates/confirmEmailAddress';
+} from '../../../emailTemplates/confirmEmailAddress';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -29,6 +30,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -44,7 +46,6 @@ test('email verification code sent', async () => {
   await context.semantic.user.getAndUpdateOneById(user.resourceId, {
     emailVerificationEmailSentAt: null,
   });
-
   const result = await sendEmailVerificationCode(
     context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
@@ -56,7 +57,6 @@ test('email verification code sent', async () => {
     firstName: user.firstName,
     link: await getConfirmEmailLink(context, rawUser),
   };
-
   const html = confirmEmailAddressEmailHTML(confirmEmailProps);
   const text = confirmEmailAddressEmailText(confirmEmailProps);
   expect(context.email.sendEmail).toHaveBeenCalledWith(context, {

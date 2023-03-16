@@ -22,9 +22,9 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const {queries} = await getResourcePermissionItemsQuery(context, agent, workspace, data);
+  const q = await getResourcePermissionItemsQuery(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const permissionItems = await context.data.permissionItem.getManyByQueryList(queries, data);
+  const permissionItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(q, data);
   return {
     page: getEndpointPageFromInput(data),
     items: PermissionItemUtils.extractPublicPermissionItemList(permissionItems),

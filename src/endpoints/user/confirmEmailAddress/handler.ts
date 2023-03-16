@@ -13,8 +13,8 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instDat
   );
   const [user, userToken, clientAssignedToken] = await Promise.all([
     internalConfirmEmailAddress(context, agent.agentId, agent.user),
-    getUserToken(context, agent),
-    getUserClientAssignedToken(context, agent),
+    getUserToken(context, agent.agentId),
+    getUserClientAssignedToken(context, agent.agentId),
   ]);
   const userWithWorkspaces = await populateUserWorkspaces(context, user);
   return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);

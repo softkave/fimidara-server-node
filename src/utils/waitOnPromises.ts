@@ -1,22 +1,24 @@
 import {Dictionary, map} from 'lodash';
-import {IBaseContext} from '../endpoints/contexts/types';
+import {logger} from '../endpoints/globalUtils';
 
 export interface IPromiseWithId<T = any> {
   promise: Promise<T>;
   id: string | number;
 }
 
-export interface ISettledPromise<Value = any, Reason = any> {
-  resolved: boolean;
-  rejected: boolean;
-  value?: Value;
-  reason?: Reason;
-}
+export type ISettledPromise<Value = any, Reason = any> =
+  | {
+      resolved: true;
+      value: Value;
+    }
+  | {
+      resolved: false;
+      reason?: Reason;
+    };
 
-export interface ISettledPromiseWithId<Value = any, Reason = any>
-  extends ISettledPromise<Value, Reason> {
+export type ISettledPromiseWithId<Value = any, Reason = any> = ISettledPromise<Value, Reason> & {
   id: string | number;
-}
+};
 
 function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
   return new Promise<ISettledPromiseWithId<T>>(resolve => {
@@ -25,11 +27,10 @@ function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
         resolve({
           ...p,
           resolved: true,
-          rejected: false,
           value: result,
         })
       )
-      .catch(error => resolve({...p, resolved: false, rejected: true, reason: error}));
+      .catch(error => resolve({...p, resolved: false, reason: error}));
   });
 }
 
@@ -47,13 +48,11 @@ function wrapPromise<T = any>(p: Promise<T>) {
     p.then(result =>
       resolve({
         resolved: true,
-        rejected: false,
         value: result,
       })
     ).catch(error =>
       resolve({
         resolved: false,
-        rejected: true,
         reason: error,
       })
     );
@@ -72,24 +71,14 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function logRejectedPromisesWithIdAndThrow(ctx: IBaseContext, p: ISettledPromiseWithId[]) {
-  const rejected = p.filter(p => p.rejected);
-  if (rejected.length > 0) {
-    rejected.forEach(p => {
-      ctx.logger.error(`Promise ${p.id} rejected with reason ${p.reason}`);
-    });
-    throw new Error('One or more promises rejected');
-  }
-}
-
-export function logRejectedPromisesAndThrow(ctx: IBaseContext, p: PromiseSettledResult<any>[]) {
+export function logRejectedPromisesAndThrow(p: PromiseSettledResult<any>[]) {
   const rejected: PromiseRejectedResult[] = p.filter(
     p => p.status === 'rejected'
   ) as unknown as PromiseRejectedResult[];
 
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      ctx.logger.error(p.reason);
+      logger.error(p.reason);
     });
     throw new Error('One or more promises rejected');
   }

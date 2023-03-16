@@ -35,13 +35,13 @@ export async function checkUploadFileAuth(
       {
         type: AppResourceType.File,
         targetId: file?.resourceId,
-        containerId: file
-          ? getFilePermissionContainers(workspace.resourceId, file)
-          : closestExistingFolder
-          ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
-          : getWorkspacePermissionContainers(workspace.resourceId),
       },
     ],
+    containerId: file
+      ? getFilePermissionContainers(workspace.resourceId, file)
+      : closestExistingFolder
+      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+      : getWorkspacePermissionContainers(workspace.resourceId),
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files

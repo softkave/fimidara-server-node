@@ -2,7 +2,7 @@ import {IBaseContext} from '../contexts/types';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(context: IBaseContext, name: string) {
-  const workspaceExists = await context.semantic.workspace.existsByName(name);
+  const workspaceExists = await context.semantic.workspace.workspaceExistsByName(name);
   if (workspaceExists) {
     throw new WorkspaceExistsError();
   }

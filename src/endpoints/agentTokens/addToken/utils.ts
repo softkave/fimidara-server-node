@@ -9,13 +9,13 @@ import {
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
-import {newResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {checkAgentTokenNameExists} from '../checkProgramNameExists';
+import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {checkAgentTokenAuthorization} from '../utils';
 import {INewAgentTokenInput} from './types';
 
@@ -63,11 +63,10 @@ export const internalCreateAgentToken = async (
       await checkAgentTokenNameExists(context, workspace.resourceId, data.name);
     }
 
-    token = newResource(agent, AppResourceType.AgentToken, {
+    token = newWorkspaceResource(agent, AppResourceType.AgentToken, workspace.resourceId, {
       ...omit(data, 'tags'),
       providedResourceId: defaultTo(data.providedResourceId, null),
       version: CURRENT_TOKEN_VERSION,
-      workspaceId: workspace.resourceId,
       separateEntityId: null,
       agentType: AppResourceType.AgentToken,
     });

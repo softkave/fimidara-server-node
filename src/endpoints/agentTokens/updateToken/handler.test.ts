@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -30,6 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -78,7 +80,7 @@ test('program access token updated', async () => {
     await populateAssignedTags(
       context,
       workspace.resourceId,
-      await context.data.agentToken.assertGetOneByQuery(
+      await context.semantic.agentToken.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(token01.resourceId)
       )
     )

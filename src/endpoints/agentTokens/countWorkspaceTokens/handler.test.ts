@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {
@@ -20,6 +21,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await context?.dispose();
+  await disposeGlobalUtils();
 });
 
 describe('countWorkspaceAgentTokens', () => {
@@ -30,7 +32,7 @@ describe('countWorkspaceAgentTokens', () => {
     await generateAndInsertAgentTokenListForTest(context, 15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.data.agentToken.countByQuery({
+    const count = await context.semantic.agentToken.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const instData = RequestData.fromExpressRequest<ICountWorkspaceAgentTokensEndpointParams>(

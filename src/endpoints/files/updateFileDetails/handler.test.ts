@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -24,6 +25,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -52,7 +54,7 @@ test('file updated', async () => {
   const updatedFile = await populateAssignedTags(
     context,
     workspace.resourceId,
-    await context.data.file.assertGetOneByQuery(
+    await context.semantic.file.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(file.resourceId)
     )
   );

@@ -21,6 +21,7 @@ import {
   getMongoModels,
   getSemanticDataProviders,
 } from '../../endpoints/contexts/utils';
+import {consoleLogger} from '../../endpoints/globalUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
@@ -30,7 +31,6 @@ import {internalSignupUser} from '../../endpoints/user/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/user/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
-import {consoleLogger} from '../../utils/logger/logger';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
 export interface IPromptEmailAnswers {

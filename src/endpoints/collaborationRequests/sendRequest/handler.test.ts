@@ -3,6 +3,7 @@ import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import {
   assertContext,
@@ -22,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -54,7 +56,7 @@ describe('sendCollaborationRequest', () => {
     expect(assignedPermissionGroup01).toBeDefined();
     expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
 
-    const savedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
+    const savedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
     expect(request01).toMatchObject(

@@ -1,5 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {
   assertContext,
@@ -22,6 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -35,12 +37,11 @@ describe('deleteItemsById', () => {
       userToken,
       workspace.resourceId
     );
-
     const {items} = await insertPermissionItemsForTestForEntity(
       context,
       mockExpressRequestWithAgentToken(userToken),
       workspace.resourceId,
-      {entityId: permissionGroup.resourceId},
+      permissionGroup.resourceId,
       {containerId: workspace.resourceId},
       {targetType: AppResourceType.File}
     );
@@ -53,8 +54,7 @@ describe('deleteItemsById', () => {
     );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-
-    const permissionGroupItems = await context.data.permissionItem.getManyByQuery(
+    const permissionGroupItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
     expect(permissionGroupItems.length).toBe(0);

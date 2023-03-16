@@ -1,6 +1,5 @@
 import {indexArray} from '../../../utils/indexArray';
 import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
-import {INewPermissionItemInputByEntity} from '../../permissionItems/replaceItemsByEntity/types';
 import {
   getTargetType,
   IPermissionItemBase,
@@ -8,6 +7,8 @@ import {
 } from '../../permissionItems/utils';
 
 export function expectPermissionItemsPresent(
+  entityId: string,
+  containerId: string,
   items: IPermissionItemBase[],
   expected: INewPermissionItemInput[]
 ) {
@@ -15,32 +16,38 @@ export function expectPermissionItemsPresent(
     indexer: permissionItemIndexer,
   });
   expected.forEach(item => {
-    expect(map[permissionItemIndexer(item)]).toMatchObject(item);
+    const targetType = getTargetType(item);
+    expect(map[permissionItemIndexer({entityId, containerId, targetType, ...item})]).toMatchObject(
+      item
+    );
   });
 }
 
 function permissionItemInputToItemBase(
-  input: INewPermissionItemInputByEntity,
-  entityId: string
+  input: INewPermissionItemInput,
+  entityId: string,
+  containerId: string
 ): IPermissionItemBase {
   const targetType = getTargetType(input);
   return {
     ...input,
     targetType,
+    containerId,
     entityId: entityId,
   };
 }
 
 export function expectPermissionItemsForEntityPresent(
   expectedItems: IPermissionItemBase[],
-  matches: INewPermissionItemInputByEntity[],
-  entityId: string
+  matches: INewPermissionItemInput[],
+  entityId: string,
+  containerId: string
 ) {
   const permissionItemsMap = indexArray(expectedItems, {
     indexer: permissionItemIndexer,
   });
   matches.forEach(item => {
-    const input = permissionItemInputToItemBase(item, entityId);
+    const input = permissionItemInputToItemBase(item, entityId, containerId);
     const key = permissionItemIndexer(input);
     expect(permissionItemsMap[key]).toMatchObject(item);
   });

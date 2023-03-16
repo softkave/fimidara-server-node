@@ -8,7 +8,7 @@ import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {getWorkspaceFromEndpointInput} from '../../utils';
-import {checkAgentTokenNameExists} from '../checkProgramNameExists';
+import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {assertAgentToken, checkAgentTokenAuthorization, getPublicAgentToken} from '../utils';
 import {UpdateAgentTokenEndpoint} from './types';
 import {updateAgentTokenJoiSchema} from './validation';

@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
   BasicCRUDActions,
@@ -7,6 +6,7 @@ import {
 } from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {expectPermissionItemsPresent} from '../../testUtils/helpers/permissionItem';
@@ -34,6 +34,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -47,25 +48,18 @@ describe('getResourcePermissionItems', () => {
       userToken,
       workspace.resourceId
     );
-
     const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as BasicCRUDActions,
       grantAccess: faker.datatype.boolean(),
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      entityId: permissionGroup.resourceId,
-      permissionEntityType: AppResourceType.PermissionGroup,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
     }));
 
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {items: inputItems, workspaceId: workspace.resourceId}
+        {items: inputItems, workspaceId: workspace.resourceId, entityId: permissionGroup.resourceId}
       );
-
     const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     const items = addPermissionItemsResult.items;
     const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
@@ -78,7 +72,12 @@ describe('getResourcePermissionItems', () => {
     );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectPermissionItemsPresent(result.items, items);
+    expectPermissionItemsPresent(
+      permissionGroup.resourceId,
+      workspace.resourceId,
+      result.items,
+      items
+    );
   });
 
   test('pagination', async () => {
@@ -91,15 +90,13 @@ describe('getResourcePermissionItems', () => {
       containerType: AppResourceType.Workspace,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
-    const count = await context.data.permissionItem.countByQuery({
+    const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       containerId: workspace.resourceId,
       containerType: AppResourceType.Workspace,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
-      appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
     });
     const pageSize = 10;
     let page = 0;

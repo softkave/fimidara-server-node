@@ -2,7 +2,6 @@ import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definit
 import {IWorkspace} from '../../../definitions/workspace';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import PermissionItemQueries from '../queries';
 import {IGetEntityPermissionItemsEndpointParams} from './types';
 
 export async function getEntityPermissionItemsQuery(
@@ -11,12 +10,13 @@ export async function getEntityPermissionItemsQuery(
   workspace: IWorkspace,
   data: Pick<IGetEntityPermissionItemsEndpointParams, 'entityId'>
 ) {
-  await checkAuthorization({
-    context,
-    agent,
-    workspaceId: workspace.resourceId,
-    action: BasicCRUDActions.Read,
-    targets: {type: AppResourceType.PermissionItem},
-  });
-  return PermissionItemQueries.getByPermissionEntity(data.entityId);
+  if (agent.agentId !== data.entityId) {
+    await checkAuthorization({
+      context,
+      agent,
+      workspaceId: workspace.resourceId,
+      action: BasicCRUDActions.Read,
+      targets: {type: AppResourceType.PermissionItem},
+    });
+  }
 }

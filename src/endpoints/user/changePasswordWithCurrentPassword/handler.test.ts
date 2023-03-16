@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -23,6 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -45,7 +47,7 @@ test('password changed with current password', async () => {
   const oldHash = rawUser.hash;
   const result = await changePasswordWithCurrentPassword(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetOneByQuery(
+  const updatedUser = await context.semantic.user.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
 

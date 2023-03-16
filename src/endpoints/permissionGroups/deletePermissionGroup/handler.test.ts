@@ -1,5 +1,6 @@
 import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -20,6 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await disposeGlobalUtils();
   await context?.dispose();
 });
 
@@ -40,7 +42,7 @@ test('permissionGroup permission group deleted', async () => {
   );
   const result = await deletePermissionGroup(context, instData);
   assertEndpointResultOk(result);
-  const deletedPermissionGroupExists = await context.data.agentToken.existsByQuery(
+  const deletedPermissionGroupExists = await context.semantic.agentToken.existsByQuery(
     EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
   );
   expect(deletedPermissionGroupExists).toBeFalsy();
