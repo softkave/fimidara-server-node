@@ -49,8 +49,8 @@ export function getPublicAccessOpArtifactsFromResource(
 
   // Choose closest container which'll be the containing folder or workspace for
   // root-level files and folders
-  const containerId = resource.folderId ?? resource.workspaceId;
-  const containerType = resource.folderId ? AppResourceType.Folder : AppResourceType.Workspace;
+  const containerId = resource.parentId ?? resource.workspaceId;
+  const containerType = resource.parentId ? AppResourceType.Folder : AppResourceType.Workspace;
 
   // File public access ops should have target ID because the op targets a
   // single file, but folder public access ops are blanket permissions. Scoping

@@ -50,6 +50,6 @@ export async function generateAndInsertCollaborationRequestListForTest(
   genPartial: GeneratePartialTestDataFn<ICollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
-  await ctx.semantic.collaborationRequest.insertList(items);
+  await ctx.semantic.collaborationRequest.insertItem(items);
   return items;
 }

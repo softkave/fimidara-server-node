@@ -83,6 +83,6 @@ export async function generateAndInsertWorkspaceListForTest(
   extra: Partial<IWorkspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await ctx.semantic.workspace.insertList(items);
+  await ctx.semantic.workspace.insertItem(items);
   return items;
 }

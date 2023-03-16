@@ -40,6 +40,6 @@ export async function generateAndInsertUserListForTest(
   genPartial: GeneratePartialTestDataFn<IUser> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateUserListForTest(count, genPartial);
-  await ctx.semantic.user.insertList(items);
+  await ctx.semantic.user.insertItem(items);
   return items;
 }

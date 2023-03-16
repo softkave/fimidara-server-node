@@ -151,7 +151,7 @@ export const uploadFileWithPublicAccessActionTest = async (
         resourceType: AppResourceType.File,
       };
     }),
-    savedFile.folderId
+    savedFile.parentId
   );
 
   return uploadResult;

@@ -70,6 +70,6 @@ export async function generateAndInsertUsageRecordList(
   extra: Partial<IUsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await ctx.semantic.usageRecord.insertList(items);
+  await ctx.semantic.usageRecord.insertItem(items);
   return items;
 }

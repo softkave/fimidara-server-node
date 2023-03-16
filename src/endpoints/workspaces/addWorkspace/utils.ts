@@ -145,7 +145,7 @@ export async function setupDefaultWorkspacePermissionGroups(
     description:
       'Auto-generated permission group for collaborators. Open permission group to see permissions.',
   };
-  await context.semantic.permissionGroup.insertList([
+  await context.semantic.permissionGroup.insertItem([
     adminPermissionGroup,
     publicPermissionGroup,
     collaboratorPermissionGroup,
@@ -154,7 +154,7 @@ export async function setupDefaultWorkspacePermissionGroups(
   const permissionItems = makeAdminPermissions(agent, workspace, adminPermissionGroup).concat(
     makeCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
   );
-  await context.semantic.permissionItem.insertList(permissionItems);
+  await context.semantic.permissionItem.insertItem(permissionItems);
   return {
     adminPermissionGroup,
     publicPermissionGroup,

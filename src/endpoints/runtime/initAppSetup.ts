@@ -154,7 +154,7 @@ async function setupImageUploadPermissionGroup(
       return item;
     }
   );
-  await context.semantic.permissionItem.insertList(permissionItems);
+  await context.semantic.permissionItem.insertItem(permissionItems);
   return imageUploadPermissionGroup;
 }
 

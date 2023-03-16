@@ -136,7 +136,7 @@ describe('listFolderContent', () => {
       }),
       context.semantic.file.countByQuery({
         workspaceId: workspace.resourceId,
-        folderId: null,
+        parentId: null,
       }),
     ]);
     const pageSize = 10;

@@ -11,6 +11,7 @@ import {WorkspaceBillStatus} from '../../../definitions/workspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resourceId';
+import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';

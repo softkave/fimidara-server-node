@@ -40,6 +40,6 @@ export async function generateAndInsertTagListForTest(
   seed: Partial<ITag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
-  await ctx.semantic.tag.insertList(items);
+  await ctx.semantic.tag.insertItem(items);
   return items;
 }

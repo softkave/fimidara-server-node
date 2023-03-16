@@ -96,6 +96,6 @@ export const internalAddPermissionItems = async (
   ));
   const itemsMap = indexArray(existingPermissionItems, {path: 'resourceId'});
   inputItems = inputItems.filter(item => !!itemsMap[item.resourceId]);
-  await context.semantic.permissionItem.insertList(inputItems);
+  await context.semantic.permissionItem.insertItem(inputItems);
   return inputItems;
 };

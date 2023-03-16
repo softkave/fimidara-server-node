@@ -1,4 +1,14 @@
-import {first, forEach, isEmpty, isObject, isString, isUndefined, merge, set} from 'lodash';
+import {
+  first,
+  forEach,
+  isArray,
+  isEmpty,
+  isObject,
+  isString,
+  isUndefined,
+  merge,
+  set,
+} from 'lodash';
 import {IAgentToken} from '../../../definitions/agentToken';
 import {IAssignedItem} from '../../../definitions/assignedItem';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
@@ -14,6 +24,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {makeKey, toArray} from '../../../utils/fns';
+import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../utils/resourceId';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {AnyFn, PartialRecord} from '../../../utils/types';
@@ -150,21 +161,21 @@ export class MemStoreTransaction implements IMemStoreTransaction {
 class MemStoreMapIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
   protected map: PartialRecord<string, PartialRecord<string, string>> = {};
 
-  constructor(
-    protected options: {
-      caseInsensitive?: boolean;
-      field: keyof T;
-    }
-  ) {}
+  constructor(protected options: MemStoreIndexOptions<T>) {}
 
   index(item: T | T[], transaction?: IMemStoreTransaction) {
     const itemList = toArray(item);
     let map = transaction
-      ? ((transaction.getIndexView(this) ?? {}) as Record<string, Record<string, string>>)
+      ? transaction.getIndexView<Record<string, Record<string, string>>>(
+          this as unknown as IMemStoreIndex<IResourceBase>
+        ) ?? {}
       : this.map;
 
-    if (transaction && !transaction.hasIndexView(this)) {
-      transaction.addIndexView(this, map);
+    if (
+      transaction &&
+      !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResourceBase>)
+    ) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<IResourceBase>, map);
     }
 
     appAssert(map);
@@ -194,12 +205,23 @@ class MemStoreMapIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
     return Object.values(this.map[key as string] ?? {}) as string[];
   }
 
-  traverse(fn: (id: string) => boolean): void {
+  traverse(fn: (id: string) => boolean, from: number): void {
+    let i = 0;
     Object.values(this.map).some(idMap => {
       return Object.values(idMap as PartialRecord<string, string>).some(id => {
+        if (i < from) {
+          i += 1;
+          return false;
+        }
+
+        i += 1;
         return fn(id as string);
       });
     });
+  }
+
+  getOptions(): MemStoreIndexOptions<T> {
+    return this.options;
   }
 }
 
@@ -212,17 +234,21 @@ type MemStoreStaticTimestampIndexItem = {timestamp: number; id: string};
 class MemStoreStaticTimestampIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
   list = new StaticStackedArray<MemStoreStaticTimestampIndexItem>();
 
-  constructor(protected options: {field: keyof T}) {}
+  constructor(protected options: MemStoreIndexOptions<T>) {}
 
   index(item: T | T[], transaction?: IMemStoreTransaction): void {
     const itemList = toArray(item);
     const indexList = transaction
-      ? transaction.getIndexView<StaticStackedArray<MemStoreStaticTimestampIndexItem>>(this) ??
-        StaticStackedArray.from(this.list)
+      ? transaction.getIndexView<StaticStackedArray<MemStoreStaticTimestampIndexItem>>(
+          this as unknown as IMemStoreIndex<IResourceBase>
+        ) ?? StaticStackedArray.from(this.list)
       : this.list;
 
-    if (transaction && !transaction.hasIndexView(this)) {
-      transaction.addIndexView(this, indexList);
+    if (
+      transaction &&
+      !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResourceBase>)
+    ) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<IResourceBase>, indexList);
     }
 
     const lastItem = indexList.getLast();
@@ -246,8 +272,20 @@ class MemStoreStaticTimestampIndex<T extends IResourceBase> implements IMemStore
     throw reuseableErrors.common.notImplemented();
   }
 
-  traverse(fn: (id: string) => boolean): void {
-    this.list.some(nextItem => fn(nextItem.id));
+  traverse(fn: (id: string) => boolean, from: number): void {
+    this.list.some((nextItem, i) => {
+      if (i < from) {
+        i += 1;
+        return false;
+      }
+
+      i += 1;
+      return fn(nextItem.id);
+    });
+  }
+
+  getOptions(): MemStoreIndexOptions<T> {
+    return this.options;
   }
 }
 
@@ -273,6 +311,7 @@ function isLockInfo(lock: unknown): lock is LockInfo {
   return false;
 }
 
+// TODO: Needs massive refactoring!
 export class MemStore<T extends IResourceBase> implements IMemStore<T> {
   // static CREATE_EVENT_NAME = 'create' as const;
   // static UPDATE_EVENT_NAME = 'update' as const;
@@ -303,6 +342,7 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     const traversalField: keyof IResourceBase = 'createdAt';
     this.traversalIndex = new MemStoreStaticTimestampIndex({
       field: traversalField,
+      type: MemStoreIndexTypes.StaticTimestampIndex,
     });
     this.indexes.push(this.traversalIndex);
     this.indexIntoLocalMap(items);
@@ -325,12 +365,17 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     );
   }
 
-  readManyItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction, count?: number) {
+  readManyItems(
+    query: LiteralDataQuery<T>,
+    transaction?: IMemStoreTransaction,
+    count?: number,
+    page?: number
+  ) {
     return this.executeOp(
       MemStoreLockableActionTypes.TransactionRead,
       transaction,
       this.__readManyItems,
-      [query, transaction, count]
+      [query, transaction, count, page]
     );
   }
 
@@ -427,13 +472,15 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
   protected __readManyItems(
     query: LiteralDataQuery<T>,
     transaction?: IMemStoreTransaction,
-    count?: number
+    count?: number,
+    page?: number
   ) {
     const items = this.match(
       query,
       transaction,
       MemStoreLockableActionTypes.TransactionRead,
-      count
+      count,
+      page
     );
 
     if (transaction) {
@@ -625,7 +672,8 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     query: LiteralDataQuery<T>,
     transaction: IMemStoreTransaction | undefined,
     action: MemStoreLockableActionTypes,
-    count?: number
+    count?: number,
+    page?: number
   ) {
     const {remainingQuery, matchedItems, goodRun} = this.firstMatch(query, transaction);
     this.checkTableLock(action);
@@ -635,7 +683,7 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
         this.checkRowLock(item.resourceId, action);
       });
 
-      if (count) return matchedItems.slice(0, count);
+      if (count) return matchedItems.slice(page, count);
       else return matchedItems;
     }
 
@@ -665,9 +713,27 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
 
   protected matchItem(item: T, query: LiteralDataQuery<T>) {
     let continueMatching = false;
+    const other: Record<string, Record<string, boolean>> = {};
+
+    const getOpValueCache = (
+      field: string,
+      opKey: string,
+      list: string[],
+      indexer?: (next: string) => string,
+      reducer?: (next: string) => boolean
+    ) => {
+      const key = `${field}-${opKey}`;
+      let map = other[key];
+      if (!map) {
+        other[key] = map = indexArray(list, {indexer, reducer: reducer ?? (d => true)});
+      }
+      return map;
+    };
+
     for (const queryKey in query) {
       const queryOpObjOrValue = query[queryKey];
       let itemValue = item[queryKey] as any;
+      const isItemValueArray = isArray(itemValue);
       if (isUndefined(itemValue)) {
         itemValue = null;
       }
@@ -677,50 +743,29 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
         for (const opKey in queryOpObj) {
           const opKeyTyped = opKey as QK;
           const opValue = queryOpObj[opKeyTyped];
+          const isOpValueArray = isArray(opValue);
 
           if (isUndefined(opValue)) {
             continue;
           }
-
-          switch (opKeyTyped) {
-            case '$eq':
-              continueMatching = itemValue === opValue;
-              break;
-            case '$in':
-              continueMatching = (opValue as any[]).includes(itemValue);
-              break;
-            case '$ne':
-              continueMatching = itemValue !== opValue;
-              break;
-            case '$nin':
-              continueMatching = !(opValue as any[]).includes(itemValue);
-              break;
-            case '$exists':
-              continueMatching = queryKey in item === opValue;
-              break;
-            case '$regex':
-              appAssert(opValue instanceof RegExp);
-              appAssert(isString(itemValue));
-              continueMatching = opValue.test(itemValue);
-              break;
-            case '$gt':
-              continueMatching = (opValue as number) > itemValue;
-              break;
-            case '$gte':
-              continueMatching = (opValue as number) >= itemValue;
-              break;
-            case '$lt':
-              continueMatching = (opValue as number) < itemValue;
-              break;
-            case '$lte':
-              continueMatching = (opValue as number) <= itemValue;
-              break;
-            default:
-              appAssert(
-                false,
-                new ServerError(),
-                `Unknown query operator ${opKeyTyped} encountered.`
-              );
+          if (isItemValueArray) {
+            continueMatching = this.arrayFieldMatching(
+              queryKey,
+              opKeyTyped,
+              opValue,
+              itemValue,
+              getOpValueCache,
+              isOpValueArray
+            );
+          } else {
+            continueMatching = this.nonArrayFieldMatching(
+              queryKey,
+              opKeyTyped,
+              opValue,
+              itemValue,
+              getOpValueCache,
+              item
+            );
           }
         }
       } else {
@@ -733,6 +778,138 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     }
 
     return true;
+  }
+
+  protected nonArrayFieldMatching(
+    queryKey: string,
+    opKeyTyped: QK,
+    opValue: RegExp | DataProviderLiteralType | DataProviderLiteralType[],
+    itemValue: any,
+    getOpValueCache: (
+      field: string,
+      opKey: string,
+      list: string[],
+      indexer?: (next: string) => string,
+      reducer?: (next: string) => boolean
+    ) => Record<string, boolean>,
+    item: T
+  ) {
+    switch (opKeyTyped) {
+      case '$eq':
+        return itemValue === opValue;
+      case '$lowercaseEq': {
+        const map = getOpValueCache(queryKey, opKeyTyped, [(opValue as string).toLowerCase()]);
+
+        // TODO: maybe cache itemValue lowercase for other queries if is long?
+        return map[itemValue.toLowerCase()];
+      }
+      case '$in': {
+        const map = getOpValueCache(queryKey, opKeyTyped, opValue as string[]);
+        return map[itemValue];
+      }
+      case '$lowercaseIn': {
+        const map = getOpValueCache(queryKey, opKeyTyped, opValue as string[], next =>
+          next.toLowerCase()
+        );
+        return map[itemValue.toLowerCase()];
+      }
+      case '$ne':
+        return itemValue !== opValue;
+      case '$nin': {
+        const map = getOpValueCache(queryKey, opKeyTyped, opValue as string[]);
+        return !map[itemValue];
+      }
+      case '$exists':
+        return queryKey in item === opValue;
+      case '$regex':
+        appAssert(opValue instanceof RegExp);
+        appAssert(isString(itemValue));
+        return opValue.test(itemValue);
+      case '$gt':
+        return (opValue as number) > itemValue;
+      case '$gte':
+        return (opValue as number) >= itemValue;
+      case '$lt':
+        return (opValue as number) < itemValue;
+      case '$lte':
+        return (opValue as number) <= itemValue;
+      default:
+        appAssert(
+          false,
+          new ServerError(),
+          `Unsupported query operator ${opKeyTyped} encountered.`
+        );
+    }
+  }
+
+  protected arrayFieldAndPossibleArrayOpValueEqMatching(
+    opValue: RegExp | DataProviderLiteralType | DataProviderLiteralType[],
+    itemValue: any[],
+    isOpValueArray: boolean
+  ) {
+    if (isOpValueArray) {
+      return (
+        itemValue.length === (opValue as any[]).length &&
+        itemValue.every((next, i) => (opValue as any[])[i] === next)
+      );
+    } else {
+      return itemValue.includes(opValue);
+    }
+  }
+
+  protected arrayFieldMatching(
+    queryKey: string,
+    opKeyTyped: QK,
+    opValue: RegExp | DataProviderLiteralType | DataProviderLiteralType[],
+    itemValue: any[],
+    getOpValueCache: (
+      field: string,
+      opKey: string,
+      list: string[],
+      indexer?: (next: string) => string,
+      reducer?: (next: string) => boolean
+    ) => Record<string, boolean>,
+    isOpValueArray: boolean
+  ) {
+    switch (opKeyTyped) {
+      case '$eq':
+        return this.arrayFieldAndPossibleArrayOpValueEqMatching(opValue, itemValue, isOpValueArray);
+      case '$in': {
+        const map = getOpValueCache(queryKey, opKeyTyped, opValue as string[]);
+        return itemValue.some(next => map[next]);
+      }
+      case '$ne':
+        return !this.arrayFieldAndPossibleArrayOpValueEqMatching(
+          opValue,
+          itemValue,
+          isOpValueArray
+        );
+      case '$nin': {
+        const map = getOpValueCache(queryKey, opKeyTyped, opValue as string[]);
+        return !itemValue.some(next => map[next]);
+      }
+      case '$exists':
+        return itemValue.every(next => queryKey in next === opValue);
+      case '$regex':
+        appAssert(opValue instanceof RegExp);
+        return itemValue.some(next => {
+          opValue.test(next);
+        });
+      case '$gt':
+        return itemValue.some(next => (opValue as number) > next);
+      case '$gte':
+        return itemValue.some(next => (opValue as number) >= next);
+      case '$lt':
+        return itemValue.some(next => (opValue as number) < next);
+      case '$lte':
+        return itemValue.some(next => (opValue as number) <= next);
+      default:
+        appAssert(
+          false,
+          new ServerError(),
+          `Unsupported query operator ${opKeyTyped} encountered.`
+        );
+    }
   }
 
   protected firstMatch(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction | undefined) {
@@ -763,20 +940,22 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
           continue;
         }
 
-        switch (nextOpKeyTyped) {
-          case '$eq':
-          case '$in': {
-            const idList = index.indexGet(nextOpKeyValue);
-            idList.forEach(id => {
-              const item = this.getItem(id, transaction);
-              if (item) matchedItems.push(item);
-            });
-            goodRun = true;
-            break;
-          }
-          default:
-            set(remainingQuery, `${queryKey}.${nextOpKeyTyped}`, nextOpKeyValue);
+        if (
+          nextOpKeyTyped === '$eq' ||
+          nextOpKeyTyped === '$in' ||
+          (nextOpKeyTyped === '$lowercaseEq' && index.getOptions().caseInsensitive) ||
+          (nextOpKeyTyped === '$lowercaseIn' && index.getOptions().caseInsensitive)
+        ) {
+          const idList = index.indexGet(nextOpKeyValue);
+          idList.forEach(id => {
+            const item = this.getItem(id, transaction);
+            if (item) matchedItems.push(item);
+          });
+          goodRun = true;
+          continue;
         }
+
+        set(remainingQuery, `${queryKey}.${nextOpKeyTyped}`, nextOpKeyValue);
       }
     }
 
@@ -857,6 +1036,8 @@ export async function syncTxnOps(
   consistencyOps: MemStoreTransactionConsistencyOp[],
   txn: IMemStoreTransaction
 ) {
+  throw reuseableErrors.common.notImplemented();
+
   const persistenceSyncMap: PartialRecord<
     string,
     {insert: IResourceBase[]; update: IResourceBase[]}

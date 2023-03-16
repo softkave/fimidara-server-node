@@ -1,7 +1,7 @@
 import {ConvertAgentToPublicAgent, IWorkspaceResourceBase} from './system';
 
 export interface IFile extends IWorkspaceResourceBase {
-  folderId?: string;
+  parentId: string | null;
   idPath: string[];
   namePath: string[];
   mimetype?: string;

@@ -66,7 +66,7 @@ export async function addAssignedItems<T extends IAssignedItem>(
   comparatorFn?: (item01: T, item02: IAssignedItem) => boolean
 ) {
   if (deletedExisting) {
-    await context.semantic.assignedItem.insertList(items);
+    await context.semantic.assignedItem.insertItem(items);
     return items;
   } else {
     const {itemIdListToDelete, resolvedItems} = await filterExistingItems(
@@ -76,7 +76,7 @@ export async function addAssignedItems<T extends IAssignedItem>(
       comparatorFn
     );
     await Promise.all([
-      context.semantic.assignedItem.insertList(resolvedItems),
+      context.semantic.assignedItem.insertItem(resolvedItems),
       itemIdListToDelete && context.semantic.assignedItem.deleteManyByIdList(itemIdListToDelete),
     ]);
     return resolvedItems;
@@ -201,5 +201,5 @@ export async function assignWorkspaceToUser(
       })
     ),
   ];
-  return await context.semantic.assignedItem.insertList(items);
+  return await context.semantic.assignedItem.insertItem(items);
 }

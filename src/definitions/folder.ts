@@ -3,7 +3,7 @@ import {ConvertAgentToPublicAgent, IWorkspaceResourceBase} from './system';
 export interface IFolder extends IWorkspaceResourceBase {
   idPath: string[];
   namePath: string[];
-  parentId?: string | null;
+  parentId: string | null;
   // maxFileSizeInBytes: number;
   name: string;
   description?: string;

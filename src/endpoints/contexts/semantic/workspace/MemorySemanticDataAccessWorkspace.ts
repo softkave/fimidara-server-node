@@ -1,5 +1,5 @@
 import {IWorkspace} from '../../../../definitions/workspace';
-import {reuseableErrors} from '../../../../utils/reusableErrors';
+import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessWorkspaceProvider} from './types';
 
@@ -7,15 +7,24 @@ export class MemorySemanticDataAccessWorkspace
   extends SemanticDataAccessWorkspaceResourceProvider<IWorkspace>
   implements ISemanticDataAccessWorkspaceProvider
 {
-  async getByRootname(rootname: string): Promise<IWorkspace | null> {
-    return this.memstore.readItem({rootname: {$regex: new RegExp(rootname, 'i')}});
+  async getByRootname(
+    name: string,
+    opts?: ISemanticDataAccessProviderRunOptions | undefined
+  ): Promise<IWorkspace | null> {
+    return await this.memstore.readItem({rootname: {$lowercaseEq: name}}, opts?.transaction);
   }
 
-  async existsByRootname(rootname: string): Promise<boolean> {
-    return !!(await this.getByRootname(rootname));
+  async existsByRootname(
+    name: string,
+    opts?: ISemanticDataAccessProviderRunOptions | undefined
+  ): Promise<boolean> {
+    return await this.memstore.exists({rootname: {$lowercaseEq: name}}, opts?.transaction);
   }
 
-  async workspaceExistsByName(name: string): Promise<boolean> {
-    throw reuseableErrors.common.notImplemented();
+  async workspaceExistsByName(
+    name: string,
+    opts?: ISemanticDataAccessProviderRunOptions | undefined
+  ): Promise<boolean> {
+    return await this.memstore.exists({name: {$lowercaseEq: name}}, opts?.transaction);
   }
 }

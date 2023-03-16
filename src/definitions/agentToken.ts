@@ -22,7 +22,7 @@ export interface IAgentToken extends IResourceBase {
    * string, where iat is time in seconds
    */
   expires?: number;
-  accessScope?: string[];
+  scope?: string[];
 }
 
 export type IPublicAgentToken = IPublicWorkspaceResourceBase &

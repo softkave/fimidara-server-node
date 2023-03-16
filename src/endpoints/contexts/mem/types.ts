@@ -52,7 +52,7 @@ export enum MemStoreIndexTypes {
  * value doesn't change.
  */
 export type MemStoreIndexOptions<T> = {
-  type: MemStoreIndexTypes.MapIndex;
+  type: MemStoreIndexTypes;
   caseInsensitive?: boolean;
   field: keyof T;
 };
@@ -61,7 +61,8 @@ export interface IMemStoreIndex<T extends IResourceBase> {
   index(item: T | T[], transaction?: IMemStoreTransaction): void;
   commitView(view: unknown): void;
   indexGet(key: unknown | unknown[]): string[];
-  traverse(fn: (id: string) => boolean): void;
+  traverse(fn: (id: string) => boolean, from?: number): void;
+  getOptions(): MemStoreIndexOptions<T>;
 }
 
 export interface IMemStore<T extends AnyObject> {
@@ -70,7 +71,8 @@ export interface IMemStore<T extends AnyObject> {
   readManyItems(
     query: LiteralDataQuery<T>,
     transaction?: IMemStoreTransaction,
-    count?: number
+    count?: number,
+    page?: number
   ): Promise<T[]>;
   countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<number>;
   exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<boolean>;

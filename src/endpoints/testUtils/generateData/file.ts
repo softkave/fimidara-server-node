@@ -43,6 +43,6 @@ export async function generateAndInsertTestFiles(
   extra: Partial<IFile> = {}
 ) {
   const items = generateTestFiles(count, extra);
-  await ctx.semantic.file.insertList(items);
+  await ctx.semantic.file.insertItem(items);
   return items;
 }

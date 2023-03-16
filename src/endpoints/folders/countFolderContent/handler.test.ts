@@ -41,7 +41,7 @@ describe('countFolderContent', () => {
       }),
       context.semantic.file.countByQuery({
         workspaceId: workspace.resourceId,
-        folderId: null,
+        parentId: null,
       }),
     ]);
     const instData = RequestData.fromExpressRequest<ICountFolderContentEndpointParams>(

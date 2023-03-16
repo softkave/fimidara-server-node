@@ -36,7 +36,9 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 // other literals
 export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
+  $lowercaseEq?: T;
   $in?: T[] | Array<T | null>;
+  $lowercaseIn?: T[];
   $ne?: T | null;
   $nin?: Array<T | null>;
 
@@ -58,10 +60,9 @@ export interface INumberLiteralFieldQueryOps {
   $lte?: number;
 }
 
-export type ILiteralFieldQueryOps<T = DataProviderLiteralType> =
-  | (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps)
-  | T
-  | null;
+export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends Array<infer V>
+  ? ILiteralFieldQueryOps<V> | IComparisonLiteralFieldQueryOps<T>
+  : (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null;
 
 export type LiteralDataQuery<T> = {
   [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;

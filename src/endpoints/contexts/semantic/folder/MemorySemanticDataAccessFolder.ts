@@ -1,6 +1,7 @@
 import {IFolder} from '../../../../definitions/folder';
-import {reuseableErrors} from '../../../../utils/reusableErrors';
 import {IDataProvideQueryListParams} from '../../data/types';
+import {getMongoQueryOptionsForMany} from '../../data/utils';
+import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessFolderProvider} from './types';
 
@@ -11,9 +12,12 @@ export class MemorySemanticDataAccessFolder
   async getOneByNamePath(
     workspaceId: string,
     namePath: string[],
-    extension?: string | undefined
+    opts?: ISemanticDataAccessProviderRunOptions | undefined
   ): Promise<IFolder | null> {
-    throw reuseableErrors.common.notImplemented();
+    return await this.memstore.readItem(
+      {workspaceId, namePath: {$eq: namePath}},
+      opts?.transaction
+    );
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -23,17 +27,39 @@ export class MemorySemanticDataAccessFolder
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?: IDataProvideQueryListParams<IFolder> | undefined
+    options?:
+      | (IDataProvideQueryListParams<IFolder> & ISemanticDataAccessProviderRunOptions)
+      | undefined
   ): Promise<IFolder[]> {
-    throw reuseableErrors.common.notImplemented();
+    const opts = getMongoQueryOptionsForMany(options);
+    return await this.memstore.readManyItems(
+      {
+        workspaceId: q.workspaceId,
+        parentId: q.parentId,
+        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      },
+      options?.transaction,
+      opts.limit,
+      opts.skip
+    );
   }
 
-  async countManyParentByIdList(q: {
-    workspaceId: string;
-    parentId: string | null;
-    resourceIdList?: string[] | undefined;
-    excludeResourceIdList?: string[] | undefined;
-  }): Promise<number> {
-    throw reuseableErrors.common.notImplemented();
+  async countManyParentByIdList(
+    q: {
+      workspaceId: string;
+      parentId: string | null;
+      resourceIdList?: string[] | undefined;
+      excludeResourceIdList?: string[] | undefined;
+    },
+    opts?: ISemanticDataAccessProviderRunOptions | undefined
+  ): Promise<number> {
+    return await this.memstore.countItems(
+      {
+        workspaceId: q.workspaceId,
+        parentId: q.parentId,
+        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      },
+      opts?.transaction
+    );
   }
 }

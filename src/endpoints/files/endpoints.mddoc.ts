@@ -63,7 +63,7 @@ const file = new FieldObject<IPublicFile>().setName('File').setFields({
   extension,
   resourceId: fReusables.id,
   workspaceId: fReusables.workspaceId,
-  folderId: fReusables.folderIdOrUndefined,
+  parentId: fReusables.folderIdOrUndefined,
   idPath: fReusables.idPath,
   namePath: fReusables.folderNamePath,
   mimetype: mimetypeOrUndefined,

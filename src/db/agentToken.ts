@@ -11,7 +11,7 @@ const agentTokenSchema = ensureMongoTypeFields<IAgentToken>({
   version: {type: Number},
   expires: {type: Number},
   description: {type: String},
-  accessScope: {type: [String], index: true},
+  scope: {type: [String], index: true},
 });
 
 export type IAgentTokenDocument = Document<IAgentToken>;

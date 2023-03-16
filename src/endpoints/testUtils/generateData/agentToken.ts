@@ -43,6 +43,6 @@ export async function generateAndInsertAgentTokenListForTest(
   seed: Partial<IAgentToken> = {}
 ) {
   const items = generateAgentTokenListForTest(count, seed);
-  await ctx.semantic.agentToken.insertList(items);
+  await ctx.semantic.agentToken.insertItem(items);
   return items;
 }

@@ -20,7 +20,7 @@ const fileFields = getFields<IPublicFile>({
   ...workspaceResourceFields,
   name: true,
   description: true,
-  folderId: true,
+  parentId: true,
   mimetype: true,
   size: true,
   encoding: true,

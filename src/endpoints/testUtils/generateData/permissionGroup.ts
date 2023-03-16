@@ -43,6 +43,6 @@ export async function generateAndInsertPermissionGroupListForTest(
   seed: Partial<IPermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
-  await ctx.semantic.permissionGroup.insertList(items);
+  await ctx.semantic.permissionGroup.insertItem(items);
   return items;
 }

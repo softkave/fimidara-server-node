@@ -46,6 +46,6 @@ export async function generateAndInsertTestFolders(
   extra: Partial<IFolder> = {}
 ) {
   const items = generateTestFolders(count, extra);
-  await ctx.semantic.folder.insertList(items);
+  await ctx.semantic.folder.insertItem(items);
   return items;
 }

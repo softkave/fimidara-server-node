@@ -129,7 +129,7 @@ export default class SessionContext implements ISessionContext {
     tokenData: IAgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const tokenAccessScope = cast<TokenAccessScope[]>(tokenData.accessScope);
+    const tokenAccessScope = cast<TokenAccessScope[]>(tokenData.scope);
     const hasTokenAccessScope = !!tokenAccessScope.find(nextAud =>
       expectedTokenAccessScope.includes(nextAud)
     );
