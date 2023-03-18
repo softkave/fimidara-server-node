@@ -5,7 +5,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
+import {IAppRuntimeState, IResource} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -121,7 +121,7 @@ export class AgentTokenMongoDataProvider
 }
 
 export class ResourceMongoDataProvider
-  extends BaseMongoDataProvider<IResourceBase>
+  extends BaseMongoDataProvider<IResource>
   implements IResourceDataProvider
 {
   throwNotFound = throwNotFound;

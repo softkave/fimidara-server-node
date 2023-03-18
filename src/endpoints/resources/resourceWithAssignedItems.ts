@@ -3,12 +3,12 @@ import {IUser} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
 import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
-import {IResource} from './types';
+import {IResourceContainer} from './types';
 
 export async function resourceWithAssignedItems(
   context: IBaseContext,
   workspaceId: string,
-  resource: IResource
+  resource: IResourceContainer
 ) {
   switch (resource.resourceType) {
     case AppResourceType.AgentToken:
@@ -31,7 +31,7 @@ export async function resourceWithAssignedItems(
 export async function resourceListWithAssignedItems(
   context: IBaseContext,
   workspaceId: string,
-  resourceList: IResource[],
+  resourceList: IResourceContainer[],
   forTypes: AppResourceType[] = Object.values(AppResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);

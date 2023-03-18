@@ -1,6 +1,6 @@
-import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
 
-export interface IPermissionGroup extends IWorkspaceResourceBase {
+export interface IPermissionGroup extends IWorkspaceResource {
   name: string;
   description?: string;
 }

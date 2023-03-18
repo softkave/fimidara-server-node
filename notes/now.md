@@ -12,8 +12,10 @@
 - [ ] Index non-static fields when done with Mem-marked tasks
 - [ ] Check that all tags are saved
 - [ ] Use token version when querying tokens
+- [ ] Load data into memstore on start
 - [ ] Ensure that all check auth calls use right actions
 - [ ] use transactions
+- [ ] In the future, implement mark deleted, shallow delete, complete delete, per resource, and allow users to select fields to mask on shallow delete
 - [ ] App end
   - [ ] Complete mongo sync
   - [ ] Resumeable deletes

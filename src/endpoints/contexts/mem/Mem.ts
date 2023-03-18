@@ -16,7 +16,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
+import {IAppRuntimeState, IResource} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -69,14 +69,14 @@ export class MemStoreTransaction implements IMemStoreTransaction {
 
   protected cache: Record<
     string,
-    {version: number; item: IResourceBase; storeRef: IMemStore<IResourceBase>}
+    {version: number; item: IResource; storeRef: IMemStore<IResource>}
   > = {};
   protected consistencyOps: MemStoreTransactionConsistencyOp[] = [];
-  protected indexViews: Map<IMemStoreIndex<IResourceBase>, unknown> = new Map();
-  protected locks: PartialRecord<number, IMemStore<IResourceBase>> = {};
+  protected indexViews: Map<IMemStoreIndex<IResource>, unknown> = new Map();
+  protected locks: PartialRecord<number, IMemStore<IResource>> = {};
 
   // TODO: how to maintain storeRef without having to store it for each item?
-  addToCache(item: IResourceBase | IResourceBase[], storeRef: IMemStore<IResourceBase>) {
+  addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>) {
     const itemsList = toArray(item);
     itemsList.forEach(item => {
       const existingItem = this.cache[item.resourceId];
@@ -88,7 +88,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     });
   }
 
-  getFromCache<T extends IResourceBase>(id: string) {
+  getFromCache<T extends IResource>(id: string) {
     return this.cache[id]?.item as T | undefined;
   }
 
@@ -104,10 +104,10 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   ) {
     try {
       await syncFn(this.consistencyOps, this);
-      const commitMap = new Map<IMemStore<IResourceBase>, IResourceBase[]>();
+      const commitMap = new Map<IMemStore<IResource>, IResource[]>();
 
       for (const op of this.consistencyOps) {
-        const items: IResourceBase[] = [];
+        const items: IResource[] = [];
         op.idList.forEach(id => {
           const item = this.cache[id].item;
           items.push(item);
@@ -129,21 +129,21 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     }
   }
 
-  addIndexView(ref: IMemStoreIndex<IResourceBase>, index: unknown) {
+  addIndexView(ref: IMemStoreIndex<IResource>, index: unknown) {
     if (!this.indexViews.has(ref)) {
       this.indexViews.set(ref, index);
     }
   }
 
-  getIndexView<T = unknown>(ref: IMemStoreIndex<IResourceBase>) {
+  getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>) {
     return (this.indexViews.get(ref) ?? null) as T | null;
   }
 
-  hasIndexView(ref: IMemStoreIndex<IResourceBase>): boolean {
+  hasIndexView(ref: IMemStoreIndex<IResource>): boolean {
     return this.indexViews.has(ref);
   }
 
-  setLock(storeRef: IMemStore<IResourceBase>, lockId: number): void {
+  setLock(storeRef: IMemStore<IResource>, lockId: number): void {
     this.locks[lockId] = storeRef;
   }
 
@@ -159,7 +159,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   }
 }
 
-class MemStoreMapIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
+class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   protected map: PartialRecord<string, PartialRecord<string, string>> = {};
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -168,15 +168,12 @@ class MemStoreMapIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
     const itemList = toArray(item);
     let map = transaction
       ? transaction.getIndexView<Record<string, Record<string, string>>>(
-          this as unknown as IMemStoreIndex<IResourceBase>
+          this as unknown as IMemStoreIndex<IResource>
         ) ?? {}
       : this.map;
 
-    if (
-      transaction &&
-      !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResourceBase>)
-    ) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResourceBase>, map);
+    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, map);
     }
 
     appAssert(map);
@@ -232,7 +229,7 @@ type MemStoreStaticTimestampIndexItem = {timestamp: number; id: string};
  * Ensure items provided for indexing are already sorted by the indexed field.
  * The class itself does not sort the items.
  */
-class MemStoreStaticTimestampIndex<T extends IResourceBase> implements IMemStoreIndex<T> {
+class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreIndex<T> {
   list = new StaticStackedArray<MemStoreStaticTimestampIndexItem>();
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -241,15 +238,12 @@ class MemStoreStaticTimestampIndex<T extends IResourceBase> implements IMemStore
     const itemList = toArray(item);
     const indexList = transaction
       ? transaction.getIndexView<StaticStackedArray<MemStoreStaticTimestampIndexItem>>(
-          this as unknown as IMemStoreIndex<IResourceBase>
+          this as unknown as IMemStoreIndex<IResource>
         ) ?? StaticStackedArray.from(this.list)
       : this.list;
 
-    if (
-      transaction &&
-      !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResourceBase>)
-    ) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResourceBase>, indexList);
+    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, indexList);
     }
 
     const lastItem = indexList.getLast();
@@ -313,7 +307,7 @@ function isLockInfo(lock: unknown): lock is LockInfo {
 }
 
 // TODO: Needs massive refactoring!
-export class MemStore<T extends IResourceBase> implements IMemStore<T> {
+export class MemStore<T extends IResource> implements IMemStore<T> {
   // static CREATE_EVENT_NAME = 'create' as const;
   // static UPDATE_EVENT_NAME = 'update' as const;
   static MEMSTORE_ID = Symbol.for('MEMSTORE_ID');
@@ -353,7 +347,7 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
       throw new Error(`Unsupported index type ${opts.type}`);
     });
 
-    const traversalField: keyof IResourceBase = 'createdAt';
+    const traversalField: keyof IResource = 'createdAt';
     this.traversalIndex = new MemStoreStaticTimestampIndex({
       field: traversalField,
       type: MemStoreIndexTypes.StaticTimestampIndex,
@@ -994,7 +988,7 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     if (!(op.$eq || op.$in)) return;
 
     let matchedItems: T[] = [];
-    const resourceIdKey: keyof IResourceBase = 'resourceId';
+    const resourceIdKey: keyof IResource = 'resourceId';
 
     for (const opKey in op) {
       const opKeyTyped = opKey as QK;
@@ -1045,8 +1039,8 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
   }
 }
 
-export function isMemStoreImpl(store: IMemStore<IResourceBase>): store is MemStore<IResourceBase> {
-  return (store as MemStore<IResourceBase>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
+export function isMemStoreImpl(store: IMemStore<IResource>): store is MemStore<IResource> {
+  return (store as MemStore<IResource>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
 }
 
 export async function syncTxnOps(
@@ -1054,7 +1048,7 @@ export async function syncTxnOps(
   consistencyOps: MemStoreTransactionConsistencyOp[],
   txn: IMemStoreTransaction
 ) {
-  const items: IResourceBase[] = [];
+  const items: IResource[] = [];
 
   for (const op of consistencyOps) {
     op.idList.forEach(id => {

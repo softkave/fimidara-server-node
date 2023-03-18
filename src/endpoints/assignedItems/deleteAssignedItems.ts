@@ -10,11 +10,13 @@ import {IBaseContext} from '../contexts/types';
  */
 export async function deleteResourceAssignedItems(
   context: IBaseContext,
+  workspaceId: string,
   resourceId: string | string[],
   assignedItemTypes: AppResourceType[] | undefined,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   await context.semantic.assignedItem.deleteResourceAssignedItems(
+    workspaceId,
     resourceId,
     assignedItemTypes,
     opts
@@ -23,8 +25,13 @@ export async function deleteResourceAssignedItems(
 
 export async function deleteAssignableItemAssignedItems(
   context: IBaseContext,
+  workspaceId: string,
   assignedItemId: string,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteAssignedItemResources(assignedItemId, opts);
+  await context.semantic.assignedItem.deleteAssignedItemResources(
+    workspaceId,
+    assignedItemId,
+    opts
+  );
 }

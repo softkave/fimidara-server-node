@@ -6,7 +6,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
+import {IAppRuntimeState, IResource} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -32,8 +32,6 @@ export const EXCLUDE_IN_PROJECTION = 0 as const;
 
 export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
 
-// TODO: reclassify ops based on Mongo ops, but split comparison into number and
-// other literals
 export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
   $lowercaseEq?: T;
@@ -60,9 +58,11 @@ export interface INumberLiteralFieldQueryOps {
   $lte?: number;
 }
 
-export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends Array<infer V>
-  ? ILiteralFieldQueryOps<V> | IComparisonLiteralFieldQueryOps<T>
-  : (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null;
+export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
+  ? (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null
+  : T extends Array<infer V>
+  ? ILiteralFieldQueryOps<V> | Pick<IComparisonLiteralFieldQueryOps<T>, '$eq' | '$ne'>
+  : never;
 
 export type LiteralDataQuery<T> = {
   [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;
@@ -204,4 +204,4 @@ export type IUserQuery = DataQuery<IUser>;
 export type IUserDataProvider = IBaseDataProvider<IUser>;
 export type IWorkspaceQuery = DataQuery<IWorkspace>;
 export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;
-export type IResourceDataProvider = IBaseDataProvider<IResourceBase>;
+export type IResourceDataProvider = IBaseDataProvider<IResource>;

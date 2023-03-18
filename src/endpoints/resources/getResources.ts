@@ -2,7 +2,7 @@ import {mapKeys} from 'lodash';
 import {
   AppResourceType,
   BasicCRUDActions,
-  IResourceBase,
+  IResource,
   ISessionAgent,
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
@@ -21,7 +21,7 @@ import {
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {PermissionDeniedError} from '../user/errors';
-import {IFetchResourceItem, IResource} from './types';
+import {IFetchResourceItem, IResourceContainer} from './types';
 
 export type IFetchResourceItemWithAction = IFetchResourceItem & {
   action?: BasicCRUDActions;
@@ -75,7 +75,7 @@ export async function getResources(options: IGetResourcesOptions) {
   }, {} as PartialRecord<string, IFetchResourceItemWithAction>);
 
   const settledPromises = await fetchResources(context, mapByTypeToIdList, dataFetchRunOptions);
-  const resources: Array<IResource> = [];
+  const resources: Array<IResourceContainer> = [];
 
   if (!checkAuth) {
     settledPromises.forEach(item => {
@@ -162,7 +162,7 @@ async function fetchResources(
   idsGroupedByType: PartialRecord<string, string[]>,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
+  const promises: Array<IExtendedPromiseWithId<IResource[]>> = [];
   mapKeys(idsGroupedByType, (ids, type) => {
     appAssert(ids);
     switch (type) {

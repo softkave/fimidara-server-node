@@ -1,6 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {IFetchResourceItem, IResource} from '../types';
+import {IFetchResourceItem, IResourceContainer} from '../types';
 
 export interface IGetResourcesEndpointParams {
   workspaceId?: string;
@@ -8,7 +8,11 @@ export interface IGetResourcesEndpointParams {
 }
 
 export interface IGetResourcesEndpointResult {
-  resources: IResource[];
+  resources: IResourceContainer[];
 }
 
-export type GetResourcesEndpoint = Endpoint<IBaseContext, IGetResourcesEndpointParams, IGetResourcesEndpointResult>;
+export type GetResourcesEndpoint = Endpoint<
+  IBaseContext,
+  IGetResourcesEndpointParams,
+  IGetResourcesEndpointResult
+>;

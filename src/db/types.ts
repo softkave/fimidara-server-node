@@ -1,6 +1,6 @@
 import {Model} from 'mongoose';
-import {IResourceBase} from '../definitions/system';
+import {IResource} from '../definitions/system';
 
 export interface IAppMongoModels {
-  resource: Model<IResourceBase>;
+  resource: Model<IResource>;
 }

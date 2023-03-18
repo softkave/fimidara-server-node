@@ -110,7 +110,13 @@ export async function addAssignedPermissionGroupList(
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, assigneeId, [AppResourceType.PermissionGroup], opts);
+    await deleteResourceAssignedItems(
+      context,
+      workspaceId,
+      assigneeId,
+      [AppResourceType.PermissionGroup],
+      opts
+    );
   }
 
   if (!skipPermissionGroupsExistCheck) {
@@ -180,7 +186,13 @@ export async function addAssignedTagList(
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (deleteExisting) {
-    await deleteResourceAssignedItems(context, assigneeId, [AppResourceType.Tag], opts);
+    await deleteResourceAssignedItems(
+      context,
+      workspace.resourceId,
+      assigneeId,
+      [AppResourceType.Tag],
+      opts
+    );
   }
 
   const items = tags.map(tag => {

@@ -2,9 +2,9 @@ import {compact} from 'lodash';
 import {
   AppResourceType,
   IAgent,
-  IResourceBase,
+  IResource,
   ISessionAgent,
-  IWorkspaceResourceBase,
+  IWorkspaceResource,
 } from '../definitions/system';
 import {appAssert} from './assertion';
 import {getTimestamp} from './dateFns';
@@ -123,11 +123,11 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
   return pageCount;
 }
 
-export function getResourceId(resource: Pick<IResourceBase, 'resourceId'>) {
+export function getResourceId(resource: Pick<IResource, 'resourceId'>) {
   return resource.resourceId;
 }
 
-export function extractResourceIdList(resources: IResourceBase[]) {
+export function extractResourceIdList(resources: IResource[]) {
   return resources.map(getResourceId);
 }
 
@@ -149,14 +149,14 @@ export const stopControlFlow = (error = new ServerError()): any =>
 export function newResource<T extends AnyObject = AnyObject>(
   type: AppResourceType,
   seed?: T
-): IResourceBase & T {
+): IResource & T {
   const createdAt = getTimestamp();
   return {
     createdAt,
     resourceId: getNewIdForResource(type),
     lastUpdatedAt: createdAt,
     ...seed,
-  } as IResourceBase & T;
+  } as IResource & T;
 }
 
 export function newWorkspaceResource<T extends AnyObject = AnyObject>(
@@ -164,10 +164,10 @@ export function newWorkspaceResource<T extends AnyObject = AnyObject>(
   type: AppResourceType,
   workspaceId: string,
   seed?: T
-): IWorkspaceResourceBase & T {
+): IWorkspaceResource & T {
   const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
   const createdAt = getTimestamp();
-  const item: IWorkspaceResourceBase = {
+  const item: IWorkspaceResource = {
     createdBy,
     createdAt,
     workspaceId,
@@ -176,7 +176,7 @@ export function newWorkspaceResource<T extends AnyObject = AnyObject>(
     lastUpdatedBy: createdBy,
     ...seed,
   };
-  return item as T & IWorkspaceResourceBase;
+  return item as T & IWorkspaceResource;
 }
 
 export function loop(count = 1, fn: AnyFn) {

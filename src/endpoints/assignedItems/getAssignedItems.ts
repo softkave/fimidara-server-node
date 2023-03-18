@@ -1,6 +1,6 @@
 import {defaultTo} from 'lodash';
 import {IAssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
-import {AppResourceType, IResourceBase} from '../../definitions/system';
+import {AppResourceType, IResource} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
@@ -69,7 +69,7 @@ export async function getResourceAssignedItemsSortedByType(
 }
 
 export async function populateAssignedItems<
-  T extends IResourceBase,
+  T extends IResource,
   AT extends Array<AppResourceType.Tag>
 >(
   context: IBaseContext,
@@ -113,7 +113,7 @@ export async function populateAssignedItems<
 }
 
 export async function populateAssignedTags<
-  T extends IResourceBase,
+  T extends IResource,
   R extends T | undefined = undefined,
   Final = R extends undefined ? ResourceWithTags<T> : R
 >(
@@ -137,7 +137,7 @@ export async function populateAssignedTags<
 }
 
 export async function populateResourceListWithAssignedTags<
-  T extends IResourceBase,
+  T extends IResource,
   R extends T | undefined = undefined
 >(
   context: IBaseContext,

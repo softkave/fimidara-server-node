@@ -1,8 +1,8 @@
 import {AnyObject} from '../utils/types';
-import {AppResourceType, IWorkspaceResourceBase} from './system';
+import {AppResourceType, IWorkspaceResource} from './system';
 import {IAssignedTag} from './tag';
 
-export interface IAssignedItem<Meta extends AnyObject = AnyObject> extends IWorkspaceResourceBase {
+export interface IAssignedItem<Meta extends AnyObject = AnyObject> extends IWorkspaceResource {
   assignedItemId: string;
   assignedItemType: AppResourceType;
   assigneeId: string;

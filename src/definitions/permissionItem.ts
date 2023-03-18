@@ -2,10 +2,10 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ConvertAgentToPublicAgent,
-  IWorkspaceResourceBase,
+  IWorkspaceResource,
 } from './system';
 
-export interface IPermissionItem extends IWorkspaceResourceBase {
+export interface IPermissionItem extends IWorkspaceResource {
   /**
    * Containers scope the reach of a permission item to either the container or
    * the resources contained within. One of workspace, or folder.

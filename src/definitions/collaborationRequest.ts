@@ -1,5 +1,5 @@
 import {IPublicAssignedPermissionGroupMeta} from './permissionGroups';
-import {ConvertAgentToPublicAgent, IPublicResourceBase, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IPublicResource, IWorkspaceResource} from './system';
 
 export enum CollaborationRequestStatusType {
   Accepted = 'accepted',
@@ -28,7 +28,7 @@ export interface ICollaborationRequestSentEmailHistoryItem {
   reason: CollaborationRequestEmailReason;
 }
 
-export interface ICollaborationRequest extends IWorkspaceResourceBase {
+export interface ICollaborationRequest extends IWorkspaceResource {
   recipientEmail: string;
   message: string;
   expiresAt?: number;
@@ -39,7 +39,7 @@ export interface ICollaborationRequest extends IWorkspaceResourceBase {
 }
 
 export type IPublicCollaborationRequestForUser = Pick<
-  IPublicResourceBase,
+  IPublicResource,
   'resourceId' | 'createdAt' | 'lastUpdatedAt'
 > &
   Pick<

@@ -12,7 +12,7 @@ import {
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../../errors';
-import {IResource} from '../../resources/types';
+import {IResourceContainer} from '../../resources/types';
 import {
   checkPermissionContainersExist,
   checkPermissionTargetsExist,
@@ -37,9 +37,9 @@ export async function getResourcePermissionItemsQuery(
     new InvalidRequestError('Provide target ID or target type.')
   );
 
-  let target: IResource | undefined = undefined,
+  let target: IResourceContainer | undefined = undefined,
     containerId = data.containerId ?? workspace.resourceId,
-    permissionContainer: IResource | undefined = undefined;
+    permissionContainer: IResourceContainer | undefined = undefined;
 
   if (data.targetId) {
     const targetsCheckResult = await checkPermissionTargetsExist(

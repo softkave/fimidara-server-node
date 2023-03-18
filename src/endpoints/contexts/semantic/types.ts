@@ -1,4 +1,4 @@
-import {IResourceBase} from '../../../definitions/system';
+import {IResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 import {IMemStoreTransaction} from '../mem/types';
 
@@ -10,7 +10,7 @@ export interface ISemanticDataAccessProviderMutationRunOptions {
   transaction: IMemStoreTransaction;
 }
 
-export interface ISemanticDataAccessBaseProvider<T extends IResourceBase> {
+export interface ISemanticDataAccessBaseProvider<T extends IResource> {
   insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions): Promise<void>;
   getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<T | null>;
   getManyByIdList(
@@ -59,12 +59,14 @@ export interface ISemanticDataAccessBaseProvider<T extends IResourceBase> {
   ): Promise<boolean>;
 }
 
+export type SemanticDataAccessWorkspaceResourceProviderBaseType = IResource & {
+  workspaceId?: string | null;
+  providedResourceId?: string | null;
+  name?: string;
+};
+
 export interface ISemanticDataAccessWorkspaceResourceProvider<
-  T extends IResourceBase & {
-    workspaceId?: string | null;
-    providedResourceId?: string | null;
-    name?: string;
-  }
+  T extends SemanticDataAccessWorkspaceResourceProviderBaseType
 > extends ISemanticDataAccessBaseProvider<T> {
   getByName(
     workspaceId: string,

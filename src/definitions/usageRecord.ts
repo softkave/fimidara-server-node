@@ -2,7 +2,7 @@ import {
   AppResourceType,
   BasicCRUDActions,
   ConvertAgentToPublicAgent,
-  IWorkspaceResourceBase,
+  IWorkspaceResource,
 } from './system';
 
 export enum UsageRecordCategory {
@@ -46,7 +46,7 @@ export enum UsageSummationType {
   Two = 2,
 }
 
-export interface IUsageRecord extends IWorkspaceResourceBase {
+export interface IUsageRecord extends IWorkspaceResource {
   category: UsageRecordCategory;
 
   /**

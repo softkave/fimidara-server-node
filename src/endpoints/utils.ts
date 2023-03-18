@@ -4,8 +4,8 @@ import {
   IAgent,
   IPublicAccessOp,
   IPublicAgent,
-  IPublicResourceBase,
-  IPublicWorkspaceResourceBase,
+  IPublicResource,
+  IPublicWorkspaceResource,
   ISessionAgent,
 } from '../definitions/system';
 import {IWorkspace} from '../definitions/workspace';
@@ -121,12 +121,12 @@ export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
 export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
 export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
 
-export const resourceFields: ExtractFieldsFrom<IPublicResourceBase> = {
+export const resourceFields: ExtractFieldsFrom<IPublicResource> = {
   resourceId: true,
   createdAt: true,
   lastUpdatedAt: true,
 };
-export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResourceBase> = {
+export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResource> = {
   ...resourceFields,
   providedResourceId: true,
   workspaceId: true,

@@ -1,6 +1,6 @@
-import {AppResourceType, IResourceBase} from '../../definitions/system';
+import {AppResourceType, IResource} from '../../definitions/system';
 
-export interface IResource<T extends IResourceBase = IResourceBase> {
+export interface IResourceContainer<T extends IResource = IResource> {
   resourceId: string;
   resourceType: AppResourceType;
   resource: T;

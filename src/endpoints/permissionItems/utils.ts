@@ -6,7 +6,7 @@ import {
   IAgent,
   IPublicAccessOp,
   IPublicAccessOpInput,
-  IResourceBase,
+  IResource,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
@@ -44,7 +44,7 @@ export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPubli
   item01.action === item02.action && item01.resourceType === item02.resourceType;
 
 export function getPublicAccessOpArtifactsFromResource(
-  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'parentId' | 'workspaceId'>
+  resource: Pick<IResource, 'resourceId'> & Pick<IFile, 'parentId' | 'workspaceId'>
 ) {
   const type = getResourceTypeFromId(resource.resourceId);
 
@@ -63,7 +63,7 @@ export function getPublicAccessOpArtifactsFromResource(
 
 export function generatePermissionItemInputsFromPublicAccessOps(
   ops: IPublicAccessOpInput[],
-  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'workspaceId' | 'parentId'>,
+  resource: Pick<IResource, 'resourceId'> & Pick<IFile, 'workspaceId' | 'parentId'>,
   grantAccess = true
 ): INewPermissionItemInput[] {
   const {targetId} = getPublicAccessOpArtifactsFromResource(resource);
@@ -80,7 +80,7 @@ export async function addPublicPermissionGroupAccessOps(
   agent: IAgent,
   workspace: IWorkspace,
   addOps: IPublicAccessOp[],
-  resource: IResourceBase & Pick<IFile, 'workspaceId' | 'parentId'>,
+  resource: IResource & Pick<IFile, 'workspaceId' | 'parentId'>,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (workspace.publicPermissionGroupId) {

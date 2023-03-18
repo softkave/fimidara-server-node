@@ -3,7 +3,7 @@ import {
   PermissionEntityInheritanceMap,
 } from '../../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, IResourceBase} from '../../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, IResource} from '../../../../definitions/system';
 import {IBaseContext} from '../../types';
 import {
   ISemanticDataAccessProviderMutationRunOptions,
@@ -33,7 +33,7 @@ export interface ISemanticDataAccessPermissionProvider {
   getEntity(
     props: {context: IBaseContext; entityId: string},
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IResourceBase | null>;
+  ): Promise<IResource | null>;
   getEntitiesPermissionItems(
     props: {
       context: IBaseContext;

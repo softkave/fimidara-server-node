@@ -1,4 +1,4 @@
-import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
 import {UsageRecordCategory} from './usageRecord';
 
 export interface IUsageThreshold {
@@ -21,7 +21,7 @@ export enum WorkspaceBillStatus {
   BillOverdue = 'billOverdue',
 }
 
-export interface IWorkspace extends IWorkspaceResourceBase {
+export interface IWorkspace extends IWorkspaceResource {
   /**
    * Human readable name of the workspace.
    */

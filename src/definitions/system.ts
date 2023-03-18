@@ -167,7 +167,7 @@ export function getNonWorkspaceActionList() {
 export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
 export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
 
-export interface IAppRuntimeState extends IResourceBase {
+export interface IAppRuntimeState extends IResource {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
   appWorkspaceId: string;
@@ -192,21 +192,21 @@ export interface IPublicAccessOp {
   markedBy: IPublicAgent;
 }
 
-export interface IResourceBase {
+export interface IResource {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
 }
 
-export interface IWorkspaceResourceBase extends IResourceBase {
+export interface IWorkspaceResource extends IResource {
   workspaceId: string;
   providedResourceId?: string | null;
   lastUpdatedBy: IAgent;
   createdBy: IAgent;
 }
 
-export type IPublicResourceBase = ConvertAgentToPublicAgent<IResourceBase>;
-export type IPublicWorkspaceResourceBase = ConvertAgentToPublicAgent<IWorkspaceResourceBase>;
+export type IPublicResource = ConvertAgentToPublicAgent<IResource>;
+export type IPublicWorkspaceResource = ConvertAgentToPublicAgent<IWorkspaceResource>;
 
 export const SYSTEM_SESSION_AGENT: ISessionAgent = {
   agentId: getNewIdForResource(AppResourceType.System),

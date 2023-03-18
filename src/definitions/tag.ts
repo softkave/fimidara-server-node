@@ -1,6 +1,6 @@
-import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
 
-export interface ITag extends IWorkspaceResourceBase {
+export interface ITag extends IWorkspaceResource {
   name: string;
   description?: string;
 }

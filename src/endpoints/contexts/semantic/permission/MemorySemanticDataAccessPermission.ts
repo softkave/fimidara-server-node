@@ -5,7 +5,7 @@ import {
   PermissionEntityInheritanceMap,
 } from '../../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, IResourceBase} from '../../../../definitions/system';
+import {AppResourceType, BasicCRUDActions, IResource} from '../../../../definitions/system';
 import {IAppVariables} from '../../../../resources/vars';
 import {appAssert} from '../../../../utils/assertion';
 import {toArray, toCompactArray} from '../../../../utils/fns';
@@ -220,9 +220,9 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       entityId: string;
     },
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IResourceBase | null> {
+  ): Promise<IResource | null> {
     const type = getResourceTypeFromId(props.entityId);
-    const query: LiteralDataQuery<IResourceBase> = {resourceId: props.entityId};
+    const query: LiteralDataQuery<IResource> = {resourceId: props.entityId};
     if (type === AppResourceType.User)
       return await props.context.memstore.user.readItem(query, opts?.transaction);
     if (type === AppResourceType.AgentToken)

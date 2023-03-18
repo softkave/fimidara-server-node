@@ -1,15 +1,15 @@
 import {format} from 'util';
 import {IFile} from '../../definitions/file';
 import {IFolder} from '../../definitions/folder';
-import {AppResourceType, IWorkspaceResourceBase} from '../../definitions/system';
+import {AppResourceType, IWorkspaceResource} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {InvalidRequestError} from '../errors';
-import {IResource} from './types';
+import {IResourceContainer} from './types';
 
-export function isResourcePartOfWorkspace(workspaceId: string, resource: IResource) {
+export function isResourcePartOfWorkspace(workspaceId: string, resource: IResourceContainer) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === workspaceId;
@@ -19,7 +19,7 @@ export function isResourcePartOfWorkspace(workspaceId: string, resource: IResour
     case AppResourceType.PermissionItem:
     case AppResourceType.Folder:
     case AppResourceType.File:
-      return (resource.resource as IWorkspaceResourceBase).workspaceId === workspaceId;
+      return (resource.resource as IWorkspaceResource).workspaceId === workspaceId;
     case AppResourceType.User:
       const user = resource.resource as IUserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
@@ -29,7 +29,7 @@ export function isResourcePartOfWorkspace(workspaceId: string, resource: IResour
   }
 }
 
-export function isResourcePartOfContainer(containerId: string, resource: IResource) {
+export function isResourcePartOfContainer(containerId: string, resource: IResourceContainer) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === containerId;
@@ -37,16 +37,16 @@ export function isResourcePartOfContainer(containerId: string, resource: IResour
     case AppResourceType.AgentToken:
     case AppResourceType.PermissionGroup:
     case AppResourceType.PermissionItem:
-      return (resource.resource as IWorkspaceResourceBase).workspaceId === containerId;
+      return (resource.resource as IWorkspaceResource).workspaceId === containerId;
     case AppResourceType.Folder:
       return (
-        (resource.resource as IWorkspaceResourceBase).workspaceId === containerId ||
-        (resource.resource as IWorkspaceResourceBase).resourceId === containerId ||
+        (resource.resource as IWorkspaceResource).workspaceId === containerId ||
+        (resource.resource as IWorkspaceResource).resourceId === containerId ||
         (resource.resource as unknown as IFolder).idPath.includes(containerId)
       );
     case AppResourceType.File:
       return (
-        (resource.resource as IWorkspaceResourceBase).workspaceId === containerId ||
+        (resource.resource as IWorkspaceResource).workspaceId === containerId ||
         (resource.resource as unknown as IFile).idPath.includes(containerId)
       );
     case AppResourceType.User:
@@ -58,19 +58,28 @@ export function isResourcePartOfContainer(containerId: string, resource: IResour
   }
 }
 
-export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+export function getResourcesNotPartOfWorkspace(
+  workspaceId: string,
+  resources: IResourceContainer[]
+) {
   return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResourceContainer[]) {
   return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: IResource[]) {
+export function hasResourcesNotPartOfWorkspace(
+  workspaceId: string,
+  resources: IResourceContainer[]
+) {
   return getResourcesNotPartOfWorkspace(workspaceId, resources).length > 0;
 }
 
-export function checkResourcesBelongToWorkspace(workspaceId: string, resources: IResource[]) {
+export function checkResourcesBelongToWorkspace(
+  workspaceId: string,
+  resources: IResourceContainer[]
+) {
   const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
   if (outsideResources.length) {
     const message = format(
@@ -82,11 +91,17 @@ export function checkResourcesBelongToWorkspace(workspaceId: string, resources: 
   }
 }
 
-export function getResourcesNotPartOfContainer(containerId: string, resources: IResource[]) {
+export function getResourcesNotPartOfContainer(
+  containerId: string,
+  resources: IResourceContainer[]
+) {
   return resources.filter(item => !isResourcePartOfContainer(containerId, item));
 }
 
-export function checkResourcesBelongToContainer(containerId: string, resources: IResource[]) {
+export function checkResourcesBelongToContainer(
+  containerId: string,
+  resources: IResourceContainer[]
+) {
   const outsideResources = getResourcesNotPartOfContainer(containerId, resources);
   if (outsideResources.length) {
     const message = format(

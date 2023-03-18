@@ -1,11 +1,11 @@
-import {IPublicResourceBase, IResourceBase} from './system';
+import {IPublicResource, IResource} from './system';
 
 export interface IUserWorkspace {
   workspaceId: string;
   joinedAt: number;
 }
 
-export interface IUser extends IResourceBase {
+export interface IUser extends IResource {
   firstName: string;
   lastName: string;
   email: string;
@@ -20,7 +20,7 @@ export interface IUserWithWorkspace extends IUser {
   workspaces: IUserWorkspace[];
 }
 
-export type IPublicUserData = IPublicResourceBase &
+export type IPublicUserData = IPublicResource &
   Pick<
     IUser,
     | 'email'

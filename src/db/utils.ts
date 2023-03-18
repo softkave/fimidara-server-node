@@ -1,10 +1,5 @@
 import {SchemaDefinitionProperty} from 'mongoose';
-import {
-  IAgent,
-  IPublicAccessOp,
-  IResourceBase,
-  IWorkspaceResourceBase,
-} from '../definitions/system';
+import {IAgent, IPublicAccessOp, IResource, IWorkspaceResource} from '../definitions/system';
 import {getTimestamp} from '../utils/dateFns';
 
 // ensures all the fields defined in the type are added to the schema
@@ -30,13 +25,13 @@ export const publicAccessOpSchema = ensureMongoTypeFields<IPublicAccessOp>({
   resourceType: {type: String},
 });
 
-export const resourceSchema = ensureMongoTypeFields<IResourceBase>({
+export const resourceSchema = ensureMongoTypeFields<IResource>({
   resourceId: {type: String, unique: true, index: true},
   createdAt: {type: Number, default: getTimestamp},
   lastUpdatedAt: {type: Number, default: getTimestamp},
 });
 
-export const workspaceResourceSchema = ensureMongoTypeFields<IWorkspaceResourceBase>({
+export const workspaceResourceSchema = ensureMongoTypeFields<IWorkspaceResource>({
   ...resourceSchema,
   workspaceId: {type: String, index: true},
   providedResourceId: {type: String, index: true},

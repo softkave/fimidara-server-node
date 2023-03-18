@@ -3,7 +3,7 @@ import {
   AppResourceType,
   BasicCRUDActions,
   getWorkspaceActionList,
-  IResourceBase,
+  IResource,
 } from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
@@ -67,9 +67,9 @@ describe('getResources', () => {
     const items = addPermissionItemsResult.items;
     const resourcesInput: IFetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
-    const getKey = (item: Pick<IResourceBase, 'resourceId'>, type: AppResourceType) =>
+    const getKey = (item: Pick<IResource, 'resourceId'>, type: AppResourceType) =>
       `${item.resourceId}-${type}`;
-    const addResource = (item: Pick<IResourceBase, 'resourceId'>, type: AppResourceType) => {
+    const addResource = (item: Pick<IResource, 'resourceId'>, type: AppResourceType) => {
       resourcesInput.push({resourceId: item.resourceId});
       resourcesMap[getKey(item, type)] = item;
     };

@@ -1,6 +1,6 @@
-import {ConvertAgentToPublicAgent, IWorkspaceResourceBase} from './system';
+import {ConvertAgentToPublicAgent, IWorkspaceResource} from './system';
 
-export interface IFile extends IWorkspaceResourceBase {
+export interface IFile extends IWorkspaceResource {
   parentId: string | null;
   idPath: string[];
   namePath: string[];
