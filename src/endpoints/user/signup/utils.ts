@@ -5,6 +5,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {MemStore} from '../../contexts/mem/Mem';
 import {IBaseContext} from '../../contexts/types';
 import {EmailAddressNotAvailableError} from '../errors';
 import {ISignupEndpointParams} from './types';
@@ -28,6 +29,10 @@ export const internalSignupUser = async (context: IBaseContext, data: ISignupEnd
     isEmailVerified: false,
     lastUpdatedAt: now,
   });
-  await context.semantic.user.insertItem(user);
+
+  await MemStore.withTransaction(context, async txn => {
+    await context.semantic.user.insertItem(user, {transaction: txn});
+  });
+
   return await populateUserWorkspaces(context, user);
 };

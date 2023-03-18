@@ -1,6 +1,8 @@
 import {TokenAccessScope} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {assertUser} from '../utils';
 
@@ -16,19 +18,27 @@ export default async function internalConfirmEmailAddress(
     user = await context.semantic.user.getOneById(userId);
     assertUser(user);
   }
-
   if (user.isEmailVerified) {
     return user;
   }
 
-  user = await context.semantic.user.getAndUpdateOneById(user.resourceId, {
-    isEmailVerified: true,
-    emailVerifiedAt: getTimestamp(),
+  user = await MemStore.withTransaction(context, async txn => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    const [user] = await Promise.all([
+      context.semantic.user.getAndUpdateOneById(
+        userId,
+        {isEmailVerified: true, emailVerifiedAt: getTimestamp()},
+        opts
+      ),
+      context.semantic.agentToken.deleteAgentTokens(
+        userId,
+        TokenAccessScope.ConfirmEmailAddress,
+        opts
+      ),
+    ]);
+
+    return user;
   });
-  context.semantic.agentToken.deleteAgentTokens(
-    user.resourceId,
-    TokenAccessScope.ConfirmEmailAddress
-  );
 
   return user;
 }

@@ -6,7 +6,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
+import {addPublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {UpdateFolderEndpoint} from './types';
 import {updateFolderJoiSchema} from './validation';
@@ -29,22 +29,21 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
 
   folder = await context.semantic.folder.getAndUpdateOneById(folder.resourceId, update);
 
-  const hasPublicAccessOpsChanges = !!incomingPublicAccessOps ?? data.folder.removePublicAccessOps;
-  if (hasPublicAccessOpsChanges) {
-    let publicAccessOps = incomingPublicAccessOps
-      ? incomingPublicAccessOps.map(op => ({
-          ...op,
-          markedAt: getTimestamp(),
-          markedBy: agent,
-        }))
-      : [];
+  const hasPublicAccessOpsChanges = !!incomingPublicAccessOps || data.folder.removePublicAccessOps;
+  let publicAccessOps = incomingPublicAccessOps
+    ? incomingPublicAccessOps.map(op => ({
+        ...op,
+        markedAt: getTimestamp(),
+        markedBy: agent,
+      }))
+    : [];
 
-    if (data.folder.removePublicAccessOps) {
-      publicAccessOps = [];
-    }
-
-    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, folder);
+  if (data.folder.removePublicAccessOps) {
+    publicAccessOps = [];
   }
+
+  // TODO: delete/replace folder public access ops
+  await addPublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, folder);
 
   await saveResourceAssignedItems(context, agent, workspace, folder.resourceId, data.folder, true);
   folder = await populateAssignedTags(context, folder.workspaceId, folder);

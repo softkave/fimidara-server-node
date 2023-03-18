@@ -9,6 +9,7 @@ import {
   sortOutPermissionItems,
   uniquePermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {
@@ -22,7 +23,8 @@ export const internalAddPermissionItems = async (
   context: IBaseContext,
   agent: ISessionAgent,
   workspaceId: string,
-  data: IAddPermissionItemsEndpointParams
+  data: IAddPermissionItemsEndpointParams,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) => {
   const entityIdList = toArray(data.entityId),
     containerId = data.containerId ?? workspaceId;
@@ -84,6 +86,9 @@ export const internalAddPermissionItems = async (
     inputItems.push(item);
   });
 
+  // Not using transaction read because heavy computation may happen next to
+  // filter out existing permission items, and I don't want to keep other
+  // permission insertion operations waiting.
   let existingPermissionItems = await context.semantic.permissions.getEntitiesPermissionItems({
     context,
     containerId,
@@ -96,6 +101,6 @@ export const internalAddPermissionItems = async (
   ));
   const itemsMap = indexArray(existingPermissionItems, {path: 'resourceId'});
   inputItems = inputItems.filter(item => !!itemsMap[item.resourceId]);
-  await context.semantic.permissionItem.insertItem(inputItems);
+  await context.semantic.permissionItem.insertItem(inputItems, opts);
   return inputItems;
 };

@@ -62,7 +62,7 @@ describe('MemStore', () => {
 
   test('countItems', async () => {
     const items01 = seedTestResourceList(10, {field01: getNewId()});
-    mem01.commitItems(items01);
+    mem01.UNSAFE_ingestItems(items01);
     const count = await mem01.countItems({
       field01: {$in: items01.map(item => item.field01)},
     });
@@ -71,7 +71,7 @@ describe('MemStore', () => {
 
   test('exists', async () => {
     const item01 = seedTestResource({field01: getNewId()});
-    mem01.commitItems(item01);
+    mem01.UNSAFE_ingestItems(item01);
     const found = await mem01.exists({field01: item01.field01});
     expect(found).toBeTruthy();
   });

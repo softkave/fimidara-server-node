@@ -168,9 +168,8 @@ export abstract class BaseMongoDataProvider<
     await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
-  async bulkOps(ops: BulkOpItem<T>[]): Promise<void> {
+  async TRANSACTION_bulkWrite(ops: BulkOpItem<T>[]): Promise<void> {
     type Model02 = Model<T>;
-    // type MongoBulkOpsType = Parameters<typeof Model['bulkWrite']>[0];
     type MongoBulkOpsType = Parameters<Model02['bulkWrite']>[0];
     const mongoOps: MongoBulkOpsType = [];
 
@@ -185,6 +184,7 @@ export abstract class BaseMongoDataProvider<
             updateOne: {
               filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
               update: op.update,
+              upsert: op.upsert,
             },
           };
           break;
@@ -214,7 +214,9 @@ export abstract class BaseMongoDataProvider<
       }
     });
 
-    await this.model.bulkWrite(mongoOps);
+    this.model.db.transaction(async session => {
+      await this.model.bulkWrite(mongoOps, {session});
+    });
   }
 
   static getMongoQuery<

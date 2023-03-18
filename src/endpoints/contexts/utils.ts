@@ -1,18 +1,18 @@
 import {Connection} from 'mongoose';
-import {getAgentTokenModel} from '../../db/agentToken';
-import {getAppRuntimeStateModel} from '../../db/appRuntimeState';
-import {getAssignedItemModel} from '../../db/assignedItem';
-import {getCollaborationRequestModel} from '../../db/collaborationRequest';
-import {getFileModel} from '../../db/file';
-import {getFolderDatabaseModel} from '../../db/folder';
-import {getPermissionGroupModel} from '../../db/permissionGroup';
-import {getPermissionItemModel} from '../../db/permissionItem';
-import {getTagModel} from '../../db/tag';
+import {getResourceModel} from '../../db/resource';
 import {IAppMongoModels} from '../../db/types';
-import {getUsageRecordModel} from '../../db/usageRecord';
-import {getUserModel} from '../../db/user';
-import {getWorkspaceModel} from '../../db/workspace';
-import {IResourceBase} from '../../definitions/system';
+import {IAgentToken} from '../../definitions/agentToken';
+import {IAssignedItem} from '../../definitions/assignedItem';
+import {ICollaborationRequest} from '../../definitions/collaborationRequest';
+import {IFile} from '../../definitions/file';
+import {IFolder} from '../../definitions/folder';
+import {IPermissionGroup} from '../../definitions/permissionGroups';
+import {IPermissionItem} from '../../definitions/permissionItem';
+import {IAppRuntimeState, IResourceBase} from '../../definitions/system';
+import {ITag} from '../../definitions/tag';
+import {IUsageRecord} from '../../definitions/usageRecord';
+import {IUser} from '../../definitions/user';
+import {IWorkspace} from '../../definitions/workspace';
 import {assertNotFound} from '../../utils/assertion';
 import {assertAgentToken} from '../agentTokens/utils';
 import {assertCollaborationRequest} from '../collaborationRequests/utils';
@@ -24,20 +24,7 @@ import {assertTag} from '../tags/utils';
 import {assertUsageRecord} from '../usageRecords/utils';
 import {assertUser} from '../user/utils';
 import {assertWorkspace} from '../workspaces/utils';
-import {
-  AgentTokenMongoDataProvider,
-  AppRuntimeStateMongoDataProvider,
-  AssignedItemMongoDataProvider,
-  CollaborationRequestMongoDataProvider,
-  FileMongoDataProvider,
-  FolderMongoDataProvider,
-  PermissionGroupMongoDataProvider,
-  PermissionItemMongoDataProvider,
-  TagMongoDataProvider,
-  UsageRecordMongoDataProvider,
-  UserMongoDataProvider,
-  WorkspaceMongoDataProvider,
-} from './data/models';
+import {ResourceMongoDataProvider} from './data/models';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {
@@ -45,11 +32,8 @@ import {
   AppRuntimeStateMemStoreProvider,
   AssignedItemMemStoreProvider,
   CollaborationRequestMemStoreProvider,
-  createHandleCreateItemsMongoSyncFn,
-  createHandleUpdateItemsMongoSyncFn,
   FileMemStoreProvider,
   FolderMemStoreProvider,
-  MemStore,
   PermissionGroupMemStoreProvider,
   PermissionItemMemStoreProvider,
   TagMemStoreProvider,
@@ -57,7 +41,7 @@ import {
   UserMemStoreProvider,
   WorkspaceMemStoreProvider,
 } from './mem/Mem';
-import {IMemStore} from './mem/types';
+import {MemStoreIndexOptions, MemStoreIndexTypes} from './mem/types';
 import {MemorySemanticDataAccessAgentToken} from './semantic/agentToken/MemorySemanticDataAccessAgentToken';
 import {MemorySemanticDataAccessAppRuntimeState} from './semantic/appRuntimeState/MemorySemanticDataAccessAppRuntimeState';
 import {MemorySemanticDataAccessAssignedItem} from './semantic/assignedItem/MemorySemanticDataAccessAssignedItem';
@@ -75,126 +59,102 @@ import {IBaseContext} from './types';
 
 export function getMongoModels(connection: Connection): IAppMongoModels {
   return {
-    user: getUserModel(connection),
-    workspace: getWorkspaceModel(connection),
-    file: getFileModel(connection),
-    agentToken: getAgentTokenModel(connection),
-    collaborationRequest: getCollaborationRequestModel(connection),
-    folder: getFolderDatabaseModel(connection),
-    permissionItem: getPermissionItemModel(connection),
-    permissionGroup: getPermissionGroupModel(connection),
-    appRuntimeState: getAppRuntimeStateModel(connection),
-    tag: getTagModel(connection),
-    assignedItem: getAssignedItemModel(connection),
-    usageRecord: getUsageRecordModel(connection),
+    resource: getResourceModel(connection),
   };
 }
 
 export function getDataProviders(models: IAppMongoModels): IBaseContext['data'] {
   return {
-    folder: new FolderMongoDataProvider(models.folder),
-    file: new FileMongoDataProvider(models.file),
-    agentToken: new AgentTokenMongoDataProvider(models.agentToken),
-    permissionItem: new PermissionItemMongoDataProvider(models.permissionItem),
-    permissionGroup: new PermissionGroupMongoDataProvider(models.permissionGroup),
-    workspace: new WorkspaceMongoDataProvider(models.workspace),
-    collaborationRequest: new CollaborationRequestMongoDataProvider(models.collaborationRequest),
-    user: new UserMongoDataProvider(models.user),
-    appRuntimeState: new AppRuntimeStateMongoDataProvider(models.appRuntimeState),
-    tag: new TagMongoDataProvider(models.tag),
-    assignedItem: new AssignedItemMongoDataProvider(models.assignedItem),
-    usageRecord: new UsageRecordMongoDataProvider(models.usageRecord),
+    resource: new ResourceMongoDataProvider(models.resource),
   };
 }
 
 export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext['memstore'] {
-  const createSyncFns = {
-    folder: createHandleCreateItemsMongoSyncFn(models.folder),
-    file: createHandleCreateItemsMongoSyncFn(models.file),
-    agentToken: createHandleCreateItemsMongoSyncFn(models.agentToken),
-    permissionItem: createHandleCreateItemsMongoSyncFn(models.permissionItem),
-    permissionGroup: createHandleCreateItemsMongoSyncFn(models.permissionGroup),
-    workspace: createHandleCreateItemsMongoSyncFn(models.workspace),
-    collaborationRequest: createHandleCreateItemsMongoSyncFn(models.collaborationRequest),
-    user: createHandleCreateItemsMongoSyncFn(models.user),
-    appRuntimeState: createHandleCreateItemsMongoSyncFn(models.appRuntimeState),
-    tag: createHandleCreateItemsMongoSyncFn(models.tag),
-    assignedItem: createHandleCreateItemsMongoSyncFn(models.assignedItem),
-    usageRecord: createHandleCreateItemsMongoSyncFn(models.usageRecord),
+  const resourceIdIndexOpts: MemStoreIndexOptions<IResourceBase> = {
+    field: 'resourceId',
+    type: MemStoreIndexTypes.MapIndex,
   };
-  const updateSyncFns = {
-    folder: createHandleUpdateItemsMongoSyncFn(models.folder),
-    file: createHandleUpdateItemsMongoSyncFn(models.file),
-    agentToken: createHandleUpdateItemsMongoSyncFn(models.agentToken),
-    permissionItem: createHandleUpdateItemsMongoSyncFn(models.permissionItem),
-    permissionGroup: createHandleUpdateItemsMongoSyncFn(models.permissionGroup),
-    workspace: createHandleUpdateItemsMongoSyncFn(models.workspace),
-    collaborationRequest: createHandleUpdateItemsMongoSyncFn(models.collaborationRequest),
-    user: createHandleUpdateItemsMongoSyncFn(models.user),
-    appRuntimeState: createHandleUpdateItemsMongoSyncFn(models.appRuntimeState),
-    tag: createHandleUpdateItemsMongoSyncFn(models.tag),
-    assignedItem: createHandleUpdateItemsMongoSyncFn(models.assignedItem),
-    usageRecord: createHandleUpdateItemsMongoSyncFn(models.usageRecord),
-  };
-  const createMemStore = <T extends IResourceBase>(
-    instance: IMemStore<T>,
-    createSyncFn: ReturnType<typeof createHandleCreateItemsMongoSyncFn<any>>,
-    updateSyncFn: ReturnType<typeof createHandleUpdateItemsMongoSyncFn<any>>
-  ) => {
-    instance.addListener(MemStore.CREATE_EVENT_NAME, createSyncFn);
-    instance.addListener(MemStore.UPDATE_EVENT_NAME, updateSyncFn);
-    return instance;
+  const workspaceIdIndexOpts: MemStoreIndexOptions<{workspaceId?: string | null}> = {
+    field: 'workspaceId',
+    type: MemStoreIndexTypes.MapIndex,
   };
 
+  const folderIndexOpts: MemStoreIndexOptions<IFolder>[] = [
+    resourceIdIndexOpts,
+    {field: 'namePath', type: MemStoreIndexTypes.MapIndex},
+  ];
+  const fileIndexOpts: MemStoreIndexOptions<IFile>[] = [
+    resourceIdIndexOpts,
+    {field: 'namePath', type: MemStoreIndexTypes.MapIndex},
+    {field: 'extension', type: MemStoreIndexTypes.MapIndex},
+  ];
+  const agentTokenIndexOpts: MemStoreIndexOptions<IAgentToken>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+    {field: 'separateEntityId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'agentType', type: MemStoreIndexTypes.MapIndex},
+  ];
+  const permissionItemIndexOpts: MemStoreIndexOptions<IPermissionItem>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+    {field: 'containerId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'containerType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'entityId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'entityType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'targetId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'action', type: MemStoreIndexTypes.MapIndex},
+  ];
+  const permissionGroupIndexOpts: MemStoreIndexOptions<IPermissionGroup>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+  ];
+  const workspaceIndexOpts: MemStoreIndexOptions<IWorkspace>[] = [
+    resourceIdIndexOpts,
+    {field: 'rootname', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
+  ];
+  const collaborationRequestIndexOpts: MemStoreIndexOptions<ICollaborationRequest>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+    {field: 'recipientEmail', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
+  ];
+  const userIndexOpts: MemStoreIndexOptions<IUser>[] = [resourceIdIndexOpts];
+  const appRuntimeStateIndexOpts: MemStoreIndexOptions<IAppRuntimeState>[] = [resourceIdIndexOpts];
+  const tagIndexOpts: MemStoreIndexOptions<ITag>[] = [resourceIdIndexOpts, workspaceIdIndexOpts];
+  const assignedItemIndexOpts: MemStoreIndexOptions<IAssignedItem>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+    {field: 'assignedItemId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'assignedItemType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'assigneeId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'assigneeType', type: MemStoreIndexTypes.MapIndex},
+  ];
+  const usageRecordIndexOpts: MemStoreIndexOptions<IUsageRecord>[] = [
+    resourceIdIndexOpts,
+    workspaceIdIndexOpts,
+    {field: 'category', type: MemStoreIndexTypes.MapIndex},
+    {field: 'fulfillmentStatus', type: MemStoreIndexTypes.MapIndex},
+    {field: 'summationType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'month', type: MemStoreIndexTypes.MapIndex},
+    {field: 'year', type: MemStoreIndexTypes.MapIndex},
+  ];
+
   return {
-    folder: createMemStore(
-      new FolderMemStoreProvider(),
-      createSyncFns.folder,
-      updateSyncFns.folder
+    folder: new FolderMemStoreProvider([], folderIndexOpts),
+    file: new FileMemStoreProvider([], fileIndexOpts),
+    agentToken: new AgentTokenMemStoreProvider([], agentTokenIndexOpts),
+    permissionItem: new PermissionItemMemStoreProvider([], permissionItemIndexOpts),
+    permissionGroup: new PermissionGroupMemStoreProvider([], permissionGroupIndexOpts),
+    workspace: new WorkspaceMemStoreProvider([], workspaceIndexOpts),
+    collaborationRequest: new CollaborationRequestMemStoreProvider(
+      [],
+      collaborationRequestIndexOpts
     ),
-    file: createMemStore(new FileMemStoreProvider(), createSyncFns.file, updateSyncFns.file),
-    agentToken: createMemStore(
-      new AgentTokenMemStoreProvider(),
-      createSyncFns.agentToken,
-      updateSyncFns.agentToken
-    ),
-    permissionItem: createMemStore(
-      new PermissionItemMemStoreProvider(),
-      createSyncFns.permissionItem,
-      updateSyncFns.permissionItem
-    ),
-    permissionGroup: createMemStore(
-      new PermissionGroupMemStoreProvider(),
-      createSyncFns.permissionGroup,
-      updateSyncFns.permissionGroup
-    ),
-    workspace: createMemStore(
-      new WorkspaceMemStoreProvider(),
-      createSyncFns.workspace,
-      updateSyncFns.workspace
-    ),
-    collaborationRequest: createMemStore(
-      new CollaborationRequestMemStoreProvider(),
-      createSyncFns.collaborationRequest,
-      updateSyncFns.collaborationRequest
-    ),
-    user: createMemStore(new UserMemStoreProvider(), createSyncFns.user, updateSyncFns.user),
-    appRuntimeState: createMemStore(
-      new AppRuntimeStateMemStoreProvider(),
-      createSyncFns.appRuntimeState,
-      updateSyncFns.appRuntimeState
-    ),
-    tag: createMemStore(new TagMemStoreProvider(), createSyncFns.tag, updateSyncFns.tag),
-    assignedItem: createMemStore(
-      new AssignedItemMemStoreProvider(),
-      createSyncFns.assignedItem,
-      updateSyncFns.assignedItem
-    ),
-    usageRecord: createMemStore(
-      new UsageRecordMemStoreProvider(),
-      createSyncFns.usageRecord,
-      updateSyncFns.usageRecord
-    ),
+    user: new UserMemStoreProvider([], userIndexOpts),
+    appRuntimeState: new AppRuntimeStateMemStoreProvider([], appRuntimeStateIndexOpts),
+    tag: new TagMemStoreProvider([], tagIndexOpts),
+    assignedItem: new AssignedItemMemStoreProvider([], assignedItemIndexOpts),
+    usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts),
   };
 }
 

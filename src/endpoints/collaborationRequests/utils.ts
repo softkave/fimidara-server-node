@@ -9,6 +9,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
@@ -64,9 +65,10 @@ export async function checkCollaborationRequestAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   requestId: string,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const request = await context.semantic.collaborationRequest.getOneById(requestId);
+  const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
   assertCollaborationRequest(request);
   return checkCollaborationRequestAuthorization(context, agent, request, action);
 }

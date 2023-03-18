@@ -15,6 +15,7 @@ import {indexArray} from '../../utils/indexArray';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {agentExtractor, workspaceResourceFields} from '../utils';
@@ -95,32 +96,22 @@ export async function checkPermissionGroupAuthorization03(
 
 export async function checkPermissionGroupsExist(
   context: IBaseContext,
-  agent: ISessionAgent,
   workspaceId: string,
-  permissionGroupInputs: IAssignPermissionGroupInput[]
+  permissionGroupInputs: IAssignPermissionGroupInput[],
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   const idList = permissionGroupInputs.map(item => item.permissionGroupId);
-  const permissionGroups = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList({
-    workspaceId,
-    resourceIdList: idList,
-  });
-  if (idList.length !== permissionGroups.length) {
-    const permissionGroupsMap = indexArray(permissionGroups, {indexer: getResourceId});
-    idList.forEach(id =>
-      appAssert(
-        permissionGroupsMap[id],
-        new NotFoundError(`Permission group with ID ${id} not found.`)
-      )
-    );
-  }
 
-  await checkAuthorization({
-    context,
-    agent,
-    workspaceId,
-    targets: idList.map(id => ({targetId: id})),
-    action: BasicCRUDActions.Read,
-  });
+  // TODO: use exists with $or or implement bulk ops
+  const permissionGroups = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
+    {workspaceId, resourceIdList: idList},
+    opts
+  );
+
+  if (idList.length !== permissionGroups.length) {
+    const map = indexArray(permissionGroups, {indexer: getResourceId});
+    idList.forEach(id => appAssert(map[id], reuseableErrors.permissionGroup.notFound(id)));
+  }
 }
 
 export function mergePermissionGroupsWithInput(

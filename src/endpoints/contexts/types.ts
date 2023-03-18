@@ -2,20 +2,7 @@ import {Request} from 'express';
 import {Logger} from 'winston';
 import {IBaseTokenData} from '../../definitions/system';
 import {IAppVariables} from '../../resources/vars';
-import {
-  IAgentTokenDataProvider,
-  IAppRuntimeStateDataProvider,
-  IAssignedItemDataProvider,
-  ICollaborationRequestDataProvider,
-  IFileDataProvider,
-  IFolderDataProvider,
-  IPermissionGroupDataProvider,
-  IPermissionItemDataProvider,
-  ITagDataProvider,
-  IUsageRecordDataProvider,
-  IUserDataProvider,
-  IWorkspaceDataProvider,
-} from './data/types';
+import {IResourceDataProvider} from './data/types';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
@@ -54,19 +41,9 @@ export interface IServerRequest extends Request {
   auth?: IBaseTokenData;
 }
 
+// zoeyzoevaeasher
 export interface IBaseContextDataProviders {
-  folder: IFolderDataProvider;
-  file: IFileDataProvider;
-  permissionItem: IPermissionItemDataProvider;
-  permissionGroup: IPermissionGroupDataProvider;
-  workspace: IWorkspaceDataProvider;
-  collaborationRequest: ICollaborationRequestDataProvider;
-  user: IUserDataProvider;
-  agentToken: IAgentTokenDataProvider;
-  appRuntimeState: IAppRuntimeStateDataProvider;
-  tag: ITagDataProvider;
-  assignedItem: IAssignedItemDataProvider;
-  usageRecord: IUsageRecordDataProvider;
+  resource: IResourceDataProvider;
 }
 
 export interface IBaseContextMemStoreProviders {

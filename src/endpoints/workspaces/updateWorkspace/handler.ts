@@ -3,6 +3,8 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {UpdateWorkspaceEndpoint} from './types';
@@ -18,32 +20,22 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     data.workspaceId
   );
 
-  await Promise.all([
-    data.workspace.name &&
-      data.workspace.name !== workspace.name &&
-      checkWorkspaceNameExists(context, data.workspace.name),
+  workspace = await MemStore.withTransaction(context, async txn => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    await Promise.all([
+      data.workspace.name &&
+        data.workspace.name !== workspace.name &&
+        checkWorkspaceNameExists(context, data.workspace.name, opts),
+    ]);
 
-    // TODO: allow changing workspace rootname
-    // data.workspace.rootname &&
-    //   data.workspace.rootname !== workspace.rootname &&
-    //   checkWorkspaceRootnameExists(context, data.workspace.rootname),
-  ]);
+    const update: Partial<IWorkspace> = {
+      ...data.workspace,
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    };
+    return await context.semantic.workspace.getAndUpdateOneById(workspace.resourceId, update, opts);
+  });
 
-  const update: Partial<IWorkspace> = {
-    ...data.workspace,
-    lastUpdatedAt: getTimestamp(),
-    lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-  };
-
-  // TODO: replace with user defined usage thresholds when we implement billing
-  // if (data.workspace.usageThresholds) {
-  //   update.usageThresholds = transformUsageThresholInput(
-  //     agent,
-  //     data.workspace.usageThresholds
-  //   );
-  // }
-
-  workspace = await context.semantic.workspace.getAndUpdateOneById(workspace.resourceId, update);
   return {workspace: workspaceExtractor(workspace)};
 };
 

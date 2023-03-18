@@ -2,6 +2,7 @@ import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {MemStore} from '../../contexts/mem/Mem';
 import {userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';
@@ -20,7 +21,11 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     update.emailVerificationEmailSentAt = null;
   }
 
-  user = await context.semantic.user.getAndUpdateOneById(user.resourceId, update);
+  user = await MemStore.withTransaction(context, async txn => {
+    return await context.semantic.user.getAndUpdateOneById(user.resourceId, update, {
+      transaction: txn,
+    });
+  });
   const userWithWorkspaces = await populateUserWorkspaces(context, user);
 
   // Make the updated user data available to other requests made with this

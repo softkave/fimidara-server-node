@@ -2,6 +2,7 @@ import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {MemStore} from '../../contexts/mem/Mem';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {tagExtractor} from '../utils';
@@ -19,14 +20,16 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     targets: [{type: AppResourceType.Tag}],
     action: BasicCRUDActions.Create,
   });
-  await checkTagNameExists(context, workspace.resourceId, data.tag.name);
+
   const tag = newWorkspaceResource(agent, AppResourceType.Tag, workspace.resourceId, {
     ...data.tag,
   });
-  await context.semantic.tag.insertItem(tag);
-  return {
-    tag: tagExtractor(tag),
-  };
+  await MemStore.withTransaction(context, async txn => {
+    await checkTagNameExists(context, workspace.resourceId, data.tag.name, {transaction: txn});
+    await context.semantic.tag.insertItem(tag, {transaction: txn});
+  });
+
+  return {tag: tagExtractor(tag)};
 };
 
 export default addTag;

@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {defaultTo, isNumber, isString} from 'lodash';
+import {defaultTo, isEmpty, isNumber, isString} from 'lodash';
 import {
   IAgent,
   IPublicAccessOp,
@@ -27,7 +27,7 @@ import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {IBaseContext, IServerRequest} from './contexts/types';
-import {NotFoundError} from './errors';
+import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import RequestData from './RequestData';
@@ -259,4 +259,8 @@ export async function executeCascadeDelete(
   cascadeDef: DeleteResourceCascadeFnsMap
 ) {
   await Promise.all(Object.values(cascadeDef).map(fn => fn(context, id)));
+}
+
+export function assertUpdateNotEmpty(update: AnyObject) {
+  appAssert(isEmpty(update), new InvalidRequestError('Update data provided is empty.'));
 }

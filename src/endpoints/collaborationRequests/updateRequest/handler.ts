@@ -1,9 +1,11 @@
 import {BasicCRUDActions} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
-import {isObjectEmpty} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {assertUpdateNotEmpty} from '../../utils';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
@@ -18,32 +20,46 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {request, workspace} = await checkCollaborationRequestAuthorization02(
-    context,
-    agent,
-    data.requestId,
-    BasicCRUDActions.Update
-  );
+  assertUpdateNotEmpty(data.request);
+  let {request} = await MemStore.withTransaction(context, async transaction => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    let {request, workspace} = await checkCollaborationRequestAuthorization02(
+      context,
+      agent,
+      data.requestId,
+      BasicCRUDActions.Update,
+      opts
+    );
 
-  if (!isObjectEmpty(data.request)) {
-    request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
-      message: data.request.message ?? request.message,
-      expiresAt: data.request.expires,
-      lastUpdatedAt: getTimestamp(),
-      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-    });
+    [request] = await Promise.all([
+      context.semantic.collaborationRequest.getAndUpdateOneById(
+        data.requestId,
+        {
+          message: data.request.message ?? request.message,
+          expiresAt: data.request.expires,
+          lastUpdatedAt: getTimestamp(),
+          lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+        },
+        opts
+      ),
+      data.request.permissionGroupsAssignedOnAcceptingRequest &&
+        addAssignedPermissionGroupList(
+          context,
+          agent,
+          workspace.resourceId,
+          data.request.permissionGroupsAssignedOnAcceptingRequest,
+          request.resourceId,
+          /** deleteExisting */ true,
+          /** skip permission groups check */ false,
+          /** skip auth check */ false,
+          opts
+        ),
+    ]);
 
-    if (data.request.permissionGroupsAssignedOnAcceptingRequest) {
-      await addAssignedPermissionGroupList(
-        context,
-        agent,
-        workspace.resourceId,
-        data.request.permissionGroupsAssignedOnAcceptingRequest,
-        request.resourceId,
-        /** deleteExisting */ true
-      );
-    }
-  }
+    return {workspace, request};
+  });
+
+  // TODO: send email if request description changed
 
   request = await populateRequestAssignedPermissionGroups(context, request);
   return {request: collaborationRequestForWorkspaceExtractor(request)};

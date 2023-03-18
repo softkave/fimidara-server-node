@@ -30,7 +30,7 @@ export interface ISemanticDataAccessBaseProvider<T extends IResourceBase> {
   getAndUpdateOneById(
     id: string,
     update: Partial<T>,
-    opts?: ISemanticDataAccessProviderRunOptions
+    opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<T>;
   deleteOneById(id: string, opts: ISemanticDataAccessProviderMutationRunOptions): Promise<void>;
   deleteManyByIdList(

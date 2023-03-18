@@ -9,7 +9,7 @@ import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
-import {makePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
+import {generatePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {expectPermissionItemsForEntityPresent} from '../../testUtils/helpers/permissionItem';
@@ -94,7 +94,7 @@ export async function assertPublicAccessOps(
     // technically, that permission item should grant access
     return {...item, targetId: item.targetId};
   });
-  const basePermissionItems = makePermissionItemInputsFromPublicAccessOps(
+  const basePermissionItems = generatePermissionItemInputsFromPublicAccessOps(
     publicAccessOpsInput,
     resource
   );

@@ -36,6 +36,7 @@ export async function checkPermissionEntitiesExist(
     }
   });
 
+  // Intentionally not using transaction read for performance.
   let resources = await getResources({
     context,
     agent,
@@ -74,6 +75,7 @@ export async function checkPermissionContainersExist(
     }
   });
 
+  // Intentionally not using transaction read for performance.
   const resources = await getResources({
     context,
     agent,
@@ -109,6 +111,7 @@ export async function checkPermissionTargetsExist(
     return {resources: []};
   }
 
+  // Intentionally not using transaction read for performance.
   let resources = await getResources({
     context,
     agent,

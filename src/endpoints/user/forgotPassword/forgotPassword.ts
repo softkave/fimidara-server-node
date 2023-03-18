@@ -9,6 +9,8 @@ import {
 } from '../../../definitions/system';
 import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
@@ -32,7 +34,12 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.agentToken.insertItem(forgotToken);
+
+  await MemStore.withTransaction(context, async txn => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    await context.semantic.agentToken.insertItem(forgotToken, opts);
+  });
+
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
   await sendChangePasswordEmail(context, {
     expiration,

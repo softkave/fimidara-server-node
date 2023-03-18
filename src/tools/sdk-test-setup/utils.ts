@@ -65,6 +65,8 @@ async function createAgentToken(
     name: faker.lorem.words(2),
     description: 'Program access token for SDK tests',
   });
+  appAssert(token.workspaceId);
+  const agentToken = await populateAssignedTags(context, token.workspaceId, token);
   const tokenStr = getPublicAgentToken(context, token).tokenStr;
   return {token, tokenStr};
 }

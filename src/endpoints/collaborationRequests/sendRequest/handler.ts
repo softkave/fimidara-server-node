@@ -10,13 +10,14 @@ import {
   collaborationRequestEmailTitle,
   ICollaborationRequestEmailProps,
 } from '../../../emailTemplates/collaborationRequest';
+import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {getCollaboratorWorkspace} from '../../collaborators/utils';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../utils';
@@ -39,70 +40,78 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     action: BasicCRUDActions.Create,
   });
 
-  let collaboratorExists = false;
-  const existingUser = await context.semantic.user.getByEmail(data.request.recipientEmail);
+  let {request, existingUser} = await MemStore.withTransaction(context, async transaction => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const [existingUser, existingRequest] = await Promise.all([
+      context.semantic.user.getByEmail(data.request.recipientEmail),
+      context.semantic.collaborationRequest.getOneByWorkspaceIdEmail(
+        workspace.resourceId,
+        data.request.recipientEmail,
+        opts
+      ),
+    ]);
 
-  if (existingUser) {
-    const existingUserWithWorkspaces = await populateUserWorkspaces(context, existingUser);
-    collaboratorExists = !!(
-      existingUser && getCollaboratorWorkspace(existingUserWithWorkspaces, workspace.resourceId)
-    );
-  }
-
-  if (collaboratorExists) {
-    throw new ResourceExistsError('Collaborator with same email address exists');
-  }
-
-  const existingRequest = await context.semantic.collaborationRequest.getOneByWorkspaceIdEmail(
-    workspace.resourceId,
-    data.request.recipientEmail
-  );
-
-  if (existingRequest) {
-    const status = existingRequest.status;
-    if (status === CollaborationRequestStatusType.Pending) {
-      throw new ResourceExistsError(
-        `An existing collaboration request to this user was sent on ${formatDate(
-          existingRequest.createdAt
-        )}`
+    if (existingUser) {
+      const collaboratorExists = await context.semantic.assignedItem.existsByAssignedAndAssigneeIds(
+        workspace.resourceId,
+        workspace.resourceId,
+        existingUser.resourceId,
+        opts
+      );
+      appAssert(
+        collaboratorExists,
+        new ResourceExistsError('Collaborator with same email address exists in this workspace.')
       );
     }
-  }
 
-  let request: ICollaborationRequest = newWorkspaceResource(
-    agent,
-    AppResourceType.CollaborationRequest,
-    workspace.resourceId,
-    {
-      message: data.request.message,
-      workspaceName: workspace.name,
-      recipientEmail: data.request.recipientEmail,
-      expiresAt: data.request.expires,
-      status: CollaborationRequestStatusType.Pending,
-      statusDate: getTimestamp(),
-    }
-  );
-  await context.semantic.collaborationRequest.insertItem(request);
-
-  if (
-    data.request.permissionGroupsAssignedOnAcceptingRequest &&
-    data.request.permissionGroupsAssignedOnAcceptingRequest.length > 0
-  ) {
-    await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace.resourceId,
-      data.request.permissionGroupsAssignedOnAcceptingRequest,
-      request.resourceId,
-      /** deleteExisting */ false
+    appAssert(
+      existingRequest?.status === CollaborationRequestStatusType.Pending,
+      new ResourceExistsError(
+        `An existing collaboration request to this user was sent on ${formatDate(
+          existingRequest!.createdAt
+        )}`
+      )
     );
-  }
 
-  await sendCollaborationRequestEmail(context, request, existingUser);
-  request = await populateRequestAssignedPermissionGroups(context, request);
-  return {
-    request: collaborationRequestForWorkspaceExtractor(request),
-  };
+    const request: ICollaborationRequest = newWorkspaceResource(
+      agent,
+      AppResourceType.CollaborationRequest,
+      workspace.resourceId,
+      {
+        message: data.request.message,
+        workspaceName: workspace.name,
+        recipientEmail: data.request.recipientEmail,
+        expiresAt: data.request.expires,
+        status: CollaborationRequestStatusType.Pending,
+        statusDate: getTimestamp(),
+      }
+    );
+    const permissionGroupsAssignedOnAcceptingRequest =
+      data.request.permissionGroupsAssignedOnAcceptingRequest ?? [];
+    await Promise.all([
+      context.semantic.collaborationRequest.insertItem(request, opts),
+      permissionGroupsAssignedOnAcceptingRequest.length &&
+        addAssignedPermissionGroupList(
+          context,
+          agent,
+          workspace.resourceId,
+          permissionGroupsAssignedOnAcceptingRequest,
+          request.resourceId,
+          /** deleteExisting */ false,
+          /** skip permission groups check */ false,
+          /** skip auth check */ false,
+          opts
+        ),
+    ]);
+
+    return {request, existingUser};
+  });
+
+  [request] = await Promise.all([
+    populateRequestAssignedPermissionGroups(context, request),
+    sendCollaborationRequestEmail(context, request, existingUser),
+  ]);
+  return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 async function sendCollaborationRequestEmail(
@@ -118,7 +127,6 @@ async function sendCollaborationRequestEmail(
     expires: request.expiresAt,
     message: request.message,
   };
-
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);
   await context.email.sendEmail(context, {

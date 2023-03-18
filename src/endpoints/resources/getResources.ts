@@ -18,6 +18,7 @@ import {
   getResourcePermissionContainers,
   IAuthAccessCheckers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {PermissionDeniedError} from '../user/errors';
 import {IFetchResourceItem, IResource} from './types';
@@ -36,6 +37,7 @@ export interface IGetResourcesOptions {
   workspaceId: string;
   action: BasicCRUDActions;
   nothrowOnCheckError?: boolean;
+  dataFetchRunOptions?: ISemanticDataAccessProviderRunOptions;
 }
 
 interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
@@ -51,6 +53,7 @@ export async function getResources(options: IGetResourcesOptions) {
     nothrowOnCheckError,
     action,
     allowedTypes,
+    dataFetchRunOptions,
     throwOnFetchError = true,
     checkAuth = true,
   } = options;
@@ -71,7 +74,7 @@ export async function getResources(options: IGetResourcesOptions) {
     return map;
   }, {} as PartialRecord<string, IFetchResourceItemWithAction>);
 
-  const settledPromises = await fetchResources(context, mapByTypeToIdList);
+  const settledPromises = await fetchResources(context, mapByTypeToIdList, dataFetchRunOptions);
   const resources: Array<IResource> = [];
 
   if (!checkAuth) {
@@ -156,75 +159,79 @@ export async function getResources(options: IGetResourcesOptions) {
 
 async function fetchResources(
   context: IBaseContext,
-  idsGroupedByType: PartialRecord<string, string[]>
+  idsGroupedByType: PartialRecord<string, string[]>,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
   const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
   mapKeys(idsGroupedByType, (ids, type) => {
     appAssert(ids);
     switch (type) {
-      case AppResourceType.Workspace:
+      case AppResourceType.Workspace: {
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.semantic.workspace.getManyByIdList(ids),
+          promise: context.semantic.workspace.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.CollaborationRequest:
+      }
+      case AppResourceType.CollaborationRequest: {
         promises.push({
           id: AppResourceType.CollaborationRequest,
-          promise: context.semantic.collaborationRequest.getManyByIdList(ids),
+          promise: context.semantic.collaborationRequest.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.AgentToken:
+      }
+      case AppResourceType.AgentToken: {
         promises.push({
           id: AppResourceType.AgentToken,
-          promise: context.semantic.agentToken.getManyByIdList(ids),
+          promise: context.semantic.agentToken.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.PermissionGroup:
+      }
+      case AppResourceType.PermissionGroup: {
         promises.push({
           id: AppResourceType.PermissionGroup,
-          promise: context.semantic.permissionGroup.getManyByIdList(ids),
+          promise: context.semantic.permissionGroup.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.PermissionItem:
+      }
+      case AppResourceType.PermissionItem: {
         promises.push({
           id: AppResourceType.PermissionItem,
-          promise: context.semantic.permissionItem.getManyByIdList(ids),
+          promise: context.semantic.permissionItem.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.Folder:
+      }
+      case AppResourceType.Folder: {
         promises.push({
           id: AppResourceType.Folder,
-          promise: context.semantic.folder.getManyByIdList(ids),
+          promise: context.semantic.folder.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.File:
+      }
+      case AppResourceType.File: {
         promises.push({
           id: AppResourceType.File,
-          promise: context.semantic.file.getManyByIdList(ids),
+          promise: context.semantic.file.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.User:
+      }
+      case AppResourceType.User: {
         promises.push({
           id: AppResourceType.User,
-          promise: context.semantic.user.getManyByIdList(ids),
+          promise: context.semantic.user.getManyByIdList(ids, opts),
           resourceType: type,
         });
         break;
+      }
+      default:
+        appAssert(false, new ServerError(), `Unsupported resource type ${type}`);
     }
   });
 

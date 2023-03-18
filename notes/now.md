@@ -1,10 +1,19 @@
-- [ ] Memstore sync to MongoDB
-  - [ ] One sync b4 request ends so each request mutation should be tied to transaction rolled back if final sync doesn't work or isn't ensured.
-  - [ ] OR for the time, sync on all mutation updates.
 - [ ] Delete logic
 - [ ] Change events and audit logs
 - [ ] Email and names should be shorter for regex and only contain alphanumeric chars
 - [ ] Pipeline and background jobs
+- [ ] Check file and folder and similar unique resources do not exist b4 creating them. Files are folders are case insensitive
+- [ ] Allow provided ID for all workspace resource, and check that it doesn't exist
+- [ ] Support $or and $and for queries
+- [ ] Mem, index array fields
+- [ ] Mem, selective indexing
+- [ ] Mem, merge index results
+- [ ] Mem, support indexing non-static fields
+- [ ] Index non-static fields when done with Mem-marked tasks
+- [ ] Check that all tags are saved
+- [ ] Use token version when querying tokens
+- [ ] Ensure that all check auth calls use right actions
+- [ ] use transactions
 - [ ] App end
   - [ ] Complete mongo sync
   - [ ] Resumeable deletes

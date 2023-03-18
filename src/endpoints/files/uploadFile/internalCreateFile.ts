@@ -6,7 +6,7 @@ import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
+import {addPublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
@@ -46,7 +46,7 @@ export async function internalCreateFile(
 ) {
   await context.semantic.file.insertItem(file);
   const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
-  await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
+  await addPublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   await saveResourceAssignedItems(context, agent, workspace, file.resourceId, data, false);
   return file;
 }

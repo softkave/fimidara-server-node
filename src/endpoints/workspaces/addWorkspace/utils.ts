@@ -6,23 +6,16 @@ import {
   getWorkspaceActionList,
   IAgent,
 } from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
-import {
-  addAssignedPermissionGroupList,
-  assignWorkspaceToUser,
-} from '../../assignedItems/addAssignedItems';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
 export const DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME = 'Collaborator';
 
-function makeAdminPermissions(
+function generateAdminPermissions(
   agent: IAgent,
   workspace: IWorkspace,
   adminPermissionGroup: IPermissionGroup
@@ -48,7 +41,7 @@ function makeAdminPermissions(
   return permissionItems;
 }
 
-function makeCollaboratorPermissions(
+function generateCollaboratorPermissions(
   agent: IAgent,
   workspace: IWorkspace,
   permissiongroup: IPermissionGroup
@@ -106,11 +99,7 @@ function makeCollaboratorPermissions(
   return permissionItems;
 }
 
-export async function setupDefaultWorkspacePermissionGroups(
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace
-) {
+export function generateDefaultWorkspacePermissionGroups(agent: IAgent, workspace: IWorkspace) {
   const createdAt = getTimestamp();
   const adminPermissionGroup: IPermissionGroup = {
     createdAt,
@@ -145,45 +134,13 @@ export async function setupDefaultWorkspacePermissionGroups(
     description:
       'Auto-generated permission group for collaborators. Open permission group to see permissions.',
   };
-  await context.semantic.permissionGroup.insertItem([
-    adminPermissionGroup,
-    publicPermissionGroup,
-    collaboratorPermissionGroup,
-  ]);
-
-  const permissionItems = makeAdminPermissions(agent, workspace, adminPermissionGroup).concat(
-    makeCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
+  const permissionItems = generateAdminPermissions(agent, workspace, adminPermissionGroup).concat(
+    generateCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
   );
-  await context.semantic.permissionItem.insertItem(permissionItems);
   return {
     adminPermissionGroup,
     publicPermissionGroup,
     collaboratorPermissionGroup,
+    permissionItems,
   };
-}
-
-export async function addWorkspaceToUserAndAssignAdminPermissionGroup(
-  context: IBaseContext,
-  agent: IAgent,
-  user: IUser,
-  workspace: IWorkspace,
-  adminPermissionGroup: IPermissionGroup
-) {
-  await Promise.all([
-    // Assign workspace to user
-    assignWorkspaceToUser(context, agent, workspace.resourceId, user),
-
-    // Assign admin permission group to user
-    addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace.resourceId,
-      [{permissionGroupId: adminPermissionGroup.resourceId}],
-      user.resourceId,
-      /** deleteExisting */ false,
-      /** skipPermissionGroupsExistCheck */ true
-    ),
-  ]);
-
-  return await populateUserWorkspaces(context, user);
 }

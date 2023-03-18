@@ -16,7 +16,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, IAppRuntimeState, IResourceBase} from '../../../definitions/system';
+import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -25,7 +25,6 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {makeKey, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {getResourceTypeFromId} from '../../../utils/resourceId';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {AnyFn, PartialRecord} from '../../../utils/types';
 import {
@@ -123,12 +122,10 @@ export class MemStoreTransaction implements IMemStoreTransaction {
       }
 
       commitMap.forEach((items, storeRef) => {
-        storeRef.commitItems(items);
+        storeRef.TRANSACTION_commitItems(items);
       });
+    } finally {
       this.releaseLocks();
-    } catch (error: unknown) {
-      this.releaseLocks();
-      throw error;
     }
   }
 
@@ -148,6 +145,10 @@ export class MemStoreTransaction implements IMemStoreTransaction {
 
   setLock(storeRef: IMemStore<IResourceBase>, lockId: number): void {
     this.locks[lockId] = storeRef;
+  }
+
+  terminate(): void {
+    this.releaseLocks();
   }
 
   protected releaseLocks() {
@@ -316,6 +317,19 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
   // static CREATE_EVENT_NAME = 'create' as const;
   // static UPDATE_EVENT_NAME = 'update' as const;
   static MEMSTORE_ID = Symbol.for('MEMSTORE_ID');
+  static async withTransaction<Result>(
+    ctx: IBaseContext,
+    fn: (transaction: IMemStoreTransaction) => Promise<Result>
+  ): Promise<Result> {
+    const txn = new MemStoreTransaction();
+    try {
+      const result = fn(txn);
+      await txn.commit((ops, committingTxn) => syncTxnOps(ctx, ops, committingTxn));
+      return result;
+    } finally {
+      txn.terminate();
+    }
+  }
 
   MEMSTORE_ID = MemStore.MEMSTORE_ID;
   protected indexes: IMemStoreIndex<T>[] = [];
@@ -417,10 +431,14 @@ export class MemStore<T extends IResourceBase> implements IMemStore<T> {
     ]);
   }
 
-  /** UNSAFE! Do not call directly except maybe for tests. It is meant to be
-   * used by transactions when commiting changes.  */
-  commitItems(items: T | T[]): void {
+  TRANSACTION_commitItems(items: T | T[]): void {
     this.indexIntoLocalMap(toArray(items));
+  }
+
+  UNSAFE_ingestItems(items: T | T[]): void {
+    const itemList = toArray(items);
+    this.indexIntoLocalMap(itemList);
+    this.indexIntoIndexes(itemList, undefined);
   }
 
   releaseLock(lockId: number): void {
@@ -1036,89 +1054,28 @@ export async function syncTxnOps(
   consistencyOps: MemStoreTransactionConsistencyOp[],
   txn: IMemStoreTransaction
 ) {
-  throw reuseableErrors.common.notImplemented();
-
-  const persistenceSyncMap: PartialRecord<
-    string,
-    {insert: IResourceBase[]; update: IResourceBase[]}
-  > = {};
+  const items: IResourceBase[] = [];
 
   for (const op of consistencyOps) {
     op.idList.forEach(id => {
       const item = txn.getFromCache(id);
       appAssert(item);
-      const type = getResourceTypeFromId(id);
-      let syncEntry = persistenceSyncMap[type];
-      if (!syncEntry) {
-        persistenceSyncMap[type] = syncEntry = {insert: [], update: []};
-      }
-
-      if (op.type === MemStoreTransactionConsistencyOpTypes.Insert) {
-        syncEntry.insert.push(item);
-      } else {
-        syncEntry.update.push(item);
-      }
+      items.push(item);
     });
   }
 
-  const promises: Promise<unknown>[] = [];
-  for (const type in persistenceSyncMap) {
-    const syncEntry = persistenceSyncMap[type];
-    appAssert(syncEntry);
-    const insertOps = syncEntry.insert.map(item => {
-      const op: BulkOpItem<any> = {type: BulkOpType.InsertOne, item: item as any};
-      return op;
-    });
-    const updateOps = syncEntry.update.map(item => {
-      const op: BulkOpItem<any> = {
-        type: BulkOpType.UpdateOne,
-        query: {resourceId: item.resourceId},
+  const updateOps = items.map(item => {
+    const op: BulkOpItem<any> = {
+      type: BulkOpType.UpdateOne,
+      query: {resourceId: item.resourceId},
 
-        // TODO: how can we send only the update to Mongo and not the whole data?
-        update: item,
-      };
-      return op;
-    });
-    const bulkOps: BulkOpItem<any>[] = (insertOps as BulkOpItem<any>[]).concat(updateOps);
+      // TODO: how can we send only the update to Mongo and not the whole data?
+      update: item,
+    };
+    return op;
+  });
 
-    switch (type) {
-      case AppResourceType.AgentToken:
-        promises.push(ctx.data.agentToken.bulkOps(bulkOps));
-        break;
-      case AppResourceType.Workspace:
-        promises.push(ctx.data.workspace.bulkOps(bulkOps));
-        break;
-      case AppResourceType.AssignedItem:
-        promises.push(ctx.data.assignedItem.bulkOps(bulkOps));
-        break;
-      case AppResourceType.CollaborationRequest:
-        promises.push(ctx.data.collaborationRequest.bulkOps(bulkOps));
-        break;
-      case AppResourceType.File:
-        promises.push(ctx.data.file.bulkOps(bulkOps));
-        break;
-      case AppResourceType.Folder:
-        promises.push(ctx.data.folder.bulkOps(bulkOps));
-        break;
-      case AppResourceType.Tag:
-        promises.push(ctx.data.tag.bulkOps(bulkOps));
-        break;
-      case AppResourceType.PermissionItem:
-        promises.push(ctx.data.permissionItem.bulkOps(bulkOps));
-        break;
-      case AppResourceType.PermissionGroup:
-        promises.push(ctx.data.permissionGroup.bulkOps(bulkOps));
-        break;
-      case AppResourceType.UsageRecord:
-        promises.push(ctx.data.usageRecord.bulkOps(bulkOps));
-        break;
-      case AppResourceType.User:
-        promises.push(ctx.data.user.bulkOps(bulkOps));
-        break;
-    }
-  }
-
-  await Promise.all(promises);
+  await ctx.data.resource.TRANSACTION_bulkWrite(updateOps);
 }
 
 export class FolderMemStoreProvider extends MemStore<IFolder> implements IFolderMemStoreProvider {}

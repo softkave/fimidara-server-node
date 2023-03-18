@@ -36,6 +36,7 @@ export interface IMemStoreTransaction {
       txn: IMemStoreTransaction
     ) => Promise<void>
   ): Promise<void>;
+  terminate(): void;
   addIndexView(ref: IMemStoreIndex<IResourceBase>, index: unknown): void;
   getIndexView<T = unknown>(ref: IMemStoreIndex<IResourceBase>): T | null;
   hasIndexView(ref: IMemStoreIndex<IResourceBase>): boolean;
@@ -86,7 +87,9 @@ export interface IMemStore<T extends AnyObject> {
     update: Partial<T>,
     transaction: IMemStoreTransaction
   ): Promise<T[]>;
-  commitItems(items: T | T[]): void;
+
+  TRANSACTION_commitItems(items: T | T[]): void;
+  UNSAFE_ingestItems(items: T | T[]): void;
   releaseLock(lockId: number): void;
 }
 

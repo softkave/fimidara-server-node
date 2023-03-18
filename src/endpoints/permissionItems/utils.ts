@@ -14,6 +14,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resourceId';
 import {reuseableErrors} from '../../utils/reusableErrors';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
@@ -43,7 +44,7 @@ export const publicAccessOpComparator = (item01: IPublicAccessOp, item02: IPubli
   item01.action === item02.action && item01.resourceType === item02.resourceType;
 
 export function getPublicAccessOpArtifactsFromResource(
-  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'folderId' | 'workspaceId'>
+  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'parentId' | 'workspaceId'>
 ) {
   const type = getResourceTypeFromId(resource.resourceId);
 
@@ -60,9 +61,9 @@ export function getPublicAccessOpArtifactsFromResource(
   return {containerId, containerType, targetId};
 }
 
-export function makePermissionItemInputsFromPublicAccessOps(
+export function generatePermissionItemInputsFromPublicAccessOps(
   ops: IPublicAccessOpInput[],
-  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'folderId' | 'workspaceId'>,
+  resource: Pick<IResourceBase, 'resourceId'> & Pick<IFile, 'workspaceId' | 'parentId'>,
   grantAccess = true
 ): INewPermissionItemInput[] {
   const {targetId} = getPublicAccessOpArtifactsFromResource(resource);
@@ -74,19 +75,26 @@ export function makePermissionItemInputsFromPublicAccessOps(
   }));
 }
 
-export async function replacePublicPermissionGroupAccessOps(
+export async function addPublicPermissionGroupAccessOps(
   context: IBaseContext,
   agent: IAgent,
   workspace: IWorkspace,
   addOps: IPublicAccessOp[],
-  resource: IResourceBase & Pick<IFile, 'folderId' | 'workspaceId'>
+  resource: IResourceBase & Pick<IFile, 'workspaceId' | 'parentId'>,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (workspace.publicPermissionGroupId) {
-    await internalAddPermissionItems(context, agent, workspace.resourceId, {
-      workspaceId: workspace.resourceId,
-      entityId: workspace.publicPermissionGroupId,
-      items: makePermissionItemInputsFromPublicAccessOps(addOps, resource),
-    });
+    await internalAddPermissionItems(
+      context,
+      agent,
+      workspace.resourceId,
+      {
+        workspaceId: workspace.resourceId,
+        entityId: workspace.publicPermissionGroupId,
+        items: generatePermissionItemInputsFromPublicAccessOps(addOps, resource),
+      },
+      opts
+    );
   }
 }
 

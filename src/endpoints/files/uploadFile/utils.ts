@@ -7,6 +7,7 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
@@ -53,12 +54,17 @@ export async function createFileParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  pathWithDetails: ISplitfilepathWithDetails
+  pathWithDetails: ISplitfilepathWithDetails,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {
-    return await createFolderList(context, agent, workspace, {
-      folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname),
-    });
+    return await createFolderList(
+      context,
+      agent,
+      workspace,
+      {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
+      opts
+    );
   }
 
   return null;

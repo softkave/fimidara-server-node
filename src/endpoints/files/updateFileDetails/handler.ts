@@ -6,7 +6,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
+import {addPublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
@@ -35,7 +35,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
   assertWorkspace(workspace);
   if (data.file.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(agent, data.file.publicAccessAction);
-    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
+    await addPublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
   await saveResourceAssignedItems(context, agent, workspace, file.resourceId, data.file, true);

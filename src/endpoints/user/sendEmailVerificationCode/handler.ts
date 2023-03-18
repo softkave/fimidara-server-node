@@ -1,6 +1,7 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {IUser} from '../../../definitions/user';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
+import {MemStore} from '../../contexts/mem/Mem';
 import {IBaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
@@ -39,8 +40,12 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (cont
       emailAddress: user.email,
       firstName: user.firstName,
     }),
-    context.semantic.user.updateOneById(user.resourceId, {
-      emailVerificationEmailSentAt: getTimestamp(),
+    MemStore.withTransaction(context, async txn => {
+      await context.semantic.user.updateOneById(
+        user.resourceId,
+        {emailVerificationEmailSentAt: getTimestamp()},
+        {transaction: txn}
+      );
     }),
   ]);
 };

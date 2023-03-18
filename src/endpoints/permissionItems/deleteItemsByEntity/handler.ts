@@ -1,4 +1,5 @@
 import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {reuseableErrors} from '../../../utils/reusableErrors';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {waitOnPromises} from '../../../utils/waitOnPromises';
@@ -24,6 +25,8 @@ const deletePermissionItemsByEntity: DeletePermissionItemsByEntityEndpoint = asy
     action: BasicCRUDActions.Delete,
     targets: [{type: AppResourceType.PermissionItem}],
   });
+
+  throw reuseableErrors.common.notImplemented();
 
   await waitOnPromises([
     // Delete permission items that explicitly give access

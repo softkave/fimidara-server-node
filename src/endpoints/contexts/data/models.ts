@@ -5,7 +5,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState} from '../../../definitions/system';
+import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -20,7 +20,7 @@ import {throwAppRuntimeStateFound} from '../../runtime/utils';
 import {throwTagNotFound} from '../../tags/utils';
 import {throwUsageRecordNotFound} from '../../usageRecords/utils';
 import {throwUserNotFound} from '../../user/utils';
-import {throwAgentTokenNotFound} from '../../utils';
+import {throwAgentTokenNotFound, throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
 import {
   IAgentTokenDataProvider,
@@ -31,6 +31,7 @@ import {
   IFolderDataProvider,
   IPermissionGroupDataProvider,
   IPermissionItemDataProvider,
+  IResourceDataProvider,
   ITagDataProvider,
   IUsageRecordDataProvider,
   IUserDataProvider,
@@ -117,4 +118,11 @@ export class AgentTokenMongoDataProvider
   implements IAgentTokenDataProvider
 {
   throwNotFound = throwAgentTokenNotFound;
+}
+
+export class ResourceMongoDataProvider
+  extends BaseMongoDataProvider<IResourceBase>
+  implements IResourceDataProvider
+{
+  throwNotFound = throwNotFound;
 }

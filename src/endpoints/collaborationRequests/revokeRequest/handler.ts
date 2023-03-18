@@ -8,10 +8,13 @@ import {
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
 } from '../../../emailTemplates/collaborationRequestRevoked';
+import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
-import {assertWorkspace} from '../../workspaces/utils';
+import {InvalidRequestError} from '../../errors';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
@@ -26,31 +29,34 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {request} = await checkCollaborationRequestAuthorization02(
-    context,
-    agent,
-    data.requestId,
-    BasicCRUDActions.Update
-  );
+  let {request, workspace} = await MemStore.withTransaction(context, async transaction => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    let {request, workspace} = await checkCollaborationRequestAuthorization02(
+      context,
+      agent,
+      data.requestId,
+      BasicCRUDActions.Update,
+      opts
+    );
 
-  const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
-  if (!isRevoked) {
-    request = await context.semantic.collaborationRequest.getAndUpdateOneById(data.requestId, {
-      statusDate: getTimestamp(),
-      status: CollaborationRequestStatusType.Revoked,
-    });
+    const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
+    appAssert(isRevoked, new InvalidRequestError('Collaboration request already revoked.'));
+    request = await context.semantic.collaborationRequest.getAndUpdateOneById(
+      data.requestId,
+      {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
+      opts
+    );
 
-    const workspace = await context.semantic.workspace.getOneById(request.workspaceId);
-    assertWorkspace(workspace);
-    if (workspace) {
-      await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
-    }
-  }
+    return {request, workspace};
+  });
 
-  request = await populateRequestAssignedPermissionGroups(context, request);
-  return {
-    request: collaborationRequestForWorkspaceExtractor(request),
-  };
+  [request] = await Promise.all([
+    populateRequestAssignedPermissionGroups(context, request),
+
+    // TODO: fire and forget
+    sendRevokeCollaborationRequestEmail(context, request, workspace.name),
+  ]);
+  return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 async function sendRevokeCollaborationRequestEmail(

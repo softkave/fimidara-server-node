@@ -1,4 +1,5 @@
 import {AppResourceType} from '../../definitions/system';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 
 /**
@@ -10,14 +11,20 @@ import {IBaseContext} from '../contexts/types';
 export async function deleteResourceAssignedItems(
   context: IBaseContext,
   resourceId: string | string[],
-  assignedItemTypes?: AppResourceType[]
+  assignedItemTypes: AppResourceType[] | undefined,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteResourceAssignedItems(resourceId, assignedItemTypes);
+  await context.semantic.assignedItem.deleteResourceAssignedItems(
+    resourceId,
+    assignedItemTypes,
+    opts
+  );
 }
 
 export async function deleteAssignableItemAssignedItems(
   context: IBaseContext,
-  assignedItemId: string
+  assignedItemId: string,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteAssignedItemResources(assignedItemId);
+  await context.semantic.assignedItem.deleteAssignedItemResources(assignedItemId, opts);
 }

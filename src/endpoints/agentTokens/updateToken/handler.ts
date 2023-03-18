@@ -7,6 +7,8 @@ import {getActionAgentFromSessionAgent, tryGetAgentTokenId} from '../../../utils
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {MemStore} from '../../contexts/mem/Mem';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {assertAgentToken, checkAgentTokenAuthorization, getPublicAgentToken} from '../utils';
@@ -18,43 +20,54 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
-  let token: IAgentToken | null = null;
+  const token = await MemStore.withTransaction(context, async transaction => {
+    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    let token: IAgentToken | null = null;
 
-  if (tokenId) {
-    token = await context.semantic.agentToken.getOneById(tokenId);
-  } else if (data.providedResourceId) {
-    token = await context.semantic.agentToken.getByProvidedId(
-      workspace.resourceId,
-      data.providedResourceId
-    );
-  }
+    if (tokenId) {
+      token = await context.semantic.agentToken.getOneById(tokenId, opts);
+    } else if (data.providedResourceId) {
+      token = await context.semantic.agentToken.getByProvidedId(
+        workspace.resourceId,
+        data.providedResourceId,
+        opts
+      );
+    }
 
-  assertAgentToken(token);
-  await checkAgentTokenAuthorization(context, agent, token, BasicCRUDActions.Read);
-  const tokenUpdate: Partial<IAgentToken> = {
-    ...omit(data, 'tags'),
-    lastUpdatedAt: getTimestamp(),
-    lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-  };
+    assertAgentToken(token);
+    const tokenUpdate: Partial<IAgentToken> = {
+      ...omit(data, 'tags'),
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    };
+    const isNameChanged =
+      tokenUpdate.name && tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase();
 
-  if (tokenUpdate.name && tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase()) {
-    await checkAgentTokenNameExists(context, workspace.resourceId, tokenUpdate.name);
-  }
+    await Promise.all([
+      checkAgentTokenAuthorization(context, agent, token, BasicCRUDActions.Read),
+      isNameChanged &&
+        checkAgentTokenNameExists(context, workspace.resourceId, tokenUpdate.name!, opts),
+    ]);
 
-  token = await context.semantic.agentToken.getAndUpdateOneById(token.resourceId, tokenUpdate);
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    token.resourceId,
-    data.token,
-    /* deleteExisting */ true
-  );
+    [token] = await Promise.all([
+      context.semantic.agentToken.getAndUpdateOneById(token.resourceId, tokenUpdate, opts),
+      saveResourceAssignedItems(
+        context,
+        agent,
+        workspace,
+        token.resourceId,
+        data.token,
+        /* deleteExisting */ true,
+        opts
+      ),
+    ]);
+
+    return token;
+  });
+
   appAssert(token.workspaceId);
   const agentToken = await populateAssignedTags(context, token.workspaceId, token);
-  return {
-    token: getPublicAgentToken(context, agentToken),
-  };
+  return {token: getPublicAgentToken(context, agentToken)};
 };
 
 export default updateAgentToken;

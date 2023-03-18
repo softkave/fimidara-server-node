@@ -6,7 +6,9 @@ import {
   TokenAccessScope,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
+import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/fns';
+import {MemStore} from '../../contexts/mem/Mem';
 import {IBaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 
@@ -33,8 +35,12 @@ export async function withConfirmEmailAddressToken(
         createdBy: SYSTEM_SESSION_AGENT,
         lastUpdatedBy: SYSTEM_SESSION_AGENT,
       });
-      await context.semantic.agentToken.insertItem(token);
+      await MemStore.withTransaction(context, async txn => {
+        appAssert(token);
+        await context.semantic.agentToken.insertItem(token, {transaction: txn});
+      });
     }
+
     const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
     url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
     link = url.toString();

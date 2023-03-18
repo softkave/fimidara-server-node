@@ -5,7 +5,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
+import {addPublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 import {makeFilePublicAccessOps} from './accessOps';
 import {IUploadFileEndpointParams} from './types';
@@ -28,7 +28,7 @@ export async function internalUpdateFile(
 
   if (data.publicAccessAction) {
     const publicAccessOps = makeFilePublicAccessOps(agent, data.publicAccessAction);
-    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
+    await addPublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
   }
 
   await saveResourceAssignedItems(context, agent, workspace, file.resourceId, data, true);

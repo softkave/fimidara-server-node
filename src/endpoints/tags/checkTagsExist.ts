@@ -2,6 +2,7 @@ import {uniqBy} from 'lodash';
 import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
 import {getResources} from '../resources/getResources';
@@ -11,7 +12,8 @@ export default async function checkTagsExist(
   agent: ISessionAgent,
   workspace: IWorkspace,
   items: Array<IAssignedTagInput>,
-  action: BasicCRUDActions
+  action: BasicCRUDActions,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
   const resources = await getResources({
     context,
@@ -24,6 +26,7 @@ export default async function checkTagsExist(
       resourceType: AppResourceType.Tag,
     })),
     checkAuth: true,
+    dataFetchRunOptions: opts,
   });
   checkResourcesBelongToWorkspace(workspace.resourceId, resources);
   return {resources};

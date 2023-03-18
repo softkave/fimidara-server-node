@@ -6,7 +6,7 @@ import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState} from '../../../definitions/system';
+import {IAppRuntimeState, IResourceBase} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -112,6 +112,7 @@ export type BulkOpItem<T> =
       type: BulkOpType.UpdateOne;
       query: DataQuery<T>;
       update: Partial<T>;
+      upsert?: boolean;
     }
   | {
       type: BulkOpType.UpdateMany;
@@ -176,7 +177,7 @@ export interface IBaseDataProvider<
   deleteOneByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<void>;
-  bulkOps(ops: Array<BulkOpItem<DataType>>): Promise<void>;
+  TRANSACTION_bulkWrite(ops: Array<BulkOpItem<DataType>>): Promise<void>;
 }
 
 export type IAgentTokenQuery = DataQuery<IAgentToken>;
@@ -203,3 +204,4 @@ export type IUserQuery = DataQuery<IUser>;
 export type IUserDataProvider = IBaseDataProvider<IUser>;
 export type IWorkspaceQuery = DataQuery<IWorkspace>;
 export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;
+export type IResourceDataProvider = IBaseDataProvider<IResourceBase>;

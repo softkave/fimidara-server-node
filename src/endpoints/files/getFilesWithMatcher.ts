@@ -1,11 +1,16 @@
 import {IFile, IFileMatcher} from '../../definitions/file';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFile, splitfilepathWithDetails} from './utils';
 
-export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMatcher) {
+export async function getFileWithMatcher(
+  context: IBaseContext,
+  matcher: IFileMatcher,
+  opts?: ISemanticDataAccessProviderRunOptions
+) {
   if (matcher.fileId) {
-    const file = await context.semantic.file.getOneById(matcher.fileId);
+    const file = await context.semantic.file.getOneById(matcher.fileId, opts);
     assertFile(file);
     return file;
   } else if (matcher.filepath) {
@@ -17,8 +22,10 @@ export async function getFileWithMatcher(context: IBaseContext, matcher: IFileMa
     const file = await context.semantic.file.getOneByNamePath(
       workspace.resourceId,
       pathWithDetails.splitPathWithoutExtension,
-      pathWithDetails.extension
+      pathWithDetails.extension,
+      opts
     );
+
     return file;
   }
 

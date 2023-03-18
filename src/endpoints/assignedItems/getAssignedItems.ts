@@ -3,6 +3,7 @@ import {IAssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {AppResourceType, IResourceBase} from '../../definitions/system';
 import {IUser, IUserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} from './utils';
 
@@ -16,11 +17,14 @@ export async function getResourceAssignedItems(
   context: IBaseContext,
   workspaceId: string | undefined,
   resourceId: string,
-  assignedItemTypes?: Array<AppResourceType>
+  assignedItemTypes?: Array<AppResourceType>,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
   return await context.semantic.assignedItem.getResourceAssignedItems(
+    workspaceId,
     resourceId,
-    assignedItemTypes
+    assignedItemTypes,
+    opts
   );
 }
 
@@ -36,9 +40,16 @@ export async function getResourceAssignedItemsSortedByType(
   context: IBaseContext,
   workspaceId: string | undefined,
   resourceId: string,
-  assignedItemTypes?: Array<AppResourceType>
+  assignedItemTypes?: Array<AppResourceType>,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const items = await getResourceAssignedItems(context, workspaceId, resourceId, assignedItemTypes);
+  const items = await getResourceAssignedItems(
+    context,
+    workspaceId,
+    resourceId,
+    assignedItemTypes,
+    opts
+  );
 
   // Add default values if specific assigned item types are specified
   const sortedItems: Record<string, IAssignedItem[]> = assignedItemTypes
@@ -108,16 +119,16 @@ export async function populateAssignedTags<
 >(
   context: IBaseContext,
   workspaceId: string,
-  resource: T,
+  resource: NonNullable<T>,
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
-): Promise<Final> {
+): Promise<NonNullable<Final>> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
     workspaceId,
     resource.resourceId,
     [AppResourceType.Tag]
   );
-  const updatedResource: Final = cast<Final>(resource);
+  const updatedResource = cast<NonNullable<Final>>(resource);
   const tagsLabel = labels[AppResourceType.Tag] ?? 'tags';
   (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
     sortedItems[AppResourceType.Tag]
@@ -141,12 +152,15 @@ export async function populateResourceListWithAssignedTags<
 
 export async function populateUserWorkspaces<T extends IUser>(
   context: IBaseContext,
-  resource: T
+  resource: T,
+  opts?: ISemanticDataAccessProviderRunOptions
 ): Promise<T & {workspaces: IUserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
     /** workspaceId */ undefined,
-    resource.resourceId
+    resource.resourceId,
+    undefined,
+    opts
   );
   let assignedWorkspaceItems: IAssignedItem[] = [];
   const updatedResource: T & {workspaces: IUserWorkspace[]} = resource as T & {
