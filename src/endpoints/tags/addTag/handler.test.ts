@@ -1,6 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -15,8 +15,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('addTag', () => {

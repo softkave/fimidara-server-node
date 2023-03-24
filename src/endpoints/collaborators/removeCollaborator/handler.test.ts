@@ -1,8 +1,8 @@
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -27,8 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('collaborator removed', async () => {

@@ -1,6 +1,6 @@
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceResourceTypeList,
 } from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
@@ -8,7 +8,7 @@ import {validate} from '../../../utils/validate';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getResourcesPartOfWorkspace} from '../containerCheckFns';
 import {getPublicResourceList} from '../getPublicResource';
-import {getResources as fetchResources} from '../getResources';
+import {INTERNAL_getResources} from '../getResources';
 import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
@@ -19,14 +19,14 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  let resources = await fetchResources({
+  let resources = await INTERNAL_getResources({
     context,
     agent,
     allowedTypes,
     workspaceId: workspace.resourceId,
     inputResources: data.resources,
     checkAuth: true,
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
     nothrowOnCheckError: true,
   });
   resources = await resourceListWithAssignedItems(context, workspaceId, resources);

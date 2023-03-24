@@ -2,11 +2,12 @@ import {IAssignedItem} from '../../../definitions/assignedItem';
 import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -22,8 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('addAssignedItems', () => {
@@ -48,14 +48,18 @@ describe('addAssignedItems', () => {
       pgListAssignedTo01Input
     );
 
-    const assignedItems = await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace.resourceId,
-      pgListAssignedTo02Input,
-      pgList01IdList,
-      false, // do not delete existing items
-      true // skip permission groups check
+    const assignedItems = await executeWithMutationRunOptions(context, opts =>
+      addAssignedPermissionGroupList(
+        context!,
+        agent,
+        workspace.resourceId,
+        pgListAssignedTo02Input,
+        pgList01IdList,
+        false, // do not delete existing items
+        true, // skip permission groups check
+        false, // skip auth check
+        opts
+      )
     );
     expectContainsExactlyForAnyType(
       assignedItems,
@@ -105,14 +109,18 @@ describe('addAssignedItems', () => {
       ),
     ]);
 
-    const assignedItems = await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace.resourceId,
-      pgListAssignedTo02Input,
-      pgList01IdList,
-      false, // do not delete existing items
-      true // skip permission groups check
+    const assignedItems = await executeWithMutationRunOptions(context, opts =>
+      addAssignedPermissionGroupList(
+        context!,
+        agent,
+        workspace.resourceId,
+        pgListAssignedTo02Input,
+        pgList01IdList,
+        false, // do not delete existing items
+        true, // skip permission groups check
+        false, // skip auth check
+        opts
+      )
     );
     expectContainsExactlyForAnyType(
       assignedItems,

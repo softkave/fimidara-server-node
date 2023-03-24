@@ -1,15 +1,20 @@
 import {merge} from 'lodash';
-import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
+import {
+  CollaborationRequestStatusType,
+  ICollaborationRequest,
+} from '../../definitions/collaborationRequest';
+import {IPermissionGroup} from '../../definitions/permissionGroups';
 import {IPermissionItem} from '../../definitions/permissionItem';
 import {
+  AppActionType,
   AppResourceType,
   APP_RUNTIME_STATE_DOC_ID,
-  BasicCRUDActions,
   IAppRuntimeState,
   SYSTEM_SESSION_AGENT,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/vars';
+import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {newWorkspaceResource} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
@@ -62,7 +67,7 @@ async function setupDefaultUserCollaborationRequest(
   adminPermissionGroupId: string,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  const request = newWorkspaceResource(
+  const request = newWorkspaceResource<ICollaborationRequest>(
     SYSTEM_SESSION_AGENT,
     AppResourceType.CollaborationRequest,
     workspace.resourceId,
@@ -86,6 +91,7 @@ async function setupDefaultUserCollaborationRequest(
     request.resourceId,
     /** deleteExisting */ false,
     /** skipPermissionGroupsExistCheck */ true,
+    /** skip auth check */ true,
     opts
   );
 }
@@ -112,6 +118,7 @@ async function setupFolders(
     ),
   ]);
 
+  appAssert(workspaceImagesFolder && userImagesFolder);
   return {workspaceImagesFolder, userImagesFolder};
 }
 
@@ -123,15 +130,15 @@ async function setupImageUploadPermissionGroup(
   folderId: string,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  const imageUploadPermissionGroup = newWorkspaceResource(
+  const imageUploadPermissionGroup = newWorkspaceResource<IPermissionGroup>(
     SYSTEM_SESSION_AGENT,
     AppResourceType.PermissionGroup,
     workspaceId,
     {name, description}
   );
-  const permissionItems: IPermissionItem[] = [BasicCRUDActions.Create, BasicCRUDActions.Read].map(
+  const permissionItems: IPermissionItem[] = [AppActionType.Create, AppActionType.Read].map(
     action => {
-      const item: IPermissionItem = newWorkspaceResource(
+      const item: IPermissionItem = newWorkspaceResource<IPermissionItem>(
         SYSTEM_SESSION_AGENT,
         AppResourceType.PermissionItem,
         workspaceId,
@@ -161,9 +168,8 @@ async function isRootWorkspaceSetup(
   context: IBaseContext,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const appRuntimeState = await context.semantic.appRuntimeState.getOneByLiteralDataQuery(
-    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
-    opts
+  const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
+    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );
   return appRuntimeState;
 }
@@ -239,16 +245,13 @@ export async function setupApp(context: IBaseContext) {
       appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
       appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
     };
-    await context.semantic.appRuntimeState.insertItem(
-      {
-        isAppSetup: true,
-        resourceId: APP_RUNTIME_STATE_DOC_ID,
-        ...appRuntimeVars,
-        createdAt: getTimestamp(),
-        lastUpdatedAt: getTimestamp(),
-      },
-      opts
-    );
+    await context.data.appRuntimeState.insertItem({
+      isAppSetup: true,
+      resourceId: APP_RUNTIME_STATE_DOC_ID,
+      ...appRuntimeVars,
+      createdAt: getTimestamp(),
+      lastUpdatedAt: getTimestamp(),
+    });
     merge(context.appVariables, appRuntimeVars);
 
     return workspace;

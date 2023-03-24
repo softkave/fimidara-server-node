@@ -1,6 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -17,8 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getUsageCosts', () => {

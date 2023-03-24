@@ -1,12 +1,11 @@
 import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
-import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface IUpdateFolderInput {
   description?: string;
-  publicAccessOps?: IPublicAccessOpInput[];
+  // publicAccessOps?: IFolderPublicAccessOpInput[];
   removePublicAccessOps?: boolean;
   tags?: IAssignedTagInput[];
 }

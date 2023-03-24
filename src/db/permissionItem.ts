@@ -12,6 +12,7 @@ const permissionItemSchema = ensureMongoTypeFields<IPermissionItem>({
   targetType: {type: String, index: true},
   grantAccess: {type: Boolean, index: true},
   action: {type: String, index: true},
+  appliesTo: {type: String, index: true},
 });
 
 export type IPermissionItemDocument = Document<IPermissionItem>;

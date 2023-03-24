@@ -3,6 +3,7 @@ import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {randomAction, randomResourceType} from './utils';
 
@@ -49,6 +50,8 @@ export async function generateAndInsertPermissionItemListForTest(
   seed: Partial<IPermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
-  await ctx.semantic.permissionItem.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.permissionItem.insertItem(items, opts)
+  );
   return items;
 }

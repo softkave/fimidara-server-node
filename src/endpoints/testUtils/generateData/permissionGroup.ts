@@ -3,6 +3,7 @@ import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 
 export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> = {}) {
@@ -43,6 +44,8 @@ export async function generateAndInsertPermissionGroupListForTest(
   seed: Partial<IPermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
-  await ctx.semantic.permissionGroup.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.permissionGroup.insertItem(items, opts)
+  );
   return items;
 }

@@ -2,7 +2,6 @@ import {Request, Response} from 'express';
 import {defaultTo, isEmpty, isNumber, isString} from 'lodash';
 import {
   IAgent,
-  IPublicAccessOp,
   IPublicAgent,
   IPublicResource,
   IPublicWorkspaceResource,
@@ -26,6 +25,7 @@ import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
+import {executeWithMutationRunOptions} from './contexts/semantic/utils';
 import {IBaseContext, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
@@ -109,17 +109,6 @@ const agentPublicFields = getFields<IPublicAgent>({
 export const agentExtractor = makeExtract(agentPublicFields);
 export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);
-
-const publicAccessOpFields = getFields<IPublicAccessOp>({
-  action: true,
-  markedAt: true,
-  markedBy: agentExtractor,
-  resourceType: true,
-});
-
-export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
-export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
-export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
 
 export const resourceFields: ExtractFieldsFrom<IPublicResource> = {
   resourceId: true,
@@ -253,12 +242,16 @@ export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
   return data;
 }
 
-export async function executeCascadeDelete(
+export async function executeCascadeDelete<Args>(
   context: IBaseContext,
-  id: string,
-  cascadeDef: DeleteResourceCascadeFnsMap
+  cascadeDef: DeleteResourceCascadeFnsMap<Args>,
+  args: Args
 ) {
-  await Promise.all(Object.values(cascadeDef).map(fn => fn(context, id)));
+  await Promise.all(
+    Object.values(cascadeDef).map(fn =>
+      executeWithMutationRunOptions(context, opts => fn(context, args, opts))
+    )
+  );
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {

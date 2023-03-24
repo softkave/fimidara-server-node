@@ -2,7 +2,7 @@ import {Express} from 'express';
 import {IBaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import {collabRequestConstants} from './constants';
-import deleteRequest from './deleteRequest/handler';
+import deleteCollaborationRequest from './deleteRequest/handler';
 import getRequest from './getUserRequest/handler';
 import getUserRequests from './getUserRequests/handler';
 import getWorkspaceRequests from './getWorkspaceRequests/handler';
@@ -14,7 +14,7 @@ import updateRequest from './updateRequest/handler';
 export default function setupCollaborationRequestsRESTEndpoints(ctx: IBaseContext, app: Express) {
   const endpoints = {
     sendRequest: wrapEndpointREST(sendRequest, ctx),
-    deleteRequest: wrapEndpointREST(deleteRequest, ctx),
+    deleteRequest: wrapEndpointREST(deleteCollaborationRequest, ctx),
     getWorkspaceRequests: wrapEndpointREST(getWorkspaceRequests, ctx),
     getUserRequests: wrapEndpointREST(getUserRequests, ctx),
     respondToRequest: wrapEndpointREST(respondToRequest, ctx),

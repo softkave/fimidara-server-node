@@ -1,7 +1,7 @@
 import {format} from 'util';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceResourceTypeList,
   ISessionAgent,
   PERMISSION_CONTAINER_TYPES,
@@ -14,7 +14,7 @@ import {
   checkResourcesBelongToContainer,
   checkResourcesBelongToWorkspace,
 } from '../resources/containerCheckFns';
-import {getResources} from '../resources/getResources';
+import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 export async function checkPermissionEntitiesExist(
@@ -22,7 +22,7 @@ export async function checkPermissionEntitiesExist(
   agent: ISessionAgent,
   workspaceId: string,
   entities: Array<string>,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   if (entities.length === 0) {
     return;
@@ -37,7 +37,7 @@ export async function checkPermissionEntitiesExist(
   });
 
   // Intentionally not using transaction read for performance.
-  let resources = await getResources({
+  let resources = await INTERNAL_getResources({
     context,
     agent,
     workspaceId,
@@ -65,7 +65,7 @@ export async function checkPermissionContainersExist(
   agent: ISessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
@@ -76,7 +76,7 @@ export async function checkPermissionContainersExist(
   });
 
   // Intentionally not using transaction read for performance.
-  const resources = await getResources({
+  const resources = await INTERNAL_getResources({
     context,
     agent,
     workspaceId,
@@ -99,7 +99,7 @@ export async function checkPermissionTargetsExist(
   agent: ISessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: BasicCRUDActions,
+  action: AppActionType,
   containerId?: string
 ) {
   /**
@@ -112,7 +112,7 @@ export async function checkPermissionTargetsExist(
   }
 
   // Intentionally not using transaction read for performance.
-  let resources = await getResources({
+  let resources = await INTERNAL_getResources({
     context,
     agent,
     workspaceId,

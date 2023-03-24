@@ -1,6 +1,5 @@
 import {IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppResourceType, IPublicAccessOpInput} from '../../definitions/system';
+import {AppResourceType} from '../../definitions/system';
 import {ExcludeTags} from '../../definitions/tag';
 import {
   asFieldObjectAny,
@@ -21,7 +20,6 @@ import {
   fReusables,
 } from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
-import {permissionItemConstants} from '../permissionItems/constants';
 import {
   IAddFolderEndpointParams,
   IAddFolderEndpointResult,
@@ -40,41 +38,41 @@ import {
   IUpdateFolderInput,
 } from './updateFolder/types';
 
-const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>()
-  .setName('PublicAccessOpInput')
-  .setFields({
-    action: fReusables.nonWorkspaceAction,
-    resourceType: new FieldString()
-      .setRequired(true)
-      .setDescription('Resource type this public access permission applies.')
-      .setExample(AppResourceType.File)
-      .setValid([AppResourceType.Folder, AppResourceType.File]),
-    appliesTo: new FieldString()
-      .setRequired(true)
-      .setDescription(
-        "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
-      )
-      .setExample(PermissionItemAppliesTo.ContainerAndChildren)
-      .setValid(Object.values(PermissionItemAppliesTo)),
-  });
+// const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>()
+//   .setName('PublicAccessOpInput')
+//   .setFields({
+//     action: fReusables.nonWorkspaceAction,
+//     resourceType: new FieldString()
+//       .setRequired(true)
+//       .setDescription('Resource type this public access permission applies.')
+//       .setExample(AppResourceType.File)
+//       .setValid([AppResourceType.Folder, AppResourceType.File]),
+//     appliesTo: new FieldString()
+//       .setRequired(true)
+//       .setDescription(
+//         "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
+//       )
+//       .setExample(PermissionItemAppliesTo.ContainerAndChildren)
+//       .setValid(Object.values(PermissionItemAppliesTo)),
+//   });
 
-const folderPublicAccessOpInputList = new FieldArray()
-  .setType(folderPublicAccessOpInput)
-  .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+// const folderPublicAccessOpInputList = new FieldArray()
+//   .setType(folderPublicAccessOpInput)
+//   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 const newFolderInput = new FieldObject<ExcludeTags<INewFolderInput>>()
   .setName('NewFolderInput')
   .setFields({
     description: fReusables.descriptionNotRequired,
     folderpath: fReusables.folderpath,
-    publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
+    // publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
   });
 
 const updateFolderInput = new FieldObject<ExcludeTags<IUpdateFolderInput>>()
   .setName('UpdateFolderInput')
   .setFields({
     description: fReusables.descriptionNotRequired,
-    publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
+    // publicAccessOps: cloneAndMarkNotRequired(folderPublicAccessOpInputList),
     removePublicAccessOps: cloneAndMarkNotRequired(
       new FieldBoolean().setDescription('Whether to clear all current public access permissions')
     ),
@@ -92,6 +90,7 @@ const folder = new FieldObject<IPublicFolder>().setName('Folder').setFields({
   idPath: fReusables.idPath,
   namePath: fReusables.folderNamePath,
   parentId: fReusables.folderIdOrUndefined,
+  providedResourceId: fReusables.providedResourceIdOrUndefined,
 });
 
 const folderMatcherParts: FieldObjectFields<IFolderMatcher> = {

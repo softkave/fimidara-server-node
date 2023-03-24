@@ -2,7 +2,7 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
   collaborationRequestEmailHTML,
@@ -14,7 +14,6 @@ import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
@@ -37,7 +36,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     agent,
     workspaceId: workspace.resourceId,
     targets: [{type: AppResourceType.CollaborationRequest}],
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
   });
 
   let {request, existingUser} = await MemStore.withTransaction(context, async transaction => {
@@ -86,22 +85,22 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
         statusDate: getTimestamp(),
       }
     );
-    const permissionGroupsAssignedOnAcceptingRequest =
-      data.request.permissionGroupsAssignedOnAcceptingRequest ?? [];
+    // const permissionGroupsAssignedOnAcceptingRequest =
+    //   data.request.permissionGroupsAssignedOnAcceptingRequest ?? [];
     await Promise.all([
       context.semantic.collaborationRequest.insertItem(request, opts),
-      permissionGroupsAssignedOnAcceptingRequest.length &&
-        addAssignedPermissionGroupList(
-          context,
-          agent,
-          workspace.resourceId,
-          permissionGroupsAssignedOnAcceptingRequest,
-          request.resourceId,
-          /** deleteExisting */ false,
-          /** skip permission groups check */ false,
-          /** skip auth check */ false,
-          opts
-        ),
+      // permissionGroupsAssignedOnAcceptingRequest.length &&
+      //   addAssignedPermissionGroupList(
+      //     context,
+      //     agent,
+      //     workspace.resourceId,
+      //     permissionGroupsAssignedOnAcceptingRequest,
+      //     request.resourceId,
+      //     /** deleteExisting */ false,
+      //     /** skip permission groups check */ false,
+      //     /** skip auth check */ false,
+      //     opts
+      //   ),
     ]);
 
     return {request, existingUser};

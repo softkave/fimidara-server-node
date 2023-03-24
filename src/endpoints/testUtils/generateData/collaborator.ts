@@ -1,5 +1,6 @@
 import {IAgent} from '../../../definitions/system';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {generateAndInsertUserListForTest} from './user';
 
@@ -10,6 +11,10 @@ export async function generateAndInsertCollaboratorListForTest(
   count = 20
 ) {
   const users = await generateAndInsertUserListForTest(ctx, count);
-  await Promise.all(users.map(user => assignWorkspaceToUser(ctx, agent, workspaceId, user)));
+  await executeWithMutationRunOptions(ctx, opts =>
+    Promise.all(
+      users.map(user => assignWorkspaceToUser(ctx, agent, workspaceId, user.resourceId, opts))
+    )
+  );
   return users;
 }

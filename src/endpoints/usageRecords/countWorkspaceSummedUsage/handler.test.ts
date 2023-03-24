@@ -1,9 +1,9 @@
 import assert = require('assert');
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -22,8 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countWorkspaceSummedUsage', () => {

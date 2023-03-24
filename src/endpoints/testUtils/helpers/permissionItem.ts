@@ -1,54 +1,135 @@
+import {toArray} from 'lodash';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {makeKey} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {INewPermissionItemInput} from '../../permissionItems/addItems/types';
-import {
-  getTargetType,
-  IPermissionItemBase,
-  permissionItemIndexer,
-} from '../../permissionItems/utils';
+import {IBaseContext} from '../../contexts/types';
 
-export function expectPermissionItemsPresent(
-  entityId: string,
-  containerId: string,
-  items: IPermissionItemBase[],
-  expected: INewPermissionItemInput[]
+export async function canEntityPerformAction01(
+  context: IBaseContext,
+  entityId: string | string[],
+  action: AppActionType | AppActionType[],
+  targetId: string | string[],
+  result: boolean
 ) {
+  // fetch permission items
+  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+    entityId: {$in: toArray(entityId)},
+    action: {$in: toArray(action) as any[]},
+    targetId: {$in: toArray(targetId)},
+  });
+
+  // Index permission items by action - target ID - entity ID. We're going to
+  // use them for quick retrieval when checking.
   const map = indexArray(items, {
-    indexer: permissionItemIndexer,
+    indexer: item => makeKey([item.action, item.targetId, item.entityId]),
   });
-  expected.forEach(item => {
-    const targetType = getTargetType(item);
-    expect(map[permissionItemIndexer({entityId, containerId, targetType, ...item})]).toMatchObject(
-      item
-    );
+
+  // Make checks using key structure defined above, expecting to match expected
+  // result.
+  toArray(targetId).forEach(nextTargetId => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
+        const key = makeKey([nextAction, nextTargetId, nextEntityId]);
+        expect(!!map[key]).toBe(result);
+      });
+    });
   });
 }
 
-function permissionItemInputToItemBase(
-  input: INewPermissionItemInput,
-  entityId: string,
-  containerId: string
-): IPermissionItemBase {
-  const targetType = getTargetType(input);
-  return {
-    ...input,
-    targetType,
-    containerId,
-    entityId: entityId,
-  };
-}
-
-export function expectPermissionItemsForEntityPresent(
-  expectedItems: IPermissionItemBase[],
-  matches: INewPermissionItemInput[],
-  entityId: string,
-  containerId: string
+export async function canEntityPerformAction02(
+  context: IBaseContext,
+  entityId: string | string[],
+  action: AppActionType | AppActionType[],
+  targetType: AppResourceType | AppResourceType[],
+  result: boolean
 ) {
-  const permissionItemsMap = indexArray(expectedItems, {
-    indexer: permissionItemIndexer,
+  // fetch permission items
+  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+    entityId: {$in: toArray(entityId)},
+    action: {$in: toArray(action) as any[]},
+    targetType: {$in: toArray(targetType) as any[]},
   });
-  matches.forEach(item => {
-    const input = permissionItemInputToItemBase(item, entityId, containerId);
-    const key = permissionItemIndexer(input);
-    expect(permissionItemsMap[key]).toMatchObject(item);
+
+  // Index permission items by action - target type - entity ID. We're going to
+  // use them for quick retrieval when checking.
+  const map = indexArray(items, {
+    indexer: item => makeKey([item.action, item.targetType, item.entityId]),
+  });
+
+  // Make checks using key structure defined above, expecting to match expected
+  // result.
+  toArray(targetType).forEach(nextTargetType => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
+        const key = makeKey([nextAction, nextTargetType, nextEntityId]);
+        expect(!!map[key]).toBe(result);
+      });
+    });
+  });
+}
+
+export async function checkExplicitAccessPermissions01(
+  context: IBaseContext,
+  entityId: string | string[],
+  action: AppActionType | AppActionType[],
+  targetId: string | string[],
+  grantAccess: boolean
+) {
+  // fetch permission items
+  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+    grantAccess,
+    entityId: {$in: toArray(entityId)},
+    action: {$in: toArray(action) as any[]},
+    targetId: {$in: toArray(targetId) as any[]},
+  });
+
+  // Index permission items by action - target ID - entity ID. We're going to
+  // use them for quick retrieval when checking.
+  const map = indexArray(items, {
+    indexer: item => makeKey([item.action, item.targetId, item.entityId]),
+  });
+
+  // Make checks using key structure defined above, expecting each entry to
+  // exist, to be truthy.
+  toArray(targetId).forEach(nextTargetId => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
+        const key = makeKey([nextAction, nextTargetId, nextEntityId]);
+        expect(!!map[key]).toBeTruthy();
+      });
+    });
+  });
+}
+
+export async function checkExplicitAccessPermissions02(
+  context: IBaseContext,
+  entityId: string | string[],
+  action: AppActionType | AppActionType[],
+  targetType: AppResourceType | AppResourceType[],
+  grantAccess: boolean
+) {
+  // fetch permission items
+  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+    grantAccess,
+    entityId: {$in: toArray(entityId)},
+    action: {$in: toArray(action) as any[]},
+    targetType: {$in: toArray(targetType) as any[]},
+  });
+
+  // Index permission items by action - target type - entity ID. We're going to
+  // use them for quick retrieval when checking.
+  const map = indexArray(items, {
+    indexer: item => makeKey([item.action, item.targetType, item.entityId]),
+  });
+
+  // Make checks using key structure defined above, expecting each entry to
+  // exist, to be truthy.
+  toArray(targetType).forEach(nextTargetType => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
+        const key = makeKey([nextAction, nextTargetType, nextEntityId]);
+        expect(!!map[key]).toBeTruthy();
+      });
+    });
   });
 }

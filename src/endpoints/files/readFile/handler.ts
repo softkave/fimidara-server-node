@@ -1,6 +1,6 @@
 import sharp = require('sharp');
 import stream = require('stream');
-import {BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
 import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
@@ -14,7 +14,11 @@ import {readFileJoiSchema} from './validation';
 const readFile: ReadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, readFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Read);
+  const {file} = await checkFileAuthorization03(context, agent, data, AppActionType.Read);
+
+  // TODO: bandwidth out should only fulfill after the request is complete, OR
+  // move bandwidth in and out check to proxy layer before calling request so it
+  // can track all requests
   await insertBandwidthOutUsageRecordInput(context, instData, file);
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,

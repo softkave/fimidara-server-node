@@ -1,18 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {IAgentToken} from '../../../definitions/agentToken';
 import {IFile} from '../../../definitions/file';
-import {AppResourceType, BasicCRUDActions, IPublicAccessOpInput} from '../../../definitions/system';
 import {IPublicWorkspace, IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {} from '../../../utils/fns';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import PermissionItemQueries from '../../permissionItems/queries';
-import {generatePermissionItemInputsFromPublicAccessOps} from '../../permissionItems/utils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectPermissionItemsForEntityPresent} from '../../testUtils/helpers/permissionItem';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -73,38 +69,41 @@ export const uploadFileBaseTest = async (
   };
 };
 
-export async function assertPublicAccessOps(
-  ctx: IBaseContext,
-  resource: {resourceId: string; workspaceId: string},
-  insertWorkspaceResult: IInsertWorkspaceForTestResult,
-  publicAccessOpsInput: IPublicAccessOpInput[],
-  containerId = resource.workspaceId
-) {
-  assert(insertWorkspaceResult.workspace.publicPermissionGroupId);
-  const publicPermissionItems = (
-    await ctx.semantic.permissionItem.getManyByLiteralDataQuery(
-      PermissionItemQueries.getByPermissionEntity(
-        insertWorkspaceResult.workspace.publicPermissionGroupId
-      )
-    )
-  ).map(item => {
-    // Adding target ID because the following permission items check does
-    // one-to-one item matching, i.e a permission item that gives permisssion to
-    // a type and not to a specific type and resource won't work even though
-    // technically, that permission item should grant access
-    return {...item, targetId: item.targetId};
-  });
-  const basePermissionItems = generatePermissionItemInputsFromPublicAccessOps(
-    publicAccessOpsInput,
-    resource
-  );
-  expectPermissionItemsForEntityPresent(
-    publicPermissionItems,
-    basePermissionItems,
-    insertWorkspaceResult.workspace.publicPermissionGroupId,
-    containerId
-  );
-}
+// export async function assertPublicAccessOps(
+//   ctx: IBaseContext,
+//   resource: {resourceId: string; workspaceId: string},
+//   insertWorkspaceResult: IInsertWorkspaceForTestResult,
+//   publicAccessOpsInput: IPublicAccessOpInput[],
+//   containerId?: string | null
+// ) {
+//   assert(insertWorkspaceResult.workspace.publicPermissionGroupId);
+//   const publicPermissionItems = (
+//     await ctx.semantic.permissionItem.getManyByLiteralDataQuery(
+//       PermissionItemQueries.getByPermissionEntity(
+//         insertWorkspaceResult.workspace.publicPermissionGroupId
+//       )
+//     )
+//   ).map(item => {
+//     // Adding target ID because the following permission items check does
+//     // one-to-one item matching, i.e a permission item that gives permisssion to
+//     // a type and not to a specific type and resource won't work even though
+//     // technically, that permission item should grant access
+//     return {...item, targetId: item.targetId};
+//   });
+//   const basePermissionItems = generatePermissionItemInputsFromPublicAccessOps(
+//     publicAccessOpsInput,
+//     resource
+//   );
+
+//   if (!containerId) containerId = resource.workspaceId;
+
+//   expectPermissionItemsForEntityPresent(
+//     publicPermissionItems,
+//     basePermissionItems,
+//     insertWorkspaceResult.workspace.publicPermissionGroupId,
+//     containerId
+//   );
+// }
 
 export async function assertPublicPermissionsDonotExistForContainer(
   ctx: IBaseContext,
@@ -123,39 +122,39 @@ export async function assertPublicPermissionsDonotExistForContainer(
   expect(items).toHaveLength(0);
 }
 
-export const uploadFileWithPublicAccessActionTest = async (
-  ctx: IBaseContext,
-  input: Partial<IUploadFileEndpointParams>,
-  expectedActions: BasicCRUDActions[],
-  type: 'png' | 'txt' = 'png',
-  insertUserResult?: IInsertUserForTestResult,
-  insertWorkspaceResult?: IInsertWorkspaceForTestResult
-) => {
-  const uploadResult = await uploadFileBaseTest(
-    ctx,
-    input,
-    type,
-    insertUserResult,
-    insertWorkspaceResult
-  );
-  const {savedFile} = uploadResult;
-  insertUserResult = uploadResult.insertUserResult;
-  insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(
-    ctx,
-    savedFile,
-    insertWorkspaceResult,
-    expectedActions.map(action => {
-      return {
-        action,
-        resourceType: AppResourceType.File,
-      };
-    }),
-    savedFile.parentId
-  );
+// export const uploadFileWithPublicAccessActionTest = async (
+//   ctx: IBaseContext,
+//   input: Partial<IUploadFileEndpointParams>,
+//   expectedActions: AppActionType[],
+//   type: 'png' | 'txt' = 'png',
+//   insertUserResult?: IInsertUserForTestResult,
+//   insertWorkspaceResult?: IInsertWorkspaceForTestResult
+// ) => {
+//   const uploadResult = await uploadFileBaseTest(
+//     ctx,
+//     input,
+//     type,
+//     insertUserResult,
+//     insertWorkspaceResult
+//   );
+//   const {savedFile} = uploadResult;
+//   insertUserResult = uploadResult.insertUserResult;
+//   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
+//   await assertPublicAccessOps(
+//     ctx,
+//     savedFile,
+//     insertWorkspaceResult,
+//     expectedActions.map(action => {
+//       return {
+//         action,
+//         resourceType: AppResourceType.File,
+//       };
+//     }),
+//     savedFile.parentId
+//   );
 
-  return uploadResult;
-};
+//   return uploadResult;
+// };
 
 export async function assertFileUpdated(
   ctx: IBaseContext,

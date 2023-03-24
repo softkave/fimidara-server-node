@@ -1,4 +1,4 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
@@ -15,7 +15,7 @@ export async function getEntityPermissionItemsQuery(
       context,
       agent,
       workspaceId: workspace.resourceId,
-      action: BasicCRUDActions.Read,
+      action: AppActionType.Read,
       targets: {type: AppResourceType.PermissionItem},
     });
   }

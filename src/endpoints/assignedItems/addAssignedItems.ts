@@ -1,7 +1,7 @@
 import {isArray} from 'lodash';
 import {IAssignedItem} from '../../definitions/assignedItem';
 import {IAssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {AppResourceType, BasicCRUDActions, IAgent} from '../../definitions/system';
+import {AppActionType, AppResourceType, IAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
 import {makeKey, newWorkspaceResource} from '../../utils/fns';
@@ -128,7 +128,7 @@ export async function addAssignedPermissionGroupList(
       context,
       agent,
       workspaceId: workspaceId,
-      action: BasicCRUDActions.GrantPermission,
+      action: AppActionType.GrantPermission,
       targets: [{type: AppResourceType.PermissionGroup}],
     });
   }
@@ -140,7 +140,7 @@ export async function addAssignedPermissionGroupList(
     for (const id of idList) {
       const item = withAssignedAgent(
         agent,
-        newWorkspaceResource(agent, AppResourceType.AssignedItem, workspaceId, {
+        newWorkspaceResource<IAssignedItem>(agent, AppResourceType.AssignedItem, workspaceId, {
           meta: {},
           assigneeId: id,
           assigneeType: getResourceTypeFromId(id),
@@ -198,18 +198,23 @@ export async function addAssignedTagList(
   const items = tags.map(tag => {
     return withAssignedAgent(
       agent,
-      newWorkspaceResource(agent, AppResourceType.AssignedItem, workspace.resourceId, {
-        assigneeId,
-        assigneeType: getResourceTypeFromId(assigneeId),
-        meta: {},
-        resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-        assignedItemId: tag.tagId,
-        assignedItemType: AppResourceType.PermissionGroup,
-      })
+      newWorkspaceResource<IAssignedItem>(
+        agent,
+        AppResourceType.AssignedItem,
+        workspace.resourceId,
+        {
+          assigneeId,
+          assigneeType: getResourceTypeFromId(assigneeId),
+          meta: {},
+          resourceId: getNewIdForResource(AppResourceType.AssignedItem),
+          assignedItemId: tag.tagId,
+          assignedItemType: AppResourceType.PermissionGroup,
+        }
+      )
     );
   });
   await Promise.all([
-    checkTagsExist(context, agent, workspace, tags, BasicCRUDActions.Read),
+    checkTagsExist(context, agent, workspace, tags, AppActionType.Read),
     addAssignedItems(context, workspace.resourceId, items, deleteExisting, undefined, opts),
   ]);
 

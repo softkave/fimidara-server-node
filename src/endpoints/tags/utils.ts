@@ -1,4 +1,4 @@
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IPublicAssignedTag, IPublicTag, ITag} from '../../definitions/tag';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -30,7 +30,7 @@ export async function checkTagAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   tag: ITag,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, tag.workspaceId);
   await checkAuthorization({
@@ -47,7 +47,7 @@ export async function checkTagAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const tag = await context.semantic.tag.getOneById(id);
   assertTag(tag);

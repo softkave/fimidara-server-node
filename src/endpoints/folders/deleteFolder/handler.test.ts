@@ -1,8 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -31,8 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 async function assertFolderDeleted(context: IBaseContext, id: string) {

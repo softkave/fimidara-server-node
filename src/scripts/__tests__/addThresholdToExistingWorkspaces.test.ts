@@ -5,7 +5,7 @@ import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {disposeGlobalUtils} from '../../endpoints/globalUtils';
+import {disposeApplicationGlobalUtilities} from '../../endpoints/globalUtils';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
@@ -25,7 +25,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
+  await disposeApplicationGlobalUtilities();
   if (connection) {
     await dropMongoConnection(connection);
   }

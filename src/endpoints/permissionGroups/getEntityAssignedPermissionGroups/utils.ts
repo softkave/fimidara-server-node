@@ -1,6 +1,7 @@
-import {BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 
 export async function checkReadEntityAssignedPermissionGroups(
@@ -16,7 +17,7 @@ export async function checkReadEntityAssignedPermissionGroups(
       context,
       agent,
       workspaceId: workspace.resourceId,
-      action: BasicCRUDActions.Read,
+      action: AppActionType.Read,
       targets: [{targetId: entityId}],
     });
     return true;
@@ -30,11 +31,15 @@ export function isFetchingOwnPermissionGroups(agent: ISessionAgent, entityId: st
 export async function fetchEntityAssignedPermissionGroupList(
   context: IBaseContext,
   entityId: string,
-  includeInheritedPermissionGroups = true
+  includeInheritedPermissionGroups = true,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  return await context.semantic.permissions.getEntityAssignedPermissionGroups({
-    context,
-    entityId,
-    fetchDeep: includeInheritedPermissionGroups,
-  });
+  return await context.semantic.permissions.getEntityAssignedPermissionGroups(
+    {
+      context,
+      entityId,
+      fetchDeep: includeInheritedPermissionGroups,
+    },
+    opts
+  );
 }

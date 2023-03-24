@@ -1,8 +1,7 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {assertUpdateNotEmpty} from '../../utils';
@@ -27,7 +26,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
       context,
       agent,
       data.requestId,
-      BasicCRUDActions.Update,
+      AppActionType.Update,
       opts
     );
 
@@ -42,18 +41,18 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
         },
         opts
       ),
-      data.request.permissionGroupsAssignedOnAcceptingRequest &&
-        addAssignedPermissionGroupList(
-          context,
-          agent,
-          workspace.resourceId,
-          data.request.permissionGroupsAssignedOnAcceptingRequest,
-          request.resourceId,
-          /** deleteExisting */ true,
-          /** skip permission groups check */ false,
-          /** skip auth check */ false,
-          opts
-        ),
+      // data.request.permissionGroupsAssignedOnAcceptingRequest &&
+      //   addAssignedPermissionGroupList(
+      //     context,
+      //     agent,
+      //     workspace.resourceId,
+      //     data.request.permissionGroupsAssignedOnAcceptingRequest,
+      //     request.resourceId,
+      //     /** deleteExisting */ true,
+      //     /** skip permission groups check */ false,
+      //     /** skip auth check */ false,
+      //     opts
+      //   ),
     ]);
 
     return {workspace, request};

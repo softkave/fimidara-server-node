@@ -1,4 +1,4 @@
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
   IPublicUsageThreshold,
@@ -92,7 +92,7 @@ export async function checkWorkspaceAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   await checkAuthorization({
     context,
@@ -107,7 +107,7 @@ export async function checkWorkspaceAuthorization(
 export async function checkWorkspaceAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
-  action: BasicCRUDActions,
+  action: AppActionType,
   id?: string
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);

@@ -1,17 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
-import {
-  AppResourceType,
-  getNonWorkspaceActionList,
-  IPublicAccessOpInput,
-} from '../../../definitions/system';
 import {IPublicWorkspace, IWorkspace} from '../../../definitions/workspace';
 import {IBaseContext} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
-  assertPublicAccessOps,
 } from '../../files/uploadFile/uploadFileTestUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -59,17 +53,17 @@ export const addFolderBaseTest = async (
   return {folder, savedFolder, insertUserResult, insertWorkspaceResult};
 };
 
-export const addFolderWithPublicAccessOpsTest = async (
-  ctx: IBaseContext,
-  input: Partial<INewFolderInput> = {},
-  insertWorkspaceResult?: IInsertWorkspaceForTestResult
-) => {
-  const uploadResult = await addFolderBaseTest(ctx, input);
-  const {savedFolder} = uploadResult;
-  insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps ?? []);
-  return uploadResult;
-};
+// export const addFolderWithPublicAccessOpsTest = async (
+//   ctx: IBaseContext,
+//   input: Partial<INewFolderInput> = {},
+//   insertWorkspaceResult?: IInsertWorkspaceForTestResult
+// ) => {
+//   const uploadResult = await addFolderBaseTest(ctx, input);
+//   const {savedFolder} = uploadResult;
+//   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
+//   await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps ?? []);
+//   return uploadResult;
+// };
 
 export async function assertCanCreateFolderInPublicFolder(
   ctx: IBaseContext,
@@ -177,17 +171,17 @@ export async function assertFolderPublicOps(
   await assertCanDeletePublicFolder(ctx, insertWorkspaceResult.workspace, folderpath);
 }
 
-export function makeEveryFolderPublicAccessOp() {
-  const actions = getNonWorkspaceActionList();
-  const types = [AppResourceType.File, AppResourceType.Folder];
-  const ops: IPublicAccessOpInput[] = [];
-  actions.forEach(action => {
-    types.forEach(type => {
-      ops.push({
-        action,
-        resourceType: type,
-      });
-    });
-  });
-  return ops;
-}
+// export function makeEveryFolderPublicAccessOp() {
+//   const actions = getNonWorkspaceActionList();
+//   const types = [AppResourceType.File, AppResourceType.Folder];
+//   const ops: IPublicAccessOpInput[] = [];
+//   actions.forEach(action => {
+//     types.forEach(type => {
+//       ops.push({
+//         action,
+//         resourceType: type,
+//       });
+//     });
+//   });
+//   return ops;
+// }

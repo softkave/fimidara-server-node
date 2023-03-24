@@ -1,41 +1,16 @@
 import {IPublicPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
-
-// export interface IPermissionItemInputTarget {
-//   targetId?: string | string[];
-//   targetType?: AppResourceType | AppResourceType[];
-//   filepath?: string | string[];
-//   folderpath?: string | string[];
-//   workspaceRootname?: string;
-// }
-
-// export interface IPermissionItemInputContainer {
-//   /** Must be workspace or folder IDs. */
-//   containerId?: string | string[];
-//   folderpath?: string | string[];
-//   workspaceRootname?: string;
-// }
-
-// export interface INewPermissionItemInput {
-//   target: IPermissionItemInputTarget | IPermissionItemInputTarget[];
-//   containerId?: IPermissionItemInputContainer | IPermissionItemInputContainer[];
-//   action: BasicCRUDActions | BasicCRUDActions[];
-//   grantAccess?: boolean;
-// }
-
-export interface INewPermissionItemInput {
-  targetId?: string;
-  targetType?: AppResourceType;
-  grantAccess?: boolean;
-  action: BasicCRUDActions;
-}
+import {
+  IPermissionItemInput,
+  IPermissionItemInputContainer,
+  IPermissionItemInputEntity,
+} from '../types';
 
 export interface IAddPermissionItemsEndpointParams extends IEndpointOptionalWorkspaceIDParam {
-  items: INewPermissionItemInput[];
-  entityId: string;
-  containerId?: string;
+  entity?: IPermissionItemInputEntity;
+  container?: IPermissionItemInputContainer;
+  items: IPermissionItemInput[];
 }
 
 export interface IAddPermissionItemsEndpointResult {

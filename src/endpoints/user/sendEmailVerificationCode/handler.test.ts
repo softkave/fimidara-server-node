@@ -4,9 +4,10 @@ import {
   confirmEmailAddressEmailTitle,
   IConfirmEmailAddressEmailProps,
 } from '../../../emailTemplates/confirmEmailAddress';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -30,8 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('email verification code sent', async () => {
@@ -43,9 +43,13 @@ test('email verification code sent', async () => {
     reqData: insertUserReqData,
   } = await insertUserForTest(context, /**userInput */ {}, /**skipAutoVerifyEmail */ true);
   await waitForWorks(insertUserReqData.pendingPromises);
-  await context.semantic.user.getAndUpdateOneById(user.resourceId, {
-    emailVerificationEmailSentAt: null,
-  });
+  await executeWithMutationRunOptions(context, opts =>
+    context!.semantic.user.getAndUpdateOneById(
+      user.resourceId,
+      {emailVerificationEmailSentAt: null},
+      opts
+    )
+  );
   const result = await sendEmailVerificationCode(
     context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))

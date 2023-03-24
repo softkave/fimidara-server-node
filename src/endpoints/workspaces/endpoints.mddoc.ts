@@ -1,5 +1,10 @@
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {IPublicWorkspace, IUsageThreshold, IUsageThresholdLock, WorkspaceBillStatus} from '../../definitions/workspace';
+import {
+  IPublicWorkspace,
+  IUsageThreshold,
+  IUsageThresholdLock,
+  WorkspaceBillStatus,
+} from '../../definitions/workspace';
 import {
   asFieldObjectAny,
   cloneAndMarkNotRequired,
@@ -12,11 +17,16 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
+import {IEndpointOptionalWorkspaceIDParam} from '../types';
 import {IAddWorkspaceEndpointParams, IAddWorkspaceEndpointResult} from './addWorkspace/types';
 import {workspaceConstants} from './constants';
-import {IDeleteWorkspaceEndpointParams} from './deleteWorkspace/types';
-import {IGetWorkspaceEndpointParams, IGetWorkspaceEndpointResult} from './getWorkspace/types';
+import {IGetWorkspaceEndpointResult} from './getWorkspace/types';
 import {
   IUpdateWorkspaceEndpointParams,
   IUpdateWorkspaceEndpointResult,
@@ -26,7 +36,9 @@ import {
 const workspaceDescription = new FieldString()
   .setRequired(true)
   .setDescription('Workspace description.')
-  .setExample('fimidara, a super awesome company that offers file management with access control for devs.');
+  .setExample(
+    'fimidara, a super awesome company that offers file management with access control for devs.'
+  );
 const usageRecordCategory = new FieldString()
   .setRequired(true)
   .setDescription('Usage record category.')
@@ -39,14 +51,22 @@ const usageThreshold = new FieldObject<IUsageThreshold>().setName('UsageThreshol
   category: usageRecordCategory,
   budget: price,
 });
-const usageThresholdLock = new FieldObject<IUsageThresholdLock>().setName('UsageThresholdLock').setFields({
-  lastUpdatedBy: fReusables.agent,
-  lastUpdatedAt: fReusables.date,
-  category: usageRecordCategory,
-  locked: new FieldBoolean(true, 'Flag for whether a certain usage category is locked or not.', false),
-});
+const usageThresholdLock = new FieldObject<IUsageThresholdLock>()
+  .setName('UsageThresholdLock')
+  .setFields({
+    lastUpdatedBy: fReusables.agent,
+    lastUpdatedAt: fReusables.date,
+    category: usageRecordCategory,
+    locked: new FieldBoolean(
+      true,
+      'Flag for whether a certain usage category is locked or not.',
+      false
+    ),
+  });
 const workspace = new FieldObject<IPublicWorkspace>().setName('Workspace').setFields({
-  resourceId: new FieldString(),
+  resourceId: fReusables.id,
+  workspaceId: fReusables.id,
+  providedResourceId: fReusables.providedResourceIdOrUndefined,
   createdBy: fReusables.agent,
   createdAt: fReusables.date,
   lastUpdatedBy: fReusables.agent,
@@ -63,20 +83,24 @@ const workspace = new FieldObject<IPublicWorkspace>().setName('Workspace').setFi
       .setValid(Object.values(WorkspaceBillStatus))
   ),
   usageThresholds: orUndefined(
-    new FieldObject<IPublicWorkspace['usageThresholds']>().setName('WorkspaceUsageThresholds').setFields({
-      [UsageRecordCategory.Storage]: orUndefined(usageThreshold),
-      [UsageRecordCategory.BandwidthIn]: orUndefined(usageThreshold),
-      [UsageRecordCategory.BandwidthOut]: orUndefined(usageThreshold),
-      [UsageRecordCategory.Total]: orUndefined(usageThreshold),
-    })
+    new FieldObject<IPublicWorkspace['usageThresholds']>()
+      .setName('WorkspaceUsageThresholds')
+      .setFields({
+        [UsageRecordCategory.Storage]: orUndefined(usageThreshold),
+        [UsageRecordCategory.BandwidthIn]: orUndefined(usageThreshold),
+        [UsageRecordCategory.BandwidthOut]: orUndefined(usageThreshold),
+        [UsageRecordCategory.Total]: orUndefined(usageThreshold),
+      })
   ),
   usageThresholdLocks: orUndefined(
-    new FieldObject<IPublicWorkspace['usageThresholdLocks']>().setName('WorkspaceUsageThresholdLocks').setFields({
-      [UsageRecordCategory.Storage]: orUndefined(usageThresholdLock),
-      [UsageRecordCategory.BandwidthIn]: orUndefined(usageThresholdLock),
-      [UsageRecordCategory.BandwidthOut]: orUndefined(usageThresholdLock),
-      [UsageRecordCategory.Total]: orUndefined(usageThresholdLock),
-    })
+    new FieldObject<IPublicWorkspace['usageThresholdLocks']>()
+      .setName('WorkspaceUsageThresholdLocks')
+      .setFields({
+        [UsageRecordCategory.Storage]: orUndefined(usageThresholdLock),
+        [UsageRecordCategory.BandwidthIn]: orUndefined(usageThresholdLock),
+        [UsageRecordCategory.BandwidthOut]: orUndefined(usageThresholdLock),
+        [UsageRecordCategory.Total]: orUndefined(usageThresholdLock),
+      })
   ),
 });
 
@@ -103,7 +127,7 @@ const addWorkspaceResult = [
     ),
 ];
 
-const getWorkspaceParams = new FieldObject<IGetWorkspaceEndpointParams>()
+const getWorkspaceParams = new FieldObject<IEndpointOptionalWorkspaceIDParam>()
   .setName('GetWorkspaceEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,
@@ -149,7 +173,7 @@ const updateWorkspaceResult = [
     ),
 ];
 
-const deleteWorkspaceParams = new FieldObject<IDeleteWorkspaceEndpointParams>()
+const deleteWorkspaceParams = new FieldObject<IEndpointOptionalWorkspaceIDParam>()
   .setName('DeleteWorkspaceEndpointParams')
   .setFields({
     workspaceId: fReusables.workspaceIdInputNotRequired,

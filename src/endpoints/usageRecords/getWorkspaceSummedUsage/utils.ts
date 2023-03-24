@@ -1,4 +1,4 @@
-import {BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordFulfillmentStatus,
@@ -16,7 +16,7 @@ export async function getWorkspaceSummedUsageQuery(
   workspaceId: string,
   data: IGetWorkspaceSummedUsageEndpointParams
 ) {
-  await checkWorkspaceAuthorization02(context, agent, BasicCRUDActions.Read, workspaceId);
+  await checkWorkspaceAuthorization02(context, agent, AppActionType.Read, workspaceId);
 
   let fromMonth = undefined;
   let toMonth = undefined;
@@ -56,7 +56,7 @@ export async function getWorkspaceSummedUsageQuery(
     };
   } else {
     query.fulfillmentStatus = {
-      $in: [UsageRecordFulfillmentStatus.Fulfilled, UsageRecordFulfillmentStatus.Dropped],
+      $in: [UsageRecordFulfillmentStatus.Fulfilled, UsageRecordFulfillmentStatus.Dropped] as any[],
     };
   }
 

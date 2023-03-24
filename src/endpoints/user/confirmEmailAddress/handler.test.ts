@@ -7,9 +7,10 @@ import {
   TokenAccessScope,
 } from '../../../definitions/system';
 import {newResource} from '../../../utils/fns';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
   assertContext,
@@ -27,8 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('email address is confirmed', async () => {
@@ -37,16 +37,18 @@ test('email address is confirmed', async () => {
   const {user, userTokenStr} = await insertUserForTest(context, {
     password,
   });
-  const token: IAgentToken = newResource(AppResourceType.All, {
+  const token = newResource<IAgentToken>(AppResourceType.All, {
     separateEntityId: user.resourceId,
-    tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
+    scope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
     workspaceId: null,
     agentType: AppResourceType.User,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.agentToken.insertItem(token);
+  await executeWithMutationRunOptions(context, opts =>
+    context!.semantic.agentToken.insertItem(token, opts)
+  );
   const result = await confirmEmailAddress(
     context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))

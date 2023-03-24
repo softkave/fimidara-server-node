@@ -1,4 +1,4 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {GetWorkspaceEndpoint} from './types';
@@ -10,7 +10,7 @@ const getWorkspace: GetWorkspaceEndpoint = async (context, instData) => {
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    BasicCRUDActions.Delete,
+    AppActionType.Delete,
     data.workspaceId
   );
   return {workspace: workspaceExtractor(workspace)};

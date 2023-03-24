@@ -1,9 +1,8 @@
 import {customAlphabet} from 'nanoid';
 import {IAssignPermissionGroupInput} from '../definitions/permissionGroups';
-import {PermissionItemAppliesTo} from '../definitions/permissionItem';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getNonWorkspaceActionList,
   IAgent,
   RESOURCE_TYPE_SHORT_NAMES,
@@ -189,12 +188,15 @@ export const endpointHttpResponseItems = {
 };
 
 const agent = new FieldObject<IAgent>().setName('Agent').setFields({
-  agentId: new FieldString().setRequired(true).setDescription('Agent ID.'),
+  agentId: new FieldString()
+    .setRequired(true)
+    .setDescription('Agent ID. Possible agents are users and agent tokens.'),
   agentType: new FieldString()
     .setRequired(true)
     .setDescription('Agent type')
     .setExample(AppResourceType.AgentToken)
     .setValid(VALID_AGENT_TYPES),
+  agentTokenId: new FieldString().setRequired(true).setDescription('Agent token ID.'),
 });
 const date = new FieldString().setRequired(false).setDescription('Date string.');
 const id = new FieldString()
@@ -246,7 +248,6 @@ const assignPermissionGroup = new FieldObject<IAssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
   .setFields({
     permissionGroupId: id,
-    order: new FieldNumber().setInteger(true).setMin(0),
   });
 const assignPermissionGroupList = new FieldArray()
   .setType(assignPermissionGroup)
@@ -302,25 +303,25 @@ const folderNamePath = new FieldArray()
 const action = new FieldString()
   .setRequired(true)
   .setDescription('Action')
-  .setExample(BasicCRUDActions.Create)
-  .setValid(Object.values(BasicCRUDActions));
+  .setExample(AppActionType.Create)
+  .setValid(Object.values(AppActionType));
 const nonWorkspaceAction = new FieldString()
   .setRequired(true)
   .setDescription('Action')
-  .setExample(BasicCRUDActions.Create)
+  .setExample(AppActionType.Create)
   .setValid(getNonWorkspaceActionList());
 const resourceType = new FieldString()
   .setRequired(true)
   .setDescription('Resource type.')
   .setExample(AppResourceType.File)
   .setValid(Object.values(AppResourceType));
-const appliesTo = new FieldString()
-  .setRequired(true)
-  .setDescription(
-    "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
-  )
-  .setExample(PermissionItemAppliesTo.ContainerAndChildren)
-  .setValid(Object.values(PermissionItemAppliesTo));
+// const appliesTo = new FieldString()
+//   .setRequired(true)
+//   .setDescription(
+//     "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
+//   )
+//   .setExample(PermissionItemAppliesTo.ContainerAndChildren)
+//   .setValid(Object.values(PermissionItemAppliesTo));
 const page = new FieldNumber()
   .setDescription(
     'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'
@@ -364,7 +365,7 @@ export const fReusables = {
   resourceType,
   permissionGroupId,
   permissionItemId,
-  appliesTo,
+  // appliesTo,
   page,
   pageSize,
   dateOrUndefined: orUndefined(date),
@@ -390,4 +391,5 @@ export const fReusables = {
   fileIdNotRequired: cloneAndMarkNotRequired(fileId),
   pageNotRequired: cloneAndMarkNotRequired(page),
   pageSizeNotRequired: cloneAndMarkNotRequired(pageSize),
+  rootnameNotRequired: cloneAndMarkNotRequired(workspaceRootname),
 };

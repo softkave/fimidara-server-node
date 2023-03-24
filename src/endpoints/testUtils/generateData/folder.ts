@@ -4,6 +4,7 @@ import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 
 export function generateTestFolderName() {
@@ -12,7 +13,9 @@ export function generateTestFolderName() {
     : faker.lorem.words();
 }
 
-export function generateTestFolder(extra: Partial<IFolder> = {}) {
+export function generateTestFolder(
+  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
+) {
   const id = getNewIdForResource(AppResourceType.Folder);
   const name = faker.lorem.words();
   const createdAt = getTimestamp();
@@ -32,7 +35,10 @@ export function generateTestFolder(extra: Partial<IFolder> = {}) {
   return folder;
 }
 
-export function generateTestFolders(count = 20, extra: Partial<IFolder> = {}) {
+export function generateTestFolders(
+  count = 20,
+  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
+) {
   const folders: IFolder[] = [];
   for (let i = 0; i < count; i++) {
     folders.push(generateTestFolder(extra));
@@ -43,9 +49,11 @@ export function generateTestFolders(count = 20, extra: Partial<IFolder> = {}) {
 export async function generateAndInsertTestFolders(
   ctx: IBaseContext,
   count = 20,
-  extra: Partial<IFolder> = {}
+  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFolders(count, extra);
-  await ctx.semantic.folder.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.folder.insertItem(items, opts)
+  );
   return items;
 }

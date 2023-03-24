@@ -1,4 +1,4 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -17,7 +17,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     context,
     agent,
     data.tagId,
-    BasicCRUDActions.Read
+    AppActionType.Read
   );
   const tagUpdate: Partial<ITag> = {
     ...data.tag,

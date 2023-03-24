@@ -56,6 +56,7 @@ const permissionGroup = new FieldObject<ExcludeTags<IPublicPermissionGroup>>()
     name: fReusables.name,
     description: fReusables.descriptionOrUndefined,
     workspaceId: fReusables.workspaceId,
+    providedResourceId: fReusables.providedResourceIdOrUndefined,
   });
 
 const permissionGroupId = fReusables.permissionGroupId

@@ -1,4 +1,4 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {getWorkspaceFromEndpointInput} from '../../utils';
 import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
@@ -18,7 +18,7 @@ const countEntityPermissionItems: CountEntityPermissionItemsEndpoint = async (
     agent,
     workspace.resourceId,
     [data.entityId],
-    BasicCRUDActions.Read
+    AppActionType.Read
   );
   await getEntityPermissionItemsQuery(context, agent, workspace, data);
   const count = await context.semantic.permissionItem.countByQuery({

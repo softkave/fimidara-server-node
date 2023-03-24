@@ -1,4 +1,4 @@
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
@@ -33,7 +33,7 @@ export async function checkCollaboratorAuthorization(
   agent: ISessionAgent,
   workspaceId: string,
   collaborator: IUserWithWorkspace,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
   if (!userWorkspace) {
@@ -56,7 +56,7 @@ export async function checkCollaboratorAuthorization02(
   agent: ISessionAgent,
   workspaceId: string,
   collaboratorId: string,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const user = await context.semantic.user.getOneById(collaboratorId);
   assertUser(user);

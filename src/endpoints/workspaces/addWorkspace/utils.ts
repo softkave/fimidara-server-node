@@ -1,8 +1,8 @@
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceActionList,
   IAgent,
 } from '../../../definitions/system';
@@ -47,7 +47,7 @@ function generateCollaboratorPermissions(
   permissiongroup: IPermissionGroup
 ) {
   function makePermission(
-    actions: BasicCRUDActions[],
+    actions: AppActionType[],
     targetType: AppResourceType,
     targetId?: string
   ) {
@@ -73,27 +73,27 @@ function generateCollaboratorPermissions(
 
   let permissionItems: IPermissionItem[] = [];
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.Workspace, workspace.resourceId)
+    makePermission([AppActionType.Read], AppResourceType.Workspace, workspace.resourceId)
   );
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.AgentToken, undefined)
+    makePermission([AppActionType.Read], AppResourceType.AgentToken, undefined)
   );
   permissionItems = permissionItems.concat(
     makePermission(
-      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      [AppActionType.Create, AppActionType.Update, AppActionType.Read],
       AppResourceType.Folder,
       undefined
     )
   );
   permissionItems = permissionItems.concat(
     makePermission(
-      [BasicCRUDActions.Create, BasicCRUDActions.Update, BasicCRUDActions.Read],
+      [AppActionType.Create, AppActionType.Update, AppActionType.Read],
       AppResourceType.File,
       undefined
     )
   );
   permissionItems = permissionItems.concat(
-    makePermission([BasicCRUDActions.Read], AppResourceType.User, undefined)
+    makePermission([AppActionType.Read], AppResourceType.User, undefined)
   );
 
   return permissionItems;

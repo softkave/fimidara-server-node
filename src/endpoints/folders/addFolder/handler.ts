@@ -1,15 +1,13 @@
 import {last} from 'lodash';
 import {IFolder} from '../../../definitions/folder';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
-  IPublicAccessOp,
   ISessionAgent,
   PERMISSION_AGENT_TYPES,
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
@@ -27,7 +25,6 @@ import {
   ISemanticDataAccessProviderRunOptions,
 } from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
-import {addPublicPermissionGroupAccessOps} from '../../permissionItems/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderExtractor, splitPathWithDetails} from '../utils';
 import {AddFolderEndpoint, INewFolderInput} from './types';
@@ -80,7 +77,7 @@ export async function createFolderList(
       ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
       : getWorkspacePermissionContainers(workspace.resourceId),
     targets: [{type: AppResourceType.Folder}],
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
   });
 
   let previousFolder = closestExistingFolder;
@@ -116,26 +113,46 @@ export async function createFolderList(
   }
 
   if (newFolders.length) {
-    const publicAccessOps: IPublicAccessOp[] = input.publicAccessOps
-      ? input.publicAccessOps.map(op => ({
-          ...op,
-          markedAt: getTimestamp(),
-          markedBy: agent,
-        }))
-      : [];
     const mainFolder = last(newFolders);
     appAssert(mainFolder, new ServerError('Error creating folder.'));
+    // const items: IPermissionItemInput[] = input.publicAccessOps
+    //   ? input.publicAccessOps.map(op => {
+    //       if (op.appliesToFolder && op.resourceType === AppResourceType.Folder) {
+    //         return {
+    //           action: op.action,
+    //           target: [{targetType: op.resourceType}, {targetId: mainFolder.resourceId}],
+    //           container: {containerId: mainFolder.resourceId},
+    //         };
+    //       } else {
+    //         return {
+    //           action: op.action,
+    //           target: {targetType: op.resourceType},
+    //           container: {containerId: mainFolder.resourceId},
+    //         };
+    //       }
+    //     })
+    //   : [];
+
     await Promise.all([
       context.semantic.folder.insertItem(newFolders, opts),
-      publicAccessOps.length &&
-        addPublicPermissionGroupAccessOps(
-          context,
-          agent,
-          workspace,
-          publicAccessOps,
-          mainFolder,
-          opts
-        ),
+      saveResourceAssignedItems(
+        context,
+        agent,
+        workspace,
+        mainFolder.resourceId,
+        input,
+        /** delete existing */ false,
+        opts
+      ),
+      // publicAccessOps.length &&
+      //   updatePublicPermissionGroupAccessOps(
+      //     context,
+      //     agent,
+      //     workspace,
+      //     publicAccessOps,
+      //     mainFolder,
+      //     opts
+      //   ),
     ]);
   }
 
@@ -155,7 +172,6 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     return createFolderList(context, agent, workspace, data.folder, {transaction: txn});
   });
   appAssert(folder, new ServerError('Error creating folder.'));
-  await saveResourceAssignedItems(context, agent, workspace, folder.resourceId, data.folder, false);
   folder = await populateAssignedTags(context, folder.workspaceId, folder);
   return {folder: folderExtractor(folder)};
 };

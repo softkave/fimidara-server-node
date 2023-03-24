@@ -1,7 +1,12 @@
 import {first} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {
+  AppActionType,
+  AppResourceType,
+  IResourceWrapper,
+  ISessionAgent,
+} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {
@@ -12,7 +17,6 @@ import {
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../../errors';
-import {IResourceContainer} from '../../resources/types';
 import {
   checkPermissionContainersExist,
   checkPermissionTargetsExist,
@@ -29,7 +33,7 @@ export async function getResourcePermissionItemsQuery(
     context,
     agent,
     workspaceId: workspace.resourceId,
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
     targets: {type: AppResourceType.PermissionItem},
   });
   appAssert(
@@ -37,9 +41,9 @@ export async function getResourcePermissionItemsQuery(
     new InvalidRequestError('Provide target ID or target type.')
   );
 
-  let target: IResourceContainer | undefined = undefined,
+  let target: IResourceWrapper | undefined = undefined,
     containerId = data.containerId ?? workspace.resourceId,
-    permissionContainer: IResourceContainer | undefined = undefined;
+    permissionContainer: IResourceWrapper | undefined = undefined;
 
   if (data.targetId) {
     const targetsCheckResult = await checkPermissionTargetsExist(
@@ -47,7 +51,7 @@ export async function getResourcePermissionItemsQuery(
       agent,
       workspace.resourceId,
       [data.targetId],
-      BasicCRUDActions.Read
+      AppActionType.Read
     );
     target = first(targetsCheckResult.resources);
     appAssert(target, new NotFoundError('Permission target not found.'));
@@ -59,7 +63,7 @@ export async function getResourcePermissionItemsQuery(
       agent,
       workspace.resourceId,
       [containerId],
-      BasicCRUDActions.Read
+      AppActionType.Read
     );
     permissionContainer = first(containersCheckResult.resources);
     appAssert(permissionContainer, new NotFoundError('Permission container not found.'));
@@ -91,7 +95,7 @@ export async function getResourcePermissionItemsQuery(
     workspaceId: data.workspaceId,
     containerId: {$in: containerIdList},
     targetType: data.targetType
-      ? {$in: [AppResourceType.All, data.targetType]}
+      ? {$in: [AppResourceType.All, data.targetType] as any[]}
       : {$eq: AppResourceType.All},
     targetId: data.targetId ? {$in: [data.targetId, null]} : null,
   };

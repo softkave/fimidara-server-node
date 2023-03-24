@@ -1,5 +1,5 @@
 import {IFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions, PERMISSION_AGENT_TYPES} from '../../definitions/system';
+import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
@@ -28,7 +28,7 @@ async function insertRecord(
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
   );
-  const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
+  const allowed = await ctx.logic.usageRecord.insert(ctx, agent, input);
   if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
   }
@@ -40,7 +40,7 @@ export async function insertStorageUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Create,
+  action: AppActionType = AppActionType.Create,
   artifactMetaInput: Partial<IFileUsageRecordArtifact> = {},
   nothrow = false
 ) {
@@ -72,7 +72,7 @@ export async function insertBandwidthInUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Create,
+  action: AppActionType = AppActionType.Create,
   nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
@@ -102,7 +102,7 @@ export async function insertBandwidthOutUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Read,
+  action: AppActionType = AppActionType.Read,
   nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {

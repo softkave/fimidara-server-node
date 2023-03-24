@@ -1,4 +1,7 @@
-import {IPermissionGroupMatcher, IPublicPermissionGroup} from '../../../definitions/permissionGroups';
+import {
+  IPermissionGroupMatcher,
+  IPublicPermissionGroup,
+} from '../../../definitions/permissionGroups';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {INewPermissionGroupInput} from '../addPermissionGroup/types';

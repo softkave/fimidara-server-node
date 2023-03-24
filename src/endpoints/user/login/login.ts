@@ -1,6 +1,7 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {InvalidEmailOrPasswordError} from '../errors';
 import {LoginEndpoint} from './types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
@@ -18,11 +19,13 @@ const login: LoginEndpoint = async (context, instData) => {
     throw new InvalidEmailOrPasswordError();
   }
 
-  const [userToken, clientAssignedToken, userWithWorkspaces] = await Promise.all([
-    getUserToken(context, user.resourceId),
-    getUserClientAssignedToken(context, user.resourceId),
-    populateUserWorkspaces(context, user),
-  ]);
+  const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
+    Promise.all([
+      getUserToken(context, user.resourceId, opts),
+      getUserClientAssignedToken(context, user.resourceId, opts),
+    ])
+  );
+  const userWithWorkspaces = await populateUserWorkspaces(context, user);
   return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);
 };
 

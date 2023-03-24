@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
+import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext, insertUserForTest} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 
@@ -17,8 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('user signup successful with token creation', async () => {

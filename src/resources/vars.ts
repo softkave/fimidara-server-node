@@ -1,6 +1,7 @@
 import assert = require('assert');
 import {isObject, isUndefined, merge, mergeWith} from 'lodash';
 import {cast, getFirstArg} from '../utils/fns';
+import {getNewId} from '../utils/resourceId';
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
 
@@ -100,6 +101,7 @@ interface ISuppliedVariables {
 }
 
 interface IStaticVariables {
+  serverInstanceId: string;
   appName: string;
   appDefaultEmailAddressFrom: string;
   awsEmailEncoding: string;
@@ -250,6 +252,7 @@ export function extractEnvVariables(
     appWorkspaceId: '',
     appWorkspacesImageUploadPermissionGroupId: '',
     appUsersImageUploadPermissionGroupId: '',
+    serverInstanceId: getNewId(),
 
     ...base,
     ...envVariables,

@@ -173,13 +173,15 @@ export abstract class BaseMongoDataProvider<
     type MongoBulkOpsType = Parameters<Model02['bulkWrite']>[0];
     const mongoOps: MongoBulkOpsType = [];
 
-    ops.map(op => {
+    ops.forEach(op => {
       let mongoOp: MongoBulkOpsType[number] | null = null;
+
       switch (op.type) {
-        case BulkOpType.InsertOne:
+        case BulkOpType.InsertOne: {
           mongoOp = {insertOne: {document: op.item as any}};
           break;
-        case BulkOpType.UpdateOne:
+        }
+        case BulkOpType.UpdateOne: {
           mongoOp = {
             updateOne: {
               filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
@@ -188,7 +190,8 @@ export abstract class BaseMongoDataProvider<
             },
           };
           break;
-        case BulkOpType.UpdateMany:
+        }
+        case BulkOpType.UpdateMany: {
           mongoOp = {
             updateMany: {
               filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
@@ -196,16 +199,19 @@ export abstract class BaseMongoDataProvider<
             },
           };
           break;
-        case BulkOpType.DeleteOne:
+        }
+        case BulkOpType.DeleteOne: {
           mongoOp = {
             deleteOne: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
           };
           break;
-        case BulkOpType.DeleteMany:
+        }
+        case BulkOpType.DeleteMany: {
           mongoOp = {
             deleteMany: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
           };
           break;
+        }
         default: // do nothing
       }
 
@@ -214,7 +220,7 @@ export abstract class BaseMongoDataProvider<
       }
     });
 
-    this.model.db.transaction(async session => {
+    await this.model.db.transaction(async session => {
       await this.model.bulkWrite(mongoOps, {session});
     });
   }

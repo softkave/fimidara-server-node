@@ -1,42 +1,56 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {noopAsync} from '../../../utils/fns';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {extractResourceIdList, noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
+import {DELETE_FILE_CASCADE_FNS} from '../../files/deleteFile/handler';
+import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import EndpointReusableQueries from '../../queries';
 import {DeleteResourceCascadeFnsMap} from '../../types';
 import {executeCascadeDelete} from '../../utils';
 import {checkWorkspaceAuthorization02} from '../utils';
 import {DeleteWorkspaceEndpoint} from './types';
 import {deleteWorkspaceJoiSchema} from './validation';
 
-const cascade: DeleteResourceCascadeFnsMap = {
+export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.All]: noopAsync,
   [AppResourceType.System]: noopAsync,
   [AppResourceType.Public]: noopAsync,
-  [AppResourceType.Workspace]: (context, workspaceId) =>
-    context.semantic.workspace.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.CollaborationRequest]: (context, workspaceId) =>
-    context.semantic.collaborationRequest.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.AgentToken]: (context, workspaceId) =>
-    context.semantic.agentToken.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.PermissionGroup]: (context, workspaceId) =>
-    context.semantic.permissionGroup.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.PermissionItem]: (context, workspaceId) =>
-    context.semantic.permissionItem.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.Folder]: (context, workspaceId) =>
-    context.semantic.folder.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.File]: async (context, workspaceId) => {
-    // TODO: use folders in S3 and delete just the workspace root folder to
-    // delete everything in it?
-    throw new Error('Delete files in AWS S3');
-    context.semantic.file.deleteManyByWorkspaceId(workspaceId);
-  },
   [AppResourceType.User]: noopAsync,
-  [AppResourceType.Tag]: (context, workspaceId) =>
-    context.semantic.tag.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.AssignedItem]: (context, workspaceId) =>
-    context.semantic.assignedItem.deleteManyByWorkspaceId(workspaceId),
-  [AppResourceType.UsageRecord]: (context, workspaceId) =>
-    context.semantic.usageRecord.deleteManyByWorkspaceId(workspaceId),
   [AppResourceType.EndpointRequest]: noopAsync,
+  [AppResourceType.Job]: (context, args) =>
+    context.data.job.deleteManyByQuery({workspaceId: args.workspaceId}),
+  [AppResourceType.Workspace]: (context, args, opts) =>
+    context.semantic.workspace.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.CollaborationRequest]: (context, args, opts) =>
+    context.semantic.collaborationRequest.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.AgentToken]: (context, args, opts) =>
+    context.semantic.agentToken.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.PermissionGroup]: (context, args, opts) =>
+    context.semantic.permissionGroup.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.PermissionItem]: (context, args, opts) =>
+    context.semantic.permissionItem.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.Folder]: (context, args, opts) =>
+    context.semantic.folder.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.File]: async (context, args, opts) => {
+    const files = await context.semantic.file.getManyByLiteralDataQuery(
+      EndpointReusableQueries.getByWorkspaceId(args.workspaceId)
+    );
+    await Promise.all([
+      context.semantic.file.deleteManyByQuery(
+        EndpointReusableQueries.getByWorkspaceId(args.workspaceId),
+        opts
+      ),
+      executeCascadeDelete(context, DELETE_FILE_CASCADE_FNS, {
+        workspaceId: args.workspaceId,
+        fileIdList: extractResourceIdList(files),
+      }),
+    ]);
+  },
+  [AppResourceType.Tag]: (context, args, opts) =>
+    context.semantic.tag.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.AssignedItem]: (context, args, opts) =>
+    context.semantic.assignedItem.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.UsageRecord]: (context, args, opts) =>
+    context.semantic.usageRecord.deleteManyByWorkspaceId(args.workspaceId, opts),
 };
 
 const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
@@ -45,11 +59,17 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    BasicCRUDActions.Delete,
+    AppActionType.Delete,
     data.workspaceId
   );
-
-  await executeCascadeDelete(context, workspace.resourceId, cascade);
+  const job = await enqueueDeleteResourceJob(context, {
+    type: AppResourceType.Workspace,
+    args: {
+      workspaceId: workspace.resourceId,
+      resourceId: workspace.resourceId,
+    },
+  });
+  return {jobId: job.resourceId};
 };
 
 export default deleteWorkspace;

@@ -1,4 +1,4 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
@@ -16,7 +16,7 @@ export async function getWorkspaceCollaboratorsQuery(
     agent,
     workspaceId: workspace.resourceId,
     targets: {type: AppResourceType.User},
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
   });
 
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {

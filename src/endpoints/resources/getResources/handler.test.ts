@@ -1,20 +1,18 @@
 import {faker} from '@faker-js/faker';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceActionList,
   IResource,
 } from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import addPermissionItems from '../../permissionItems/addItems/handler';
-import {
-  IAddPermissionItemsEndpointParams,
-  INewPermissionItemInput,
-} from '../../permissionItems/addItems/types';
+import {IAddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types';
+import {IPermissionItemInput} from '../../permissionItems/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -37,8 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getResources', () => {
@@ -51,16 +48,19 @@ describe('getResources', () => {
       userToken,
       workspace.resourceId
     );
-    const inputItems: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
-      action: action as BasicCRUDActions,
+    const inputItems: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+      action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
-      targetType: AppResourceType.Workspace,
-      targetId: workspace.resourceId,
+      target: {targetId: workspace.resourceId},
     }));
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {items: inputItems, workspaceId: workspace.resourceId, entityId: permissionGroup.resourceId}
+        {
+          items: inputItems,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: permissionGroup.resourceId},
+        }
       );
     const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
     assertEndpointResultOk(addPermissionItemsResult);

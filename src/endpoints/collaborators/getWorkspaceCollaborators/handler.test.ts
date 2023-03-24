@@ -3,10 +3,10 @@ import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -31,8 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getWorkspaceCollaborators', () => {
@@ -57,7 +56,7 @@ describe('getWorkspaceCollaborators', () => {
     );
   });
 
-  test.only('pagination', async () => {
+  test('pagination', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);

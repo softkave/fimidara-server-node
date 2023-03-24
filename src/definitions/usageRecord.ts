@@ -1,6 +1,6 @@
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   ConvertAgentToPublicAgent,
   IWorkspaceResource,
 } from './system';
@@ -22,7 +22,7 @@ export enum UsageRecordArtifactType {
 export interface IUsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
-  action?: BasicCRUDActions;
+  action?: AppActionType;
   artifact: IFileUsageRecordArtifact | IBandwidthUsageRecordArtifact;
 }
 

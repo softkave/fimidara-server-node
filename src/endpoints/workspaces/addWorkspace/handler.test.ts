@@ -2,10 +2,10 @@ import {faker} from '@faker-js/faker';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -24,8 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('addWorkspace', () => {

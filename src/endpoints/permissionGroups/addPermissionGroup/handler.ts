@@ -1,10 +1,12 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {permissionGroupExtractor} from '../utils';
@@ -21,27 +23,38 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     agent,
     workspaceId: workspace.resourceId,
     targets: [{type: AppResourceType.PermissionGroup}],
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
   });
 
-  await checkPermissionGroupNameExists(context, workspace.resourceId, data.permissionGroup.name);
-  let permissionGroup = newWorkspaceResource(
-    agent,
-    AppResourceType.PermissionGroup,
-    workspace.resourceId,
-    {
-      ...data.permissionGroup,
-      workspaceId: workspace.resourceId,
-    }
-  );
-  await context.semantic.permissionGroup.insertItem(permissionGroup);
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    permissionGroup.resourceId,
-    data.permissionGroup
-  );
+  let permissionGroup = await executeWithMutationRunOptions(context, async opts => {
+    await checkPermissionGroupNameExists(
+      context,
+      workspace.resourceId,
+      data.permissionGroup.name,
+      opts
+    );
+    const permissionGroup = newWorkspaceResource<IPermissionGroup>(
+      agent,
+      AppResourceType.PermissionGroup,
+      workspace.resourceId,
+      {
+        ...data.permissionGroup,
+        workspaceId: workspace.resourceId,
+      }
+    );
+    await context.semantic.permissionGroup.insertItem(permissionGroup, opts);
+    await saveResourceAssignedItems(
+      context,
+      agent,
+      workspace,
+      permissionGroup.resourceId,
+      data.permissionGroup,
+      /** delete existing */ false,
+      opts
+    );
+    return permissionGroup;
+  });
+
   permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,

@@ -33,9 +33,9 @@ function makeArrayLike<T>(obj: {
   return proxy as ArrayLike<T> & typeof proxy;
 }
 
-export class StaticStackedArray<T> {
-  static from<T>(parent?: StaticStackedArray<T>) {
-    return new StaticStackedArray(parent);
+export class StackedArray<T> {
+  static from<T>(parent?: StackedArray<T>) {
+    return new StackedArray(parent);
   }
 
   protected splits: Array<{
@@ -45,14 +45,14 @@ export class StaticStackedArray<T> {
   protected arrays: Array<T[]> = [];
   protected ownLength = 0;
 
-  constructor(protected parentRef?: StaticStackedArray<T>) {}
+  constructor(protected parentRef?: StackedArray<T>) {}
 
   get length(): number {
     return this.parentRef ? this.parentRef.length + this.ownLength : this.ownLength;
   }
 
   push(item: T | T[]) {
-    const items = toArray(item);
+    const items = toArray(item ?? []);
 
     if (this.parentRef) {
       const split = last(this.splits);
@@ -95,7 +95,7 @@ export class StaticStackedArray<T> {
     return {splits, arrays, ownLength};
   }
 
-  merge(source: StaticStackedArray<T>) {
+  merge(source: StackedArray<T>) {
     appAssert(
       !this.parentRef,
       new ServerError(),
@@ -127,6 +127,16 @@ export class StaticStackedArray<T> {
     }
 
     return false;
+  }
+
+  inplaceFilter(fn: (stack: T[]) => {stack: T[]; stop?: boolean}) {
+    for (let i = 0; i < this.arrays.length; i++) {
+      const {stack, stop} = fn(this.arrays[i]);
+      this.arrays[i] = stack;
+      if (stop) break;
+    }
+
+    if (this.parentRef) this.parentRef.inplaceFilter(fn);
   }
 
   protected pushIntoOwnArray(items: T[]) {

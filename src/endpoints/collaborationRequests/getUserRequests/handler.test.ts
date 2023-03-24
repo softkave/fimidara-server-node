@@ -1,9 +1,9 @@
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -27,8 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getUserRequests', () => {

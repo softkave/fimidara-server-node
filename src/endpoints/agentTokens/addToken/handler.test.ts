@@ -1,7 +1,7 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -24,8 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
-  await disposeGlobalUtils();
+  await completeTest({context});
 });
 
 test('program access token added', async () => {

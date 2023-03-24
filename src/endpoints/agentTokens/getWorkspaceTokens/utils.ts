@@ -1,4 +1,4 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
@@ -14,7 +14,7 @@ export async function getWorkspaceAgentTokensQuery(
     agent,
     workspaceId: workspace.resourceId,
     targets: {type: AppResourceType.AgentToken},
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
   });
   return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);
 }

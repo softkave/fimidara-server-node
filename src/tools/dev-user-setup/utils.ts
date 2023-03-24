@@ -13,6 +13,11 @@ import {
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import {assertCollaborationRequest} from '../../endpoints/collaborationRequests/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
+import {
+  ISemanticDataAccessProviderMutationRunOptions,
+  ISemanticDataAccessProviderRunOptions,
+} from '../../endpoints/contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
 import {IBaseContext} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
@@ -20,8 +25,9 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
+  ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
-import {consoleLogger} from '../../endpoints/globalUtils';
+import {consoleLogger, disposeApplicationGlobalUtilities} from '../../endpoints/globalUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
@@ -71,6 +77,7 @@ async function setupContext() {
     () => connection.close()
   );
 
+  await ingestDataIntoMemStore(ctx);
   return ctx;
 }
 
@@ -111,10 +118,15 @@ async function promptUserInfo() {
 async function isUserAdmin(
   context: IBaseContext,
   userId: string,
-  workspaceId: string,
-  adminPermissionGroupId: string
+  adminPermissionGroupId: string,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(context, userId, true);
+  const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
+    context,
+    userId,
+    /** include inherited permission groups */ true,
+    opts
+  );
   const isAdmin = !!inheritanceMap[adminPermissionGroupId];
   return isAdmin;
 }
@@ -123,9 +135,10 @@ async function makeUserAdmin(
   context: IBaseContext,
   userId: string,
   workspace: IWorkspace,
-  adminPermissionGroupId: string
+  adminPermissionGroupId: string,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  const isAdmin = await isUserAdmin(context, userId, workspace.resourceId, adminPermissionGroupId);
+  const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
   if (!isAdmin) {
     consoleLogger.info('Making user admin');
     await addAssignedPermissionGroupList(
@@ -135,19 +148,21 @@ async function makeUserAdmin(
       [{permissionGroupId: adminPermissionGroupId}],
       userId,
       /* deleteExisting */ false,
-      true
+      /** skip permission groups check */ false,
+      /** skip auth check */ true,
+      opts
     );
   }
 }
 
-async function getUser(context: IBaseContext, options: AppRuntimeOptions) {
-  const {email} = await options.getUserEmail();
+async function getUser(context: IBaseContext, runtimeOptions: AppRuntimeOptions) {
+  const {email} = await runtimeOptions.getUserEmail();
   const userExists = await context.semantic.user.existsByEmail(email);
   let user: IUserWithWorkspace;
   if (userExists) {
     user = await getCompleteUserDataByEmail(context, email);
   } else {
-    const userInfo = await options.getUserInfo();
+    const userInfo = await runtimeOptions.getUserInfo();
     user = await internalSignupUser(context, {...userInfo, email});
   }
 
@@ -164,47 +179,77 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
 
   const context = await setupContext();
   const workspace = await setupApp(context);
-  const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
-    workspace.resourceId,
-    DEFAULT_ADMIN_PERMISSION_GROUP_NAME
-  );
-  assertPermissionGroup(adminPermissionGroup);
 
-  const user = await getUser(context, appOptions);
-  const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
-  if (isInWorkspace) {
-    await makeUserAdmin(context, user.resourceId, workspace, adminPermissionGroup.resourceId);
-  } else {
-    const request = await context.semantic.collaborationRequest.getOneByEmail(user.email);
-    assertCollaborationRequest(request);
+  await executeWithMutationRunOptions(context, async opts => {
+    const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
+      workspace.resourceId,
+      DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+      opts
+    );
+    assertPermissionGroup(adminPermissionGroup);
 
-    if (request) {
-      consoleLogger.info('Existing collaboration request found');
-      consoleLogger.info(`Accepting request ${request.resourceId}`);
-      const agentToken = await context.semantic.agentToken.getOneAgentToken(
+    const user = await getUser(context, appOptions);
+    const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
+
+    if (isInWorkspace) {
+      await makeUserAdmin(
+        context,
         user.resourceId,
-        TokenAccessScope.Login
+        workspace,
+        adminPermissionGroup.resourceId,
+        opts
       );
-      assertAgentToken(agentToken);
-      const agent = makeUserSessionAgent(user, agentToken);
-      await internalRespondToCollaborationRequest(context, agent, {
-        requestId: request.resourceId,
-        response: CollaborationRequestStatusType.Accepted,
-      });
     } else {
-      consoleLogger.info('Adding user to workspace');
-      await assignWorkspaceToUser(context, SYSTEM_SESSION_AGENT, workspace.resourceId, user);
+      const request = await context.semantic.collaborationRequest.getOneByEmail(user.email, opts);
+      assertCollaborationRequest(request);
+
+      if (request) {
+        consoleLogger.info('Existing collaboration request found');
+        consoleLogger.info(`Accepting request ${request.resourceId}`);
+        const agentToken = await context.semantic.agentToken.getOneAgentToken(
+          user.resourceId,
+          TokenAccessScope.Login,
+          opts
+        );
+        assertAgentToken(agentToken);
+        const agent = makeUserSessionAgent(user, agentToken);
+        await internalRespondToCollaborationRequest(
+          context,
+          agent,
+          {
+            requestId: request.resourceId,
+            response: CollaborationRequestStatusType.Accepted,
+          },
+          opts
+        );
+      } else {
+        consoleLogger.info('Adding user to workspace');
+        await assignWorkspaceToUser(
+          context,
+          SYSTEM_SESSION_AGENT,
+          workspace.resourceId,
+          user.resourceId,
+          opts
+        );
+      }
+
+      await makeUserAdmin(
+        context,
+        user.resourceId,
+        workspace,
+        adminPermissionGroup.resourceId,
+        opts
+      );
     }
 
-    await makeUserAdmin(context, user.resourceId, workspace, adminPermissionGroup.resourceId);
-  }
+    if (!user.isEmailVerified) {
+      consoleLogger.info(`Verifying email address for user ${user.email}`);
+      await internalConfirmEmailAddress(context, user.resourceId, user);
+    }
 
-  if (!user.isEmailVerified) {
-    consoleLogger.info(`Verifying email address for user ${user.email}`);
-    await internalConfirmEmailAddress(context, user.resourceId, user);
-  }
+    consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
+  });
 
-  consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
+  disposeApplicationGlobalUtilities();
   await context.dispose();
-  return {user, workspace, adminPermissionGroup};
 }

@@ -9,8 +9,9 @@ import {
 import {IUser} from '../../../definitions/user';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
+import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
@@ -22,22 +23,23 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 async function createTestEmailVerificationToken(userId: string) {
   assertContext(context);
-  const token: IAgentToken = newResource(AppResourceType.AgentToken, {
+  const token = newResource<IAgentToken>(AppResourceType.AgentToken, {
     separateEntityId: userId,
-    tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
+    scope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
     agentType: AppResourceType.User,
     workspaceId: null,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.agentToken.insertItem(token);
+  await executeWithMutationRunOptions(context, opts =>
+    context!.semantic.agentToken.insertItem(token, opts)
+  );
   return token;
 }
 

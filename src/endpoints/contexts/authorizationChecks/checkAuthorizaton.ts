@@ -2,8 +2,8 @@ import {compact, isUndefined} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceActionList,
   getWorkspaceResourceTypeList,
   ISessionAgent,
@@ -27,18 +27,19 @@ export interface ICheckAuthorizationParams {
   workspaceId: string;
   containerId?: string | string[];
   targets: AuthTarget | Array<AuthTarget>;
-  action: BasicCRUDActions;
+  action: AppActionType;
+  // appliesTo: PermissionItemAppliesTo;
 }
 
 type AccessMap = Partial<Record<string, IPermissionItem>>;
 export interface IAuthAccessCheckers {
   checkForTargetId: (
-    action: BasicCRUDActions,
+    action: AppActionType,
     targetId: string,
     nothrow?: boolean
   ) => IPermissionItem | false;
   checkForTargetType: (
-    action: BasicCRUDActions,
+    action: AppActionType,
     type: AppResourceType,
     nothrow?: boolean
   ) => IPermissionItem | false;
@@ -69,7 +70,7 @@ function newAccessChecker(
   const reportConflictingAccess = (
     accessItem: IPermissionItem,
     denyItem: IPermissionItem,
-    action: BasicCRUDActions,
+    action: AppActionType,
     targetType: AppResourceType,
     targetId?: string
   ) => {
@@ -80,7 +81,7 @@ function newAccessChecker(
 
   const produceCheckResult = (
     keys: string[],
-    action: BasicCRUDActions,
+    action: AppActionType,
     targetType: AppResourceType,
     targetId?: string,
     nothrow = false
@@ -97,12 +98,12 @@ function newAccessChecker(
   };
 
   const accessChecker: IAuthAccessCheckers = {
-    checkForTargetId: (action: BasicCRUDActions, targetId: string, nothrow = false) => {
+    checkForTargetId: (action: AppActionType, targetId: string, nothrow = false) => {
       const type = getResourceTypeFromId(targetId);
       const keys = keyFn({action, targetId, targetType: type});
       return produceCheckResult(keys, action, type, targetId, nothrow);
     },
-    checkForTargetType: (action: BasicCRUDActions, type: AppResourceType, nothrow = false) => {
+    checkForTargetType: (action: AppActionType, type: AppResourceType, nothrow = false) => {
       const keys = keyFn({action, targetType: type});
       return produceCheckResult(keys, action, type, undefined, nothrow);
     },
@@ -138,7 +139,7 @@ export async function fetchAgentPermissionItems(
   params: ICheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
   const {context, agent, workspaceId, targets} = params;
-  if (agent.user && !agent.user.isEmailVerified && params.action !== BasicCRUDActions.Read) {
+  if (agent.user && !agent.user.isEmailVerified && params.action !== AppActionType.Read) {
     // Only read actions are permitted for user's who aren't email verified.
     throw new EmailAddressNotVerifiedError();
   }
@@ -159,7 +160,7 @@ export async function fetchAgentPermissionItems(
   });
 
   const entityIdList = sortedItemsList.map(item => item.id),
-    action = toArray(params.action).concat(BasicCRUDActions.All),
+    action = toArray(params.action).concat(AppActionType.All),
     targetsList = toArray(targets),
     targetId = compact(targetsList.map(item => item.targetId)),
     targetType = compact(targetsList.map(item => item.type)),
@@ -190,7 +191,7 @@ export function uniquePermissionItems(items: IPermissionItem[]) {
   const map: AccessMap = {};
 
   const getItemAccessKeys = (item: IPermissionItem) => {
-    const actions = item.action === BasicCRUDActions.All ? getWorkspaceActionList() : [item.action];
+    const actions = item.action === AppActionType.All ? getWorkspaceActionList() : [item.action];
     const resourceTypes =
       item.targetType === AppResourceType.All ? getWorkspaceResourceTypeList() : [item.targetType];
     const keys: string[] = [];
@@ -224,7 +225,7 @@ export function sortOutPermissionItems(items: IPermissionItem[]) {
     itemsDenyingAccess: AccessMap = {};
 
   const getItemAccessKeys = (item: Pick<IPermissionItem, 'targetId' | 'targetType' | 'action'>) => {
-    const actions = item.action === BasicCRUDActions.All ? getWorkspaceActionList() : [item.action];
+    const actions = item.action === AppActionType.All ? getWorkspaceActionList() : [item.action];
     const resourceTypes =
       item.targetType === AppResourceType.All ? getWorkspaceResourceTypeList() : [item.targetType];
     const keys: string[] = [];
@@ -315,11 +316,9 @@ export function getWorkspacePermissionContainers(workspaceId: string): string[] 
 }
 
 export function getFilePermissionContainers(workspaceId: string, resource: {idPath: string[]}) {
-  const folderIds = resource.idPath
-    .filter(id => {
-      return getResourceTypeFromId(id) === AppResourceType.Folder;
-    })
-    .concat(workspaceId);
+  const folderIds = [workspaceId]
+    .concat(resource.idPath.filter(id => getResourceTypeFromId(id) === AppResourceType.Folder))
+    .reverse();
   return getWorkspacePermissionContainers(workspaceId).concat(folderIds);
 }
 

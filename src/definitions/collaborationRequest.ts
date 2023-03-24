@@ -1,4 +1,3 @@
-import {IPublicAssignedPermissionGroupMeta} from './permissionGroups';
 import {ConvertAgentToPublicAgent, IPublicResource, IWorkspaceResource} from './system';
 
 export enum CollaborationRequestStatusType {
@@ -55,5 +54,5 @@ export type IPublicCollaborationRequestForUser = Pick<
 
 export type IPublicCollaborationRequestForWorkspace =
   ConvertAgentToPublicAgent<ICollaborationRequest> & {
-    permissionGroupsAssignedOnAcceptingRequest: IPublicAssignedPermissionGroupMeta[];
+    // permissionGroupsAssignedOnAcceptingRequest: IPublicAssignedPermissionGroupMeta[];
   };

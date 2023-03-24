@@ -1,6 +1,9 @@
-import {Model} from 'mongoose';
-import {IResource} from '../definitions/system';
+import {IAppRuntimeStateModel} from './appRuntimeState';
+import {IJobModel} from './job';
+import {IResourceModel} from './resource';
 
 export interface IAppMongoModels {
-  resource: Model<IResource>;
+  resource: IResourceModel;
+  job: IJobModel;
+  appRuntimeState: IAppRuntimeStateModel;
 }

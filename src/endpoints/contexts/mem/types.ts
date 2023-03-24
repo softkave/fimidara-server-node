@@ -16,35 +16,36 @@ import {LiteralDataQuery} from '../data/types';
 export enum MemStoreTransactionConsistencyOpTypes {
   Insert = 1,
   Update,
+  Delete,
 }
 
 export type MemStoreTransactionConsistencyOp = {
-  type: MemStoreTransactionConsistencyOpTypes.Insert | MemStoreTransactionConsistencyOpTypes.Update;
+  type: MemStoreTransactionConsistencyOpTypes;
   idList: string[];
   storeRef: IMemStore<IResource>;
 };
 
-export interface IMemStoreTransactionIndexView {}
+export type MemStoreTransactionCommitSyncFn = (
+  consistencyOps: MemStoreTransactionConsistencyOp[],
+  txn: IMemStoreTransaction
+) => Promise<void>;
 
 export interface IMemStoreTransaction {
   addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>): void;
   getFromCache<T extends IResource = IResource>(id: string): T | undefined;
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]): void;
-  commit(
-    syncFn: (
-      consistencyOps: MemStoreTransactionConsistencyOp[],
-      txn: IMemStoreTransaction
-    ) => Promise<void>
-  ): Promise<void>;
+  commit(syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
   terminate(): void;
   addIndexView(ref: IMemStoreIndex<IResource>, index: unknown): void;
   getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>): T | null;
   hasIndexView(ref: IMemStoreIndex<IResource>): boolean;
   setLock(storeRef: IMemStore<IResource>, lockId: number): void;
+  isItemDeleted(id: string): boolean;
 }
 
 export enum MemStoreIndexTypes {
   MapIndex = 1,
+  ArrayMapIndex,
   StaticTimestampIndex,
 }
 
@@ -61,9 +62,14 @@ export type MemStoreIndexOptions<T> = {
 export interface IMemStoreIndex<T extends IResource> {
   index(item: T | T[], transaction?: IMemStoreTransaction): void;
   commitView(view: unknown): void;
-  indexGet(key: unknown | unknown[]): string[];
-  traverse(fn: (id: string) => boolean, from?: number): void;
+  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[];
+  traverse(fn: (id: string) => boolean, from?: number, transaction?: IMemStoreTransaction): void;
   getOptions(): MemStoreIndexOptions<T>;
+  COMMIT_purge(item: T | T[]): void;
+}
+
+export interface IMemStoreOptions<T> {
+  insertFilter?: (item: T | T[]) => T[];
 }
 
 export interface IMemStore<T extends AnyObject> {
@@ -78,16 +84,8 @@ export interface IMemStore<T extends AnyObject> {
     update: Partial<T>,
     transaction: IMemStoreTransaction
   ): Promise<T[]>;
-  deleteItem(
-    query: LiteralDataQuery<T>,
-    update: Partial<T>,
-    transaction: IMemStoreTransaction
-  ): Promise<void>;
-  deleteManyItems(
-    query: LiteralDataQuery<T>,
-    update: Partial<T>,
-    transaction: IMemStoreTransaction
-  ): Promise<void>;
+  deleteItem(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction): Promise<void>;
+  deleteManyItems(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction): Promise<void>;
   readItem(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<T | null>;
   readManyItems(
     query: LiteralDataQuery<T>,
@@ -98,13 +96,30 @@ export interface IMemStore<T extends AnyObject> {
   countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<number>;
   exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<boolean>;
 
-  TRANSACTION_commitItems(items: T | T[]): void;
+  TRANSACTION_commitItems(items: T[]): void;
+  TRANSACTION_deleteItems(idList: string[]): void;
   UNSAFE_ingestItems(items: T | T[]): void;
-  UNSAFE_createItems(items: T | T[]): Promise<void>;
-  UNSAFE_updateItem(query: LiteralDataQuery<T>, update: Partial<T>): Promise<T | null>;
-  UNSAFE_updateManyItems(query: LiteralDataQuery<T>, update: Partial<T>): Promise<T[]>;
-  UNSAFE_deleteItem(query: LiteralDataQuery<T>, update: Partial<T>): Promise<T | null>;
-  UNSAFE_deleteManyItems(query: LiteralDataQuery<T>, update: Partial<T>): Promise<T[]>;
+  // ATOMIC_createItems(items: T | T[], syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
+  // ATOMIC_updateItem(
+  //   query: LiteralDataQuery<T>,
+  //   update: Partial<T>,
+  //   syncFn: MemStoreTransactionCommitSyncFn
+  // ): Promise<T | null>;
+  // ATOMIC_updateManyItems(
+  //   query: LiteralDataQuery<T>,
+  //   update: Partial<T>,
+  //   syncFn: MemStoreTransactionCommitSyncFn
+  // ): Promise<T[]>;
+  // ATOMIC_deleteItem(
+  //   query: LiteralDataQuery<T>,
+  //   update: Partial<T>,
+  //   syncFn: MemStoreTransactionCommitSyncFn
+  // ): Promise<T | null>;
+  // ATOMIC_deleteManyItems(
+  //   query: LiteralDataQuery<T>,
+  //   update: Partial<T>,
+  //   syncFn: MemStoreTransactionCommitSyncFn
+  // ): Promise<T[]>;
   releaseLock(lockId: number): void;
 }
 

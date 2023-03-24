@@ -25,8 +25,8 @@ import {
 import {fileConstants} from './constants';
 import {IDeleteFileEndpointParams} from './deleteFile/types';
 import {IGetFileDetailsEndpointParams, IGetFileDetailsEndpointResult} from './getFileDetails/types';
-import {IGetFileEndpointParams, IImageTransformationParams} from './readFile/types';
-import {IGetFileEndpointQueryParams} from './setupRESTEndpoints';
+import {IImageTransformationParams} from './readFile/types';
+import {IReadFileEndpointQueryParams} from './setupRESTEndpoints';
 import {
   IUpdateFileDetailsEndpointParams,
   IUpdateFileDetailsEndpointResult,
@@ -74,6 +74,7 @@ const file = new FieldObject<IPublicFile>().setName('File').setFields({
   lastUpdatedAt: fReusables.date,
   name: fReusables.filename,
   description: fReusables.descriptionOrUndefined,
+  providedResourceId: fReusables.providedResourceIdOrUndefined,
 });
 
 const updateFileDetailsInput = new FieldObject<ExcludeTags<IUpdateFileDetailsInput>>()
@@ -81,7 +82,7 @@ const updateFileDetailsInput = new FieldObject<ExcludeTags<IUpdateFileDetailsInp
   .setFields({
     description: fReusables.descriptionNotRequired,
     mimetype: mimetypeNotRequired,
-    publicAccessAction: uploadFilePublicAccessActionNotRequired,
+    // publicAccessAction: uploadFilePublicAccessActionNotRequired,
   });
 
 const fileMatcherParts: FieldObjectFields<IFileMatcher> = {
@@ -192,7 +193,7 @@ const updloadFileParams = new HttpEndpointMultipartFormdata().setItems(
       data: new FieldBinary().setRequired(true).setDescription('File binary.'),
       description: fReusables.descriptionNotRequired,
       mimetype: mimetypeNotRequired,
-      publicAccessAction: uploadFilePublicAccessActionNotRequired,
+      // publicAccessAction: uploadFilePublicAccessActionNotRequired,
       encoding: encodingNotRequired,
       extension: extensionNotRequired,
     })
@@ -214,13 +215,13 @@ const uploadFileResult = [
     ),
 ];
 
-export const getFileEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(fileConstants.routes.getFile)
+export const readFileEndpointDefinition = new HttpEndpointDefinition()
+  .setBasePathname(fileConstants.routes.readFile)
   .setParameterPathnames([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setQuery(
     asFieldObjectAny(
-      new FieldObject<IGetFileEndpointQueryParams>().setFields({
+      new FieldObject<IReadFileEndpointQueryParams>().setFields({
         w: widthNotRequired,
         h: heightNotRequired,
       })

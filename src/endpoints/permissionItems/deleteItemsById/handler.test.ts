@@ -1,13 +1,13 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertPermissionGroupForTest,
-  insertPermissionItemsForTestForEntity,
+  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -23,8 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('deleteItemsById', () => {
@@ -37,14 +36,12 @@ describe('deleteItemsById', () => {
       userToken,
       workspace.resourceId
     );
-    const {items} = await insertPermissionItemsForTestForEntity(
-      context,
-      mockExpressRequestWithAgentToken(userToken),
-      workspace.resourceId,
-      permissionGroup.resourceId,
-      {containerId: workspace.resourceId},
-      {targetType: AppResourceType.File}
-    );
+    const {items} = await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+      entity: {entityId: permissionGroup.resourceId},
+      target: {targetType: AppResourceType.File},
+      grantAccess: true,
+      action: AppActionType.Read,
+    });
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {

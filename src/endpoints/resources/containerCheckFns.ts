@@ -1,15 +1,14 @@
 import {format} from 'util';
 import {IFile} from '../../definitions/file';
 import {IFolder} from '../../definitions/folder';
-import {AppResourceType, IWorkspaceResource} from '../../definitions/system';
+import {AppResourceType, IResourceWrapper, IWorkspaceResource} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
-import {InvalidRequestError} from '../errors';
-import {IResourceContainer} from './types';
+import {NotFoundError} from '../errors';
 
-export function isResourcePartOfWorkspace(workspaceId: string, resource: IResourceContainer) {
+export function isResourcePartOfWorkspace(workspaceId: string, resource: IResourceWrapper) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === workspaceId;
@@ -22,14 +21,14 @@ export function isResourcePartOfWorkspace(workspaceId: string, resource: IResour
       return (resource.resource as IWorkspaceResource).workspaceId === workspaceId;
     case AppResourceType.User:
       const user = resource.resource as IUserWithWorkspace;
-      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
+      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
       return !!getCollaboratorWorkspace(resource.resource as IUserWithWorkspace, workspaceId);
     default:
       return false;
   }
 }
 
-export function isResourcePartOfContainer(containerId: string, resource: IResourceContainer) {
+export function isResourcePartOfContainer(containerId: string, resource: IResourceWrapper) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === containerId;
@@ -58,57 +57,48 @@ export function isResourcePartOfContainer(containerId: string, resource: IResour
   }
 }
 
-export function getResourcesNotPartOfWorkspace(
-  workspaceId: string,
-  resources: IResourceContainer[]
-) {
+export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
   return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResourceContainer[]) {
+export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
   return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function hasResourcesNotPartOfWorkspace(
-  workspaceId: string,
-  resources: IResourceContainer[]
-) {
+export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
   return getResourcesNotPartOfWorkspace(workspaceId, resources).length > 0;
+}
+
+function returnNotFoundError(outsideResources: IResourceWrapper[]) {
+  const message = format(
+    'The following resources do not exist \n%s',
+    outsideResources.map(item => item.resourceId).join(', ')
+  );
+  throw new NotFoundError(message);
 }
 
 export function checkResourcesBelongToWorkspace(
   workspaceId: string,
-  resources: IResourceContainer[]
+  resources: IResourceWrapper[],
+  getErrorFn = returnNotFoundError
 ) {
   const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
   if (outsideResources.length) {
-    const message = format(
-      'The following resources do not belong to workspace %s: \n%s',
-      workspaceId,
-      outsideResources.map(item => item.resourceId).join(', ')
-    );
-    throw new InvalidRequestError(message);
+    throw getErrorFn(outsideResources);
   }
 }
 
-export function getResourcesNotPartOfContainer(
-  containerId: string,
-  resources: IResourceContainer[]
-) {
+export function getResourcesNotPartOfContainer(containerId: string, resources: IResourceWrapper[]) {
   return resources.filter(item => !isResourcePartOfContainer(containerId, item));
 }
 
 export function checkResourcesBelongToContainer(
   containerId: string,
-  resources: IResourceContainer[]
+  resources: IResourceWrapper[],
+  getErrorFn = returnNotFoundError
 ) {
   const outsideResources = getResourcesNotPartOfContainer(containerId, resources);
   if (outsideResources.length) {
-    const message = format(
-      'The following resources do not belong to container %s: \n%s',
-      containerId,
-      outsideResources.map(item => item.resourceId).join(', ')
-    );
-    throw new InvalidRequestError(message);
+    throw getErrorFn(outsideResources);
   }
 }

@@ -1,4 +1,4 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -25,7 +25,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
     agent,
     workspace.resourceId,
     [data.entityId],
-    BasicCRUDActions.Read
+    AppActionType.Read
   );
   await getEntityPermissionItemsQuery(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);

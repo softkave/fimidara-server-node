@@ -1,4 +1,6 @@
 import {Connection} from 'mongoose';
+import {getAppRuntimeStateModel} from '../../db/appRuntimeState';
+import {getJobModel} from '../../db/job';
 import {getResourceModel} from '../../db/resource';
 import {IAppMongoModels} from '../../db/types';
 import {IAgentToken} from '../../definitions/agentToken';
@@ -8,12 +10,13 @@ import {IFile} from '../../definitions/file';
 import {IFolder} from '../../definitions/folder';
 import {IPermissionGroup} from '../../definitions/permissionGroups';
 import {IPermissionItem} from '../../definitions/permissionItem';
-import {IAppRuntimeState, IResource} from '../../definitions/system';
+import {AppResourceType, IResource, IResourceWrapper} from '../../definitions/system';
 import {ITag} from '../../definitions/tag';
-import {IUsageRecord} from '../../definitions/usageRecord';
+import {IUsageRecord, UsageSummationType} from '../../definitions/usageRecord';
 import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {assertNotFound} from '../../utils/assertion';
+import {toArray} from '../../utils/fns';
 import {assertAgentToken} from '../agentTokens/utils';
 import {assertCollaborationRequest} from '../collaborationRequests/utils';
 import {assertFile} from '../files/utils';
@@ -24,12 +27,16 @@ import {assertTag} from '../tags/utils';
 import {assertUsageRecord} from '../usageRecords/utils';
 import {assertUser} from '../user/utils';
 import {assertWorkspace} from '../workspaces/utils';
-import {ResourceMongoDataProvider} from './data/models';
+import {
+  AppRuntimeStateMongoDataProvider,
+  JobMongoDataProvider,
+  ResourceMongoDataProvider,
+} from './data/models';
+import {DataQuery} from './data/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {
   AgentTokenMemStoreProvider,
-  AppRuntimeStateMemStoreProvider,
   AssignedItemMemStoreProvider,
   CollaborationRequestMemStoreProvider,
   FileMemStoreProvider,
@@ -43,7 +50,6 @@ import {
 } from './mem/Mem';
 import {MemStoreIndexOptions, MemStoreIndexTypes} from './mem/types';
 import {MemorySemanticDataAccessAgentToken} from './semantic/agentToken/MemorySemanticDataAccessAgentToken';
-import {MemorySemanticDataAccessAppRuntimeState} from './semantic/appRuntimeState/MemorySemanticDataAccessAppRuntimeState';
 import {MemorySemanticDataAccessAssignedItem} from './semantic/assignedItem/MemorySemanticDataAccessAssignedItem';
 import {MemorySemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/MemorySemanticDataAccessCollaborationRequest';
 import {MemorySemanticDataAccessFile} from './semantic/file/MemorySemanticDataAccessFile';
@@ -60,42 +66,42 @@ import {IBaseContext} from './types';
 export function getMongoModels(connection: Connection): IAppMongoModels {
   return {
     resource: getResourceModel(connection),
+    job: getJobModel(connection),
+    appRuntimeState: getAppRuntimeStateModel(connection),
   };
 }
 
 export function getDataProviders(models: IAppMongoModels): IBaseContext['data'] {
   return {
     resource: new ResourceMongoDataProvider(models.resource),
+    job: new JobMongoDataProvider(models.job),
+    appRuntimeState: new AppRuntimeStateMongoDataProvider(models.appRuntimeState),
   };
 }
 
 export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext['memstore'] {
-  const resourceIdIndexOpts: MemStoreIndexOptions<IResource> = {
-    field: 'resourceId',
-    type: MemStoreIndexTypes.MapIndex,
-  };
   const workspaceIdIndexOpts: MemStoreIndexOptions<{workspaceId?: string | null}> = {
     field: 'workspaceId',
     type: MemStoreIndexTypes.MapIndex,
   };
 
   const folderIndexOpts: MemStoreIndexOptions<IFolder>[] = [
-    resourceIdIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.MapIndex},
+    workspaceIdIndexOpts,
+    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
   ];
   const fileIndexOpts: MemStoreIndexOptions<IFile>[] = [
-    resourceIdIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.MapIndex},
+    workspaceIdIndexOpts,
+    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
     {field: 'extension', type: MemStoreIndexTypes.MapIndex},
   ];
   const agentTokenIndexOpts: MemStoreIndexOptions<IAgentToken>[] = [
-    resourceIdIndexOpts,
     workspaceIdIndexOpts,
     {field: 'separateEntityId', type: MemStoreIndexTypes.MapIndex},
     {field: 'agentType', type: MemStoreIndexTypes.MapIndex},
   ];
   const permissionItemIndexOpts: MemStoreIndexOptions<IPermissionItem>[] = [
-    resourceIdIndexOpts,
     workspaceIdIndexOpts,
     {field: 'containerId', type: MemStoreIndexTypes.MapIndex},
     {field: 'containerType', type: MemStoreIndexTypes.MapIndex},
@@ -105,24 +111,17 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
     {field: 'action', type: MemStoreIndexTypes.MapIndex},
   ];
-  const permissionGroupIndexOpts: MemStoreIndexOptions<IPermissionGroup>[] = [
-    resourceIdIndexOpts,
-    workspaceIdIndexOpts,
-  ];
+  const permissionGroupIndexOpts: MemStoreIndexOptions<IPermissionGroup>[] = [workspaceIdIndexOpts];
   const workspaceIndexOpts: MemStoreIndexOptions<IWorkspace>[] = [
-    resourceIdIndexOpts,
     {field: 'rootname', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
   const collaborationRequestIndexOpts: MemStoreIndexOptions<ICollaborationRequest>[] = [
-    resourceIdIndexOpts,
     workspaceIdIndexOpts,
     {field: 'recipientEmail', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
-  const userIndexOpts: MemStoreIndexOptions<IUser>[] = [resourceIdIndexOpts];
-  const appRuntimeStateIndexOpts: MemStoreIndexOptions<IAppRuntimeState>[] = [resourceIdIndexOpts];
-  const tagIndexOpts: MemStoreIndexOptions<ITag>[] = [resourceIdIndexOpts, workspaceIdIndexOpts];
+  const userIndexOpts: MemStoreIndexOptions<IUser>[] = [];
+  const tagIndexOpts: MemStoreIndexOptions<ITag>[] = [workspaceIdIndexOpts];
   const assignedItemIndexOpts: MemStoreIndexOptions<IAssignedItem>[] = [
-    resourceIdIndexOpts,
     workspaceIdIndexOpts,
     {field: 'assignedItemId', type: MemStoreIndexTypes.MapIndex},
     {field: 'assignedItemType', type: MemStoreIndexTypes.MapIndex},
@@ -130,7 +129,6 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     {field: 'assigneeType', type: MemStoreIndexTypes.MapIndex},
   ];
   const usageRecordIndexOpts: MemStoreIndexOptions<IUsageRecord>[] = [
-    resourceIdIndexOpts,
     workspaceIdIndexOpts,
     {field: 'category', type: MemStoreIndexTypes.MapIndex},
     {field: 'fulfillmentStatus', type: MemStoreIndexTypes.MapIndex},
@@ -151,10 +149,12 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
       collaborationRequestIndexOpts
     ),
     user: new UserMemStoreProvider([], userIndexOpts),
-    appRuntimeState: new AppRuntimeStateMemStoreProvider([], appRuntimeStateIndexOpts),
     tag: new TagMemStoreProvider([], tagIndexOpts),
     assignedItem: new AssignedItemMemStoreProvider([], assignedItemIndexOpts),
-    usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts),
+    usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts, {
+      insertFilter: items =>
+        toArray(items).filter(item => item.summationType === UsageSummationType.Two),
+    }),
   };
 }
 
@@ -183,10 +183,6 @@ export function getSemanticDataProviders(
     tag: new MemorySemanticDataAccessTag(memstores.tag, assertTag),
     assignedItem: new MemorySemanticDataAccessAssignedItem(memstores.assignedItem, assertNotFound),
     usageRecord: new MemorySemanticDataAccessUsageRecord(memstores.usageRecord, assertUsageRecord),
-    appRuntimeState: new MemorySemanticDataAccessAppRuntimeState(
-      memstores.appRuntimeState,
-      assertNotFound
-    ),
   };
 }
 
@@ -195,4 +191,71 @@ export function getLogicProviders(): IBaseContext['logic'] {
     usageRecord: new UsageRecordLogicProvider(),
     permissions: new PermissionsLogicProvider(),
   };
+}
+
+export async function ingestDataIntoMemStore(context: IBaseContext) {
+  // TODO: we only want to fetch L2 usage records
+  const q1: DataQuery<IResourceWrapper> = {
+    resourceType: {$ne: AppResourceType.UsageRecord},
+  };
+  const q2: DataQuery<IResourceWrapper<IUsageRecord>> = {
+    resourceType: {$eq: AppResourceType.UsageRecord},
+    resource: {
+      $objMatch: {
+        summationType: UsageSummationType.Two,
+      },
+    },
+  };
+  const [data, usageRecordsL2] = await Promise.all([
+    context.data.resource.getManyByQuery(q1),
+    context.data.resource.getManyByQuery(q2),
+  ]);
+
+  const dataByType: Record<AppResourceType, IResource[]> = {
+    [AppResourceType.All]: [],
+    [AppResourceType.System]: [],
+    [AppResourceType.Public]: [],
+    [AppResourceType.User]: [],
+    [AppResourceType.UsageRecord]: usageRecordsL2.map(item => item.resource),
+    [AppResourceType.EndpointRequest]: [],
+    [AppResourceType.AssignedItem]: [],
+    [AppResourceType.Job]: [],
+    [AppResourceType.CollaborationRequest]: [],
+    [AppResourceType.Workspace]: [],
+    [AppResourceType.AgentToken]: [],
+    [AppResourceType.Folder]: [],
+    [AppResourceType.File]: [],
+    [AppResourceType.Tag]: [],
+    [AppResourceType.PermissionGroup]: [],
+    [AppResourceType.PermissionItem]: [],
+  };
+  data.forEach(item => {
+    dataByType[item.resourceType].push(item.resource);
+  });
+
+  context.memstore.folder.UNSAFE_ingestItems(dataByType[AppResourceType.Folder] as IFolder[]);
+  context.memstore.file.UNSAFE_ingestItems(dataByType[AppResourceType.File] as IFile[]);
+  context.memstore.agentToken.UNSAFE_ingestItems(
+    dataByType[AppResourceType.AgentToken] as IAgentToken[]
+  );
+  context.memstore.permissionItem.UNSAFE_ingestItems(
+    dataByType[AppResourceType.PermissionItem] as IPermissionItem[]
+  );
+  context.memstore.permissionGroup.UNSAFE_ingestItems(
+    dataByType[AppResourceType.PermissionGroup] as IPermissionGroup[]
+  );
+  context.memstore.workspace.UNSAFE_ingestItems(
+    dataByType[AppResourceType.Workspace] as IWorkspace[]
+  );
+  context.memstore.collaborationRequest.UNSAFE_ingestItems(
+    dataByType[AppResourceType.CollaborationRequest] as ICollaborationRequest[]
+  );
+  context.memstore.user.UNSAFE_ingestItems(dataByType[AppResourceType.User] as IUser[]);
+  context.memstore.tag.UNSAFE_ingestItems(dataByType[AppResourceType.Tag] as ITag[]);
+  context.memstore.assignedItem.UNSAFE_ingestItems(
+    dataByType[AppResourceType.AssignedItem] as IAssignedItem[]
+  );
+  context.memstore.usageRecord.UNSAFE_ingestItems(
+    dataByType[AppResourceType.UsageRecord] as IUsageRecord[]
+  );
 }

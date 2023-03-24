@@ -57,6 +57,10 @@ export interface ISemanticDataAccessBaseProvider<T extends IResource> {
     q: LiteralDataQuery<T>,
     opts?: ISemanticDataAccessProviderRunOptions
   ): Promise<boolean>;
+  deleteManyByQuery(
+    q: LiteralDataQuery<T>,
+    opts: ISemanticDataAccessProviderMutationRunOptions
+  ): Promise<void>;
 }
 
 export type SemanticDataAccessWorkspaceResourceProviderBaseType = IResource & {

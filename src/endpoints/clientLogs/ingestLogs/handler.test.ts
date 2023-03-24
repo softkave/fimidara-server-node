@@ -4,8 +4,8 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -35,8 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
   await logsConnection?.close();
 });
 

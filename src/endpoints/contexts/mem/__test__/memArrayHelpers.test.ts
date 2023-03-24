@@ -1,8 +1,8 @@
-import {StaticStackedArray} from '../memArrayHelpers';
+import {StackedArray} from '../memArrayHelpers';
 
 describe('StaticStackedArray without parent', () => {
   test('push', () => {
-    const sArray01 = new StaticStackedArray<number>();
+    const sArray01 = new StackedArray<number>();
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed[0]);
     sArray01.push(seed[1]);
@@ -12,7 +12,7 @@ describe('StaticStackedArray without parent', () => {
   });
 
   test('getLast', () => {
-    const sArray01 = new StaticStackedArray<number>();
+    const sArray01 = new StackedArray<number>();
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed[0]);
     sArray01.push(seed[1]);
@@ -23,7 +23,7 @@ describe('StaticStackedArray without parent', () => {
   });
 
   test('some', () => {
-    const sArray01 = new StaticStackedArray<number>();
+    const sArray01 = new StackedArray<number>();
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed);
     expect(sArray01.length).toBe(5);
@@ -35,7 +35,7 @@ describe('StaticStackedArray without parent', () => {
   });
 
   test('release', () => {
-    const sArray01 = new StaticStackedArray<number>();
+    const sArray01 = new StackedArray<number>();
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed);
     expect(sArray01.length).toBe(5);
@@ -53,8 +53,8 @@ describe('StaticStackedArray without parent', () => {
 
 describe('StaticStackedArray with parent', () => {
   test('push', () => {
-    const sArray01 = new StaticStackedArray<number>();
-    const sArray02 = new StaticStackedArray<number>(sArray01);
+    const sArray01 = new StackedArray<number>();
+    const sArray02 = new StackedArray<number>(sArray01);
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed[0]);
     sArray02.push(seed[1]);
@@ -67,8 +67,8 @@ describe('StaticStackedArray with parent', () => {
   });
 
   test('getLast', () => {
-    const sArray01 = new StaticStackedArray<number>();
-    const sArray02 = new StaticStackedArray<number>(sArray01);
+    const sArray01 = new StackedArray<number>();
+    const sArray02 = new StackedArray<number>(sArray01);
     const seed = [0, 1, 2, 3, 4];
     sArray01.push(seed[0]);
     expect(sArray01.getLast()).toBe(seed[0]);
@@ -82,8 +82,8 @@ describe('StaticStackedArray with parent', () => {
   });
 
   test('some', () => {
-    const sArray01 = new StaticStackedArray<number>();
-    const sArray02 = new StaticStackedArray<number>(sArray01);
+    const sArray01 = new StackedArray<number>();
+    const sArray02 = new StackedArray<number>(sArray01);
     const seed00 = [0, 1, 2, 3, 4];
     const seed01 = [5, 6, 7, 8, 9];
     const seed02 = [10, 11, 12, 13, 14];
@@ -108,8 +108,8 @@ describe('StaticStackedArray with parent', () => {
   });
 
   test('release', () => {
-    const sArray01 = new StaticStackedArray<number>();
-    const sArray02 = new StaticStackedArray<number>(sArray01);
+    const sArray01 = new StackedArray<number>();
+    const sArray02 = new StackedArray<number>(sArray01);
     const seed00 = [0, 1, 2, 3, 4];
     const seed01 = [5, 6, 7, 8, 9];
     const seed02 = [10, 11, 12, 13, 14];

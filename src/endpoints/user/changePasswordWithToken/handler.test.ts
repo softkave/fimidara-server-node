@@ -1,4 +1,5 @@
 import {add} from 'date-fns';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
@@ -7,10 +8,11 @@ import {
 } from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -40,8 +42,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 async function changePasswordWithTokenTest() {
@@ -49,9 +50,8 @@ async function changePasswordWithTokenTest() {
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {password: oldPassword});
   const newPassword = 'abd784_!new';
-  const token = newResource(AppResourceType.AgentToken, {
-    userId: user.resourceId,
-    tokenAccessScope: [TokenAccessScope.ChangePassword],
+  const token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+    scope: [TokenAccessScope.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: getTimestamp(
       add(new Date(), {
@@ -64,7 +64,9 @@ async function changePasswordWithTokenTest() {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.agentToken.insertItem(token);
+  await executeWithMutationRunOptions(context, opts =>
+    context!.semantic.agentToken.insertItem(token, opts)
+  );
   const result = await changePasswordWithToken(
     context,
     RequestData.fromExpressRequest<IChangePasswordParameters>(

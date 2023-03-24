@@ -1,6 +1,6 @@
 import {omit} from 'lodash';
 import {IAgentToken} from '../../../definitions/agentToken';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent, tryGetAgentTokenId} from '../../../utils/sessionUtils';
@@ -44,7 +44,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
       tokenUpdate.name && tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase();
 
     await Promise.all([
-      checkAgentTokenAuthorization(context, agent, token, BasicCRUDActions.Read),
+      checkAgentTokenAuthorization(context, agent, token, AppActionType.Read),
       isNameChanged &&
         checkAgentTokenNameExists(context, workspace.resourceId, tokenUpdate.name!, opts),
     ]);

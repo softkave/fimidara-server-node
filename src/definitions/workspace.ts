@@ -32,7 +32,7 @@ export interface IWorkspace extends IWorkspaceResource {
    */
   rootname: string;
   description?: string;
-  publicPermissionGroupId?: string;
+  publicPermissionGroupId: string;
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
   usageThresholds: Partial<Record<UsageRecordCategory, IUsageThreshold>>;

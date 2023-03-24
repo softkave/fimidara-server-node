@@ -27,7 +27,7 @@ export function indexArray<T, R = T>(
   arr: T | T[] = [],
   opts: IIndexArrayOptions<T, R> = {}
 ): {[key: string]: R} {
-  const array = toArray(arr);
+  const array = toArray(arr ?? []);
   const indexer = opts.indexer ?? defaultIndexer;
   const path = opts.path;
   const reducer = opts.reducer ?? defaultReducer;

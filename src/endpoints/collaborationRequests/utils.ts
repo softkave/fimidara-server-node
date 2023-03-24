@@ -4,7 +4,7 @@ import {
   IPublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {IAssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
@@ -12,7 +12,6 @@ import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthoriza
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
@@ -40,15 +39,15 @@ const userCollaborationRequestForWorkspaceFields =
     readAt: true,
     status: true,
     statusDate: true,
-    permissionGroupsAssignedOnAcceptingRequest: data =>
-      data ? assignedPermissionGroupsListExtractor(data) : [],
+    // permissionGroupsAssignedOnAcceptingRequest: data =>
+    //   data ? assignedPermissionGroupsListExtractor(data) : [],
   });
 
 export async function checkCollaborationRequestAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   request: ICollaborationRequest,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
   await checkAuthorization({
@@ -65,7 +64,7 @@ export async function checkCollaborationRequestAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   requestId: string,
-  action: BasicCRUDActions,
+  action: AppActionType,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
   const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);

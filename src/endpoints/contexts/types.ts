@@ -2,14 +2,13 @@ import {Request} from 'express';
 import {Logger} from 'winston';
 import {IBaseTokenData} from '../../definitions/system';
 import {IAppVariables} from '../../resources/vars';
-import {IResourceDataProvider} from './data/types';
+import {IAppRuntimeStateDataProvider, IJobDataProvider, IResourceDataProvider} from './data/types';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {
   IAgentTokenMemStoreProvider,
-  IAppRuntimeStateMemStoreProvider,
   IAssignedItemMemStoreProvider,
   ICollaborationRequestMemStoreProvider,
   IFileMemStoreProvider,
@@ -22,7 +21,6 @@ import {
   IWorkspaceMemStoreProvider,
 } from './mem/types';
 import {ISemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
-import {ISemanticDataAccessAppRuntimeStateProvider} from './semantic/appRuntimeState/types';
 import {ISemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
 import {ISemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
 import {ISemanticDataAccessFileProvider} from './semantic/file/types';
@@ -41,9 +39,10 @@ export interface IServerRequest extends Request {
   auth?: IBaseTokenData;
 }
 
-// zoeyzoevaeasher
 export interface IBaseContextDataProviders {
   resource: IResourceDataProvider;
+  job: IJobDataProvider;
+  appRuntimeState: IAppRuntimeStateDataProvider;
 }
 
 export interface IBaseContextMemStoreProviders {
@@ -55,7 +54,6 @@ export interface IBaseContextMemStoreProviders {
   workspace: IWorkspaceMemStoreProvider;
   collaborationRequest: ICollaborationRequestMemStoreProvider;
   user: IUserMemStoreProvider;
-  appRuntimeState: IAppRuntimeStateMemStoreProvider;
   tag: ITagMemStoreProvider;
   assignedItem: IAssignedItemMemStoreProvider;
   usageRecord: IUsageRecordMemStoreProvider;
@@ -79,7 +77,6 @@ export interface IBaseContextSemanticDataProviders {
   tag: ISemanticDataAccessTagProvider;
   usageRecord: ISemanticDataAccessUsageRecordProvider;
   user: ISemanticDataAccessUserProvider;
-  appRuntimeState: ISemanticDataAccessAppRuntimeStateProvider;
 }
 
 export interface IBaseContext<
@@ -100,7 +97,6 @@ export interface IBaseContext<
   email: Email;
   fileBackend: FileBackend;
   clientLogger: Logger;
-  usageRecord: UsageRecordLogicProvider;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

@@ -11,14 +11,15 @@ import {WorkspaceBillStatus} from '../../../definitions/workspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resourceId';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';
 import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
+import {completeTest} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
 import {IUsageRecordInput} from '../logic/UsageRecordLogicProvider';
+import {executeWithMutationRunOptions} from '../semantic/utils';
 import {IBaseContext} from '../types';
 import {
   getDataProviders,
@@ -26,6 +27,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
+  ingestDataIntoMemStore,
 } from '../utils';
 import assert = require('assert');
 
@@ -50,11 +52,11 @@ beforeAll(async () => {
     getSemanticDataProviders(mem),
     () => dropMongoConnection(connection)
   );
+  await ingestDataIntoMemStore(context);
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 function assertDeps() {
@@ -74,16 +76,17 @@ describe('UsageRecordLogicProvider', () => {
   test('record is fulfilled', async () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
-    await context.semantic.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, SYSTEM_SESSION_AGENT, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(true);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -95,7 +98,9 @@ describe('UsageRecordLogicProvider', () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatus.BillOverdue;
-    await context.semantic.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
@@ -104,7 +109,7 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, SYSTEM_SESSION_AGENT, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -115,7 +120,9 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause total threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Total]);
-    await context.semantic.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
@@ -124,7 +131,7 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, SYSTEM_SESSION_AGENT, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -135,7 +142,9 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause category threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Storage]);
-    await context.semantic.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
     const reqData = new RequestData();
     const input: IUsageRecordInput = {
@@ -144,7 +153,7 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, SYSTEM_SESSION_AGENT, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);

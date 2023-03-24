@@ -4,9 +4,10 @@ import {IAssignedItem} from '../../../definitions/assignedItem';
 import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
+import {IJob} from '../../../definitions/job';
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResource} from '../../../definitions/system';
+import {IAppRuntimeState, IResourceWrapper} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {IUsageRecord} from '../../../definitions/usageRecord';
 import {IUser} from '../../../definitions/user';
@@ -105,9 +106,6 @@ export enum BulkOpType {
 
 export type BulkOpItem<T> =
   | {type: BulkOpType.InsertOne; item: T}
-  // | {type: BulkOpType.ReplaceOne,
-  //     replaceOne: {query: DataQuery<T>; item: T};
-  //   }
   | {
       type: BulkOpType.UpdateOne;
       query: DataQuery<T>;
@@ -204,4 +202,5 @@ export type IUserQuery = DataQuery<IUser>;
 export type IUserDataProvider = IBaseDataProvider<IUser>;
 export type IWorkspaceQuery = DataQuery<IWorkspace>;
 export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;
-export type IResourceDataProvider = IBaseDataProvider<IResource>;
+export type IResourceDataProvider = IBaseDataProvider<IResourceWrapper>;
+export type IJobDataProvider = IBaseDataProvider<IJob>;

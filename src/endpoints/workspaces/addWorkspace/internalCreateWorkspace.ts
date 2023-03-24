@@ -63,6 +63,7 @@ const internalCreateWorkspace = async (
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
+    publicPermissionGroupId: '',
   };
 
   const {
@@ -90,6 +91,7 @@ const internalCreateWorkspace = async (
         userId,
         /** deleteExisting */ false,
         /** skipPermissionGroupsExistCheck */ true,
+        /** skip auth check */ true,
         opts
       ),
   ]);

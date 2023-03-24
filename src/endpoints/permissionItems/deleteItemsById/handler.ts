@@ -1,7 +1,8 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';
@@ -15,10 +16,12 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (cont
     context,
     agent,
     workspaceId: workspace.resourceId,
-    action: BasicCRUDActions.Delete,
+    action: AppActionType.Delete,
     targets: [{type: AppResourceType.PermissionItem}],
   });
-  await context.semantic.permissionItem.deleteManyByIdList(data.itemIds);
+  await executeWithMutationRunOptions(context, opts =>
+    context.semantic.permissionItem.deleteManyByIdList(data.itemIds, opts)
+  );
 };
 
 export default deletePermissionItemsById;

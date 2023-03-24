@@ -1,13 +1,13 @@
 import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
 } from '../../testUtils/generateData/folder';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -35,8 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('listFolderContent', () => {
@@ -126,8 +125,11 @@ describe('listFolderContent', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await Promise.all([
-      generateAndInsertTestFolders(context, 15, {workspaceId: workspace.resourceId}),
-      generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId}),
+      generateAndInsertTestFolders(context, 15, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId, parentId: null}),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
       context.semantic.folder.countByQuery({

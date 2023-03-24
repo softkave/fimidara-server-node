@@ -1,6 +1,7 @@
 import {AppResourceType} from '../definitions/system';
 import OperationError from '../utils/OperationError';
 import {IDataProvideQueryListParams} from './contexts/data/types';
+import {ISemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {IBaseContext} from './contexts/types';
 import RequestData from './RequestData';
 
@@ -49,5 +50,15 @@ export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
   keyof IPaginationQuery
 >;
 
-export type DeleteResourceCascadeFn = (context: IBaseContext, resourceId: string) => Promise<void>;
-export type DeleteResourceCascadeFnsMap = Record<AppResourceType, DeleteResourceCascadeFn>;
+export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
+
+export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
+  context: IBaseContext,
+  args: Args,
+  opts: ISemanticDataAccessProviderMutationRunOptions
+) => Promise<void>;
+
+export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> = Record<
+  AppResourceType,
+  DeleteResourceCascadeFn<Args>
+>;

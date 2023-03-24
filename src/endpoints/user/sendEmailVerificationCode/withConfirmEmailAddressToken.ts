@@ -1,4 +1,5 @@
 import {URL} from 'url';
+import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
@@ -25,9 +26,8 @@ export async function withConfirmEmailAddressToken(
     );
 
     if (!token) {
-      token = newResource(AppResourceType.AgentToken, {
-        tokenAccessScope: [TokenAccessScope.ConfirmEmailAddress],
-        userId: user.resourceId,
+      token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+        scope: [TokenAccessScope.ConfirmEmailAddress],
         version: CURRENT_TOKEN_VERSION,
         separateEntityId: user.resourceId,
         workspaceId: null,

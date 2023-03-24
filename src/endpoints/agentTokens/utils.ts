@@ -1,5 +1,5 @@
 import {IAgentToken, IPublicAgentToken} from '../../definitions/agentToken';
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
@@ -24,7 +24,7 @@ export async function checkAgentTokenAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   token: IAgentToken,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   appAssert(token.workspaceId);
   await checkAuthorization({
@@ -43,7 +43,7 @@ export async function checkAgentTokenAuthorization02(
   workspaceId: string,
   tokenId: string | undefined | null,
   providedResourceId: string | undefined | null,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   let token: IAgentToken | null = null;
 

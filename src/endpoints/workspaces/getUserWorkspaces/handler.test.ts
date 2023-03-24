@@ -3,12 +3,13 @@ import {appAssert} from '../../../utils/assertion';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
 import {expectContainsNoneIn} from '../../testUtils/helpers/assertion';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -27,8 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getUserWorkspaces', () => {
@@ -54,9 +54,17 @@ describe('getUserWorkspaces', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
-    await Promise.all(
-      workspaces.map(w =>
-        assignWorkspaceToUser(context!, SYSTEM_SESSION_AGENT, w.resourceId, rawUser)
+    await executeWithMutationRunOptions(context, opts =>
+      Promise.all(
+        workspaces.map(w =>
+          assignWorkspaceToUser(
+            context!,
+            SYSTEM_SESSION_AGENT,
+            w.resourceId,
+            rawUser.resourceId,
+            opts
+          )
+        )
       )
     );
     appAssert(userToken.separateEntityId);

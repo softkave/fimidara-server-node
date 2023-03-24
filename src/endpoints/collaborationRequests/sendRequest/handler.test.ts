@@ -3,12 +3,11 @@ import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
-  insertPermissionGroupForTest,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -23,8 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('sendCollaborationRequest', () => {
@@ -33,17 +31,17 @@ describe('sendCollaborationRequest', () => {
     const {userToken} = await insertUserForTest(context);
     const {user: user02} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    // const {permissionGroup} = await insertPermissionGroupForTest(
+    //   context,
+    //   userToken,
+    //   workspace.resourceId
+    // );
 
     const requestInput: ICollaborationRequestInput = {
       recipientEmail: user02.email,
       message: faker.lorem.paragraph(),
       expires: getTimestamp(add(Date.now(), {days: 1})),
-      permissionGroupsAssignedOnAcceptingRequest: [{permissionGroupId: permissionGroup.resourceId}],
+      // permissionGroupsAssignedOnAcceptingRequest: [{permissionGroupId: permissionGroup.resourceId}],
     };
     const {request: request01} = await insertRequestForTest(
       context,
@@ -52,9 +50,9 @@ describe('sendCollaborationRequest', () => {
       requestInput
     );
 
-    const assignedPermissionGroup01 = request01.permissionGroupsAssignedOnAcceptingRequest[0];
-    expect(assignedPermissionGroup01).toBeDefined();
-    expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
+    // const assignedPermissionGroup01 = request01.permissionGroupsAssignedOnAcceptingRequest[0];
+    // expect(assignedPermissionGroup01).toBeDefined();
+    // expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
 
     const savedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)

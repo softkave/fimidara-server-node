@@ -17,9 +17,12 @@ const usageThresholdMap = Joi.object().keys({
   [UsageRecordCategory.Total]: usageThreshold,
 });
 
+const rootname = Joi.string().regex(/[A-Za-z0-9_-]/);
+
 const workspaceValidationSchemas = {
   usageThreshold,
   usageThresholdMap,
+  rootname,
 };
 
 export default workspaceValidationSchemas;

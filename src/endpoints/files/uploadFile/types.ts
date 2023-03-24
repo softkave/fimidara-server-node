@@ -16,7 +16,7 @@ export interface IUploadFileEndpointParams extends IFileMatcher {
   extension?: string;
   mimetype?: string; // TODO: define mimetypes
   data: Buffer;
-  publicAccessAction?: UploadFilePublicAccessActions;
+  // publicAccessAction?: UploadFilePublicAccessActions;
   tags?: IAssignedTagInput[];
 }
 
@@ -24,4 +24,8 @@ export interface IUploadFileEndpointResult {
   file: IPublicFile;
 }
 
-export type UploadFileEndpoint = Endpoint<IBaseContext, IUploadFileEndpointParams, IUploadFileEndpointResult>;
+export type UploadFileEndpoint = Endpoint<
+  IBaseContext,
+  IUploadFileEndpointParams,
+  IUploadFileEndpointResult
+>;

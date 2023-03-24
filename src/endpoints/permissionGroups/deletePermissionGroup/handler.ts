@@ -1,16 +1,51 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {waitOnPromises} from '../../../utils/waitOnPromises';
-import {
-  deleteAssignableItemAssignedItems,
-  deleteResourceAssignedItems,
-} from '../../assignedItems/deleteAssignedItems';
 import {InvalidRequestError} from '../../errors';
-import PermissionItemQueries from '../../permissionItems/queries';
-import EndpointReusableQueries from '../../queries';
+import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {DeleteResourceCascadeFnsMap} from '../../types';
 import {checkPermissionGroupAuthorization03} from '../utils';
 import {DeletePermissionGroupEndpoint} from './types';
 import {deletePermissionGroupJoiSchema} from './validation';
+
+export const DELETE_PERMISSION_GROUP_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
+  [AppResourceType.All]: noopAsync,
+  [AppResourceType.System]: noopAsync,
+  [AppResourceType.Public]: noopAsync,
+  [AppResourceType.Workspace]: noopAsync,
+  [AppResourceType.CollaborationRequest]: noopAsync,
+  [AppResourceType.AgentToken]: noopAsync,
+  [AppResourceType.Folder]: noopAsync,
+  [AppResourceType.File]: noopAsync,
+  [AppResourceType.User]: noopAsync,
+  [AppResourceType.UsageRecord]: noopAsync,
+  [AppResourceType.EndpointRequest]: noopAsync,
+  [AppResourceType.Job]: noopAsync,
+  [AppResourceType.Tag]: noopAsync,
+  [AppResourceType.PermissionGroup]: (context, args, opts) =>
+    context.semantic.permissionGroup.deleteOneById(args.resourceId, opts),
+  [AppResourceType.PermissionItem]: async (context, args, opts) => {
+    await Promise.all([
+      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
+      context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+    ]);
+  },
+  [AppResourceType.AssignedItem]: async (context, args, opts) => {
+    await Promise.all([
+      context.semantic.assignedItem.deleteAssignedItemResources(
+        args.workspaceId,
+        args.resourceId,
+        opts
+      ),
+      context.semantic.assignedItem.deleteResourceAssignedItems(
+        args.workspaceId,
+        args.resourceId,
+        undefined,
+        opts
+      ),
+    ]);
+  },
+};
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, instData) => {
   const data = validate(instData.data, deletePermissionGroupJoiSchema);
@@ -19,43 +54,21 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, ins
     context,
     agent,
     data,
-    BasicCRUDActions.Delete
+    AppActionType.Delete
   );
 
   if (permissionGroup.resourceId === workspace.publicPermissionGroupId) {
-    throw new InvalidRequestError("Cannot delete the workspace's public public permission group");
+    throw new InvalidRequestError("Cannot delete the workspace's public public permission group.");
   }
 
-  await waitOnPromises([
-    // Delete permission items that explicitly give access to this resource
-    context.semantic.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByResource(
-        workspace.resourceId,
-        permissionGroup.resourceId,
-        AppResourceType.PermissionGroup
-      )
-    ),
-
-    // Delete permission items owned by permissionGroup
-    context.semantic.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
-    ),
-
-    // Delete permissionGroup assigned items
-    deleteResourceAssignedItems(context, permissionGroup.workspaceId, permissionGroup.resourceId),
-
-    // Remove references where permissionGroup is assigned
-    deleteAssignableItemAssignedItems(
-      context,
-      permissionGroup.workspaceId,
-      permissionGroup.resourceId
-    ),
-
-    // Delete permissionGroup
-    context.semantic.permissionGroup.deleteOneByQuery(
-      EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
-    ),
-  ]);
+  const job = await enqueueDeleteResourceJob(context, {
+    type: AppResourceType.PermissionGroup,
+    args: {
+      workspaceId: workspace.resourceId,
+      resourceId: permissionGroup.resourceId,
+    },
+  });
+  return {jobId: job.resourceId};
 };
 
 export default deletePermissionGroup;

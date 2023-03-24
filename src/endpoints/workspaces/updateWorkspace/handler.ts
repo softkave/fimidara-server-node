@@ -1,4 +1,4 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -16,7 +16,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   let {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    BasicCRUDActions.Update,
+    AppActionType.Update,
     data.workspaceId
   );
 

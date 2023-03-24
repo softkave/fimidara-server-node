@@ -7,10 +7,10 @@ import {
 } from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
 import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/fns';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {userExtractor} from '../utils';
 import {ILoginResult} from './types';
@@ -32,7 +32,11 @@ export function toLoginResult(
   };
 }
 
-export async function getUserClientAssignedToken(context: IBaseContext, userId: string) {
+export async function getUserClientAssignedToken(
+  context: IBaseContext,
+  userId: string,
+  opts: ISemanticDataAccessProviderMutationRunOptions
+) {
   appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set.');
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
@@ -47,11 +51,12 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
 
   let token = await context.semantic.agentToken.getByProvidedId(
     context.appVariables.appWorkspaceId,
-    userId
+    userId,
+    opts
   );
 
   if (!token) {
-    token = newResource(AppResourceType.AgentToken, {
+    token = newResource<IAgentToken>(AppResourceType.AgentToken, {
       providedResourceId: userId,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
@@ -60,7 +65,7 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
-    context.semantic.agentToken.insertItem(token);
+    context.semantic.agentToken.insertItem(token, opts);
     addAssignedPermissionGroupList(
       context,
       SYSTEM_SESSION_AGENT,
@@ -71,23 +76,29 @@ export async function getUserClientAssignedToken(context: IBaseContext, userId: 
       ],
       token.resourceId,
       /** deleteExisting */ false,
-      /** skipPermissionGroupsExistCheck */ true
+      /** skipPermissionGroupsExistCheck */ true,
+      /** skip auth check */ true,
+      opts
     );
   }
 
   return token;
 }
 
-export async function getUserToken(context: IBaseContext, userId: string) {
+export async function getUserToken(
+  context: IBaseContext,
+  userId: string,
+  opts: ISemanticDataAccessProviderMutationRunOptions
+) {
   let userToken = await context.semantic.agentToken.getOneAgentToken(
     userId,
-    TokenAccessScope.Login
+    TokenAccessScope.Login,
+    opts
   );
+
   if (!userToken) {
-    userToken = newResource(AppResourceType.AgentToken, {
-      userId: userId,
-      tokenFor: [TokenAccessScope.Login],
-      issuedAt: getTimestamp(),
+    userToken = newResource<IAgentToken>(AppResourceType.AgentToken, {
+      scope: [TokenAccessScope.Login],
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: userId,
       workspaceId: null,
@@ -95,7 +106,7 @@ export async function getUserToken(context: IBaseContext, userId: string) {
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
-    await context.semantic.agentToken.insertItem(userToken);
+    await context.semantic.agentToken.insertItem(userToken, opts);
   }
 
   return userToken;

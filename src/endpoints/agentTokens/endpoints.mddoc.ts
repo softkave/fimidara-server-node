@@ -155,6 +155,8 @@ const deleteAgentTokenParams = new FieldObject<IDeleteAgentTokenEndpointParams>(
   .setFields({
     tokenId: fReusables.idNotRequired,
     onReferenced: fReusables.effectOnReferencedNotRequired,
+    providedResourceId: fReusables.providedResourceIdNotRequired,
+    workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
   .setDescription('Delete program access token endpoint params.');

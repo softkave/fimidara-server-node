@@ -14,6 +14,6 @@ export const consoleLogger = loggerFactory({
   transports: ['console'],
 });
 
-export async function disposeGlobalUtils() {
+export async function disposeApplicationGlobalUtilities() {
   await Promise.all([logger.close(), consoleLogger.close()]);
 }

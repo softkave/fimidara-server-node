@@ -23,9 +23,8 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   const user = await context.semantic.user.getByEmail(data.email);
   assertUser(user);
   const expiration = getForgotPasswordExpiration();
-  const forgotToken: IAgentToken = newResource(AppResourceType.AgentToken, {
-    tokenAccessScope: [TokenAccessScope.ChangePassword],
-    userId: user.resourceId,
+  const forgotToken = newResource<IAgentToken>(AppResourceType.AgentToken, {
+    scope: [TokenAccessScope.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
     separateEntityId: user.resourceId,

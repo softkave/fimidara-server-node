@@ -2,7 +2,7 @@ import {
   CollaborationRequestStatusType,
   ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
@@ -35,7 +35,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
       context,
       agent,
       data.requestId,
-      BasicCRUDActions.Update,
+      AppActionType.Update,
       opts
     );
 

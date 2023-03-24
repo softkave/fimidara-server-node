@@ -2,7 +2,6 @@ import {IAgentToken} from '../../definitions/agentToken';
 import {TokenAccessScope} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
-import {} from '../contexts/SessionContext';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
@@ -12,7 +11,7 @@ function newFilter() {
 function getByUserIdAndTokenAccessScope(userId: string, tokenAccessScope: TokenAccessScope) {
   return newFilter()
     .addItem('separateEntityId', userId, DataProviderFilterValueOperator.Equal)
-    .addItem('accessScope', tokenAccessScope, DataProviderFilterValueOperator.Equal)
+    .addItem('scope', tokenAccessScope, DataProviderFilterValueOperator.Equal)
     .build();
 }
 

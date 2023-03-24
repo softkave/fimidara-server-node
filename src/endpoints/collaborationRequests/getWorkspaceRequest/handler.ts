@@ -1,9 +1,8 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {GetWorkspaceCollaborationRequestEndpoint} from './types';
 import {getWorkspaceCollaborationRequestJoiSchema} from './validation';
@@ -18,10 +17,10 @@ const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint
     context,
     agent,
     data.requestId,
-    BasicCRUDActions.Read
+    AppActionType.Read
   );
-  const populatedRequest = await populateRequestAssignedPermissionGroups(context, request);
-  return {request: collaborationRequestForWorkspaceExtractor(populatedRequest)};
+  // const populatedRequest = await populateRequestAssignedPermissionGroups(context, request);
+  return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 export default getWorkspaceCollaborationRequest;

@@ -65,6 +65,7 @@ export enum AppResourceType {
   UsageRecord = 'usageRecord',
   AssignedItem = 'assignedItem',
   EndpointRequest = 'endpointRequest',
+  Job = 'job',
 }
 
 export const PERMISSION_AGENT_TYPES = [
@@ -117,7 +118,7 @@ export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
   [AppResourceType.System]: padShortName('system'),
   [AppResourceType.Public]: padShortName('public'),
   [AppResourceType.Workspace]: padShortName('wrkspce'),
-  [AppResourceType.CollaborationRequest]: padShortName('coreqst'),
+  [AppResourceType.CollaborationRequest]: padShortName('corqst'),
   [AppResourceType.AgentToken]: padShortName('agtoken'),
   [AppResourceType.PermissionGroup]: padShortName('pmgroup'),
   [AppResourceType.PermissionItem]: padShortName('prmitem'),
@@ -127,12 +128,13 @@ export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
   [AppResourceType.Tag]: padShortName('tag'),
   [AppResourceType.AssignedItem]: padShortName('asgitem'),
   [AppResourceType.UsageRecord]: padShortName('urecord'),
-  [AppResourceType.EndpointRequest]: padShortName('edreqst'),
+  [AppResourceType.EndpointRequest]: padShortName('endrqst'),
+  [AppResourceType.Job]: padShortName('job'),
 };
 
 export const SHORT_NAME_TO_RESOURCE_TYPE = reverseMap(RESOURCE_TYPE_SHORT_NAMES);
 
-export enum BasicCRUDActions {
+export enum AppActionType {
   All = '*',
   Create = 'create',
   Read = 'read',
@@ -145,22 +147,22 @@ export enum BasicCRUDActions {
 
 export function getWorkspaceActionList() {
   return [
-    BasicCRUDActions.All,
-    BasicCRUDActions.Create,
-    BasicCRUDActions.Read,
-    BasicCRUDActions.Update,
-    BasicCRUDActions.Delete,
-    BasicCRUDActions.GrantPermission,
+    AppActionType.All,
+    AppActionType.Create,
+    AppActionType.Read,
+    AppActionType.Update,
+    AppActionType.Delete,
+    AppActionType.GrantPermission,
   ];
 }
 
 export function getNonWorkspaceActionList() {
   return [
-    BasicCRUDActions.All,
-    BasicCRUDActions.Create,
-    BasicCRUDActions.Read,
-    BasicCRUDActions.Update,
-    BasicCRUDActions.Delete,
+    AppActionType.All,
+    AppActionType.Create,
+    AppActionType.Read,
+    AppActionType.Update,
+    AppActionType.Delete,
   ];
 }
 
@@ -175,27 +177,16 @@ export interface IAppRuntimeState extends IResource {
   appUsersImageUploadPermissionGroupId: string;
 }
 
-export interface IPublicAccessOpInput {
-  action: BasicCRUDActions;
-  resourceType: AppResourceType;
-}
-
-export interface IPublicAccessOp {
-  action: BasicCRUDActions;
-  resourceType: AppResourceType;
-
-  /**
-   * Whether is the operation is allowed for the resource and it's children.
-   */
-
-  markedAt: number;
-  markedBy: IPublicAgent;
-}
-
 export interface IResource {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
+}
+
+export interface IResourceWrapper<T extends IResource = IResource> {
+  resourceId: string;
+  resourceType: AppResourceType;
+  resource: T;
 }
 
 export interface IWorkspaceResource extends IResource {

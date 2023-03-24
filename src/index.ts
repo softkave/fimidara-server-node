@@ -17,11 +17,13 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
+  ingestDataIntoMemStore,
 } from './endpoints/contexts/utils';
 import {fileConstants} from './endpoints/files/constants';
 import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
 import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
 import {consoleLogger, logger} from './endpoints/globalUtils';
+import {startJobRunner} from './endpoints/jobs/runner';
 import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
 import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
 import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
@@ -89,12 +91,7 @@ async function setup() {
   );
 
   // Run scripts here
-  // await script_AddThresholdToExistingWorkspaces(connection);
   // End of scripts
-
-  // Jobs
-  // startJobs();
-  // End of jobs
 
   const models = getMongoModels(connection);
   const mem = getMemstoreDataProviders(models);
@@ -109,6 +106,7 @@ async function setup() {
     getSemanticDataProviders(mem),
     () => connection.close()
   );
+  await ingestDataIntoMemStore(ctx);
 
   const defaultWorkspace = await setupApp(ctx);
   logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
@@ -131,6 +129,7 @@ async function setup() {
     app.use(handleErrors);
     logger.info(ctx.appVariables.appName);
     logger.info(`server listening on port ${ctx.appVariables.port}`);
+    startJobRunner(ctx).catch(error => consoleLogger.error(error));
   });
 }
 

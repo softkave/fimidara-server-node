@@ -3,9 +3,12 @@ import {IFile} from '../../../definitions/file';
 import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 
-export function generateTestFile(extra: Partial<IFile> = {}) {
+export function generateTestFile(
+  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
+) {
   const id = getNewIdForResource(AppResourceType.File);
   const name = faker.lorem.words();
   const createdAt = getTimestamp();
@@ -29,7 +32,10 @@ export function generateTestFile(extra: Partial<IFile> = {}) {
   return file;
 }
 
-export function generateTestFiles(count = 20, extra: Partial<IFile> = {}) {
+export function generateTestFiles(
+  count = 20,
+  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
+) {
   const files: IFile[] = [];
   for (let i = 0; i < count; i++) {
     files.push(generateTestFile(extra));
@@ -40,9 +46,9 @@ export function generateTestFiles(count = 20, extra: Partial<IFile> = {}) {
 export async function generateAndInsertTestFiles(
   ctx: IBaseContext,
   count = 20,
-  extra: Partial<IFile> = {}
+  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await ctx.semantic.file.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
   return items;
 }

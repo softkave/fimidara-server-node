@@ -8,6 +8,7 @@ import {
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
@@ -70,6 +71,8 @@ export async function generateAndInsertUsageRecordList(
   extra: Partial<IUsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await ctx.semantic.usageRecord.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.usageRecord.insertItem(items, opts)
+  );
   return items;
 }

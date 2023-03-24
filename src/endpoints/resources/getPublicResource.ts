@@ -1,4 +1,4 @@
-import {AppResourceType, IResource} from '../../definitions/system';
+import {AppResourceType, IResource, IResourceWrapper} from '../../definitions/system';
 import {ServerError} from '../../utils/errors';
 import {agentTokenExtractor} from '../agentTokens/utils';
 import {collaborationRequestForUserExtractor} from '../collaborationRequests/utils';
@@ -8,9 +8,8 @@ import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
 import {workspaceExtractor} from '../workspaces/utils';
-import {IResourceContainer} from './types';
 
-export function getPublicResource(resource: IResourceContainer, workspaceId: string) {
+export function getPublicResource(resource: IResourceWrapper, workspaceId: string) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return workspaceExtractor(resource.resource);
@@ -33,7 +32,7 @@ export function getPublicResource(resource: IResourceContainer, workspaceId: str
   }
 }
 
-export function getPublicResourceList(resources: IResourceContainer[], workspaceId: string) {
+export function getPublicResourceList(resources: IResourceWrapper[], workspaceId: string) {
   return resources.map(item => {
     item.resource = getPublicResource(item, workspaceId) as IResource;
     return item;

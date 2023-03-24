@@ -1,5 +1,5 @@
 import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -7,6 +7,7 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
@@ -37,7 +38,7 @@ export async function checkFileAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   file: IFile,
-  action: BasicCRUDActions
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId);
   await checkAuthorization({
@@ -56,9 +57,10 @@ export async function checkFileAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
   matcher: IFileMatcher,
-  action: BasicCRUDActions
+  action: AppActionType,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const file = await assertGetFileWithMatcher(context, matcher);
+  const file = await assertGetFileWithMatcher(context, matcher, opts);
   return checkFileAuthorization(context, agent, file, action);
 }
 

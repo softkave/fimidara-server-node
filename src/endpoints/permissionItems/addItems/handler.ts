@@ -1,11 +1,12 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {PermissionItemUtils} from '../utils';
 import {AddPermissionItemsEndpoint} from './types';
-import {internalAddPermissionItems} from './utils';
+import {INTERNAL_addPermissionItems} from './utils';
 import {addPermissionItemsJoiSchema} from './validation';
 
 const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData) => {
@@ -17,10 +18,13 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
     context,
     agent,
     workspaceId: workspace.resourceId,
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
     targets: [{type: AppResourceType.PermissionItem}],
   });
-  const permissionItems = await internalAddPermissionItems(context, agent, workspaceId, data);
+  const permissionItems = await executeWithMutationRunOptions(
+    context,
+    async opts => await INTERNAL_addPermissionItems(context, agent, workspace, data, opts)
+  );
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(permissionItems),
   };

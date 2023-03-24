@@ -127,11 +127,11 @@ export function getResourceId(resource: Pick<IResource, 'resourceId'>) {
   return resource.resourceId;
 }
 
-export function extractResourceIdList(resources: IResource[]) {
+export function extractResourceIdList(resources: Pick<IResource, 'resourceId'>[]) {
   return resources.map(getResourceId);
 }
 
-export function toArray<T>(item: T | T[]) {
+export function toArray<T>(item: NonNullable<T | T[]>) {
   if (Array.isArray(item)) {
     return item;
   } else {
@@ -139,16 +139,16 @@ export function toArray<T>(item: T | T[]) {
   }
 }
 
-export function toCompactArray<T>(item?: T | T[]) {
+export function toCompactArray<T>(item: NonNullable<T | T[]>) {
   return compact(toArray(item));
 }
 
 export const stopControlFlow = (error = new ServerError()): any =>
   appAssert(false, error, "Control shouldn't get here.");
 
-export function newResource<T extends AnyObject = AnyObject>(
+export function newResource<T extends AnyObject>(
   type: AppResourceType,
-  seed?: T
+  seed?: Omit<T, keyof IResource> & Partial<IResource>
 ): IResource & T {
   const createdAt = getTimestamp();
   return {
@@ -159,11 +159,11 @@ export function newResource<T extends AnyObject = AnyObject>(
   } as IResource & T;
 }
 
-export function newWorkspaceResource<T extends AnyObject = AnyObject>(
+export function newWorkspaceResource<T extends AnyObject>(
   agent: IAgent | ISessionAgent,
   type: AppResourceType,
   workspaceId: string,
-  seed?: T
+  seed?: Omit<T, keyof IWorkspaceResource> & Partial<IWorkspaceResource>
 ): IWorkspaceResource & T {
   const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
   const createdAt = getTimestamp();
@@ -193,4 +193,11 @@ export function loopAndCollate<Fn extends AnyFn>(count = 1, fn: Fn): Array<Retur
     count -= 1;
   }
   return result;
+}
+
+export function pick00<T>(data: T, keys: Array<keyof T>) {
+  return keys.reduce((map, key) => {
+    map[key] = data[key];
+    return map;
+  }, {} as Partial<T>);
 }

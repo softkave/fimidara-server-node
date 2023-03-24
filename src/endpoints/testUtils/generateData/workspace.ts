@@ -4,6 +4,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
@@ -54,9 +55,9 @@ export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
     createdAt,
     createdBy,
     name,
+    resourceId,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId,
     workspaceId: resourceId,
     rootname: makeRootnameFromName(name),
     description: faker.lorem.sentence(),
@@ -64,6 +65,7 @@ export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
     billStatusAssignedAt: createdAt,
     usageThresholds: transformUsageThresholInput(createdBy, generateTestUsageThresholdInputMap()),
     usageThresholdLocks: {},
+    publicPermissionGroupId: getNewIdForResource(AppResourceType.PermissionGroup),
     ...seed,
   };
   return workspace;
@@ -83,6 +85,8 @@ export async function generateAndInsertWorkspaceListForTest(
   extra: Partial<IWorkspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await ctx.semantic.workspace.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.workspace.insertItem(items, opts)
+  );
   return items;
 }

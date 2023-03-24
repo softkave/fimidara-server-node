@@ -1,12 +1,13 @@
 import {defaultTo, first, isArray, last} from 'lodash';
 import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
@@ -105,7 +106,7 @@ export async function checkFolderAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   folder: IFolder,
-  action: BasicCRUDActions,
+  action: AppActionType,
   workspace?: IWorkspace
 ) {
   if (!workspace) {
@@ -128,10 +129,11 @@ export async function checkFolderAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   matcher: IFolderMatcher,
-  action: BasicCRUDActions,
-  workspace?: IWorkspace
+  action: AppActionType,
+  workspace?: IWorkspace,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const folder = await assertGetFolderWithMatcher(context, matcher);
+  const folder = await assertGetFolderWithMatcher(context, matcher, opts);
   return checkFolderAuthorization(context, agent, folder, action, workspace);
 }
 

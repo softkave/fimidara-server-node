@@ -74,6 +74,7 @@ async function assignUserRequestPermissionGroups(
       agent.agentId,
       /** deleteExisting */ false,
       /** skipPermissionGroupsExistCheck */ true,
+      /** skip auth check */ false,
       opts
     );
   }

@@ -4,14 +4,10 @@ import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface IAssignPermissionGroupsEndpointParams extends IEndpointOptionalWorkspaceIDParam {
   permissionGroups: IAssignPermissionGroupInput[];
-  entityId?: string;
-  entityIdList?: string[];
+  entityId: string | string[];
 }
-
-export interface IAssignPermissionGroupsEndpointResult {}
 
 export type AssignPermissionGroupsEndpoint = Endpoint<
   IBaseContext,
-  IAssignPermissionGroupsEndpointParams,
-  IAssignPermissionGroupsEndpointResult
+  IAssignPermissionGroupsEndpointParams
 >;

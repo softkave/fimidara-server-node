@@ -5,9 +5,9 @@ import {getWorkspaceModel} from '../../db/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {justInCaseCleanups} from '../../endpoints/testUtils/context/cleanup';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
+import {completeTest} from '../../endpoints/testUtils/helpers/test';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
@@ -23,11 +23,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
+  await completeTest();
   if (connection) {
     await dropMongoConnection(connection);
   }
-  await justInCaseCleanups();
 });
 
 describe('unlockUsageThresholds', () => {

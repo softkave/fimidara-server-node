@@ -5,6 +5,7 @@ import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {ChangePasswordEndpoint} from './types';
 import {changePasswordJoiSchema} from './validation';
@@ -29,11 +30,13 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   // Delete user token and incomingTokenData since they are no longer valid
   delete instData.agent?.agentToken;
   delete instData.incomingTokenData;
-  const [completeUserData, userToken, clientAssignedToken] = await Promise.all([
-    populateUserWorkspaces(context, updatedUser),
-    getUserToken(context, agent.agentId),
-    getUserClientAssignedToken(context, agent.agentId),
-  ]);
+  const completeUserData = await populateUserWorkspaces(context, updatedUser);
+  const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
+    Promise.all([
+      getUserToken(context, agent.agentId, opts),
+      getUserClientAssignedToken(context, agent.agentId, opts),
+    ])
+  );
   instData.user = completeUserData;
   return toLoginResult(context, completeUserData, userToken, clientAssignedToken);
 };

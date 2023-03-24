@@ -1,8 +1,9 @@
 import {mapKeys} from 'lodash';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   IResource,
+  IResourceWrapper,
   ISessionAgent,
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
@@ -21,10 +22,10 @@ import {
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {PermissionDeniedError} from '../user/errors';
-import {IFetchResourceItem, IResourceContainer} from './types';
+import {IFetchResourceItem} from './types';
 
 export type IFetchResourceItemWithAction = IFetchResourceItem & {
-  action?: BasicCRUDActions;
+  action?: AppActionType;
 };
 
 export interface IGetResourcesOptions {
@@ -35,7 +36,7 @@ export interface IGetResourcesOptions {
   checkAuth?: boolean;
   agent: ISessionAgent;
   workspaceId: string;
-  action: BasicCRUDActions;
+  action: AppActionType;
   nothrowOnCheckError?: boolean;
   dataFetchRunOptions?: ISemanticDataAccessProviderRunOptions;
 }
@@ -44,7 +45,7 @@ interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
   resourceType: AppResourceType;
 }
 
-export async function getResources(options: IGetResourcesOptions) {
+export async function INTERNAL_getResources(options: IGetResourcesOptions) {
   const {
     context,
     inputResources,
@@ -75,7 +76,7 @@ export async function getResources(options: IGetResourcesOptions) {
   }, {} as PartialRecord<string, IFetchResourceItemWithAction>);
 
   const settledPromises = await fetchResources(context, mapByTypeToIdList, dataFetchRunOptions);
-  const resources: Array<IResourceContainer> = [];
+  const resources: Array<IResourceWrapper> = [];
 
   if (!checkAuth) {
     settledPromises.forEach(item => {
@@ -100,7 +101,7 @@ export async function getResources(options: IGetResourcesOptions) {
           const resourceType = getResourceTypeFromId(resource.resourceId);
           const key = resource.resourceId;
           const resourceAction =
-            checkedInputResourcesMap[key]?.action ?? action ?? BasicCRUDActions.Read;
+            checkedInputResourcesMap[key]?.action ?? action ?? AppActionType.Read;
 
           // TODO: when server caching and resolving permission containers is
           // complete, make just one call to checkAuthorization to check access

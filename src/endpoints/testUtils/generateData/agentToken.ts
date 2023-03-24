@@ -1,11 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {IAgentToken} from '../../../definitions/agentToken';
 import {AppResourceType, CURRENT_TOKEN_VERSION, IAgent} from '../../../definitions/system';
-import {newWorkspaceResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 
-export function generateAgentTokenForTest(seed: Partial<IAgentToken> = {}) {
+export function generateAgentTokenForTest(
+  seed: Partial<IAgentToken> & {workspaceId: string | null} = {workspaceId: null}
+) {
   const agentType = AppResourceType.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);
   const createdBy: IAgent = {
@@ -13,23 +16,23 @@ export function generateAgentTokenForTest(seed: Partial<IAgentToken> = {}) {
     agentTokenId,
     agentId: agentTokenId,
   };
-  const token: IAgentToken = newWorkspaceResource(
+  const token = newResource<IAgentToken>(AppResourceType.AgentToken, {
     createdBy,
-    AppResourceType.AgentToken,
-    getNewIdForResource(AppResourceType.Workspace),
-    {
-      agentType,
-      name: faker.company.name(),
-      description: faker.lorem.sentence(),
-      version: CURRENT_TOKEN_VERSION,
-      separateEntityId: null,
-      ...seed,
-    }
-  );
+    agentType,
+    lastUpdatedBy: createdBy,
+    name: faker.company.name(),
+    description: faker.lorem.sentence(),
+    version: CURRENT_TOKEN_VERSION,
+    separateEntityId: null,
+    ...seed,
+  });
   return token;
 }
 
-export function generateAgentTokenListForTest(count = 20, seed: Partial<IAgentToken> = {}) {
+export function generateAgentTokenListForTest(
+  count = 20,
+  seed: Partial<IAgentToken> & {workspaceId: string | null} = {workspaceId: null}
+) {
   const items: IAgentToken[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generateAgentTokenForTest(seed));
@@ -40,9 +43,11 @@ export function generateAgentTokenListForTest(count = 20, seed: Partial<IAgentTo
 export async function generateAndInsertAgentTokenListForTest(
   ctx: IBaseContext,
   count = 20,
-  seed: Partial<IAgentToken> = {}
+  seed: Partial<IAgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
   const items = generateAgentTokenListForTest(count, seed);
-  await ctx.semantic.agentToken.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.agentToken.insertItem(items, opts)
+  );
   return items;
 }

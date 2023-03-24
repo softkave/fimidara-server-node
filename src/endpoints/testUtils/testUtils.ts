@@ -1,16 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import {flatten, isArray} from 'lodash';
 import {getMongoConnection} from '../../db/connection';
 import {IAgentToken} from '../../definitions/agentToken';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  CURRENT_TOKEN_VERSION,
-  getNonWorkspaceActionList,
-  getWorkspaceActionList,
-  IBaseTokenData,
-} from '../../definitions/system';
+import {CURRENT_TOKEN_VERSION, IBaseTokenData} from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {
@@ -20,6 +12,7 @@ import {
   IAppVariables,
 } from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
+import {toArray} from '../../utils/fns';
 import addAgentToken from '../agentTokens/addToken/handler';
 import {IAddAgentTokenEndpointParams, INewAgentTokenInput} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
@@ -37,6 +30,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
+  ingestDataIntoMemStore,
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {IUploadFileEndpointParams} from '../files/uploadFile/types';
@@ -51,10 +45,8 @@ import {
   INewPermissionGroupInput,
 } from '../permissionGroups/addPermissionGroup/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
-import {
-  IAddPermissionItemsEndpointParams,
-  INewPermissionItemInput,
-} from '../permissionItems/addItems/types';
+import {IAddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
+import {IPermissionItemInput} from '../permissionItems/types';
 import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
@@ -70,7 +62,6 @@ import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePe
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
 import {generateTestFolderName} from './generateData/folder';
-import {expectPermissionItemsForEntityPresent} from './helpers/permissionItem';
 import sharp = require('sharp');
 import assert = require('assert');
 
@@ -106,6 +97,7 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     () => connection.close()
   );
 
+  await ingestDataIntoMemStore(ctx);
   await setupApp(ctx);
   return ctx;
 }
@@ -245,6 +237,21 @@ export async function insertPermissionGroupForTest(
   return result;
 }
 
+export async function insertPermissionItemsForTest(
+  context: IBaseContext,
+  userToken: IAgentToken,
+  workspaceId: string,
+  input: IPermissionItemInput | IPermissionItemInput[]
+) {
+  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
+    {workspaceId, items: toArray(input)}
+  );
+  const result = await addPermissionItems(context, instData);
+  assertEndpointResultOk(result);
+  return result;
+}
+
 export async function insertRequestForTest(
   context: IBaseContext,
   userToken: IAgentToken,
@@ -290,71 +297,6 @@ export async function insertAgentTokenForTest(
 
   const result = await addAgentToken(context, instData);
   assertEndpointResultOk(result);
-  return result;
-}
-
-export interface ITestPermissionItemContainer {
-  containerId: string;
-}
-
-export function makeTestPermissionItemByEntityInputs(
-  container: ITestPermissionItemContainer,
-  base: Array<Partial<INewPermissionItemInput>>
-) {
-  const items = base.map(seed => {
-    const actionList =
-      seed.targetType === AppResourceType.Workspace ?? seed.targetType === AppResourceType.All
-        ? getWorkspaceActionList()
-        : getNonWorkspaceActionList();
-    const items: INewPermissionItemInput[] = actionList.map(action => ({
-      action: action as BasicCRUDActions,
-      grantAccess: faker.datatype.boolean(),
-      ...seed,
-      ...container,
-    }));
-    return items;
-  });
-  return flatten(items);
-}
-
-export async function insertPermissionItemsForTestForEntity(
-  context: IBaseContext,
-  req: IServerRequest,
-  workspaceId: string,
-  entityId: string,
-  container: ITestPermissionItemContainer,
-  base: Partial<INewPermissionItemInput> | Array<Partial<INewPermissionItemInput>>
-) {
-  const itemsInput = makeTestPermissionItemByEntityInputs(container, isArray(base) ? base : [base]);
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(req, {
-    entityId,
-    workspaceId: workspaceId,
-    items: itemsInput,
-  });
-  const result = await addPermissionItems(context, instData);
-  assertEndpointResultOk(result);
-  expectPermissionItemsForEntityPresent(result.items, itemsInput, entityId, container.containerId);
-  return result;
-}
-
-export async function insertPermissionItemsForTestUsingItems(
-  context: IBaseContext,
-  userToken: IAgentToken,
-  workspaceId: string,
-  entityId: string,
-  items: INewPermissionItemInput[]
-) {
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      entityId,
-      items,
-      workspaceId: workspaceId,
-    }
-  );
-  const result = await addPermissionItems(context, instData);
-  assertEndpointResultOk(result);
-  expect(result.items.length).toEqual(items.length);
   return result;
 }
 

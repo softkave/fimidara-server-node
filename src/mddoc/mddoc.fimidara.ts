@@ -7,7 +7,8 @@ import {
   updateAgentTokenEndpointDefinition,
 } from '../endpoints/agentTokens/endpoints.mddoc';
 import {
-  getCollaborationRequestEndpointDefinition,
+  getCollaborationRequestForUserEndpointDefinition,
+  getCollaborationRequestForWorkspaceEndpointDefinition,
   getWorkspaceCollaborationRequestEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
@@ -21,7 +22,7 @@ import {
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  getFileEndpointDefinition,
+  readFileEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from '../endpoints/files/endpoints.mddoc';
@@ -43,7 +44,6 @@ import {
   deletePermissionItemsByIdEndpointDefinition,
   getEntityPermissionItemsEndpointDefinition,
   getResourcePermissionItemsEndpointDefinition,
-  replacePermissionItemsByEntityEndpointDefinition,
 } from '../endpoints/permissionItems/endpoints.mddoc';
 import {
   getWorkspaceEndpointDefinition,
@@ -66,7 +66,7 @@ const endpoints = [
 
   // files
   uploadFileEndpointDefinition,
-  getFileEndpointDefinition,
+  readFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   deleteFileEndpointDefinition,
@@ -88,7 +88,6 @@ const endpoints = [
   // permission items
   addPermissionItemsEndpointDefinition,
   getEntityPermissionItemsEndpointDefinition,
-  replacePermissionItemsByEntityEndpointDefinition,
   deletePermissionItemsByIdEndpointDefinition,
   getResourcePermissionItemsEndpointDefinition,
 
@@ -96,7 +95,8 @@ const endpoints = [
   getWorkspaceCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
-  getCollaborationRequestEndpointDefinition,
+  getCollaborationRequestForUserEndpointDefinition,
+  getCollaborationRequestForWorkspaceEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
 
   // collaborators

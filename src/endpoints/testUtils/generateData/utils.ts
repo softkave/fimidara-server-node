@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -29,6 +29,6 @@ export function randomResourceType(types: AppResourceType[] = Object.values(AppR
   return faker.helpers.arrayElement(types);
 }
 
-export function randomAction(actions = Object.values(BasicCRUDActions)) {
+export function randomAction(actions = Object.values(AppActionType)) {
   return faker.helpers.arrayElement(actions);
 }

@@ -3,6 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {
   defaultGeneratePartialTestDataFn,
@@ -40,6 +41,6 @@ export async function generateAndInsertUserListForTest(
   genPartial: GeneratePartialTestDataFn<IUser> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateUserListForTest(count, genPartial);
-  await ctx.semantic.user.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.user.insertItem(items, opts));
   return items;
 }

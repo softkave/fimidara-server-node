@@ -1,21 +1,21 @@
 import {uniqBy} from 'lodash';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../definitions/system';
 import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
-import {getResources} from '../resources/getResources';
+import {INTERNAL_getResources} from '../resources/getResources';
 
 export default async function checkTagsExist(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
   items: Array<IAssignedTagInput>,
-  action: BasicCRUDActions,
+  action: AppActionType,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const resources = await getResources({
+  const resources = await INTERNAL_getResources({
     context,
     agent,
     action,

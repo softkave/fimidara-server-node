@@ -1,6 +1,6 @@
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
@@ -46,7 +46,7 @@ export async function checkUploadFileAuth(
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
   });
 }
 

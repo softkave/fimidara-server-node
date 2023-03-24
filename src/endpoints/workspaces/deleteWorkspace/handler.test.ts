@@ -1,7 +1,7 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -10,7 +10,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {deleteWorkspace} from './handler';
+import deleteWorkspace from './handler';
 
 /**
  * TODO:
@@ -24,8 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('workspace deleted', async () => {
@@ -39,7 +38,7 @@ test('workspace deleted', async () => {
     })
   );
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.semantic.workspace.getOneByQuery(
+  const savedWorkspace = await context.semantic.workspace.getOneByLiteralDataQuery(
     EndpointReusableQueries.getByResourceId(workspace.resourceId)
   );
   expect(savedWorkspace).toBeFalsy();

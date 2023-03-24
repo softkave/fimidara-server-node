@@ -5,7 +5,7 @@ import {
   PermissionEntityInheritanceMap,
 } from '../../../../definitions/permissionGroups';
 import {IPermissionItem} from '../../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions, IResource} from '../../../../definitions/system';
+import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
 import {IAppVariables} from '../../../../resources/vars';
 import {appAssert} from '../../../../utils/assertion';
 import {toArray, toCompactArray} from '../../../../utils/fns';
@@ -125,7 +125,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
         IBaseContextSemanticDataProviders
       >;
       entityId: string[];
-      action?: BasicCRUDActions | BasicCRUDActions[] | undefined;
+      action?: AppActionType | AppActionType[] | undefined;
       targetId?: string | string[] | undefined;
       strictTargetId?: string | string[] | undefined;
       targetType?: AppResourceType | AppResourceType[] | undefined;
@@ -194,7 +194,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
         IBaseContextSemanticDataProviders
       >;
       entityId: string[];
-      action?: BasicCRUDActions | BasicCRUDActions[] | undefined;
+      action?: AppActionType | AppActionType[] | undefined;
       targetId?: string | string[] | undefined;
       strictTargetId?: string | string[] | undefined;
       targetType?: AppResourceType | AppResourceType[] | undefined;
@@ -234,7 +234,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   private getEntitiesPermissionItemsQuery(props: {
     entityId: string[];
-    action?: BasicCRUDActions | BasicCRUDActions[];
+    action?: AppActionType | AppActionType[];
     targetId?: string | string[];
     strictTargetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
@@ -271,7 +271,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       };
     } else {
       const targetType = uniq(
-        toCompactArray(props.targetId)
+        toCompactArray(props.targetId ?? [])
           .map(getResourceTypeFromId)
           .concat(props.targetType ?? [])
       );

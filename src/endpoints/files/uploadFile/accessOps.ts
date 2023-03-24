@@ -1,67 +1,43 @@
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  IAgent,
-  IPublicAccessOp,
-} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {compactPublicAccessOps} from '../../../utils/publicAccessOps';
-import {UploadFilePublicAccessActions} from './types';
+// export const makeFilePublicReadAccessOps = (file: IFile): IPermissionItemInput[] => [
+//   {
+//     action: AppActionType.Read,
+//     target: {targetId: file.resourceId},
+//   },
+// ];
 
-export const makeFilePublicReadAccessOps = (agent: IAgent): IPublicAccessOp[] => [
-  {
-    action: BasicCRUDActions.Read,
-    markedAt: getTimestamp(),
-    markedBy: agent,
-    resourceType: AppResourceType.File,
-  },
-];
+// export const makeFilePublicReadAndUpdateAccessOps = (file: IFile): IPermissionItemInput[] =>
+//   makeFilePublicReadAccessOps(file).concat([
+//     {
+//       action: AppActionType.Update,
+//       target: {targetId: file.resourceId},
+//     },
+//     {
+//       action: AppActionType.Create,
+//       target: {targetId: file.resourceId},
+//     },
+//   ]);
 
-export const makeFilePublicReadAndUpdateAccessOps = (agent: IAgent): IPublicAccessOp[] =>
-  makeFilePublicReadAccessOps(agent).concat([
-    {
-      action: BasicCRUDActions.Update,
-      markedAt: getTimestamp(),
-      markedBy: agent,
-      resourceType: AppResourceType.File,
-    },
-    {
-      action: BasicCRUDActions.Create,
-      markedAt: getTimestamp(),
-      markedBy: agent,
-      resourceType: AppResourceType.File,
-    },
-  ]);
+// export const makeFilePublicReadUpdateAndDeleteAccessOps = (file: IFile): IPermissionItemInput[] =>
+//   makeFilePublicReadAndUpdateAccessOps(file).concat([
+//     {
+//       action: AppActionType.Delete,
+//       target: {targetId: file.resourceId},
+//     },
+//   ]);
 
-export const makeFilePublicReadUpdateAndDeleteAccessOps = (agent: IAgent): IPublicAccessOp[] =>
-  makeFilePublicReadAndUpdateAccessOps(agent).concat([
-    {
-      action: BasicCRUDActions.Delete,
-      markedAt: getTimestamp(),
-      markedBy: agent,
-      resourceType: AppResourceType.File,
-    },
-  ]);
-
-export const makeFilePublicAccessOps = (
-  agent: IAgent,
-  action: UploadFilePublicAccessActions | undefined | null,
-  existingOps: IPublicAccessOp[] = []
-) => {
-  switch (action) {
-    case UploadFilePublicAccessActions.Read:
-      return compactPublicAccessOps(existingOps.concat(makeFilePublicReadAccessOps(agent)));
-    case UploadFilePublicAccessActions.ReadAndUpdate:
-      return compactPublicAccessOps(
-        existingOps.concat(makeFilePublicReadAndUpdateAccessOps(agent))
-      );
-    case UploadFilePublicAccessActions.ReadUpdateAndDelete:
-      return compactPublicAccessOps(
-        existingOps.concat(makeFilePublicReadUpdateAndDeleteAccessOps(agent))
-      );
-    case UploadFilePublicAccessActions.None:
-      return [];
-    default:
-      return existingOps;
-  }
-};
+// export const makeFilePublicAccessOps = (
+//   file: IFile,
+//   action: UploadFilePublicAccessActions | undefined | null
+// ) => {
+//   switch (action) {
+//     case UploadFilePublicAccessActions.Read:
+//       return makeFilePublicReadAccessOps(file);
+//     case UploadFilePublicAccessActions.ReadAndUpdate:
+//       return makeFilePublicReadAndUpdateAccessOps(file);
+//     case UploadFilePublicAccessActions.ReadUpdateAndDelete:
+//       return makeFilePublicReadUpdateAndDeleteAccessOps(file);
+//     case UploadFilePublicAccessActions.None:
+//     default:
+//       return [];
+//   }
+// };

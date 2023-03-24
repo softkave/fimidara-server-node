@@ -1,8 +1,8 @@
 import {defaultTo, omit} from 'lodash';
 import {IAgentToken} from '../../../definitions/agentToken';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   CURRENT_TOKEN_VERSION,
   IAgent,
 } from '../../../definitions/system';
@@ -46,7 +46,7 @@ export const internalCreateAgentToken = async (
     };
     const isNameChanged = data.name && data.name.toLowerCase() !== token.name?.toLowerCase();
     await Promise.all([
-      checkAgentTokenAuthorization(context, agent, token, BasicCRUDActions.Update),
+      checkAgentTokenAuthorization(context, agent, token, AppActionType.Update),
       isNameChanged && checkAgentTokenNameExists(context, workspace.resourceId, data.name!, opts),
     ]);
     token = await context.semantic.agentToken.getAndUpdateOneById(
@@ -55,20 +55,25 @@ export const internalCreateAgentToken = async (
       opts
     );
   } else {
-    token = newWorkspaceResource(agent, AppResourceType.AgentToken, workspace.resourceId, {
-      ...omit(data, 'tags'),
-      providedResourceId: defaultTo(data.providedResourceId, null),
-      version: CURRENT_TOKEN_VERSION,
-      separateEntityId: null,
-      agentType: AppResourceType.AgentToken,
-    });
+    token = newWorkspaceResource<IAgentToken>(
+      agent,
+      AppResourceType.AgentToken,
+      workspace.resourceId,
+      {
+        ...omit(data, 'tags'),
+        providedResourceId: defaultTo(data.providedResourceId, null),
+        version: CURRENT_TOKEN_VERSION,
+        separateEntityId: null,
+        agentType: AppResourceType.AgentToken,
+      }
+    );
     await Promise.all([
       checkAuthorization({
         context,
         agent,
         workspaceId: workspace.resourceId,
         targets: [{type: AppResourceType.AgentToken}],
-        action: BasicCRUDActions.Create,
+        action: AppActionType.Create,
       }),
       data.name && checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
     ]);

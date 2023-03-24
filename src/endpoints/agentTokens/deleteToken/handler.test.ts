@@ -1,7 +1,7 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -26,8 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
-  await disposeGlobalUtils();
+  await completeTest({context});
 });
 
 test('program access token deleted', async () => {

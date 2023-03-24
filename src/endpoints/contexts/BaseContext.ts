@@ -1,6 +1,5 @@
 import {Logger} from 'winston';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
-import {waitTimeout} from '../../utils/fns';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {IEmailProviderContext} from './EmailProviderContext';
@@ -8,7 +7,6 @@ import {
   IFilePersistenceProviderContext,
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
-import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
 import {
@@ -41,7 +39,6 @@ export default class BaseContext<
     transports: ['mongodb'],
     meta: {service: FimidaraLoggerServiceNames.WebClient},
   });
-  usageRecord: UsageRecordLogicProvider;
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -57,7 +54,6 @@ export default class BaseContext<
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
-    this.usageRecord = new UsageRecordLogicProvider();
     this.appVariables = appVariables;
     this.memstore = memory;
     this.logic = logic;
@@ -74,7 +70,6 @@ export default class BaseContext<
     if (this.disposeFn) {
       await this.disposeFn();
     }
-    await waitTimeout(5000);
   };
 }
 

@@ -1,6 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -25,8 +25,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
-  await disposeGlobalUtils();
+  await completeTest({context});
 });
 
 test('referenced program access token returned', async () => {

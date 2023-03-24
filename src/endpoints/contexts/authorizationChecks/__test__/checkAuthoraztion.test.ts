@@ -1,22 +1,20 @@
 import {identity} from 'lodash';
 import {IAgentToken} from '../../../../definitions/agentToken';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getWorkspaceActionList,
 } from '../../../../definitions/system';
 import {IWorkspace} from '../../../../definitions/workspace';
 import {appAssert} from '../../../../utils/assertion';
 import {addAssignedPermissionGroupList} from '../../../assignedItems/addAssignedItems';
-import {disposeGlobalUtils} from '../../../globalUtils';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGroups/testUtils';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
-import {
-  IAddPermissionItemsEndpointParams,
-  INewPermissionItemInput,
-} from '../../../permissionItems/addItems/types';
+import {IAddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
+import {IPermissionItemInput} from '../../../permissionItems/types';
 import RequestData from '../../../RequestData';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
+import {completeTest} from '../../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
@@ -28,6 +26,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../user/errors';
+import {executeWithMutationRunOptions} from '../../semantic/utils';
 import {IBaseContext} from '../../types';
 import {
   checkAuthorization,
@@ -36,11 +35,6 @@ import {
   summarizeAgentPermissionItems,
 } from '../checkAuthorizaton';
 
-/**
- * TODO
- * - test for different entities, resource types, agents, containers, etc.
- */
-
 let context: IBaseContext | null = null;
 
 beforeAll(async () => {
@@ -48,8 +42,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 async function grantEveryPermission(
@@ -58,16 +51,16 @@ async function grantEveryPermission(
   recipientUserId: string
 ) {
   assertContext(context);
-  const items: INewPermissionItemInput[] = getWorkspaceActionList().map(action => ({
-    action: action as BasicCRUDActions,
+  const items: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+    action: action as AppActionType,
     grantAccess: true,
-    targetType: AppResourceType.All,
-    containerId: workspace.resourceId,
-    containerType: AppResourceType.Workspace,
+    target: {targetType: AppResourceType.All},
+    container: {containerId: workspace.resourceId},
+    entity: {entityId: recipientUserId},
   }));
   const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(grantedBy),
-    {items, workspaceId: workspace.resourceId, entityId: recipientUserId}
+    {items, workspaceId: workspace.resourceId}
   );
   await addPermissionItems(context, instData);
 }
@@ -86,7 +79,7 @@ describe('checkAuthorization', () => {
       context,
       agent,
       targets: [{targetId: file.resourceId}],
-      action: BasicCRUDActions.Read,
+      action: AppActionType.Read,
       workspaceId: rawWorkspace.resourceId,
       containerId: getFilePermissionContainers(rawWorkspace.resourceId, file),
     });
@@ -107,7 +100,7 @@ describe('checkAuthorization', () => {
       workspaceId: workspace.resourceId,
       agent: agent02,
       targets: [{targetId: file.resourceId}],
-      action: BasicCRUDActions.Read,
+      action: AppActionType.Read,
       containerId: getFilePermissionContainers(workspace.resourceId, file),
     });
   });
@@ -129,7 +122,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: agent02,
         targets: [{targetId: file.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getFilePermissionContainers(workspace.resourceId, file),
       });
     } catch (error: any) {
@@ -160,7 +153,7 @@ describe('checkAuthorization', () => {
       agent: agent02,
       targets: [{targetId: file.resourceId}],
       containerId: getFilePermissionContainers(workspace.resourceId, file),
-      action: BasicCRUDActions.Read,
+      action: AppActionType.Read,
     });
   });
 
@@ -187,7 +180,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: agent02,
         targets: [{targetId: file.resourceId}],
-        action: BasicCRUDActions.Update,
+        action: AppActionType.Update,
         containerId: getFilePermissionContainers(workspace.resourceId, file),
       });
     } catch (error: any) {
@@ -207,20 +200,18 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: INewPermissionItemInput[] = [
+    const pg02Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.All,
+        action: AppActionType.All,
         grantAccess: true,
-        targetType: AppResourceType.Workspace,
+        target: {targetType: AppResourceType.Workspace},
       },
     ];
-    const pg03Items: INewPermissionItemInput[] = [
+    const pg03Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: false,
-
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
+        target: {targetId: workspace.resourceId},
       },
     ];
     await Promise.all([
@@ -231,8 +222,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg02.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg02.resourceId},
           }
         )
       ),
@@ -243,8 +233,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg03.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg03.resourceId},
           }
         )
       ),
@@ -255,7 +244,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: [{targetId: workspace.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
@@ -268,19 +257,18 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: INewPermissionItemInput[] = [
+    const pg02Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: true,
-        targetType: AppResourceType.All,
+        target: {targetType: AppResourceType.All},
       },
     ];
-    const pg03Items: INewPermissionItemInput[] = [
+    const pg03Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: false,
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
+        target: {targetId: workspace.resourceId},
       },
     ];
     await Promise.all([
@@ -291,8 +279,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg02.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg02.resourceId},
           }
         )
       ),
@@ -303,8 +290,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg03.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg03.resourceId},
           }
         )
       ),
@@ -315,7 +301,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: [{targetId: workspace.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
@@ -328,19 +314,18 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: INewPermissionItemInput[] = [
+    const pg02Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: true,
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
+        target: {targetId: workspace.resourceId},
       },
     ];
-    const pg03Items: INewPermissionItemInput[] = [
+    const pg03Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: false,
-        targetType: AppResourceType.Workspace,
+        target: {targetType: AppResourceType.Workspace},
       },
     ];
     await Promise.all([
@@ -351,8 +336,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg02.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg02.resourceId},
           }
         )
       ),
@@ -363,8 +347,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg03.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg03.resourceId},
           }
         )
       ),
@@ -375,7 +358,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: [{targetId: workspace.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
       });
     expect(hasFullOrLimitedAccess).toBeFalsy();
@@ -388,19 +371,18 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: INewPermissionItemInput[] = [
+    const pg02Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: false,
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
+        target: {targetId: workspace.resourceId},
       },
     ];
-    const pg03Items: INewPermissionItemInput[] = [
+    const pg03Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: true,
-        targetType: AppResourceType.Workspace,
+        target: {targetType: AppResourceType.Workspace},
       },
     ];
     await Promise.all([
@@ -411,8 +393,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg02.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg02.resourceId},
           }
         )
       ),
@@ -423,8 +404,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg03.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg03.resourceId},
           }
         )
       ),
@@ -435,7 +415,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: [{targetId: workspace.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
@@ -448,18 +428,18 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: INewPermissionItemInput[] = [
+    const pg02Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: false,
-        targetType: AppResourceType.Workspace,
+        target: {targetType: AppResourceType.Workspace},
       },
     ];
-    const pg03Items: INewPermissionItemInput[] = [
+    const pg03Items: IPermissionItemInput[] = [
       {
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         grantAccess: true,
-        targetType: AppResourceType.Workspace,
+        target: {targetType: AppResourceType.Workspace},
       },
     ];
     await Promise.all([
@@ -470,8 +450,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg02.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg02.resourceId},
           }
         )
       ),
@@ -482,8 +461,7 @@ describe('checkAuthorization', () => {
           {
             items: pg02Items.concat(pg03Items),
             workspaceId: workspace.resourceId,
-            entityId: pg03.resourceId,
-            containerId: workspace.resourceId,
+            entity: {entityId: pg03.resourceId},
           }
         )
       ),
@@ -494,7 +472,7 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: [{targetId: workspace.resourceId}],
-        action: BasicCRUDActions.Read,
+        action: AppActionType.Read,
         containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
       });
     expect(hasFullOrLimitedAccess).toBeFalsy();
@@ -529,13 +507,18 @@ async function setupForSummarizeAgentPermissionItemsTest() {
       context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
     ),
-    addAssignedPermissionGroupList(
-      context,
-      userAgent,
-      workspace.resourceId,
-      [{permissionGroupId: pg01.resourceId}],
-      token.resourceId,
-      /** deleteExisting */ false
+    executeWithMutationRunOptions(context, opts =>
+      addAssignedPermissionGroupList(
+        context!,
+        userAgent,
+        workspace.resourceId,
+        [{permissionGroupId: pg01.resourceId}],
+        token.resourceId,
+        /** deleteExisting */ false,
+        /** skip permission groups check */ false,
+        /** skip auth check */ false,
+        opts
+      )
     ),
   ]);
   await Promise.all([

@@ -132,6 +132,13 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
   ): Promise<T | null> {
     return await this.memstore.readItem(q, opts?.transaction);
   }
+
+  async deleteManyByQuery(
+    q: LiteralDataQuery<T>,
+    opts: ISemanticDataAccessProviderMutationRunOptions
+  ): Promise<void> {
+    await this.memstore.deleteManyItems(q, opts.transaction);
+  }
 }
 
 export class SemanticDataAccessWorkspaceResourceProvider<
@@ -143,7 +150,7 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   async getByName(workspaceId: string, name: string, opts?: ISemanticDataAccessProviderRunOptions) {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$regex: new RegExp(name, 'i')},
+      name: {$lowercaseEq: name},
     };
     return this.memstore.readItem(query as LiteralDataQuery<T>);
   }

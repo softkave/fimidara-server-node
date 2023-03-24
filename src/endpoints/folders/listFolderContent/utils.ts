@@ -1,6 +1,6 @@
 import {first, isUndefined} from 'lodash';
 import {IFolder, IFolderMatcher} from '../../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
@@ -24,7 +24,7 @@ export async function listFolderContentQuery(
     context,
     agent,
     workspaceId: workspace.resourceId,
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
     targets: {type: contentType},
     containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
   });
@@ -73,7 +73,7 @@ export async function getWorkspaceAndParentFolder(
       context,
       agent,
       matcher,
-      BasicCRUDActions.Read,
+      AppActionType.Read,
       workspace ?? undefined
     );
     ({workspace, folder: parentFolder} = checkResult);

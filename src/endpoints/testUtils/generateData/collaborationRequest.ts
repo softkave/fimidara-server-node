@@ -6,6 +6,7 @@ import {
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resourceId';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {
   defaultGeneratePartialTestDataFn,
@@ -50,6 +51,8 @@ export async function generateAndInsertCollaborationRequestListForTest(
   genPartial: GeneratePartialTestDataFn<ICollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
-  await ctx.semantic.collaborationRequest.insertItem(items);
+  await executeWithMutationRunOptions(ctx, async opts =>
+    ctx.semantic.collaborationRequest.insertItem(items, opts)
+  );
   return items;
 }

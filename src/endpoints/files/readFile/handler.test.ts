@@ -1,13 +1,13 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
-import {disposeGlobalUtils} from '../../globalUtils';
 import RequestData from '../../RequestData';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
   assertContext,
@@ -15,6 +15,7 @@ import {
   initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
+  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
@@ -22,7 +23,6 @@ import {
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../user/errors';
-import {UploadFilePublicAccessActions} from '../uploadFile/types';
 import readFile from './handler';
 import {IReadFileEndpointParams} from './types';
 import sharp = require('sharp');
@@ -36,8 +36,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await disposeGlobalUtils();
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('readFile', () => {
@@ -100,13 +99,11 @@ describe('readFile', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
 
     // Make public folder
-    const {folder} = await insertFolderForTest(context, userToken, workspace, {
-      publicAccessOps: [
-        {
-          action: BasicCRUDActions.Read,
-          resourceType: AppResourceType.File,
-        },
-      ],
+    const {folder} = await insertFolderForTest(context, userToken, workspace);
+    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+      target: {targetId: folder.resourceId},
+      action: AppActionType.Read,
+      grantAccess: true,
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
@@ -131,8 +128,11 @@ describe('readFile', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace, {
-      publicAccessAction: UploadFilePublicAccessActions.Read,
+    const {file} = await insertFileForTest(context, userToken, workspace);
+    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+      target: {targetId: file.resourceId},
+      action: AppActionType.Read,
+      grantAccess: true,
     });
     const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
