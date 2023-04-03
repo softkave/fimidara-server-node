@@ -18,7 +18,7 @@ export async function checkReadEntityAssignedPermissionGroups(
       agent,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
-      targets: [{targetId: entityId}],
+      targets: {targetId: entityId},
     });
     return true;
   }

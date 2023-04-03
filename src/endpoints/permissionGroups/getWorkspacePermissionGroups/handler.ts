@@ -1,10 +1,7 @@
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
-import {
-  applyDefaultEndpointPaginationOptions,
-  getEndpointPageFromInput,
-  getWorkspaceFromEndpointInput,
-} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetWorkspacePermissionGroupsEndpoint} from './types';
 import {getWorkspacePermissionGroupsQuery} from './utils';

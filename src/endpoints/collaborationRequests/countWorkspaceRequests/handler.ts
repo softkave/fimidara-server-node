@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getWorkspaceCollaborationRequestsQuery} from '../getWorkspaceRequests/utils';
 import {CountWorkspaceCollaborationRequestsEndpoint} from './types';
 import {countWorkspaceCollaborationRequestsJoiSchema} from './validation';

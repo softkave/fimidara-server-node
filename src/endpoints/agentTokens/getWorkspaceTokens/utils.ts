@@ -13,7 +13,7 @@ export async function getWorkspaceAgentTokensQuery(
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: {type: AppResourceType.AgentToken},
+    targets: {targetType: AppResourceType.AgentToken},
     action: AppActionType.Read,
   });
   return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);

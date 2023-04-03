@@ -1,10 +1,11 @@
 import {faker} from '@faker-js/faker';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, getWorkspaceActionList} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {IBaseContext} from '../../contexts/types';
 import {
-  canEntityPerformAction01,
-  checkExplicitAccessPermissions01,
+  canEntityPerformActionOnTargetId,
+  checkExplicitAccessPermissionsOnTargetId,
 } from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -45,6 +46,7 @@ describe('addItems', () => {
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: workspace.resourceId},
+      appliesTo: PermissionItemAppliesTo.Self,
     }));
     const reqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
@@ -52,7 +54,7 @@ describe('addItems', () => {
     );
     const result = await addPermissionItems(context, reqData);
     assertEndpointResultOk(result);
-    await canEntityPerformAction01(
+    await canEntityPerformActionOnTargetId(
       context,
       permissionGroup.resourceId,
       getWorkspaceActionList(),
@@ -75,6 +77,7 @@ describe('addItems', () => {
       grantAccess,
       action: action as AppActionType,
       target: {targetId: workspace.resourceId},
+      appliesTo: PermissionItemAppliesTo.Self,
     }));
     const itemsDuplicated: IPermissionItemInput[] = getWorkspaceActionList()
       .concat(getWorkspaceActionList())
@@ -82,6 +85,7 @@ describe('addItems', () => {
         grantAccess,
         action: action as AppActionType,
         target: {targetId: workspace.resourceId},
+        appliesTo: PermissionItemAppliesTo.Self,
       }));
     const reqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
@@ -98,7 +102,7 @@ describe('addItems', () => {
     // Second insert of the very same permission items as the first insert
     const result = await addPermissionItems(context, reqData);
     assertEndpointResultOk(result);
-    await checkExplicitAccessPermissions01(
+    await checkExplicitAccessPermissionsOnTargetId(
       context,
       permissionGroup.resourceId,
       getWorkspaceActionList(),

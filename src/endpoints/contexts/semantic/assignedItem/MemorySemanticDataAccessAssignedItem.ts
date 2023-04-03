@@ -1,6 +1,6 @@
 import {IAssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
-import {toArray} from '../../../../utils/fns';
+import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {getMongoQueryOptionsForMany} from '../../data/utils';
@@ -28,8 +28,8 @@ export class MemorySemanticDataAccessAssignedItem
     return await this.memstore.readManyItems(
       {
         workspaceId,
-        assignedItemId: {$in: toArray(assignedItemId)},
-        assigneeId: {$in: toArray(assigneeId)},
+        assignedItemId: {$in: toNonNullableArray(assignedItemId)},
+        assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       options?.transaction,
       opts.limit,
@@ -50,8 +50,10 @@ export class MemorySemanticDataAccessAssignedItem
     return await this.memstore.readManyItems(
       {
         workspaceId,
-        assignedItemType: assignedItemType ? {$in: toArray(assignedItemType) as any[]} : undefined,
-        assigneeId: {$in: toArray(assigneeId)},
+        assignedItemType: assignedItemType
+          ? {$in: toNonNullableArray(assignedItemType) as any[]}
+          : undefined,
+        assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       options?.transaction,
       opts.limit,
@@ -71,8 +73,8 @@ export class MemorySemanticDataAccessAssignedItem
     return await this.memstore.exists(
       {
         workspaceId,
-        assignedItemId: {$in: toArray(assignedItemId)},
-        assigneeId: {$in: toArray(assigneeId)},
+        assignedItemId: {$in: toNonNullableArray(assignedItemId)},
+        assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       options?.transaction
     );
@@ -86,7 +88,7 @@ export class MemorySemanticDataAccessAssignedItem
     await this.memstore.deleteManyItems(
       {
         workspaceId,
-        assignedItemId: {$in: toArray(assignedItemId)},
+        assignedItemId: {$in: toNonNullableArray(assignedItemId)},
       },
       opts.transaction
     );
@@ -101,8 +103,10 @@ export class MemorySemanticDataAccessAssignedItem
     await this.memstore.deleteManyItems(
       {
         workspaceId,
-        assignedItemType: assignedItemType ? {$in: toArray(assignedItemType) as any[]} : undefined,
-        assigneeId: {$in: toArray(assigneeId)},
+        assignedItemType: assignedItemType
+          ? {$in: toNonNullableArray(assignedItemType) as any[]}
+          : undefined,
+        assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       opts.transaction
     );

@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
-import {calculatePageSize, getResourceId} from '../../../utils/fns';
+import {getResourceId} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
@@ -44,6 +45,7 @@ describe('getResourcePermissionItems', () => {
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: pg02.resourceId},
+      appliesTo: PermissionItemAppliesTo.Self,
     }));
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
@@ -57,7 +59,7 @@ describe('getResourcePermissionItems', () => {
     const {items} = await addPermissionItems(context, addPermissionItemsReqData);
     const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId, targetId: pg02.resourceId}
+      {workspaceId: workspace.resourceId, target: {targetId: pg02.resourceId}}
     );
     const result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
@@ -70,49 +72,18 @@ describe('getResourcePermissionItems', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
       targetType: AppResourceType.Workspace,
       targetId: workspace.resourceId,
     });
-    const count = await context.semantic.permissionItem.countByQuery({
-      workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-      targetType: AppResourceType.Workspace,
-      targetId: workspace.resourceId,
-    });
-    const pageSize = 10;
-    let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        page,
-        pageSize,
-        workspaceId: workspace.resourceId,
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
-      }
-    );
-    let result = await getResourcePermissionItems(context, instData);
-    assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
 
-    page = 1;
-    instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        page,
-        pageSize,
         workspaceId: workspace.resourceId,
-        targetType: AppResourceType.Workspace,
-        targetId: workspace.resourceId,
+        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
       }
     );
-    result = await getResourcePermissionItems(context, instData);
+    const result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.items.length).toBeGreaterThanOrEqual(calculatePageSize(count, pageSize, page));
   });
 });

@@ -17,7 +17,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (context, ins
     agent,
     workspaceId,
     action: AppActionType.Delete,
-    targets: [{type: AppResourceType.PermissionItem}],
+    targets: {targetType: AppResourceType.PermissionItem},
   });
   const job = await INTERNAL_deletePermissionItems(context, agent, workspace, data);
   return {jobId: job.resourceId};

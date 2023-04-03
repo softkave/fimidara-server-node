@@ -16,7 +16,7 @@ import {IUsageRecord, UsageSummationType} from '../../definitions/usageRecord';
 import {IUser} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {assertNotFound} from '../../utils/assertion';
-import {toArray} from '../../utils/fns';
+import {toNonNullableArray} from '../../utils/fns';
 import {assertAgentToken} from '../agentTokens/utils';
 import {assertCollaborationRequest} from '../collaborationRequests/utils';
 import {assertFile} from '../files/utils';
@@ -103,8 +103,6 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
   ];
   const permissionItemIndexOpts: MemStoreIndexOptions<IPermissionItem>[] = [
     workspaceIdIndexOpts,
-    {field: 'containerId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'containerType', type: MemStoreIndexTypes.MapIndex},
     {field: 'entityId', type: MemStoreIndexTypes.MapIndex},
     {field: 'entityType', type: MemStoreIndexTypes.MapIndex},
     {field: 'targetId', type: MemStoreIndexTypes.MapIndex},
@@ -153,7 +151,7 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     assignedItem: new AssignedItemMemStoreProvider([], assignedItemIndexOpts),
     usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts, {
       insertFilter: items =>
-        toArray(items).filter(item => item.summationType === UsageSummationType.Two),
+        toNonNullableArray(items).filter(item => item.summationType === UsageSummationType.Two),
     }),
   };
 }

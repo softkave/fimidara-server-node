@@ -3,7 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
 import {GetAgentTokenEndpoint} from './types';
 import {getAgentTokenJoiSchema} from './validation';

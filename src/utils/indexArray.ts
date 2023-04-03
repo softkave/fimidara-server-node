@@ -1,5 +1,5 @@
 import {get} from 'lodash';
-import {toArray} from './fns';
+import {toNonNullableArray} from './fns';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {
@@ -27,7 +27,7 @@ export function indexArray<T, R = T>(
   arr: T | T[] = [],
   opts: IIndexArrayOptions<T, R> = {}
 ): {[key: string]: R} {
-  const array = toArray(arr ?? []);
+  const array = toNonNullableArray(arr ?? []);
   const indexer = opts.indexer ?? defaultIndexer;
   const path = opts.path;
   const reducer = opts.reducer ?? defaultReducer;

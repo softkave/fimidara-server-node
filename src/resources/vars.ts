@@ -1,7 +1,7 @@
 import assert = require('assert');
 import {isObject, isUndefined, merge, mergeWith} from 'lodash';
 import {cast, getFirstArg} from '../utils/fns';
-import {getNewId} from '../utils/resourceId';
+import {getNewId} from '../utils/resource';
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
 

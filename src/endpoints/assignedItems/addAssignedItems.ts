@@ -6,8 +6,7 @@ import {IAssignedTagInput} from '../../definitions/tag';
 import {IWorkspace} from '../../definitions/workspace';
 import {makeKey, newWorkspaceResource} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resourceId';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resource';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
@@ -129,7 +128,7 @@ export async function addAssignedPermissionGroupList(
       agent,
       workspaceId: workspaceId,
       action: AppActionType.GrantPermission,
-      targets: [{type: AppResourceType.PermissionGroup}],
+      targets: {targetType: AppResourceType.PermissionGroup},
     });
   }
 
@@ -160,20 +159,6 @@ export async function addAssignedPermissionGroupList(
   };
 
   return await addAssignedItems(context, workspaceId, items, deleteExisting, comparatorFn, opts);
-}
-
-export async function replaceAssignedPermissionGroupList(
-  context: IBaseContext,
-  agent: IAgent,
-  workspaceId: string,
-  permissionGroupsInput: IAssignPermissionGroupInput[],
-  assigneeId: string | string[],
-  deleteExisting: boolean,
-  skipPermissionGroupsExistCheck = false,
-  skipAuthCheck = false,
-  opts: ISemanticDataAccessProviderMutationRunOptions
-) {
-  throw reuseableErrors.common.notImplemented();
 }
 
 export async function addAssignedTagList(

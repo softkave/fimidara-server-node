@@ -9,6 +9,7 @@ import {
   isUndefined,
   last,
   merge,
+  mergeWith,
   set,
 } from 'lodash';
 import {IAgentToken} from '../../../definitions/agentToken';
@@ -25,9 +26,9 @@ import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {makeKey, toArray} from '../../../utils/fns';
+import {makeKey, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {getResourceTypeFromId} from '../../../utils/resourceId';
+import {getResourceTypeFromId} from '../../../utils/resource';
 import {AnyFn, PartialRecord} from '../../../utils/types';
 import {
   BulkOpItem,
@@ -62,9 +63,20 @@ import {
   MemStoreTransactionConsistencyOpTypes,
 } from './types';
 
-type Q = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> & INumberLiteralFieldQueryOps;
-type QK = keyof Q;
+type Mem_FieldQueryOps = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> &
+  INumberLiteralFieldQueryOps;
+type Mem_FieldQueryOpKeys = keyof Mem_FieldQueryOps;
 
+// TODO: There is an issue with our implementation of transactions and
+// txn-lockable ops. An op is stalled only if there's a lock, so ops that've run
+// before the lock are not stalled meaning there's a possibility of the
+// atomicity of those ops being corrupted. This may not be an issue but let's
+// think more on it to be certain that it's not an issue. For example, if we
+// check whether a row exists, and if it doesn't insert the row, and another
+// request is doing the exact same thing for the same row, after the first
+// exists call (which should be false), because of the way JS await works, the
+// 2nd requests exists may run right after (also returning false), leading both
+// requests to insert the same row causing a conflict.
 export class MemStoreTransaction implements IMemStoreTransaction {
   static startTransaction() {
     return new MemStoreTransaction();
@@ -77,11 +89,12 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   protected deletedItemsIdMap: Record<string, boolean> = {};
   protected consistencyOps: MemStoreTransactionConsistencyOp[] = [];
   protected indexViews: Map<IMemStoreIndex<IResource>, unknown> = new Map();
-  protected locks: PartialRecord<number, IMemStore<IResource>> = {};
+  protected locks = new Map<IMemStore<IResource>, Record<number, number>>();
 
-  // TODO: how to maintain storeRef without having to store it for each item?
+  // TODO: how to maintain storeRef without having to store it for each item? I
+  // don't think it really matters, but it's a nice to have.
   addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>) {
-    const itemsList = toArray(item);
+    const itemsList = toNonNullableArray(item);
     itemsList.forEach(item => {
       const existingItem = this.cache[item.resourceId];
       this.cache[item.resourceId] = {
@@ -97,7 +110,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   }
 
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]) {
-    const opList = toArray(op);
+    const opList = toNonNullableArray(op);
     this.consistencyOps = this.consistencyOps.concat(opList);
     opList.forEach(nextOp => {
       if (nextOp.type === MemStoreTransactionConsistencyOpTypes.Delete) {
@@ -114,6 +127,10 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   ) {
     try {
       await syncFn(this.consistencyOps, this);
+
+      this.indexViews.forEach((view, indexRef) => {
+        indexRef.commitView(view);
+      });
 
       for (const op of this.consistencyOps) {
         if (
@@ -146,7 +163,11 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   }
 
   setLock(storeRef: IMemStore<IResource>, lockId: number): void {
-    this.locks[lockId] = storeRef;
+    if (this.locks.has(storeRef)) {
+      this.locks.get(storeRef)![lockId] = lockId;
+    } else {
+      this.locks.set(storeRef, {[lockId]: lockId});
+    }
   }
 
   terminate(): void {
@@ -158,10 +179,9 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   }
 
   protected releaseLocks() {
-    for (const lockId in this.locks) {
-      const storeRef = this.locks[lockId]!;
-      storeRef.releaseLock(lockId as unknown as number);
-    }
+    this.locks.forEach((lockIds, storeRef) => {
+      storeRef.releaseLocks(Object.values(lockIds));
+    });
   }
 }
 
@@ -172,22 +192,54 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
 
-  index(item: T | T[], transaction?: IMemStoreTransaction) {
-    const itemList = toArray(item);
-    const map = this.startIndexView(transaction);
-    itemList.forEach(item => {
-      const indexValue = this.getIndexValue(item[this.options.field]);
-      let idMap = map[indexValue];
-      if (!idMap) {
-        map[indexValue] = idMap = {};
+  index(item: T | T[], existingItem: T | T[] | undefined, transaction?: IMemStoreTransaction) {
+    const itemList = toNonNullableArray(item);
+    const existingItemList = toNonNullableArray(existingItem ?? []);
+    const indexMap = this.startIndexView(transaction);
+    itemList.forEach((nextItem, i) => {
+      const nextExistingItem = existingItemList[i];
+      const itemIndexValue = this.getIndexValue(nextItem[this.options.field]);
+
+      // Check if an existing item is passed marking this re-indexing an
+      // existing item
+      if (nextExistingItem) {
+        const existingItemIndexValue = this.getIndexValue(nextExistingItem[this.options.field]);
+
+        // Only change the index if the value in indexed field is updated. We
+        // can also use this to short-circuit the indexing call for this item,
+        // i.e if there's an existing item and the field wasn't updated, and
+        // assuming all items in the indexed store have been indexed once, then
+        // the value should already be indexed, and seeing it didn't change, no
+        // need to re-index. Map indexes already provide a set-like
+        // functionality where indexing the same value more than once will yield
+        // only one entry in the index, but we can use this short-circuit to
+        // save a little bit of perf.
+        if (itemIndexValue !== existingItemIndexValue) {
+          let existingIdMap = indexMap[existingItemIndexValue];
+          if (!existingIdMap) {
+            indexMap[existingItemIndexValue] = existingIdMap = merge(
+              {},
+              this.map[existingItemIndexValue]
+            );
+          }
+          delete existingIdMap[nextItem.resourceId];
+        } else {
+          // short-circuit. Read comment above for context.
+          return;
+        }
       }
 
-      idMap[item.resourceId] = item.resourceId;
+      let idMap = indexMap[itemIndexValue];
+      if (!idMap) {
+        indexMap[itemIndexValue] = idMap = merge({}, this.map[itemIndexValue]);
+      }
+
+      idMap[nextItem.resourceId] = nextItem.resourceId;
     });
   }
 
   COMMIT_purge(item: T | T[]): void {
-    const itemList = toArray(item);
+    const itemList = toNonNullableArray(item);
     itemList.forEach(item => {
       const indexValue = this.getIndexValue(item[this.options.field]);
       const idMap = this.map[indexValue];
@@ -200,19 +252,27 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   commitView(view: unknown): void {
     appAssert(isObject(view));
     const mapView = view as MemStoreMapIndexView;
-    merge(this.map, mapView);
+
+    // TODO: delete empty value maps (values whose mappings were removed in a
+    // re-index) after merging
+    mergeWith(this.map, mapView, (objValue, srcValue) => (srcValue ? srcValue : objValue));
   }
 
-  indexGet(key: unknown, transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
     const txnMap =
       transaction?.getIndexView<MemStoreMapIndexView>(
         this as unknown as IMemStoreIndex<IResource>
       ) ?? {};
     const map = this.map;
-    return Object.values(txnMap[key as string] ?? map[key as string] ?? {}) as string[];
+    const keyList = toNonNullableArray(key ?? []);
+    const acc = keyList.reduce((acc: Record<string, string>, nextKey) => {
+      merge(acc, txnMap[nextKey as string] ?? map[nextKey as string] ?? {});
+      return acc;
+    }, {});
+    return Object.values(acc);
   }
 
-  traverse(fn: (id: string) => boolean, from?: number, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
     appAssert(false, new ServerError(), 'Map index traversal not supported.');
   }
 
@@ -257,11 +317,23 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
 
-  index(item: T | T[], transaction?: IMemStoreTransaction) {
-    const itemList = toArray(item);
+  index(item: T | T[], existingItem: T | T[] | undefined, transaction?: IMemStoreTransaction) {
+    const itemList = toNonNullableArray(item);
+    const existingItemList = toNonNullableArray(existingItem ?? []);
     const map = this.startIndexView(transaction);
-    itemList.forEach(item => {
+    itemList.forEach((item, i) => {
+      const existingItem = existingItemList[i];
       const value = item[this.options.field];
+      if (existingItem) {
+        const existingItemValue = existingItem[this.options.field];
+        if (value !== existingItemValue) {
+          this.purge(map, existingItem, /** initialize */ true);
+        } else {
+          // short-circuit. Check `index`impl in MapIndex for more information.
+          return;
+        }
+      }
+
       let key = '';
       if ((value as unknown[] | undefined)?.length) {
         (value as string[]).forEach(v => {
@@ -275,20 +347,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   }
 
   COMMIT_purge(item: T | T[]): void {
-    const itemList = toArray(item);
-    const map = this.map;
-    itemList.forEach(item => {
-      const value = item[this.options.field];
-      let key = '';
-      if ((value as unknown[] | undefined)?.length) {
-        (value as string[]).forEach(v => {
-          key += v;
-          this.deleteFromSplitMap(map, v, item.resourceId);
-        });
-      }
-
-      this.deleteFromFullMap(map, key, item.resourceId);
-    });
+    this.purge(this.map, item);
   }
 
   commitView(view: unknown): void {
@@ -296,7 +355,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     merge(this.map, view as MemStoreArrayMapIndexView);
   }
 
-  indexGet(key: unknown, transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
     const txnMap = transaction?.getIndexView<MemStoreArrayMapIndexView>(
       this as unknown as IMemStoreIndex<IResource>
     );
@@ -315,12 +374,28 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     return item0 ? Object.values(item0) : [];
   }
 
-  traverse(fn: (id: string) => boolean, from: number, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
     appAssert(false, new ServerError(), 'Array map index traversal not supported.');
   }
 
   getOptions(): MemStoreIndexOptions<T> {
     return this.options;
+  }
+
+  protected purge(map: MemStoreArrayMapIndexView, item: T | T[], initialize = false): void {
+    const itemList = toNonNullableArray(item);
+    itemList.forEach(item => {
+      const value = item[this.options.field];
+      let key = '';
+      if ((value as unknown[] | undefined)?.length) {
+        (value as string[]).forEach(v => {
+          key += v;
+          this.deleteFromSplitMap(map, v, item.resourceId, initialize);
+        });
+      }
+
+      this.deleteFromFullMap(map, key, item.resourceId, initialize);
+    });
   }
 
   protected startIndexView(transaction?: IMemStoreTransaction) {
@@ -338,25 +413,37 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   }
 
   protected insertInSplitMap(map: MemStoreArrayMapIndexView, v: string, id: string) {
-    let map0 = map.splitMap[v];
-    if (!map0) map.splitMap[v] = map0 = {};
-    map0[id] = id;
+    let idMap = map.splitMap[v];
+    if (!idMap) map.splitMap[v] = idMap = merge({}, this.map.splitMap[v]);
+    idMap[id] = id;
   }
 
   protected insertInFullMap(map: MemStoreArrayMapIndexView, key: string, id: string) {
-    let map0 = map.fullMap[key];
-    if (!map0) map.fullMap[key] = map0 = {};
-    map0[id] = id;
+    let idMap = map.fullMap[key];
+    if (!idMap) map.fullMap[key] = idMap = merge({}, this.map.fullMap[key]);
+    idMap[id] = id;
   }
 
-  protected deleteFromSplitMap(map: MemStoreArrayMapIndexView, v: string, id: string) {
-    const map0 = map.splitMap[v];
-    if (map0) delete map0[id];
+  protected deleteFromSplitMap(
+    map: MemStoreArrayMapIndexView,
+    v: string,
+    id: string,
+    initialize = false
+  ) {
+    let idMap = map.splitMap[v];
+    if (!idMap && initialize) map.splitMap[v] = idMap = merge({}, this.map.splitMap[v]);
+    if (idMap) delete idMap[id];
   }
 
-  protected deleteFromFullMap(map: MemStoreArrayMapIndexView, key: string, id: string) {
-    const map0 = map.fullMap[key];
-    if (map0) delete map0[id];
+  protected deleteFromFullMap(
+    map: MemStoreArrayMapIndexView,
+    key: string,
+    id: string,
+    initialize = false
+  ) {
+    let idMap = map.fullMap[key];
+    if (!idMap && initialize) map.fullMap[key] = idMap = merge({}, this.map.fullMap[key]);
+    if (idMap) delete idMap[id];
   }
 }
 
@@ -368,25 +455,42 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
 
-  index(item: T | T[], transaction?: IMemStoreTransaction): void {
-    const itemList = this.sortItems(toArray(item));
+  index(
+    item: T | T[],
+
+    // Unused since this index is for static timestamps.
+    existingItem: T | T[] | undefined,
+    transaction?: IMemStoreTransaction
+  ): void {
+    const itemList = this.sortItems(toNonNullableArray(item));
     const indexList = this.startIndexView(transaction);
-    const lastItem = indexList.getLast();
-    const lastTimestamp = lastItem?.timestamp ?? 0;
+    const lastItemFromIndex = indexList.getLast();
+    const lastItemFromInput = last(itemList);
+    const lastTimestampFromIndex = lastItemFromIndex?.timestamp ?? 0;
+    const lastTimestampFromInput = lastItemFromInput
+      ? (lastItemFromInput[this.options.field] as number)
+      : 0;
+    if (lastTimestampFromIndex > lastTimestampFromInput) {
+      // Short circuit. The intended use of this index for now is for traversal
+      // using a resource's created timestamp. Leveraging the knowledge that
+      // when the server starts, we load all our data into memory and index
+      // them, subsequent indexing calls for timestamps less than the last
+      // timestamp in the index should be dropped.
+      return;
+    }
+
     itemList.forEach(item => {
       const value = item[this.options.field];
-      if (lastTimestamp < (value as any)) {
-        // Cast type to number and avoiding the isNumber check for a little bit
-        // perf gain. Maybe a little bit unsafe but should be okay.
-        indexList.push({id: item.resourceId, timestamp: value as number});
-      }
+      // Cast type to number and avoiding the isNumber check for a little bit
+      // perf gain. Maybe a little bit unsafe but should be okay.
+      indexList.push({id: item.resourceId, timestamp: value as number});
     });
   }
 
   COMMIT_purge(item: T | T[]): void {
     const options = this.options;
     const itemMapById: Record<string, T> = {};
-    const itemList = toArray(item);
+    const itemList = toNonNullableArray(item);
     let minTimestamp = 0,
       maxTimestamp = 0;
     itemList.forEach(item => {
@@ -413,7 +517,7 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
     this.sortedList.merge(view);
   }
 
-  indexGet(key: unknown, transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
     appAssert(
       false,
       new ServerError(),
@@ -421,14 +525,9 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
     );
   }
 
-  traverse(fn: (id: string) => boolean, from = 0, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
     const list = this.getIndexView(transaction);
     list.some((nextItem, i) => {
-      if (i < from) {
-        i += 1;
-        return false;
-      }
-
       i += 1;
       return fn(nextItem.id);
     });
@@ -469,12 +568,26 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
 }
 
 enum MemStoreLockableActionTypes {
-  Create = 1,
-  Update,
-  TransactionRead,
+  // Used by create op
+  // Locks transaction read
+  Create = 'c',
+
+  // Used by update and delete ops
+  // Locks subsequent updates and transaction reads
+  Update = 'u',
+
+  // Used by read, exists, and count ops
+  // Locks create create and update
+  TransactionRead = 'r',
 }
 
-type LockInfo = {action: MemStoreLockableActionTypes; lockId: number; id: string | undefined};
+type LockInfo = {
+  action: MemStoreLockableActionTypes;
+  lockId: number;
+  rowId: string | undefined;
+  txnRef: IMemStoreTransaction;
+};
+
 type LockWaiter = {
   fn: AnyFn;
   args: unknown[];
@@ -501,7 +614,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   ): Promise<Result> {
     const txn = new MemStoreTransaction();
     try {
-      const result = fn(txn);
+      const result = await fn(txn);
       await txn.commit((ops, committingTxn) => syncTxnOps(ctx, ops, committingTxn));
       return result;
     } finally {
@@ -530,10 +643,12 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         const index = new MemStoreMapIndex(opts);
         this.indexes.push(index);
         this.mapIndexes[opts.field as string] = index;
+        return;
       } else if (opts.type === MemStoreIndexTypes.ArrayMapIndex) {
         const index = new MemStoreArrayMapIndex(opts);
         this.indexes.push(index);
         this.mapIndexes[opts.field as string] = index;
+        return;
       }
 
       throw new Error(`Unsupported index type ${opts.type}`);
@@ -553,6 +668,19 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       newItems,
       transaction,
     ]);
+  }
+
+  createIfNotExist(
+    items: T | T[],
+    query: LiteralDataQuery<T>,
+    transaction: IMemStoreTransaction
+  ): Promise<T | T[] | null> {
+    return this.executeOp(
+      MemStoreLockableActionTypes.Create,
+      transaction,
+      this.__createIfNotExist,
+      [items, query, transaction]
+    );
   }
 
   readItem(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) {
@@ -632,6 +760,9 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   }
 
   TRANSACTION_commitItems(items: T[]): void {
+    // No need to index commited items because the changes that occurred with
+    // the txn are tracked in the txn and commited into the indexes from the
+    // txn. We only need to update the store's local map.
     if (this.options.insertFilter) items = this.options.insertFilter(items);
     this.indexIntoLocalMap(items);
   }
@@ -645,28 +776,31 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     this.NON_TRANSACTION_ingestItems(items);
   }
 
-  releaseLock(lockId: number): void {
-    const lock = this.currentLocks[lockId];
-    if (!lock) return;
+  releaseLocks(lockIds: number | number[]): void {
+    toNonNullableArray(lockIds).forEach(lockId => {
+      const lock = this.currentLocks[lockId];
+      if (!lock) return;
 
-    const tableLock = this.tableLocks[lock.action];
-    if (tableLock?.lockId === lock.lockId) {
-      delete this.tableLocks[lock.action];
-    }
+      const tableLock = this.tableLocks[lock.action];
+      if (tableLock?.lockId === lock.lockId) {
+        delete this.tableLocks[lock.action];
+      }
 
-    const rowLockId = lock.id ? this.getRowLockId(lock.id, lock.action) : undefined;
-    if (rowLockId) {
-      delete this.rowLocks[rowLockId];
-    }
+      const rowLockId = lock.rowId ? this.getRowLockId(lock.rowId, lock.action) : undefined;
+      if (rowLockId) {
+        delete this.rowLocks[rowLockId];
+      }
 
-    delete this.currentLocks[lock.lockId];
+      delete this.currentLocks[lock.lockId];
+    });
+
     if (!this.releaseLockHandle) {
       this.releaseLockHandle = setTimeout(this.clearFnsWaitingOnReleasedLocks, 0);
     }
   }
 
-  protected __createItems(newItems: T | T[], transaction: IMemStoreTransaction) {
-    const newItemsList = toArray(newItems);
+  protected __createItems = (newItems: T | T[], transaction: IMemStoreTransaction) => {
+    const newItemsList = toNonNullableArray(newItems);
 
     if (transaction) {
       const idList: string[] = [];
@@ -679,23 +813,37 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         idList: idList,
         storeRef: this,
       });
-      this.indexIntoIndexes(newItemsList, transaction);
+      this.addTableLock([MemStoreLockableActionTypes.TransactionRead], transaction);
+      this.indexIntoIndexes(newItemsList, undefined, transaction);
     } else {
       this.NON_TRANSACTION_ingestItems(newItemsList);
     }
-  }
+  };
 
-  protected __readItem(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) {
+  protected __createIfNotExist = (
+    newItems: T | T[],
+    query: LiteralDataQuery<T>,
+    transaction: IMemStoreTransaction
+  ) => {
+    // TODO: skip action for these kinds of match checks
+    const items = this.match(query, transaction, MemStoreLockableActionTypes.Create, 1);
+    if (items.length) return null;
+
+    this.__createItems(newItems, transaction);
+    return newItems;
+  };
+
+  protected __readItem = (query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) => {
     const items = this.__readManyItems(query, transaction, 1);
     return first(items) ?? null;
-  }
+  };
 
-  protected __readManyItems(
+  protected __readManyItems = (
     query: LiteralDataQuery<T>,
     transaction?: IMemStoreTransaction,
     count?: number,
     page?: number
-  ) {
+  ) => {
     const items = this.match(
       query,
       transaction,
@@ -712,23 +860,23 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
 
     return items;
-  }
+  };
 
-  protected __updateItem(
+  protected __updateItem = (
     query: LiteralDataQuery<T>,
     update: Partial<T>,
     transaction: IMemStoreTransaction
-  ) {
+  ) => {
     const updatedItems = this.__updateManyItems(query, update, transaction, 1);
     return first(updatedItems) ?? null;
-  }
+  };
 
-  protected __updateManyItems(
+  protected __updateManyItems = (
     query: LiteralDataQuery<T>,
     update: Partial<T>,
     transaction: IMemStoreTransaction,
     count?: number
-  ) {
+  ) => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.Update, count);
     const idList = Array(items.length);
     const updatedItems = items.map((item, index) => {
@@ -746,7 +894,6 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         this.itemsMap[item.resourceId] = updatedItem;
       }
 
-      this.indexIntoIndexes(updatedItem, transaction);
       return updatedItem;
     });
 
@@ -758,18 +905,19 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       });
     }
 
+    this.indexIntoIndexes(updatedItems, items, transaction);
     return updatedItems;
-  }
+  };
 
-  protected __deleteItem(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction) {
+  protected __deleteItem = (query: LiteralDataQuery<T>, transaction: IMemStoreTransaction) => {
     this.__deleteManyItems(query, transaction, 1);
-  }
+  };
 
-  protected __deleteManyItems(
+  protected __deleteManyItems = (
     query: LiteralDataQuery<T>,
     transaction: IMemStoreTransaction,
     count?: number
-  ) {
+  ) => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.Update, count);
 
     if (transaction) {
@@ -790,9 +938,12 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     } else {
       this.purgeItems(items);
     }
-  }
+  };
 
-  protected __countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): number {
+  protected __countItems = (
+    query: LiteralDataQuery<T>,
+    transaction?: IMemStoreTransaction
+  ): number => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.TransactionRead);
     const count = items.length;
     if (transaction) {
@@ -803,9 +954,12 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
 
     return count;
-  }
+  };
 
-  protected __exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): boolean {
+  protected __exists = (
+    query: LiteralDataQuery<T>,
+    transaction?: IMemStoreTransaction
+  ): boolean => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.TransactionRead, 1);
     const matchFound = !!items.length;
     if (transaction) {
@@ -816,7 +970,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
 
     return matchFound;
-  }
+  };
 
   protected executeOp<Fn extends AnyFn>(
     action: MemStoreLockableActionTypes,
@@ -832,7 +986,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       }
 
       try {
-        this.checkTableLock(action);
+        this.checkTableLock(action, transaction);
         const result = fn(...(args as unknown[]));
         resolve(result);
       } catch (maybeLock) {
@@ -865,7 +1019,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
   }
 
-  protected clearFnsWaitingOnReleasedLocks() {
+  protected clearFnsWaitingOnReleasedLocks = () => {
     const waiters = this.waitingOnLocks;
     this.waitingOnLocks = [];
     const remainingWaiters = waiters.filter(entry => {
@@ -879,17 +1033,24 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
     this.waitingOnLocks = remainingWaiters.concat(this.waitingOnLocks);
     this.releaseLockHandle = undefined;
-  }
+  };
 
   protected addTableLock(
     action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
     transaction: IMemStoreTransaction
   ) {
-    toArray(action).forEach(nextAction => {
-      const lock: LockInfo = {action: nextAction, lockId: Date.now(), id: undefined};
-      this.tableLocks[nextAction] = lock;
-      transaction.setLock(this, lock.lockId);
-      this.currentLocks[lock.lockId] = lock;
+    toNonNullableArray(action).forEach(nextAction => {
+      if (!this.tableLocks[nextAction]) {
+        const lock: LockInfo = {
+          action: nextAction,
+          lockId: Math.random(),
+          rowId: undefined,
+          txnRef: transaction,
+        };
+        this.tableLocks[nextAction] = lock;
+        transaction.setLock(this, lock.lockId);
+        this.currentLocks[lock.lockId] = lock;
+      }
     });
   }
 
@@ -902,22 +1063,41 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
     transaction: IMemStoreTransaction
   ) {
-    toArray(action).forEach(nextAction => {
-      const lock: LockInfo = {id, action: nextAction, lockId: Date.now()};
-      this.rowLocks[this.getRowLockId(id, nextAction)] = lock;
-      transaction.setLock(this, lock.lockId);
-      this.currentLocks[lock.lockId] = lock;
+    toNonNullableArray(action).forEach(nextAction => {
+      const rowLockId = this.getRowLockId(id, nextAction);
+      if (!this.rowLocks[rowLockId]) {
+        const lock: LockInfo = {
+          rowId: id,
+          action: nextAction,
+
+          // Previously used `Date.now` but found different locks with the same
+          // ID when locks were added back to back and the diff was not upto
+          // 1ms, leading to one lock being freed and the rest not freed,
+          // leading to a deadlock (ops waiting on that lock weren't processed),
+          // so chose to use `Math.random` instead which is relatively fast
+          // enough and safe enough.
+          lockId: Math.random(),
+          txnRef: transaction,
+        };
+        this.rowLocks[rowLockId] = lock;
+        transaction.setLock(this, lock.lockId);
+        this.currentLocks[lock.lockId] = lock;
+      }
     });
   }
 
-  protected checkTableLock(action: MemStoreLockableActionTypes) {
+  protected checkTableLock(action: MemStoreLockableActionTypes, txn: IMemStoreTransaction) {
     const lock = this.tableLocks[action];
-    if (lock) throw lock;
+    if (lock && lock.txnRef !== txn) throw lock;
   }
 
-  protected checkRowLock(id: string, action: MemStoreLockableActionTypes) {
+  protected checkRowLock(
+    id: string,
+    action: MemStoreLockableActionTypes,
+    txn: IMemStoreTransaction
+  ) {
     const lock = this.rowLocks[this.getRowLockId(id, action)];
-    if (lock) throw lock;
+    if (lock && lock.txnRef !== txn) throw lock;
   }
 
   protected match(
@@ -927,13 +1107,24 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     count?: number,
     page?: number
   ) {
+    // Currently, we aren't checking table locks when there's no transaction. A
+    // case could be made that we should aways check table lock when transaction
+    // is present or not, e.g an insert op that doesn't have an accompanying txn
+    // which'll disrupt what txns were added to solve. Technically, this is okay
+    // for now, seeing all mutation APIs require txns, and we don't want to hold
+    // off non-txn reads for perf gains. If you think otherwise, let me @abayomi
+    // know.
     const {remainingQuery, matchedItems, goodRun} = this.indexMatch(query, transaction);
-    this.checkTableLock(action);
+    if (transaction) {
+      this.checkTableLock(action, transaction);
+    }
 
     if (isEmpty(remainingQuery)) {
-      matchedItems.forEach(item => {
-        this.checkRowLock(item.resourceId, action);
-      });
+      if (transaction) {
+        matchedItems.forEach(item => {
+          this.checkRowLock(item.resourceId, action, transaction);
+        });
+      }
 
       if (count) return matchedItems.slice(page, count);
       else return matchedItems;
@@ -941,9 +1132,9 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
     const secondMatchedItems: T[] = [];
     const traverseFn = (item: T) => {
-      const matches = this.matchItem(item, query);
+      const matches = this.matchItem(item, remainingQuery);
       if (matches) {
-        this.checkRowLock(item.resourceId, action);
+        if (transaction) this.checkRowLock(item.resourceId, action, transaction);
         secondMatchedItems.push(item);
         if (count && secondMatchedItems.length >= count) return true;
       }
@@ -957,7 +1148,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       this.traversalIndex.traverse((id: string) => {
         const item = this.getItem(id, transaction);
         return item ? traverseFn(item) : false;
-      });
+      }, transaction);
     }
 
     return secondMatchedItems;
@@ -983,45 +1174,42 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     };
 
     for (const queryKey in query) {
-      const queryOpObjOrValue = query[queryKey];
+      const opOrValue = query[queryKey];
+      const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
       let itemValue = item[queryKey] as any;
       const isItemValueArray = isArray(itemValue);
+
       if (isUndefined(itemValue)) {
         itemValue = null;
       }
 
-      if (isObject(queryOpObjOrValue)) {
-        const queryOpObj = queryOpObjOrValue as Q;
-        for (const opKey in queryOpObj) {
-          const opKeyTyped = opKey as QK;
-          const opValue = queryOpObj[opKeyTyped];
-          const isOpValueArray = isArray(opValue);
+      for (const opKey in op) {
+        const opKeyTyped = opKey as Mem_FieldQueryOpKeys;
+        const opValue = op[opKeyTyped];
+        const isOpValueArray = isArray(opValue);
 
-          if (isUndefined(opValue)) {
-            continue;
-          }
-          if (isItemValueArray) {
-            continueMatching = this.arrayFieldMatching(
-              queryKey,
-              opKeyTyped,
-              opValue,
-              itemValue,
-              getOpValueCache,
-              isOpValueArray
-            );
-          } else {
-            continueMatching = this.nonArrayFieldMatching(
-              queryKey,
-              opKeyTyped,
-              opValue,
-              itemValue,
-              getOpValueCache,
-              item
-            );
-          }
+        if (isUndefined(opValue)) {
+          continue;
         }
-      } else {
-        continueMatching = itemValue === queryOpObjOrValue;
+        if (isItemValueArray) {
+          continueMatching = this.arrayFieldMatching(
+            queryKey,
+            opKeyTyped,
+            opValue,
+            itemValue,
+            getOpValueCache,
+            isOpValueArray
+          );
+        } else {
+          continueMatching = this.nonArrayFieldMatching(
+            queryKey,
+            opKeyTyped,
+            opValue,
+            itemValue,
+            getOpValueCache,
+            item
+          );
+        }
       }
 
       if (!continueMatching) {
@@ -1034,7 +1222,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected nonArrayFieldMatching(
     queryKey: string,
-    opKeyTyped: QK,
+    opKeyTyped: Mem_FieldQueryOpKeys,
     opValue: RegExp | DataProviderLiteralType | DataProviderLiteralType[],
     itemValue: any,
     getOpValueCache: (
@@ -1111,7 +1299,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected arrayFieldMatching(
     queryKey: string,
-    opKeyTyped: QK,
+    opKeyTyped: Mem_FieldQueryOpKeys,
     opValue: RegExp | DataProviderLiteralType | DataProviderLiteralType[],
     itemValue: any[],
     getOpValueCache: (
@@ -1178,16 +1366,20 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
     for (const queryKey in query) {
       const opOrValue = query[queryKey];
-      const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Q;
+      if (isUndefined(opOrValue)) {
+        continue;
+      }
+
+      const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
       const index = this.mapIndexes[queryKey];
 
-      if (!index || !(op.$eq || op.$in || op.$lowercaseEq || op.$lowercaseIn)) {
+      if (!index || isUndefined(op.$eq ?? op.$in ?? op.$lowercaseEq ?? op.$lowercaseIn)) {
         indexMatchRemainingQuery[queryKey] = query[queryKey];
         continue;
       }
 
       for (const nextOpKey in op) {
-        const nextOpKeyTyped = nextOpKey as QK;
+        const nextOpKeyTyped = nextOpKey as Mem_FieldQueryOpKeys;
         const nextOpKeyValue = op[nextOpKeyTyped];
 
         if (isUndefined(nextOpKeyValue)) {
@@ -1202,7 +1394,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         ) {
           const matchedItems01: Record<string, T> = {};
           matchedItemsMapList.push(matchedItems01);
-          const idList = index.indexGet(nextOpKeyValue);
+          const idList = index.indexGet(nextOpKeyValue, transaction);
           idList.forEach(id => {
             const item = this.getItem(id, transaction);
             if (item) matchedItems01[item.resourceId] = item;
@@ -1235,14 +1427,14 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     delete remainingQuery.resourceId;
 
     const opOrValue = query.resourceId;
-    const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Q;
+    const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
     if (!(op.$eq || op.$in)) return;
 
     const matchedItems: Record<string, T> = {};
     const resourceIdKey: keyof IResource = 'resourceId';
 
     for (const opKey in op) {
-      const opKeyTyped = opKey as QK;
+      const opKeyTyped = opKey as Mem_FieldQueryOpKeys;
       const opValue = op[opKeyTyped];
 
       if (isUndefined(opValue)) {
@@ -1278,9 +1470,13 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     return item;
   }
 
-  protected indexIntoIndexes(item: T | T[], transaction: IMemStoreTransaction | undefined) {
+  protected indexIntoIndexes(
+    item: T | T[],
+    existingItem: T | T[] | undefined,
+    transaction: IMemStoreTransaction | undefined
+  ) {
     forEach(this.indexes, index => {
-      index.index(item, transaction);
+      index.index(item, existingItem, transaction);
     });
   }
 
@@ -1291,22 +1487,22 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   }
 
   protected indexIntoLocalMap(item: T | T[]) {
-    toArray(item).forEach(item => {
+    toNonNullableArray(item).forEach(item => {
       this.itemsMap[item.resourceId] = item;
     });
   }
 
   protected purgeFromLocalMap(item: T | T[]) {
-    toArray(item).forEach(item => {
+    toNonNullableArray(item).forEach(item => {
       delete this.itemsMap[item.resourceId];
     });
   }
 
   protected NON_TRANSACTION_ingestItems(item: T | T[]) {
     if (this.options.insertFilter) item = this.options.insertFilter(item);
-    const itemList = toArray(item);
+    const itemList = toNonNullableArray(item);
     this.indexIntoLocalMap(itemList);
-    this.indexIntoIndexes(itemList, undefined);
+    this.indexIntoIndexes(itemList, /** existing items */ undefined, /** transaction */ undefined);
   }
 
   protected purgeItems(itemList: T[]) {

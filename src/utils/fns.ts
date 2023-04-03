@@ -1,4 +1,4 @@
-import {compact} from 'lodash';
+import {compact, flatten} from 'lodash';
 import {
   AppResourceType,
   IAgent,
@@ -6,10 +6,8 @@ import {
   ISessionAgent,
   IWorkspaceResource,
 } from '../definitions/system';
-import {appAssert} from './assertion';
 import {getTimestamp} from './dateFns';
-import {ServerError} from './errors';
-import {getNewIdForResource} from './resourceId';
+import {getNewIdForResource} from './resource';
 import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
 import {AnyFn, AnyObject} from './types';
 
@@ -131,20 +129,29 @@ export function extractResourceIdList(resources: Pick<IResource, 'resourceId'>[]
   return resources.map(getResourceId);
 }
 
-export function toArray<T>(item: NonNullable<T | T[]>) {
-  if (Array.isArray(item)) {
-    return item;
-  } else {
-    return [item];
-  }
+export function toArray<T>(...args: Array<T | T[]>) {
+  const arrays = args.map(item => {
+    if (Array.isArray(item)) {
+      return item;
+    } else {
+      return [item];
+    }
+  });
+  return flatten(arrays);
 }
 
-export function toCompactArray<T>(item: NonNullable<T | T[]>) {
-  return compact(toArray(item));
+export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
+  return toArray(...args);
 }
 
-export const stopControlFlow = (error = new ServerError()): any =>
-  appAssert(false, error, "Control shouldn't get here.");
+export function toCompactArray<T>(...args: Array<T | T[]>) {
+  const array = toArray(...args);
+  return compact(array as Array<NonNullable<T> | undefined>);
+}
+
+export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
+  return array.length ? array : toCompactArray(data);
+}
 
 export function newResource<T extends AnyObject>(
   type: AppResourceType,

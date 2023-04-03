@@ -6,14 +6,14 @@ import {
   IBaseTokenData,
   ISessionAgent,
   ITokenSubjectDefault,
-  PUBLIC_SESSION_AGENT,
   TokenAccessScope,
 } from '../../definitions/system';
 import {IUser} from '../../definitions/user';
+import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast, toArray} from '../../utils/fns';
+import {cast, toNonNullableArray} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {makeAgentTokenAgent, makeUserSessionAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
@@ -77,7 +77,7 @@ export default class SessionContext implements ISessionContext {
     }
 
     if (permittedAgentTypes?.length) {
-      const permittedAgent = toArray(permittedAgentTypes).find(
+      const permittedAgent = toNonNullableArray(permittedAgentTypes).find(
         type => type === agentToken.agentType
       );
 

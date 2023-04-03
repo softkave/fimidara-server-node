@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {randomAction, randomResourceType} from './utils';
@@ -23,14 +23,13 @@ export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
-    containerId: workspaceId,
-    containerType: AppResourceType.Workspace,
     entityId: createdBy.agentId,
     entityType: AppResourceType.User,
     targetId: getNewIdForResource(itemType),
     targetType: itemType,
     action: randomAction(),
     grantAccess: faker.datatype.boolean(),
+    appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     ...seed,
   };
   return item;

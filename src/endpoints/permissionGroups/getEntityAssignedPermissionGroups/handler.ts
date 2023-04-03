@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';
 import {

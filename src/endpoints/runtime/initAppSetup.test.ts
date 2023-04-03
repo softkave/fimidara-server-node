@@ -1,9 +1,8 @@
-import {APP_RUNTIME_STATE_DOC_ID} from '../../definitions/system';
 import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
 import {completeTest} from '../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../testUtils/testUtils';
-import {setupApp} from './initAppSetup';
+import {APP_RUNTIME_STATE_DOC_ID, setupApp} from './initAppSetup';
 
 let context: IBaseContext | null = null;
 

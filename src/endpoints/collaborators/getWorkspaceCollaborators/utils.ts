@@ -15,7 +15,7 @@ export async function getWorkspaceCollaboratorsQuery(
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: {type: AppResourceType.User},
+    targets: {targetType: AppResourceType.User},
     action: AppActionType.Read,
   });
 

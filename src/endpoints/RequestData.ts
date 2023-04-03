@@ -1,6 +1,6 @@
 import {AppResourceType, IBaseTokenData, ISessionAgent} from '../definitions/system';
 import {IUser} from '../definitions/user';
-import {getNewIdForResource} from '../utils/resourceId';
+import {getNewIdForResource} from '../utils/resource';
 import {IServerRequest} from './contexts/types';
 import {IRequestDataPendingPromise} from './types';
 

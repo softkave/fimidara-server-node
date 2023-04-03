@@ -1,7 +1,8 @@
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {canEntityPerformAction02} from '../../testUtils/helpers/permissionItem';
+import {canEntityPerformActionOnTargetType} from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -37,9 +38,10 @@ test('permission items deleted', async () => {
   );
   await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
     entity: {entityId: permissionGroup.resourceId},
-    target: {targetType: AppResourceType.File},
+    target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
     grantAccess: true,
     action: AppActionType.Read,
+    appliesTo: PermissionItemAppliesTo.ChildrenOfType,
   });
   const instData = RequestData.fromExpressRequest<IDeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
@@ -51,7 +53,7 @@ test('permission items deleted', async () => {
   );
   const result = await deletePermissionItems(context, instData);
   assertEndpointResultOk(result);
-  await canEntityPerformAction02(
+  await canEntityPerformActionOnTargetType(
     context,
     permissionGroup.resourceId,
     AppActionType.Read,

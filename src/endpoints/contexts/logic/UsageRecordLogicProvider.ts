@@ -10,7 +10,7 @@ import {
 } from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';

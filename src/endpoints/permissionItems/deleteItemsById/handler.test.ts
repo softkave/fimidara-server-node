@@ -1,3 +1,4 @@
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -38,9 +39,10 @@ describe('deleteItemsById', () => {
     );
     const {items} = await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
       entity: {entityId: permissionGroup.resourceId},
-      target: {targetType: AppResourceType.File},
+      target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
       grantAccess: true,
       action: AppActionType.Read,
+      appliesTo: PermissionItemAppliesTo.ChildrenOfType,
     });
     const instData = RequestData.fromExpressRequest<IDeletePermissionItemsByIdEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),

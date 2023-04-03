@@ -22,7 +22,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: [{type: AppResourceType.PermissionGroup}],
+    targets: {targetType: AppResourceType.PermissionGroup},
     action: AppActionType.Create,
   });
 

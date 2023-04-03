@@ -11,13 +11,13 @@ import {ServerError} from '../../utils/errors';
 import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {appMessages} from '../../utils/messages';
-import {getResourceTypeFromId} from '../../utils/resourceId';
+import {getResourceTypeFromId} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
 import {IPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
 import {
+  IAuthAccessCheckers,
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
-  IAuthAccessCheckers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
@@ -131,7 +131,12 @@ export async function INTERNAL_getResources(options: IGetResourcesOptions) {
         if (item.resolved) {
           const input = checkedInputResourcesMap[item.id];
           const inputAction = input?.action ?? action;
-          return item.value.checkForTargetId(inputAction, item.id as string, nothrowOnCheckError);
+          return item.value.checkForTargetId(
+            item.id as string,
+            inputAction,
+            item.value.params?.containerId,
+            nothrowOnCheckError
+          );
         } else {
           throw item.reason ?? new ServerError();
         }

@@ -4,7 +4,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
@@ -63,7 +63,7 @@ const internalCreateWorkspace = async (
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
-    publicPermissionGroupId: '',
+    publicPermissionGroupId: '', // placeholder
   };
 
   const {

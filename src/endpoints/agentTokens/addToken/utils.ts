@@ -72,7 +72,7 @@ export const internalCreateAgentToken = async (
         context,
         agent,
         workspaceId: workspace.resourceId,
-        targets: [{type: AppResourceType.AgentToken}],
+        targets: {targetType: AppResourceType.AgentToken},
         action: AppActionType.Create,
       }),
       data.name && checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),

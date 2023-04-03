@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
@@ -9,8 +9,9 @@ import {
 } from '../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../definitions/workspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resourceId';
+import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';

@@ -3,12 +3,12 @@ import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';

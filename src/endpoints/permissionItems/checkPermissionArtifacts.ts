@@ -7,7 +7,7 @@ import {
   PERMISSION_CONTAINER_TYPES,
   PERMISSION_ENTITY_TYPES,
 } from '../../definitions/system';
-import {getResourceTypeFromId} from '../../utils/resourceId';
+import {getResourceTypeFromId} from '../../utils/resource';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {

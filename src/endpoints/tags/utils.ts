@@ -38,7 +38,7 @@ export async function checkTagAuthorization(
     agent,
     action,
     workspaceId: workspace.resourceId,
-    targets: [{targetId: tag.resourceId}],
+    targets: {targetId: tag.resourceId},
   });
   return {agent, tag, workspace};
 }

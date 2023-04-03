@@ -11,7 +11,7 @@ import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
 import {newWorkspaceResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';

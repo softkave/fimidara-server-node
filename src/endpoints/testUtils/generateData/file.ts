@@ -1,8 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {IFile} from '../../../definitions/file';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 

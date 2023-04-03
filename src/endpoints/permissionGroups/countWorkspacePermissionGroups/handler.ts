@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils';
 import {CountWorkspacePermissionGroupsEndpoint} from './types';
 import {countWorkspacePermissionGroupsJoiSchema} from './validation';

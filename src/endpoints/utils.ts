@@ -5,9 +5,9 @@ import {
   IPublicAgent,
   IPublicResource,
   IPublicWorkspaceResource,
-  ISessionAgent,
 } from '../definitions/system';
 import {IWorkspace} from '../definitions/workspace';
+import OperationError from '../utils/OperationError';
 import {appAssert} from '../utils/assertion';
 import {getTimestamp} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
@@ -18,10 +18,9 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../utils/extract';
-import OperationError from '../utils/OperationError';
 import {reuseableErrors} from '../utils/reusableErrors';
-import {getWorkspaceIdFromSessionAgent} from '../utils/sessionUtils';
 import {AnyObject} from '../utils/types';
+import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
@@ -30,16 +29,13 @@ import {IBaseContext, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
-import RequestData from './RequestData';
 import {
   DeleteResourceCascadeFnsMap,
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
   IPaginationQuery,
   IRequestDataPendingPromise,
 } from './types';
 import {PermissionDeniedError} from './user/errors';
-import {checkWorkspaceExists} from './workspaces/utils';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
@@ -220,16 +216,6 @@ export function getWorkspaceResourceListQuery00(
   }
 
   appAssert(false, new ServerError(), 'Control flow should not get here.');
-}
-
-export async function getWorkspaceFromEndpointInput(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  data: IEndpointOptionalWorkspaceIDParam
-) {
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
-  return {workspace};
 }
 
 export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {

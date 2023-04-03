@@ -3,10 +3,10 @@ import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/fns';
 import {MemStore} from '../../contexts/mem/Mem';

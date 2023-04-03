@@ -6,13 +6,14 @@ import {CURRENT_TOKEN_VERSION, IBaseTokenData} from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {
-  extractEnvVariables,
-  extractProdEnvsSchema,
   FileBackendType,
   IAppVariables,
+  extractEnvVariables,
+  extractProdEnvsSchema,
 } from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
-import {toArray} from '../../utils/fns';
+import {toNonNullableArray} from '../../utils/fns';
+import RequestData from '../RequestData';
 import addAgentToken from '../agentTokens/addToken/handler';
 import {IAddAgentTokenEndpointParams, INewAgentTokenInput} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
@@ -47,7 +48,6 @@ import {
 import addPermissionItems from '../permissionItems/addItems/handler';
 import {IAddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
 import {IPermissionItemInput} from '../permissionItems/types';
-import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
@@ -245,7 +245,7 @@ export async function insertPermissionItemsForTest(
 ) {
   const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, items: toArray(input)}
+    {workspaceId, items: toNonNullableArray(input)}
   );
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);

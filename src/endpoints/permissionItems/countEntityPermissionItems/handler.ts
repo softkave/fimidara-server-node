@@ -1,6 +1,6 @@
 import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
 import {getEntityPermissionItemsQuery} from '../getEntityPermissionItems/utils';
 import {CountEntityPermissionItemsEndpoint} from './types';

@@ -13,6 +13,19 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {AnyObject} from '../../../utils/types';
 import {LiteralDataQuery} from '../data/types';
 
+/**
+ * ISOLATED_read - won't take txns
+ * TRANSACTION_performOperations - would take a fn and within this fn will be
+ * performed syncronously, all the operations to be performed in that txn. The
+ * function will be called with syncronous APIs to interface with memstore with.
+ *
+ * Eliminate the possibility of a row being locked twice like 2 txn reads
+ * locking it, or If it's required (which I think it'll be) that multiple txns
+ * can lock a row or table, eliminate the possibility of the lock being
+ * realeased because a txn commits or terminates, but the other txn is not yet
+ * released, corrupting the atomicity of the other txn.
+ */
+
 export enum MemStoreTransactionConsistencyOpTypes {
   Insert = 1,
   Update,
@@ -44,9 +57,9 @@ export interface IMemStoreTransaction {
 }
 
 export enum MemStoreIndexTypes {
-  MapIndex = 1,
-  ArrayMapIndex,
-  StaticTimestampIndex,
+  MapIndex = 'mapIndex',
+  ArrayMapIndex = 'arrayMapIndex',
+  StaticTimestampIndex = 'staticTimestampIndex',
 }
 
 /**
@@ -60,10 +73,17 @@ export type MemStoreIndexOptions<T> = {
 };
 
 export interface IMemStoreIndex<T extends IResource> {
-  index(item: T | T[], transaction?: IMemStoreTransaction): void;
+  index(
+    /** `item` and `existingItem` should be lined up in index, so index 0 in
+     * `item` should be the same item in index 0 of `existingItem` if an array
+     * is passed. */
+    item: T | T[],
+    existingItem: T | T[] | undefined,
+    transaction: IMemStoreTransaction | undefined
+  ): void;
   commitView(view: unknown): void;
-  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[];
-  traverse(fn: (id: string) => boolean, from?: number, transaction?: IMemStoreTransaction): void;
+  indexGet(key: unknown | unknown[], transaction: IMemStoreTransaction | undefined): string[];
+  traverse(fn: (id: string) => boolean, transaction: IMemStoreTransaction | undefined): void;
   getOptions(): MemStoreIndexOptions<T>;
   COMMIT_purge(item: T | T[]): void;
 }
@@ -74,6 +94,11 @@ export interface IMemStoreOptions<T> {
 
 export interface IMemStore<T extends AnyObject> {
   createItems(items: T | T[], transaction: IMemStoreTransaction): Promise<void>;
+  createIfNotExist(
+    items: T | T[],
+    query: LiteralDataQuery<T>,
+    transaction: IMemStoreTransaction
+  ): Promise<T | T[] | null>;
   updateItem(
     query: LiteralDataQuery<T>,
     update: Partial<T>,
@@ -94,6 +119,8 @@ export interface IMemStore<T extends AnyObject> {
     page?: number
   ): Promise<T[]>;
   countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<number>;
+
+  // TODO: replace the combination of exists and create with createIfNotExist
   exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<boolean>;
 
   TRANSACTION_commitItems(items: T[]): void;
@@ -120,7 +147,7 @@ export interface IMemStore<T extends AnyObject> {
   //   update: Partial<T>,
   //   syncFn: MemStoreTransactionCommitSyncFn
   // ): Promise<T[]>;
-  releaseLock(lockId: number): void;
+  releaseLocks(lockIds: number | number[]): void;
 }
 
 export type IFolderMemStoreProvider = IMemStore<IFolder>;

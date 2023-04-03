@@ -59,7 +59,7 @@ export async function checkPermissionGroupAuthorization(
     agent,
     action,
     workspaceId: workspace.resourceId,
-    targets: [{targetId: permissionGroup.resourceId}],
+    targets: {targetId: permissionGroup.resourceId},
   });
   return {agent, permissionGroup, workspace};
 }

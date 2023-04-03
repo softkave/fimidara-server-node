@@ -16,7 +16,7 @@ export async function getEntityPermissionItemsQuery(
       agent,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
-      targets: {type: AppResourceType.PermissionItem},
+      targets: {targetType: AppResourceType.PermissionItem},
     });
   }
 }

@@ -34,7 +34,7 @@ export async function checkUploadFileAuth(
     workspaceId: workspace.resourceId,
     targets: [
       {
-        type: AppResourceType.File,
+        targetType: AppResourceType.File,
         targetId: file?.resourceId,
       },
     ],

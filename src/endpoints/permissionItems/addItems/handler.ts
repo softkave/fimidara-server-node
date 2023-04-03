@@ -19,7 +19,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
     agent,
     workspaceId: workspace.resourceId,
     action: AppActionType.Create,
-    targets: [{type: AppResourceType.PermissionItem}],
+    targets: {targetType: AppResourceType.PermissionItem},
   });
   const permissionItems = await executeWithMutationRunOptions(
     context,

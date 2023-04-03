@@ -18,7 +18,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: [{type: AppResourceType.Tag}],
+    targets: {targetType: AppResourceType.Tag},
     action: AppActionType.Create,
   });
 

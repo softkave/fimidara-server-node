@@ -4,7 +4,7 @@ import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
 import {deleteAgentTokenJoiSchema} from './validation';

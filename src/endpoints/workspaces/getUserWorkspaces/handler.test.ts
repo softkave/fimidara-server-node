@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';

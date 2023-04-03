@@ -1,11 +1,11 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {toArray} from '../../../utils/fns';
+import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionGroupsExist} from '../utils';
 import {AssignPermissionGroupsEndpoint} from './types';
 import {assignPermissionGroupsJoiSchema} from './validation';
@@ -19,9 +19,9 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
     agent,
     workspaceId: workspace.resourceId,
     action: AppActionType.GrantPermission,
-    targets: [{type: AppResourceType.PermissionGroup}],
+    targets: {targetType: AppResourceType.PermissionGroup},
   });
-  const entityIdList = toArray(data.entityId);
+  const entityIdList = toNonNullableArray(data.entityId);
   await Promise.all([
     await checkPermissionEntitiesExist(
       context,

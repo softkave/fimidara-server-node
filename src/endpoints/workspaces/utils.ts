@@ -6,12 +6,19 @@ import {
   IPublicWorkspace,
   IWorkspace,
 } from '../../definitions/workspace';
-import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../../utils/extract';
+import {
+  ExtractFieldsFrom,
+  getFields,
+  makeExtract,
+  makeExtractIfPresent,
+  makeListExtract,
+} from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
+import {IEndpointOptionalWorkspaceIDParam} from '../types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 
 const usageThresholdSchema = getFields<IPublicUsageThreshold>({
@@ -30,7 +37,7 @@ const usageThresholdLockSchema = getFields<IPublicUsageThresholdLock>({
 const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
 const usageThresholdLockIfExistExtractor = makeExtractIfPresent(usageThresholdLockSchema);
 
-const workspaceFields = getFields<IPublicWorkspace>({
+const f: ExtractFieldsFrom<IPublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
   rootname: true,
@@ -56,7 +63,8 @@ const workspaceFields = getFields<IPublicWorkspace>({
     }
     return extract;
   },
-});
+};
+const workspaceFields = getFields<IPublicWorkspace>(f);
 
 export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);
@@ -99,7 +107,7 @@ export async function checkWorkspaceAuthorization(
     agent,
     action,
     workspaceId: workspace.resourceId,
-    targets: [{targetId: workspace.resourceId}],
+    targets: {targetId: workspace.resourceId},
   });
   return {agent, workspace};
 }
@@ -126,4 +134,14 @@ export function makeRootnameFromName(name: string): string {
     .replace(new RegExp(folderValidationSchemas.notNameRegex, 'g'), ' ')
     .replace(/[\s-]+/g, '-')
     .toLowerCase();
+}
+
+export async function getWorkspaceFromEndpointInput(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  data: IEndpointOptionalWorkspaceIDParam
+) {
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
+  return {workspace};
 }

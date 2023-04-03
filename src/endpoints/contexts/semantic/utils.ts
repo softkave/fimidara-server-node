@@ -1,5 +1,4 @@
-import {IResource} from '../../../definitions/system';
-import {reuseableErrors} from '../../../utils/reusableErrors';
+import {IResource, IWorkspaceResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 import {getMongoQueryOptionsForMany} from '../data/utils';
 import {MemStore} from '../mem/Mem';
@@ -23,6 +22,14 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
 
   async insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions) {
     await this.memstore.createItems(item, opts.transaction);
+  }
+
+  async insertIfNotExist(
+    item: T | T[],
+    q: LiteralDataQuery<T>,
+    opts: ISemanticDataAccessProviderMutationRunOptions
+  ): Promise<void> {
+    await this.memstore.createIfNotExist(item, q, opts.transaction);
   }
 
   async getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions) {
@@ -63,14 +70,16 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
+    await this.memstore.deleteManyItems(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async deleteOneById(
     id: string,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async countManyByIdList(
@@ -195,7 +204,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
     workspaceId: string,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IWorkspaceResource> = {workspaceId};
+    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async countManyByIdList(

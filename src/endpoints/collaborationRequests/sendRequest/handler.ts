@@ -5,10 +5,10 @@ import {
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
+  ICollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
-  ICollaborationRequestEmailProps,
 } from '../../../emailTemplates/collaborationRequest';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
@@ -19,7 +19,7 @@ import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {
   collaborationRequestForWorkspaceExtractor,
   populateRequestAssignedPermissionGroups,
@@ -35,7 +35,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: [{type: AppResourceType.CollaborationRequest}],
+    targets: {targetType: AppResourceType.CollaborationRequest},
     action: AppActionType.Create,
   });
 

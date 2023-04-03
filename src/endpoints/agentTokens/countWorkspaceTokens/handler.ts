@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getWorkspaceAgentTokensQuery} from '../getWorkspaceTokens/utils';
 import {GetWorkspaceAgentTokenEndpoint} from './types';
 import {countWorkspaceAgentTokenJoiSchema} from './validation';

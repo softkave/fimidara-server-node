@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {AppResourceType, IAgent} from '../../../definitions/system';
 import {ITag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 

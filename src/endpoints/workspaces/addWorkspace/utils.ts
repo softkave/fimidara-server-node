@@ -1,5 +1,5 @@
 import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
@@ -9,7 +9,7 @@ import {
 import {IWorkspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
@@ -27,12 +27,12 @@ function generateAdminPermissions(
       workspace.resourceId,
       {
         action,
-        containerId: workspace.resourceId,
-        containerType: AppResourceType.Workspace,
         entityId: adminPermissionGroup.resourceId,
         entityType: AppResourceType.PermissionGroup,
+        targetId: workspace.resourceId,
         targetType: AppResourceType.All,
         grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       }
     );
     return item;
@@ -49,7 +49,8 @@ function generateCollaboratorPermissions(
   function makePermission(
     actions: AppActionType[],
     targetType: AppResourceType,
-    targetId?: string
+    targetId: string,
+    appliesTo: PermissionItemAppliesTo
   ) {
     return actions.map(action => {
       const item: IPermissionItem = newWorkspaceResource(
@@ -58,10 +59,9 @@ function generateCollaboratorPermissions(
         workspace.resourceId,
         {
           action,
+          targetId,
+          appliesTo,
           targetType: targetType,
-          targetId: targetId,
-          containerId: workspace.resourceId,
-          containerType: AppResourceType.Workspace,
           entityId: permissiongroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
           grantAccess: true,
@@ -73,27 +73,44 @@ function generateCollaboratorPermissions(
 
   let permissionItems: IPermissionItem[] = [];
   permissionItems = permissionItems.concat(
-    makePermission([AppActionType.Read], AppResourceType.Workspace, workspace.resourceId)
+    makePermission(
+      [AppActionType.Read],
+      AppResourceType.Workspace,
+      workspace.resourceId,
+      PermissionItemAppliesTo.Self
+    )
   );
   permissionItems = permissionItems.concat(
-    makePermission([AppActionType.Read], AppResourceType.AgentToken, undefined)
+    makePermission(
+      [AppActionType.Read],
+      AppResourceType.AgentToken,
+      workspace.resourceId,
+      PermissionItemAppliesTo.ChildrenOfType
+    )
   );
   permissionItems = permissionItems.concat(
     makePermission(
       [AppActionType.Create, AppActionType.Update, AppActionType.Read],
       AppResourceType.Folder,
-      undefined
+      workspace.resourceId,
+      PermissionItemAppliesTo.ChildrenOfType
     )
   );
   permissionItems = permissionItems.concat(
     makePermission(
       [AppActionType.Create, AppActionType.Update, AppActionType.Read],
       AppResourceType.File,
-      undefined
+      workspace.resourceId,
+      PermissionItemAppliesTo.ChildrenOfType
     )
   );
   permissionItems = permissionItems.concat(
-    makePermission([AppActionType.Read], AppResourceType.User, undefined)
+    makePermission(
+      [AppActionType.Read],
+      AppResourceType.User,
+      workspace.resourceId,
+      PermissionItemAppliesTo.ChildrenOfType
+    )
   );
 
   return permissionItems;

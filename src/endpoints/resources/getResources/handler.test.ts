@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
@@ -52,6 +53,7 @@ describe('getResources', () => {
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: workspace.resourceId},
+      appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     }));
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(

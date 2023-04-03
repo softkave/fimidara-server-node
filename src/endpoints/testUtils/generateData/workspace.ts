@@ -3,7 +3,7 @@ import {AppResourceType, IAgent} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';

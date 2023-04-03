@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {SYSTEM_SESSION_AGENT, TokenAccessScope} from '../../definitions/system';
+import {TokenAccessScope} from '../../definitions/system';
 import {IUserWithWorkspace} from '../../definitions/user';
 import {IWorkspace} from '../../definitions/workspace';
 import {assertAgentToken} from '../../endpoints/agentTokens/utils';
@@ -37,6 +37,7 @@ import {internalSignupUser} from '../../endpoints/user/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/user/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
 export interface IPromptEmailAnswers {

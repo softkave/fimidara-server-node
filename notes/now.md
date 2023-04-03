@@ -26,6 +26,8 @@
 - [ ] Get version of readFile
 - [ ] mddoc object fields should be typed after the object for type checking
 - [ ] Endpoints, boolean can entity perform or not
+- [ ] Permission items for resources should match when target ID matches target type (getResourcePermissionItems)
+- [ ] resolveEntityPermissions
 
 ## Later
 

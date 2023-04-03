@@ -10,7 +10,7 @@ import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newWorkspaceResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
@@ -58,7 +58,8 @@ export async function createFolderList(
   agent: ISessionAgent,
   workspace: IWorkspace,
   input: INewFolderInput,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: ISemanticDataAccessProviderMutationRunOptions,
+  UNSAFE_skipAuthCheck = false
 ) {
   const pathWithDetails = splitPathWithDetails(input.folderpath);
   const {closestExistingFolderIndex, closestExistingFolder, existingFolders} =
@@ -69,16 +70,18 @@ export async function createFolderList(
       opts
     );
 
-  await checkAuthorization({
-    context,
-    agent,
-    workspaceId: workspace.resourceId,
-    containerId: closestExistingFolder
-      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
-      : getWorkspacePermissionContainers(workspace.resourceId),
-    targets: [{type: AppResourceType.Folder}],
-    action: AppActionType.Create,
-  });
+  if (!UNSAFE_skipAuthCheck) {
+    await checkAuthorization({
+      context,
+      agent,
+      workspaceId: workspace.resourceId,
+      containerId: closestExistingFolder
+        ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+        : getWorkspacePermissionContainers(workspace.resourceId),
+      targets: {targetType: AppResourceType.Folder},
+      action: AppActionType.Create,
+    });
+  }
 
   let previousFolder = closestExistingFolder;
   const newFolders: IFolder[] = [];

@@ -32,7 +32,7 @@ export async function checkAgentTokenAuthorization(
     agent,
     action,
     workspaceId: token.workspaceId,
-    targets: [{targetId: token.resourceId}],
+    targets: {targetId: token.resourceId},
   });
   return {token};
 }

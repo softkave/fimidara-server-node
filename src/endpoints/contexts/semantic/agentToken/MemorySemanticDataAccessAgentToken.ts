@@ -1,7 +1,6 @@
 import {IAgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
-import {toArray} from '../../../../utils/fns';
-import {reuseableErrors} from '../../../../utils/reusableErrors';
+import {toNonNullableArray} from '../../../../utils/fns';
 import {
   ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
@@ -18,7 +17,13 @@ export class MemorySemanticDataAccessAgentToken
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    await this.memstore.deleteManyItems(
+      {
+        separateEntityId: agentId,
+        scope: tokenScope ? {$in: toNonNullableArray(tokenScope)} : undefined,
+      },
+      opts?.transaction
+    );
   }
 
   async getOneAgentToken(
@@ -29,7 +34,7 @@ export class MemorySemanticDataAccessAgentToken
     return await this.memstore.readItem(
       {
         separateEntityId: agentId,
-        scope: tokenScope ? {$in: toArray(tokenScope)} : undefined,
+        scope: tokenScope ? {$in: toNonNullableArray(tokenScope)} : undefined,
       },
       opts?.transaction
     );

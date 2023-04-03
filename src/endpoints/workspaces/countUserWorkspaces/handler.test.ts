@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';

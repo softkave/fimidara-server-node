@@ -1,6 +1,7 @@
-import {IAgent, SYSTEM_SESSION_AGENT} from '../../definitions/system';
+import {IAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {endpointConstants} from '../constants';
 
