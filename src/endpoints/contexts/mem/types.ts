@@ -43,12 +43,19 @@ export type MemStoreTransactionCommitSyncFn = (
   txn: IMemStoreTransaction
 ) => Promise<void>;
 
+export enum MemStoreTransactionState {
+  Pending,
+  Completed,
+  Aborted,
+}
+
 export interface IMemStoreTransaction {
   addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>): void;
   getFromCache<T extends IResource = IResource>(id: string): T | undefined;
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]): void;
   commit(syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
-  terminate(): void;
+  abort(error: unknown): void;
+  getState(): MemStoreTransactionState;
   addIndexView(ref: IMemStoreIndex<IResource>, index: unknown): void;
   getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>): T | null;
   hasIndexView(ref: IMemStoreIndex<IResource>): boolean;
@@ -78,7 +85,7 @@ export interface IMemStoreIndex<T extends IResource> {
      * `item` should be the same item in index 0 of `existingItem` if an array
      * is passed. */
     item: T | T[],
-    existingItem: T | T[] | undefined,
+    existingItem: T | Array<T | undefined> | undefined,
     transaction: IMemStoreTransaction | undefined
   ): void;
   commitView(view: unknown): void;
@@ -89,7 +96,16 @@ export interface IMemStoreIndex<T extends IResource> {
 }
 
 export interface IMemStoreOptions<T> {
-  insertFilter?: (item: T | T[]) => T[];
+  /** Doesn't run until commit, meaning if insertion is done with txns, items
+   * that should be filtered out will still be inserted but will live on txn,
+   * not locally in memstore, and will be part of items synced when committing
+   * txns, but when committing txn-local items to memstore (side effect of
+   * comitting txns), these items will be filtered out then. This is
+   * particularly useful for usage records where we want to sync them to DB but
+   * not take up space when the txn is done. On the other hand, if insertion is
+   * done without txn `commitItemsFilter` will be called and those items will be
+   * filtered out. */
+  commitItemsFilter?: (item: T | T[]) => T[];
 }
 
 export interface IMemStore<T extends AnyObject> {
@@ -126,28 +142,9 @@ export interface IMemStore<T extends AnyObject> {
   TRANSACTION_commitItems(items: T[]): void;
   TRANSACTION_deleteItems(idList: string[]): void;
   UNSAFE_ingestItems(items: T | T[]): void;
-  // ATOMIC_createItems(items: T | T[], syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
-  // ATOMIC_updateItem(
-  //   query: LiteralDataQuery<T>,
-  //   update: Partial<T>,
-  //   syncFn: MemStoreTransactionCommitSyncFn
-  // ): Promise<T | null>;
-  // ATOMIC_updateManyItems(
-  //   query: LiteralDataQuery<T>,
-  //   update: Partial<T>,
-  //   syncFn: MemStoreTransactionCommitSyncFn
-  // ): Promise<T[]>;
-  // ATOMIC_deleteItem(
-  //   query: LiteralDataQuery<T>,
-  //   update: Partial<T>,
-  //   syncFn: MemStoreTransactionCommitSyncFn
-  // ): Promise<T | null>;
-  // ATOMIC_deleteManyItems(
-  //   query: LiteralDataQuery<T>,
-  //   update: Partial<T>,
-  //   syncFn: MemStoreTransactionCommitSyncFn
-  // ): Promise<T[]>;
-  releaseLocks(lockIds: number | number[]): void;
+  releaseLocks(lockIds: number | number[], txn: IMemStoreTransaction): void;
+
+  dispose(): void;
 }
 
 export type IFolderMemStoreProvider = IMemStore<IFolder>;

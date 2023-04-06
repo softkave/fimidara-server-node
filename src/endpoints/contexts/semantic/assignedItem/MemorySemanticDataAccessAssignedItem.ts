@@ -3,7 +3,6 @@ import {AppResourceType} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {getMongoQueryOptionsForMany} from '../../data/utils';
 import {
   ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
@@ -15,7 +14,7 @@ export class MemorySemanticDataAccessAssignedItem
   extends SemanticDataAccessWorkspaceResourceProvider<IAssignedItem>
   implements ISemanticDataAccessAssignedItemProvider
 {
-  async getByAssignedAndAssigneeIds(
+  async getByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
@@ -24,7 +23,6 @@ export class MemorySemanticDataAccessAssignedItem
           ISemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<IAssignedItem<AnyObject>[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     return await this.memstore.readManyItems(
       {
         workspaceId,
@@ -32,12 +30,12 @@ export class MemorySemanticDataAccessAssignedItem
         assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 
-  async getResourceAssignedItems(
+  async getWorkspaceResourceAssignedItems(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
@@ -46,7 +44,6 @@ export class MemorySemanticDataAccessAssignedItem
           ISemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<IAssignedItem<AnyObject>[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     return await this.memstore.readManyItems(
       {
         workspaceId,
@@ -56,12 +53,27 @@ export class MemorySemanticDataAccessAssignedItem
         assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 
-  async existsByAssignedAndAssigneeIds(
+  async getUserWorkspaces(
+    assigneeId: string,
+    options?:
+      | (IDataProvideQueryListParams<IAssignedItem<AnyObject>> &
+          ISemanticDataAccessProviderRunOptions)
+      | undefined
+  ): Promise<IAssignedItem<AnyObject>[]> {
+    return await this.memstore.readManyItems(
+      {assigneeId, assignedItemType: AppResourceType.Workspace},
+      options?.transaction,
+      options?.pageSize,
+      options?.page
+    );
+  }
+
+  async existsByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
@@ -80,7 +92,7 @@ export class MemorySemanticDataAccessAssignedItem
     );
   }
 
-  async deleteAssignedItemResources(
+  async deleteWorkspaceAssignedItemResources(
     workspaceId: string,
     assignedItemId: string | string[],
     opts: ISemanticDataAccessProviderMutationRunOptions
@@ -94,7 +106,7 @@ export class MemorySemanticDataAccessAssignedItem
     );
   }
 
-  async deleteResourceAssignedItems(
+  async deleteWorkspaceResourceAssignedItems(
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,

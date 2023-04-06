@@ -1,9 +1,9 @@
 import {
   DeleteResourceJobParams,
   IJob,
+  JOB_RUNNER_V1,
   JobStatus,
   JobType,
-  JOB_RUNNER_V1,
 } from '../../definitions/job';
 import {AppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
@@ -74,7 +74,20 @@ async function getNextPendingJob(context: IBaseContext) {
 }
 
 async function jobRunner(context: IBaseContext, job: IJob) {
-  if (job.type === JobType.DeleteResource) await executeDeleteResourceJob(context, job);
+  try {
+    if (job.type === JobType.DeleteResource) await executeDeleteResourceJob(context, job);
+    await context.data.job.updateOneByQuery(
+      {resourceId: job.resourceId},
+      {status: JobStatus.Completed}
+    );
+  } catch (error: unknown) {
+    // TODO: different parts of the app should have their own tagged loggers
+    logger.error(error);
+    await context.data.job.updateOneByQuery(
+      {resourceId: job.resourceId},
+      {status: JobStatus.Failed, errorTimestamp: getTimestamp()}
+    );
+  }
 }
 
 const cascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any> | undefined> = {

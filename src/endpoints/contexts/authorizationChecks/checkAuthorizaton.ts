@@ -4,15 +4,18 @@ import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/per
 import {
   AppActionType,
   AppResourceType,
+  IResource,
   ISessionAgent,
   getWorkspaceActionList,
   getWorkspaceResourceTypeList,
 } from '../../../definitions/system';
+import {IUserWithWorkspace} from '../../../definitions/user';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {logger} from '../../globalUtils';
+import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../types';
 
@@ -365,7 +368,7 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
 
   for (const item of items) {
     if (item.grantAccess) {
-      if (item.targetId) {
+      if (item.targetId && item.appliesTo === PermissionItemAppliesTo.Self) {
         scopeInvariantCheck(isUndefined(deniedResourceIdsMap[item.targetId]));
         allowedResourceIdsMap[item.targetId] = true;
       } else {
@@ -373,7 +376,7 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
         hasFullOrLimitedAccess = true;
       }
     } else {
-      if (item.targetId) {
+      if (item.targetId && item.appliesTo === PermissionItemAppliesTo.Self) {
         scopeInvariantCheck(isUndefined(allowedResourceIdsMap[item.targetId]));
         deniedResourceIdsMap[item.targetId] = true;
       } else {
@@ -409,10 +412,16 @@ export function getFilePermissionContainers(workspaceId: string, resource: {idPa
 
 export function getResourcePermissionContainers(
   workspaceId: string,
-  resource?: Pick<IFile, 'idPath'> | {} | null
+  resource?: IResource | (IResource & Pick<IFile, 'idPath'>) | null
 ) {
   if (resource && (resource as Pick<IFile, 'idPath'>).idPath) {
     return getFilePermissionContainers(workspaceId, resource as Pick<IFile, 'idPath'>);
+  } else if (resource && getResourceTypeFromId(resource.resourceId) === AppResourceType.User) {
+    const user = resource as unknown as IUserWithWorkspace;
+    checkResourcesBelongToWorkspace(workspaceId, [
+      {resourceId: user.resourceId, resourceType: AppResourceType.User, resource: user},
+    ]);
   }
+
   return getWorkspacePermissionContainers(workspaceId);
 }

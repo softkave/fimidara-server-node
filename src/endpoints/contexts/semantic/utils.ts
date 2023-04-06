@@ -1,6 +1,5 @@
 import {IResource, IWorkspaceResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {getMongoQueryOptionsForMany} from '../data/utils';
 import {MemStore} from '../mem/Mem';
 import {IMemStore} from '../mem/types';
 import {IBaseContext} from '../types';
@@ -94,13 +93,12 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,
       options?.transaction,
-      opts?.limit,
-      opts?.skip
+      options?.pageSize,
+      options?.page
     );
   }
 
@@ -115,8 +113,12 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     q: LiteralDataQuery<T>,
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
-    return await this.memstore.readManyItems(q, options?.transaction, opts?.limit, opts?.skip);
+    return await this.memstore.readManyItems(
+      q,
+      options?.transaction,
+      options?.pageSize,
+      options?.page
+    );
   }
 
   async assertGetOneByQuery(
@@ -241,7 +243,6 @@ export class SemanticDataAccessWorkspaceResourceProvider<
     },
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: q.workspaceId,
       resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
@@ -249,8 +250,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 }

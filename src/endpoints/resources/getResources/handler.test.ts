@@ -1,11 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {
-  AppActionType,
-  AppResourceType,
-  getWorkspaceActionList,
-  IResource,
-} from '../../../definitions/system';
+import {AppActionType, getWorkspaceActionList, IResource} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {IBaseContext} from '../../contexts/types';
@@ -64,24 +59,26 @@ describe('getResources', () => {
           entity: {entityId: permissionGroup.resourceId},
         }
       );
-    const addPermissionItemsResult = await addPermissionItems(context, addPermissionItemsReqData);
+    const [addPermissionItemsResult] = await Promise.all([
+      addPermissionItems(context, addPermissionItemsReqData),
+    ]);
     assertEndpointResultOk(addPermissionItemsResult);
     const items = addPermissionItemsResult.items;
     const resourcesInput: IFetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
-    const getKey = (item: Pick<IResource, 'resourceId'>, type: AppResourceType) =>
-      `${item.resourceId}-${type}`;
-    const addResource = (item: Pick<IResource, 'resourceId'>, type: AppResourceType) => {
+
+    const addToExpectedResourcesById = (item: Pick<IResource, 'resourceId'>) => {
       resourcesInput.push({resourceId: item.resourceId});
-      resourcesMap[getKey(item, type)] = item;
+      resourcesMap[item.resourceId] = item;
     };
-    addResource(workspace, AppResourceType.Workspace);
-    addResource(permissionGroup, AppResourceType.PermissionGroup);
-    addResource(
-      collaboratorExtractor(await populateUserWorkspaces(context, rawUser), workspace.resourceId),
-      AppResourceType.User
+
+    addToExpectedResourcesById(workspace);
+    addToExpectedResourcesById(permissionGroup);
+    addToExpectedResourcesById(
+      collaboratorExtractor(await populateUserWorkspaces(context, rawUser), workspace.resourceId)
     );
-    items.forEach(item => addResource(item, AppResourceType.PermissionItem));
+    items.forEach(item => addToExpectedResourcesById(item));
+
     const instData = RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
@@ -90,9 +87,7 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resource.resource).toMatchObject(
-        resourcesMap[getKey(resource.resource, resource.resourceType)]
-      );
+      expect(resource.resource).toMatchObject(resourcesMap[resource.resourceId]);
     });
   });
 });

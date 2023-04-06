@@ -34,7 +34,7 @@ async function filterExistingItems<T extends IAssignedItem>(
     assigneeIdList.push(item.assigneeId);
     assignedItemIdList.push(item.assignedItemId);
   });
-  const existingItems = await context.semantic.assignedItem.getByAssignedAndAssigneeIds(
+  const existingItems = await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
     workspaceId,
     assignedItemIdList,
     assigneeIdList

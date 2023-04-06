@@ -1,6 +1,5 @@
 import {IFile} from '../../../../definitions/file';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {getMongoQueryOptionsForMany} from '../../data/utils';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessFileProvider} from './types';
@@ -32,7 +31,6 @@ export class MemorySemanticDataAccessFile
       | (IDataProvideQueryListParams<IFile> & ISemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<IFile[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     return await this.memstore.readManyItems(
       {
         workspaceId: q.workspaceId,
@@ -40,8 +38,8 @@ export class MemorySemanticDataAccessFile
         resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
       },
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 

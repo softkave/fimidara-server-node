@@ -8,18 +8,21 @@ import {
   getResourceId,
   loopAndCollate,
   noopAsync,
+  waitTimeout,
 } from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
 import {PartialRecord} from '../../../../utils/types';
 import {disposeApplicationGlobalUtilities} from '../../../globalUtils';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
+import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {LiteralDataQuery} from '../../data/types';
-import {MemStore, MemStoreTransaction} from '../Mem';
+import {MemStore, MemStoreLockTimeoutError, MemStoreTransaction} from '../Mem';
 import {
   IMemStoreTransaction,
   MemStoreIndexTypes,
   MemStoreTransactionConsistencyOp,
   MemStoreTransactionConsistencyOpTypes,
+  MemStoreTransactionState,
 } from '../types';
 
 const seedResources = seedTestResourceList(5);
@@ -29,6 +32,7 @@ const mem01 = new MemStore(seedResources, [
 ]);
 
 afterAll(async () => {
+  mem01.dispose();
   await disposeApplicationGlobalUtilities();
 });
 
@@ -117,6 +121,7 @@ describe('MemStore', () => {
     // const tx01_01 = new MemStoreTransaction();
     const tx02 = new MemStoreTransaction();
     const tx03 = new MemStoreTransaction();
+    const tx04 = new MemStoreTransaction();
     const items01Field01 = getNewId();
     const items01Field01_update01 = getNewId();
     const items01 = seedTestResourceList(3, {field01: items01Field01});
@@ -209,21 +214,21 @@ describe('MemStore', () => {
     // deleted items are not returned when reading with txn, and are when
     // reading without txn, and lastly, that they are removed whe txn commits.
     const scenario04 = async () => {
-      await mem01.deleteManyItems({field01: items01Field01_update01}, tx02);
+      await mem01.deleteManyItems({field01: items01Field01_update01}, tx04);
       const deletedItems01ReturnedWithTxn = await mem01.readManyItems(
         {field01: items01Field01_update01},
-        tx02
+        tx04
       );
       const deletedItems01ReturnedWithoutTxn = await mem01.readManyItems({
         field01: items01Field01_update01,
       });
 
-      await tx02.commit(async consistencyOps => {
+      await tx04.commit(async consistencyOps => {
         checkConsistencyOps(
           consistencyOps,
           items01,
           MemStoreTransactionConsistencyOpTypes.Delete,
-          tx02
+          tx04
         );
       });
 
@@ -256,7 +261,7 @@ describe('MemStore', () => {
     const items02 = seedTestResourceList(4);
 
     const scenario01 = async () => {
-      const exists = await mem01.exists({field01: items01Field01});
+      const exists = await mem01.exists({field01: items01Field01}, tx01);
       if (!exists) {
         await mem01.createItems(items01, tx01);
       }
@@ -291,7 +296,55 @@ describe('MemStore', () => {
     expect(items02Returned).toHaveLength(items02.length);
   });
 
+  test('timeout locks are relased and txns aborted', async () => {
+    const txn01 = new MemStoreTransaction();
+    const txn02 = new MemStoreTransaction();
+    const txn03 = new MemStoreTransaction();
+    const txn04 = new MemStoreTransaction();
+    const items01Field01 = getNewId();
+    const items01Field01_update = getNewId();
+    const items01 = seedTestResourceList(3, {field01: items01Field01});
+
+    const scenario01 = async (txn: IMemStoreTransaction) => {
+      await mem01.createItems(items01, txn);
+    };
+
+    // Using txn read for exists call to block and force subsequent calls after
+    // the first to wait.
+    const scenario01_01 = async (txn: IMemStoreTransaction) => {
+      const exists = await mem01.exists({field01: items01Field01}, txn);
+      if (!exists) await mem01.createItems(items01, txn);
+    };
+
+    // Wait until lock expires then attempt using it to confirm it's aborted.
+    const scenario02 = async (txn: IMemStoreTransaction) => {
+      await waitTimeout(MemStore.TXN_LOCK_TIMEOUT_MS + 1000);
+      await expectErrorThrown(async () => {
+        await mem01.updateManyItems(
+          {field01: items01Field01},
+          {field01: items01Field01_update},
+          txn
+        );
+      }, [MemStoreLockTimeoutError.name]);
+      expect(txn.getState()).toBe(MemStoreTransactionState.Aborted);
+    };
+
+    const scenario03 = async (txn: IMemStoreTransaction) => {
+      await mem01.updateManyItems({field01: items01Field01}, {field01: items01Field01_update}, txn);
+      await txn.commit(noopAsync);
+      expect(txn.getState()).toBe(MemStoreTransactionState.Completed);
+    };
+
+    await Promise.all([scenario01(txn01), scenario01(txn02), scenario01(txn03)]);
+    await Promise.all([scenario01_01(txn04)]);
+    await Promise.all([scenario02(txn01), scenario02(txn02), scenario02(txn03), scenario03(txn04)]);
+  });
+
   // test('syncTxnOps', () => {
+  //   throw reuseableErrors.common.notImplemented();
+  // });
+
+  // test('memstore insert filter', () => {
   //   throw reuseableErrors.common.notImplemented();
   // });
 });
@@ -324,12 +377,12 @@ function checkConsistencyOps(
   checkExistence = true,
   checkMatchObject = type !== MemStoreTransactionConsistencyOpTypes.Delete
 ) {
-  const itemsMap: PartialRecord<string, ITestResource | undefined> = {};
+  const itemsMap: PartialRecord<string, ITestResource | boolean> = {};
   consistencyOps.forEach(op => {
     if (op.type === type) {
       op.idList.forEach(id => {
         const item = txn.getFromCache<ITestResource>(id);
-        itemsMap[id] = item;
+        itemsMap[id] = item ?? true;
       });
     }
   });

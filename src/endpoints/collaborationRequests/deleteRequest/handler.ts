@@ -25,7 +25,7 @@ export const DELETE_COLLABORATION_REQUEST_CASCADE_FNS: DeleteResourceCascadeFnsM
   [AppResourceType.CollaborationRequest]: (context, args, opts) =>
     context.semantic.collaborationRequest.deleteOneById(args.resourceId, opts),
   [AppResourceType.AssignedItem]: async (context, args, opts) =>
-    context.semantic.assignedItem.deleteResourceAssignedItems(
+    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
       args.workspaceId,
       args.resourceId,
       undefined,

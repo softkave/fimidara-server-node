@@ -1,6 +1,7 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {canEntityPerformActionOnTargetType} from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -53,6 +54,8 @@ test('permission items deleted', async () => {
   );
   const result = await deletePermissionItems(context, instData);
   assertEndpointResultOk(result);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
   await canEntityPerformActionOnTargetType(
     context,
     permissionGroup.resourceId,

@@ -3,6 +3,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {AppResourceType} from '../../../definitions/system';
 import {
+  IUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
@@ -13,7 +14,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';
 import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
@@ -67,10 +67,10 @@ function assertDeps() {
 }
 
 async function getSumRecords(ctx: IBaseContext, recordId: string) {
-  const record = await ctx.semantic.usageRecord.assertGetOneByQuery(
+  const record = await ctx.data.resource.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
-  return {record};
+  return {record: record.resource as IUsageRecord};
 }
 
 describe('UsageRecordLogicProvider', () => {
@@ -103,7 +103,6 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -125,7 +124,6 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -147,7 +145,6 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
     const input: IUsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,

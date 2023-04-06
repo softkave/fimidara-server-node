@@ -13,6 +13,7 @@ export enum JobStatus {
   Pending = 'pending',
   InProgress = 'inProgress',
   Completed = 'completed',
+  Failed = 'failed',
 }
 
 export interface IJob extends IResource {
@@ -23,6 +24,9 @@ export interface IJob extends IResource {
   version: number;
   serverInstanceId: string;
   workspaceId?: string;
+
+  /** For checking the logs for the error that occurred during the job run. */
+  errorTimestamp?: number;
 }
 
 export type DeleteResourceJobParams =

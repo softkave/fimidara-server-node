@@ -32,12 +32,12 @@ export const DELETE_PERMISSION_GROUP_CASCADE_FNS: DeleteResourceCascadeFnsMap = 
   },
   [AppResourceType.AssignedItem]: async (context, args, opts) => {
     await Promise.all([
-      context.semantic.assignedItem.deleteAssignedItemResources(
+      context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
         args.workspaceId,
         args.resourceId,
         opts
       ),
-      context.semantic.assignedItem.deleteResourceAssignedItems(
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
         args.workspaceId,
         args.resourceId,
         undefined,

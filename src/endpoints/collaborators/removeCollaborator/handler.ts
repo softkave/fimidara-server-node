@@ -36,7 +36,7 @@ export const REMOVE_COLLABORATOR_CASCADE_FNS: DeleteResourceCascadeFnsMap<Remove
       ]);
     },
     [AppResourceType.AssignedItem]: (context, args, opts) =>
-      context.semantic.assignedItem.deleteResourceAssignedItems(
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
         args.workspaceId,
         args.resourceId,
         undefined,

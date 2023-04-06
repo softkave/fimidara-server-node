@@ -47,7 +47,7 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.PermissionItem]: (context, args, opts) =>
     context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
   [AppResourceType.AssignedItem]: (context, args, opts) =>
-    context.semantic.assignedItem.deleteResourceAssignedItems(
+    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
       args.workspaceId,
       args.resourceId,
       undefined,

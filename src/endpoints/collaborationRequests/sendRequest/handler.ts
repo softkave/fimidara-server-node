@@ -51,12 +51,13 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     ]);
 
     if (existingUser) {
-      const collaboratorExists = await context.semantic.assignedItem.existsByAssignedAndAssigneeIds(
-        workspace.resourceId,
-        workspace.resourceId,
-        existingUser.resourceId,
-        opts
-      );
+      const collaboratorExists =
+        await context.semantic.assignedItem.existsByWorkspaceAssignedAndAssigneeIds(
+          workspace.resourceId,
+          workspace.resourceId,
+          existingUser.resourceId,
+          opts
+        );
       appAssert(
         collaboratorExists,
         new ResourceExistsError('Collaborator with same email address exists in this workspace.')

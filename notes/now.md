@@ -28,6 +28,10 @@
 - [ ] Endpoints, boolean can entity perform or not
 - [ ] Permission items for resources should match when target ID matches target type (getResourcePermissionItems)
 - [ ] resolveEntityPermissions
+- [ ] index appliesTo for permission items and rename it's values, and make sure other fields we use for matching are indexed
+- [ ] select smallest after index match when correlating
+- [ ] Capture stack trace for log functions like appAssert
+- [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
 
 ## Later
 

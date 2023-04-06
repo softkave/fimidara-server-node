@@ -23,9 +23,9 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   workspace = await MemStore.withTransaction(context, async txn => {
     const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
     await Promise.all([
-      data.workspace.name &&
-        data.workspace.name !== workspace.name &&
-        checkWorkspaceNameExists(context, data.workspace.name, opts),
+      data.workspace.name && data.workspace.name !== workspace.name
+        ? checkWorkspaceNameExists(context, data.workspace.name, opts)
+        : undefined,
     ]);
 
     const update: Partial<IWorkspace> = {

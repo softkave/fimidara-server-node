@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {
-  APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList,
   getWorkspaceActionList,
+  APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
@@ -35,7 +35,7 @@ const name = Joi.string().trim().max(endpointConstants.maxNameLength);
 const description = Joi.string().allow(null, '').max(endpointConstants.maxDescriptionLength).trim();
 const zipcode = Joi.string().regex(regExPatterns.zipcode);
 const phone = Joi.string().regex(regExPatterns.phone);
-const time = Joi.date().iso();
+const time = Joi.date();
 const verificationCode = Joi.string()
   .trim()
   .min(validationConstants.minVerificationCodeLength)

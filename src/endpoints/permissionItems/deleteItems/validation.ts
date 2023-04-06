@@ -1,12 +1,20 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
+import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
+import {IPermissionItemInputTarget} from '../types';
 import permissionItemValidationSchemas from '../validation';
 import {DeletePermissionItemInput, IDeletePermissionItemsEndpointParams} from './types';
 
 const itemInput = Joi.object<DeletePermissionItemInput>().keys({
   entity: permissionItemValidationSchemas.entity,
-  target: permissionItemValidationSchemas.target,
+  target: Joi.object<Partial<IPermissionItemInputTarget>>().keys({
+    targetId: permissionItemValidationSchemas.targetParts.targetId,
+    targetType: permissionItemValidationSchemas.targetParts.targetType,
+    folderpath: permissionItemValidationSchemas.targetParts.folderpath,
+    filepath: permissionItemValidationSchemas.targetParts.filepath,
+    workspaceRootname: workspaceValidationSchemas.rootname,
+  }),
   action: validationSchemas.crudAction,
   grantAccess: Joi.boolean(),
   appliesTo: permissionItemValidationSchemas.appliesTo,

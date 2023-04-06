@@ -1,3 +1,4 @@
+import {forEach} from 'lodash';
 import {Logger} from 'winston';
 import {FileBackendType, IAppVariables} from '../../resources/vars';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
@@ -9,6 +10,7 @@ import {
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {ISessionContext} from './SessionContext';
+import {IMemStore} from './mem/types';
 import {
   IBaseContext,
   IBaseContextDataProviders,
@@ -64,9 +66,14 @@ export default class BaseContext<
   init = async () => {};
 
   dispose = async () => {
+    forEach(this.memstore, store => {
+      (store as IMemStore<any>).dispose();
+    });
+
     const promises = [this.fileBackend.close(), this.email.close()];
     logRejectedPromisesAndThrow(await Promise.allSettled(promises));
     this.clientLogger.close();
+
     if (this.disposeFn) {
       await this.disposeFn();
     }

@@ -69,10 +69,9 @@ export function getTestEmailProvider(appVariables: IAppVariables) {
   return new MockTestEmailProviderContext();
 }
 
-export async function getTestFileProvider(appVariables: IAppVariables) {
+export function getTestFileProvider(appVariables: IAppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
-    const fileProvider = new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-    return fileProvider;
+    return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
   } else {
     return new TestMemoryFilePersistenceProviderContext();
   }
@@ -89,7 +88,7 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const ctx = new BaseContext(
     getDataProviders(models),
     getTestEmailProvider(appVariables),
-    await getTestFileProvider(appVariables),
+    getTestFileProvider(appVariables),
     appVariables,
     mem,
     getLogicProviders(),

@@ -26,7 +26,7 @@ export const DELETE_TAG_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Tag]: (context, args, opts) =>
     context.semantic.tag.deleteOneById(args.resourceId, opts),
   [AppResourceType.AssignedItem]: (context, args, opts) =>
-    context.semantic.assignedItem.deleteAssignedItemResources(
+    context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
       args.workspaceId,
       args.resourceId,
       opts

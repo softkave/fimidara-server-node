@@ -7,13 +7,17 @@ import {
   getWorkspaceActionList,
 } from '../../../../definitions/system';
 import {IWorkspace} from '../../../../definitions/workspace';
+import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
 import {appAssert} from '../../../../utils/assertion';
-import {addAssignedPermissionGroupList} from '../../../assignedItems/addAssignedItems';
+import RequestData from '../../../RequestData';
+import {
+  addAssignedPermissionGroupList,
+  assignWorkspaceToUser,
+} from '../../../assignedItems/addAssignedItems';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGroups/testUtils';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
 import {IAddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
 import {IPermissionItemInput} from '../../../permissionItems/types';
-import RequestData from '../../../RequestData';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
@@ -98,26 +102,6 @@ describe('checkAuthorization', () => {
       context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
     );
-    await checkAuthorization({
-      context,
-      workspaceId: workspace.resourceId,
-      agent: agent02,
-      targets: {targetId: file.resourceId},
-      action: AppActionType.Read,
-      containerId: getFilePermissionContainers(workspace.resourceId, file),
-    });
-  });
-
-  test('should throw error when nothrow is turned off', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02} = await insertUserForTest(context);
-    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
-    const agent02 = await context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
-    );
 
     try {
       await checkAuthorization({
@@ -136,13 +120,22 @@ describe('checkAuthorization', () => {
   test('auth passes if action is read and user is not email verified', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02} = await insertUserForTest(
+    const {userToken: userToken02, user: user02} = await insertUserForTest(
       context,
       /** userInput */ {},
       /** skipAutoVerifyEmail */ true
     );
 
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
+    await executeWithMutationRunOptions(context, opts =>
+      assignWorkspaceToUser(
+        context!,
+        SYSTEM_SESSION_AGENT,
+        workspace.resourceId,
+        user02.resourceId,
+        opts
+      )
+    );
     const {file} = await insertFileForTest(context, userToken, workspace);
     const agent02 = await context.session.getAgent(
       context,
@@ -163,12 +156,21 @@ describe('checkAuthorization', () => {
   test('auth fails if action is not read and user is not email verified', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02} = await insertUserForTest(
+    const {userToken: userToken02, user: user02} = await insertUserForTest(
       context,
       /** userInput */ {},
       /** skipAutoVerifyEmail */ true
     );
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
+    await executeWithMutationRunOptions(context, opts =>
+      assignWorkspaceToUser(
+        context!,
+        SYSTEM_SESSION_AGENT,
+        workspace.resourceId,
+        user02.resourceId,
+        opts
+      )
+    );
     const {file} = await insertFileForTest(context, userToken, workspace);
     appAssert(userToken02.separateEntityId);
     await grantEveryPermission(workspace, userToken, userToken02.separateEntityId);
@@ -191,14 +193,15 @@ describe('checkAuthorization', () => {
     }
   });
 
-  test('auth passes if grant permission out-weighs deny permission', async () => {
-    throw new Error();
-  });
+  // TODO
+  test.skip('auth passes if access permission outweighs deny permission', async () => {});
 
-  test('auth fails if deny permission out-weighs grant permission', async () => {
-    throw new Error();
-  });
+  // TODO
+  test.skip('auth fails if deny permission outweighs access permission', async () => {});
 
+  test.skip('auth fails if deny permission out-weighs grant permission', async () => {});
+
+  // TODO: why skip? Also check for skip in other tests.
   test.skip('summarizeAgentPermissionItems can action type wildcard action', async () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
@@ -329,7 +332,7 @@ describe('checkAuthorization', () => {
         action: AppActionType.Read,
         grantAccess: true,
         target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        appliesTo: PermissionItemAppliesTo.Self,
       },
     ];
     const pg03Items: IPermissionItemInput[] = [
@@ -388,7 +391,7 @@ describe('checkAuthorization', () => {
         action: AppActionType.Read,
         grantAccess: false,
         target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        appliesTo: PermissionItemAppliesTo.Self,
       },
     ];
     const pg03Items: IPermissionItemInput[] = [

@@ -47,7 +47,7 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
       ]);
     },
     [AppResourceType.AssignedItem]: async (context, args, opts) => {
-      await context.semantic.assignedItem.deleteResourceAssignedItems(
+      await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
         args.workspaceId,
         args.permissionItemsIdList,
         undefined,

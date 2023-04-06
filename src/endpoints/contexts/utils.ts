@@ -150,7 +150,7 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     tag: new TagMemStoreProvider([], tagIndexOpts),
     assignedItem: new AssignedItemMemStoreProvider([], assignedItemIndexOpts),
     usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts, {
-      insertFilter: items =>
+      commitItemsFilter: items =>
         toNonNullableArray(items).filter(item => item.summationType === UsageSummationType.Two),
     }),
   };

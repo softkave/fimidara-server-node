@@ -40,10 +40,7 @@ describe('countEntityPermissionItems', () => {
     });
     const instData = RequestData.fromExpressRequest<ICountEntityPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        entityId: user.resourceId,
-      }
+      {workspaceId: workspace.resourceId, entityId: user.resourceId}
     );
     const result = await countEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);

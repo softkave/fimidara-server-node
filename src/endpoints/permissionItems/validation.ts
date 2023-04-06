@@ -22,8 +22,8 @@ const appliesTo = Joi.string().valid(
 );
 
 // TODO: review max items
-const target = Joi.object<IPermissionItemInputTarget>().keys({
-  targetId: Joi.alternatives().try(targetId, Joi.array().items(targetId).max(100)).required(),
+const targetParts = {
+  targetId: Joi.alternatives().try(targetId, Joi.array().items(targetId).max(100)),
   targetType: Joi.alternatives().try(targetType, Joi.array().items(targetType).max(100)),
   folderpath: Joi.alternatives().try(
     folderValidationSchemas.folderpath,
@@ -33,6 +33,13 @@ const target = Joi.object<IPermissionItemInputTarget>().keys({
     fileValidationSchemas.fileMatcherParts.filepath,
     Joi.array().items(fileValidationSchemas.fileMatcherParts.filepath).max(100)
   ),
+  workspaceRootname: workspaceValidationSchemas.rootname,
+};
+const target = Joi.object<IPermissionItemInputTarget>().keys({
+  targetId: targetParts.targetId.required(),
+  targetType: targetParts.targetType,
+  folderpath: targetParts.folderpath,
+  filepath: targetParts.filepath,
   workspaceRootname: workspaceValidationSchemas.rootname,
 });
 const entity = Joi.object<IPermissionItemInputEntity>().keys({
@@ -69,6 +76,7 @@ const permissionItemValidationSchemas = {
   itemInputList,
   publicAccessOp,
   publicAccessOpList,
+  targetParts,
 };
 
 export default permissionItemValidationSchemas;

@@ -9,31 +9,35 @@ import {
 
 export interface ISemanticDataAccessAssignedItemProvider
   extends ISemanticDataAccessWorkspaceResourceProvider<IAssignedItem> {
-  getByAssignedAndAssigneeIds(
+  getByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?: IDataProvideQueryListParams<IAssignedItem> & ISemanticDataAccessProviderRunOptions
   ): Promise<IAssignedItem[]>;
-  existsByAssignedAndAssigneeIds(
+  existsByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?: IDataProvideQueryListParams<IAssignedItem> & ISemanticDataAccessProviderRunOptions
   ): Promise<boolean>;
-  getResourceAssignedItems(
+  getWorkspaceResourceAssignedItems(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[],
     options?: IDataProvideQueryListParams<IAssignedItem> & ISemanticDataAccessProviderRunOptions
   ): Promise<IAssignedItem[]>;
-  deleteResourceAssignedItems(
+  getUserWorkspaces(
+    assigneeId: string,
+    options?: IDataProvideQueryListParams<IAssignedItem> & ISemanticDataAccessProviderRunOptions
+  ): Promise<IAssignedItem[]>;
+  deleteWorkspaceResourceAssignedItems(
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
-  deleteAssignedItemResources(
+  deleteWorkspaceAssignedItemResources(
     workspaceId: string,
     assignedItemId: string | string[],
     opts: ISemanticDataAccessProviderMutationRunOptions

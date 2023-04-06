@@ -20,7 +20,7 @@ export async function getResourceAssignedItems(
   assignedItemTypes?: Array<AppResourceType>,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  return await context.semantic.assignedItem.getResourceAssignedItems(
+  return await context.semantic.assignedItem.getWorkspaceResourceAssignedItems(
     workspaceId,
     resourceId,
     assignedItemTypes,

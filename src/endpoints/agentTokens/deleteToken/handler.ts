@@ -32,7 +32,7 @@ export const DELETE_AGENT_TOKEN_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
     ]);
   },
   [AppResourceType.AssignedItem]: async (context, args, opts) =>
-    context.semantic.assignedItem.deleteResourceAssignedItems(
+    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
       args.workspaceId,
       args.resourceId,
       undefined,
