@@ -15,9 +15,10 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (cont
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Delete,
-    targets: [{type: AppResourceType.PermissionItem}],
+    targets: {targetType: AppResourceType.PermissionItem},
   });
   await executeWithMutationRunOptions(context, opts =>
     context.semantic.permissionItem.deleteManyByIdList(data.itemIds, opts)

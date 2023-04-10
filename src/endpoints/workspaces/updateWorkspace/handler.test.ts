@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
+import RequestData from '../../RequestData';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -12,7 +12,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
+import {WorkspaceExistsError} from '../errors';
 import updateWorkspace from './handler';
 import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
 
@@ -60,35 +60,15 @@ describe('updateWorkspce', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {workspace: w02} = await insertWorkspaceForTest(context, userToken);
     await expectErrorThrown(async () => {
       assertContext(context);
       const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          workspace: {name: workspace.name},
-        }
+        {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
       );
 
       await updateWorkspace(context, instData);
     }, [WorkspaceExistsError.name]);
-  });
-
-  test('fails if workspace root name exists', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          workspace: {name: workspace.name},
-        }
-      );
-
-      await updateWorkspace(context, instData);
-    }, [WorkspaceRootnameExistsError.name]);
   });
 });

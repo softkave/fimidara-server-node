@@ -4,19 +4,15 @@ import {
   ICollaborationRequest,
 } from '../../definitions/collaborationRequest';
 import {IPermissionGroup} from '../../definitions/permissionGroups';
-import {IPermissionItem} from '../../definitions/permissionItem';
-import {
-  AppActionType,
-  AppResourceType,
-  APP_RUNTIME_STATE_DOC_ID,
-  IAppRuntimeState,
-  SYSTEM_SESSION_AGENT,
-} from '../../definitions/system';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
+import {AppActionType, AppResourceType, IAppRuntimeState} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {IAppRuntimeVars} from '../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {newWorkspaceResource} from '../../utils/fns';
+import {getNewIdForResource, ID_SIZE} from '../../utils/resource';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {MemStore} from '../contexts/mem/Mem';
 import {
@@ -30,7 +26,7 @@ import EndpointReusableQueries from '../queries';
 import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
-const filePath = '/files';
+export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
 const imagesPath = '/files/images';
 const appSetupVars = {
   workspaceName: 'Fimidara',
@@ -107,14 +103,16 @@ async function setupFolders(
       SYSTEM_SESSION_AGENT,
       workspace,
       {folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname)},
-      opts
+      opts,
+      /** skip auth check */ true
     ),
     createFolderList(
       context,
       SYSTEM_SESSION_AGENT,
       workspace,
       {folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname)},
-      opts
+      opts,
+      /** skip auth check */ true
     ),
   ]);
 
@@ -144,12 +142,12 @@ async function setupImageUploadPermissionGroup(
         workspaceId,
         {
           action,
-          containerId: folderId,
-          containerType: AppResourceType.Folder,
           entityId: imageUploadPermissionGroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
+          targetId: folderId,
           targetType: AppResourceType.File,
           grantAccess: true,
+          appliesTo: PermissionItemAppliesTo.ChildrenOfType,
         }
       );
       return item;

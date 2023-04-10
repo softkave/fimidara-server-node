@@ -1,11 +1,11 @@
 import {customAlphabet} from 'nanoid';
 import {IAssignPermissionGroupInput} from '../definitions/permissionGroups';
+import {PermissionItemAppliesTo} from '../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
   getNonWorkspaceActionList,
   IAgent,
-  RESOURCE_TYPE_SHORT_NAMES,
   VALID_AGENT_TYPES,
 } from '../definitions/system';
 import {
@@ -24,7 +24,7 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../mddoc/mddoc';
-import {ID_SEPARATOR} from '../utils/resourceId';
+import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
 import {endpointConstants} from './constants';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {IBaseEndpointResult} from './types';
@@ -315,13 +315,13 @@ const resourceType = new FieldString()
   .setDescription('Resource type.')
   .setExample(AppResourceType.File)
   .setValid(Object.values(AppResourceType));
-// const appliesTo = new FieldString()
-//   .setRequired(true)
-//   .setDescription(
-//     "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
-//   )
-//   .setExample(PermissionItemAppliesTo.ContainerAndChildren)
-//   .setValid(Object.values(PermissionItemAppliesTo));
+const appliesTo = new FieldString()
+  .setRequired(true)
+  .setDescription(
+    "Whether this permission applies to the target, the target's children of the type declared in the permission, or the target and it's children if th."
+  )
+  .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
+  .setValid(Object.values(PermissionItemAppliesTo));
 const page = new FieldNumber()
   .setDescription(
     'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'
@@ -365,7 +365,7 @@ export const fReusables = {
   resourceType,
   permissionGroupId,
   permissionItemId,
-  // appliesTo,
+  appliesTo,
   page,
   pageSize,
   dateOrUndefined: orUndefined(date),

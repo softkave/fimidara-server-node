@@ -31,23 +31,16 @@ describe('countEntityPermissionItems', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
       entityId: user.resourceId,
       entityType: AppResourceType.User,
     });
     const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
       entityId: user.resourceId,
     });
     const instData = RequestData.fromExpressRequest<ICountEntityPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        entityId: user.resourceId,
-      }
+      {workspaceId: workspace.resourceId, entityId: user.resourceId}
     );
     const result = await countEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);

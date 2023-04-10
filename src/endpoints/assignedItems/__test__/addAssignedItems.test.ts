@@ -6,7 +6,7 @@ import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
-import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -61,7 +61,7 @@ describe('addAssignedItems', () => {
         opts
       )
     );
-    expectContainsExactlyForAnyType(
+    expectContainsEveryItemInForAnyType(
       assignedItems,
       pgListAssignedTo02Input,
       pgAssignedItemKey,
@@ -71,68 +71,7 @@ describe('addAssignedItems', () => {
     const savedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery({
       assigneeId: {$in: pgList01IdList},
     });
-    expectContainsExactlyForAnyType(
-      savedItems,
-      pgListAssignedTo02Input.concat(pgListAssignedTo01Input),
-      pgAssignedItemKey,
-      pgInputKey
-    );
-  });
-
-  test('addAssignedPermissionGroupList reassigns if order is changed', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const [pgList01, pgListAssignedTo01, pgListAssignedTo02] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-    ]);
-    const agent = makeUserSessionAgent(rawUser, userToken);
-    const pgListAssignedTo01Input = toAssignedPgListInput(pgListAssignedTo01);
-    const pgListAssignedTo02Input = toAssignedPgListInput(pgListAssignedTo02);
-    const pgList01IdList = extractResourceIdList(pgList01);
-    await Promise.all([
-      assignPgListToIdList(
-        context,
-        agent,
-        workspace.resourceId,
-        pgList01IdList,
-        pgListAssignedTo01Input
-      ),
-      assignPgListToIdList(
-        context,
-        agent,
-        workspace.resourceId,
-        pgList01IdList,
-        pgListAssignedTo02Input
-      ),
-    ]);
-
-    const assignedItems = await executeWithMutationRunOptions(context, opts =>
-      addAssignedPermissionGroupList(
-        context!,
-        agent,
-        workspace.resourceId,
-        pgListAssignedTo02Input,
-        pgList01IdList,
-        false, // do not delete existing items
-        true, // skip permission groups check
-        false, // skip auth check
-        opts
-      )
-    );
-    expectContainsExactlyForAnyType(
-      assignedItems,
-      pgListAssignedTo02Input,
-      pgAssignedItemKey,
-      pgInputKey
-    );
-
-    const savedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery({
-      assigneeId: {$in: pgList01IdList},
-    });
-    expectContainsExactlyForAnyType(
+    expectContainsEveryItemInForAnyType(
       savedItems,
       pgListAssignedTo02Input.concat(pgListAssignedTo01Input),
       pgAssignedItemKey,

@@ -1,13 +1,14 @@
 import {defaultTo, random} from 'lodash';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
@@ -47,7 +48,7 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
     records.push({
       workspaceId: getNewIdForResource(AppResourceType.Workspace),
       month: random(0, 11),
-      year: random(0, 11),
+      year: random(1, 10_000),
       resourceId: getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: getTimestamp(),
       createdBy: SYSTEM_SESSION_AGENT,

@@ -1,4 +1,9 @@
 export const appMessages = {
+  workspace: {
+    notFound(id?: string) {
+      return id ? `Workspace with ID ${id} not found.` : 'Workspace not found.';
+    },
+  },
   entity: {
     notFound(id: string) {
       return `Permission entity with ID ${id} not found.`;

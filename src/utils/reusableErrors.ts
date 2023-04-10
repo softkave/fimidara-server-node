@@ -3,6 +3,11 @@ import {InvalidCredentialsError} from '../endpoints/user/errors';
 import {appMessages} from './messages';
 
 export const reuseableErrors = {
+  workspace: {
+    notFound(id?: string) {
+      return new NotFoundError(appMessages.workspace.notFound(id));
+    },
+  },
   entity: {
     notFound(id: string) {
       return new NotFoundError(appMessages.entity.notFound(id));

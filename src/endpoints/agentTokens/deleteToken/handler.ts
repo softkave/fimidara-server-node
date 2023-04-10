@@ -4,7 +4,7 @@ import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
 import {deleteAgentTokenJoiSchema} from './validation';
@@ -32,7 +32,7 @@ export const DELETE_AGENT_TOKEN_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
     ]);
   },
   [AppResourceType.AssignedItem]: async (context, args, opts) =>
-    context.semantic.assignedItem.deleteResourceAssignedItems(
+    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
       args.workspaceId,
       args.resourceId,
       undefined,

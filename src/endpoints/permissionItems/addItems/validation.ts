@@ -7,7 +7,6 @@ export const addPermissionItemsJoiSchema = Joi.object<IAddPermissionItemsEndpoin
   .keys({
     workspaceId: validationSchemas.resourceId,
     entity: permissionItemValidationSchemas.entity,
-    container: permissionItemValidationSchemas.container,
     items: permissionItemValidationSchemas.itemInputList.required(),
   })
   .required();

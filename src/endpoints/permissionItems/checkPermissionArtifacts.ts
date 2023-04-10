@@ -7,7 +7,7 @@ import {
   PERMISSION_CONTAINER_TYPES,
   PERMISSION_ENTITY_TYPES,
 } from '../../definitions/system';
-import {getResourceTypeFromId} from '../../utils/resourceId';
+import {getResourceTypeFromId} from '../../utils/resource';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {
@@ -37,7 +37,7 @@ export async function checkPermissionEntitiesExist(
   });
 
   // Intentionally not using transaction read for performance.
-  let resources = await INTERNAL_getResources({
+  return await INTERNAL_getResources({
     context,
     agent,
     workspaceId,
@@ -47,17 +47,8 @@ export async function checkPermissionEntitiesExist(
       resourceId: id,
     })),
     checkAuth: true,
+    checkBelongsToWorkspace: true,
   });
-  resources = await resourceListWithAssignedItems(
-    context,
-    workspaceId,
-    resources,
-    // Only add assigned items for users since. We're going to check if all the
-    // resources returned are part of the workspace and every other type should
-    // have a workspaceId except user.
-    [AppResourceType.User]
-  );
-  checkResourcesBelongToWorkspace(workspaceId, resources);
 }
 
 export async function checkPermissionContainersExist(

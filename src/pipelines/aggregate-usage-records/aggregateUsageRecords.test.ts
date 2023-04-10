@@ -4,7 +4,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {IFile} from '../../definitions/file';
-import {AppActionType, PUBLIC_SESSION_AGENT} from '../../definitions/system';
+import {AppActionType} from '../../definitions/system';
 import {
   IFileUsageRecordArtifact,
   UsageRecordCategory,
@@ -48,6 +48,7 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';

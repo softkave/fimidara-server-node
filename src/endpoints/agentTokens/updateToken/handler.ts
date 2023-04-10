@@ -9,7 +9,7 @@ import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {assertAgentToken, checkAgentTokenAuthorization, getPublicAgentToken} from '../utils';
 import {UpdateAgentTokenEndpoint} from './types';
@@ -36,7 +36,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
 
     assertAgentToken(token);
     const tokenUpdate: Partial<IAgentToken> = {
-      ...omit(data, 'tags'),
+      ...omit(data.token, 'tags'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };

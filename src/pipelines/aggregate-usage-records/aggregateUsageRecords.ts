@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../definitions/system';
+import {AppResourceType} from '../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -13,8 +13,9 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
-import {getNewIdForResource} from '../../utils/resourceId';
+import {getNewIdForResource} from '../../utils/resource';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**

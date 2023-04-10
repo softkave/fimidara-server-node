@@ -3,7 +3,7 @@ import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {NotFoundError} from '../../errors';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getJob} from '../runner';
 import {GetJobStatusEndpoint} from './types';
 import {getJobStatusJoiSchema} from './validation';

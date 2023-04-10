@@ -1,25 +1,19 @@
 import {IPublicPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
-import {
-  Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
-} from '../../types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {IPermissionItemInputTarget} from '../types';
 
 export interface IGetResourcePermissionItemsEndpointParamsBase
   extends IEndpointOptionalWorkspaceIDParam {
-  targetId?: string;
-  targetType?: AppResourceType;
-  containerId?: string;
+  target: IPermissionItemInputTarget;
 }
 
 export interface IGetResourcePermissionItemsEndpointParams
-  extends IGetResourcePermissionItemsEndpointParamsBase,
-    IPaginationQuery {}
+  extends IEndpointOptionalWorkspaceIDParam {
+  target: IPermissionItemInputTarget;
+}
 
-export interface IGetResourcePermissionItemsEndpointResult extends IPaginatedResult {
+export interface IGetResourcePermissionItemsEndpointResult {
   items: IPublicPermissionItem[];
 }
 

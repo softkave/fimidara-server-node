@@ -2,15 +2,9 @@ import assert = require('assert');
 import {isArray} from 'lodash';
 import {AnyFn} from '../../../utils/types';
 
-export function assertResultErrorsIncludes(
-  error: any,
-  expectedErrorNames: string[]
-) {
+export function assertErrorHasName(error: any, expectedErrorNames: string[]) {
   const errorList = isArray(error) ? error : [error];
-  const matchedTypes = expectedErrorNames.map(name =>
-    errorList.find(item => item?.name === name)
-  );
-
+  const matchedTypes = expectedErrorNames.map(name => errorList.find(item => item?.name === name));
   const missingTypes: string[] = [];
   expectedErrorNames.forEach((name, i) => {
     if (!matchedTypes[i]) {
@@ -18,19 +12,14 @@ export function assertResultErrorsIncludes(
     }
   });
 
-  assert(
-    missingTypes.length === 0,
-    new Error(`${missingTypes.join(', ')} not found in ${error}`)
-  );
+  assert(missingTypes.length === 0, new Error(`${missingTypes.join(', ')} not found in ${error}`));
 }
 
-export async function expectErrorThrown(
-  fn: AnyFn,
-  expectedErrorNames: string[]
-) {
+export async function expectErrorThrown(fn: AnyFn, expectedErrorNames?: string[]) {
   try {
     await fn();
+    assert.fail('Error not thrown.');
   } catch (error) {
-    assertResultErrorsIncludes(error, expectedErrorNames);
+    if (expectedErrorNames) assertErrorHasName(error, expectedErrorNames);
   }
 }

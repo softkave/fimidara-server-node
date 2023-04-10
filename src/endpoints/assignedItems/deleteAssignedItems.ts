@@ -15,7 +15,7 @@ export async function deleteResourceAssignedItems(
   assignedItemTypes: AppResourceType[] | undefined,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteResourceAssignedItems(
+  await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
     workspaceId,
     resourceId,
     assignedItemTypes,
@@ -29,7 +29,7 @@ export async function deleteAssignableItemAssignedItems(
   assignedItemId: string,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteAssignedItemResources(
+  await context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
     workspaceId,
     assignedItemId,
     opts

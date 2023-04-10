@@ -7,13 +7,16 @@ function getByWorkspaceId(id: string) {
     .build();
 }
 
-function getByWorkspaceIdAndExcludeResourceIdList(workspaceId: string, idList: string[]) {
+function getByWorkspaceIdAndExcludeResourceIdList(
+  workspaceId: string,
+  idList: string[] | undefined
+) {
   const f = new DataProviderFilterBuilder<{workspaceId: string; resourceId: string}>().addItem(
     'workspaceId',
     workspaceId,
     DataProviderFilterValueOperator.Equal
   );
-  if (idList.length > 0) {
+  if (idList?.length) {
     f.addItem('resourceId', idList, DataProviderFilterValueOperator.NotIn);
   }
 

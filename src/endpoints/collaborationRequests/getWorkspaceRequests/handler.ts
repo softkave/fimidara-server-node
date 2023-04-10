@@ -1,9 +1,6 @@
 import {validate} from '../../../utils/validate';
-import {
-  applyDefaultEndpointPaginationOptions,
-  getEndpointPageFromInput,
-  getWorkspaceFromEndpointInput,
-} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {collaborationRequestForWorkspaceListExtractor} from '../utils';
 import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
 import {getWorkspaceCollaborationRequestsQuery} from './utils';

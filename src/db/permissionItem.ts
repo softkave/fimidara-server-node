@@ -4,8 +4,6 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const permissionItemSchema = ensureMongoTypeFields<IPermissionItem>({
   ...workspaceResourceSchema,
-  containerId: {type: String, index: true},
-  containerType: {type: String, index: true},
   entityId: {type: String, index: true},
   entityType: {type: String, index: true},
   targetId: {type: String, index: true},

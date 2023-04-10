@@ -6,14 +6,14 @@ import {
   IBaseTokenData,
   ISessionAgent,
   ITokenSubjectDefault,
-  PUBLIC_SESSION_AGENT,
   TokenAccessScope,
 } from '../../definitions/system';
 import {IUser} from '../../definitions/user';
+import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast, toArray} from '../../utils/fns';
+import {cast, toNonNullableArray} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {makeAgentTokenAgent, makeUserSessionAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
@@ -66,37 +66,38 @@ export default class SessionContext implements ISessionContext {
 
     let user: IUser | null = null;
     const incomingTokenData = data.incomingTokenData;
-    appAssert(incomingTokenData, new PermissionDeniedError());
-    const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
-    appAssert(agentToken, new InvalidCredentialsError());
 
-    if (agentToken.agentType === AppResourceType.User) {
-      appAssert(agentToken.separateEntityId);
-      user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
-      appAssert(user, reuseableErrors.user.notFound());
-    }
+    if (incomingTokenData) {
+      const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
+      appAssert(agentToken, new InvalidCredentialsError());
 
-    if (permittedAgentTypes?.length) {
-      const permittedAgent = toArray(permittedAgentTypes).find(
-        type => type === agentToken.agentType
-      );
+      if (agentToken.agentType === AppResourceType.User) {
+        appAssert(agentToken.separateEntityId);
+        user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
+        appAssert(user, reuseableErrors.user.notFound());
+      }
 
-      if (!permittedAgent) {
-        throw new PermissionDeniedError();
+      if (permittedAgentTypes?.length) {
+        const permittedAgent = toNonNullableArray(permittedAgentTypes).find(
+          type => type === agentToken.agentType
+        );
+
+        if (!permittedAgent) throw new PermissionDeniedError();
+      }
+
+      if (tokenAccessScope) {
+        ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
+      }
+
+      if (user) {
+        appAssert(user, new ServerError());
+        return (data.agent = makeUserSessionAgent(user, agentToken));
+      } else if (agentToken) {
+        return (data.agent = makeAgentTokenAgent(agentToken));
       }
     }
 
-    if (tokenAccessScope) {
-      ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
-    }
-
-    if (user) {
-      appAssert(user, new ServerError());
-      return (data.agent = makeUserSessionAgent(user, agentToken));
-    } else if (agentToken) {
-      return (data.agent = makeAgentTokenAgent(agentToken));
-    }
-
+    appAssert(permittedAgentTypes.includes(AppResourceType.Public), new PermissionDeniedError());
     return PUBLIC_SESSION_AGENT;
   };
 
@@ -129,9 +130,9 @@ export default class SessionContext implements ISessionContext {
     tokenData: IAgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const tokenAccessScope = cast<TokenAccessScope[]>(tokenData.scope);
+    const tokenAccessScope = tokenData.scope ?? [];
     const hasTokenAccessScope = !!tokenAccessScope.find(nextAud =>
-      expectedTokenAccessScope.includes(nextAud)
+      expectedTokenAccessScope.includes(nextAud as TokenAccessScope)
     );
     return hasTokenAccessScope;
   };
@@ -147,13 +148,8 @@ export default class SessionContext implements ISessionContext {
       sub: {id: tokenId},
     };
 
-    const msInSec = 1000;
-    if (expires) {
-      payload.exp = dateToSeconds(expires);
-    }
-    if (issuedAt) {
-      payload.iat = dateToSeconds(issuedAt);
-    }
+    if (expires) payload.exp = dateToSeconds(expires);
+    if (issuedAt) payload.iat = dateToSeconds(issuedAt);
 
     return jwt.sign(payload, ctx.appVariables.jwtSecret);
   };

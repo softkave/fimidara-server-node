@@ -6,13 +6,14 @@ import {CURRENT_TOKEN_VERSION, IBaseTokenData} from '../../definitions/system';
 import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
 import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
 import {
-  extractEnvVariables,
-  extractProdEnvsSchema,
   FileBackendType,
   IAppVariables,
+  extractEnvVariables,
+  extractProdEnvsSchema,
 } from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
-import {toArray} from '../../utils/fns';
+import {toNonNullableArray} from '../../utils/fns';
+import RequestData from '../RequestData';
 import addAgentToken from '../agentTokens/addToken/handler';
 import {IAddAgentTokenEndpointParams, INewAgentTokenInput} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
@@ -47,7 +48,6 @@ import {
 import addPermissionItems from '../permissionItems/addItems/handler';
 import {IAddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
 import {IPermissionItemInput} from '../permissionItems/types';
-import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {IBaseEndpointResult} from '../types';
 import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
@@ -61,6 +61,7 @@ import MockTestEmailProviderContext from './context/MockTestEmailProviderContext
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
+import {generateTestFileName} from './generateData/file';
 import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
@@ -69,10 +70,9 @@ export function getTestEmailProvider(appVariables: IAppVariables) {
   return new MockTestEmailProviderContext();
 }
 
-export async function getTestFileProvider(appVariables: IAppVariables) {
+export function getTestFileProvider(appVariables: IAppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
-    const fileProvider = new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-    return fileProvider;
+    return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
   } else {
     return new TestMemoryFilePersistenceProviderContext();
   }
@@ -89,7 +89,7 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
   const ctx = new BaseContext(
     getDataProviders(models),
     getTestEmailProvider(appVariables),
-    await getTestFileProvider(appVariables),
+    getTestFileProvider(appVariables),
     appVariables,
     mem,
     getLogicProviders(),
@@ -245,7 +245,7 @@ export async function insertPermissionItemsForTest(
 ) {
   const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, items: toArray(input)}
+    {workspaceId, items: toNonNullableArray(input)}
   );
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);
@@ -288,7 +288,7 @@ export async function insertAgentTokenForTest(
       workspaceId,
       token: {
         expires: getTimestamp(add(Date.now(), {days: 1})),
-        name: faker.lorem.words(3),
+        name: faker.lorem.words(7),
         description: faker.lorem.words(10),
         ...tokenInput,
       },
@@ -358,7 +358,7 @@ export async function insertFileForTest(
 ) {
   const input: IUploadFileEndpointParams = {
     filepath: addRootnameToPath(
-      [generateTestFolderName()].join(folderConstants.nameSeparator),
+      [generateTestFileName()].join(folderConstants.nameSeparator),
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),

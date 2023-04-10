@@ -40,7 +40,10 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
     );
 
     const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
-    appAssert(isRevoked, new InvalidRequestError('Collaboration request already revoked.'));
+    appAssert(
+      isRevoked === false,
+      new InvalidRequestError('Collaboration request already revoked.')
+    );
     request = await context.semantic.collaborationRequest.getAndUpdateOneById(
       data.requestId,
       {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},

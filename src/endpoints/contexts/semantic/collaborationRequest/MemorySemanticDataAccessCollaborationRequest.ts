@@ -1,6 +1,5 @@
 import {ICollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {getMongoQueryOptionsForMany} from '../../data/utils';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessCollaborationRequestProvider} from './types';
@@ -43,12 +42,11 @@ export class MemorySemanticDataAccessCollaborationRequest
       | (IDataProvideQueryListParams<ICollaborationRequest> & ISemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<ICollaborationRequest[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     return await this.memstore.readManyItems(
       {recipientEmail: {$lowercaseEq: email}},
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 }

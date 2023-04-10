@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import AssignedItemQueries from '../../assignedItems/queries';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';

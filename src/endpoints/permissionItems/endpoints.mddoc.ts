@@ -35,7 +35,6 @@ import {
 } from './getResourcePermissionItems/types';
 import {
   IPermissionItemInput,
-  IPermissionItemInputContainer,
   IPermissionItemInputEntity,
   IPermissionItemInputTarget,
 } from './types';
@@ -100,31 +99,20 @@ const target = new FieldObject<ExcludeTags<IPermissionItemInputTarget>>()
     folderpath: fReusables.folderpathNotRequired,
     workspaceRootname: fReusables.rootnameNotRequired,
   });
-const container = new FieldObject<ExcludeTags<IPermissionItemInputContainer>>()
-  .setName('NewPermissionItemInput')
-  .setFields({
-    containerId: containerIdNotRequired,
-    folderpath: fReusables.folderpathNotRequired,
-    workspaceRootname: fReusables.rootnameNotRequired,
-  });
 const entity = new FieldObject<ExcludeTags<IPermissionItemInputEntity>>()
   .setName('NewPermissionItemInput')
   .setFields({
     entityId: entityIdNotRequired,
   });
 
-const containerNotRequired = cloneAndMarkNotRequired(container);
-const entityNotRequired = cloneAndMarkNotRequired(entity);
-
 const newPermissionItemInput = new FieldObject<ExcludeTags<IPermissionItemInput>>()
   .setName('NewPermissionItemInput')
   .setFields({
     target,
     grantAccess,
-    container: containerNotRequired,
     entity: entityIdNotRequired,
     action: fReusables.action,
-    // appliesTo: fReusables.appliesTo,
+    appliesTo: fReusables.appliesTo,
   });
 
 const newPermissionItemInputList = new FieldArray()
@@ -134,8 +122,6 @@ const newPermissionItemInputList = new FieldArray()
 const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>()
   .setName('PermissionItem')
   .setFields({
-    containerId,
-    containerType,
     entityId,
     entityType,
     targetType,
@@ -149,13 +135,12 @@ const permissionItem = new FieldObject<ExcludeTags<IPublicPermissionItem>>()
     lastUpdatedAt: fReusables.date,
     lastUpdatedBy: fReusables.agent,
     providedResourceId: fReusables.providedResourceIdOrUndefined,
-    // appliesTo: fReusables.appliesTo,
+    appliesTo: fReusables.appliesTo,
   });
 
 const addPermissionItemsParams = new FieldObject<IAddPermissionItemsEndpointParams>()
   .setName('AddPermissionItemsEndpointParams')
   .setFields({
-    container: containerNotRequired,
     entity: entityIdNotRequired,
     workspaceId: fReusables.workspaceIdInputNotRequired,
     items: newPermissionItemInputList,
@@ -180,12 +165,8 @@ const getResourcePermissionItemsParams =
   new FieldObject<IGetResourcePermissionItemsEndpointParams>()
     .setName('GetResourcePermissionItemsEndpointParams')
     .setFields({
+      target,
       workspaceId: fReusables.workspaceIdInputNotRequired,
-      targetId: targetIdNotRequired,
-      targetType: targetType,
-      containerId: containerIdNotRequired,
-      page: fReusables.pageNotRequired,
-      pageSize: fReusables.pageSizeNotRequired,
     })
     .setRequired(true)
     .setDescription(
@@ -200,7 +181,7 @@ const getResourcePermissionItemsResult = [
     .setResponseBody(
       new FieldObject<IGetResourcePermissionItemsEndpointResult>()
         .setName('GetResourcePermissionItemsEndpointSuccessResult')
-        .setFields({items: new FieldArray().setType(permissionItem), page: fReusables.page})
+        .setFields({items: new FieldArray().setType(permissionItem)})
         .setRequired(true)
         .setDescription(
           'Get resource permission items endpoint result. ' +

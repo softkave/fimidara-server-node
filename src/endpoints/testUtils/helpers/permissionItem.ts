@@ -1,21 +1,22 @@
-import {toArray} from 'lodash';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {makeKey} from '../../../utils/fns';
+import {makeKey, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {IBaseContext} from '../../contexts/types';
 
-export async function canEntityPerformAction01(
+export async function canEntityPerformActionOnTargetId(
   context: IBaseContext,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
   targetId: string | string[],
   result: boolean
 ) {
+  // TODO: maybe use checkAuthorization's access check mechanisms
+
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
-    entityId: {$in: toArray(entityId)},
-    action: {$in: toArray(action) as any[]},
-    targetId: {$in: toArray(targetId)},
+    entityId: {$in: toNonNullableArray(entityId)},
+    action: {$in: toNonNullableArray(action) as any[]},
+    targetId: {$in: toNonNullableArray(targetId)},
   });
 
   // Index permission items by action - target ID - entity ID. We're going to
@@ -26,9 +27,9 @@ export async function canEntityPerformAction01(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toArray(targetId).forEach(nextTargetId => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  toNonNullableArray(targetId).forEach(nextTargetId => {
+    toNonNullableArray(entityId).forEach(nextEntityId => {
+      toNonNullableArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetId, nextEntityId]);
         expect(!!map[key]).toBe(result);
       });
@@ -36,7 +37,7 @@ export async function canEntityPerformAction01(
   });
 }
 
-export async function canEntityPerformAction02(
+export async function canEntityPerformActionOnTargetType(
   context: IBaseContext,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
@@ -45,9 +46,9 @@ export async function canEntityPerformAction02(
 ) {
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
-    entityId: {$in: toArray(entityId)},
-    action: {$in: toArray(action) as any[]},
-    targetType: {$in: toArray(targetType) as any[]},
+    entityId: {$in: toNonNullableArray(entityId)},
+    action: {$in: toNonNullableArray(action) as any[]},
+    targetType: {$in: toNonNullableArray(targetType) as any[]},
   });
 
   // Index permission items by action - target type - entity ID. We're going to
@@ -58,9 +59,9 @@ export async function canEntityPerformAction02(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toArray(targetType).forEach(nextTargetType => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  toNonNullableArray(targetType).forEach(nextTargetType => {
+    toNonNullableArray(entityId).forEach(nextEntityId => {
+      toNonNullableArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetType, nextEntityId]);
         expect(!!map[key]).toBe(result);
       });
@@ -68,7 +69,7 @@ export async function canEntityPerformAction02(
   });
 }
 
-export async function checkExplicitAccessPermissions01(
+export async function checkExplicitAccessPermissionsOnTargetId(
   context: IBaseContext,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
@@ -78,9 +79,9 @@ export async function checkExplicitAccessPermissions01(
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
     grantAccess,
-    entityId: {$in: toArray(entityId)},
-    action: {$in: toArray(action) as any[]},
-    targetId: {$in: toArray(targetId) as any[]},
+    entityId: {$in: toNonNullableArray(entityId)},
+    action: {$in: toNonNullableArray(action) as any[]},
+    targetId: {$in: toNonNullableArray(targetId) as any[]},
   });
 
   // Index permission items by action - target ID - entity ID. We're going to
@@ -91,9 +92,9 @@ export async function checkExplicitAccessPermissions01(
 
   // Make checks using key structure defined above, expecting each entry to
   // exist, to be truthy.
-  toArray(targetId).forEach(nextTargetId => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  toNonNullableArray(targetId).forEach(nextTargetId => {
+    toNonNullableArray(entityId).forEach(nextEntityId => {
+      toNonNullableArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetId, nextEntityId]);
         expect(!!map[key]).toBeTruthy();
       });
@@ -101,7 +102,7 @@ export async function checkExplicitAccessPermissions01(
   });
 }
 
-export async function checkExplicitAccessPermissions02(
+export async function checkExplicitAccessPermissionsOnTargetType(
   context: IBaseContext,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
@@ -111,9 +112,9 @@ export async function checkExplicitAccessPermissions02(
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
     grantAccess,
-    entityId: {$in: toArray(entityId)},
-    action: {$in: toArray(action) as any[]},
-    targetType: {$in: toArray(targetType) as any[]},
+    entityId: {$in: toNonNullableArray(entityId)},
+    action: {$in: toNonNullableArray(action) as any[]},
+    targetType: {$in: toNonNullableArray(targetType) as any[]},
   });
 
   // Index permission items by action - target type - entity ID. We're going to
@@ -124,9 +125,9 @@ export async function checkExplicitAccessPermissions02(
 
   // Make checks using key structure defined above, expecting each entry to
   // exist, to be truthy.
-  toArray(targetType).forEach(nextTargetType => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  toNonNullableArray(targetType).forEach(nextTargetType => {
+    toNonNullableArray(entityId).forEach(nextEntityId => {
+      toNonNullableArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetType, nextEntityId]);
         expect(!!map[key]).toBeTruthy();
       });

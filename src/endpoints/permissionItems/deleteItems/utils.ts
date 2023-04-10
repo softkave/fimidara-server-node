@@ -3,21 +3,26 @@ import {IFile} from '../../../definitions/file';
 import {IPermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, IResourceWrapper, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {extractResourceIdList, noopAsync, toArray} from '../../../utils/fns';
+import {
+  extractResourceIdList,
+  isObjectEmpty,
+  noopAsync,
+  toNonNullableArray,
+} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
+import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
-import {checkResourcesBelongToContainer} from '../../resources/containerCheckFns';
 import {DeleteResourceCascadeFnsMap} from '../../types';
+import {IPermissionItemInputTarget} from '../types';
+import {getPermissionItemTargets} from '../utils';
 import {
-  IPermissionItemInput,
-  IPermissionItemInputContainer,
-  IPermissionItemInputTarget,
-} from '../types';
-import {getPermissionItemContainers, getPermissionItemTargets} from '../utils';
-import {DeletePermissionItemsCascadeFnsArgs, IDeletePermissionItemsEndpointParams} from './types';
+  DeletePermissionItemInput,
+  DeletePermissionItemsCascadeFnsArgs,
+  IDeletePermissionItemsEndpointParams,
+} from './types';
 
 export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
   {
@@ -42,7 +47,7 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
       ]);
     },
     [AppResourceType.AssignedItem]: async (context, args, opts) => {
-      await context.semantic.assignedItem.deleteResourceAssignedItems(
+      await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
         args.workspaceId,
         args.permissionItemsIdList,
         undefined,
@@ -57,20 +62,19 @@ export const INTERNAL_deletePermissionItems = async (
   workspace: IWorkspace,
   data: IDeletePermissionItemsEndpointParams
 ) => {
-  let inputContainers: IPermissionItemInputContainer[] = [];
-  let inputTargets: IPermissionItemInputTarget[] = [];
+  let inputTargets: Partial<IPermissionItemInputTarget>[] = [];
 
-  if (data.container) inputContainers = toArray(data.container);
+  // Extract out targets
   data.items?.forEach(item => {
-    if (item.container) inputContainers = inputContainers.concat(toArray(item.container));
-    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
+    if (item.target) inputTargets = inputTargets.concat(toNonNullableArray(item.target));
   });
 
-  const [containers, targets] = await Promise.all([
-    getPermissionItemContainers(context, agent, workspace, inputContainers),
+  // Fetch targets
+  const [targets] = await Promise.all([
     getPermissionItemTargets(context, agent, workspace, inputTargets),
   ]);
 
+  // For indexing files and folders by name path
   const indexByNamePath = (item: IResourceWrapper) => {
     if (item.resourceType === AppResourceType.File || AppResourceType.Folder)
       return (item.resource as unknown as Pick<IFile, 'namePath'>).namePath.join(
@@ -79,8 +83,8 @@ export const INTERNAL_deletePermissionItems = async (
     else return '';
   };
 
-  const containersMapById = indexArray(containers, {path: 'resourceId'});
-  const containersMapByNamepath = indexArray(containers, {indexer: indexByNamePath});
+  // Index targets by ID and name path (for files and folders). This is for fast
+  // retrieval later down the line.
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
   const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
   const workspaceWrapper: IResourceWrapper = {
@@ -89,44 +93,25 @@ export const INTERNAL_deletePermissionItems = async (
     resourceType: AppResourceType.Workspace,
   };
 
-  const tryGetContainer = (container: IPermissionItemInputContainer) => {
-    let resource: IResourceWrapper | undefined = undefined;
-
-    // TODO: should we throw error when some containers are not found?
-    if (container.containerId) resource = containersMapById[container.containerId];
-
-    // Check that it's empty because we are only picking one container
-    if (container.folderpath && !resource) resource = containersMapByNamepath[container.folderpath];
-    if (container.workspaceRootname && !resource) resource = workspaceWrapper;
-
-    return resource;
-  };
-
-  const getContainer = (container: IPermissionItemInputContainer) => {
-    let resource = tryGetContainer(container);
-    if (!resource) resource = workspaceWrapper;
-    return resource;
-  };
-
-  const getTargets = (target: IPermissionItemInputTarget) => {
+  const getTargets = (target: GetTypeFromTypeOrArray<DeletePermissionItemInput['target']>) => {
     let targets: Record<string, IResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
-      toArray(target.targetId).forEach(targetId => {
+      toNonNullableArray(target.targetId).forEach(targetId => {
         targets[targetId] = targetsMapById[targetId];
       });
     }
 
     if (target.folderpath) {
-      toArray(target.folderpath).forEach(folderpath => {
+      toNonNullableArray(target.folderpath).forEach(folderpath => {
         const folder = targetsMapByNamepath[folderpath];
         if (folder) targets[folder.resourceId] = folder;
       });
     }
 
     if (target.filepath) {
-      toArray(target.filepath).forEach(filepath => {
+      toNonNullableArray(target.filepath).forEach(filepath => {
         const folder = targetsMapByNamepath[filepath];
         if (folder) targets[folder.resourceId] = folder;
       });
@@ -139,146 +124,143 @@ export const INTERNAL_deletePermissionItems = async (
     return targets;
   };
 
-  const globalContainer = data.container ? getContainer(data.container) : workspaceWrapper;
+  // A relatively complex map, mapping entity IDs to targets (target ID and
+  // target type), and targets to the input permission items to be deleted. We
+  // use this to build queries of permission items to be deleted. When target ID
+  // is present in the item, we delete permission items with the combination of
+  // target ID and or target type, and when only target type is present, we
+  // delete permission items with that target type irrespective of the target
+  // ID.
   const entityIdMap: Record<
-    string, // entity ID
-    Record<
-      string, // container ID
-      {
-        containerTargetsMap: Record<
-          string,
-          {resource: IResourceWrapper; item: Partial<IPermissionItemInput>}
-        >;
-        containerTargetTypesMap: Record<string, {item: Partial<IPermissionItemInput>}>;
-      }
-    >
+    /** entity ID */ string,
+    {
+      targetsMap: Record<
+        /** target ID */ string,
+        {
+          resource: IResourceWrapper;
+          item: DeletePermissionItemInput;
+          targetType: AppResourceType | AppResourceType[];
+        }
+      >;
+      targetTypesMap: Record</** target type */ string, {item: DeletePermissionItemInput}>;
+    }
   > = {};
 
-  const insertInContainerTargetsMap = (
+  const insertIntoContainerTargetsMap = (
     entity: string | string[],
-    containerId: string,
     resource: IResourceWrapper,
-    item: Partial<IPermissionItemInput>
+    targetType: AppResourceType | AppResourceType[] | undefined,
+    item: DeletePermissionItemInput
   ) => {
-    toArray(entity).forEach(entityId => {
-      let enMap = entityIdMap[entityId];
-      if (!enMap) entityIdMap[entityId] = enMap = {};
-      let ccMap = enMap[containerId];
-      if (!ccMap)
-        enMap[containerId] = ccMap = {containerTargetsMap: {}, containerTargetTypesMap: {}};
-      ccMap.containerTargetsMap[resource.resourceId] = {resource, item};
+    toNonNullableArray(entity).forEach(entityId => {
+      let outerMap = entityIdMap[entityId];
+      if (!outerMap) {
+        entityIdMap[entityId] = outerMap = {
+          targetsMap: {},
+          targetTypesMap: {},
+        };
+      }
+
+      outerMap.targetsMap[resource.resourceId] = {
+        resource,
+        item,
+        targetType: targetType ?? [resource.resourceType],
+      };
     });
   };
 
-  const insertInContainerTargetTypesMap = (
+  const insertIntoContainerTargetTypesMap = (
     entity: string | string[],
-    containerId: string,
     targetType: string,
-    item: Partial<IPermissionItemInput>
+    item: DeletePermissionItemInput
   ) => {
-    toArray(entity).forEach(entityId => {
-      let enMap = entityIdMap[entityId];
-      if (!enMap) entityIdMap[entityId] = enMap = {};
-      let ccMap = enMap[containerId];
-      if (!ccMap)
-        enMap[containerId] = ccMap = {containerTargetsMap: {}, containerTargetTypesMap: {}};
-      ccMap.containerTargetTypesMap[targetType] = {item};
+    toNonNullableArray(entity).forEach(entityId => {
+      let outerMap = entityIdMap[entityId];
+      if (!outerMap)
+        entityIdMap[entityId] = outerMap = {
+          targetsMap: {},
+          targetTypesMap: {},
+        };
+      outerMap.targetTypesMap[targetType] = {item};
     });
   };
 
   if (data.items) {
     data.items.forEach(item => {
+      // Default to global entity if not present in item
       if (!item.entity) item.entity = data.entity;
-      if (!item.container) item.container = data.container;
 
-      const itemContainer = item.container ? getContainer(item.container) : globalContainer;
-      const targets = toArray(item.target ?? []);
+      const targets = toNonNullableArray(item.target ?? []);
 
-      toArray(targets).forEach(target => {
-        if (target.targetType) {
-          toArray(target.targetType).forEach(targetType => {
+      toNonNullableArray(targets).forEach(target => {
+        const itemTargetsMap = getTargets(target);
+
+        if (isObjectEmpty(itemTargetsMap)) {
+          // Insert in target's map if target is present. For this item, we'll
+          // only be deleting permission items with these target IDs.
+          forEach(itemTargetsMap, targetResource => {
             if (item.entity)
-              insertInContainerTargetTypesMap(
+              insertIntoContainerTargetsMap(
                 item.entity.entityId,
-                itemContainer.resourceId,
-                targetType,
+                targetResource,
+                target.targetType,
                 item
               );
           });
+        } else if (target.targetType) {
+          // Insert in target type's map because a target(s) is not present, but
+          // a target type is. We'll be deleting permission items that provide
+          // access to target type(s).
+          toNonNullableArray(target.targetType).forEach(targetType => {
+            if (item.entity)
+              insertIntoContainerTargetTypesMap(item.entity.entityId, targetType, item);
+          });
         }
-
-        const otherTargetsMap = getTargets(target);
-        forEach(otherTargetsMap, target => {
-          if (item.entity)
-            insertInContainerTargetsMap(
-              item.entity.entityId,
-              itemContainer.resourceId,
-              target,
-              item
-            );
-        });
       });
     });
   }
 
   const queries: LiteralDataQuery<IPermissionItem>[] = [];
-  forEach(entityIdMap, (enMap, entityId) => {
-    forEach(enMap, (ccMap, containerId) => {
-      const targets = Object.values(ccMap.containerTargetsMap);
-      const resources: IResourceWrapper[] = [];
 
-      targets.forEach(target => {
-        resources.push(target.resource);
-        const query: LiteralDataQuery<IPermissionItem> = {
-          entityId,
-          containerId,
-          targetId: target.resource.resourceId,
-          grantAccess: target.item.grantAccess,
-        };
+  forEach(entityIdMap, (outerMap, entityId) => {
+    const targets = Object.values(outerMap.targetsMap);
 
-        const actions = target.item.action && toArray(target.item.action);
-        if (actions && actions.length) query.action = {$in: actions as any};
+    targets.forEach(targetEntry => {
+      const query: LiteralDataQuery<IPermissionItem> = {
+        entityId,
+        targetId: targetEntry.resource.resourceId,
+        targetType: {$in: toNonNullableArray(targetEntry.targetType) as any},
+        appliesTo: targetEntry.item.appliesTo,
+        grantAccess: targetEntry.item.grantAccess,
+        action: targetEntry.item.action
+          ? {$in: toNonNullableArray(targetEntry.item.action) as any}
+          : undefined,
+      };
 
-        queries.push(query);
-      });
+      queries.push(query);
+    });
 
-      if (resources.length) {
-        checkResourcesBelongToContainer(containerId, resources);
-      }
+    forEach(outerMap.targetTypesMap, ({item}, targetType) => {
+      const query: LiteralDataQuery<IPermissionItem> = {
+        entityId,
+        targetType: targetType as AppResourceType,
+        grantAccess: item.grantAccess,
+        action: item.action ? {$in: toNonNullableArray(item.action) as any} : undefined,
+      };
 
-      forEach(ccMap.containerTargetTypesMap, ({item}, targetType) => {
-        const query: LiteralDataQuery<IPermissionItem> = {
-          entityId,
-          containerId,
-          targetType: targetType as AppResourceType,
-          grantAccess: item.grantAccess,
-        };
-
-        const actions = item.action && toArray(item.action);
-        if (actions && actions.length) query.action = {$in: actions as any};
-
-        queries.push(query);
-      });
+      queries.push(query);
     });
   });
 
   if (!queries.length) {
     if (data.entity) {
-      const entityId = toArray(data.entity.entityId);
-      const container = data.container ? getContainer(data.container) : globalContainer;
+      const entityId = toNonNullableArray(data.entity.entityId);
+
       if (entityId.length) {
         const query: LiteralDataQuery<IPermissionItem> = {
           entityId: {$in: entityId},
-          containerId: container.resourceId,
         };
-        queries.push(query);
-      }
-    } else if (data.container) {
-      const container = tryGetContainer(data.container);
-      if (container) {
-        const query: LiteralDataQuery<IPermissionItem> = {
-          containerId: container.resourceId,
-        };
+
         queries.push(query);
       }
     }

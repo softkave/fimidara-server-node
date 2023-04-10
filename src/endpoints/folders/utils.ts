@@ -117,9 +117,10 @@ export async function checkFolderAuthorization(
     context,
     agent,
     action,
+    workspace,
     workspaceId: workspace.resourceId,
     containerId: getFilePermissionContainers(workspace.resourceId, folder),
-    targets: [{targetId: folder.resourceId}],
+    targets: {targetId: folder.resourceId},
   });
 
   return {agent, workspace, folder};

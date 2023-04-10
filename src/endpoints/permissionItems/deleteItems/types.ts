@@ -1,20 +1,22 @@
+import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {AppActionType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import {ILongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
-import {
-  IPermissionItemInput,
-  IPermissionItemInputContainer,
-  IPermissionItemInputEntity,
-} from '../types';
+import {IPermissionItemInputEntity, IPermissionItemInputTarget} from '../types';
 
-export type DeletePermissionItemInput = Partial<IPermissionItemInput>;
+export type DeletePermissionItemInput = {
+  target: Partial<IPermissionItemInputTarget> | Partial<IPermissionItemInputTarget>[];
+  action?: AppActionType | AppActionType[];
+  grantAccess?: boolean;
+  appliesTo?: PermissionItemAppliesTo;
+  entity?: IPermissionItemInputEntity;
+};
 
 export interface IDeletePermissionItemsEndpointParams {
   workspaceId?: string;
   entity?: IPermissionItemInputEntity;
-  container?: IPermissionItemInputContainer;
   items?: DeletePermissionItemInput[];
-  // TODO: implement itemIds: string[]
 }
 
 export type DeletePermissionItemsEndpoint = Endpoint<

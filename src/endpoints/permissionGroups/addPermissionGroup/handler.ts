@@ -21,8 +21,9 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
-    targets: [{type: AppResourceType.PermissionGroup}],
+    targets: {targetType: AppResourceType.PermissionGroup},
     action: AppActionType.Create,
   });
 

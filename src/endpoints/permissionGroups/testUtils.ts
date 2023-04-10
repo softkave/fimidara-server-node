@@ -1,4 +1,5 @@
 import {IAssignPermissionGroupInput, IPermissionGroup} from '../../definitions/permissionGroups';
+import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
@@ -57,7 +58,14 @@ export async function grantReadPermission(
     RequestData.fromExpressRequest(req, {
       workspaceId,
       entity: {entityId: agentId},
-      items: [{target: {targetId: targetIdList}, action: AppActionType.Read, grantAccess: true}],
+      items: [
+        {
+          target: {targetId: targetIdList},
+          action: AppActionType.Read,
+          grantAccess: true,
+          appliesTo: PermissionItemAppliesTo.Self,
+        },
+      ],
     })
   );
 }

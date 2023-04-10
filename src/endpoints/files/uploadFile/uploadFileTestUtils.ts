@@ -6,7 +6,6 @@ import {appAssert} from '../../../utils/assertion';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
-import PermissionItemQueries from '../../permissionItems/queries';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {
@@ -104,23 +103,6 @@ export const uploadFileBaseTest = async (
 //     containerId
 //   );
 // }
-
-export async function assertPublicPermissionsDonotExistForContainer(
-  ctx: IBaseContext,
-  workspace: Pick<IWorkspace, 'publicPermissionGroupId'>,
-  containerId: string
-) {
-  assert(workspace.publicPermissionGroupId);
-  const publicPermissionGroupPermissionitems =
-    await ctx.semantic.permissionItem.getManyByLiteralDataQuery(
-      PermissionItemQueries.getByPermissionEntity(workspace.publicPermissionGroupId)
-    );
-
-  const items = publicPermissionGroupPermissionitems.filter(
-    item => item.containerId === containerId
-  );
-  expect(items).toHaveLength(0);
-}
 
 // export const uploadFileWithPublicAccessActionTest = async (
 //   ctx: IBaseContext,

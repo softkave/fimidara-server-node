@@ -3,7 +3,7 @@ import {AppResourceType, IAgent, IBaseTokenData, ISessionAgent} from '../definit
 import {IUser} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {PermissionDeniedError} from '../endpoints/user/errors';
-import {getResourceTypeFromId} from './resourceId';
+import {getResourceTypeFromId} from './resource';
 
 export function makeAgentTokenAgent(agentToken: IAgentToken): ISessionAgent {
   return {

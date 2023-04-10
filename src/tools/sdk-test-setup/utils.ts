@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
-import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
@@ -21,6 +20,7 @@ import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmai
 import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 
 async function setupContext() {

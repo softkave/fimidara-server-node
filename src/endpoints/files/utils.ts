@@ -45,9 +45,10 @@ export async function checkFileAuthorization(
     context,
     agent,
     action,
+    workspace,
     workspaceId: workspace.resourceId,
     containerId: getFilePermissionContainers(workspace.resourceId, file),
-    targets: [{targetId: file.resourceId}],
+    targets: {targetId: file.resourceId},
   });
 
   return {agent, file, workspace};

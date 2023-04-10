@@ -2,7 +2,7 @@ import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
 import {AddAgentTokenEndpoint} from './types';
 import {internalCreateAgentToken} from './utils';

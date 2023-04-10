@@ -34,7 +34,6 @@ describe('getTag', () => {
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag01.resourceId}
     );
-
     const result = await getTag(context, instData);
     assertEndpointResultOk(result);
     expect(result.tag).toEqual(tag01);

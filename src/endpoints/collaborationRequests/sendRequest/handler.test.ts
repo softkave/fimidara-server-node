@@ -12,7 +12,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
-import {populateRequestAssignedPermissionGroups} from '../utils';
 import {ICollaborationRequestInput} from './types';
 
 let context: IBaseContext | null = null;
@@ -31,17 +30,10 @@ describe('sendCollaborationRequest', () => {
     const {userToken} = await insertUserForTest(context);
     const {user: user02} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    // const {permissionGroup} = await insertPermissionGroupForTest(
-    //   context,
-    //   userToken,
-    //   workspace.resourceId
-    // );
-
     const requestInput: ICollaborationRequestInput = {
       recipientEmail: user02.email,
       message: faker.lorem.paragraph(),
       expires: getTimestamp(add(Date.now(), {days: 1})),
-      // permissionGroupsAssignedOnAcceptingRequest: [{permissionGroupId: permissionGroup.resourceId}],
     };
     const {request: request01} = await insertRequestForTest(
       context,
@@ -50,16 +42,10 @@ describe('sendCollaborationRequest', () => {
       requestInput
     );
 
-    // const assignedPermissionGroup01 = request01.permissionGroupsAssignedOnAcceptingRequest[0];
-    // expect(assignedPermissionGroup01).toBeDefined();
-    // expect(assignedPermissionGroup01.permissionGroupId).toBe(permissionGroup.resourceId);
-
     const savedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
-    expect(request01).toMatchObject(
-      await populateRequestAssignedPermissionGroups(context, savedRequest)
-    );
+    expect(savedRequest).toMatchObject(request01);
     expect(savedRequest.status).toBe(CollaborationRequestStatusType.Pending);
   });
 });

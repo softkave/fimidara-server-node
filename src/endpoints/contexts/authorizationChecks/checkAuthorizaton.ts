@@ -1,58 +1,67 @@
-import {compact, isUndefined} from 'lodash';
+import {compact, difference, isEmpty, isUndefined, uniq} from 'lodash';
 import {IFile} from '../../../definitions/file';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
+  IResource,
+  ISessionAgent,
   getWorkspaceActionList,
   getWorkspaceResourceTypeList,
-  ISessionAgent,
 } from '../../../definitions/system';
+import {IUserWithWorkspace} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {makeKey, toArray} from '../../../utils/fns';
-import {getResourceTypeFromId} from '../../../utils/resourceId';
+import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
+import {getResourceTypeFromId} from '../../../utils/resource';
+import {reuseableErrors} from '../../../utils/reusableErrors';
 import {logger} from '../../globalUtils';
+import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
 import {IBaseContext} from '../types';
 
 export type AuthTarget = {
-  type?: AppResourceType;
+  /** Pass only target ID without target type when checking a single target. */
   targetId?: string;
+
+  /** Pass target ID with target type when checking access to a type. */
+  targetType?: AppResourceType;
 };
 
 export interface ICheckAuthorizationParams {
   context: IBaseContext;
   agent: ISessionAgent;
   workspaceId: string;
+  workspace?: Pick<IWorkspace, 'publicPermissionGroupId'>;
   containerId?: string | string[];
   targets: AuthTarget | Array<AuthTarget>;
   action: AppActionType;
-  // appliesTo: PermissionItemAppliesTo;
 }
 
 type AccessMap = Partial<Record<string, IPermissionItem>>;
 export interface IAuthAccessCheckers {
+  params: ICheckAuthorizationParams | undefined;
   checkForTargetId: (
-    action: AppActionType,
     targetId: string,
+    action: AppActionType,
+    containerId?: string | string[],
     nothrow?: boolean
   ) => IPermissionItem | false;
   checkForTargetType: (
-    action: AppActionType,
     type: AppResourceType,
+    action: AppActionType,
+    containerId: string | string[],
     nothrow?: boolean
   ) => IPermissionItem | false;
-  checkUsingCheckAuthParams: ({
-    targets,
-    action,
-  }: Pick<ICheckAuthorizationParams, 'targets' | 'action'>) => void;
+  checkUsingCheckAuthParams: (params: ICheckAuthorizationParams) => void;
 }
 
 function newAccessChecker(
   itemsAllowingAccess: AccessMap,
   itemsDenyingAccess: AccessMap,
-  keyFn: (item: Pick<IPermissionItem, 'targetId' | 'targetType' | 'action'>) => string[]
+  keyFn: GetItemAccessKeysFn,
+  params: ICheckAuthorizationParams | undefined
 ) {
   const handleNoAccess = (item?: IPermissionItem, nothrow = false) => {
     if (nothrow) return item ?? false;
@@ -98,24 +107,60 @@ function newAccessChecker(
   };
 
   const accessChecker: IAuthAccessCheckers = {
-    checkForTargetId: (action: AppActionType, targetId: string, nothrow = false) => {
+    params,
+    checkForTargetId(targetId, action, containerId, nothrow) {
       const type = getResourceTypeFromId(targetId);
-      const keys = keyFn({action, targetId, targetType: type});
-      return produceCheckResult(keys, action, type, targetId, nothrow);
+      const targetKeys = keyFn({
+        action,
+        targetId,
+        targetType: type,
+        appliesTo: [PermissionItemAppliesTo.Self, PermissionItemAppliesTo.SelfAndChildrenOfType],
+      });
+      const containerKeys = keyFn({
+        action,
+        targetId: containerId ?? [],
+        targetType: type,
+        appliesTo: [
+          PermissionItemAppliesTo.SelfAndChildrenOfType,
+          PermissionItemAppliesTo.ChildrenOfType,
+        ],
+      });
+
+      return produceCheckResult(targetKeys.concat(containerKeys), action, type, targetId, nothrow);
     },
-    checkForTargetType: (action: AppActionType, type: AppResourceType, nothrow = false) => {
-      const keys = keyFn({action, targetType: type});
-      return produceCheckResult(keys, action, type, undefined, nothrow);
+    checkForTargetType(type, action, containerId, nothrow) {
+      const containerKeys = keyFn({
+        action,
+        targetId: containerId,
+        targetType: type,
+        appliesTo: [
+          PermissionItemAppliesTo.SelfAndChildrenOfType,
+          PermissionItemAppliesTo.ChildrenOfType,
+        ],
+      });
+
+      return produceCheckResult(containerKeys, action, type, undefined, nothrow);
     },
-    checkUsingCheckAuthParams: ({
-      targets,
-      action,
-    }: Pick<ICheckAuthorizationParams, 'targets' | 'action'>) => {
-      toArray(targets).forEach(target => {
+    checkUsingCheckAuthParams(params) {
+      toNonNullableArray(params.targets).forEach(target => {
         if (target.targetId) {
-          accessChecker.checkForTargetId(action, target.targetId);
-        } else if (target.type) {
-          accessChecker.checkForTargetType(action, target.type);
+          accessChecker.checkForTargetId(
+            target.targetId,
+            params.action,
+
+            // Remove target ID from container if present
+            uniq(
+              difference(toCompactArray(params.workspaceId, params.containerId), [target.targetId])
+            ),
+            /** nothrow */ false
+          );
+        } else if (target.targetType) {
+          accessChecker.checkForTargetType(
+            target.targetType,
+            params.action,
+            uniq(toCompactArray(params.workspaceId, params.containerId, target.targetId)),
+            /** nothrow */ false
+          );
         }
       });
     },
@@ -127,7 +172,7 @@ function newAccessChecker(
 export async function getAuthorizationAccessChecker(params: ICheckAuthorizationParams) {
   const {itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys} =
     await fetchAndSortAgentPermissionItems(params);
-  return newAccessChecker(itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys);
+  return newAccessChecker(itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys, params);
 }
 
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
@@ -144,33 +189,56 @@ export async function fetchAgentPermissionItems(
     throw new EmailAddressNotVerifiedError();
   }
 
+  const workspace =
+    params.workspace ?? (await context.semantic.workspace.getOneById(params.workspaceId));
+  appAssert(workspace, reuseableErrors.workspace.notFound());
   appAssert(
     Array.isArray(targets) ? targets.length > 0 : targets,
     new ServerError(),
     'Provide atleast one target.'
   );
-  const map = await context.semantic.permissions.getEntityInheritanceMap({
-    context,
+
+  const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
+    context.semantic.permissions.getEntityInheritanceMap({
+      context,
+      entityId: agent.agentId,
+      fetchDeep: params.fetchEntitiesDeep,
+    }),
+    context.semantic.permissions.getEntityInheritanceMap({
+      context,
+      entityId: workspace.publicPermissionGroupId,
+      fetchDeep: params.fetchEntitiesDeep,
+    }),
+  ]);
+  const {sortedItemsList: entitySortedItemList} = context.logic.permissions.sortInheritanceMap({
+    map: entityInheritanceMap,
     entityId: agent.agentId,
-    fetchDeep: params.fetchEntitiesDeep,
   });
-  const {sortedItemsList} = context.logic.permissions.sortInheritanceMap({
-    map,
-    entityId: agent.agentId,
+  const {sortedItemsList: publicSortedItemList} = context.logic.permissions.sortInheritanceMap({
+    map: publicInheritanceMap,
+    entityId: workspace.publicPermissionGroupId,
   });
 
-  const entityIdList = sortedItemsList.map(item => item.id),
-    action = toArray(params.action).concat(AppActionType.All),
-    targetsList = toArray(targets),
+  const sortedItemsList = entitySortedItemList.concat(publicSortedItemList),
+    entityIdList = sortedItemsList.map(item => item.id),
+    action = toNonNullableArray(params.action).concat(AppActionType.All),
+    targetsList = toNonNullableArray(targets),
     targetId = compact(targetsList.map(item => item.targetId)),
-    targetType = compact(targetsList.map(item => item.type)),
-    containerId = params.containerId ?? workspaceId;
-  const permissionItems = await context.semantic.permissions.getEntitiesPermissionItems({
+    containerId = defaultArrayTo(toCompactArray(params.containerId), workspaceId);
+
+  let targetType = compact(targetsList.map(item => item.targetType));
+  if (!targetType.length && targetId.length) {
+    targetType = targetId.map(getResourceTypeFromId);
+  }
+  targetType.push(AppResourceType.All);
+  targetType = uniq(targetType);
+
+  const permissionItems = await context.semantic.permissions.getPermissionItems({
     context,
-    action,
     containerId,
     targetId,
     targetType,
+    action,
     entityId: entityIdList,
     sortByContainer: true,
     sortByDate: true,
@@ -187,13 +255,26 @@ export async function fetchAndSortAgentPermissionItems(params: ICheckAuthorizati
  * Assumes permission items are for the same entity and container. If that
  * changes, change this function accordingly.
  */
-export function uniquePermissionItems(items: IPermissionItem[]) {
+export function uniquePermissionItems(
+  items: IPermissionItem[],
+
+  /**
+   * Set to `true` if you want `create`, `read`, and other actions to fold into
+   * wildcard action `*` if present, and same for resource types.
+   */
+  foldPermissionItems = false
+) {
   const map: AccessMap = {};
 
   const getItemAccessKeys = (item: IPermissionItem) => {
-    const actions = item.action === AppActionType.All ? getWorkspaceActionList() : [item.action];
+    const actions =
+      foldPermissionItems && item.action === AppActionType.All
+        ? getWorkspaceActionList()
+        : [item.action];
     const resourceTypes =
-      item.targetType === AppResourceType.All ? getWorkspaceResourceTypeList() : [item.targetType];
+      foldPermissionItems && item.targetType === AppResourceType.All
+        ? getWorkspaceResourceTypeList()
+        : [item.targetType];
     const keys: string[] = [];
     actions.forEach(action => {
       resourceTypes.forEach(type =>
@@ -220,17 +301,45 @@ export function uniquePermissionItems(items: IPermissionItem[]) {
   return {items, getItemAccessKeys, processItem};
 }
 
-export function sortOutPermissionItems(items: IPermissionItem[]) {
+type GetItemAccessKeysFn = (item: {
+  action: AppActionType;
+  targetType: AppResourceType;
+
+  /** string for a single target and string[] when considering containers. */
+  targetId: string | string[];
+  appliesTo: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+}) => string[];
+
+export type SortOutPermissionItemsSelectionFn = (p: {
+  isAccessAllowed: boolean;
+  isAccessDenied: boolean;
+  item: IPermissionItem;
+}) => boolean;
+
+const defaultSelectionFn: SortOutPermissionItemsSelectionFn = p => {
+  return !(p.isAccessAllowed || p.isAccessDenied);
+};
+
+export function sortOutPermissionItems(
+  items: IPermissionItem[],
+  selectionFn: SortOutPermissionItemsSelectionFn = defaultSelectionFn
+) {
   const itemsAllowingAccess: AccessMap = {},
     itemsDenyingAccess: AccessMap = {};
 
-  const getItemAccessKeys = (item: Pick<IPermissionItem, 'targetId' | 'targetType' | 'action'>) => {
+  const getItemAccessKeys: GetItemAccessKeysFn = item => {
     const actions = item.action === AppActionType.All ? getWorkspaceActionList() : [item.action];
     const resourceTypes =
       item.targetType === AppResourceType.All ? getWorkspaceResourceTypeList() : [item.targetType];
     const keys: string[] = [];
     actions.forEach(action => {
-      resourceTypes.forEach(type => keys.push(makeKey([type, action, item.targetId])));
+      resourceTypes.forEach(type =>
+        toNonNullableArray(item.targetId).forEach(targetId =>
+          toNonNullableArray(item.appliesTo).forEach(appliesTo =>
+            keys.push(makeKey([targetId, type, action, appliesTo]))
+          )
+        )
+      );
     });
     return keys;
   };
@@ -238,21 +347,24 @@ export function sortOutPermissionItems(items: IPermissionItem[]) {
   const processItem = (item: IPermissionItem) => {
     const itemKeys = getItemAccessKeys(item);
     const isAccessAllowed = itemKeys.some(key => itemsAllowingAccess[key]);
-    if (isAccessAllowed) return false;
     const isAccessDenied = itemKeys.some(key => itemsDenyingAccess[key]);
-    if (isAccessDenied) return false;
+    const retain = selectionFn({isAccessAllowed, isAccessDenied, item});
 
-    if (item.grantAccess) {
-      itemKeys.forEach(key => {
-        itemsAllowingAccess[key] = item;
-      });
+    if (retain) {
+      if (item.grantAccess) {
+        itemKeys.forEach(key => {
+          itemsAllowingAccess[key] = item;
+        });
+      } else {
+        itemKeys.forEach(key => {
+          itemsDenyingAccess[key] = item;
+        });
+      }
+
+      return true;
     } else {
-      itemKeys.forEach(key => {
-        itemsDenyingAccess[key] = item;
-      });
+      return false;
     }
-
-    return true;
   };
 
   items = items.filter(item => {
@@ -277,7 +389,7 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
 
   for (const item of items) {
     if (item.grantAccess) {
-      if (item.targetId) {
+      if (item.targetId && item.appliesTo === PermissionItemAppliesTo.Self) {
         scopeInvariantCheck(isUndefined(deniedResourceIdsMap[item.targetId]));
         allowedResourceIdsMap[item.targetId] = true;
       } else {
@@ -285,7 +397,7 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
         hasFullOrLimitedAccess = true;
       }
     } else {
-      if (item.targetId) {
+      if (item.targetId && item.appliesTo === PermissionItemAppliesTo.Self) {
         scopeInvariantCheck(isUndefined(allowedResourceIdsMap[item.targetId]));
         deniedResourceIdsMap[item.targetId] = true;
       } else {
@@ -295,12 +407,14 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
     }
   }
 
-  const allowedResourceIdList = Object.keys(allowedResourceIdsMap),
-    deniedResourceIdList = Object.keys(deniedResourceIdsMap),
+  const allowedResourceIdList = !isEmpty(allowedResourceIdsMap)
+      ? Object.keys(allowedResourceIdsMap)
+      : undefined,
+    deniedResourceIdList = !isEmpty(deniedResourceIdsMap)
+      ? Object.keys(deniedResourceIdsMap)
+      : undefined,
     noAccess =
-      !hasFullOrLimitedAccess &&
-      allowedResourceIdList.length === 0 &&
-      deniedResourceIdList.length === 0;
+      !hasFullOrLimitedAccess && isEmpty(allowedResourceIdList) && isEmpty(deniedResourceIdList);
 
   if (hasFullOrLimitedAccess) {
     return {hasFullOrLimitedAccess, deniedResourceIdList};
@@ -316,18 +430,21 @@ export function getWorkspacePermissionContainers(workspaceId: string): string[] 
 }
 
 export function getFilePermissionContainers(workspaceId: string, resource: {idPath: string[]}) {
-  const folderIds = [workspaceId]
-    .concat(resource.idPath.filter(id => getResourceTypeFromId(id) === AppResourceType.Folder))
-    .reverse();
-  return getWorkspacePermissionContainers(workspaceId).concat(folderIds);
+  return getWorkspacePermissionContainers(workspaceId).concat(resource.idPath);
 }
 
 export function getResourcePermissionContainers(
   workspaceId: string,
-  resource?: Pick<IFile, 'idPath'> | {} | null
+  resource?: IResource | (IResource & Pick<IFile, 'idPath'>) | null
 ) {
   if (resource && (resource as Pick<IFile, 'idPath'>).idPath) {
     return getFilePermissionContainers(workspaceId, resource as Pick<IFile, 'idPath'>);
+  } else if (resource && getResourceTypeFromId(resource.resourceId) === AppResourceType.User) {
+    const user = resource as unknown as IUserWithWorkspace;
+    checkResourcesBelongToWorkspace(workspaceId, [
+      {resourceId: user.resourceId, resourceType: AppResourceType.User, resource: user},
+    ]);
   }
+
   return getWorkspacePermissionContainers(workspaceId);
 }

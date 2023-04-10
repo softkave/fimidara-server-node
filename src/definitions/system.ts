@@ -1,5 +1,3 @@
-import {reverseMap} from '../utils/fns';
-import {getNewIdForResource, ID_SIZE} from '../utils/resourceId';
 import {AnyObject} from '../utils/types';
 import {IAgentToken} from './agentToken';
 import {IUser} from './user';
@@ -99,40 +97,6 @@ export function getWorkspaceResourceTypeList() {
 }
 
 export const VALID_AGENT_TYPES = [AppResourceType.User, AppResourceType.AgentToken];
-export const RESOURCE_TYPE_SHORT_NAME_MAX_LEN = 7;
-export const RESOURCE_TYPE_SHORT_NAME_PADDING = '0';
-
-function padShortName(shortName: string) {
-  if (shortName.length > RESOURCE_TYPE_SHORT_NAME_MAX_LEN) {
-    throw new Error(
-      `Resource short name is more than ${RESOURCE_TYPE_SHORT_NAME_MAX_LEN} characters`
-    );
-  }
-  return shortName
-    .padEnd(RESOURCE_TYPE_SHORT_NAME_MAX_LEN, RESOURCE_TYPE_SHORT_NAME_PADDING)
-    .toLowerCase();
-}
-
-export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
-  [AppResourceType.All]: padShortName('*'),
-  [AppResourceType.System]: padShortName('system'),
-  [AppResourceType.Public]: padShortName('public'),
-  [AppResourceType.Workspace]: padShortName('wrkspce'),
-  [AppResourceType.CollaborationRequest]: padShortName('corqst'),
-  [AppResourceType.AgentToken]: padShortName('agtoken'),
-  [AppResourceType.PermissionGroup]: padShortName('pmgroup'),
-  [AppResourceType.PermissionItem]: padShortName('prmitem'),
-  [AppResourceType.Folder]: padShortName('folder'),
-  [AppResourceType.File]: padShortName('file'),
-  [AppResourceType.User]: padShortName('user'),
-  [AppResourceType.Tag]: padShortName('tag'),
-  [AppResourceType.AssignedItem]: padShortName('asgitem'),
-  [AppResourceType.UsageRecord]: padShortName('urecord'),
-  [AppResourceType.EndpointRequest]: padShortName('endrqst'),
-  [AppResourceType.Job]: padShortName('job'),
-};
-
-export const SHORT_NAME_TO_RESOURCE_TYPE = reverseMap(RESOURCE_TYPE_SHORT_NAMES);
 
 export enum AppActionType {
   All = '*',
@@ -167,7 +131,6 @@ export function getNonWorkspaceActionList() {
 }
 
 export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
-export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
 
 export interface IAppRuntimeState extends IResource {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
@@ -198,15 +161,3 @@ export interface IWorkspaceResource extends IResource {
 
 export type IPublicResource = ConvertAgentToPublicAgent<IResource>;
 export type IPublicWorkspaceResource = ConvertAgentToPublicAgent<IWorkspaceResource>;
-
-export const SYSTEM_SESSION_AGENT: ISessionAgent = {
-  agentId: getNewIdForResource(AppResourceType.System),
-  agentType: AppResourceType.System,
-  agentTokenId: getNewIdForResource(AppResourceType.AgentToken, ID_SIZE, true),
-};
-
-export const PUBLIC_SESSION_AGENT: ISessionAgent = {
-  agentId: getNewIdForResource(AppResourceType.Public),
-  agentType: AppResourceType.Public,
-  agentTokenId: getNewIdForResource(AppResourceType.AgentToken, ID_SIZE, true),
-};

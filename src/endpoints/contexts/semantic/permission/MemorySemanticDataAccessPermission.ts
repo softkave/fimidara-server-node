@@ -1,45 +1,25 @@
-import {uniq} from 'lodash';
+import {difference} from 'lodash';
 import {
   IAssignedPermissionGroupMeta,
   IPermissionGroup,
   PermissionEntityInheritanceMap,
 } from '../../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../../definitions/permissionItem';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
-import {IAppVariables} from '../../../../resources/vars';
 import {appAssert} from '../../../../utils/assertion';
-import {toArray, toCompactArray} from '../../../../utils/fns';
+import {toNonNullableArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
-import {getResourceTypeFromId} from '../../../../utils/resourceId';
+import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
-import {INCLUDE_IN_PROJECTION, LiteralDataQuery} from '../../data/types';
-import {IEmailProviderContext} from '../../EmailProviderContext';
-import {IFilePersistenceProviderContext} from '../../FilePersistenceProviderContext';
-import {
-  IBaseContext,
-  IBaseContextDataProviders,
-  IBaseContextLogicProviders,
-  IBaseContextMemStoreProviders,
-  IBaseContextSemanticDataProviders,
-} from '../../types';
-import {
-  ISemanticDataAccessProviderMutationRunOptions,
-  ISemanticDataAccessProviderRunOptions,
-} from '../types';
+import {LiteralDataQuery} from '../../data/types';
+import {IBaseContext} from '../../types';
+import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {ISemanticDataAccessPermissionProvider} from './types';
 
 export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPermissionProvider {
   async getEntityInheritanceMap(
     props: {
-      context: IBaseContext<
-        IBaseContextDataProviders,
-        IEmailProviderContext,
-        IFilePersistenceProviderContext,
-        IAppVariables,
-        IBaseContextMemStoreProviders,
-        IBaseContextLogicProviders,
-        IBaseContextSemanticDataProviders
-      >;
+      context: IBaseContext;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
@@ -50,26 +30,22 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       const entity = this.getEntity(props);
       appAssert(entity, reuseableErrors.entity.notFound(props.entityId));
 
-      const map: PermissionEntityInheritanceMap = {};
-      const maxDepth = props.fetchDeep ? 100 : 1;
       let nextIdList = [props.entityId];
+      const map: PermissionEntityInheritanceMap = {
+        [props.entityId]: {id: props.entityId, items: []},
+      };
+      const maxDepth = props.fetchDeep ? 20 : 1;
 
       for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
-        const nextIdMap: Record<string, number> = {};
         const assignedItems = await context.memstore.assignedItem.readManyItems(
-          {assigneeId: {$in: nextIdList}},
+          {assigneeId: {$in: nextIdList}, assignedItemType: AppResourceType.PermissionGroup},
           options?.transaction
         );
+        const nextIdMap: Record<string, string> = {};
         assignedItems.forEach(item => {
-          nextIdMap[item.assignedItemId] = INCLUDE_IN_PROJECTION;
-          let entry = map[item.assigneeId];
-          if (!entry) {
-            map[item.assigneeId] = entry = {
-              id: item.assigneeId,
-              items: [],
-            };
-          }
-
+          nextIdMap[item.assignedItemId] = item.assignedItemId;
+          map[item.assignedItemId] = {id: item.assignedItemId, items: []};
+          const entry = map[item.assigneeId];
           const meta: IAssignedPermissionGroupMeta = {
             assignedAt: item.createdAt,
             assignedBy: item.createdBy,
@@ -78,7 +54,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
           };
           entry.items.push(meta);
         });
-        nextIdList = Object.keys(nextIdMap);
+        nextIdList = Object.values(nextIdMap);
       }
 
       return map;
@@ -87,15 +63,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getEntityAssignedPermissionGroups(
     props: {
-      context: IBaseContext<
-        IBaseContextDataProviders,
-        IEmailProviderContext,
-        IFilePersistenceProviderContext,
-        IAppVariables,
-        IBaseContextMemStoreProviders,
-        IBaseContextLogicProviders,
-        IBaseContextSemanticDataProviders
-      >;
+      context: IBaseContext;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
@@ -105,7 +73,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     inheritanceMap: PermissionEntityInheritanceMap;
   }> {
     const map = await this.getEntityInheritanceMap(props);
-    const idList = Object.keys(map);
+    const idList = Object.keys(map).filter(id => id !== props.entityId);
     const permissionGroups = await props.context.memstore.permissionGroup.readManyItems(
       {resourceId: {$in: idList}},
       options?.transaction
@@ -113,65 +81,52 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     return {permissionGroups, inheritanceMap: map};
   }
 
-  async getEntitiesPermissionItems(
+  async getPermissionItems(
     props: {
-      context: IBaseContext<
-        IBaseContextDataProviders,
-        IEmailProviderContext,
-        IFilePersistenceProviderContext,
-        IAppVariables,
-        IBaseContextMemStoreProviders,
-        IBaseContextLogicProviders,
-        IBaseContextSemanticDataProviders
-      >;
-      entityId: string[];
-      action?: AppActionType | AppActionType[] | undefined;
-      targetId?: string | string[] | undefined;
-      strictTargetId?: string | string[] | undefined;
-      targetType?: AppResourceType | AppResourceType[] | undefined;
-      containerId?: string | string[] | undefined;
-      sortByDate?: boolean | undefined;
-      sortByContainer?: boolean | undefined;
-      sortByEntity?: boolean | undefined;
+      context: IBaseContext;
+      entityId?: string | string[];
+      action?: AppActionType | AppActionType[];
+      targetId?: string | string[];
+      targetType?: AppResourceType | AppResourceType[];
+      containerId?: string | string[];
+      sortByDate?: boolean;
+      sortByContainer?: boolean;
     },
     options?: ISemanticDataAccessProviderRunOptions | undefined
   ): Promise<IPermissionItem[]> {
-    const query: LiteralDataQuery<IPermissionItem> = this.getEntitiesPermissionItemsQuery(props);
-    const items = await props.context.memstore.permissionItem.readManyItems(
-      query,
-      options?.transaction
-    );
+    const {q01, q02} = this.getPermissionItemsQuery(props);
 
-    if (props.sortByDate || props.sortByContainer || props.sortByEntity) {
-      const entityIdMap = props.entityId
-        ? indexArray(toCompactArray(props.entityId), {reducer: (item, arr, i) => i})
-        : undefined;
-      const containerIdMap = props.containerId
-        ? indexArray(toCompactArray(props.containerId), {reducer: (item, arr, i) => i})
-        : undefined;
-      items.sort((item01, item02) => {
-        if (item01.entityId !== item02.entityId) {
-          if (entityIdMap) {
-            return (
-              (entityIdMap[item01.containerId] ?? Number.MAX_SAFE_INTEGER) -
-              (entityIdMap[item02.containerId] ?? Number.MAX_SAFE_INTEGER)
-            );
-          } else {
-            // Maintain current order if they do not belong to the same entity,
-            // other sorting criteria that follow depend on this.
-            return -1;
-          }
-        }
+    // TODO: use $or query when implemented
+    const [items01, items02] = await Promise.all([
+      props.context.memstore.permissionItem.readManyItems(q01, options?.transaction),
+      props.context.memstore.permissionItem.readManyItems(q02, options?.transaction),
+    ]);
 
-        if (props.sortByDate && item01.containerId === item02.containerId) {
+    if (props.sortByDate || props.sortByContainer) {
+      const containerIdMap =
+        props.containerId && props.sortByContainer
+          ? indexArray(toNonNullableArray(props.containerId), {reducer: (item, arr, i) => i})
+          : undefined;
+
+      items01.sort((item01, item02) => {
+        if (props.sortByDate) {
           return item01.lastUpdatedAt - item02.lastUpdatedAt;
         }
 
-        if (containerIdMap && item01.containerId !== item02.containerId) {
-          return (
-            (containerIdMap[item01.containerId] ?? Number.MAX_SAFE_INTEGER) -
-            (containerIdMap[item02.containerId] ?? Number.MAX_SAFE_INTEGER)
-          );
+        // Maintain current order.
+        return -1;
+      });
+
+      items02.sort((item01, item02) => {
+        if (item01.targetId !== item01.targetId) {
+          if (containerIdMap) {
+            return (
+              (containerIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
+              (containerIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
+            );
+          }
+        } else if (props.sortByDate) {
+          return item01.lastUpdatedAt - item02.lastUpdatedAt;
         }
 
         // Maintain current order.
@@ -179,44 +134,35 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       });
     }
 
+    const items = items01.concat(items02);
     return items;
   }
 
-  async deleteEntitiesPermissionItems(
+  async countPermissionItems(
     props: {
-      context: IBaseContext<
-        IBaseContextDataProviders,
-        IEmailProviderContext,
-        IFilePersistenceProviderContext,
-        IAppVariables,
-        IBaseContextMemStoreProviders,
-        IBaseContextLogicProviders,
-        IBaseContextSemanticDataProviders
-      >;
-      entityId: string[];
-      action?: AppActionType | AppActionType[] | undefined;
-      targetId?: string | string[] | undefined;
-      strictTargetId?: string | string[] | undefined;
-      targetType?: AppResourceType | AppResourceType[] | undefined;
-      containerId?: string | string[] | undefined;
+      context: IBaseContext;
+      entityId?: string | string[];
+      action?: AppActionType | AppActionType[];
+      targetId?: string | string[];
+      targetType?: AppResourceType | AppResourceType[];
+      containerId?: string | string[];
     },
-    opts: ISemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    const query: LiteralDataQuery<IPermissionItem> = this.getEntitiesPermissionItemsQuery(props);
-    throw reuseableErrors.common.notImplemented();
+    options?: ISemanticDataAccessProviderRunOptions | undefined
+  ): Promise<number> {
+    const {q01, q02} = this.getPermissionItemsQuery(props);
+
+    // TODO: use $or query when implemented
+    const [count01, count02] = await Promise.all([
+      props.context.memstore.permissionItem.countItems(q01, options?.transaction),
+      props.context.memstore.permissionItem.countItems(q02, options?.transaction),
+    ]);
+
+    return count01 + count02;
   }
 
   async getEntity(
     props: {
-      context: IBaseContext<
-        IBaseContextDataProviders,
-        IEmailProviderContext,
-        IFilePersistenceProviderContext,
-        IAppVariables,
-        IBaseContextMemStoreProviders,
-        IBaseContextLogicProviders,
-        IBaseContextSemanticDataProviders
-      >;
+      context: IBaseContext;
       entityId: string;
     },
     opts?: ISemanticDataAccessProviderRunOptions
@@ -232,59 +178,45 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     return null;
   }
 
-  private getEntitiesPermissionItemsQuery(props: {
-    entityId: string[];
+  protected getPermissionItemsQuery(props: {
+    entityId?: string | string[];
     action?: AppActionType | AppActionType[];
     targetId?: string | string[];
-    strictTargetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
     containerId?: string | string[];
   }) {
-    let query: LiteralDataQuery<IPermissionItem> = {};
-
-    type T = keyof Parameters<
-      ISemanticDataAccessPermissionProvider['getEntitiesPermissionItems']
-    >[0];
-    const keys: Array<[T, keyof IPermissionItem]> = [
-      ['action', 'action'],
-      ['containerId', 'containerId'],
-      ['targetType', 'containerType'],
-      ['entityId', 'entityId'],
-    ];
-    const extractKeys = <K1 extends string, K2 extends string>(
-      keys: Array<[K1, K2]>,
-      item: Partial<Record<K1, any>>
-    ) => {
-      const extract: Partial<Record<K2, any>> = {};
-      for (const [k1, k2] of keys) {
-        if (item[k1]) {
-          extract[k2] = item[k1];
-        }
-      }
-      return extract;
+    const inputContainerIdList = props.containerId ? toNonNullableArray(props.containerId) : [];
+    const inputTargetIdList = props.targetId ? toNonNullableArray(props.targetId) : [];
+    const containerIdList =
+      inputContainerIdList.length && inputTargetIdList.length
+        ? difference(inputContainerIdList, inputTargetIdList)
+        : inputContainerIdList;
+    const targetIdList =
+      containerIdList.length && inputTargetIdList.length
+        ? difference(inputTargetIdList, containerIdList)
+        : inputTargetIdList;
+    const q01: LiteralDataQuery<IPermissionItem> = {
+      entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+      action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+      targetId: containerIdList.length ? {$in: toNonNullableArray(containerIdList)} : undefined,
+      targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
+      appliesTo: {
+        $in: [
+          PermissionItemAppliesTo.SelfAndChildrenOfType,
+          PermissionItemAppliesTo.ChildrenOfType,
+        ] as any,
+      },
+    };
+    const q02: LiteralDataQuery<IPermissionItem> = {
+      entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+      action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+      targetId: targetIdList.length ? {$in: toNonNullableArray(targetIdList)} : undefined,
+      targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
+      appliesTo: {
+        $in: [PermissionItemAppliesTo.Self, PermissionItemAppliesTo.SelfAndChildrenOfType] as any,
+      },
     };
 
-    if (props.strictTargetId) {
-      query = {
-        ...extractKeys(keys, props),
-        targetId: {$in: toArray(props.strictTargetId)},
-      };
-    } else {
-      const targetType = uniq(
-        toCompactArray(props.targetId ?? [])
-          .map(getResourceTypeFromId)
-          .concat(props.targetType ?? [])
-      );
-      const queryParts = extractKeys(keys, props);
-      query = {
-        ...queryParts,
-        targetId: props.targetId
-          ? {$in: toArray<string | null>(props.targetId).concat(null)}
-          : null,
-        targetType: targetType.length ? {$in: targetType as any} : undefined,
-      };
-    }
-
-    return query;
+    return {q01, q02};
   }
 }

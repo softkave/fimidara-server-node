@@ -1,6 +1,6 @@
 import {forEach, merge} from 'lodash';
 import {IFile} from '../../../definitions/file';
-import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
@@ -9,8 +9,9 @@ import {
 } from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {extractResourceIdList, newWorkspaceResource, toArray} from '../../../utils/fns';
+import {extractResourceIdList, newWorkspaceResource, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
+import {getResourceTypeFromId} from '../../../utils/resource';
 import {
   sortOutPermissionItems,
   uniquePermissionItems,
@@ -19,18 +20,8 @@ import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/sema
 import {IBaseContext} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {folderConstants} from '../../folders/constants';
-import {checkResourcesBelongToContainer} from '../../resources/containerCheckFns';
-import {
-  IPermissionItemInputContainer,
-  IPermissionItemInputEntity,
-  IPermissionItemInputTarget,
-} from '../types';
-import {
-  getPermissionItemContainers,
-  getPermissionItemEntities,
-  getPermissionItemTargets,
-  getTargetType,
-} from '../utils';
+import {IPermissionItemInputEntity, IPermissionItemInputTarget} from '../types';
+import {getPermissionItemEntities, getPermissionItemTargets, getTargetType} from '../utils';
 import {IAddPermissionItemsEndpointParams} from './types';
 
 export const INTERNAL_addPermissionItems = async (
@@ -41,27 +32,23 @@ export const INTERNAL_addPermissionItems = async (
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) => {
   let inputEntities: IPermissionItemInputEntity[] = [];
-  let inputContainers: IPermissionItemInputContainer[] = [];
   let inputTargets: IPermissionItemInputTarget[] = [];
 
-  if (data.entity) inputEntities = toArray(data.entity);
-  if (data.container) inputContainers = toArray(data.container);
+  if (data.entity) inputEntities = toNonNullableArray(data.entity);
   data.items.forEach(item => {
-    if (item.entity) inputEntities = inputEntities.concat(toArray(item.entity));
-    if (item.container) inputContainers = inputContainers.concat(toArray(item.container));
-    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
+    if (item.entity) inputEntities = inputEntities.concat(toNonNullableArray(item.entity));
+    if (item.target) inputTargets = inputTargets.concat(toNonNullableArray(item.target));
   });
 
   appAssert(inputEntities.length, new InvalidRequestError('No permission entity provided.'));
 
-  const [entities, containers, targets] = await Promise.all([
+  const [entities, targets] = await Promise.all([
     getPermissionItemEntities(context, agent, workspace.resourceId, inputEntities),
-    getPermissionItemContainers(context, agent, workspace, inputContainers),
     getPermissionItemTargets(context, agent, workspace, inputTargets),
   ]);
 
   const indexByNamePath = (item: IResourceWrapper) => {
-    if (item.resourceType === AppResourceType.File || AppResourceType.Folder)
+    if (item.resourceType === AppResourceType.File || item.resourceType === AppResourceType.Folder)
       return (item.resource as unknown as Pick<IFile, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );
@@ -69,8 +56,6 @@ export const INTERNAL_addPermissionItems = async (
   };
 
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
-  const containersMapById = indexArray(containers, {path: 'resourceId'});
-  const containersMapByNamepath = indexArray(containers, {indexer: indexByNamePath});
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
   const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
   const workspaceWrapper: IResourceWrapper = {
@@ -83,24 +68,10 @@ export const INTERNAL_addPermissionItems = async (
     let entities: Record<string, IResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
-    toArray(entity.entityId).forEach(entityId => {
+    toNonNullableArray(entity.entityId).forEach(entityId => {
       entities[entityId] = entitiesMapById[entityId];
     });
     return entities;
-  };
-
-  const getContainer = (container: IPermissionItemInputContainer) => {
-    let resource: IResourceWrapper | undefined = undefined;
-
-    // TODO: should we throw error when some containers are not found?
-    if (container.containerId) resource = containersMapById[container.containerId];
-
-    // Check that it's empty because we are only picking one container
-    if (container.folderpath && !resource) resource = containersMapByNamepath[container.folderpath];
-    if (container.workspaceRootname && !resource) resource = workspaceWrapper;
-    if (!resource) resource = workspaceWrapper;
-
-    return resource;
   };
 
   const getTargets = (target: IPermissionItemInputTarget) => {
@@ -108,20 +79,20 @@ export const INTERNAL_addPermissionItems = async (
 
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
-      toArray(target.targetId).forEach(targetId => {
+      toNonNullableArray(target.targetId).forEach(targetId => {
         targets[targetId] = targetsMapById[targetId];
       });
     }
 
     if (target.folderpath) {
-      toArray(target.folderpath).forEach(folderpath => {
+      toNonNullableArray(target.folderpath).forEach(folderpath => {
         const folder = targetsMapByNamepath[folderpath];
         if (folder) targets[folder.resourceId] = folder;
       });
     }
 
     if (target.filepath) {
-      toArray(target.filepath).forEach(filepath => {
+      toNonNullableArray(target.filepath).forEach(filepath => {
         const folder = targetsMapByNamepath[filepath];
         if (folder) targets[folder.resourceId] = folder;
       });
@@ -135,53 +106,41 @@ export const INTERNAL_addPermissionItems = async (
   };
 
   type ProcessedPermissionItemInput = {
-    container: IResourceWrapper;
     entity: IResourceWrapper;
     action: AppActionType;
-    target?: IResourceWrapper;
-    targetType?: AppResourceType;
-    grantAccess?: boolean;
+    target: IResourceWrapper;
+    targetType: AppResourceType;
+    grantAccess: boolean;
+    appliesTo: PermissionItemAppliesTo;
   };
 
   const globalEntities = data.entity ? getEntities(data.entity) : {};
-  const globalContainer = data.container ? getContainer(data.container) : workspaceWrapper;
   const processedItems: ProcessedPermissionItemInput[] = [];
-  const containersToTargetsMap: Record<string, Record<string, IResourceWrapper>> = {};
 
   data.items.forEach(item => {
-    const itemEntitiesMap = item.entity ? merge(getEntities(item.entity), globalEntities) : {};
-    const itemContainer = item.container ? getContainer(item.container) : globalContainer;
-    const targets = toArray(item.target);
-    const itemTargetsMap = toArray(targets)
-      .map(getTargets)
-      .reduce((map, targets) => merge(map, targets), {});
+    const itemEntitiesMap = item.entity
+      ? merge(getEntities(item.entity), globalEntities)
+      : globalEntities;
 
     forEach(itemEntitiesMap, entity => {
-      forEach(itemTargetsMap, target => {
-        toArray(item.action).forEach(action => {
-          processedItems.push({
-            target,
-            entity,
-            action,
-            container: itemContainer,
-            grantAccess: item.grantAccess,
-          });
-        });
+      toNonNullableArray(item.action).forEach(action => {
+        toNonNullableArray(item.target).forEach(nextTargets => {
+          const nextTargetsMap = getTargets(nextTargets);
 
-        let ccMap = containersToTargetsMap[itemContainer.resourceId];
-        if (!ccMap) containersToTargetsMap[itemContainer.resourceId] = ccMap = {};
-        ccMap[target.resourceId] = target;
-      });
+          forEach(nextTargetsMap, nextTargetFromMap => {
+            const targetTypes = toNonNullableArray(
+              nextTargets.targetType ?? getResourceTypeFromId(nextTargetFromMap.resourceId)
+            );
 
-      targets.forEach(target => {
-        toArray(target.targetType ?? []).forEach(targetType => {
-          toArray(item.action).forEach(action => {
-            processedItems.push({
-              entity,
-              action,
-              targetType,
-              container: itemContainer,
-              grantAccess: item.grantAccess,
+            toNonNullableArray(targetTypes).forEach(nextTargetType => {
+              processedItems.push({
+                entity,
+                action,
+                target: nextTargetFromMap,
+                grantAccess: item.grantAccess,
+                targetType: nextTargetType,
+                appliesTo: item.appliesTo,
+              });
             });
           });
         });
@@ -189,34 +148,51 @@ export const INTERNAL_addPermissionItems = async (
     });
   });
 
-  forEach(containersToTargetsMap, (ccMap, containerId) => {
-    checkResourcesBelongToContainer(containerId, Object.values(ccMap));
-  });
-
   let inputItems: IPermissionItem[] = processedItems.map(item => {
     const targetType = getTargetType(item);
     return newWorkspaceResource(agent, AppResourceType.PermissionItem, workspace.resourceId, {
       targetType,
-      targetId: item.target?.resourceId,
+      targetId: item.target.resourceId,
       action: item.action,
-      containerId: item.container.resourceId,
-      containerType: item.container.resourceType,
       entityId: item.entity.resourceId,
       entityType: item.entity.resourceType,
-      grantAccess: item.grantAccess ?? true,
+      grantAccess: item.grantAccess,
+      appliesTo: item.appliesTo,
     });
   });
 
   // Not using transaction read because heavy computation may happen next to
   // filter out existing permission items, and I don't want to keep other
   // permission insertion operations waiting.
-  let existingPermissionItems = await context.semantic.permissions.getEntitiesPermissionItems({
+  let existingPermissionItems = await context.semantic.permissions.getPermissionItems({
     context,
-    containerId: extractResourceIdList(containers),
     entityId: extractResourceIdList(entities),
     sortByDate: true,
   });
-  ({items: existingPermissionItems} = sortOutPermissionItems(existingPermissionItems));
+
+  // Adding custom selection function for sorting out permission items because
+  // by default, `sortOutPermissionItems` folds permission items, meaning `read`
+  // for example is folded into wildcard `*`, leaving a new permission item
+  // granting `read` access being added again though one already exists that
+  // grants that access.
+  ({items: existingPermissionItems} = sortOutPermissionItems(existingPermissionItems, p => {
+    // If access is allowed (meaining a previous item already grants access)
+    // and item grants access, keep item, don't fold. Will overwrite previous
+    // item that granted access in map, but will keep both in filtered
+    // permission items.
+    if (p.isAccessAllowed && p.item.grantAccess) return true;
+
+    // If access is denied (meaning a previous item already denies access) and
+    // item does not grant access, kepp item, same as above.
+    if (p.isAccessDenied && !p.item.grantAccess) return true;
+
+    // If access is not granted nor denied (meaning no previous item grants or
+    // deny access), keep item.
+    if (!p.isAccessAllowed && !p.isAccessDenied) return true;
+
+    // Filter out item.
+    return false;
+  }));
   ({items: existingPermissionItems} = uniquePermissionItems(
     existingPermissionItems.concat(inputItems)
   ));

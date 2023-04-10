@@ -9,13 +9,22 @@ import {
   IWorkspaceSummedUsageQuery,
 } from './types';
 
+const category = Joi.string().valid(...Object.values(UsageRecordCategory));
+const fulfillmentStatus = Joi.string().valid(...Object.values(UsageRecordFulfillmentStatus));
+const categoryOrArray = Joi.alternatives().try(
+  category,
+  Joi.array().items(category).max(Object.values(UsageRecordCategory).length)
+);
+const fulfillmentStateOrArray = Joi.alternatives().try(
+  fulfillmentStatus,
+  Joi.array().items(fulfillmentStatus).max(Object.values(UsageRecordFulfillmentStatus).length)
+);
+
 const queryJoiSchema = Joi.object<IWorkspaceSummedUsageQuery>({
-  category: endpointValidationSchemas.op(Joi.string().valid(...Object.values(UsageRecordCategory))),
-  fromDate: endpointValidationSchemas.op(validationSchemas.resourceId),
-  toDate: endpointValidationSchemas.op(validationSchemas.resourceId),
-  fulfillmentStatus: endpointValidationSchemas.op(
-    Joi.string().valid(...Object.values(UsageRecordFulfillmentStatus))
-  ),
+  category: categoryOrArray,
+  fromDate: endpointValidationSchemas.op(validationSchemas.time),
+  toDate: endpointValidationSchemas.op(validationSchemas.time),
+  fulfillmentStatus: fulfillmentStateOrArray,
 });
 
 export const getWorkspaceSummedUsageBaseJoiSchemaParts: JoiSchemaParts<IGetWorkspaceSummedUsageEndpointParamsBase> =

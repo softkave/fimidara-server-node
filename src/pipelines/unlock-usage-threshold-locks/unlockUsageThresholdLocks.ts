@@ -1,6 +1,6 @@
 import {Connection} from 'mongoose';
 import {getWorkspaceModel} from '../../db/workspace';
-import {SYSTEM_SESSION_AGENT} from '../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 
 /**

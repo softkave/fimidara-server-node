@@ -12,6 +12,13 @@ export interface ISemanticDataAccessProviderMutationRunOptions {
 
 export interface ISemanticDataAccessBaseProvider<T extends IResource> {
   insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions): Promise<void>;
+
+  // TODO: add a function to execute if query match exists
+  insertIfNotExist(
+    item: T | T[],
+    q: LiteralDataQuery<T>,
+    opts: ISemanticDataAccessProviderMutationRunOptions
+  ): Promise<void>;
   getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<T | null>;
   getManyByIdList(
     idList: string[],

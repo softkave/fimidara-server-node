@@ -3,7 +3,6 @@ import {
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
 } from '../../../definitions/usageRecord';
-import {DataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {
   Endpoint,
@@ -12,12 +11,12 @@ import {
   IPaginationQuery,
 } from '../../types';
 
-export type IWorkspaceSummedUsageQuery = DataQuery<{
-  category?: UsageRecordCategory;
+export type IWorkspaceSummedUsageQuery = {
+  category?: UsageRecordCategory | UsageRecordCategory[];
   fromDate?: number;
   toDate?: number;
-  fulfillmentStatus?: UsageRecordFulfillmentStatus;
-}>;
+  fulfillmentStatus?: UsageRecordFulfillmentStatus | UsageRecordFulfillmentStatus[];
+};
 
 export interface IGetWorkspaceSummedUsageEndpointParamsBase
   extends IEndpointOptionalWorkspaceIDParam {

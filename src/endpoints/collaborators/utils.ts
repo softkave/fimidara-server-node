@@ -46,7 +46,8 @@ export async function checkCollaboratorAuthorization(
     agent,
     action,
     workspaceId: workspace.resourceId,
-    targets: [{targetId: collaborator.resourceId}],
+    workspace: workspace,
+    targets: {targetId: collaborator.resourceId},
   });
   return {agent, collaborator, workspace};
 }

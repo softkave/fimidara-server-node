@@ -1,7 +1,5 @@
-import {IResource} from '../../../definitions/system';
-import {reuseableErrors} from '../../../utils/reusableErrors';
+import {IResource, IWorkspaceResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {getMongoQueryOptionsForMany} from '../data/utils';
 import {MemStore} from '../mem/Mem';
 import {IMemStore} from '../mem/types';
 import {IBaseContext} from '../types';
@@ -23,6 +21,14 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
 
   async insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions) {
     await this.memstore.createItems(item, opts.transaction);
+  }
+
+  async insertIfNotExist(
+    item: T | T[],
+    q: LiteralDataQuery<T>,
+    opts: ISemanticDataAccessProviderMutationRunOptions
+  ): Promise<void> {
+    await this.memstore.createIfNotExist(item, q, opts.transaction);
   }
 
   async getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions) {
@@ -63,14 +69,16 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
+    await this.memstore.deleteManyItems(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async deleteOneById(
     id: string,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async countManyByIdList(
@@ -85,13 +93,12 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,
       options?.transaction,
-      opts?.limit,
-      opts?.skip
+      options?.pageSize,
+      options?.page
     );
   }
 
@@ -106,8 +113,12 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     q: LiteralDataQuery<T>,
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
-    return await this.memstore.readManyItems(q, options?.transaction, opts?.limit, opts?.skip);
+    return await this.memstore.readManyItems(
+      q,
+      options?.transaction,
+      options?.pageSize,
+      options?.page
+    );
   }
 
   async assertGetOneByQuery(
@@ -195,7 +206,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
     workspaceId: string,
     opts: ISemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    throw reuseableErrors.common.notImplemented();
+    const query: LiteralDataQuery<IWorkspaceResource> = {workspaceId};
+    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async countManyByIdList(
@@ -218,7 +230,10 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   ): Promise<number> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: q.workspaceId,
-      resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      resourceId: {
+        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
+        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+      },
     };
     return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
   }
@@ -231,16 +246,18 @@ export class SemanticDataAccessWorkspaceResourceProvider<
     },
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const opts = getMongoQueryOptionsForMany(options);
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: q.workspaceId,
-      resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      resourceId: {
+        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
+        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+      },
     };
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,
       options?.transaction,
-      opts.limit,
-      opts.skip
+      options?.pageSize,
+      options?.page
     );
   }
 }

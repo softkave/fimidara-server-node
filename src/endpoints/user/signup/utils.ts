@@ -3,7 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {IBaseContext} from '../../contexts/types';

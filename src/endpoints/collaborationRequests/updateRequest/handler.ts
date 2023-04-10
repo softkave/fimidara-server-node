@@ -18,8 +18,8 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   instData
 ) => {
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
   assertUpdateNotEmpty(data.request);
+  const agent = await context.session.getAgent(context, instData);
   let {request} = await MemStore.withTransaction(context, async transaction => {
     const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
     let {request, workspace} = await checkCollaborationRequestAuthorization02(
@@ -41,18 +41,6 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
         },
         opts
       ),
-      // data.request.permissionGroupsAssignedOnAcceptingRequest &&
-      //   addAssignedPermissionGroupList(
-      //     context,
-      //     agent,
-      //     workspace.resourceId,
-      //     data.request.permissionGroupsAssignedOnAcceptingRequest,
-      //     request.resourceId,
-      //     /** deleteExisting */ true,
-      //     /** skip permission groups check */ false,
-      //     /** skip auth check */ false,
-      //     opts
-      //   ),
     ]);
 
     return {workspace, request};

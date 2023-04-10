@@ -1,10 +1,7 @@
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
-import {
-  applyDefaultEndpointPaginationOptions,
-  getEndpointPageFromInput,
-  getWorkspaceFromEndpointInput,
-} from '../../utils';
+import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
 import {GetWorkspaceAgentTokenEndpoint} from './types';
 import {getWorkspaceAgentTokensQuery} from './utils';

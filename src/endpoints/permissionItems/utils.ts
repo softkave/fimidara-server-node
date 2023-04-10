@@ -1,41 +1,37 @@
-import {compact, flatten, map} from 'lodash';
+import {flatten} from 'lodash';
 import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
-  getWorkspaceResourceTypeList,
   IAgent,
   ISessionAgent,
+  getWorkspaceResourceTypeList,
 } from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {makeKey, toArray} from '../../utils/fns';
-import {getResourceTypeFromId} from '../../utils/resourceId';
+import {makeKey, toArray, toNonNullableArray} from '../../utils/fns';
+import {getResourceTypeFromId} from '../../utils/resource';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {PartialRecord} from '../../utils/types';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
-import {folderConstants} from '../folders/constants';
 import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
-import {IFetchResourceItemWithAction, INTERNAL_getResources} from '../resources/getResources';
+import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
+import {IFetchResourceItem} from '../resources/types';
 import {workspaceResourceFields} from '../utils';
 import {INTERNAL_addPermissionItems} from './addItems/utils';
 import {DeletePermissionItemInput} from './deleteItems/types';
 import {INTERNAL_deletePermissionItems} from './deleteItems/utils';
 import {
   IPermissionItemInput,
-  IPermissionItemInputContainer,
   IPermissionItemInputEntity,
   IPermissionItemInputTarget,
 } from './types';
 
 const permissionItemFields = getFields<IPublicPermissionItem>({
   ...workspaceResourceFields,
-  containerId: true,
-  containerType: true,
   entityId: true,
   entityType: true,
   targetId: true,
@@ -141,9 +137,12 @@ export async function getPermissionItemEntities(
     ],
     workspaceId,
     inputResources: flatten(
-      entities.map(entity => toArray(entity.entityId).map(entityId => ({resourceId: entityId})))
+      entities.map(entity =>
+        toNonNullableArray(entity.entityId).map(entityId => ({resourceId: entityId}))
+      )
     ),
     checkAuth: true,
+    checkBelongsToWorkspace: true,
     action: AppActionType.Read,
   });
   resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
@@ -157,186 +156,23 @@ export async function getPermissionItemTargets(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  target: IPermissionItemInputTarget | IPermissionItemInputTarget[]
+  target: Partial<IPermissionItemInputTarget> | Partial<IPermissionItemInputTarget>[]
 ) {
-  const itemsToFetch: Record<string, IFetchResourceItemWithAction> = {};
-  const filepaths: Record<string, string> = {};
-  const folderpaths: Record<string, string> = {};
-  const targetTypes: PartialRecord<AppResourceType, AppResourceType> = {};
-  const targets = toArray(target);
-  targets.forEach(nextTarget => {
-    if (nextTarget.targetId) {
-      toArray(nextTarget.targetId).forEach(targetId => {
-        itemsToFetch[targetId] = {resourceId: targetId};
-      });
-    }
-    if (nextTarget.filepath) {
-      toArray(nextTarget.filepath).forEach(filepath => {
-        itemsToFetch[filepath] = {resourceId: filepath};
-      });
-    }
-    if (nextTarget.folderpath) {
-      toArray(nextTarget.folderpath).forEach(folderpath => {
-        itemsToFetch[folderpath] = {resourceId: folderpath};
-      });
-    }
-    if (nextTarget.targetType) {
-      toArray(nextTarget.targetType).forEach(targetType => {
-        itemsToFetch[targetType] = {resourceId: targetType};
-      });
-    }
-    if (nextTarget.workspaceRootname) {
-      // TODO: should we instead fetch all and pull offending inputs together
-      // and return with those?
-      appAssert(
-        workspace.rootname === nextTarget.workspaceRootname,
-        new InvalidRequestError(
-          `Unknown workspace rootname ${nextTarget.workspaceRootname} provided in permission targets.`
-        )
-      );
-    }
+  return await INTERNAL_getResources({
+    context,
+    agent,
+    workspaceId: workspace.resourceId,
+    allowedTypes: getWorkspaceResourceTypeList(),
+    inputResources: toArray(target).map((nextTarget): IFetchResourceItem => {
+      return {
+        resourceId: nextTarget.targetId,
+        filepath: nextTarget.filepath,
+        folderpath: nextTarget.folderpath,
+        workspaceRootname: nextTarget.workspaceRootname,
+      };
+    }),
+    checkAuth: true,
+    checkBelongsToWorkspace: true,
+    action: AppActionType.Read,
   });
-
-  const fetchItemsToFetch = async () => {
-    let resources = await INTERNAL_getResources({
-      context,
-      agent,
-      workspaceId: workspace.resourceId,
-      allowedTypes: getWorkspaceResourceTypeList(),
-      inputResources: Object.values(itemsToFetch),
-      checkAuth: true,
-      action: AppActionType.Read,
-    });
-    resources = await resourceListWithAssignedItems(context, workspace.resourceId, resources, [
-      AppResourceType.User,
-    ]);
-    checkResourcesBelongToWorkspace(workspace.resourceId, resources);
-    return resources;
-  };
-
-  const fetchFiles = async () => {
-    const result = await Promise.all(
-      // TODO: can we have $or or implement $in for array of arrays?
-      map(filepaths, filepath =>
-        context.semantic.file.getOneByNamePath(
-          workspace.resourceId,
-          filepath.split(folderConstants.nameSeparator)
-        )
-      )
-    );
-    return compact(result);
-  };
-
-  const fetchFolders = async () => {
-    const result = await Promise.all(
-      // TODO: can we have $or or implement $in for array of arrays?
-      map(folderpaths, folderpath =>
-        context.semantic.folder.getOneByNamePath(
-          workspace.resourceId,
-          folderpath.split(folderConstants.nameSeparator)
-        )
-      )
-    );
-    return compact(result);
-  };
-
-  // TODO: check target types are types contained in container's type
-
-  const [resources, files, folders] = await Promise.all([
-    fetchItemsToFetch(),
-    fetchFiles(),
-    fetchFolders(),
-  ]);
-
-  files.forEach(file => {
-    resources.push({
-      resource: file,
-      resourceId: file.resourceId,
-      resourceType: AppResourceType.File,
-    });
-  });
-  folders.forEach(folder => {
-    resources.push({
-      resource: folder,
-      resourceId: folder.resourceId,
-      resourceType: AppResourceType.Folder,
-    });
-  });
-
-  return resources;
-}
-
-export async function getPermissionItemContainers(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  containers: IPermissionItemInputContainer[]
-) {
-  const itemsToFetch: Record<string, IFetchResourceItemWithAction> = {};
-  const folderpaths: Record<string, string> = {};
-  containers.forEach(container => {
-    if (container.containerId) {
-      toArray(container.containerId).forEach(containerId => {
-        itemsToFetch[containerId] = {resourceId: containerId};
-      });
-    }
-    if (container.folderpath) {
-      toArray(container.folderpath).forEach(folderpath => {
-        itemsToFetch[folderpath] = {resourceId: folderpath};
-      });
-    }
-    if (container.workspaceRootname) {
-      // TODO: should we instead fetch all and pull offending inputs together
-      // and return with those?
-      appAssert(
-        workspace.rootname === container.workspaceRootname,
-        new InvalidRequestError(
-          `Unknown workspace rootname ${container.workspaceRootname} provided in permission targets.`
-        )
-      );
-    }
-  });
-
-  const fetchItemsToFetch = async () => {
-    let resources = await INTERNAL_getResources({
-      context,
-      agent,
-      workspaceId: workspace.resourceId,
-      allowedTypes: [AppResourceType.Workspace, AppResourceType.Folder],
-      inputResources: Object.values(itemsToFetch),
-      checkAuth: true,
-      action: AppActionType.Read,
-    });
-    resources = await resourceListWithAssignedItems(context, workspace.resourceId, resources, [
-      AppResourceType.User,
-    ]);
-    checkResourcesBelongToWorkspace(workspace.resourceId, resources);
-    return resources;
-  };
-
-  const fetchFolders = async () => {
-    const result = await Promise.all(
-      // TODO: can we have $or or implement $in for array of arrays?
-      map(folderpaths, folderpath =>
-        context.semantic.folder.getOneByNamePath(
-          workspace.resourceId,
-          folderpath.split(folderConstants.nameSeparator)
-        )
-      )
-    );
-    return compact(result);
-  };
-
-  const [resources, folders] = await Promise.all([fetchItemsToFetch(), fetchFolders()]);
-
-  folders.forEach(folder => {
-    resources.push({
-      resource: folder,
-      resourceId: folder.resourceId,
-      resourceType: AppResourceType.Folder,
-    });
-  });
-
-  checkResourcesBelongToWorkspace(workspace.resourceId, resources);
-  return resources;
 }

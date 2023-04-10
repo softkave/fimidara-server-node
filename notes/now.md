@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Mem, shard by workspace and other fields
+- [ ] Accepted collaboration requests should be put in their own space
 - [ ] Mem, support indexing non-static fields
 - [ ] Limit assigned permissions depth to 10
 - [ ] File and folder exists endpoints
@@ -26,6 +27,23 @@
 - [ ] Get version of readFile
 - [ ] mddoc object fields should be typed after the object for type checking
 - [ ] Endpoints, boolean can entity perform or not
+- [ ] Permission items for resources should match when target ID matches target type (getResourcePermissionItems)
+- [ ] resolveEntityPermissions
+- [ ] index appliesTo for permission items and rename it's values, and make sure other fields we use for matching are indexed
+- [ ] select smallest after index match when correlating
+- [ ] Capture stack trace for log functions like appAssert
+- [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
+- [ ] Get tags by name
+- [ ] resolvePermissions endpoint
+- [ ] Confirm that queries that should have index hits do
+- [ ] Think up a way to add context information to txns and lock timeout errors
+- [ ] Write tests to confirm that memstore is faster overall than mongodb
+- [ ] A memstore txn lock times out in deleteFolder test
+- [ ] Index name and find other field to index
+- [ ] Move logs to it's own service and not write directly to DB
+- [ ] Client API updates including sdk
+- [ ] Docs update
+- [ ] Revamp UI
 
 ## Later
 

@@ -1,3 +1,4 @@
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
@@ -26,6 +27,7 @@ const signup: SignupEndpoint = async (context, instData) => {
       getUserClientAssignedToken(context, user.resourceId, opts),
     ])
   );
+  instData.agent = makeUserSessionAgent(user, userToken);
   await callComfirmEmail(context, instData);
   return toLoginResult(context, user, userToken, clientAssignedToken);
 };

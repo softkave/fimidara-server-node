@@ -1,16 +1,40 @@
 import {faker} from '@faker-js/faker';
+import {first} from 'lodash';
 import {IFile} from '../../../definitions/file';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getRandomIntInclusive} from '../../../utils/fns';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
+import {generateTestFolderName} from './folder';
+
+function removeExtension(name: string) {
+  return first(name.split('.'));
+}
+
+function addExtenstion(name: string, ext: string) {
+  return name + '.' + ext;
+}
+
+export function generateTestFileName({includeExtension = true} = {includeExtension: true}) {
+  const seed = getRandomIntInclusive(1, 2);
+
+  if (seed === 1) {
+    const extCount = includeExtension ? getRandomIntInclusive(1, 5) : 0;
+    return faker.system.fileName({extensionCount: extCount});
+  } else {
+    const name = generateTestFolderName({separatorChars: ['-', '_', ' ']});
+    return includeExtension ? addExtenstion(name, faker.system.fileExt()) : name;
+  }
+}
 
 export function generateTestFile(
   extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
 ) {
   const id = getNewIdForResource(AppResourceType.File);
-  const name = faker.lorem.words();
+  const name = generateTestFileName();
   const createdAt = getTimestamp();
   const file: IFile = {
     name,

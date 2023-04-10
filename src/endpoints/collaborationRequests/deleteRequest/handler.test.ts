@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -36,6 +37,8 @@ test('collaboration request deleted', async () => {
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
   const deletedRequestExists = await context.semantic.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );

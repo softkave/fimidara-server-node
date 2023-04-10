@@ -5,10 +5,10 @@ import {
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
+  ICollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
-  ICollaborationRequestEmailProps,
 } from '../../../emailTemplates/collaborationRequest';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
@@ -19,7 +19,7 @@ import {MemStore} from '../../contexts/mem/Mem';
 import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {
   collaborationRequestForWorkspaceExtractor,
   populateRequestAssignedPermissionGroups,
@@ -35,7 +35,8 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     context,
     agent,
     workspaceId: workspace.resourceId,
-    targets: [{type: AppResourceType.CollaborationRequest}],
+    workspace: workspace,
+    targets: {targetType: AppResourceType.CollaborationRequest},
     action: AppActionType.Create,
   });
 
@@ -51,26 +52,26 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     ]);
 
     if (existingUser) {
-      const collaboratorExists = await context.semantic.assignedItem.existsByAssignedAndAssigneeIds(
-        workspace.resourceId,
-        workspace.resourceId,
-        existingUser.resourceId,
-        opts
-      );
+      const collaboratorExists =
+        await context.semantic.assignedItem.existsByWorkspaceAssignedAndAssigneeIds(
+          workspace.resourceId,
+          workspace.resourceId,
+          existingUser.resourceId,
+          opts
+        );
       appAssert(
-        collaboratorExists,
+        collaboratorExists === false,
         new ResourceExistsError('Collaborator with same email address exists in this workspace.')
       );
     }
 
-    appAssert(
-      existingRequest?.status === CollaborationRequestStatusType.Pending,
-      new ResourceExistsError(
+    if (existingRequest?.status === CollaborationRequestStatusType.Pending) {
+      throw new ResourceExistsError(
         `An existing collaboration request to this user was sent on ${formatDate(
-          existingRequest!.createdAt
+          existingRequest?.createdAt
         )}`
-      )
-    );
+      );
+    }
 
     const request: ICollaborationRequest = newWorkspaceResource(
       agent,
@@ -85,24 +86,8 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
         statusDate: getTimestamp(),
       }
     );
-    // const permissionGroupsAssignedOnAcceptingRequest =
-    //   data.request.permissionGroupsAssignedOnAcceptingRequest ?? [];
-    await Promise.all([
-      context.semantic.collaborationRequest.insertItem(request, opts),
-      // permissionGroupsAssignedOnAcceptingRequest.length &&
-      //   addAssignedPermissionGroupList(
-      //     context,
-      //     agent,
-      //     workspace.resourceId,
-      //     permissionGroupsAssignedOnAcceptingRequest,
-      //     request.resourceId,
-      //     /** deleteExisting */ false,
-      //     /** skip permission groups check */ false,
-      //     /** skip auth check */ false,
-      //     opts
-      //   ),
-    ]);
 
+    await context.semantic.collaborationRequest.insertItem(request, opts);
     return {request, existingUser};
   });
 

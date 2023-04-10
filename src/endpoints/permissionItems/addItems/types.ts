@@ -1,15 +1,10 @@
 import {IPublicPermissionItem} from '../../../definitions/permissionItem';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
-import {
-  IPermissionItemInput,
-  IPermissionItemInputContainer,
-  IPermissionItemInputEntity,
-} from '../types';
+import {IPermissionItemInput, IPermissionItemInputEntity} from '../types';
 
 export interface IAddPermissionItemsEndpointParams extends IEndpointOptionalWorkspaceIDParam {
   entity?: IPermissionItemInputEntity;
-  container?: IPermissionItemInputContainer;
   items: IPermissionItemInput[];
 }
 

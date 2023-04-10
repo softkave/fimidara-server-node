@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {getWorkspaceFromEndpointInput} from '../../utils';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';
 import {
@@ -19,7 +19,7 @@ const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoi
   const result = await fetchEntityAssignedPermissionGroupList(
     context,
     data.entityId,
-    data.includeInheritedPermissionGroups
+    data.includeInheritedPermissionGroups ?? false
   );
   return {
     permissionGroups: permissionGroupListExtractor(result.permissionGroups),

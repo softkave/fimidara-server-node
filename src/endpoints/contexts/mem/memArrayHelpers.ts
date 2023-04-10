@@ -1,7 +1,7 @@
 import {last} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {toArray} from '../../../utils/fns';
+import {toNonNullableArray} from '../../../utils/fns';
 
 function makeArrayLike<T>(obj: {
   get(index: number): T;
@@ -33,15 +33,27 @@ function makeArrayLike<T>(obj: {
   return proxy as ArrayLike<T> & typeof proxy;
 }
 
+type StackedArraySplitItem = {
+  /** For checking if parent has changed since last insertion call. */
+  parentLength: number;
+};
+
+/**
+ * Stacks an array (with view of the parent) on the another, allowing up to 2
+ * layers, that is, the parent and the child. It's used by the Memstore
+ * timestamp index for creating a separate index for transactions without
+ * copying the items of the main index, but still having access to the main
+ * index. It also houses mutations to the index that occur during the txn's
+ * lifetime, giving subsequent txn calls access to those mutations but keeping
+ * the main index separate (i.e those mutations don't leak out of the txn). It
+ * also provides a way to merge both indexes when we're ready to commit the txn.
+ */
 export class StackedArray<T> {
   static from<T>(parent?: StackedArray<T>) {
     return new StackedArray(parent);
   }
 
-  protected splits: Array<{
-    parentLength: number;
-    ownIndex: number;
-  }> = [];
+  protected splits: Array<StackedArraySplitItem> = [];
   protected arrays: Array<T[]> = [];
   protected ownLength = 0;
 
@@ -52,30 +64,26 @@ export class StackedArray<T> {
   }
 
   push(item: T | T[]) {
-    const items = toArray(item ?? []);
+    const items = toNonNullableArray(item ?? []);
+    const parentLength = this.parentRef ? this.parentRef.length : 0;
+    const split = last(this.splits);
 
-    if (this.parentRef) {
-      const split = last(this.splits);
-
-      if (split && this.parentRef.length === split.parentLength) {
-        this.pushIntoOwnArray(items);
-      } else {
-        this.pushIntoOwnArray(items);
-        this.splits.push({
-          ownIndex: this.arrays.length,
-          parentLength: this.parentRef.length,
-        });
-      }
+    // Check whether parent has changed and if it hasn't push into own array
+    // without pushing a new split
+    if (split && parentLength === split.parentLength) {
+      this.pushIntoOwnArray(items, this.splits.length - 1);
     } else {
-      this.pushIntoOwnArray(items);
+      this.splits.push({parentLength});
+      this.pushIntoOwnArray(items, this.splits.length - 1);
     }
   }
 
   getLast(): T | undefined {
     const split = last(this.splits);
-    if (split && split.parentLength === this.parentRef!.length) {
-      const array = this.arrays[split.ownIndex];
-      if (array) return last(array);
+    const parentLength = this.parentRef ? this.parentRef.length : 0;
+    if (split && split.parentLength === parentLength) {
+      const array = last(this.arrays) ?? [];
+      return last(array);
     }
 
     if (this.parentRef) {
@@ -103,8 +111,8 @@ export class StackedArray<T> {
     );
     const {splits, arrays, ownLength} = source.release();
     appAssert(splits.length === arrays.length);
-    splits.forEach(split => {
-      this.arrays.splice(split.parentLength - 1, 0, arrays[split.ownIndex]);
+    splits.forEach((split, index) => {
+      this.arrays.splice(split.parentLength - 1, 0, arrays[index]);
     });
     this.ownLength += ownLength;
   }
@@ -113,14 +121,15 @@ export class StackedArray<T> {
     let matched = false;
     let index = 0;
 
-    for (const split of this.splits) {
+    for (let i = 0; i < this.splits.length; i++) {
+      const split = this.splits[i];
       if (split.parentLength && this.parentRef) {
         matched = this.parentRef.some(item => fn(item, index++));
       }
 
       if (matched) return matched;
 
-      const array = this.arrays[split.ownIndex] ?? [];
+      const array = this.arrays[i] ?? [];
       matched = array.some(item => fn(item, index++));
 
       if (matched) return matched;
@@ -139,10 +148,11 @@ export class StackedArray<T> {
     if (this.parentRef) this.parentRef.inplaceFilter(fn);
   }
 
-  protected pushIntoOwnArray(items: T[]) {
-    const lastArray = last(this.arrays);
-    if (lastArray) {
-      this.arrays[this.arrays.length - 1] = lastArray.concat(items);
+  protected pushIntoOwnArray(items: T[], index: number) {
+    const array = this.arrays[index];
+
+    if (array) {
+      this.arrays[index] = array.concat(items);
     } else {
       this.arrays.push(items);
     }

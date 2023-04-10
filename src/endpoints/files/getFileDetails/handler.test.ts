@@ -11,6 +11,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
+import {fileConstants} from '../constants';
 import getFileDetails from './handler';
 import {IGetFileDetailsEndpointParams} from './types';
 
@@ -28,13 +29,17 @@ test('file details returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file, reqData} = await insertFileForTest(context, userToken, workspace);
+  const {file} = await insertFileForTest(context, userToken, workspace);
 
   const instData = RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {filepath: addRootnameToPath(file.name, workspace.rootname)}
+    {
+      filepath: addRootnameToPath(
+        file.name + fileConstants.nameExtensionSeparator + file.extension,
+        workspace.rootname
+      ),
+    }
   );
-
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);
   expect(result.file).toEqual(file);

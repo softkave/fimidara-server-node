@@ -1,23 +1,26 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, SYSTEM_SESSION_AGENT} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 
-export function generateTestFolderName() {
-  return getRandomIntInclusive(1, 2) % 2 === 0
-    ? faker.system.commonFileName()
-    : faker.lorem.words();
+export function generateTestFolderName(
+  {separatorChars}: {separatorChars: string[]} = {separatorChars: ['-', '_', ' ', '.']}
+) {
+  const wordCount = getRandomIntInclusive(3, 10);
+  const separator = faker.helpers.arrayElement(separatorChars);
+  return faker.lorem.words(wordCount).split(' ').join(separator);
 }
 
 export function generateTestFolder(
   extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
 ) {
   const id = getNewIdForResource(AppResourceType.Folder);
-  const name = faker.lorem.words();
+  const name = generateTestFolderName();
   const createdAt = getTimestamp();
   const folder: IFolder = {
     name,

@@ -5,10 +5,7 @@ import {
 import {IPermissionItem} from '../../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
 import {IBaseContext} from '../../types';
-import {
-  ISemanticDataAccessProviderMutationRunOptions,
-  ISemanticDataAccessProviderRunOptions,
-} from '../types';
+import {ISemanticDataAccessProviderRunOptions} from '../types';
 
 export interface ISemanticDataAccessPermissionProvider {
   getEntityAssignedPermissionGroups(
@@ -34,13 +31,12 @@ export interface ISemanticDataAccessPermissionProvider {
     props: {context: IBaseContext; entityId: string},
     opts?: ISemanticDataAccessProviderRunOptions
   ): Promise<IResource | null>;
-  getEntitiesPermissionItems(
+  getPermissionItems(
     props: {
       context: IBaseContext;
-      entityId: string[];
+      entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
-      strictTargetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
 
@@ -50,23 +46,18 @@ export interface ISemanticDataAccessPermissionProvider {
       /** Sort the permission items by container, i.e following the order of
        * containers passed. */
       sortByContainer?: boolean;
-
-      /** Sort the permission items by entity, i.e following the order of entity
-       * IDs passed. */
-      sortByEntity?: boolean;
     },
     options?: ISemanticDataAccessProviderRunOptions
   ): Promise<IPermissionItem[]>;
-  deleteEntitiesPermissionItems(
+  countPermissionItems(
     props: {
       context: IBaseContext;
-      entityId: string[];
+      entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
-      strictTargetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
     },
-    opts: ISemanticDataAccessProviderMutationRunOptions
-  ): Promise<void>;
+    options?: ISemanticDataAccessProviderRunOptions
+  ): Promise<number>;
 }

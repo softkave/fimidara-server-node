@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -14,6 +14,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
+import {fileConstants} from '../constants';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
@@ -41,7 +42,10 @@ test('file updated', async () => {
   const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
-      filepath: addRootnameToPath(file.name, workspace.rootname),
+      filepath: addRootnameToPath(
+        file.name + fileConstants.nameExtensionSeparator + file.extension,
+        workspace.rootname
+      ),
       file: updateInput,
     }
   );

@@ -156,11 +156,7 @@ export interface IBaseDataProvider<
   ) => Promise<number>;
   countByQueryList: (query: QueryType[]) => Promise<number>;
   updateManyByQuery: (query: QueryType, data: Partial<DataType>) => Promise<void>;
-  updateOneByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: IDataProviderQueryParams<DataType>
-  ) => Promise<void>;
+  updateOneByQuery: (query: QueryType, data: Partial<DataType>) => Promise<void>;
   getAndUpdateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,

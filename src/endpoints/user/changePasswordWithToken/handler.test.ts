@@ -3,9 +3,9 @@ import {IAgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  SYSTEM_SESSION_AGENT,
   TokenAccessScope,
 } from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
