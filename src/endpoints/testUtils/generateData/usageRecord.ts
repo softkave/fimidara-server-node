@@ -48,7 +48,7 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
     records.push({
       workspaceId: getNewIdForResource(AppResourceType.Workspace),
       month: random(0, 11),
-      year: random(0, 11),
+      year: random(1, 10_000),
       resourceId: getNewIdForResource(AppResourceType.UsageRecord),
       createdAt: getTimestamp(),
       createdBy: SYSTEM_SESSION_AGENT,

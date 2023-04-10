@@ -2,8 +2,8 @@ import assert from 'assert';
 import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {IBaseContext} from '../../contexts/types';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {
@@ -180,6 +180,7 @@ describe('getEntityAssignedPermissionGroups', () => {
     const pgListAssignedTo01IdList = extractResourceIdList(pgListAssignedTo01);
     const [agentToken02] = tokens;
     assert(agentToken02);
+    const userReq = mockExpressRequestWithAgentToken(userToken);
     const agentToken02Req = mockExpressRequestWithAgentToken(agentToken02);
     await Promise.all([
       assignPgListToIdList(
@@ -198,7 +199,7 @@ describe('getEntityAssignedPermissionGroups', () => {
       ),
       grantReadPermission(
         context,
-        agentToken02Req,
+        userReq,
         workspace.resourceId,
         agentToken02.resourceId,
         pgList01IdList
@@ -214,6 +215,43 @@ describe('getEntityAssignedPermissionGroups', () => {
     expectContainsExactlyForAnyType(
       result03.permissionGroups,
       pgListAssignedTo01,
+      getResourceId,
+      getResourceId
+    );
+  });
+
+  test('reading own permission groups', async () => {
+    assertContext(context);
+    const {userToken, rawUser} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const [pgList01, tokens] = await Promise.all([
+      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
+      generateAndInsertAgentTokenListForTest(context, 1, {
+        workspaceId: workspace.resourceId,
+      }),
+    ]);
+    const agent = makeUserSessionAgent(rawUser, userToken);
+    const [agentToken02] = tokens;
+    assert(agentToken02);
+    const agentToken02Req = mockExpressRequestWithAgentToken(agentToken02);
+    await Promise.all([
+      assignPgListToIdList(
+        context,
+        agent,
+        workspace.resourceId,
+        [agentToken02.resourceId],
+        toAssignedPgListInput(pgList01)
+      ),
+    ]);
+
+    const result03 = await getEntityAssignedPermissionGroups(
+      context,
+      RequestData.fromExpressRequest(agentToken02Req, {entityId: agentToken02.resourceId})
+    );
+    assertEndpointResultOk(result03);
+    expectContainsExactlyForAnyType(
+      result03.permissionGroups,
+      pgList01,
       getResourceId,
       getResourceId
     );

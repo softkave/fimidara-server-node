@@ -73,7 +73,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
     inheritanceMap: PermissionEntityInheritanceMap;
   }> {
     const map = await this.getEntityInheritanceMap(props);
-    const idList = Object.keys(map);
+    const idList = Object.keys(map).filter(id => id !== props.entityId);
     const permissionGroups = await props.context.memstore.permissionGroup.readManyItems(
       {resourceId: {$in: idList}},
       options?.transaction

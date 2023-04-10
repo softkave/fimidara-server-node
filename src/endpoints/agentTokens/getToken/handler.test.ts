@@ -36,7 +36,7 @@ test('referenced program access token returned', async () => {
 
   const instData = RequestData.fromExpressRequest<IGetAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {tokenId: token01.resourceId}
+    {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
   );
   const result = await getAgentToken(context, instData);
   assertEndpointResultOk(result);

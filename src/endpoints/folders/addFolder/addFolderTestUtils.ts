@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {IFolder} from '../../../definitions/folder';
 import {IPublicWorkspace, IWorkspace} from '../../../definitions/workspace';
+import RequestData from '../../RequestData';
 import {IBaseContext} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
@@ -8,12 +9,11 @@ import {
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {generateTestFileName} from '../../testUtils/generateData/file';
 import {
-  assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  assertEndpointResultOk,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -157,7 +157,7 @@ export async function assertFolderPublicOps(
   const {file} = await assertCanUploadToPublicFile(
     ctx,
     insertWorkspaceResult.workspace,
-    folder02Path + folderConstants.nameSeparator + generateTestFolderName()
+    folder02Path + folderConstants.nameSeparator + generateTestFileName()
   );
 
   await assertCanListContentOfPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);

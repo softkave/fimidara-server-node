@@ -4,6 +4,7 @@ import {
   forEach,
   isArray,
   isEmpty,
+  isNumber,
   isObject,
   isString,
   isUndefined,
@@ -25,7 +26,7 @@ import {IUser} from '../../../definitions/user';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {makeKey, toNonNullableArray} from '../../../utils/fns';
+import {makeKey, toArray, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {AnyFn, PartialRecord} from '../../../utils/types';
@@ -293,9 +294,10 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
         this as unknown as IMemStoreIndex<IResource>
       ) ?? {};
     const map = this.map;
-    const keyList = toNonNullableArray(key ?? []);
+    const keyList = toArray(key);
     const acc = keyList.reduce((acc: Record<string, string>, nextKey) => {
-      merge(acc, txnMap[nextKey as string] ?? map[nextKey as string] ?? {});
+      const indexValue = this.getIndexValue(nextKey);
+      merge(acc, txnMap[indexValue] ?? map[indexValue] ?? {});
       return acc;
     }, {});
     return Object.values(acc);
@@ -865,6 +867,16 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     if (this.releaseLockHandle_timeout) clearTimeout(this.releaseLockHandle_timeout);
     if (this.releaseTimedoutLocksHandle_timeout)
       clearTimeout(this.releaseTimedoutLocksHandle_timeout);
+
+    // this.indexes = [];
+    // this.itemsMap = {};
+    // this.mapIndexes = {};
+    // this.tableLocks = {};
+    // this.rowLocks = {};
+    this.waitingOnLocks.forEach(item => item.reject());
+    this.waitingOnLocks = [];
+    // this.currentLocks = {};
+    // this.locksCount = 0;
   }
 
   protected __createItems = (newItems: T | T[], transaction: IMemStoreTransaction) => {
@@ -1232,6 +1244,8 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       this.checkTableLock(action, transaction);
     }
 
+    page = page ?? 0;
+
     if (isEmpty(remainingQuery)) {
       if (transaction) {
         matchedItems.forEach(item => {
@@ -1239,8 +1253,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         });
       }
 
-      if (count) {
-        page = page ?? 0;
+      if (isNumber(count)) {
         const start = page * count;
         const end = start + count;
         return matchedItems.slice(start, end);
@@ -1250,16 +1263,26 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
 
     const secondMatchedItems: T[] = [];
-    const traverseFn = (item: T) => {
+    const effectiveCount = isNumber(count) ? count * (page + 1) : undefined;
+
+    const traverseFn_base = (item: T) => {
       const matches = this.matchItem(item, remainingQuery);
       if (matches) {
         if (transaction) this.checkRowLock(item.resourceId, action, transaction);
         secondMatchedItems.push(item);
-        if (count && secondMatchedItems.length >= count) return true;
       }
-
+    };
+    const traverseFn_count = (item: T) => {
+      traverseFn_base(item);
+      if (secondMatchedItems.length >= effectiveCount!) return true;
       return false;
     };
+    const traverseFn_noCount = (item: T) => {
+      traverseFn_base(item);
+      return false;
+    };
+
+    const traverseFn = isNumber(effectiveCount) ? traverseFn_count : traverseFn_noCount;
 
     if (goodRun) {
       matchedItems.some(traverseFn);
@@ -1268,6 +1291,12 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         const item = this.getItem(id, transaction);
         return item ? traverseFn(item) : false;
       }, transaction);
+    }
+
+    if (isNumber(count)) {
+      const start = page * count;
+      const end = start + count;
+      return secondMatchedItems.slice(start, end);
     }
 
     return secondMatchedItems;
@@ -1307,6 +1336,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         const opValue = op[opKeyTyped];
         const isOpValueArray = isArray(opValue);
 
+        // TODO: what if we want to explicitly check for undefined?
         if (isUndefined(opValue)) {
           continue;
         }
@@ -1478,13 +1508,17 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     const resourceIdMatch = this.matchResourceId(query, transaction);
 
     if (resourceIdMatch) {
-      matchedItemsMapList.push(resourceIdMatch.matchedItems);
+      if (resourceIdMatch.goodRun) {
+        goodRun = true;
+        matchedItemsMapList.push(resourceIdMatch.matchedItems);
+      }
       query = resourceIdMatch.remainingQuery;
-      goodRun = true;
     }
 
     for (const queryKey in query) {
       const opOrValue = query[queryKey];
+
+      // TODO: what if we want to explicitly check for undefined?
       if (isUndefined(opOrValue)) {
         continue;
       }
@@ -1492,7 +1526,13 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
       const index = this.mapIndexes[queryKey];
 
-      if (!index || isUndefined(op.$eq ?? op.$in ?? op.$lowercaseEq ?? op.$lowercaseIn)) {
+      if (
+        !index ||
+        (isUndefined(op.$eq) &&
+          isUndefined(op.$in) &&
+          isUndefined(op.$lowercaseEq) &&
+          isUndefined(op.$lowercaseIn))
+      ) {
         indexMatchRemainingQuery[queryKey] = query[queryKey];
         continue;
       }
@@ -1501,6 +1541,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
         const nextOpKeyTyped = nextOpKey as Mem_FieldQueryOpKeys;
         const nextOpKeyValue = op[nextOpKeyTyped];
 
+        // TODO: what if we want to explicitly check for undefined?
         if (isUndefined(nextOpKeyValue)) {
           continue;
         }
@@ -1549,6 +1590,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
     const matchedItems: Record<string, T> = {};
     const resourceIdKey: keyof IResource = 'resourceId';
+    let goodRun = false;
 
     for (const opKey in op) {
       const opKeyTyped = opKey as Mem_FieldQueryOpKeys;
@@ -1557,6 +1599,8 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       if (isUndefined(opValue)) {
         continue;
       }
+
+      goodRun = true;
 
       switch (opKeyTyped) {
         case '$eq': {
@@ -1576,7 +1620,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       }
     }
 
-    return {remainingQuery, matchedItems};
+    return {remainingQuery, matchedItems, goodRun};
   }
 
   protected getItem(id: string, transaction: IMemStoreTransaction | undefined) {

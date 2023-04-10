@@ -6,10 +6,10 @@ import {
 import {AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IUser} from '../../../definitions/user';
 import {
+  ICollaborationRequestResponseEmailProps,
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
   collaborationRequestResponseEmailTitle,
-  ICollaborationRequestResponseEmailProps,
 } from '../../../emailTemplates/collaborationRequestResponse';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
@@ -91,14 +91,14 @@ export const internalRespondToCollaborationRequest = async (
   const user = agent.user;
   assertUser(user);
   appAssert(
-    user.email !== request.recipientEmail,
+    user.email === request.recipientEmail,
     new PermissionDeniedError('User is not the collaboration request recipient')
   );
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
   const isAccepted = data.response === CollaborationRequestStatusType.Accepted;
   appAssert(
-    isExpired,
+    isExpired === false,
     new ServerStateConflictError(
       `Collaboration request expired on ${formatDate(request.expiresAt!)}`
     )

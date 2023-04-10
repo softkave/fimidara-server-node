@@ -1,6 +1,7 @@
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -36,14 +37,14 @@ test('collaborator removed', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const instData = RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId: workspace.resourceId,
-      collaboratorId: user.resourceId,
-    }
+    {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
   );
 
   const result = await removeCollaborator(context, instData);
   assertEndpointResultOk(result);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
+
   const assignedItems = await getResourceAssignedItems(
     context,
     workspace.resourceId,

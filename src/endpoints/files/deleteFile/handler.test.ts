@@ -1,5 +1,6 @@
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -12,6 +13,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
+import {fileConstants} from '../constants';
 import deleteFile from './handler';
 import {IDeleteFileEndpointParams} from './types';
 
@@ -39,9 +41,16 @@ test('file deleted', async () => {
   const {file} = await insertFileForTest(context, userToken, workspace);
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {filepath: addRootnameToPath(file.name, workspace.rootname)}
+    {
+      filepath: addRootnameToPath(
+        file.name + fileConstants.nameExtensionSeparator + file.extension,
+        workspace.rootname
+      ),
+    }
   );
   const result = await deleteFile(context, instData);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
   assertEndpointResultOk(result);
   await assertFileDeleted(context, file.resourceId);
 });

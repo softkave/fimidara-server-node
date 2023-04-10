@@ -30,16 +30,10 @@ describe('getWorkspaceAgentTokens', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {token: token01} = await insertAgentTokenForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-    const {token: token02} = await insertAgentTokenForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const [{token: token01}, {token: token02}] = await Promise.all([
+      insertAgentTokenForTest(context, userToken, workspace.resourceId),
+      insertAgentTokenForTest(context, userToken, workspace.resourceId),
+    ]);
     const instData = RequestData.fromExpressRequest<IGetWorkspaceAgentTokensEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}

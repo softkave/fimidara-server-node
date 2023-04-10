@@ -88,6 +88,7 @@ describe('checkAuthorization', () => {
       targets: {targetId: file.resourceId},
       action: AppActionType.Read,
       workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
       containerId: getFilePermissionContainers(rawWorkspace.resourceId, file),
     });
   });
@@ -106,6 +107,7 @@ describe('checkAuthorization', () => {
     try {
       await checkAuthorization({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: agent02,
         targets: {targetId: file.resourceId},
@@ -145,6 +147,7 @@ describe('checkAuthorization', () => {
     await grantEveryPermission(workspace, userToken, userToken02.separateEntityId);
     await checkAuthorization({
       context,
+      workspace,
       workspaceId: workspace.resourceId,
       agent: agent02,
       targets: {targetId: file.resourceId},
@@ -182,6 +185,7 @@ describe('checkAuthorization', () => {
     try {
       await checkAuthorization({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: agent02,
         targets: {targetId: file.resourceId},
@@ -252,6 +256,7 @@ describe('checkAuthorization', () => {
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
@@ -311,6 +316,7 @@ describe('checkAuthorization', () => {
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
@@ -320,7 +326,7 @@ describe('checkAuthorization', () => {
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
     expect(allowedResourceIdList).toBeFalsy();
-    expect(deniedResourceIdList).toHaveLength(0);
+    expect(deniedResourceIdList).toBeFalsy();
   });
 
   test('summarizeAgentPermissionItems with target ID', async () => {
@@ -370,6 +376,7 @@ describe('checkAuthorization', () => {
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
@@ -429,6 +436,7 @@ describe('checkAuthorization', () => {
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
@@ -488,6 +496,7 @@ describe('checkAuthorization', () => {
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
+        workspace,
         workspaceId: workspace.resourceId,
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},

@@ -13,6 +13,7 @@ export async function getWorkspaceCollaborationRequestsQuery(
     context,
     agent,
     workspaceId: workspace.resourceId,
+    workspace: workspace,
     targets: {targetType: AppResourceType.CollaborationRequest},
     action: AppActionType.Read,
   });

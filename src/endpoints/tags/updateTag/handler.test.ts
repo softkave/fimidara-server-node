@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
+import RequestData from '../../RequestData';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -39,10 +39,7 @@ describe('updateTag', () => {
 
     const instData = RequestData.fromExpressRequest<IUpdateTagEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        tagId: tag01.resourceId,
-        tag: tagUpdateInput,
-      }
+      {tagId: tag01.resourceId, tag: tagUpdateInput}
     );
     const result = await updateTag(context, instData);
     assertEndpointResultOk(result);

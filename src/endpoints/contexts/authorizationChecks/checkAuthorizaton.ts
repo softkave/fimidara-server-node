@@ -1,4 +1,4 @@
-import {compact, difference, isUndefined, uniq} from 'lodash';
+import {compact, difference, isEmpty, isUndefined, uniq} from 'lodash';
 import {IFile} from '../../../definitions/file';
 import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
@@ -10,10 +10,12 @@ import {
   getWorkspaceResourceTypeList,
 } from '../../../definitions/system';
 import {IUserWithWorkspace} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
+import {reuseableErrors} from '../../../utils/reusableErrors';
 import {logger} from '../../globalUtils';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
@@ -31,6 +33,7 @@ export interface ICheckAuthorizationParams {
   context: IBaseContext;
   agent: ISessionAgent;
   workspaceId: string;
+  workspace?: Pick<IWorkspace, 'publicPermissionGroupId'>;
   containerId?: string | string[];
   targets: AuthTarget | Array<AuthTarget>;
   action: AppActionType;
@@ -146,7 +149,9 @@ function newAccessChecker(
             params.action,
 
             // Remove target ID from container if present
-            difference(toNonNullableArray(params.containerId ?? []), [target.targetId]),
+            uniq(
+              difference(toCompactArray(params.workspaceId, params.containerId), [target.targetId])
+            ),
             /** nothrow */ false
           );
         } else if (target.targetType) {
@@ -184,22 +189,38 @@ export async function fetchAgentPermissionItems(
     throw new EmailAddressNotVerifiedError();
   }
 
+  const workspace =
+    params.workspace ?? (await context.semantic.workspace.getOneById(params.workspaceId));
+  appAssert(workspace, reuseableErrors.workspace.notFound());
   appAssert(
     Array.isArray(targets) ? targets.length > 0 : targets,
     new ServerError(),
     'Provide atleast one target.'
   );
-  const map = await context.semantic.permissions.getEntityInheritanceMap({
-    context,
+
+  const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
+    context.semantic.permissions.getEntityInheritanceMap({
+      context,
+      entityId: agent.agentId,
+      fetchDeep: params.fetchEntitiesDeep,
+    }),
+    context.semantic.permissions.getEntityInheritanceMap({
+      context,
+      entityId: workspace.publicPermissionGroupId,
+      fetchDeep: params.fetchEntitiesDeep,
+    }),
+  ]);
+  const {sortedItemsList: entitySortedItemList} = context.logic.permissions.sortInheritanceMap({
+    map: entityInheritanceMap,
     entityId: agent.agentId,
-    fetchDeep: params.fetchEntitiesDeep,
   });
-  const {sortedItemsList} = context.logic.permissions.sortInheritanceMap({
-    map,
-    entityId: agent.agentId,
+  const {sortedItemsList: publicSortedItemList} = context.logic.permissions.sortInheritanceMap({
+    map: publicInheritanceMap,
+    entityId: workspace.publicPermissionGroupId,
   });
 
-  const entityIdList = sortedItemsList.map(item => item.id),
+  const sortedItemsList = entitySortedItemList.concat(publicSortedItemList),
+    entityIdList = sortedItemsList.map(item => item.id),
     action = toNonNullableArray(params.action).concat(AppActionType.All),
     targetsList = toNonNullableArray(targets),
     targetId = compact(targetsList.map(item => item.targetId)),
@@ -386,12 +407,14 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
     }
   }
 
-  const allowedResourceIdList = Object.keys(allowedResourceIdsMap),
-    deniedResourceIdList = Object.keys(deniedResourceIdsMap),
+  const allowedResourceIdList = !isEmpty(allowedResourceIdsMap)
+      ? Object.keys(allowedResourceIdsMap)
+      : undefined,
+    deniedResourceIdList = !isEmpty(deniedResourceIdsMap)
+      ? Object.keys(deniedResourceIdsMap)
+      : undefined,
     noAccess =
-      !hasFullOrLimitedAccess &&
-      allowedResourceIdList.length === 0 &&
-      deniedResourceIdList.length === 0;
+      !hasFullOrLimitedAccess && isEmpty(allowedResourceIdList) && isEmpty(deniedResourceIdList);
 
   if (hasFullOrLimitedAccess) {
     return {hasFullOrLimitedAccess, deniedResourceIdList};

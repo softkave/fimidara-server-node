@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
+import RequestData from '../../RequestData';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -31,40 +31,19 @@ describe('updateCollaborationRequest', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    // const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    //   context,
-    //   userToken,
-    //   workspace.resourceId
-    // );
-    // const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    //   context,
-    //   userToken,
-    //   workspace.resourceId
-    // );
     const {request: request01} = await insertRequestForTest(
       context,
       userToken,
-      workspace.resourceId,
-      {
-        // permissionGroupsAssignedOnAcceptingRequest: [
-        //   {permissionGroupId: permissionGroup01.resourceId},
-        // ],
-      }
+      workspace.resourceId
     );
     const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
       expires: add(Date.now(), {days: 1}).valueOf(),
-      // permissionGroupsAssignedOnAcceptingRequest: [
-      //   {permissionGroupId: permissionGroup02.resourceId},
-      // ],
     };
 
     const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        requestId: request01.resourceId,
-        request: updateCollaborationRequestInput,
-      }
+      {requestId: request01.resourceId, request: updateCollaborationRequestInput}
     );
     const result = await updateCollaborationRequest(context, instData);
     assertEndpointResultOk(result);
@@ -77,108 +56,5 @@ describe('updateCollaborationRequest', () => {
     expect(result.request.expiresAt).not.toBe(request01.expiresAt);
     expect(updatedRequest.message).toBe(updateCollaborationRequestInput.message);
     expect(updatedRequest.expiresAt).not.toBe(request01.expiresAt);
-    // const assignedItems = await getResourceAssignedItems(
-    //   context,
-    //   workspace.resourceId,
-    //   updatedRequest.resourceId,
-    //   [AppResourceType.PermissionGroup]
-    // );
-
-    // expect(assignedItems.length).toBe(1);
-    // const assignedItem01 = assignedItems[0];
-    // expect(assignedItem01).toBeDefined();
-    // expect(assignedItem01.assignedItemId).toBe(permissionGroup02.resourceId);
   });
-
-  // test('permission groups removed', async () => {
-  //   assertContext(context);
-  //   const {userToken} = await insertUserForTest(context);
-  //   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  //   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-  //     context,
-  //     userToken,
-  //     workspace.resourceId
-  //   );
-  //   const {request: request01} = await insertRequestForTest(
-  //     context,
-  //     userToken,
-  //     workspace.resourceId,
-  //     {
-  //       permissionGroupsAssignedOnAcceptingRequest: [
-  //         {permissionGroupId: permissionGroup01.resourceId},
-  //       ],
-  //     }
-  //   );
-  //   const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
-  //     message: faker.lorem.paragraph(),
-  //     expires: add(Date.now(), {days: 1}).valueOf(),
-  //     permissionGroupsAssignedOnAcceptingRequest: [],
-  //   };
-  //   const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-  //     mockExpressRequestWithAgentToken(userToken),
-  //     {
-  //       requestId: request01.resourceId,
-  //       request: updateCollaborationRequestInput,
-  //     }
-  //   );
-  //   const result = await updateCollaborationRequest(context, instData);
-  //   assertEndpointResultOk(result);
-  //   const assignedItems = await getResourceAssignedItems(
-  //     context,
-  //     workspace.resourceId,
-  //     result.request.resourceId,
-  //     [AppResourceType.PermissionGroup]
-  //   );
-
-  //   expect(assignedItems.length).toBe(0);
-  // });
-
-  // test('permission groups not updated', async () => {
-  //   assertContext(context);
-  //   const {userToken} = await insertUserForTest(context);
-  //   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  //   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-  //     context,
-  //     userToken,
-  //     workspace.resourceId
-  //   );
-
-  //   const {request: request01} = await insertRequestForTest(
-  //     context,
-  //     userToken,
-  //     workspace.resourceId,
-  //     {
-  //       permissionGroupsAssignedOnAcceptingRequest: [
-  //         {permissionGroupId: permissionGroup01.resourceId},
-  //       ],
-  //     }
-  //   );
-
-  //   const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
-  //     message: faker.lorem.paragraph(),
-  //     expires: add(Date.now(), {days: 1}).valueOf(),
-  //   };
-
-  //   const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-  //     mockExpressRequestWithAgentToken(userToken),
-  //     {
-  //       requestId: request01.resourceId,
-  //       request: updateCollaborationRequestInput,
-  //     }
-  //   );
-
-  //   const result = await updateCollaborationRequest(context, instData);
-  //   assertEndpointResultOk(result);
-  //   const assignedItems = await getResourceAssignedItems(
-  //     context,
-  //     workspace.resourceId,
-  //     result.request.resourceId,
-  //     [AppResourceType.PermissionGroup]
-  //   );
-
-  //   expect(assignedItems.length).toBe(1);
-  //   const assignedItem01 = assignedItems[0];
-  //   expect(assignedItem01).toBeDefined();
-  //   expect(assignedItem01.assignedItemId).toBe(permissionGroup01.resourceId);
-  // });
 });

@@ -11,7 +11,6 @@ import {
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import {assertCollaborationRequest} from '../../endpoints/collaborationRequests/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {
   ISemanticDataAccessProviderMutationRunOptions,
@@ -179,78 +178,79 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   };
 
   const context = await setupContext();
-  const workspace = await setupApp(context);
 
-  await executeWithMutationRunOptions(context, async opts => {
-    const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
-      workspace.resourceId,
-      DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-      opts
-    );
-    assertPermissionGroup(adminPermissionGroup);
-
-    const user = await getUser(context, appOptions);
-    const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
-
-    if (isInWorkspace) {
-      await makeUserAdmin(
-        context,
-        user.resourceId,
-        workspace,
-        adminPermissionGroup.resourceId,
+  try {
+    const workspace = await setupApp(context);
+    await executeWithMutationRunOptions(context, async opts => {
+      const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
+        workspace.resourceId,
+        DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
         opts
       );
-    } else {
-      const request = await context.semantic.collaborationRequest.getOneByEmail(user.email, opts);
-      assertCollaborationRequest(request);
+      assertPermissionGroup(adminPermissionGroup);
 
-      if (request) {
-        consoleLogger.info('Existing collaboration request found');
-        consoleLogger.info(`Accepting request ${request.resourceId}`);
-        const agentToken = await context.semantic.agentToken.getOneAgentToken(
-          user.resourceId,
-          TokenAccessScope.Login,
-          opts
-        );
-        assertAgentToken(agentToken);
-        const agent = makeUserSessionAgent(user, agentToken);
-        await internalRespondToCollaborationRequest(
+      const user = await getUser(context, appOptions);
+      const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
+
+      if (isInWorkspace) {
+        await makeUserAdmin(
           context,
-          agent,
-          {
-            requestId: request.resourceId,
-            response: CollaborationRequestStatusType.Accepted,
-          },
+          user.resourceId,
+          workspace,
+          adminPermissionGroup.resourceId,
           opts
         );
       } else {
-        consoleLogger.info('Adding user to workspace');
-        await assignWorkspaceToUser(
+        const request = await context.semantic.collaborationRequest.getOneByEmail(user.email, opts);
+
+        if (request) {
+          consoleLogger.info('Existing collaboration request found');
+          consoleLogger.info(`Accepting request ${request.resourceId}`);
+          const agentToken = await context.semantic.agentToken.getOneAgentToken(
+            user.resourceId,
+            TokenAccessScope.Login,
+            opts
+          );
+          assertAgentToken(agentToken);
+          const agent = makeUserSessionAgent(user, agentToken);
+          await internalRespondToCollaborationRequest(
+            context,
+            agent,
+            {
+              requestId: request.resourceId,
+              response: CollaborationRequestStatusType.Accepted,
+            },
+            opts
+          );
+        } else {
+          consoleLogger.info('Adding user to workspace');
+          await assignWorkspaceToUser(
+            context,
+            SYSTEM_SESSION_AGENT,
+            workspace.resourceId,
+            user.resourceId,
+            opts
+          );
+        }
+
+        await makeUserAdmin(
           context,
-          SYSTEM_SESSION_AGENT,
-          workspace.resourceId,
           user.resourceId,
+          workspace,
+          adminPermissionGroup.resourceId,
           opts
         );
       }
 
-      await makeUserAdmin(
-        context,
-        user.resourceId,
-        workspace,
-        adminPermissionGroup.resourceId,
-        opts
-      );
-    }
+      if (!user.isEmailVerified) {
+        consoleLogger.info(`Verifying email address for user ${user.email}`);
+        await internalConfirmEmailAddress(context, user.resourceId, user);
+      }
 
-    if (!user.isEmailVerified) {
-      consoleLogger.info(`Verifying email address for user ${user.email}`);
-      await internalConfirmEmailAddress(context, user.resourceId, user);
-    }
-
-    consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
-  });
-
-  disposeApplicationGlobalUtilities();
-  await context.dispose();
+      consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
+    });
+  } finally {
+    disposeApplicationGlobalUtilities();
+    await context.dispose();
+  }
 }

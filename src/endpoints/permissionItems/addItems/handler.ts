@@ -17,6 +17,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Create,
     targets: {targetType: AppResourceType.PermissionItem},

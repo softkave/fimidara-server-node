@@ -8,6 +8,7 @@ import {
   getResourceId,
   loopAndCollate,
   noopAsync,
+  toArray,
   waitTimeout,
 } from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
@@ -340,13 +341,68 @@ describe('MemStore', () => {
     await Promise.all([scenario02(txn01), scenario02(txn02), scenario02(txn03), scenario03(txn04)]);
   });
 
-  // test('syncTxnOps', () => {
-  //   throw reuseableErrors.common.notImplemented();
-  // });
+  test('insertFilter with txn', async () => {
+    const tx01 = new MemStoreTransaction();
+    const items01Field01 = getNewId();
+    const items02Field01 = getNewId();
+    const items01 = seedTestResourceList(5, {field01: items01Field01});
+    const items02 = seedTestResourceList(5, {field01: items02Field01});
+    const mem02 = new MemStore<ITestResource>(
+      [],
+      [
+        {type: MemStoreIndexTypes.MapIndex, field: 'field01'},
+        {type: MemStoreIndexTypes.MapIndex, field: 'field02', caseInsensitive: true},
+      ],
+      {
+        commitItemsFilter: item =>
+          // Remove all items from item01
+          toArray(item).filter(nextItem => nextItem.field01 !== items01Field01),
+      }
+    );
+    await mem02.createItems(items01.concat(items02), tx01);
 
-  // test('memstore insert filter', () => {
-  //   throw reuseableErrors.common.notImplemented();
-  // });
+    const items01WithTx = await mem02.readManyItems({field01: items01Field01}, tx01);
+
+    await tx01.commit(async consistencyOps => {
+      checkConsistencyOps(
+        consistencyOps,
+        items01,
+        MemStoreTransactionConsistencyOpTypes.Insert,
+        tx01
+      );
+    });
+
+    const items01AfterCommitingTx = await mem02.readManyItems({field01: items01Field01});
+    const items02AfterCommitingTx = await mem02.readManyItems({field01: items02Field01});
+    expect(items01WithTx).toEqual(expect.arrayContaining(items01));
+    expect(items01AfterCommitingTx).toHaveLength(0);
+    expect(items02AfterCommitingTx).toHaveLength(items02.length);
+  });
+
+  test('insertFilter without txn', async () => {
+    const items01Field01 = getNewId();
+    const items02Field01 = getNewId();
+    const items01 = seedTestResourceList(5, {field01: items01Field01});
+    const items02 = seedTestResourceList(5, {field01: items02Field01});
+    const mem02 = new MemStore<ITestResource>(
+      [],
+      [
+        {type: MemStoreIndexTypes.MapIndex, field: 'field01'},
+        {type: MemStoreIndexTypes.MapIndex, field: 'field02', caseInsensitive: true},
+      ],
+      {
+        commitItemsFilter: item =>
+          // Remove all items from item01
+          toArray(item).filter(nextItem => nextItem.field01 !== items01Field01),
+      }
+    );
+    await mem02.UNSAFE_ingestItems(items01.concat(items02));
+
+    const items01Returned = await mem02.readManyItems({field01: items01Field01});
+    const items02Returned = await mem02.readManyItems({field01: items02Field01});
+    expect(items01Returned).toHaveLength(0);
+    expect(items02Returned).toHaveLength(items02.length);
+  });
 });
 
 interface ITestResource extends IResource {

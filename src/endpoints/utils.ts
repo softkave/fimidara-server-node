@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {defaultTo, isEmpty, isNumber, isString} from 'lodash';
+import {defaultTo, isNumber, isString} from 'lodash';
 import {
   IAgent,
   IPublicAgent,
@@ -18,6 +18,7 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../utils/extract';
+import {isObjectEmpty} from '../utils/fns';
 import {reuseableErrors} from '../utils/reusableErrors';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
@@ -204,12 +205,16 @@ export function getWorkspaceResourceListQuery00(
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
     return {
       workspaceId: workspace.resourceId,
-      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList?.length
+        ? permissionsSummaryReport.deniedResourceIdList
+        : undefined,
     };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
     return {
       workspaceId: workspace.resourceId,
-      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList.length
+        ? permissionsSummaryReport.allowedResourceIdList
+        : undefined,
     };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
@@ -241,5 +246,5 @@ export async function executeCascadeDelete<Args>(
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {
-  appAssert(isEmpty(update), new InvalidRequestError('Update data provided is empty.'));
+  appAssert(!isObjectEmpty(update), new InvalidRequestError('Update data provided is empty.'));
 }

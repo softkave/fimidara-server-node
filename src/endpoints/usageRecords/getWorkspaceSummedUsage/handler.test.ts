@@ -1,8 +1,5 @@
 import assert = require('assert');
-import {sub} from 'date-fns';
-import {Connection} from 'mongoose';
-import {getMongoConnection} from '../../../db/connection';
-import {getUsageRecordModel} from '../../../db/usageRecord';
+import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -11,12 +8,9 @@ import {
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {
-  generateAndInsertUsageRecordList,
-  generateUsageRecordList,
-} from '../../testUtils/generateData/usageRecord';
+import {IBaseContext} from '../../contexts/types';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -30,19 +24,13 @@ import getWorkspaceSummedUsage from './handler';
 import {IGetWorkspaceSummedUsageEndpointParams} from './types';
 
 let context: IBaseContext | null = null;
-let connection: Connection | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
-  connection = await getMongoConnection(
-    context.appVariables.mongoDbURI,
-    context.appVariables.mongoDbDatabaseName
-  );
 });
 
 afterAll(async () => {
   await completeTest({context});
-  await connection?.close();
 });
 
 function expectToOnlyHaveCategory(records01: IUsageRecord[], category: UsageRecordCategory) {
@@ -60,17 +48,17 @@ function expectToOnlyHaveFulfillmentStatus(
   });
 }
 
-function expectToBeFromDate(records01: IUsageRecord[], fromMonth: number, fromYear: number) {
+function expectToBeFromDate(records01: IUsageRecord[], fromDate: number) {
+  const date = getTimestamp(startOfMonth(fromDate));
   records01.forEach(record => {
-    expect(record.month).toBeGreaterThanOrEqual(fromMonth);
-    expect(record.year).toBeGreaterThanOrEqual(fromYear);
+    expect(record.createdAt).toBeGreaterThanOrEqual(date);
   });
 }
 
-function expectToBeToDate(records01: IUsageRecord[], toMonth: number, toYear: number) {
+function expectToBeToDate(records01: IUsageRecord[], toDate: number) {
+  const date = getTimestamp(endOfMonth(toDate));
   records01.forEach(record => {
-    expect(record.month).toBeLessThanOrEqual(toMonth);
-    expect(record.year).toBeLessThanOrEqual(toYear);
+    expect(record.createdAt).toBeLessThanOrEqual(date);
   });
 }
 
@@ -80,15 +68,11 @@ describe('getWorkspaceSummedUsage', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const records = generateUsageRecordList(10, {
+    const records = await generateAndInsertUsageRecordList(context, 10, {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
       workspaceId: workspace.resourceId,
     });
-
-    assert(connection);
-    const model = getUsageRecordModel(connection);
-    await model.insertMany(records);
 
     // run
     const instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
@@ -109,7 +93,7 @@ describe('getWorkspaceSummedUsage', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const fromDate = sub(new Date(), {years: 2, months: 2});
-    const toDate = sub(new Date(), {years: 0, months: 3});
+    const toDate = add(new Date(), {years: 0, months: 3});
     const fromMonth = fromDate.getMonth();
     const toMonth = toDate.getMonth();
     const fromYear = fromDate.getFullYear();
@@ -118,41 +102,37 @@ describe('getWorkspaceSummedUsage', () => {
     const records02FulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
     const count = 10;
 
-    // with preset category
-    const records01 = generateUsageRecordList(count, {
-      category: records01Category,
-      workspaceId: workspace.resourceId,
-    });
+    await Promise.all([
+      // with preset category
+      generateAndInsertUsageRecordList(context, count, {
+        category: records01Category,
+        workspaceId: workspace.resourceId,
+      }),
 
-    // with preset fulfillment status
-    const records02 = generateUsageRecordList(count, {
-      fulfillmentStatus: records02FulfillmentStatus,
-      workspaceId: workspace.resourceId,
-    });
+      // with preset fulfillment status
+      generateAndInsertUsageRecordList(context, count, {
+        fulfillmentStatus: records02FulfillmentStatus,
+        workspaceId: workspace.resourceId,
+      }),
 
-    // with preset from date and to date
-    const records03 = generateUsageRecordList(count, {
-      month: fromMonth,
-      year: fromYear,
-      workspaceId: workspace.resourceId,
-    }).concat(
-      generateUsageRecordList(count, {
+      // with preset from date and to date
+      generateAndInsertUsageRecordList(context, count, {
+        month: fromMonth,
+        year: fromYear,
+        workspaceId: workspace.resourceId,
+      }),
+      generateAndInsertUsageRecordList(context, count, {
         month: toMonth,
         year: toYear,
         workspaceId: workspace.resourceId,
-      })
-    );
-
-    const allRecords = [...records01, ...records02, ...records03];
-    assert(connection);
-    const model = getUsageRecordModel(connection);
-    await model.insertMany(allRecords);
+      }),
+    ]);
 
     // run
     // with preset category
     let reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId, query: {category: {$in: [records01Category]}}}
+      {workspaceId: workspace.resourceId, query: {category: [records01Category]}}
     );
     const result01 = await getWorkspaceSummedUsage(context, reqData);
 
@@ -190,8 +170,8 @@ describe('getWorkspaceSummedUsage', () => {
     assertEndpointResultOk(result04);
     expectToOnlyHaveCategory(result01.records, records01Category);
     expectToOnlyHaveFulfillmentStatus(result02.records, records02FulfillmentStatus);
-    expectToBeFromDate(result03.records, fromMonth, fromYear);
-    expectToBeToDate(result03.records, toMonth, toYear);
+    expectToBeFromDate(result03.records, fromDate.valueOf());
+    expectToBeToDate(result03.records, toDate.valueOf());
   });
 
   test('pagination', async () => {

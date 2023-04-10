@@ -16,6 +16,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async (context, ins
     context,
     agent,
     workspaceId,
+    workspace,
     action: AppActionType.Delete,
     targets: {targetType: AppResourceType.PermissionItem},
   });

@@ -17,6 +17,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     targets: {targetType: AppResourceType.Tag},
     action: AppActionType.Create,

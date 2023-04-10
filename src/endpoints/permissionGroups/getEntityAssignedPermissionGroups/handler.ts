@@ -19,7 +19,7 @@ const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoi
   const result = await fetchEntityAssignedPermissionGroupList(
     context,
     data.entityId,
-    data.includeInheritedPermissionGroups
+    data.includeInheritedPermissionGroups ?? false
   );
   return {
     permissionGroups: permissionGroupListExtractor(result.permissionGroups),

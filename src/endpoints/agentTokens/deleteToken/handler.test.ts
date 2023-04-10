@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -36,13 +37,14 @@ test('program access token deleted', async () => {
   const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
   const instData = RequestData.fromExpressRequest<IDeleteAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      tokenId: token.resourceId,
-    }
+    {tokenId: token.resourceId, workspaceId: workspace.resourceId}
   );
 
   const result = await deleteAgentToken(context, instData);
   assertEndpointResultOk(result);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
+
   const deletedTokenExists = await context.semantic.agentToken.existsByQuery(
     EndpointReusableQueries.getByResourceId(token.resourceId)
   );

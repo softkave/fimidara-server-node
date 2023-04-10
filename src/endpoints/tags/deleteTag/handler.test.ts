@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -35,13 +36,14 @@ describe('deleteTag', () => {
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag.resourceId}
     );
-
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+
     const deletedTagExists = await context.semantic.tag.existsByQuery(
       EndpointReusableQueries.getByResourceId(tag.resourceId)
     );
-
     expect(deletedTagExists).toBeFalsy();
   });
 });

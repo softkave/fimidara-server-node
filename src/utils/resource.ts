@@ -61,9 +61,16 @@ export function getNewId(size?: number) {
 
 export const ID_SIZE = 21;
 export const ID_SEPARATOR = '_';
-export const ID_0 = ''.padEnd(RESOURCE_TYPE_SHORT_NAME_MAX_LEN, RESOURCE_TYPE_SHORT_NAME_PADDING);
+export const ID_0 = ''.padEnd(ID_SIZE, RESOURCE_TYPE_SHORT_NAME_PADDING);
 
 // TODO: write Joi schema
+/**
+ *
+ * @param resourceType
+ * @param size
+ * @param id0 - `size` is not used when `id0` is `true`.
+ * @returns
+ */
 export function getNewIdForResource(
   resourceType: AppResourceType,
   size = ID_SIZE,

@@ -31,6 +31,7 @@ export async function checkUploadFileAuth(
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     targets: [
       {

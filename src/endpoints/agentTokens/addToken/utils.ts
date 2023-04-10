@@ -72,6 +72,7 @@ export const internalCreateAgentToken = async (
         context,
         agent,
         workspaceId: workspace.resourceId,
+        workspace: workspace,
         targets: {targetType: AppResourceType.AgentToken},
         action: AppActionType.Create,
       }),

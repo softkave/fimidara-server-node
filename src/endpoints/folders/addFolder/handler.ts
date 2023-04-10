@@ -74,6 +74,7 @@ export async function createFolderList(
     await checkAuthorization({
       context,
       agent,
+      workspace,
       workspaceId: workspace.resourceId,
       containerId: closestExistingFolder
         ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)

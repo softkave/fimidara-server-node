@@ -37,7 +37,7 @@ export async function assertGetSingleFileWithMatcher(
   matcher: IFileMatcher,
   opts?: ISemanticDataAccessProviderRunOptions
 ): Promise<IFile> {
-  const file = await getFileWithMatcher(context, matcher);
+  const file = await getFileWithMatcher(context, matcher, opts);
   assertFile(file);
   return file;
 }

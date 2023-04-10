@@ -230,7 +230,10 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   ): Promise<number> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: q.workspaceId,
-      resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      resourceId: {
+        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
+        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+      },
     };
     return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
   }
@@ -245,7 +248,10 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   ): Promise<T[]> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: q.workspaceId,
-      resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+      resourceId: {
+        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
+        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+      },
     };
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,

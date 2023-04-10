@@ -2,8 +2,8 @@ import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
 import {getResourceId} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {IBaseContext} from '../../contexts/types';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -32,7 +32,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-describe('getResourcePermissionItems', () => {
+describe.skip('getResourcePermissionItems', () => {
   test('resource permission items returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);

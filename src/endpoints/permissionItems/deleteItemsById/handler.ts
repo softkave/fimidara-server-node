@@ -15,6 +15,7 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (cont
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Delete,
     targets: {targetType: AppResourceType.PermissionItem},

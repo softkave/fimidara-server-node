@@ -84,20 +84,30 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     field: 'workspaceId',
     type: MemStoreIndexTypes.MapIndex,
   };
+  const nameIndexOpts: MemStoreIndexOptions<{name?: string | null}> = {
+    field: 'name',
+    type: MemStoreIndexTypes.MapIndex,
+    caseInsensitive: true,
+  };
 
   const folderIndexOpts: MemStoreIndexOptions<IFolder>[] = [
     workspaceIdIndexOpts,
+    nameIndexOpts,
     {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
     {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
   ];
   const fileIndexOpts: MemStoreIndexOptions<IFile>[] = [
     workspaceIdIndexOpts,
+    nameIndexOpts,
     {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
     {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
     {field: 'extension', type: MemStoreIndexTypes.MapIndex},
   ];
   const agentTokenIndexOpts: MemStoreIndexOptions<IAgentToken>[] = [
     workspaceIdIndexOpts,
+    nameIndexOpts,
     {field: 'separateEntityId', type: MemStoreIndexTypes.MapIndex},
     {field: 'agentType', type: MemStoreIndexTypes.MapIndex},
   ];
@@ -109,16 +119,22 @@ export function getMemstoreDataProviders(models: IAppMongoModels): IBaseContext[
     {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
     {field: 'action', type: MemStoreIndexTypes.MapIndex},
   ];
-  const permissionGroupIndexOpts: MemStoreIndexOptions<IPermissionGroup>[] = [workspaceIdIndexOpts];
+  const permissionGroupIndexOpts: MemStoreIndexOptions<IPermissionGroup>[] = [
+    workspaceIdIndexOpts,
+    nameIndexOpts,
+  ];
   const workspaceIndexOpts: MemStoreIndexOptions<IWorkspace>[] = [
+    nameIndexOpts,
     {field: 'rootname', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
   const collaborationRequestIndexOpts: MemStoreIndexOptions<ICollaborationRequest>[] = [
     workspaceIdIndexOpts,
     {field: 'recipientEmail', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
-  const userIndexOpts: MemStoreIndexOptions<IUser>[] = [];
-  const tagIndexOpts: MemStoreIndexOptions<ITag>[] = [workspaceIdIndexOpts];
+  const userIndexOpts: MemStoreIndexOptions<IUser>[] = [
+    {field: 'email', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
+  ];
+  const tagIndexOpts: MemStoreIndexOptions<ITag>[] = [workspaceIdIndexOpts, nameIndexOpts];
   const assignedItemIndexOpts: MemStoreIndexOptions<IAssignedItem>[] = [
     workspaceIdIndexOpts,
     {field: 'assignedItemId', type: MemStoreIndexTypes.MapIndex},

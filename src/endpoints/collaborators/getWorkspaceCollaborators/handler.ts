@@ -14,9 +14,12 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  const q = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
+  const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await context.semantic.assignedItem.getManyByWorkspaceAndIdList(q, data);
+  const assignedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery(
+    assignedItemsQuery,
+    data
+  );
   let usersWithWorkspaces: IUserWithWorkspace[] = [];
   if (assignedItems.length > 0) {
     const userIdList = assignedItems.map(item => item.assigneeId);

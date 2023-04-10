@@ -12,6 +12,7 @@ export async function getWorkspacePermissionGroupsQuery(
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     targets: {targetType: AppResourceType.PermissionGroup},
     action: AppActionType.Read,

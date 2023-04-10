@@ -45,10 +45,7 @@ test('collaboration request declined', async () => {
 
   const instData = RequestData.fromExpressRequest<IRespondToCollaborationRequestEndpointParams>(
     mockExpressRequestWithAgentToken(user02Token),
-    {
-      requestId: request01.resourceId,
-      response: CollaborationRequestStatusType.Accepted,
-    }
+    {requestId: request01.resourceId, response: CollaborationRequestStatusType.Accepted}
   );
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);

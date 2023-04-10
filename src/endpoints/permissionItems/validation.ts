@@ -42,8 +42,11 @@ const target = Joi.object<IPermissionItemInputTarget>().keys({
   filepath: targetParts.filepath,
   workspaceRootname: workspaceValidationSchemas.rootname,
 });
-const entity = Joi.object<IPermissionItemInputEntity>().keys({
+const entityParts = {
   entityId: Joi.alternatives().try(entityId, Joi.array().items(entityId).max(100)),
+};
+const entity = Joi.object<IPermissionItemInputEntity>().keys({
+  entityId: entityParts.entityId,
 });
 const itemInput = Joi.object<IPermissionItemInput>().keys({
   entity,
@@ -77,6 +80,7 @@ const permissionItemValidationSchemas = {
   publicAccessOp,
   publicAccessOpList,
   targetParts,
+  entityParts,
 };
 
 export default permissionItemValidationSchemas;

@@ -106,6 +106,7 @@ export async function checkWorkspaceAuthorization(
     context,
     agent,
     action,
+    workspace,
     workspaceId: workspace.resourceId,
     targets: {targetId: workspace.resourceId},
   });

@@ -35,6 +35,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     context,
     agent,
     workspaceId: workspace.resourceId,
+    workspace: workspace,
     targets: {targetType: AppResourceType.CollaborationRequest},
     action: AppActionType.Create,
   });
@@ -59,19 +60,18 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
           opts
         );
       appAssert(
-        collaboratorExists,
+        collaboratorExists === false,
         new ResourceExistsError('Collaborator with same email address exists in this workspace.')
       );
     }
 
-    appAssert(
-      existingRequest?.status === CollaborationRequestStatusType.Pending,
-      new ResourceExistsError(
+    if (existingRequest?.status === CollaborationRequestStatusType.Pending) {
+      throw new ResourceExistsError(
         `An existing collaboration request to this user was sent on ${formatDate(
-          existingRequest!.createdAt
+          existingRequest?.createdAt
         )}`
-      )
-    );
+      );
+    }
 
     const request: ICollaborationRequest = newWorkspaceResource(
       agent,
@@ -86,24 +86,8 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
         statusDate: getTimestamp(),
       }
     );
-    // const permissionGroupsAssignedOnAcceptingRequest =
-    //   data.request.permissionGroupsAssignedOnAcceptingRequest ?? [];
-    await Promise.all([
-      context.semantic.collaborationRequest.insertItem(request, opts),
-      // permissionGroupsAssignedOnAcceptingRequest.length &&
-      //   addAssignedPermissionGroupList(
-      //     context,
-      //     agent,
-      //     workspace.resourceId,
-      //     permissionGroupsAssignedOnAcceptingRequest,
-      //     request.resourceId,
-      //     /** deleteExisting */ false,
-      //     /** skip permission groups check */ false,
-      //     /** skip auth check */ false,
-      //     opts
-      //   ),
-    ]);
 
+    await context.semantic.collaborationRequest.insertItem(request, opts);
     return {request, existingUser};
   });
 

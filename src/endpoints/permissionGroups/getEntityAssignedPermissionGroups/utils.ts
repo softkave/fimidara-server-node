@@ -16,6 +16,7 @@ export async function checkReadEntityAssignedPermissionGroups(
     await checkAuthorization({
       context,
       agent,
+      workspace,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
       targets: {targetId: entityId},

@@ -5,13 +5,14 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import mongoose from 'mongoose';
+import {disposeApplicationGlobalUtilities} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {
   ExtractEnvSchema,
-  extractEnvVariables,
-  extractProdEnvsSchema,
   FileBackendType,
   IAppVariables,
+  extractEnvVariables,
+  extractProdEnvsSchema,
 } from '../resources/vars';
 import {jestLogger} from './logger';
 import _ = require('lodash');
@@ -91,6 +92,7 @@ async function jestGlobalTeardown() {
   const dropMongoPromise = dropMongoCollections(vars);
   await waitOnPromises([dropMongoPromise]);
   await jestLogger.close();
+  disposeApplicationGlobalUtilities();
 }
 
 module.exports = jestGlobalTeardown;

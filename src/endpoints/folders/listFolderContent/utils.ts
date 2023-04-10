@@ -23,6 +23,7 @@ export async function listFolderContentQuery(
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Read,
     targets: {targetType: contentType},

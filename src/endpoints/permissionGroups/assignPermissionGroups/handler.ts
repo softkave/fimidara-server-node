@@ -17,6 +17,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
   await checkAuthorization({
     context,
     agent,
+    workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.GrantPermission,
     targets: {targetType: AppResourceType.PermissionGroup},

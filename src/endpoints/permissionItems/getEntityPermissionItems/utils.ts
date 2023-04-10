@@ -14,6 +14,7 @@ export async function getEntityPermissionItemsQuery(
     await checkAuthorization({
       context,
       agent,
+      workspace,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
       targets: {targetType: AppResourceType.PermissionItem},

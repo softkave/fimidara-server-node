@@ -61,6 +61,7 @@ import MockTestEmailProviderContext from './context/MockTestEmailProviderContext
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
+import {generateTestFileName} from './generateData/file';
 import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
@@ -287,7 +288,7 @@ export async function insertAgentTokenForTest(
       workspaceId,
       token: {
         expires: getTimestamp(add(Date.now(), {days: 1})),
-        name: faker.lorem.words(3),
+        name: faker.lorem.words(7),
         description: faker.lorem.words(10),
         ...tokenInput,
       },
@@ -357,7 +358,7 @@ export async function insertFileForTest(
 ) {
   const input: IUploadFileEndpointParams = {
     filepath: addRootnameToPath(
-      [generateTestFolderName()].join(folderConstants.nameSeparator),
+      [generateTestFileName()].join(folderConstants.nameSeparator),
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),
