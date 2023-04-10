@@ -1,11 +1,8 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import EndpointReusableQueries from '../../queries';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsByIdEndpoint} from './types';
 import {deletePermissionItemsByIdJoiSchema} from './validation';
@@ -13,19 +10,18 @@ import {deletePermissionItemsByIdJoiSchema} from './validation';
 const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (context, instData) => {
   const data = validate(instData.data, deletePermissionItemsByIdJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
   await checkAuthorization({
     context,
     agent,
     workspace,
-    action: BasicCRUDActions.GrantPermission,
-    type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
+    workspaceId: workspace.resourceId,
+    action: AppActionType.Delete,
+    targets: {targetType: AppResourceType.PermissionItem},
   });
-
-  await context.data.permissionItem.deleteManyByQuery(
-    EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(workspaceId, data.itemIds)
+  await executeWithMutationRunOptions(context, opts =>
+    context.semantic.permissionItem.deleteManyByIdList(data.itemIds, opts)
   );
 };
 

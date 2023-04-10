@@ -1,57 +1,50 @@
 import * as jwt from 'jsonwebtoken';
-import {ResourceWithPermissionGroupsAndTags} from '../../definitions/assignedItem';
-import {IClientAssignedToken} from '../../definitions/clientAssignedToken';
-import {IProgramAccessToken} from '../../definitions/programAccessToken';
+import {IAgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  IAgent,
   IBaseTokenData,
-  IGeneralTokenSubject,
   ISessionAgent,
-  publicAgent,
-  SessionAgentType,
-  TokenAudience,
-  TokenType,
+  ITokenSubjectDefault,
+  TokenAccessScope,
 } from '../../definitions/system';
-import {IUserWithWorkspace} from '../../definitions/user';
-import {IUserToken} from '../../definitions/userToken';
+import {IUser} from '../../definitions/user';
+import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
+import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast} from '../../utils/fns';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
-import {InvalidRequestError} from '../errors';
-import EndpointReusableQueries from '../queries';
+import {cast, toNonNullableArray} from '../../utils/fns';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {makeAgentTokenAgent, makeUserSessionAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
-import {CredentialsExpiredError, PermissionDeniedError} from '../user/errors';
-import UserTokenQueries from '../user/UserTokenQueries';
+import {
+  CredentialsExpiredError,
+  InvalidCredentialsError,
+  PermissionDeniedError,
+} from '../user/errors';
 import {IBaseContext} from './types';
 
 export interface ISessionContext {
   getAgent: (
     ctx: IBaseContext,
     data: RequestData,
-    permittedAgentTypes?: SessionAgentType[],
-    audience?: TokenAudience | TokenAudience[]
+    permittedAgentTypes?: AppResourceType | AppResourceType[],
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<ISessionAgent>;
   getUser: (
     ctx: IBaseContext,
     data: RequestData,
-    audience?: TokenAudience | TokenAudience[]
-  ) => Promise<IUserWithWorkspace>;
-  decodeToken: (ctx: IBaseContext, token: string) => IBaseTokenData<IGeneralTokenSubject>;
-  tokenContainsAudience: (
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+  ) => Promise<IUser>;
+  decodeToken: (ctx: IBaseContext, token: string) => IBaseTokenData<ITokenSubjectDefault>;
+  tokenContainsTokenAccessScope: (
     ctx: IBaseContext,
-    tokenData: IUserToken,
-    expectedAudience: TokenAudience | TokenAudience[]
+    tokenData: IAgentToken,
+    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
     ctx: IBaseContext,
     tokenId: string,
-    tokenType: TokenType,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => string;
@@ -61,120 +54,65 @@ export default class SessionContext implements ISessionContext {
   getAgent = async (
     ctx: IBaseContext,
     data: RequestData,
-    permittedAgentTypes: SessionAgentType[] = [
-      SessionAgentType.User,
-      SessionAgentType.ClientAssignedToken,
-      SessionAgentType.ProgramAccessToken,
+    permittedAgentTypes: AppResourceType | AppResourceType[] = [
+      AppResourceType.User,
+      AppResourceType.AgentToken,
     ],
-    audience: TokenAudience | TokenAudience[] = TokenAudience.Login
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScope.Login
   ) => {
     if (data.agent) {
       return data.agent;
     }
 
-    let userToken: IUserToken | null = null;
-    let user: IUserWithWorkspace | null = null;
-    let clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken> | null =
-      null;
-    let programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken> | null = null;
+    let user: IUser | null = null;
     const incomingTokenData = data.incomingTokenData;
 
-    switch (incomingTokenData?.sub.type) {
-      case TokenType.UserToken: {
-        userToken = await ctx.data.userToken.assertGetOneByQuery(
-          UserTokenQueries.getById(incomingTokenData.sub.id)
-        );
-        if (audience) {
-          ctx.session.tokenContainsAudience(ctx, userToken, audience);
-        }
+    if (incomingTokenData) {
+      const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
+      appAssert(agentToken, new InvalidCredentialsError());
 
-        user = await populateUserWorkspaces(
-          ctx,
-          await ctx.data.user.assertGetOneByQuery(
-            EndpointReusableQueries.getByResourceId(userToken.userId)
-          )
-        );
-        break;
+      if (agentToken.agentType === AppResourceType.User) {
+        appAssert(agentToken.separateEntityId);
+        user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
+        appAssert(user, reuseableErrors.user.notFound());
       }
 
-      case TokenType.ProgramAccessToken: {
-        const pgt = await ctx.data.programAccessToken.assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
+      if (permittedAgentTypes?.length) {
+        const permittedAgent = toNonNullableArray(permittedAgentTypes).find(
+          type => type === agentToken.agentType
         );
-        programAccessToken = await populateAssignedPermissionGroupsAndTags(
-          ctx,
-          pgt.workspaceId,
-          pgt,
-          AppResourceType.ProgramAccessToken
-        );
-        break;
+
+        if (!permittedAgent) throw new PermissionDeniedError();
       }
 
-      case TokenType.ClientAssignedToken: {
-        const clientToken = await ctx.data.clientAssignedToken.assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(incomingTokenData.sub.id)
-        );
-        clientAssignedToken = await populateAssignedPermissionGroupsAndTags(
-          ctx,
-          clientToken.workspaceId,
-          clientToken,
-          AppResourceType.ClientAssignedToken
-        );
-        break;
+      if (tokenAccessScope) {
+        ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
+      }
+
+      if (user) {
+        appAssert(user, new ServerError());
+        return (data.agent = makeUserSessionAgent(user, agentToken));
+      } else if (agentToken) {
+        return (data.agent = makeAgentTokenAgent(agentToken));
       }
     }
 
-    if (permittedAgentTypes?.length) {
-      const permittedAgent = permittedAgentTypes.find(type => {
-        switch (type) {
-          case SessionAgentType.User:
-            return !!userToken;
-          case SessionAgentType.ProgramAccessToken:
-            return !!programAccessToken;
-          case SessionAgentType.ClientAssignedToken:
-            return !!clientAssignedToken;
-          case SessionAgentType.Public:
-            return true;
-          default:
-            return false;
-        }
-      });
-
-      if (!permittedAgent) {
-        throw new PermissionDeniedError();
-      }
-    }
-
-    if (userToken) {
-      appAssert(user, new ServerError());
-      const agent: ISessionAgent = makeUserSessionAgent(userToken, user);
-      data.agent = agent;
-      return agent;
-    } else if (programAccessToken) {
-      const agent: ISessionAgent = makeProgramAccessTokenAgent(programAccessToken);
-      data.agent = agent;
-      return agent;
-    } else if (clientAssignedToken) {
-      const agent: ISessionAgent = makeClientAssignedTokenAgent(clientAssignedToken);
-      data.agent = agent;
-      return agent;
-    }
-
-    return makePublicSessionAgent();
+    appAssert(permittedAgentTypes.includes(AppResourceType.Public), new PermissionDeniedError());
+    return PUBLIC_SESSION_AGENT;
   };
 
   getUser = async (
     ctx: IBaseContext,
     data: RequestData,
-    audience?: TokenAudience | TokenAudience[]
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const agent = await ctx.session.getAgent(ctx, data, [SessionAgentType.User], audience);
+    const agent = await ctx.session.getAgent(ctx, data, [AppResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
 
   decodeToken = (ctx: IBaseContext, token: string) => {
-    const tokenData = cast<IBaseTokenData<IGeneralTokenSubject>>(
+    const tokenData = cast<IBaseTokenData<ITokenSubjectDefault>>(
       jwt.verify(token, ctx.appVariables.jwtSecret, {
         complete: false,
       })
@@ -187,184 +125,32 @@ export default class SessionContext implements ISessionContext {
     return tokenData;
   };
 
-  tokenContainsAudience = (
+  tokenContainsTokenAccessScope = (
     ctx: IBaseContext,
-    tokenData: IUserToken,
-    expectedAudience: TokenAudience | TokenAudience[]
+    tokenData: IAgentToken,
+    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const audience = cast<TokenAudience[]>(tokenData.audience);
-    const hasAudience = !!audience.find(nextAud => expectedAudience.includes(nextAud));
-    return hasAudience;
+    const tokenAccessScope = tokenData.scope ?? [];
+    const hasTokenAccessScope = !!tokenAccessScope.find(nextAud =>
+      expectedTokenAccessScope.includes(nextAud as TokenAccessScope)
+    );
+    return hasTokenAccessScope;
   };
 
   encodeToken = (
     ctx: IBaseContext,
     tokenId: string,
-    tokenType: TokenType,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => {
     const payload: Omit<IBaseTokenData, 'iat'> & {iat?: number} = {
       version: CURRENT_TOKEN_VERSION,
-      sub: {
-        id: tokenId,
-        type: tokenType,
-      },
+      sub: {id: tokenId},
     };
 
-    const msInSec = 1000;
-    if (expires) {
-      const expNumericDate = new Date(expires).getTime();
-      payload.exp = expNumericDate / msInSec; // exp is in seconds
-    }
-    if (issuedAt) {
-      const iatNumericDate = new Date(issuedAt).getTime();
-      payload.iat = iatNumericDate / msInSec; // iat is in seconds
-    }
+    if (expires) payload.exp = dateToSeconds(expires);
+    if (issuedAt) payload.iat = dateToSeconds(issuedAt);
 
     return jwt.sign(payload, ctx.appVariables.jwtSecret);
   };
-}
-
-export function makeClientAssignedTokenAgent(
-  clientAssignedToken: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>
-): ISessionAgent {
-  return {
-    clientAssignedToken,
-    agentId: clientAssignedToken.resourceId,
-    agentType: SessionAgentType.ClientAssignedToken,
-    tokenId: clientAssignedToken.resourceId,
-    tokenType: TokenType.ClientAssignedToken,
-  };
-}
-
-export function makeProgramAccessTokenAgent(
-  programAccessToken: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>
-): ISessionAgent {
-  return {
-    programAccessToken,
-    agentId: programAccessToken.resourceId,
-    agentType: SessionAgentType.ProgramAccessToken,
-    tokenId: programAccessToken.resourceId,
-    tokenType: TokenType.ProgramAccessToken,
-  };
-}
-
-export function makeUserSessionAgent(
-  userToken: IUserToken,
-  user: IUserWithWorkspace
-): ISessionAgent {
-  return {
-    userToken,
-    user,
-    agentId: userToken.userId,
-    agentType: SessionAgentType.User,
-    tokenId: userToken.resourceId,
-    tokenType: TokenType.UserToken,
-  };
-}
-
-export function makePublicSessionAgent(): ISessionAgent {
-  return {
-    ...publicAgent,
-  };
-}
-
-export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?: string) {
-  const workspaceId = providedWorkspaceId
-    ? providedWorkspaceId
-    : agent.clientAssignedToken
-    ? agent.clientAssignedToken.workspaceId
-    : agent.programAccessToken
-    ? agent.programAccessToken.workspaceId
-    : undefined;
-
-  return workspaceId;
-}
-
-export function getWorkspaceIdFromSessionAgent(agent: ISessionAgent, providedWorkspaceId?: string) {
-  const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
-  if (!workspaceId) {
-    throw new InvalidRequestError('Workspace ID not provided');
-  }
-  return workspaceId;
-}
-
-export function getClientAssignedTokenIdNoThrow(
-  agent: ISessionAgent,
-  inputTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = inputTokenId
-    ? inputTokenId
-    : onReferenced
-    ? agent.clientAssignedToken?.resourceId
-    : null;
-  return tokenId;
-}
-
-export function getClientAssignedTokenId(
-  agent: ISessionAgent,
-  inputTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = getClientAssignedTokenIdNoThrow(agent, inputTokenId, onReferenced);
-  if (!tokenId) {
-    throw new InvalidRequestError('Client assigned token ID not provided');
-  }
-  return tokenId;
-}
-
-export function getProgramAccessTokenId(
-  agent: ISessionAgent,
-  providedTokenId?: string | null,
-  onReferenced?: boolean
-) {
-  const tokenId = providedTokenId
-    ? providedTokenId
-    : onReferenced
-    ? agent.programAccessToken?.resourceId
-    : null;
-
-  if (!tokenId) {
-    throw new InvalidRequestError('Program access token ID not provided');
-  }
-
-  return tokenId;
-}
-
-export function assertIncomingToken(
-  incomingTokenData: IBaseTokenData | undefined | null,
-  type: TokenType
-): incomingTokenData is IBaseTokenData {
-  if (!incomingTokenData) {
-    throw new PermissionDeniedError();
-  }
-  if (incomingTokenData.sub.type !== type) {
-    throw new PermissionDeniedError();
-  }
-
-  return true;
-}
-
-export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
-  const workspaceId = agent.clientAssignedToken
-    ? agent.clientAssignedToken.workspaceId
-    : agent.programAccessToken
-    ? agent.programAccessToken.workspaceId
-    : null;
-
-  if (!workspaceId) {
-    throw new InvalidRequestError('Workspace ID not provided');
-  }
-
-  return workspaceId;
-}
-
-export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAgent {
-  const agent = {
-    agentId: sessionAgent.agentId,
-    agentType: sessionAgent.agentType,
-  };
-  return agent;
 }

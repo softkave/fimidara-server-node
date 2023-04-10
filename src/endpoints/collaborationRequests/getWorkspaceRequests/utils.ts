@@ -1,11 +1,8 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {
-  makeWorkspacePermissionContainerList,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {getWorkspaceResourceListQuery} from '../../utils';
+import {getWorkspaceResourceListQuery00} from '../../utils';
 
 export async function getWorkspaceCollaborationRequestsQuery(
   context: IBaseContext,
@@ -15,10 +12,10 @@ export async function getWorkspaceCollaborationRequestsQuery(
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
-    workspace,
-    type: AppResourceType.CollaborationRequest,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Read,
+    workspaceId: workspace.resourceId,
+    workspace: workspace,
+    targets: {targetType: AppResourceType.CollaborationRequest},
+    action: AppActionType.Read,
   });
-  return getWorkspaceResourceListQuery(workspace, permissionsSummaryReport);
+  return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);
 }

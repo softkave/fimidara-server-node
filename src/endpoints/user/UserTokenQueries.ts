@@ -1,27 +1,21 @@
-import {TokenAudience} from '../../definitions/system';
-import {IUserToken} from '../../definitions/userToken';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
-import {} from '../contexts/SessionContext';
+import {IAgentToken} from '../../definitions/agentToken';
+import {TokenAccessScope} from '../../definitions/system';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<IUserToken>();
+  return new DataProviderFilterBuilder<IAgentToken>();
 }
 
-function getByUserId(userId: string) {
-  return newFilter().addItem('userId', userId, DataProviderFilterValueOperator.Equal).build();
-}
-
-function getByUserIdAndAudience(userId: string, audience: TokenAudience) {
+function getByUserIdAndTokenAccessScope(userId: string, tokenAccessScope: TokenAccessScope) {
   return newFilter()
-    .addItem('userId', userId, DataProviderFilterValueOperator.Equal)
-    .addItem('audience', audience, DataProviderFilterValueOperator.Equal)
+    .addItem('separateEntityId', userId, DataProviderFilterValueOperator.Equal)
+    .addItem('scope', tokenAccessScope, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
 export default abstract class UserTokenQueries {
   static getById = EndpointReusableQueries.getByResourceId;
-  static getByUserId = getByUserId;
-  static getByUserIdAndAudience = getByUserIdAndAudience;
+  static getByUserIdAndTokenAccessScope = getByUserIdAndTokenAccessScope;
 }

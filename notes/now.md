@@ -1,8 +1,75 @@
+## Now
+
+- [ ] Mem, shard by workspace and other fields
+- [ ] Accepted collaboration requests should be put in their own space
+- [ ] Mem, support indexing non-static fields
+- [ ] Limit assigned permissions depth to 10
+- [ ] File and folder exists endpoints
+- [ ] Mem, test delete one and delete many items
+- [ ] Write tests for delete permission items
+- [ ] Waitlist for fimidara
+- [ ] Issue, permission items appliesTo to prevent container from getting matched when item shouldn't apply to container
+  - [ ] checkAuthorization
+  - [ ] Add permission items
+  - [ ] Delete permission items
+  - [ ] Get resource permission items
+- [ ] Grant permission should work on the resource level, like allowing access to grant permission for folder and children
+- [ ] Mem, sync persisted and current in-memory DBs
+- [ ] Public access op for files
+- [ ] Ensure mddoc is upto date
+- [ ] Predefined resize pipelines
+- [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
+- [ ] Add types to force you to write and update Joi schemas
+- [ ] Confirm that all mddoc types have the right names
+- [ ] Add description to mddoc endpoints and types
+- [ ] Add get collaboration request list endpoints to mddoc and confirm that all provided enpoints have mddoc
+- [ ] Filter out agent token ID if the agent type is user
+- [ ] Get version of readFile
+- [ ] mddoc object fields should be typed after the object for type checking
+- [ ] Endpoints, boolean can entity perform or not
+- [ ] Permission items for resources should match when target ID matches target type (getResourcePermissionItems)
+- [ ] resolveEntityPermissions
+- [ ] index appliesTo for permission items and rename it's values, and make sure other fields we use for matching are indexed
+- [ ] select smallest after index match when correlating
+- [ ] Capture stack trace for log functions like appAssert
+- [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
+- [ ] Get tags by name
+- [ ] resolvePermissions endpoint
+- [ ] Confirm that queries that should have index hits do
+- [ ] Think up a way to add context information to txns and lock timeout errors
+- [ ] Write tests to confirm that memstore is faster overall than mongodb
+- [ ] A memstore txn lock times out in deleteFolder test
+- [ ] Index name and find other field to index
+- [ ] Move logs to it's own service and not write directly to DB
+- [ ] Client API updates including sdk
+- [ ] Docs update
+- [ ] Revamp UI
+
+## Later
+
+- [ ] Limit assigned permissions depth to 10
+- [ ] Mem, use traversal indexes for gt, gte, lt, lte
+- [ ] Use token version when querying tokens
+- [ ] Change events and audit logs
+- [ ] Email and names should be shorter for regex and escape regex special chars
+- [ ] Check file and folder and similar unique resources do not exist b4 creating them. Files are folders are case insensitive
+- [ ] Allow provided ID for all workspace resource, and check that it doesn't exist
+- [ ] Support $or and $and for queries
+- [ ] Check that all tags are saved
+- [ ] Ensure that all check auth calls use right actions
+- [ ] In the future, implement mark deleted, shallow delete, complete delete, per resource, and allow users to select fields to mask on shallow delete
+- [ ] App end
+  - [ ] Complete mongo sync
+  - [ ] Resumeable deletes
+  - [ ] save logs
+  - [ ] Graceful application updates
+- [ ] Tags and client program tokens on the frontend
+- [ ] Public deny all to remove implicit auth and external entity permissions for collaboration requests
+- [ ] Monorepo using turbo repo
 - [ ] Logs and retries
 - [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
-- [ ] permission group weight, not order
 - [ ] unit tests
 - [ ] free flow tags and meta
 - [ ] add provided resource ID to all the resources

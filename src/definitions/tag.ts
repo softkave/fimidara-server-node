@@ -1,14 +1,8 @@
-import {IAgent} from './system';
+import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
 
-export interface ITag {
-  resourceId: string;
+export interface ITag extends IWorkspaceResource {
   name: string;
   description?: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  workspaceId: string;
 }
 
 export interface IAssignedTagInput {
@@ -17,11 +11,12 @@ export interface IAssignedTagInput {
 
 export interface IAssignedTag {
   tagId: string;
-  assignedAt: Date | string;
+  assignedAt: number;
   assignedBy: IAgent;
 }
 
-export type IPublicTag = ITag;
+export type IPublicTag = ConvertAgentToPublicAgent<ITag>;
+export type IPublicAssignedTag = ConvertAgentToPublicAgent<IAssignedTag>;
 
 /**
  * We aren't launching tags yet, so we want to exclude it for now from endpoint

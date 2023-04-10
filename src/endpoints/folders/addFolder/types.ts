@@ -1,5 +1,4 @@
 import {IPublicFolder} from '../../../definitions/folder';
-import {IPublicAccessOpInput} from '../../../definitions/system';
 import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
@@ -12,7 +11,7 @@ export interface INewFolderInput {
   // TODO: validate that actions and types belong to the resource
   // TODO: should we instead use an S3-like approach? Something like
   // "authenticated-read" | "private" | "public-read" | "public-read-write"
-  publicAccessOps?: IPublicAccessOpInput[];
+  // publicAccessOps?: IFolderPublicAccessOpInput[];
   tags?: IAssignedTagInput[];
 }
 

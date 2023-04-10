@@ -1,6 +1,6 @@
 import {IFolder} from '../../definitions/folder';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
 function newFilter() {
   return new DataProviderFilterBuilder<IFolder>();
@@ -51,6 +51,13 @@ function getByNamePath(workspaceId: string, namePath: string[]) {
     .build();
 }
 
+function getByAncestor(workspaceId: string, parentId: string) {
+  return newFilter()
+    .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
+    .addItem('idPath', parentId, DataProviderFilterValueOperator.Equal)
+    .build();
+}
+
 function getRootFolders(workspaceId: string) {
   return newFilter()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
@@ -64,4 +71,5 @@ export default abstract class FolderQueries {
   static getByNamePath = getByNamePath;
   static folderExistsByNamePath = folderExistsByNamePath;
   static getRootContent = getRootFolders;
+  static getByAncestor = getByAncestor;
 }

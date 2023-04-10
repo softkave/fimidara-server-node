@@ -1,18 +1,24 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, CURRENT_TOKEN_VERSION, TokenAudience} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {} from '../../contexts/SessionContext';
+import {IAgentToken} from '../../../definitions/agentToken';
+import {
+  AppResourceType,
+  CURRENT_TOKEN_VERSION,
+  TokenAccessScope,
+} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {newResource} from '../../../utils/fns';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {assertUserTokenIsSame} from '../../test-utils/helpers/user';
+import {completeTest} from '../../testUtils/helpers/test';
+import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import confirmEmailAddress from './handler';
 
 let context: IBaseContext | null = null;
@@ -22,7 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('email address is confirmed', async () => {
@@ -31,17 +37,22 @@ test('email address is confirmed', async () => {
   const {user, userTokenStr} = await insertUserForTest(context, {
     password,
   });
-
-  const token = await context.data.userToken.insertItem({
-    resourceId: getNewIdForResource(AppResourceType.UserToken),
-    userId: user.resourceId,
-    audience: [TokenAudience.ConfirmEmailAddress],
-    issuedAt: getDateString(),
+  const token = newResource<IAgentToken>(AppResourceType.All, {
+    separateEntityId: user.resourceId,
+    scope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
+    workspaceId: null,
+    agentType: AppResourceType.User,
+    createdBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-
-  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(token));
-  const result = await confirmEmailAddress(context, instData);
+  await executeWithMutationRunOptions(context, opts =>
+    context!.semantic.agentToken.insertItem(token, opts)
+  );
+  const result = await confirmEmailAddress(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
+  );
   assertEndpointResultOk(result);
   expect(result.user.isEmailVerified).toBe(true);
   assertUserTokenIsSame(context, result.token, userTokenStr);

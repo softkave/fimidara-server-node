@@ -6,6 +6,7 @@ import {IAddPermissionItemsEndpointParams} from './types';
 export const addPermissionItemsJoiSchema = Joi.object<IAddPermissionItemsEndpointParams>()
   .keys({
     workspaceId: validationSchemas.resourceId,
+    entity: permissionItemValidationSchemas.entity,
     items: permissionItemValidationSchemas.itemInputList.required(),
   })
   .required();

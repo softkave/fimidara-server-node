@@ -11,7 +11,8 @@ const assignedPermissionGroup = Joi.object().keys({
 const assignedPermissionGroupsList = Joi.array()
   .items(assignedPermissionGroup)
   .unique(
-    (a: IAssignPermissionGroupInput, b: IAssignPermissionGroupInput) => a.permissionGroupId === b.permissionGroupId
+    (a: IAssignPermissionGroupInput, b: IAssignPermissionGroupInput) =>
+      a.permissionGroupId === b.permissionGroupId
   )
   .max(permissionGroupConstants.maxAssignedPermissionGroups);
 

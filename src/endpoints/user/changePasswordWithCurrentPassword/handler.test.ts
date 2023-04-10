@@ -2,14 +2,15 @@ import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import login from '../login/login';
 import {ILoginParams} from '../login/types';
 import {userExtractor} from '../utils';
@@ -23,7 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('password changed with current password', async () => {
@@ -35,7 +36,7 @@ test('password changed with current password', async () => {
 
   const newPassword = 'gt5_g3!op0';
   const instData = RequestData.fromExpressRequest<IChangePasswordWithCurrentPasswordEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       currentPassword: oldPassword,
       password: newPassword,
@@ -45,7 +46,7 @@ test('password changed with current password', async () => {
   const oldHash = rawUser.hash;
   const result = await changePasswordWithCurrentPassword(context, instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.data.user.assertGetOneByQuery(
+  const updatedUser = await context.semantic.user.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
 

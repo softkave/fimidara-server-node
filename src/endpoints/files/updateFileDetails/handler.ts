@@ -1,18 +1,13 @@
 import {omit} from 'lodash';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
+import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {replacePublicPermissionGroupAccessOps} from '../../permissionItems/utils';
-import EndpointReusableQueries from '../../queries';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {assertWorkspace} from '../../workspaces/utils';
-import {makeFilePublicAccessOps} from '../uploadFile/accessOps';
 import {checkFileAuthorization03, fileExtractor} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
@@ -24,50 +19,51 @@ import {updateFileDetailsJoiSchema} from './validation';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
-  let {file} = await checkFileAuthorization03(context, agent, data, BasicCRUDActions.Update);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  let file = await executeWithMutationRunOptions(context, async opts => {
+    let {file} = await checkFileAuthorization03(context, agent, data, AppActionType.Update, opts);
 
-  if (objectHasData(omit(data.file, 'tags'))) {
-    file = await context.data.file.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getByResourceId(file.resourceId),
-      {
-        ...data.file,
-        lastUpdatedAt: getDateString(),
-        lastUpdatedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
+    if (objectHasData(omit(data.file, 'tags'))) {
+      file = await context.semantic.file.getAndUpdateOneById(
+        file.resourceId,
+        {
+          ...data.file,
+          lastUpdatedAt: getTimestamp(),
+          lastUpdatedBy: getActionAgentFromSessionAgent(agent),
         },
-      }
+        opts
+      );
+    }
+
+    const workspace = await context.semantic.workspace.getOneById(file.workspaceId);
+    assertWorkspace(workspace);
+
+    // if (data.file.publicAccessAction) {
+    //   const permissionItemInputs = makeFilePublicAccessOps(file, data.file.publicAccessAction);
+    //   await updatePublicPermissionGroupAccessOps({
+    //     context,
+    //     agent,
+    //     workspace,
+    //     opts,
+    //     items: permissionItemInputs,
+    //     deleteItems: [{target: {targetId: file.resourceId}}],
+    //   });
+    // }
+
+    await saveResourceAssignedItems(
+      context,
+      agent,
+      workspace,
+      file.resourceId,
+      data.file,
+      /** delete existing */ true,
+      opts
     );
-  }
+    return file;
+  });
 
-  const workspace = await context.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(file.workspaceId)
-  );
-  assertWorkspace(workspace);
-  if (data.file.publicAccessAction) {
-    const publicAccessOps = makeFilePublicAccessOps(agent, data.file.publicAccessAction);
-    await replacePublicPermissionGroupAccessOps(context, agent, workspace, publicAccessOps, file);
-  }
-
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    file.resourceId,
-    AppResourceType.File,
-    data.file,
-    true
-  );
-  file = await populateAssignedPermissionGroupsAndTags(
-    context,
-    file.workspaceId,
-    file,
-    AppResourceType.File
-  );
-  return {
-    file: fileExtractor(file),
-  };
+  file = await populateAssignedTags(context, file.workspaceId, file);
+  return {file: fileExtractor(file)};
 };
 
 export default updateFileDetails;

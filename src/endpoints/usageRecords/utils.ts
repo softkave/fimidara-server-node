@@ -1,22 +1,21 @@
 import {IFile} from '../../definitions/file';
-import {
-  AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
-} from '../../definitions/system';
+import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
+  IUsageRecord,
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
-import {getActionAgentFromSessionAgent} from '../contexts/SessionContext';
+import {appAssert} from '../../utils/assertion';
+import {appMessages} from '../../utils/messages';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
+import {IUsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {IBaseContext} from '../contexts/types';
-import {IUsageRecordInput} from '../contexts/UsageRecordLogicProvider';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
-import {errorMessages} from '../messages';
 import RequestData from '../RequestData';
 import {UsageLimitExceededError} from './errors';
 
@@ -27,9 +26,9 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await ctx.session.getAgent(ctx, reqData, publicPermissibleEndpointAgents)
+    await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
   );
-  const allowed = await ctx.usageRecord.insert(ctx, reqData, agent, input);
+  const allowed = await ctx.logic.usageRecord.insert(ctx, agent, input);
   if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
   }
@@ -41,7 +40,7 @@ export async function insertStorageUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Create,
+  action: AppActionType = AppActionType.Create,
   artifactMetaInput: Partial<IFileUsageRecordArtifact> = {},
   nothrow = false
 ) {
@@ -73,7 +72,7 @@ export async function insertBandwidthInUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Create,
+  action: AppActionType = AppActionType.Create,
   nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
@@ -103,7 +102,7 @@ export async function insertBandwidthOutUsageRecordInput(
   ctx: IBaseContext,
   reqData: RequestData,
   file: IFile,
-  action: BasicCRUDActions = BasicCRUDActions.Read,
+  action: AppActionType = AppActionType.Read,
   nothrow = false
 ) {
   const artifactMeta: IBandwidthUsageRecordArtifact = {
@@ -168,12 +167,12 @@ export function getRecordingPeriod() {
 }
 
 export function getUsageThreshold(w: IWorkspace, category: UsageRecordCategory) {
-  const thresholds = w.usageThresholds || {};
+  const thresholds = w.usageThresholds ?? {};
   return thresholds[category];
 }
 
 export function workspaceHasUsageThresholds(w: IWorkspace) {
-  const thresholds = w.usageThresholds || {};
+  const thresholds = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).some(k => {
     const usage = thresholds[k];
     return usage && usage.budget > 0;
@@ -181,7 +180,7 @@ export function workspaceHasUsageThresholds(w: IWorkspace) {
 }
 
 export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCategory[]) {
-  const threshold = w.usageThresholds || {};
+  const threshold = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).reduce((acc, k) => {
     if (exclude && exclude.includes(k)) {
       return acc;
@@ -193,5 +192,9 @@ export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCateg
 }
 
 export function throwUsageRecordNotFound() {
-  throw new NotFoundError(errorMessages.usageRecordNotFound);
+  throw new NotFoundError(appMessages.usageRecord.notFound());
+}
+
+export function assertUsageRecord(item?: IUsageRecord | null): asserts item {
+  appAssert(item, reuseableErrors.usageRecord.notFound());
 }

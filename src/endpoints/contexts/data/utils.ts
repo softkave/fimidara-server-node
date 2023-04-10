@@ -4,6 +4,8 @@ import {cast} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {
+  BulkOpItem,
+  BulkOpType,
   DataProviderLiteralType,
   DataQuery,
   IArrayFieldQueryOps,
@@ -165,6 +167,63 @@ export abstract class BaseMongoDataProvider<
   deleteOneByQuery = async (q: Q) => {
     await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
+
+  async TRANSACTION_bulkWrite(ops: BulkOpItem<T>[]): Promise<void> {
+    type Model02 = Model<T>;
+    type MongoBulkOpsType = Parameters<Model02['bulkWrite']>[0];
+    const mongoOps: MongoBulkOpsType = [];
+
+    ops.forEach(op => {
+      let mongoOp: MongoBulkOpsType[number] | null = null;
+
+      switch (op.type) {
+        case BulkOpType.InsertOne: {
+          mongoOp = {insertOne: {document: op.item as any}};
+          break;
+        }
+        case BulkOpType.UpdateOne: {
+          mongoOp = {
+            updateOne: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+              upsert: op.upsert,
+            },
+          };
+          break;
+        }
+        case BulkOpType.UpdateMany: {
+          mongoOp = {
+            updateMany: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+            },
+          };
+          break;
+        }
+        case BulkOpType.DeleteOne: {
+          mongoOp = {
+            deleteOne: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
+          };
+          break;
+        }
+        case BulkOpType.DeleteMany: {
+          mongoOp = {
+            deleteMany: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
+          };
+          break;
+        }
+        default: // do nothing
+      }
+
+      if (mongoOp) {
+        mongoOps.push(mongoOp);
+      }
+    });
+
+    await this.model.db.transaction(async session => {
+      await this.model.bulkWrite(mongoOps, {session});
+    });
+  }
 
   static getMongoQuery<
     Q extends DataQuery<AnyObject>,

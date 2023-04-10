@@ -1,17 +1,13 @@
 import {IPublicUserData, IUser, IUserWithWorkspace, IUserWorkspace} from '../../definitions/user';
-import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
-import {NotFoundError} from '../errors';
-import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
-import {userCommonErrors} from './errors';
-import UserQueries from './UserQueries';
 
 const publicUserWorkspaceFields = getFields<IUserWorkspace>({
   workspaceId: true,
-  joinedAt: getDateString,
-  permissionGroups: assignedPermissionGroupsListExtractor,
+  joinedAt: true,
 });
 
 export const userWorkspaceExtractor = makeExtract(publicUserWorkspaceFields);
@@ -22,23 +18,19 @@ const publicUserFields = getFields<IPublicUserData>({
   firstName: true,
   lastName: true,
   email: true,
-  createdAt: getDateString,
-  lastUpdatedAt: getDateString,
+  createdAt: true,
+  lastUpdatedAt: true,
   isEmailVerified: true,
-  emailVerifiedAt: getDateStringIfPresent,
-  emailVerificationEmailSentAt: getDateStringIfPresent,
+  emailVerifiedAt: true,
+  emailVerificationEmailSentAt: true,
+  passwordLastChangedAt: true,
   workspaces: userWorkspaceListExtractor,
-  passwordLastChangedAt: getDateString,
 });
 
 export const userExtractor = makeExtract(publicUserFields);
 
 export function throwUserNotFound() {
-  throw new NotFoundError('User not found');
-}
-
-export function throwUserTokenNotFound() {
-  throw new NotFoundError('User token not found');
+  throw reuseableErrors.user.notFound();
 }
 
 export function isUserInWorkspace(user: IUserWithWorkspace, workspaceId: string) {
@@ -46,19 +38,17 @@ export function isUserInWorkspace(user: IUserWithWorkspace, workspaceId: string)
 }
 
 export function assertUser(user?: IUser | null): asserts user {
-  if (!user) {
-    userCommonErrors.notFound();
-  }
+  appAssert(user, reuseableErrors.user.notFound());
 }
 
 export async function getUserWithWorkspaceById(context: IBaseContext, userId: string) {
-  const user = await context.data.user.getOneByQuery(UserQueries.getById(userId));
+  const user = await context.semantic.user.getOneById(userId);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }
 
 export async function getCompleteUserDataByEmail(context: IBaseContext, email: string) {
-  const user = await context.data.user.getOneByQuery(UserQueries.getByEmail(email));
+  const user = await context.semantic.user.getByEmail(email);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }

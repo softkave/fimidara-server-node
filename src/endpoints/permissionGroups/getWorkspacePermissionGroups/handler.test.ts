@@ -1,7 +1,8 @@
 import {calculatePageSize, findItemWithField} from '../../../utils/fns';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionGroupListForTest} from '../../test-utils/generate-data/permissionGroup';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -9,8 +10,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspacePermissionGroups from './handler';
 import {IGetWorkspacePermissionGroupsEndpointParams} from './types';
 
@@ -21,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getWorkspacePermissionGroups', () => {
@@ -41,7 +42,7 @@ describe('getWorkspacePermissionGroups', () => {
     );
 
     const instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await getWorkspacePermissionGroups(context, instData);
@@ -65,12 +66,16 @@ describe('getWorkspacePermissionGroups', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertPermissionGroupListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.data.permissiongroup.countByQuery({workspaceId: workspace.resourceId});
+    await generateAndInsertPermissionGroupListForTest(context, 15, {
+      workspaceId: workspace.resourceId,
+    });
+    const count = await context.semantic.permissionGroup.countByQuery({
+      workspaceId: workspace.resourceId,
+    });
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     let result = await getWorkspacePermissionGroups(context, instData);
@@ -80,7 +85,7 @@ describe('getWorkspacePermissionGroups', () => {
 
     page = 1;
     instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     result = await getWorkspacePermissionGroups(context, instData);

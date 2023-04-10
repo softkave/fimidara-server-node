@@ -1,28 +1,22 @@
-import {AppResourceType, IResourceBase} from '../../definitions/system';
+import {AppResourceType, IResource, IResourceWrapper} from '../../definitions/system';
 import {ServerError} from '../../utils/errors';
-import {clientAssignedTokenExtractor} from '../clientAssignedTokens/utils';
-import {collaborationRequestExtractor} from '../collaborationRequests/utils';
+import {agentTokenExtractor} from '../agentTokens/utils';
+import {collaborationRequestForUserExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
 import {fileExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
-import {programAccessTokenExtractor} from '../programAccessTokens/utils';
 import {workspaceExtractor} from '../workspaces/utils';
-import {IResource} from './types';
 
-export function getPublicResource(resource: IResource, workspaceId: string) {
+export function getPublicResource(resource: IResourceWrapper, workspaceId: string) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return workspaceExtractor(resource.resource);
     case AppResourceType.CollaborationRequest:
-      return collaborationRequestExtractor(resource.resource);
-    case AppResourceType.ProgramAccessToken:
-      return programAccessTokenExtractor(resource.resource);
-    case AppResourceType.ClientAssignedToken:
-      return clientAssignedTokenExtractor(resource.resource);
-    case AppResourceType.UserToken:
-      return resource.resource;
+      return collaborationRequestForUserExtractor(resource.resource);
+    case AppResourceType.AgentToken:
+      return agentTokenExtractor(resource.resource);
     case AppResourceType.PermissionGroup:
       return permissionGroupExtractor(resource.resource);
     case AppResourceType.PermissionItem:
@@ -38,9 +32,9 @@ export function getPublicResource(resource: IResource, workspaceId: string) {
   }
 }
 
-export function getPublicResourceList(resources: IResource[], workspaceId: string) {
+export function getPublicResourceList(resources: IResourceWrapper[], workspaceId: string) {
   return resources.map(item => {
-    item.resource = getPublicResource(item, workspaceId) as IResourceBase;
+    item.resource = getPublicResource(item, workspaceId) as IResource;
     return item;
   });
 }

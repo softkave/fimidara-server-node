@@ -1,40 +1,60 @@
 import Joi = require('joi');
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppResourceType} from '../../definitions/system';
+import {getWorkspaceResourceTypeList} from '../../definitions/system';
 import {validationSchemas} from '../../utils/validationUtils';
-import {INewPermissionItemInput} from './addItems/types';
+import fileValidationSchemas from '../files/validation';
+import folderValidationSchemas from '../folders/validation';
+import workspaceValidationSchemas from '../workspaces/validation';
 import {permissionItemConstants} from './constants';
-import {INewPermissionItemInputByEntity} from './replaceItemsByEntity/types';
+import {
+  IPermissionItemInput,
+  IPermissionItemInputEntity,
+  IPermissionItemInputTarget,
+} from './types';
 
-const appliesTo = Joi.string()
-  .valid(...Object.values(PermissionItemAppliesTo))
-  .default(PermissionItemAppliesTo.ContainerAndChildren);
-const containerType = Joi.string()
-  .valid(AppResourceType.Workspace, AppResourceType.Folder)
-  .default(PermissionItemAppliesTo.ContainerAndChildren);
-const itemInputByEntity = Joi.object<INewPermissionItemInputByEntity>().keys({
-  appliesTo,
-  containerId: validationSchemas.resourceId.required(),
-  containerType: containerType.required(),
-  targetId: validationSchemas.resourceId.allow(null),
-  targetType: validationSchemas.resourceType.required(),
+const targetId = validationSchemas.resourceId;
+const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
+const entityId = validationSchemas.resourceId;
+const appliesTo = Joi.string().valid(
+  PermissionItemAppliesTo.Self,
+  PermissionItemAppliesTo.SelfAndChildrenOfType,
+  PermissionItemAppliesTo.ChildrenOfType
+);
+
+// TODO: review max items
+const targetParts = {
+  targetId: Joi.alternatives().try(targetId, Joi.array().items(targetId).max(100)),
+  targetType: Joi.alternatives().try(targetType, Joi.array().items(targetType).max(100)),
+  folderpath: Joi.alternatives().try(
+    folderValidationSchemas.folderpath,
+    Joi.array().items(folderValidationSchemas.folderpath).max(100)
+  ),
+  filepath: Joi.alternatives().try(
+    fileValidationSchemas.fileMatcherParts.filepath,
+    Joi.array().items(fileValidationSchemas.fileMatcherParts.filepath).max(100)
+  ),
+  workspaceRootname: workspaceValidationSchemas.rootname,
+};
+const target = Joi.object<IPermissionItemInputTarget>().keys({
+  targetId: targetParts.targetId.required(),
+  targetType: targetParts.targetType,
+  folderpath: targetParts.folderpath,
+  filepath: targetParts.filepath,
+  workspaceRootname: workspaceValidationSchemas.rootname,
+});
+const entityParts = {
+  entityId: Joi.alternatives().try(entityId, Joi.array().items(entityId).max(100)),
+};
+const entity = Joi.object<IPermissionItemInputEntity>().keys({
+  entityId: entityParts.entityId,
+});
+const itemInput = Joi.object<IPermissionItemInput>().keys({
+  entity,
+  target: target.required(),
   action: validationSchemas.crudAction.required(),
   grantAccess: Joi.boolean().required(),
+  appliesTo: appliesTo.required(),
 });
-const itemInput = Joi.object<INewPermissionItemInput>().keys({
-  appliesTo,
-  containerId: validationSchemas.resourceId.required(),
-  containerType: containerType.required(),
-  targetId: validationSchemas.resourceId.allow(null),
-  targetType: validationSchemas.resourceType.required(),
-  action: validationSchemas.crudAction.required(),
-  grantAccess: Joi.boolean().required(),
-  permissionEntityId: validationSchemas.resourceId.required(),
-  permissionEntityType: validationSchemas.resourceType.required(),
-});
-const itemInputByEntityList = Joi.array()
-  .items(itemInputByEntity)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 const itemInputList = Joi.array()
   .items(itemInput)
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
@@ -45,21 +65,22 @@ const itemIds = Joi.array()
 const publicAccessOp = Joi.object().keys({
   action: validationSchemas.crudAction.required(),
   resourceType: validationSchemas.resourceType.required(),
-  appliesTo: appliesTo.required(),
 });
 const publicAccessOpList = Joi.array()
   .items(publicAccessOp)
   .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 const permissionItemValidationSchemas = {
-  itemInputByEntity,
-  itemInputByEntityList,
+  appliesTo,
+  entity,
+  target,
   itemIds,
   itemInput,
   itemInputList,
-  appliesTo,
   publicAccessOp,
   publicAccessOpList,
+  targetParts,
+  entityParts,
 };
 
 export default permissionItemValidationSchemas;

@@ -1,4 +1,7 @@
-import {CollaborationRequestResponse, IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
+import {
+  CollaborationRequestResponse,
+  IPublicCollaborationRequestForUser,
+} from '../../../definitions/collaborationRequest';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
@@ -8,7 +11,7 @@ export interface IRespondToCollaborationRequestEndpointParams {
 }
 
 export interface IRespondToCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+  request: IPublicCollaborationRequestForUser;
 }
 
 export type RespondToCollaborationRequestEndpoint = Endpoint<

@@ -1,11 +1,8 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
-import {
-  makeWorkspacePermissionContainerList,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
-import {getWorkspaceResourceListQuery} from '../../utils';
+import {getWorkspaceResourceListQuery00} from '../../utils';
 
 export async function getWorkspaceTagsQuery(
   context: IBaseContext,
@@ -16,9 +13,9 @@ export async function getWorkspaceTagsQuery(
     context,
     agent,
     workspace,
-    type: AppResourceType.ProgramAccessToken,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Read,
+    workspaceId: workspace.resourceId,
+    targets: {targetType: AppResourceType.AgentToken},
+    action: AppActionType.Read,
   });
-  return getWorkspaceResourceListQuery(workspace, permissionsSummaryReport);
+  return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);
 }

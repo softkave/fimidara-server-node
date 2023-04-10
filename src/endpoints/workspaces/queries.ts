@@ -1,6 +1,6 @@
 import {IWorkspace} from '../../definitions/workspace';
-import {DataProviderFilterValueOperator} from '../contexts/DataProvider';
-import DataProviderFilterBuilder from '../contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {

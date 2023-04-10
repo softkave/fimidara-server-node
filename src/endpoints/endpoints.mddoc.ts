@@ -2,12 +2,11 @@ import {customAlphabet} from 'nanoid';
 import {IAssignPermissionGroupInput} from '../definitions/permissionGroups';
 import {PermissionItemAppliesTo} from '../definitions/permissionItem';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
   getNonWorkspaceActionList,
   IAgent,
-  resourceTypeShortNames,
-  validAgentTypes,
+  VALID_AGENT_TYPES,
 } from '../definitions/system';
 import {
   asFieldObjectAny,
@@ -25,7 +24,7 @@ import {
   HttpEndpointResponse,
   orUndefined,
 } from '../mddoc/mddoc';
-import {idSeparator} from '../utils/resourceId';
+import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
 import {endpointConstants} from './constants';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {IBaseEndpointResult} from './types';
@@ -189,43 +188,46 @@ export const endpointHttpResponseItems = {
 };
 
 const agent = new FieldObject<IAgent>().setName('Agent').setFields({
-  agentId: new FieldString().setRequired(true).setDescription('Agent ID.'),
+  agentId: new FieldString()
+    .setRequired(true)
+    .setDescription('Agent ID. Possible agents are users and agent tokens.'),
   agentType: new FieldString()
     .setRequired(true)
     .setDescription('Agent type')
-    .setExample(AppResourceType.ProgramAccessToken)
-    .setValid(validAgentTypes),
+    .setExample(AppResourceType.AgentToken)
+    .setValid(VALID_AGENT_TYPES),
+  agentTokenId: new FieldString().setRequired(true).setDescription('Agent token ID.'),
 });
 const date = new FieldString().setRequired(false).setDescription('Date string.');
 const id = new FieldString()
   .setRequired(false)
   .setDescription('Resource ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const workspaceId = new FieldString()
   .setRequired(false)
   .setDescription('Workspace ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Workspace]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const folderId = new FieldString()
   .setRequired(false)
   .setDescription('Folder ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.Folder]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const fileId = new FieldString()
   .setRequired(false)
   .setDescription('File ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.File]}${idSeparator}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.File]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const permissionGroupId = new FieldString()
   .setRequired(false)
   .setDescription('Permission group ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.PermissionGroup]}${idSeparator}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionGroup]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
@@ -233,7 +235,7 @@ const permissionItemId = new FieldString()
   .setRequired(false)
   .setDescription('Permission item ID.')
   .setExample(
-    `${resourceTypeShortNames[AppResourceType.PermissionItem]}${idSeparator}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionItem]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
@@ -246,7 +248,6 @@ const assignPermissionGroup = new FieldObject<IAssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
   .setFields({
     permissionGroupId: id,
-    order: new FieldNumber().setInteger(true).setMin(0),
   });
 const assignPermissionGroupList = new FieldArray()
   .setType(assignPermissionGroup)
@@ -302,12 +303,12 @@ const folderNamePath = new FieldArray()
 const action = new FieldString()
   .setRequired(true)
   .setDescription('Action')
-  .setExample(BasicCRUDActions.Create)
-  .setValid(Object.values(BasicCRUDActions));
+  .setExample(AppActionType.Create)
+  .setValid(Object.values(AppActionType));
 const nonWorkspaceAction = new FieldString()
   .setRequired(true)
   .setDescription('Action')
-  .setExample(BasicCRUDActions.Create)
+  .setExample(AppActionType.Create)
   .setValid(getNonWorkspaceActionList());
 const resourceType = new FieldString()
   .setRequired(true)
@@ -317,9 +318,9 @@ const resourceType = new FieldString()
 const appliesTo = new FieldString()
   .setRequired(true)
   .setDescription(
-    "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
+    "Whether this permission applies to the target, the target's children of the type declared in the permission, or the target and it's children if th."
   )
-  .setExample(PermissionItemAppliesTo.ContainerAndChildren)
+  .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
   .setValid(Object.values(PermissionItemAppliesTo));
 const page = new FieldNumber()
   .setDescription(
@@ -381,6 +382,7 @@ export const fReusables = {
   ),
   effectOnReferencedNotRequired: cloneAndMarkNotRequired(effectOnReferenced),
   providedResourceIdNotRequired: cloneAndMarkNotRequired(providedResourceId),
+  providedResourceIdOrUndefined: orUndefined(providedResourceId),
   workspaceNameNotRequired: cloneAndMarkNotRequired(workspaceName),
   folderIdOrUndefined: orUndefined(folderId),
   folderIdNotRequied: cloneAndMarkNotRequired(folderId),
@@ -389,4 +391,5 @@ export const fReusables = {
   fileIdNotRequired: cloneAndMarkNotRequired(fileId),
   pageNotRequired: cloneAndMarkNotRequired(page),
   pageSizeNotRequired: cloneAndMarkNotRequired(pageSize),
+  rootnameNotRequired: cloneAndMarkNotRequired(workspaceRootname),
 };

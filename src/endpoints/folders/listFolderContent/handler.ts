@@ -1,12 +1,8 @@
 import {IFolder} from '../../../definitions/folder';
-import {
-  AppResourceType,
-  ISessionAgent,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {populateResourceListWithAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {IPaginationQuery} from '../../types';
@@ -18,7 +14,7 @@ import {listFolderContentJoiSchema} from './validation';
 
 const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
@@ -30,17 +26,15 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
       ? fetchFiles(context, agent, workspace, parentFolder, data)
       : [],
   ]);
-  fetchedFolders = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  fetchedFolders = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
-    fetchedFolders,
-    AppResourceType.Folder
+    fetchedFolders
   );
-  fetchedFiles = await populateResourceListWithAssignedPermissionGroupsAndTags(
+  fetchedFiles = await populateResourceListWithAssignedTags(
     context,
     workspace.resourceId,
-    fetchedFiles,
-    AppResourceType.File
+    fetchedFiles
   );
 
   return {
@@ -64,7 +58,7 @@ async function fetchFolders(
     AppResourceType.Folder,
     parentFolder
   );
-  return await context.data.folder.getManyByQuery(q, pagination);
+  return await context.semantic.folder.getManyByWorkspaceParentAndIdList(q, pagination);
 }
 
 async function fetchFiles(
@@ -81,7 +75,7 @@ async function fetchFiles(
     AppResourceType.File,
     parentFolder
   );
-  return await context.data.file.getManyByQuery(q, pagination);
+  return await context.semantic.file.getManyByWorkspaceParentAndIdList(q, pagination);
 }
 
 export default listFolderContent;

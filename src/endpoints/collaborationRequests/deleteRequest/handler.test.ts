@@ -1,6 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -8,8 +10,8 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteCollaborationRequest from './handler';
 import {IDeleteCollaborationRequestEndpointParams} from './types';
 
@@ -20,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('collaboration request deleted', async () => {
@@ -29,13 +31,15 @@ test('collaboration request deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
   const instData = RequestData.fromExpressRequest<IDeleteCollaborationRequestEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {requestId: request.resourceId}
   );
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const deletedRequestExists = await context.data.collaborationRequest.existsByQuery(
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
+  const deletedRequestExists = await context.semantic.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );
 

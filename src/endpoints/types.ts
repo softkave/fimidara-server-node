@@ -1,6 +1,7 @@
-import {SessionAgentType} from '../definitions/system';
+import {AppResourceType} from '../definitions/system';
 import OperationError from '../utils/OperationError';
 import {IDataProvideQueryListParams} from './contexts/data/types';
+import {ISemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {IBaseContext} from './contexts/types';
 import RequestData from './RequestData';
 
@@ -22,11 +23,6 @@ export enum ServerRecommendedActions {
   Logout = 'Logout',
 }
 
-export interface IPublicAgent {
-  agentId: string;
-  agentType: SessionAgentType;
-}
-
 export interface IRequestDataPendingPromise {
   id: string | number;
   promise: Promise<any>;
@@ -44,8 +40,25 @@ export interface IEndpointOptionalWorkspaceIDParam {
   workspaceId?: string;
 }
 
+export interface IEndpointWorkspaceResourceParam extends IEndpointOptionalWorkspaceIDParam {
+  providedResourceId?: string;
+}
+
 export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
 export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
   T,
   keyof IPaginationQuery
+>;
+
+export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
+
+export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
+  context: IBaseContext,
+  args: Args,
+  opts: ISemanticDataAccessProviderMutationRunOptions
+) => Promise<void>;
+
+export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> = Record<
+  AppResourceType,
+  DeleteResourceCascadeFn<Args>
 >;

@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType} from '../../../definitions/system';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import RequestData from '../../RequestData';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -12,8 +12,9 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
+import {fileConstants} from '../constants';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
@@ -25,7 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('file updated', async () => {
@@ -33,34 +34,33 @@ test('file updated', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
-
   const updateInput: IUpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
   };
 
   const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
-      filepath: addRootnameToPath(file.name, workspace.rootname),
+      filepath: addRootnameToPath(
+        file.name + fileConstants.nameExtensionSeparator + file.extension,
+        workspace.rootname
+      ),
       file: updateInput,
     }
   );
-
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);
   expect(result.file.resourceId).toEqual(file.resourceId);
   expect(result.file).toMatchObject(updateInput);
 
-  const updatedFile = await populateAssignedPermissionGroupsAndTags(
+  const updatedFile = await populateAssignedTags(
     context,
     workspace.resourceId,
-    await context.data.file.assertGetOneByQuery(
+    await context.semantic.file.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(file.resourceId)
-    ),
-    AppResourceType.File
+    )
   );
-
   expect(fileExtractor(updatedFile)).toMatchObject(result.file);
   expect(updatedFile).toMatchObject(updateInput);
 });

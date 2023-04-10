@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {
-  appResourceTypesList as systemAppResourceTypesList,
   getWorkspaceActionList,
+  APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
@@ -23,6 +23,7 @@ export const validationConstants = {
   maxImageURLLength: 300,
   minVerificationCodeLength: 6,
   maxVerificationCodeLength: 6,
+  maxResourceIdInputLength: 1000,
 };
 
 // const uuid = Joi.string().guid().trim();
@@ -34,13 +35,18 @@ const name = Joi.string().trim().max(endpointConstants.maxNameLength);
 const description = Joi.string().allow(null, '').max(endpointConstants.maxDescriptionLength).trim();
 const zipcode = Joi.string().regex(regExPatterns.zipcode);
 const phone = Joi.string().regex(regExPatterns.phone);
-const time = Joi.date().iso();
+const time = Joi.date();
 const verificationCode = Joi.string()
   .trim()
   .min(validationConstants.minVerificationCodeLength)
   .max(validationConstants.maxVerificationCodeLength);
 
 const resourceId = Joi.string().trim().max(50);
+const resourceIdList = Joi.array()
+  .items(resourceId)
+  .min(1)
+  .max(validationConstants.maxResourceIdInputLength);
+const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceIdList);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
@@ -49,6 +55,8 @@ const providedResourceId = Joi.string().max(endpointConstants.providedResourceId
 
 export const validationSchemas = {
   resourceId,
+  resourceIdList,
+  resourceIdOrResourceIdList,
   color,
   URL,
   positiveNum,

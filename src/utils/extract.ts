@@ -2,12 +2,11 @@
 import {isFunction, pick} from 'lodash';
 import {cast} from './fns';
 
-export type ExtractFieldTransformer<
-  T,
-  Result = any,
-  ExtraArgs = any,
-  T1 = any
-> = (val: T, extraArgs: ExtraArgs, data: T1) => Result;
+export type ExtractFieldTransformer<T, Result = any, ExtraArgs = any, T1 = any> = (
+  val: T,
+  extraArgs: ExtraArgs,
+  data: T1
+) => Result;
 
 export type ExtractFieldsDefaultScalarTypes =
   | undefined
@@ -84,14 +83,8 @@ export function getFields<
 
 export function extractFields<
   ObjectPaths extends IObjectPaths<any>,
-  Data extends Partial<
-    Record<keyof ObjectPaths['object'], any>
-  > = ObjectPaths['object']
->(
-  data: Data,
-  paths: ObjectPaths,
-  extraArgs?: ObjectPaths['extraArgs']
-): ObjectPaths['result'] {
+  Data extends Partial<Record<keyof ObjectPaths['object'], any>> = ObjectPaths['object']
+>(data: Data, paths: ObjectPaths, extraArgs?: ObjectPaths['extraArgs']): ObjectPaths['result'] {
   let result = pick(data, paths.scalarFields);
   paths.scalarFieldsWithTransformers.forEach(({property, transformer}) => {
     const propValue = data[property];
@@ -99,8 +92,7 @@ export function extractFields<
       return;
     }
 
-    result[property] =
-      propValue === null ? null : transformer(propValue, extraArgs, data);
+    result[property] = propValue === null ? null : transformer(propValue, extraArgs, data);
   });
 
   if (paths.finalize) {
@@ -115,26 +107,19 @@ export function makeExtract<T extends IObjectPaths<any>>(fields: T) {
   const fn = <T1 extends T['object']>(data: Partial<Record<keyof T1, any>>) => {
     return extractFields(data, fields);
   };
-
   return fn;
 }
 
 export function makeExtractIfPresent<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(
-    data?: Partial<Record<keyof T1, any>>
-  ) => {
+  const fn = <T1 extends T['object']>(data?: Partial<Record<keyof T1, any>>) => {
     return data && extractFields(data, fields);
   };
-
   return fn;
 }
 
 export function makeListExtract<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(
-    data: Partial<Record<keyof T1, any>>[]
-  ) => {
+  const fn = <T1 extends T['object']>(data: Partial<Record<keyof T1, any>>[]) => {
     return data.map(datum => extractFields(datum, fields));
   };
-
   return fn;
 }

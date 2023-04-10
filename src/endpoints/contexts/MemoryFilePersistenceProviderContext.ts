@@ -17,9 +17,7 @@ export default class MemoryFilePersistenceProviderContext
     this.files[params.bucket + '-' + params.key] = params;
   };
 
-  getFile = async (
-    params: IFilePersistenceGetFileParams
-  ): Promise<IPersistedFile> => {
+  getFile = async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
     const file = this.files[params.bucket + '-' + params.key];
     if (file) {
       const readable = new Readable();
@@ -27,7 +25,7 @@ export default class MemoryFilePersistenceProviderContext
       readable.push(null);
       return {
         body: readable,
-        contentLength: file.contentLength || file.body.byteLength,
+        contentLength: file.contentLength ?? file.body.byteLength,
       };
     }
 

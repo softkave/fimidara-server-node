@@ -1,12 +1,13 @@
 import {IFile} from '../../../definitions/file';
 import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+  getWorkspacePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IBaseContext} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
@@ -31,21 +32,22 @@ export async function checkUploadFileAuth(
     context,
     agent,
     workspace,
-    type: AppResourceType.File,
-    resource: file,
-    permissionContainers: file
-      ? getFilePermissionContainers(workspace.resourceId, file, AppResourceType.File)
+    workspaceId: workspace.resourceId,
+    targets: [
+      {
+        targetType: AppResourceType.File,
+        targetId: file?.resourceId,
+      },
+    ],
+    containerId: file
+      ? getFilePermissionContainers(workspace.resourceId, file)
       : closestExistingFolder
-      ? getFilePermissionContainers(
-          workspace.resourceId,
-          closestExistingFolder,
-          AppResourceType.Folder
-        )
-      : makeWorkspacePermissionContainerList(workspace.resourceId),
+      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+      : getWorkspacePermissionContainers(workspace.resourceId),
 
     // TODO: should it be create and or update, rather than
     // just create, in case of existing files
-    action: BasicCRUDActions.Create,
+    action: AppActionType.Create,
   });
 }
 
@@ -53,12 +55,17 @@ export async function createFileParentFolders(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  pathWithDetails: ISplitfilepathWithDetails
+  pathWithDetails: ISplitfilepathWithDetails,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {
-    return await createFolderList(context, agent, workspace, {
-      folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname),
-    });
+    return await createFolderList(
+      context,
+      agent,
+      workspace,
+      {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
+      opts
+    );
   }
 
   return null;

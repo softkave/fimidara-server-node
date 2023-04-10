@@ -2,15 +2,16 @@ import assert = require('assert');
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertUsageRecordList} from '../../test-utils/generate-data/usageRecord';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspaceSummedUsage from './handler';
 import {ICountWorkspaceSummedUsageEndpointParams} from './types';
 
@@ -21,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countWorkspaceSummedUsage', () => {
@@ -34,13 +35,13 @@ describe('countWorkspaceSummedUsage', () => {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
-    const count = await context.data.usageRecord.countByQuery({
+    const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
     const instData = RequestData.fromExpressRequest<ICountWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},

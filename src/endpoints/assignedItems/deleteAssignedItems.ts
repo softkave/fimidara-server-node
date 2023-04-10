@@ -1,28 +1,25 @@
 import {AppResourceType} from '../../definitions/system';
+import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
-import AssignedItemQueries from './queries';
 
 /**
  * @param context
  * @param workspaceId - Use `undefined` for fetching user workspaces
  * @param resourceId
- * @param resourceType
  * @param assignedItemTypes
  */
 export async function deleteResourceAssignedItems(
   context: IBaseContext,
-  workspaceId: string | undefined,
-  resourceId: string,
-  resourceType: AppResourceType,
-  assignedItemTypes?: AppResourceType[]
+  workspaceId: string,
+  resourceId: string | string[],
+  assignedItemTypes: AppResourceType[] | undefined,
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.data.assignedItem.deleteManyByQuery(
-    AssignedItemQueries.getByAssignedToResource(
-      workspaceId,
-      resourceId,
-      resourceType,
-      assignedItemTypes
-    )
+  await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+    workspaceId,
+    resourceId,
+    assignedItemTypes,
+    opts
   );
 }
 
@@ -30,9 +27,11 @@ export async function deleteAssignableItemAssignedItems(
   context: IBaseContext,
   workspaceId: string,
   assignedItemId: string,
-  assignedItemType: AppResourceType
+  opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  await context.data.assignedItem.deleteManyByQuery(
-    AssignedItemQueries.getByAssignedItem(workspaceId, assignedItemId, assignedItemType)
+  await context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
+    workspaceId,
+    assignedItemId,
+    opts
   );
 }

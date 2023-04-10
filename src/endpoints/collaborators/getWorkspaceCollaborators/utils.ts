@@ -1,12 +1,10 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {IAssignedItem} from '../../../definitions/assignedItem';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import AssignedItemQueries from '../../assignedItems/queries';
-import {
-  makeWorkspacePermissionContainerList,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {LiteralDataQuery} from '../../contexts/data/types';
 import {IBaseContext} from '../../contexts/types';
 import {PermissionDeniedError} from '../../user/errors';
 
@@ -14,27 +12,34 @@ export async function getWorkspaceCollaboratorsQuery(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace
-) {
+): Promise<LiteralDataQuery<IAssignedItem>> {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
-    workspace,
-    type: AppResourceType.User,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Read,
+    workspaceId: workspace.resourceId,
+    workspace: workspace,
+    targets: {targetType: AppResourceType.User},
+    action: AppActionType.Read,
   });
 
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return AssignedItemQueries.getWorkspaceCollaborators(
-      workspace.resourceId,
-      undefined,
-      permissionsSummaryReport.deniedResourceIdList
-    );
+    return {
+      workspaceId: workspace.resourceId,
+      assigneeId: permissionsSummaryReport.deniedResourceIdList && {
+        $nin: permissionsSummaryReport.deniedResourceIdList,
+      },
+      assignedItemType: AppResourceType.Workspace,
+      assigneeType: AppResourceType.User,
+    };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return AssignedItemQueries.getWorkspaceCollaborators(
-      workspace.resourceId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
+    return {
+      workspaceId: workspace.resourceId,
+      assigneeId: permissionsSummaryReport.allowedResourceIdList && {
+        $in: permissionsSummaryReport.allowedResourceIdList,
+      },
+      assignedItemType: AppResourceType.Workspace,
+      assigneeType: AppResourceType.User,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }

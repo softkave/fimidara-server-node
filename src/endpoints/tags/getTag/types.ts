@@ -10,8 +10,4 @@ export interface IGetTagEndpointResult {
   tag: IPublicTag;
 }
 
-export type GetTagEndpoint = Endpoint<
-  IBaseContext,
-  IGetTagEndpointParams,
-  IGetTagEndpointResult
->;
+export type GetTagEndpoint = Endpoint<IBaseContext, IGetTagEndpointParams, IGetTagEndpointResult>;

@@ -1,7 +1,9 @@
 import {IBaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -9,8 +11,9 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
+import {fileConstants} from '../constants';
 import deleteFile from './handler';
 import {IDeleteFileEndpointParams} from './types';
 
@@ -21,11 +24,13 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 async function assertFileDeleted(context: IBaseContext, id: string) {
-  const exists = await context.data.file.existsByQuery(EndpointReusableQueries.getByResourceId(id));
+  const exists = await context.semantic.file.existsByQuery(
+    EndpointReusableQueries.getByResourceId(id)
+  );
   expect(exists).toBeFalsy();
 }
 
@@ -35,10 +40,17 @@ test('file deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
   const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {filepath: addRootnameToPath(file.name, workspace.rootname)}
+    mockExpressRequestWithAgentToken(userToken),
+    {
+      filepath: addRootnameToPath(
+        file.name + fileConstants.nameExtensionSeparator + file.extension,
+        workspace.rootname
+      ),
+    }
   );
   const result = await deleteFile(context, instData);
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
   assertEndpointResultOk(result);
   await assertFileDeleted(context, file.resourceId);
 });

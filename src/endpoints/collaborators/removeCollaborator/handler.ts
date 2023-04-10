@@ -1,13 +1,48 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {noopAsync} from '../../../utils/fns';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {waitOnPromises} from '../../../utils/waitOnPromises';
-import {deleteResourceAssignedItems} from '../../assignedItems/deleteAssignedItems';
-import AssignedItemQueries from '../../assignedItems/queries';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import PermissionItemQueries from '../../permissionItems/queries';
+import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {DeleteResourceCascadeFnsMap} from '../../types';
 import {checkCollaboratorAuthorization02} from '../utils';
-import {RemoveCollaboratorEndpoint} from './types';
+import {RemoveCollaboratorCascadeFnsArgs, RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
+
+// TODO: delete client token and client token artifacts using provided resource ID
+export const REMOVE_COLLABORATOR_CASCADE_FNS: DeleteResourceCascadeFnsMap<RemoveCollaboratorCascadeFnsArgs> =
+  {
+    [AppResourceType.All]: noopAsync,
+    [AppResourceType.System]: noopAsync,
+    [AppResourceType.Public]: noopAsync,
+    [AppResourceType.Workspace]: noopAsync,
+    [AppResourceType.AgentToken]: noopAsync,
+    [AppResourceType.PermissionGroup]: noopAsync,
+    [AppResourceType.Folder]: noopAsync,
+    [AppResourceType.File]: noopAsync,
+    [AppResourceType.User]: noopAsync,
+    [AppResourceType.UsageRecord]: noopAsync,
+    [AppResourceType.EndpointRequest]: noopAsync,
+    [AppResourceType.Job]: noopAsync,
+    [AppResourceType.Tag]: noopAsync,
+    [AppResourceType.CollaborationRequest]: (context, args, opts) =>
+      context.semantic.collaborationRequest.deleteManyByQuery(
+        {workspaceId: args.workspaceId, recipientEmail: args.userEmail},
+        opts
+      ),
+    [AppResourceType.PermissionItem]: async (context, args, opts) => {
+      await Promise.all([
+        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
+        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+      ]);
+    },
+    [AppResourceType.AssignedItem]: (context, args, opts) =>
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+        args.workspaceId,
+        args.resourceId,
+        undefined,
+        opts
+      ),
+  };
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData) => {
   const data = validate(instData.data, removeCollaboratorJoiSchema);
@@ -18,42 +53,18 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData)
     agent,
     workspaceId,
     data.collaboratorId,
-    BasicCRUDActions.Delete
+    AppActionType.Delete
   );
-
-  await context.data.assignedItem.deleteOneByQuery(
-    AssignedItemQueries.getByMainFields({
+  const job = await enqueueDeleteResourceJob(context, {
+    type: AppResourceType.User,
+    args: {
       workspaceId,
-      assignedItemId: workspaceId,
-      assignedItemType: AppResourceType.Workspace,
-      assignedToItemId: collaborator.resourceId,
-      assignedToItemType: AppResourceType.User,
-    })
-  );
-
-  await waitOnPromises([
-    // Delete permission items that belong to the resource
-    context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(collaborator.resourceId)
-    ),
-
-    // Delete permission items that explicitly give access to the resource
-    context.data.permissionItem.deleteManyByQuery(
-      PermissionItemQueries.getByResource(
-        workspaceId,
-        collaborator.resourceId,
-        AppResourceType.User
-      )
-    ),
-
-    // Delete all permissionGroups, and user workspace data assigned
-    deleteResourceAssignedItems(
-      context,
-      workspaceId,
-      collaborator.resourceId,
-      AppResourceType.User
-    ),
-  ]);
+      resourceId: collaborator.resourceId,
+      userEmail: collaborator.email,
+    },
+    isRemoveCollaborator: true,
+  });
+  return {jobId: job.resourceId};
 };
 
 export default removeCollaborator;

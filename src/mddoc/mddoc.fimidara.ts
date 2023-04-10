@@ -1,13 +1,14 @@
 import * as fse from 'fs-extra';
 import {
-  addClientAssignedTokenEndpointDefinition,
-  deleteClientAssignedTokenEndpointDefinition,
-  getClientAssignedTokenEndpointDefinition,
-  getWorkspaceClientAssignedTokensEndpointDefinition,
-  updateClientAssignedTokenEndpointDefinition,
-} from '../endpoints/clientAssignedTokens/endpoints.mddoc';
+  addAgentTokenEndpointDefinition,
+  deleteAgentTokenEndpointDefinition,
+  getAgentTokenEndpointDefinition,
+  getWorkspaceAgentTokenEndpointDefinition,
+  updateAgentTokenEndpointDefinition,
+} from '../endpoints/agentTokens/endpoints.mddoc';
 import {
-  getCollaborationRequestEndpointDefinition,
+  getCollaborationRequestForUserEndpointDefinition,
+  getCollaborationRequestForWorkspaceEndpointDefinition,
   getWorkspaceCollaborationRequestEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
@@ -17,12 +18,11 @@ import {
   getCollaboratorEndpointDefinition,
   getWorkspaceCollaboratorEndpointDefinition,
   removeCollaboratorEndpointDefinition,
-  updateCollaboratorPermissionGroupsEndpointDefinition,
 } from '../endpoints/collaborators/endpoints.mddoc';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  getFileEndpointDefinition,
+  readFileEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from '../endpoints/files/endpoints.mddoc';
@@ -44,15 +44,7 @@ import {
   deletePermissionItemsByIdEndpointDefinition,
   getEntityPermissionItemsEndpointDefinition,
   getResourcePermissionItemsEndpointDefinition,
-  replacePermissionItemsByEntityEndpointDefinition,
 } from '../endpoints/permissionItems/endpoints.mddoc';
-import {
-  addProgramAccessTokenEndpointDefinition,
-  deleteProgramAccessTokenEndpointDefinition,
-  getProgramAccessTokenEndpointDefinition,
-  getWorkspaceProgramAccessTokenEndpointDefinition,
-  updateProgramAccessTokenEndpointDefinition,
-} from '../endpoints/programAccessTokens/endpoints.mddoc';
 import {
   getWorkspaceEndpointDefinition,
   updateWorkspaceEndpointDefinition,
@@ -74,24 +66,17 @@ const endpoints = [
 
   // files
   uploadFileEndpointDefinition,
-  getFileEndpointDefinition,
+  readFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   deleteFileEndpointDefinition,
 
-  // program access tokens
-  getWorkspaceProgramAccessTokenEndpointDefinition,
-  addProgramAccessTokenEndpointDefinition,
-  updateProgramAccessTokenEndpointDefinition,
-  getProgramAccessTokenEndpointDefinition,
-  deleteProgramAccessTokenEndpointDefinition,
-
-  // client assigned tokens
-  getWorkspaceClientAssignedTokensEndpointDefinition,
-  addClientAssignedTokenEndpointDefinition,
-  updateClientAssignedTokenEndpointDefinition,
-  getClientAssignedTokenEndpointDefinition,
-  deleteClientAssignedTokenEndpointDefinition,
+  // agent tokens
+  getWorkspaceAgentTokenEndpointDefinition,
+  addAgentTokenEndpointDefinition,
+  updateAgentTokenEndpointDefinition,
+  getAgentTokenEndpointDefinition,
+  deleteAgentTokenEndpointDefinition,
 
   // permission groups
   getWorkspacePermissionGroupsEndpointDefinition,
@@ -103,7 +88,6 @@ const endpoints = [
   // permission items
   addPermissionItemsEndpointDefinition,
   getEntityPermissionItemsEndpointDefinition,
-  replacePermissionItemsByEntityEndpointDefinition,
   deletePermissionItemsByIdEndpointDefinition,
   getResourcePermissionItemsEndpointDefinition,
 
@@ -111,12 +95,12 @@ const endpoints = [
   getWorkspaceCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
-  getCollaborationRequestEndpointDefinition,
+  getCollaborationRequestForUserEndpointDefinition,
+  getCollaborationRequestForWorkspaceEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
 
   // collaborators
   getWorkspaceCollaboratorEndpointDefinition,
-  updateCollaboratorPermissionGroupsEndpointDefinition,
   getCollaboratorEndpointDefinition,
   removeCollaboratorEndpointDefinition,
 ];

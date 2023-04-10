@@ -1,118 +1,91 @@
-import {IAppRuntimeVars} from '../resources/vars';
-import {reverseMap} from '../utils/fns';
-import {ResourceWithPermissionGroupsAndTags} from './assignedItem';
-import {IClientAssignedToken} from './clientAssignedToken';
-import {PermissionItemAppliesTo} from './permissionItem';
-import {IProgramAccessToken} from './programAccessToken';
-import {IUserWithWorkspace} from './user';
-import {IUserToken} from './userToken';
+import {AnyObject} from '../utils/types';
+import {IAgentToken} from './agentToken';
+import {IUser} from './user';
 
 export const CURRENT_TOKEN_VERSION = 1;
 
-export enum TokenType {
-  UserToken = 'user',
-  ProgramAccessToken = 'program',
-  ClientAssignedToken = 'client',
-}
-
-export enum TokenAudience {
+export enum TokenAccessScope {
   Login = 'login',
-  ChangePassword = 'change-password',
-  ConfirmEmailAddress = 'confirm-email-address',
+  ChangePassword = 'changePassword',
+  ConfirmEmailAddress = 'confirmEmail',
 }
 
-export interface IGeneralTokenSubject {
+export interface ITokenSubjectDefault {
   id: string;
-  type: TokenType;
 }
 
-export interface IBaseTokenData<Sub extends IGeneralTokenSubject = IGeneralTokenSubject> {
+export interface IBaseTokenData<Sub extends ITokenSubjectDefault = ITokenSubjectDefault> {
   version: number;
   sub: Sub;
   iat: number;
   exp?: number;
 }
 
-export interface IAgentPersistedToken {
-  audience: TokenAudience[];
-}
-
-export enum SessionAgentType {
-  User = 'user',
-  ProgramAccessToken = 'program-access-token',
-  ClientAssignedToken = 'client-assigned-token',
-
-  // For un-authenticated agents, like agents performing
-  // operations on a public folder or file.
-  Public = 'public',
-
-  // Reserved for system only operations, use sparingly
-  System = 'fimidara-system',
-}
-
-export const systemAgent: IAgent = {
-  agentId: SessionAgentType.System,
-  agentType: SessionAgentType.System,
-};
-
-export const publicAgent: IAgent = {
-  agentId: SessionAgentType.Public,
-  agentType: SessionAgentType.Public,
-};
-
-export const publicPermissibleEndpointAgents = [
-  SessionAgentType.ClientAssignedToken,
-  SessionAgentType.ProgramAccessToken,
-  SessionAgentType.User,
-  SessionAgentType.Public,
-];
-
-export interface ISessionAgent {
-  agentId: string;
-  agentType: SessionAgentType;
-  tokenId?: string;
-  tokenType?: TokenType;
-
-  // One of the following, depending on the agentType
-  userToken?: IUserToken;
-  programAccessToken?: ResourceWithPermissionGroupsAndTags<IProgramAccessToken>;
-  clientAssignedToken?: ResourceWithPermissionGroupsAndTags<IClientAssignedToken>;
-  user?: IUserWithWorkspace;
-}
-
 export interface IAgent {
   agentId: string;
-  agentType: SessionAgentType;
+
+  /**
+   * One of user token, program token, client token, system or public.
+   */
+  agentType: AppResourceType;
+  agentTokenId: string;
 }
 
+export type IPublicAgent = Pick<IAgent, 'agentId' | 'agentType'>;
+export type ConvertAgentToPublicAgent<T> = {
+  [K in keyof T]: NonNullable<T[K]> extends IAgent
+    ? IPublicAgent
+    : NonNullable<T[K]> extends AnyObject
+    ? ConvertAgentToPublicAgent<NonNullable<T[K]>>
+    : T[K];
+};
+
+export interface ISessionAgent extends IAgent {
+  agentToken?: IAgentToken;
+  user?: IUser;
+}
+
+// TODO: separate data resources from symbolic resources (resources that are not
+// saved in DB).
 export enum AppResourceType {
   All = '*',
+  System = 'system',
+  Public = 'public',
   Workspace = 'workspace',
-  CollaborationRequest = 'collaboration-request',
-  ProgramAccessToken = 'program-access-token',
-  ClientAssignedToken = 'client-assigned-token',
-  UserToken = 'user-token',
-  PermissionGroup = 'permission-group',
-  PermissionItem = 'permission-item',
+  CollaborationRequest = 'collaborationRequest',
+  AgentToken = 'agentToken',
+  PermissionGroup = 'permissionGroup',
+  PermissionItem = 'permissionItem',
   Folder = 'folder',
   File = 'file',
   User = 'user',
   Tag = 'tag',
-  UsageRecord = 'usage-record',
-
-  // [internal-only]
-  AssignedItem = 'assigned-item',
-
-  // softkave resource
-  EndpointRequest = 'endpoint-request',
+  UsageRecord = 'usageRecord',
+  AssignedItem = 'assignedItem',
+  EndpointRequest = 'endpointRequest',
+  Job = 'job',
 }
+
+export const PERMISSION_AGENT_TYPES = [
+  AppResourceType.AgentToken,
+  AppResourceType.User,
+  AppResourceType.Public,
+];
+
+export const PERMISSION_ENTITY_TYPES = [
+  AppResourceType.User,
+  AppResourceType.AgentToken,
+  AppResourceType.PermissionGroup,
+];
+
+export const PERMISSION_CONTAINER_TYPES = [AppResourceType.Workspace, AppResourceType.Folder];
 
 export function getWorkspaceResourceTypeList() {
   return [
+    AppResourceType.All,
     AppResourceType.Workspace,
     AppResourceType.CollaborationRequest,
-    AppResourceType.ProgramAccessToken,
-    AppResourceType.ClientAssignedToken,
+    AppResourceType.AgentToken,
     AppResourceType.PermissionGroup,
     AppResourceType.PermissionItem,
     AppResourceType.Folder,
@@ -123,104 +96,68 @@ export function getWorkspaceResourceTypeList() {
   ];
 }
 
-export const validAgentTypes = [
-  AppResourceType.User,
-  AppResourceType.ProgramAccessToken,
-  AppResourceType.ClientAssignedToken,
-];
+export const VALID_AGENT_TYPES = [AppResourceType.User, AppResourceType.AgentToken];
 
-export const resourceTypeShortNameMaxLen = 7;
-function padShortName(shortName: string) {
-  const pad0 = '0';
-  if (shortName.length > resourceTypeShortNameMaxLen) {
-    throw new Error(`Resource short name is more than ${resourceTypeShortNameMaxLen} characters`);
-  }
-  return shortName.padEnd(resourceTypeShortNameMaxLen, pad0).toLowerCase();
-}
-
-export const resourceTypeShortNames: Record<AppResourceType, string> = {
-  [AppResourceType.All]: padShortName('*'),
-  [AppResourceType.Workspace]: padShortName('wkspce'),
-  [AppResourceType.CollaborationRequest]: padShortName('corqst'),
-  [AppResourceType.ProgramAccessToken]: padShortName('pgacstn'),
-  [AppResourceType.ClientAssignedToken]: padShortName('clasgtn'),
-  [AppResourceType.UserToken]: padShortName('usertn'),
-  [AppResourceType.PermissionGroup]: padShortName('permgrp'),
-  [AppResourceType.PermissionItem]: padShortName('permitm'),
-  [AppResourceType.Folder]: padShortName('folder'),
-  [AppResourceType.File]: padShortName('file'),
-  [AppResourceType.User]: padShortName('user'),
-  [AppResourceType.Tag]: padShortName('tag'),
-  [AppResourceType.AssignedItem]: padShortName('asgnitm'),
-  [AppResourceType.UsageRecord]: padShortName('usgrecd'),
-  [AppResourceType.EndpointRequest]: padShortName('endpreq'),
-};
-
-export const shortNameToResourceTypes = reverseMap(resourceTypeShortNames);
-
-export enum BasicCRUDActions {
+export enum AppActionType {
   All = '*',
   Create = 'create',
   Read = 'read',
   Update = 'update',
   Delete = 'delete',
 
-  // For workspace resource only, for now
-  // i.e.it can only be assigned to permission items affecting
-  // workspaces. It grants the bearer access to grant others
-  // permissions
-  GrantPermission = 'grant-permission',
+  /** For assigning permission groups. */
+  GrantPermission = 'grantPermission',
 }
 
 export function getWorkspaceActionList() {
   return [
-    BasicCRUDActions.Create,
-    BasicCRUDActions.Read,
-    BasicCRUDActions.Update,
-    BasicCRUDActions.Delete,
-    BasicCRUDActions.GrantPermission,
+    AppActionType.All,
+    AppActionType.Create,
+    AppActionType.Read,
+    AppActionType.Update,
+    AppActionType.Delete,
+    AppActionType.GrantPermission,
   ];
 }
 
 export function getNonWorkspaceActionList() {
   return [
-    BasicCRUDActions.Create,
-    BasicCRUDActions.Read,
-    BasicCRUDActions.Update,
-    BasicCRUDActions.Delete,
+    AppActionType.All,
+    AppActionType.Create,
+    AppActionType.Read,
+    AppActionType.Update,
+    AppActionType.Delete,
   ];
 }
 
-export const appResourceTypesList = Object.values(AppResourceType);
-export const APP_RUNTIME_STATE_DOC_ID = 'app-runtime-state';
+export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
 
-export interface IAppRuntimeState extends IAppRuntimeVars {
+export interface IAppRuntimeState extends IResource {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
+  appWorkspaceId: string;
+  appWorkspacesImageUploadPermissionGroupId: string;
+  appUsersImageUploadPermissionGroupId: string;
 }
 
-export interface IPublicAccessOpInput {
-  action: BasicCRUDActions;
-  resourceType: AppResourceType;
-  appliesTo: PermissionItemAppliesTo;
-}
-
-export interface IPublicAccessOp {
-  action: BasicCRUDActions;
-  resourceType: AppResourceType;
-
-  /**
-   * Whether is the operation is allowed for the resource and it's children.
-   */
-  appliesTo: PermissionItemAppliesTo;
-  markedAt: Date | string;
-  markedBy: IAgent;
-}
-
-export interface IResourceBase {
+export interface IResource {
   resourceId: string;
+  createdAt: number;
+  lastUpdatedAt: number;
 }
 
-export function isUserAgent(agent: IAgent) {
-  return agent.agentType === SessionAgentType.User;
+export interface IResourceWrapper<T extends IResource = IResource> {
+  resourceId: string;
+  resourceType: AppResourceType;
+  resource: T;
 }
+
+export interface IWorkspaceResource extends IResource {
+  workspaceId: string;
+  providedResourceId?: string | null;
+  lastUpdatedBy: IAgent;
+  createdBy: IAgent;
+}
+
+export type IPublicResource = ConvertAgentToPublicAgent<IResource>;
+export type IPublicWorkspaceResource = ConvertAgentToPublicAgent<IWorkspaceResource>;

@@ -1,30 +1,20 @@
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceType, IResourceWrapper} from '../../definitions/system';
 import {IUser} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
+import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {IBaseContext} from '../contexts/types';
-import {IResource} from './types';
 
 export async function resourceWithAssignedItems(
   context: IBaseContext,
   workspaceId: string,
-  resource: IResource
+  resource: IResourceWrapper
 ) {
   switch (resource.resourceType) {
-    case AppResourceType.ProgramAccessToken:
+    case AppResourceType.AgentToken:
     case AppResourceType.Folder:
     case AppResourceType.File:
-    case AppResourceType.ClientAssignedToken:
     case AppResourceType.PermissionGroup:
-      resource.resource = await populateAssignedPermissionGroupsAndTags(
-        context,
-        workspaceId,
-        resource.resource,
-        resource.resourceType
-      );
+      resource.resource = await populateAssignedTags(context, workspaceId, resource.resource);
       return resource;
     case AppResourceType.User:
       resource.resource = await populateUserWorkspaces(context, resource.resource as IUser);
@@ -32,7 +22,6 @@ export async function resourceWithAssignedItems(
     case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
     case AppResourceType.PermissionItem:
-    case AppResourceType.UserToken:
     default:
       return resource;
   }
@@ -41,10 +30,13 @@ export async function resourceWithAssignedItems(
 export async function resourceListWithAssignedItems(
   context: IBaseContext,
   workspaceId: string,
-  resourceList: IResource[],
+  resourceList: IResourceWrapper[],
   forTypes: AppResourceType[] = Object.values(AppResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);
+
+  // TODO: can we do this together, like query all the assigned items once
+  // instead of individually?
   return Promise.all(
     resourceList.map(item =>
       forTypesMap[item.resourceType] ? resourceWithAssignedItems(context, workspaceId, item) : item

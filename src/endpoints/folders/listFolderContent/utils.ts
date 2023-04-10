@@ -1,18 +1,16 @@
 import {first, isUndefined} from 'lodash';
 import {IFolder, IFolderMatcher} from '../../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {
-  makeResourcePermissionContainerList,
+  getResourcePermissionContainers,
   summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../../contexts/types';
 import {PermissionDeniedError} from '../../user/errors';
-import WorkspaceQueries from '../../workspaces/queries';
 import {assertWorkspace} from '../../workspaces/utils';
-import FolderQueries from '../queries';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
@@ -26,29 +24,25 @@ export async function listFolderContentQuery(
     context,
     agent,
     workspace,
-    action: BasicCRUDActions.Read,
-    type: contentType,
-    permissionContainers: makeResourcePermissionContainerList(
-      workspace.resourceId,
-      AppResourceType.Folder,
-      parentFolder
-    ),
+    workspaceId: workspace.resourceId,
+    action: AppActionType.Read,
+    targets: {targetType: contentType},
+    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
   });
 
   const parentId = parentFolder?.resourceId ?? null;
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      undefined,
-      permissionsSummaryReport.deniedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+    };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
@@ -69,9 +63,7 @@ export async function getWorkspaceAndParentFolder(
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
     if (containsRootnameOnly) {
-      workspace = await context.data.workspace.getOneByQuery(
-        WorkspaceQueries.getByRootname(rootname)
-      );
+      workspace = await context.semantic.workspace.getByRootname(rootname);
       parentFolder = null;
     }
   }
@@ -82,8 +74,7 @@ export async function getWorkspaceAndParentFolder(
       context,
       agent,
       matcher,
-      BasicCRUDActions.Read,
-      /** nothrow */ false,
+      AppActionType.Read,
       workspace ?? undefined
     );
     ({workspace, folder: parentFolder} = checkResult);

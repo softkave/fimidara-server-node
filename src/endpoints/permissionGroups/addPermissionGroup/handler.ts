@@ -1,14 +1,12 @@
-import {AppResourceType, BasicCRUDActions, IAgent} from '../../../definitions/system';
-import {getDateString} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resourceId';
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {newWorkspaceResource} from '../../../utils/fns';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {permissionGroupExtractor} from '../utils';
@@ -24,44 +22,45 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     context,
     agent,
     workspace,
-    type: AppResourceType.PermissionGroup,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Create,
-  });
-
-  await checkPermissionGroupNameExists(context, workspace.resourceId, data.permissionGroup.name);
-  const createdAt = getDateString();
-  const createdBy: IAgent = {
-    agentId: agent.agentId,
-    agentType: agent.agentType,
-  };
-
-  let permissionGroup = await context.data.permissiongroup.insertItem({
-    ...data.permissionGroup,
-    createdAt,
-    createdBy,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
+    targets: {targetType: AppResourceType.PermissionGroup},
+    action: AppActionType.Create,
   });
 
-  await saveResourceAssignedItems(
-    context,
-    agent,
-    workspace,
-    permissionGroup.resourceId,
-    AppResourceType.PermissionGroup,
-    data.permissionGroup
-  );
+  let permissionGroup = await executeWithMutationRunOptions(context, async opts => {
+    await checkPermissionGroupNameExists(
+      context,
+      workspace.resourceId,
+      data.permissionGroup.name,
+      opts
+    );
+    const permissionGroup = newWorkspaceResource<IPermissionGroup>(
+      agent,
+      AppResourceType.PermissionGroup,
+      workspace.resourceId,
+      {
+        ...data.permissionGroup,
+        workspaceId: workspace.resourceId,
+      }
+    );
+    await context.semantic.permissionGroup.insertItem(permissionGroup, opts);
+    await saveResourceAssignedItems(
+      context,
+      agent,
+      workspace,
+      permissionGroup.resourceId,
+      data.permissionGroup,
+      /** delete existing */ false,
+      opts
+    );
+    return permissionGroup;
+  });
 
-  permissionGroup = await populateAssignedPermissionGroupsAndTags(
+  permissionGroup = await populateAssignedTags(
     context,
     permissionGroup.workspaceId,
-    permissionGroup,
-    AppResourceType.PermissionGroup
+    permissionGroup
   );
-
   return {
     permissionGroup: permissionGroupExtractor(permissionGroup),
   };

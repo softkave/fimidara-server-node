@@ -3,8 +3,5 @@ import {endpointValidationSchemas} from '../../validation';
 import {IGetUserWorkspacesEndpointParams} from './types';
 
 export const getUserWorkspacesJoiSchema = Joi.object<IGetUserWorkspacesEndpointParams>()
-  .keys({
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
-  })
+  .keys(endpointValidationSchemas.paginationParts)
   .required();

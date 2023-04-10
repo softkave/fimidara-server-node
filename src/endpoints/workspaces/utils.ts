@@ -1,52 +1,70 @@
-import {identity} from 'lodash';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {IPublicWorkspace, IUsageThreshold, IWorkspace} from '../../definitions/workspace';
-import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
-import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../../utils/extract';
-import {checkAuthorization} from '../contexts/authorization-checks/checkAuthorizaton';
-import {getWorkspaceIdFromSessionAgent} from '../contexts/SessionContext';
+import {
+  IPublicUsageThreshold,
+  IPublicUsageThresholdLock,
+  IPublicWorkspace,
+  IWorkspace,
+} from '../../definitions/workspace';
+import {
+  ExtractFieldsFrom,
+  getFields,
+  makeExtract,
+  makeExtractIfPresent,
+  makeListExtract,
+} from '../../utils/extract';
+import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
-import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
+import {IEndpointOptionalWorkspaceIDParam} from '../types';
+import {agentExtractor, workspaceResourceFields} from '../utils';
 
-const usageThresholdSchema = getFields<IUsageThreshold>({
+const usageThresholdSchema = getFields<IPublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  lastUpdatedAt: true,
   category: true,
   budget: true,
 });
-
-const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
-
-const usageThresholdMapSchema = getFields<Partial<Record<UsageRecordCategory, IUsageThreshold>>>({
-  [UsageRecordCategory.Storage]: usageThresholdIfExistExtractor,
-  [UsageRecordCategory.BandwidthIn]: usageThresholdIfExistExtractor,
-  [UsageRecordCategory.BandwidthOut]: usageThresholdIfExistExtractor,
-  // [UsageRecordCategory.Request]: usageThresholdIfExistExtractor,
-  // [UsageRecordCategory.DatabaseObject]: usageThresholdIfExistExtractor,
-  [UsageRecordCategory.Total]: usageThresholdIfExistExtractor,
+const usageThresholdLockSchema = getFields<IPublicUsageThresholdLock>({
+  lastUpdatedBy: agentExtractor,
+  lastUpdatedAt: true,
+  category: true,
+  locked: true,
 });
 
-const usageThresholdMapExtractorIfExist = makeExtractIfPresent(usageThresholdMapSchema);
+const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
+const usageThresholdLockIfExistExtractor = makeExtractIfPresent(usageThresholdLockSchema);
 
-const workspaceFields = getFields<IPublicWorkspace>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+const f: ExtractFieldsFrom<IPublicWorkspace> = {
+  ...workspaceResourceFields,
   name: true,
   rootname: true,
   description: true,
   publicPermissionGroupId: true,
   billStatus: true,
-  usageThresholds: identity,
-  usageThresholdLocks: identity,
-  billStatusAssignedAt: getDateStringIfPresent,
-});
+  billStatusAssignedAt: true,
+  usageThresholds: data => {
+    const extract = {} as IPublicWorkspace['usageThresholds'];
+    for (const key in data) {
+      extract[key as UsageRecordCategory] = usageThresholdIfExistExtractor(
+        data[key as UsageRecordCategory]
+      );
+    }
+    return extract;
+  },
+  usageThresholdLocks: data => {
+    const extract = {} as IPublicWorkspace['usageThresholdLocks'];
+    for (const key in data) {
+      extract[key as UsageRecordCategory] = usageThresholdLockIfExistExtractor(
+        data[key as UsageRecordCategory]
+      );
+    }
+    return extract;
+  },
+};
+const workspaceFields = getFields<IPublicWorkspace>(f);
 
 export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);
@@ -62,9 +80,7 @@ export function assertWorkspace(workspace: IWorkspace | null | undefined): asser
 }
 
 export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
-  const w = await ctx.data.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(workspaceId)
-  );
+  const w = await ctx.semantic.workspace.getOneById(workspaceId);
   assertWorkspace(w);
   return w;
 }
@@ -77,7 +93,6 @@ export async function checkWorkspaceExistsWithAgent(
   if (!workspaceId) {
     workspaceId = getWorkspaceIdFromSessionAgent(agent, workspaceId);
   }
-
   return checkWorkspaceExists(ctx, workspaceId);
 }
 
@@ -85,36 +100,28 @@ export async function checkWorkspaceAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   workspace: IWorkspace,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType
 ) {
-  if (agent.user && agent.user.workspaces.find(item => item.workspaceId === workspace.resourceId)) {
-    return {agent, workspace};
-  }
-
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: workspace,
-    type: AppResourceType.Workspace,
-    permissionContainers: [],
+    workspace,
+    workspaceId: workspace.resourceId,
+    targets: {targetId: workspace.resourceId},
   });
-
   return {agent, workspace};
 }
 
 export async function checkWorkspaceAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
-  id: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType,
+  id?: string
 ) {
-  const workspace = await checkWorkspaceExists(context, id);
-  return checkWorkspaceAuthorization(context, agent, workspace, action, nothrow);
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
+  return checkWorkspaceAuthorization(context, agent, workspace, action);
 }
 
 export abstract class WorkspaceUtils {
@@ -128,4 +135,14 @@ export function makeRootnameFromName(name: string): string {
     .replace(new RegExp(folderValidationSchemas.notNameRegex, 'g'), ' ')
     .replace(/[\s-]+/g, '-')
     .toLowerCase();
+}
+
+export async function getWorkspaceFromEndpointInput(
+  context: IBaseContext,
+  agent: ISessionAgent,
+  data: IEndpointOptionalWorkspaceIDParam
+) {
+  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExists(context, workspaceId);
+  return {workspace};
 }

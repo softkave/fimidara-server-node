@@ -1,22 +1,20 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
-import {IUsageRecord, IUsageRecordArtifact, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {
+  IUsageRecord,
+  IUsageRecordArtifact,
+  UsageRecordFulfillmentStatus,
+} from '../definitions/usageRecord';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
+const artifactSchema = ensureMongoTypeFields<IUsageRecordArtifact>({
   type: {type: String},
   resourceType: {type: String},
   action: {type: String},
-  artifact: SchemaTypes.Mixed,
+  artifact: SchemaTypes.Map,
 });
 
-const usageRecordSchema = ensureTypeFields<IUsageRecord>({
-  resourceId: {type: String, unique: true, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate, index: true},
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
-  workspaceId: {type: String, index: true},
+const usageRecordSchema = ensureMongoTypeFields<IUsageRecord>({
+  ...workspaceResourceSchema,
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},

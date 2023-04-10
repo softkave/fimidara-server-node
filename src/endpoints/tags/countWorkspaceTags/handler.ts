@@ -9,7 +9,7 @@ const countWorkspaceTags: GetWorkspaceTagEndpoint = async (context, instData) =>
   const agent = await context.session.getAgent(context, instData);
   const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
   const q = await getWorkspaceTagsQuery(context, agent, workspace);
-  const count = await context.data.tag.countByQuery(q);
+  const count = await context.semantic.tag.countManyByWorkspaceAndIdList(q);
   return {count};
 };
 

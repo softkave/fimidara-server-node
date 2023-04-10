@@ -1,8 +1,8 @@
-import {APP_RUNTIME_STATE_DOC_ID} from '../../definitions/system';
 import {IBaseContext} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
-import {assertContext, initTestBaseContext} from '../test-utils/test-utils';
-import {setupApp} from './initAppSetup';
+import {completeTest} from '../testUtils/helpers/test';
+import {assertContext, initTestBaseContext} from '../testUtils/testUtils';
+import {APP_RUNTIME_STATE_DOC_ID, setupApp} from './initAppSetup';
 
 let context: IBaseContext | null = null;
 
@@ -11,7 +11,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('init app setup', () => {

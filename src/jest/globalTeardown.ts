@@ -1,12 +1,18 @@
-import {DeleteObjectsCommand, ListObjectsV2Command, ObjectIdentifier, S3Client} from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  ObjectIdentifier,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import mongoose from 'mongoose';
-import {dropMongoConnection} from '../endpoints/test-utils/helpers/mongo';
+import {disposeApplicationGlobalUtilities} from '../endpoints/globalUtils';
+import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {
   ExtractEnvSchema,
-  extractEnvVariables,
-  extractProdEnvsSchema,
   FileBackendType,
   IAppVariables,
+  extractEnvVariables,
+  extractProdEnvsSchema,
 } from '../resources/vars';
 import {jestLogger} from './logger';
 import _ = require('lodash');
@@ -44,7 +50,7 @@ async function deleteAWSBucketObjects(globals: IAppVariables) {
   const region = globals.awsRegion;
   const bucketName = globals.S3Bucket;
   const useS3FileProvider = globals.fileBackend === FileBackendType.S3;
-  if (!accessKeyId || !secretAccessKey || !region || !bucketName || !useS3FileProvider) {
+  if (!accessKeyId ?? !secretAccessKey ?? !region ?? !bucketName ?? !useS3FileProvider) {
     return;
   }
 
@@ -86,6 +92,7 @@ async function jestGlobalTeardown() {
   const dropMongoPromise = dropMongoCollections(vars);
   await waitOnPromises([dropMongoPromise]);
   await jestLogger.close();
+  disposeApplicationGlobalUtilities();
 }
 
 module.exports = jestGlobalTeardown;

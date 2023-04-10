@@ -1,28 +1,23 @@
 import {defaultTo, first, isArray, last} from 'lodash';
 import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
 const folderFields = getFields<IPublicFolder>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  workspaceId: true,
+  ...workspaceResourceFields,
   parentId: true,
   name: true,
   description: true,
@@ -111,8 +106,7 @@ export async function checkFolderAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   folder: IFolder,
-  action: BasicCRUDActions,
-  nothrow = false,
+  action: AppActionType,
   workspace?: IWorkspace
 ) {
   if (!workspace) {
@@ -122,16 +116,11 @@ export async function checkFolderAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: folder,
-    type: AppResourceType.Folder,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      folder,
-      AppResourceType.Folder
-    ),
+    workspace,
+    workspaceId: workspace.resourceId,
+    containerId: getFilePermissionContainers(workspace.resourceId, folder),
+    targets: {targetId: folder.resourceId},
   });
 
   return {agent, workspace, folder};
@@ -141,12 +130,12 @@ export async function checkFolderAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   matcher: IFolderMatcher,
-  action: BasicCRUDActions,
-  nothrow = false,
-  workspace?: IWorkspace
+  action: AppActionType,
+  workspace?: IWorkspace,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const folder = await assertGetFolderWithMatcher(context, matcher);
-  return checkFolderAuthorization(context, agent, folder, action, nothrow, workspace);
+  const folder = await assertGetFolderWithMatcher(context, matcher, opts);
+  return checkFolderAuthorization(context, agent, folder, action, workspace);
 }
 
 export function getFolderName(folder: IFolder) {

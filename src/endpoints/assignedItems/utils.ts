@@ -1,10 +1,5 @@
-import {defaultTo} from 'lodash';
-import {
-  IAssignedItem,
-  IAssignedItemMainFieldsMatcher,
-  IAssignedPermissionGroupMeta,
-} from '../../definitions/assignedItem';
-import {IAssignedPermissionGroup} from '../../definitions/permissionGroups';
+import {IAssignedItem, IAssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
+import {IAssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
 import {IAssignedTag} from '../../definitions/tag';
 import {IUserWorkspace} from '../../definitions/user';
 import {makeKey} from '../../utils/fns';
@@ -12,68 +7,42 @@ import {NotFoundError} from '../errors';
 
 export function assignedItemToAssignedPermissionGroup(
   item: IAssignedItem
-): IAssignedPermissionGroup {
+): IAssignedPermissionGroupMeta {
   return {
     permissionGroupId: item.assignedItemId,
-    assignedAt: item.assignedAt,
-    assignedBy: item.assignedBy,
-    order: (item.meta as IAssignedPermissionGroupMeta).order,
+    assignedAt: item.createdAt,
+    assignedBy: item.createdBy,
+    assigneeEntityId: item.assigneeId,
   };
 }
 
 export function assignedItemsToAssignedPermissionGroupList(
   items: IAssignedItem[]
-): IAssignedPermissionGroup[] {
-  return (
-    items
-      // .filter(
-      //   item => item.assignedItemType === AppResourceType.PermissionGroup
-      // )
-      .map(assignedItemToAssignedPermissionGroup)
-  );
+): IAssignedPermissionGroupMeta[] {
+  return items.map(assignedItemToAssignedPermissionGroup);
 }
 
 export function assignedItemToAssignedTag(item: IAssignedItem): IAssignedTag {
   return {
     tagId: item.assignedItemId,
-    assignedAt: item.assignedAt,
-    assignedBy: item.assignedBy,
+    assignedAt: item.createdAt,
+    assignedBy: item.createdBy,
   };
 }
 
 export function assignedItemsToAssignedTagList(items: IAssignedItem[]): IAssignedTag[] {
-  return (
-    items
-      // .filter(item => item.assignedItemType === AppResourceType.Tag)
-      .map(assignedItemToAssignedTag)
-  );
+  return items.map(assignedItemToAssignedTag);
 }
 
-export function assignedItemToAssignedWorkspace(
-  item: IAssignedItem,
-  permissionGroupItems: IAssignedItem[]
-): IUserWorkspace {
+export function assignedItemToAssignedWorkspace(item: IAssignedItem): IUserWorkspace {
   return {
     workspaceId: item.assignedItemId,
-    joinedAt: item.assignedAt,
-    permissionGroups: assignedItemsToAssignedPermissionGroupList(permissionGroupItems),
+    joinedAt: item.createdAt,
   };
 }
 
-export function assignedItemsToAssignedWorkspaceList(
-  items: IAssignedItem[],
-  itemsPermissionGroupMap: Record<string, IAssignedItem[]>
-): IUserWorkspace[] {
-  return (
-    items
-      // .filter(item => item.assignedItemType === AppResourceType.Workspace)
-      .map(item =>
-        assignedItemToAssignedWorkspace(
-          item,
-          defaultTo(itemsPermissionGroupMap[item.assignedItemId], [])
-        )
-      )
-  );
+export function assignedItemsToAssignedWorkspaceList(items: IAssignedItem[]): IUserWorkspace[] {
+  return items.map(item => assignedItemToAssignedWorkspace(item));
 }
 
 export function throwAssignedItemNotFound() {
@@ -81,11 +50,5 @@ export function throwAssignedItemNotFound() {
 }
 
 export function assignedItemIndexer(item: IAssignedItemMainFieldsMatcher) {
-  return makeKey([
-    item.workspaceId,
-    item.assignedItemId,
-    item.assignedItemType,
-    item.assignedToItemId,
-    item.assignedToItemType,
-  ]);
+  return makeKey([item.workspaceId, item.assignedItemId, item.assigneeId]);
 }

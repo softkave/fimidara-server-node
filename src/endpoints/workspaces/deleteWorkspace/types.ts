@@ -1,8 +1,9 @@
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {ILongRunningJobResult} from '../../jobs/types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IDeleteWorkspaceEndpointParams {
-  workspaceId?: string;
-}
-
-export type DeleteWorkspaceEndpoint = Endpoint<IBaseContext, IDeleteWorkspaceEndpointParams>;
+export type DeleteWorkspaceEndpoint = Endpoint<
+  IBaseContext,
+  IEndpointOptionalWorkspaceIDParam,
+  ILongRunningJobResult
+>;

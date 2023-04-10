@@ -1,16 +1,17 @@
 import {IBaseContext} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteWorkspace from './handler';
-import {IDeleteWorkspaceEndpointParams} from './types';
 
 /**
  * TODO:
@@ -24,23 +25,23 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('workspace deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IDeleteWorkspaceEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
+  const result = await deleteWorkspace(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
-    }
+    })
   );
-
-  const result = await deleteWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const savedWorkspace = await context.data.workspace.getOneByQuery(
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
+  const savedWorkspace = await context.semantic.workspace.getOneByLiteralDataQuery(
     EndpointReusableQueries.getByResourceId(workspace.resourceId)
   );
   expect(savedWorkspace).toBeFalsy();

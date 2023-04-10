@@ -2,24 +2,37 @@ import {Request} from 'express';
 import {Logger} from 'winston';
 import {IBaseTokenData} from '../../definitions/system';
 import {IAppVariables} from '../../resources/vars';
-import {IAppRuntimeStateDataProvider} from './data/appruntimestate/type';
-import {IAssignedItemDataProvider} from './data/assigneditem/type';
-import {IClientAssignedTokenDataProvider} from './data/clientassignedtoken/type';
-import {ICollaborationRequestDataProvider} from './data/collaborationrequest/type';
-import {IFileDataProvider} from './data/file/type';
-import {IFolderDataProvider} from './data/folder/type';
-import {IPermissionGroupDataProvider} from './data/permissiongroup/type';
-import {IPermissionItemDataProvider} from './data/permissionitem/type';
-import {IProgramAccessTokenDataProvider} from './data/programaccesstoken/type';
-import {ITagDataProvider} from './data/tag/type';
-import {IUsageRecordDataProvider} from './data/usagerecord/type';
-import {IUserDataProvider} from './data/user/type';
-import {IUserTokenDataProvider} from './data/usertoken/type';
-import {IWorkspaceDataProvider} from './data/workspace/type';
+import {IAppRuntimeStateDataProvider, IJobDataProvider, IResourceDataProvider} from './data/types';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
+import {
+  IAgentTokenMemStoreProvider,
+  IAssignedItemMemStoreProvider,
+  ICollaborationRequestMemStoreProvider,
+  IFileMemStoreProvider,
+  IFolderMemStoreProvider,
+  IPermissionGroupMemStoreProvider,
+  IPermissionItemMemStoreProvider,
+  ITagMemStoreProvider,
+  IUsageRecordMemStoreProvider,
+  IUserMemStoreProvider,
+  IWorkspaceMemStoreProvider,
+} from './mem/types';
+import {ISemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
+import {ISemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
+import {ISemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
+import {ISemanticDataAccessFileProvider} from './semantic/file/types';
+import {ISemanticDataAccessFolderProvider} from './semantic/folder/types';
+import {ISemanticDataAccessPermissionProvider} from './semantic/permission/types';
+import {ISemanticDataAccessPermissionGroupProvider} from './semantic/permissionGroup/types';
+import {ISemanticDataAccessPermissionItemProvider} from './semantic/permissionItem/types';
+import {ISemanticDataAccessTagProvider} from './semantic/tag/types';
+import {ISemanticDataAccessUsageRecordProvider} from './semantic/usageRecord/types';
+import {ISemanticDataAccessUserProvider} from './semantic/user/types';
+import {ISemanticDataAccessWorkspaceProvider} from './semantic/workspace/types';
 import {ISessionContext} from './SessionContext';
-import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
@@ -27,36 +40,63 @@ export interface IServerRequest extends Request {
 }
 
 export interface IBaseContextDataProviders {
-  folder: IFolderDataProvider;
-  file: IFileDataProvider;
-  clientAssignedToken: IClientAssignedTokenDataProvider;
-  programAccessToken: IProgramAccessTokenDataProvider;
-  permissionItem: IPermissionItemDataProvider;
-  permissiongroup: IPermissionGroupDataProvider;
-  workspace: IWorkspaceDataProvider;
-  collaborationRequest: ICollaborationRequestDataProvider;
-  user: IUserDataProvider;
-  userToken: IUserTokenDataProvider;
+  resource: IResourceDataProvider;
+  job: IJobDataProvider;
   appRuntimeState: IAppRuntimeStateDataProvider;
-  tag: ITagDataProvider;
-  assignedItem: IAssignedItemDataProvider;
-  usageRecord: IUsageRecordDataProvider;
+}
+
+export interface IBaseContextMemStoreProviders {
+  folder: IFolderMemStoreProvider;
+  file: IFileMemStoreProvider;
+  agentToken: IAgentTokenMemStoreProvider;
+  permissionItem: IPermissionItemMemStoreProvider;
+  permissionGroup: IPermissionGroupMemStoreProvider;
+  workspace: IWorkspaceMemStoreProvider;
+  collaborationRequest: ICollaborationRequestMemStoreProvider;
+  user: IUserMemStoreProvider;
+  tag: ITagMemStoreProvider;
+  assignedItem: IAssignedItemMemStoreProvider;
+  usageRecord: IUsageRecordMemStoreProvider;
+}
+
+export interface IBaseContextLogicProviders {
+  usageRecord: UsageRecordLogicProvider;
+  permissions: PermissionsLogicProvider;
+}
+
+export interface IBaseContextSemanticDataProviders {
+  permissions: ISemanticDataAccessPermissionProvider;
+  workspace: ISemanticDataAccessWorkspaceProvider;
+  permissionGroup: ISemanticDataAccessPermissionGroupProvider;
+  permissionItem: ISemanticDataAccessPermissionItemProvider;
+  assignedItem: ISemanticDataAccessAssignedItemProvider;
+  agentToken: ISemanticDataAccessAgentTokenProvider;
+  collaborationRequest: ISemanticDataAccessCollaborationRequestProvider;
+  folder: ISemanticDataAccessFolderProvider;
+  file: ISemanticDataAccessFileProvider;
+  tag: ISemanticDataAccessTagProvider;
+  usageRecord: ISemanticDataAccessUsageRecordProvider;
+  user: ISemanticDataAccessUserProvider;
 }
 
 export interface IBaseContext<
-  T extends IBaseContextDataProviders = IBaseContextDataProviders,
-  E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  V extends IAppVariables = IAppVariables
+  Data extends IBaseContextDataProviders = IBaseContextDataProviders,
+  Email extends IEmailProviderContext = IEmailProviderContext,
+  FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
+  AppVars extends IAppVariables = IAppVariables,
+  MemStore extends IBaseContextMemStoreProviders = IBaseContextMemStoreProviders,
+  Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
+  SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
 > {
-  appVariables: V;
+  appVariables: AppVars;
   session: ISessionContext;
-  data: T;
-  email: E;
-  fileBackend: F;
-  logger: Logger;
+  data: Data;
+  semantic: SemanticData;
+  memstore: MemStore;
+  logic: Logic;
+  email: Email;
+  fileBackend: FileBackend;
   clientLogger: Logger;
-  usageRecord: UsageRecordLogicProvider;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

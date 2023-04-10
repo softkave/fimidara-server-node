@@ -1,47 +1,28 @@
-import {AppResourceType, BasicCRUDActions, IAgent} from './system';
+import {
+  AppActionType,
+  AppResourceType,
+  ConvertAgentToPublicAgent,
+  IWorkspaceResource,
+} from './system';
 
 export enum PermissionItemAppliesTo {
-  Container = 'container',
-  ContainerAndChildren = 'container-and-children',
-  Children = 'children',
+  Self = 'self',
+  SelfAndChildrenOfType = 'selfAndChildrenOfType',
+  ChildrenOfType = 'childrenOfType',
 }
 
-export interface IPermissionItem {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-
-  // Containers scope the reach of a permission item to only the resources they
-  // contain. Currently, there's only workspace and folder.
-  containerId: string;
-  containerType: AppResourceType;
-
-  // Entities are user token, client assigned token,
-  // program access token and permissionGroup permission groups.
-  // It's the entity this permission item was created for.
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
-  targetId?: string;
+export interface IPermissionItem extends IWorkspaceResource {
+  /**
+   * One of user, client token, program token, or permission group. It's the
+   * entity this permission item was created for.
+   */
+  entityId: string;
+  entityType: AppResourceType;
+  targetId: string;
   targetType: AppResourceType;
-  action: BasicCRUDActions;
-  grantAccess: boolean;
   appliesTo: PermissionItemAppliesTo;
-  hash: string;
+  grantAccess: boolean;
+  action: AppActionType;
 }
 
-export interface IPublicPermissionItem {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: string;
-  createdBy: IAgent;
-  containerId: string;
-  containerType: AppResourceType;
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
-  targetId?: string;
-  targetType: AppResourceType;
-  action: BasicCRUDActions;
-  grantAccess: boolean;
-  appliesTo: PermissionItemAppliesTo;
-}
+export type IPublicPermissionItem = ConvertAgentToPublicAgent<IPermissionItem>;

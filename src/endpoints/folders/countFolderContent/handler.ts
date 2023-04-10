@@ -1,9 +1,5 @@
 import {IFolder} from '../../../definitions/folder';
-import {
-  AppResourceType,
-  ISessionAgent,
-  publicPermissibleEndpointAgents,
-} from '../../../definitions/system';
+import {AppResourceType, ISessionAgent, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {IWorkspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {IBaseContext} from '../../contexts/types';
@@ -13,7 +9,7 @@ import {countFolderContentJoiSchema} from './validation';
 
 const countFolderContent: CountFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, countFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
   const [foldersCount, filesCount] = await Promise.all([
     countFolders(context, agent, workspace, parentFolder),
@@ -35,7 +31,7 @@ async function countFolders(
     AppResourceType.Folder,
     parentFolder
   );
-  return await context.data.folder.countByQuery(q);
+  return await context.semantic.folder.countManyParentByIdList(q);
 }
 
 async function countFiles(
@@ -51,7 +47,7 @@ async function countFiles(
     AppResourceType.File,
     parentFolder
   );
-  return await context.data.file.countByQuery(q);
+  return await context.semantic.file.countManyParentByIdList(q);
 }
 
 export default countFolderContent;

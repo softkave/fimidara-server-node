@@ -112,4 +112,9 @@ aws-config.json
 # Jest output
 jest-output/
 
+# Generated endpoints documentation folder
 mdoc/
+
+# DB path for mongo replicas run using `run-rs`, check `start-mongo-rs` script
+# in `package.json`
+mongo-rs-data/

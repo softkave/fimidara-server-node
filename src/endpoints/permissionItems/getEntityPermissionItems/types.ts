@@ -1,5 +1,4 @@
 import {IPublicPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType} from '../../../definitions/system';
 import {IBaseContext} from '../../contexts/types';
 import {
   Endpoint,
@@ -10,8 +9,7 @@ import {
 
 export interface IGetEntityPermissionItemsEndpointParamsBase
   extends IEndpointOptionalWorkspaceIDParam {
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
+  entityId: string;
 }
 
 export interface IGetEntityPermissionItemsEndpointParams

@@ -1,16 +1,17 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {getDateString} from '../../../utils/dateFns';
+import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import ingestLogs from './handler';
 import {IClientLog, IIngestLogsEndpointParams} from './types';
 import assert = require('assert');
@@ -34,7 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
   await logsConnection?.close();
 });
 
@@ -47,7 +48,7 @@ describe('ingestLogs', () => {
       testLogs.push({
         level: 'error',
         message: `Test client log ${i}`,
-        timestamp: getDateString(),
+        timestamp: getTimestamp(),
         stack: randomTag,
         service: FimidaraLoggerServiceNames.Test,
       });

@@ -50,9 +50,9 @@ export function loggerFactory(opts: ICreateLoggerOptions) {
         break;
       case 'mongodb':
         {
-          const mongoURL = new URL(vars.logsDbName, vars.mongoDbURI);
           const dbTransport = new transports.MongoDB({
-            db: mongoURL.toString(),
+            db: vars.mongoDbURI,
+            dbName: vars.logsDbName,
             collection: vars.logsCollectionName,
             storeHost: true,
             options: {useUnifiedTopology: true},

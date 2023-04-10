@@ -1,20 +1,17 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {IUser} from '../definitions/user';
-import {getDate} from '../utils/dateFns';
-import {ensureTypeFields} from './utils';
+import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const userSchema = ensureTypeFields<IUser>({
-  resourceId: {type: String, unique: true, index: true},
+const userSchema = ensureMongoTypeFields<IUser>({
+  ...resourceSchema,
   email: {type: String, unique: true, index: true, lowercase: true},
   firstName: {type: String, index: true},
   lastName: {type: String, index: true},
   hash: {type: String},
-  createdAt: {type: Date, default: getDate},
-  lastUpdatedAt: {type: Date},
-  passwordLastChangedAt: {type: Date},
+  passwordLastChangedAt: {type: Number},
   isEmailVerified: {type: Boolean},
-  emailVerifiedAt: {type: Date},
-  emailVerificationEmailSentAt: {type: Date},
+  emailVerifiedAt: {type: Number},
+  emailVerificationEmailSentAt: {type: Number},
 });
 
 export type IUserDocument = Document<IUser>;

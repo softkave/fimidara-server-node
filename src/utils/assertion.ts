@@ -1,11 +1,13 @@
 import {isString} from 'lodash';
-import {logger} from './logger/logger';
+import {logger} from '../endpoints/globalUtils';
+import {ServerError} from './errors';
 import OperationError from './OperationError';
+import {reuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
 
 export function appAssert(
   value: any,
-  response?: string | Error | AnyFn,
+  response: string | Error | AnyFn = new ServerError(),
   logMessage?: string
 ): asserts value {
   if (!value) {
@@ -23,4 +25,8 @@ export function appAssert(
       throw new Error('Assertion failed');
     }
   }
+}
+
+export function assertNotFound<T>(item?: T): asserts item {
+  appAssert(item, reuseableErrors.common.notFound());
 }

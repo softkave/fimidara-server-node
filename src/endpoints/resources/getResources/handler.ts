@@ -1,46 +1,36 @@
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {
+  AppActionType,
+  AppResourceType,
+  getWorkspaceResourceTypeList,
+} from '../../../definitions/system';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {getPublicClientToken} from '../../clientAssignedTokens/utils';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
-import {getPublicProgramToken} from '../../programAccessTokens/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
+import {getResourcesPartOfWorkspace} from '../containerCheckFns';
 import {getPublicResourceList} from '../getPublicResource';
-import {getResources as fetchResources} from '../getResources';
-import {getResourcesPartOfWorkspace} from '../isPartOfOrganization';
+import {INTERNAL_getResources} from '../getResources';
 import {resourceListWithAssignedItems} from '../resourceWithAssignedItems';
 import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
 
+const allowedTypes = getWorkspaceResourceTypeList().filter(type => type !== AppResourceType.All);
 const getResources: GetResourcesEndpoint = async (context, instData) => {
   const data = validate(instData.data, getResourcesJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  let resources = await fetchResources({
+  let resources = await INTERNAL_getResources({
     context,
     agent,
-    workspace,
+    allowedTypes,
+    workspaceId: workspace.resourceId,
     inputResources: data.resources,
     checkAuth: true,
-    action: BasicCRUDActions.Read,
+    action: AppActionType.Read,
     nothrowOnCheckError: true,
   });
-
   resources = await resourceListWithAssignedItems(context, workspaceId, resources);
-  resources = getResourcesPartOfWorkspace(workspaceId, resources, true);
-  resources = resources.map(resource => {
-    switch (resource.resourceType) {
-      case AppResourceType.ProgramAccessToken:
-        resource.resource = getPublicProgramToken(context, resource.resource as any);
-        return resource;
-      case AppResourceType.ClientAssignedToken:
-        resource.resource = getPublicClientToken(context, resource.resource as any);
-        return resource;
-      default:
-        return resource;
-    }
-  });
-
+  resources = getResourcesPartOfWorkspace(workspaceId, resources);
   return {resources: getPublicResourceList(resources, workspaceId)};
 };
 

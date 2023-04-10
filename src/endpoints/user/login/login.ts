@@ -1,36 +1,32 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {makeUserSessionAgent} from '../../contexts/SessionContext';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {InvalidEmailOrPasswordError} from '../errors';
-import UserQueries from '../UserQueries';
 import {LoginEndpoint} from './types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
 
 const login: LoginEndpoint = async (context, instData) => {
   const data = validate(instData.data, loginJoiSchema);
-  const user = await context.data.user.getOneByQuery(UserQueries.getByEmail(data.email));
-
+  const user = await context.semantic.user.getByEmail(data.email);
   if (!user) {
     throw new InvalidEmailOrPasswordError();
   }
 
-  let passwordMatch = false;
-  passwordMatch = await argon2.verify(user.hash, data.password);
+  const passwordMatch = await argon2.verify(user.hash, data.password);
   if (!passwordMatch) {
     throw new InvalidEmailOrPasswordError();
   }
 
-  const userToken = await getUserToken(context, user);
-  const clientAssignedToken = await getUserClientAssignedToken(context, user.resourceId);
-
+  const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
+    Promise.all([
+      getUserToken(context, user.resourceId, opts),
+      getUserClientAssignedToken(context, user.resourceId, opts),
+    ])
+  );
   const userWithWorkspaces = await populateUserWorkspaces(context, user);
-
-  // Make the user token available to other requests
-  // made with this request data
-  instData.agent = makeUserSessionAgent(userToken, userWithWorkspaces);
-  return toLoginResult(context, user, userToken, clientAssignedToken);
+  return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);
 };
 
 export default login;

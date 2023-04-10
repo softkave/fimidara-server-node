@@ -1,13 +1,10 @@
-import EndpointReusableQueries from '../../queries';
 import {CountUserWorkspacesEndpoint} from './types';
 
 const countUserWorkspaces: CountUserWorkspacesEndpoint = async (context, d) => {
   const user = await context.session.getUser(context, d);
-  const count = await context.data.workspace.countByQuery(
-    EndpointReusableQueries.getByResourceIdList(
-      user.workspaces.map(workspace => workspace.workspaceId)
-    )
-  );
+  const assignedItems = await context.semantic.assignedItem.getUserWorkspaces(user.resourceId);
+  const workspaceIdList = assignedItems.map(item => item.assignedItemId);
+  const count = await context.semantic.workspace.countManyByIdList(workspaceIdList);
   return {count};
 };
 

@@ -1,81 +1,67 @@
 import {
-  IAssignedPermissionGroup,
+  IAssignedPermissionGroupMeta,
   IAssignPermissionGroupInput,
   IPermissionGroup,
   IPermissionGroupMatcher,
+  IPublicAssignedPermissionGroupMeta,
   IPublicPermissionGroup,
 } from '../../definitions/permissionGroups';
-import {AppResourceType, BasicCRUDActions, IAgent, ISessionAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
+import {AppActionType, IAgent, ISessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
-import {getDateString} from '../../utils/dateFns';
+import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {} from '../../utils/fns';
+import {getResourceId} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {assertGetWorkspaceIdFromAgent} from '../contexts/SessionContext';
+  ISemanticDataAccessProviderMutationRunOptions,
+  ISemanticDataAccessProviderRunOptions,
+} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import EndpointReusableQueries from '../queries';
-import {assignedTagListExtractor} from '../tags/utils';
-import {agentExtractor} from '../utils';
+import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {PermissionGroupDoesNotExistError} from './errors';
-import PermissionGroupQueries from './queries';
 
-const assignedPermissionGroupsFields = getFields<IAssignedPermissionGroup>({
+const assignedPermissionGroupsFields = getFields<IPublicAssignedPermissionGroupMeta>({
   permissionGroupId: true,
-  assignedAt: getDateString,
+  assignedAt: true,
   assignedBy: agentExtractor,
-  order: true,
+  assigneeEntityId: true,
 });
 
 export const assignedPermissionGroupsExtractor = makeExtract(assignedPermissionGroupsFields);
-
 export const assignedPermissionGroupsListExtractor = makeListExtract(
   assignedPermissionGroupsFields
 );
 
 const permissionGroupFields = getFields<IPublicPermissionGroup>({
-  resourceId: true,
-  workspaceId: true,
-  createdAt: getDateString,
-  createdBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  lastUpdatedBy: agentExtractor,
+  ...workspaceResourceFields,
   name: true,
   description: true,
-  permissionGroups: assignedPermissionGroupsListExtractor,
-  tags: assignedTagListExtractor,
+  // tags: assignedTagListExtractor,
 });
 
 export const permissionGroupExtractor = makeExtract(permissionGroupFields);
-
 export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
 
 export async function checkPermissionGroupAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   permissionGroup: IPermissionGroup,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
-
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: permissionGroup,
-    type: AppResourceType.PermissionGroup,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspace,
+    workspaceId: workspace.resourceId,
+    targets: {targetId: permissionGroup.resourceId},
   });
-
   return {agent, permissionGroup, workspace};
 }
 
@@ -83,79 +69,68 @@ export async function checkPermissionGroupAuthorization02(
   context: IBaseContext,
   agent: ISessionAgent,
   id: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType
 ) {
-  const permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(id)
-  );
-  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
+  const permissionGroup = await context.semantic.permissionGroup.getOneById(id);
+  assertPermissionGroup(permissionGroup);
+  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action);
 }
 
 export async function checkPermissionGroupAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
   input: IPermissionGroupMatcher,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
   let permissionGroup: IPermissionGroup | null = null;
-
   if (!input.permissionGroupId && !input.name) {
     throw new InvalidRequestError('PermissionGroup ID or name not set');
   }
 
   if (input.permissionGroupId) {
-    permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(input.permissionGroupId)
+    permissionGroup = await context.semantic.permissionGroup.getOneById(
+      input.permissionGroupId,
+      opts
     );
   } else if (input.name) {
-    const workspaceId = input.workspaceId || assertGetWorkspaceIdFromAgent(agent);
-
-    permissionGroup = await context.data.permissiongroup.assertGetOneByQuery(
-      PermissionGroupQueries.getByWorkspaceAndName(workspaceId, input.name)
+    const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
+    permissionGroup = await context.semantic.permissionGroup.getByName(
+      workspaceId,
+      input.name,
+      opts
     );
   }
 
   appAssert(permissionGroup, new PermissionGroupDoesNotExistError());
-  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action, nothrow);
+  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action);
 }
 
 export async function checkPermissionGroupsExist(
   context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  permissionGroupInputs: IAssignPermissionGroupInput[]
+  workspaceId: string,
+  permissionGroupInputs: IAssignPermissionGroupInput[],
+  opts?: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  const permissionGroups = await Promise.all(
-    permissionGroupInputs.map(item =>
-      context.data.permissiongroup.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(item.permissionGroupId)
-      )
-    )
+  const idList = permissionGroupInputs.map(item => item.permissionGroupId);
+
+  // TODO: use exists with $or or implement bulk ops
+  const permissionGroups = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
+    {workspaceId, resourceIdList: idList},
+    opts
   );
 
-  await Promise.all(
-    permissionGroups.map(item =>
-      checkAuthorization({
-        context,
-        agent,
-        workspace,
-        resource: item,
-        type: AppResourceType.PermissionGroup,
-        permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-        action: BasicCRUDActions.Read,
-      })
-    )
-  );
-
-  return permissionGroups;
+  if (idList.length !== permissionGroups.length) {
+    const map = indexArray(permissionGroups, {indexer: getResourceId});
+    idList.forEach(id => appAssert(map[id], reuseableErrors.permissionGroup.notFound(id)));
+  }
 }
 
 export function mergePermissionGroupsWithInput(
-  permissionGroups: IAssignedPermissionGroup[],
-  input: IAssignPermissionGroupInput[],
-  agent: IAgent
+  agent: IAgent,
+  entityId: string,
+  permissionGroups: IAssignedPermissionGroupMeta[],
+  input: IAssignPermissionGroupInput[]
 ) {
   const inputMap = indexArray(input, {path: 'permissionGroupId'});
   return permissionGroups
@@ -163,16 +138,19 @@ export function mergePermissionGroupsWithInput(
     .concat(
       input.map(permissionGroup => ({
         ...permissionGroup,
-        order: permissionGroup.order || Number.MAX_SAFE_INTEGER,
-        assignedAt: getDateString(),
-        assignedBy: {
-          agentId: agent.agentId,
-          agentType: agent.agentType,
-        },
+        assignedAt: getTimestamp(),
+        assignedBy: agent,
+        assigneeEntityId: entityId,
       }))
     );
 }
 
 export function throwPermissionGroupNotFound() {
   throw new NotFoundError('PermissionGroup permissions group not found');
+}
+
+export function assertPermissionGroup(
+  permissionGroup?: IPermissionGroup | null
+): asserts permissionGroup {
+  appAssert(permissionGroup, reuseableErrors.permissionGroup.notFound());
 }

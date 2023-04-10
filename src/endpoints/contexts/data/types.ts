@@ -1,4 +1,17 @@
 import {ProjectionType, SortOrder} from 'mongoose';
+import {IAgentToken} from '../../../definitions/agentToken';
+import {IAssignedItem} from '../../../definitions/assignedItem';
+import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
+import {IFile} from '../../../definitions/file';
+import {IFolder} from '../../../definitions/folder';
+import {IJob} from '../../../definitions/job';
+import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {IPermissionItem} from '../../../definitions/permissionItem';
+import {IAppRuntimeState, IResourceWrapper} from '../../../definitions/system';
+import {ITag} from '../../../definitions/tag';
+import {IUsageRecord} from '../../../definitions/usageRecord';
+import {IUser} from '../../../definitions/user';
+import {IWorkspace} from '../../../definitions/workspace';
 import {AnyObject} from '../../../utils/types';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
@@ -13,21 +26,26 @@ export interface IDataProvideQueryListParams<T> {
   sort?: DataQuerySort<T>;
 }
 
+export type IDataProviderQueryParams<T> = Pick<IDataProvideQueryListParams<T>, 'projection'>;
+
+export const INCLUDE_IN_PROJECTION = 1 as const;
+export const EXCLUDE_IN_PROJECTION = 0 as const;
+
 export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
 
-// TODO: reclassify ops based on Mongo ops, but split comparison into number and
-// other literals
-export interface IComparisonLiteralFieldQueryOps<
-  T extends DataProviderLiteralType = DataProviderLiteralType
-> {
+export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
-  $in?: Array<T | null>;
+  $lowercaseEq?: T;
+  $in?: T[] | Array<T | null>;
+  $lowercaseIn?: T[];
   $ne?: T | null;
   $nin?: Array<T | null>;
 
   // TODO: implement $not and in which bracket should it go?
   // $not?: T;
   $exists?: boolean;
+
+  // TODO: allow only on strings
   $regex?: RegExp;
 }
 
@@ -43,9 +61,11 @@ export interface INumberLiteralFieldQueryOps {
 
 export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
   ? (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null
-  : null;
+  : T extends Array<infer V>
+  ? ILiteralFieldQueryOps<V> | Pick<IComparisonLiteralFieldQueryOps<T>, '$eq' | '$ne'>
+  : never;
 
-type LiteralDataQuery<T> = {
+export type LiteralDataQuery<T> = {
   [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;
 };
 
@@ -75,6 +95,31 @@ export type DataQuery<T> = {
     : void;
 };
 
+export enum BulkOpType {
+  InsertOne = 1,
+  ReplaceOne,
+  UpdateOne,
+  UpdateMany,
+  DeleteOne,
+  DeleteMany,
+}
+
+export type BulkOpItem<T> =
+  | {type: BulkOpType.InsertOne; item: T}
+  | {
+      type: BulkOpType.UpdateOne;
+      query: DataQuery<T>;
+      update: Partial<T>;
+      upsert?: boolean;
+    }
+  | {
+      type: BulkOpType.UpdateMany;
+      query: DataQuery<T>;
+      update: Partial<T>;
+    }
+  | {type: BulkOpType.DeleteOne; query: DataQuery<T>}
+  | {type: BulkOpType.DeleteMany; query: DataQuery<T>};
+
 // TODO: infer resulting type from projection, otherwise default to full object
 export interface IBaseDataProvider<
   DataType,
@@ -82,11 +127,9 @@ export interface IBaseDataProvider<
 > {
   insertItem: (items: DataType) => Promise<DataType>;
   insertList: (items: DataType[]) => Promise<void>;
-
   existsByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<boolean>;
-
   getManyByQuery: (
     query: QueryType,
     otherProps?: IDataProvideQueryListParams<DataType>
@@ -97,35 +140,28 @@ export interface IBaseDataProvider<
   ) => Promise<DataType[]>;
   getOneByQuery: (
     query: QueryType,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType | null>;
   assertGetOneByQuery: (
     query: QueryType,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType>;
   assertGetAndUpdateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType>;
-
   countByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<number>;
   countByQueryList: (query: QueryType[]) => Promise<number>;
-
   updateManyByQuery: (query: QueryType, data: Partial<DataType>) => Promise<void>;
-  updateOneByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
-  ) => Promise<void>;
+  updateOneByQuery: (query: QueryType, data: Partial<DataType>) => Promise<void>;
   getAndUpdateOneByQuery: (
     query: QueryType,
     data: Partial<DataType>,
-    otherProps?: Pick<IDataProvideQueryListParams<DataType>, 'projection'>
+    otherProps?: IDataProviderQueryParams<DataType>
   ) => Promise<DataType | null>;
-
   deleteManyByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<void>;
@@ -135,4 +171,32 @@ export interface IBaseDataProvider<
   deleteOneByQuery: <ExtendedQueryType extends QueryType = QueryType>(
     query: ExtendedQueryType
   ) => Promise<void>;
+  TRANSACTION_bulkWrite(ops: Array<BulkOpItem<DataType>>): Promise<void>;
 }
+
+export type IAgentTokenQuery = DataQuery<IAgentToken>;
+export type IAgentTokenDataProvider = IBaseDataProvider<IAgentToken>;
+export type IAppRuntimeStateQuery = DataQuery<IAppRuntimeState>;
+export type IAppRuntimeStateDataProvider = IBaseDataProvider<IAppRuntimeState>;
+export type IAssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<IAssignedItem<T>>;
+export type IAssignedItemDataProvider = IBaseDataProvider<IAssignedItem>;
+export type ICollaborationRequestQuery = DataQuery<ICollaborationRequest>;
+export type ICollaborationRequestDataProvider = IBaseDataProvider<ICollaborationRequest>;
+export type IFileQuery = DataQuery<IFile>;
+export type IFileDataProvider = IBaseDataProvider<IFile>;
+export type IFolderQuery = DataQuery<IFolder>;
+export type IFolderDataProvider = IBaseDataProvider<IFolder>;
+export type IPermissionGroupQuery = DataQuery<IPermissionGroup>;
+export type IPermissionGroupDataProvider = IBaseDataProvider<IPermissionGroup>;
+export type IPermissionItemQuery = DataQuery<IPermissionItem>;
+export type IPermissionItemDataProvider = IBaseDataProvider<IPermissionItem>;
+export type ITagQuery = DataQuery<ITag>;
+export type ITagDataProvider = IBaseDataProvider<ITag>;
+export type IUsageRecordQuery = DataQuery<IUsageRecord>;
+export type IUsageRecordDataProvider = IBaseDataProvider<IUsageRecord>;
+export type IUserQuery = DataQuery<IUser>;
+export type IUserDataProvider = IBaseDataProvider<IUser>;
+export type IWorkspaceQuery = DataQuery<IWorkspace>;
+export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;
+export type IResourceDataProvider = IBaseDataProvider<IResourceWrapper>;
+export type IJobDataProvider = IBaseDataProvider<IJob>;

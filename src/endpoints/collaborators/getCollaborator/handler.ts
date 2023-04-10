@@ -1,6 +1,6 @@
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {getWorkspaceIdFromSessionAgent} from '../../contexts/SessionContext';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
@@ -20,7 +20,7 @@ const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
     agent,
     workspaceId,
     data.collaboratorId,
-    BasicCRUDActions.Read
+    AppActionType.Read
   );
 
   return {

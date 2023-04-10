@@ -7,18 +7,22 @@ import {
   HttpEndpointMethod,
   HttpEndpointResponse,
 } from '../../mddoc/mddoc';
-import {endpointHttpHeaderItems, endpointHttpResponseItems, endpointStatusCodes, fReusables} from '../endpoints.mddoc';
+import {
+  endpointHttpHeaderItems,
+  endpointHttpResponseItems,
+  endpointStatusCodes,
+  fReusables,
+} from '../endpoints.mddoc';
 import {collaboratorConstants} from './constants';
-import {IGetCollaboratorEndpointParams, IGetCollaboratorEndpointResult} from './getCollaborator/types';
+import {
+  IGetCollaboratorEndpointParams,
+  IGetCollaboratorEndpointResult,
+} from './getCollaborator/types';
 import {
   IGetWorkspaceCollaboratorsEndpointParams,
   IGetWorkspaceCollaboratorsEndpointResult,
 } from './getWorkspaceCollaborators/types';
 import {IRemoveCollaboratorEndpointParams} from './removeCollaborator/types';
-import {
-  IUpdateCollaboratorPermissionGroupsEndpointParams,
-  IUpdateCollaboratorPermissionGroupsEndpointResult,
-} from './updateCollaboratorPermissionGroups/types';
 
 const collaborator = new FieldObject<IPublicCollaborator>().setName('Collaborator').setFields({
   resourceId: fReusables.id,
@@ -27,7 +31,6 @@ const collaborator = new FieldObject<IPublicCollaborator>().setName('Collaborato
   email: fReusables.emailAddress,
   workspaceId: fReusables.workspaceId,
   joinedAt: fReusables.date,
-  permissionGroups: fReusables.assignPermissionGroupList,
 });
 
 const getWorkspaceCollaboratorsParams = new FieldObject<IGetWorkspaceCollaboratorsEndpointParams>()
@@ -50,29 +53,6 @@ const getWorkspaceCollaboratorsResult = [
         .setFields({collaborators: new FieldArray().setType(collaborator), page: fReusables.page})
         .setRequired(true)
         .setDescription('Get workspace collaborators endpoint success result.')
-    ),
-];
-
-const updateCollaboratorPermissionGroupsParams = new FieldObject<IUpdateCollaboratorPermissionGroupsEndpointParams>()
-  .setName('UpdateCollaboratorEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    collaboratorId: fReusables.id,
-    permissionGroups: fReusables.assignPermissionGroupList,
-  })
-  .setRequired(true)
-  .setDescription('Update collaborator endpoint success result.');
-const updateCollaboratorPermissionGroupsResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IUpdateCollaboratorPermissionGroupsEndpointResult>()
-        .setName('UpdateCollaboratorEndpointSuccessResult')
-        .setFields({collaborator})
-        .setRequired(true)
-        .setDescription('Update collaborator endpoint success result.')
     ),
 ];
 
@@ -115,15 +95,6 @@ export const getCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setResponses(getCollaboratorResult)
   .setName('Get Collaborator Endpoint')
   .setDescription('Get collaborator endpoint.');
-
-export const updateCollaboratorPermissionGroupsEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(collaboratorConstants.routes.updateCollaboratorPermissionGroups)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(updateCollaboratorPermissionGroupsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateCollaboratorPermissionGroupsResult)
-  .setName('Update Collaborator Permission Groups Endpoint')
-  .setDescription('Update collaborator permission groups endpoint.');
 
 export const removeCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collaboratorConstants.routes.removeCollaborator)

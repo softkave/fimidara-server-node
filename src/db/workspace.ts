@@ -1,33 +1,37 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {UsageRecordCategory} from '../definitions/usageRecord';
 import {IUsageThreshold, IUsageThresholdLock, IWorkspace} from '../definitions/workspace';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {getTimestamp} from '../utils/dateFns';
+import {agentSchema, ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const usageThresholdSchema = ensureTypeFields<IUsageThreshold>({
+const usageThresholdSchema = ensureMongoTypeFields<IUsageThreshold>({
   lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date, default: getDate},
+  lastUpdatedAt: {type: Number, default: getTimestamp},
   category: {type: String},
   budget: {type: Number},
 });
 
-const usageThresholdMapSchema = ensureTypeFields<Record<UsageRecordCategory, IUsageThreshold>>({
-  [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
-  // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
-  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
-  [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
-  [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
-  [UsageRecordCategory.Total]: {type: usageThresholdSchema},
-});
+const usageThresholdMapSchema = ensureMongoTypeFields<Record<UsageRecordCategory, IUsageThreshold>>(
+  {
+    [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
+    // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
+    // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
+    [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
+    [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
+    [UsageRecordCategory.Total]: {type: usageThresholdSchema},
+  }
+);
 
-const usageThresholdLockSchema = ensureTypeFields<IUsageThresholdLock>({
+const usageThresholdLockSchema = ensureMongoTypeFields<IUsageThresholdLock>({
   lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date, default: getDate},
+  lastUpdatedAt: {type: Number, default: getTimestamp},
   category: {type: String},
   locked: {type: Boolean},
 });
 
-const usageThresholdLockMapSchema = ensureTypeFields<Record<UsageRecordCategory, IUsageThreshold>>({
+const usageThresholdLockMapSchema = ensureMongoTypeFields<
+  Record<UsageRecordCategory, IUsageThreshold>
+>({
   [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
   // [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
   // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
@@ -36,17 +40,13 @@ const usageThresholdLockMapSchema = ensureTypeFields<Record<UsageRecordCategory,
   [UsageRecordCategory.Total]: {type: usageThresholdLockSchema},
 });
 
-const workspaceSchema = ensureTypeFields<IWorkspace>({
-  resourceId: {type: String, unique: true, index: true},
+const workspaceSchema = ensureMongoTypeFields<IWorkspace>({
+  ...workspaceResourceSchema,
   name: {type: String, index: true},
   rootname: {type: String, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate},
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
   description: {type: String},
   publicPermissionGroupId: {type: String},
-  billStatusAssignedAt: {type: Date},
+  billStatusAssignedAt: {type: Number},
   billStatus: {type: String},
   usageThresholds: {
     type: usageThresholdMapSchema,

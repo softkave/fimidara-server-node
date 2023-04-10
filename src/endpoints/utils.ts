@@ -1,30 +1,42 @@
 import {Request, Response} from 'express';
 import {defaultTo, isNumber, isString} from 'lodash';
-import {IAgent, IPublicAccessOp, ISessionAgent} from '../definitions/system';
-import {IWorkspace} from '../definitions/workspace';
-import {appAssert} from '../utils/assertion';
-import {getDateString} from '../utils/dateFns';
-import {ServerError} from '../utils/errors';
-import {getFields, makeExtract, makeExtractIfPresent, makeListExtract} from '../utils/extract';
-import OperationError from '../utils/OperationError';
-import {AnyObject} from '../utils/types';
-import {endpointConstants} from './constants';
-import {summarizeAgentPermissionItems} from './contexts/authorization-checks/checkAuthorizaton';
-import {getPage} from './contexts/data/utils';
-import {getWorkspaceIdFromSessionAgent} from './contexts/SessionContext';
-import {IBaseContext, IServerRequest} from './contexts/types';
-import {NotFoundError} from './errors';
-import EndpointReusableQueries from './queries';
-import RequestData from './RequestData';
 import {
-  Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginationQuery,
+  IAgent,
   IPublicAgent,
+  IPublicResource,
+  IPublicWorkspaceResource,
+} from '../definitions/system';
+import {IWorkspace} from '../definitions/workspace';
+import OperationError from '../utils/OperationError';
+import {appAssert} from '../utils/assertion';
+import {getTimestamp} from '../utils/dateFns';
+import {ServerError} from '../utils/errors';
+import {
+  ExtractFieldsFrom,
+  getFields,
+  makeExtract,
+  makeExtractIfPresent,
+  makeListExtract,
+} from '../utils/extract';
+import {isObjectEmpty} from '../utils/fns';
+import {reuseableErrors} from '../utils/reusableErrors';
+import {AnyObject} from '../utils/types';
+import RequestData from './RequestData';
+import {endpointConstants} from './constants';
+import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
+import {getPage} from './contexts/data/utils';
+import {executeWithMutationRunOptions} from './contexts/semantic/utils';
+import {IBaseContext, IServerRequest} from './contexts/types';
+import {InvalidRequestError, NotFoundError} from './errors';
+import {logger} from './globalUtils';
+import EndpointReusableQueries from './queries';
+import {
+  DeleteResourceCascadeFnsMap,
+  Endpoint,
+  IPaginationQuery,
   IRequestDataPendingPromise,
 } from './types';
 import {PermissionDeniedError} from './user/errors';
-import {checkWorkspaceExists} from './workspaces/utils';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
@@ -69,17 +81,14 @@ export const wrapEndpointREST = <
       if (handleResponse) {
         handleResponse(res, result);
       } else {
-        res.status(endpointConstants.httpStatusCode.ok).json(result || {});
+        res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
     } catch (error) {
-      context.logger.error(error);
+      logger.error(error);
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);
-      const result = {
-        errors: preppedErrors,
-      };
-
+      const result = {errors: preppedErrors};
       if (errors.length > 0 && errors[0].statusCode) {
         statusCode = errors[0].statusCode;
       }
@@ -98,17 +107,18 @@ export const agentExtractor = makeExtract(agentPublicFields);
 export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);
 
-const publicAccessOpFields = getFields<IPublicAccessOp>({
-  action: true,
-  markedAt: getDateString,
-  markedBy: agentExtractor,
-  resourceType: true,
-  appliesTo: true,
-});
-
-export const publicAccessOpExtractor = makeExtract(publicAccessOpFields);
-export const publicAccessOpExtractorIfPresent = makeExtractIfPresent(publicAccessOpFields);
-export const publicAccessOpListExtractor = makeListExtract(publicAccessOpFields);
+export const resourceFields: ExtractFieldsFrom<IPublicResource> = {
+  resourceId: true,
+  createdAt: true,
+  lastUpdatedAt: true,
+};
+export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResource> = {
+  ...resourceFields,
+  providedResourceId: true,
+  workspaceId: true,
+  createdBy: agentExtractor,
+  lastUpdatedBy: agentExtractor,
+};
 
 export async function waitForWorks(works: IRequestDataPendingPromise[]) {
   await Promise.all(
@@ -122,18 +132,24 @@ export function throwNotFound() {
   throw new NotFoundError();
 }
 
-export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
+export function throwAgentTokenNotFound() {
+  throw reuseableErrors.agentToken.notFound();
+}
 
-export function withAssignedAgent<T extends AnyObject>(
-  agent: IAgent,
-  item: T
-): T & {assignedBy: IAgent; assignedAt: string} {
+export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
+type AssignedAgent = {
+  assignedBy: IAgent;
+  assignedAt: number;
+};
+
+export function withAssignedAgent<T extends AnyObject>(agent: IAgent, item: T): T & AssignedAgent {
   return {
     ...item,
-    assignedAt: getDateString(),
+    assignedAt: getTimestamp(),
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
+      agentTokenId: agent.agentTokenId,
     },
   };
 }
@@ -141,13 +157,14 @@ export function withAssignedAgent<T extends AnyObject>(
 export function withAssignedAgentList<T extends AnyObject>(
   agent: IAgent,
   items: T[] = []
-): Array<T & {assignedBy: IAgent; assignedAt: string}> {
+): Array<T & AssignedAgent> {
   return items.map(item => ({
     ...item,
-    assignedAt: getDateString(),
+    assignedAt: getTimestamp(),
     assignedBy: {
       agentId: agent.agentId,
       agentType: agent.agentType,
+      agentTokenId: agent.agentTokenId,
     },
   }));
 }
@@ -181,14 +198,29 @@ export function getWorkspaceResourceListQuery(
   appAssert(false, new ServerError(), 'Control flow should not get here.');
 }
 
-export async function getWorkspaceFromEndpointInput(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  data: IEndpointOptionalWorkspaceIDParam
+export function getWorkspaceResourceListQuery00(
+  workspace: IWorkspace,
+  permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
 ) {
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
-  return {workspace};
+  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+    return {
+      workspaceId: workspace.resourceId,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList?.length
+        ? permissionsSummaryReport.deniedResourceIdList
+        : undefined,
+    };
+  } else if (permissionsSummaryReport.allowedResourceIdList) {
+    return {
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList.length
+        ? permissionsSummaryReport.allowedResourceIdList
+        : undefined,
+    };
+  } else if (permissionsSummaryReport.noAccess) {
+    throw new PermissionDeniedError();
+  }
+
+  appAssert(false, new ServerError(), 'Control flow should not get here.');
 }
 
 export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
@@ -199,4 +231,20 @@ export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
     data.pageSize = endpointConstants.maxPageSize;
   }
   return data;
+}
+
+export async function executeCascadeDelete<Args>(
+  context: IBaseContext,
+  cascadeDef: DeleteResourceCascadeFnsMap<Args>,
+  args: Args
+) {
+  await Promise.all(
+    Object.values(cascadeDef).map(fn =>
+      executeWithMutationRunOptions(context, opts => fn(context, args, opts))
+    )
+  );
+}
+
+export function assertUpdateNotEmpty(update: AnyObject) {
+  appAssert(!isObjectEmpty(update), new InvalidRequestError('Update data provided is empty.'));
 }

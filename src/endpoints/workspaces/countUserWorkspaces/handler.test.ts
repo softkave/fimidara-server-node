@@ -1,17 +1,20 @@
-import {systemAgent} from '../../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {appAssert} from '../../../utils/assertion';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../test-utils/generate-data/workspace';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countUserWorkspaces from './handler';
 
 let context: IBaseContext | null = null;
@@ -21,7 +24,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countUserWorkspaces', () => {
@@ -29,17 +32,31 @@ describe('countUserWorkspaces', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
-    await Promise.all(
-      workspaces.map(w => assignWorkspaceToUser(context!, systemAgent, w.resourceId, rawUser))
+    await executeWithMutationRunOptions(context, opts =>
+      Promise.all(
+        workspaces.map(w =>
+          assignWorkspaceToUser(
+            context!,
+            SYSTEM_SESSION_AGENT,
+            w.resourceId,
+            rawUser.resourceId,
+            opts
+          )
+        )
+      )
     );
+    appAssert(userToken.separateEntityId);
     const user = await populateUserWorkspaces(
       context,
-      await context.data.user.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(userToken.userId)
+      await context.semantic.user.assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(userToken.separateEntityId)
       )
     );
     const count = user.workspaces.length;
-    const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken), {});
+    const instData = RequestData.fromExpressRequest(
+      mockExpressRequestWithAgentToken(userToken),
+      {}
+    );
     const result = await countUserWorkspaces(context, instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

@@ -1,13 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getUserData from './getUserData';
 
 /**
@@ -24,7 +25,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('user data is returned', async () => {
@@ -33,9 +34,10 @@ test('user data is returned', async () => {
   const {user, userToken} = await insertUserForTest(context, {
     password,
   });
-
-  const instData = RequestData.fromExpressRequest(mockExpressRequestWithUserToken(userToken));
-  const result = await getUserData(context, instData);
+  const result = await getUserData(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+  );
   assertEndpointResultOk(result);
   expect(result.user).toMatchObject(user);
 });

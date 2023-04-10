@@ -1,18 +1,11 @@
 import {Response} from 'express';
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from 'jsonwebtoken';
+import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
-import {
-  CredentialsExpiredError,
-  InvalidCredentialsError,
-} from '../endpoints/user/errors';
+import {logger} from '../endpoints/globalUtils';
+import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/user/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
-import {logger} from '../utils/logger/logger';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {

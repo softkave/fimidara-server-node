@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceType, systemAgent} from '../../definitions/system';
+import {AppResourceType} from '../../definitions/system';
 import {
   IUsageRecord,
   UsageRecordCategory,
@@ -13,7 +13,9 @@ import {
 } from '../../definitions/usageRecord';
 import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {getNewIdForResource} from '../../utils/resourceId';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {getTimestamp} from '../../utils/dateFns';
+import {getNewIdForResource} from '../../utils/resource';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**
@@ -82,7 +84,7 @@ function getEndOfMonth() {
 }
 
 async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsageRecord) {
-  let fromDate = recordLevel2.lastUpdatedAt || getStartOfMonth();
+  let fromDate = recordLevel2.lastUpdatedAt ?? getStartOfMonth();
   const endDate = getEndOfMonth();
   let totalCount = 0;
   let lastCount = 0;
@@ -116,7 +118,7 @@ async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsag
         seconds: 1,
       });
 
-      fromDate = lastDate;
+      fromDate = getTimestamp(lastDate);
     }
   } while (lastCount > 0);
 
@@ -151,8 +153,10 @@ async function getUsageRecordsLevel2(
         year,
         fulfillmentStatus,
         resourceId: getNewIdForResource(AppResourceType.UsageRecord),
-        createdAt: new Date(),
-        createdBy: systemAgent,
+        createdAt: getTimestamp(),
+        createdBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         category: k,
         summationType: UsageSummationType.Two,
         usage: 0,
@@ -169,8 +173,8 @@ async function incrementRecordLevel2(connection: Connection, recordLevel2: IUsag
   const {sumUsage, sumCost} = await sumUsageRecordsLevel1(connection, recordLevel2);
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
-  recordLevel2.lastUpdatedAt = new Date();
-  recordLevel2.lastUpdatedBy = systemAgent;
+  recordLevel2.lastUpdatedAt = getTimestamp();
+  recordLevel2.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   return recordLevel2;
 }
 
@@ -207,8 +211,8 @@ async function aggregateRecordsLevel2(
     }
   });
 
-  totalRecord.lastUpdatedAt = new Date();
-  totalRecord.lastUpdatedBy = systemAgent;
+  totalRecord.lastUpdatedAt = getTimestamp();
+  totalRecord.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   const model = makeUsageRecordModel(connection);
   await model.bulkWrite(
     records.map(r => ({
@@ -233,16 +237,16 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
     UsageRecordFulfillmentStatus.Fulfilled
   );
 
-  const thresholds = workspace.usageThresholds || {};
-  const locks = workspace.usageThresholdLocks || {};
+  const thresholds = workspace.usageThresholds ?? {};
+  const locks = workspace.usageThresholdLocks ?? {};
   records.forEach(r => {
     const threshold = thresholds[r.category];
     if (threshold && r.usageCost >= threshold.budget) {
       const usageLock: IUsageThresholdLock = {
         ...defaultTo(locks[r.category], {}),
         category: r.category,
-        lastUpdatedAt: new Date(),
-        lastUpdatedBy: systemAgent,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         locked: true,
       };
 

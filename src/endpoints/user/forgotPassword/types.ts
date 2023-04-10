@@ -1,11 +1,8 @@
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IForgotPasswordParams {
+export interface IForgotPasswordEndpointParams {
   email: string;
 }
 
-export type ForgotPasswordEndpoint = Endpoint<
-  IBaseContext,
-  IForgotPasswordParams
->;
+export type ForgotPasswordEndpoint = Endpoint<IBaseContext, IForgotPasswordEndpointParams>;

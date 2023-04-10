@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, SessionAgentType} from '../../../definitions/system';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {IBaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -11,8 +11,8 @@ import {
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {permissionGroupExtractor} from '../utils';
 import updatePermissionGroup from './handler';
 import {IUpdatePermissionGroupEndpointParams, IUpdatePermissionGroupInput} from './types';
@@ -29,7 +29,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('permissionGroup updated', async () => {
@@ -41,13 +41,11 @@ test('permissionGroup updated', async () => {
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
     context,
     userToken,
     workspace.resourceId
   );
-
   const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
     context,
     userToken,
@@ -57,20 +55,9 @@ test('permissionGroup updated', async () => {
   const updatePermissionGroupInput: IUpdatePermissionGroupInput = {
     name: faker.lorem.words(2),
     description: faker.lorem.words(10),
-    permissionGroups: [
-      {
-        permissionGroupId: permissionGroup01.resourceId,
-        order: 1,
-      },
-      {
-        permissionGroupId: permissionGroup02.resourceId,
-        order: 2,
-      },
-    ],
   };
-
   const instData = RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+    mockExpressRequestWithAgentToken(userToken),
     {
       permissionGroupId: permissionGroup00.resourceId,
       data: updatePermissionGroupInput,
@@ -80,28 +67,15 @@ test('permissionGroup updated', async () => {
   const result = await updatePermissionGroup(context, instData);
   assertEndpointResultOk(result);
 
-  const updatedPermissionGroup = await populateAssignedPermissionGroupsAndTags(
+  const updatedPermissionGroup = await populateAssignedTags(
     context,
     workspace.resourceId,
-    await context.data.permissiongroup.assertGetOneByQuery(
+    await context.semantic.permissionGroup.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
-    ),
-    AppResourceType.PermissionGroup
+    )
   );
 
   expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(result.permissionGroup);
   expect(updatedPermissionGroup.name).toEqual(updatePermissionGroupInput.name);
   expect(updatedPermissionGroup.description).toEqual(updatePermissionGroupInput.description);
-  expect(result.permissionGroup.permissionGroups.length).toEqual(2);
-  expect(result.permissionGroup.permissionGroups[0]).toMatchObject({
-    permissionGroupId: permissionGroup01.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 1,
-  });
-
-  expect(result.permissionGroup.permissionGroups[1]).toMatchObject({
-    permissionGroupId: permissionGroup02.resourceId,
-    assignedBy: {agentId: user.resourceId, agentType: SessionAgentType.User},
-    order: 2,
-  });
 });

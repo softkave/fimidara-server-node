@@ -1,35 +1,28 @@
 import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
+import {AppActionType, ISessionAgent} from '../../definitions/system';
 import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-} from '../contexts/authorization-checks/checkAuthorizaton';
+} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
-import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
-import WorkspaceQueries from '../workspaces/queries';
+import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
 
 const fileFields = getFields<IPublicFile>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+  ...workspaceResourceFields,
   name: true,
   description: true,
-  folderId: true,
+  parentId: true,
   mimetype: true,
-  workspaceId: true,
   size: true,
   encoding: true,
   extension: true,
@@ -45,23 +38,17 @@ export async function checkFileAuthorization(
   context: IBaseContext,
   agent: ISessionAgent,
   file: IFile,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId);
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: file,
-    type: AppResourceType.File,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      file,
-      AppResourceType.File
-    ),
+    workspace,
+    workspaceId: workspace.resourceId,
+    containerId: getFilePermissionContainers(workspace.resourceId, file),
+    targets: {targetId: file.resourceId},
   });
 
   return {agent, file, workspace};
@@ -71,11 +58,11 @@ export async function checkFileAuthorization03(
   context: IBaseContext,
   agent: ISessionAgent,
   matcher: IFileMatcher,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType,
+  opts?: ISemanticDataAccessProviderRunOptions
 ) {
-  const file = await assertGetFileWithMatcher(context, matcher);
-  return checkFileAuthorization(context, agent, file, action, nothrow);
+  const file = await assertGetFileWithMatcher(context, matcher, opts);
+  return checkFileAuthorization(context, agent, file, action);
 }
 
 export interface ISplitFilenameWithDetails {
@@ -88,7 +75,6 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
   const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
   let nameWithoutExtension = splitStr[0];
   let extension: string | undefined = splitStr.slice(1).join(fileConstants.nameExtensionSeparator);
-
   if (extension && !nameWithoutExtension) {
     nameWithoutExtension = extension;
     extension = undefined;
@@ -136,8 +122,8 @@ export function getFilePathWithoutRootname(file: IFile) {
 
 export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: string) {
   const pathWithDetails = splitfilepathWithDetails(filepath);
-  const workspace = await context.data.workspace.getOneByQuery(
-    WorkspaceQueries.getByRootname(pathWithDetails.workspaceRootname)
+  const workspace = await context.semantic.workspace.getByRootname(
+    pathWithDetails.workspaceRootname
   );
   assertWorkspace(workspace);
   return workspace;
@@ -150,9 +136,7 @@ export async function getWorkspaceFromFileOrFilepath(
 ) {
   let workspace: IWorkspace | null = null;
   if (file) {
-    workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(file.workspaceId)
-    );
+    workspace = await context.semantic.workspace.getOneById(file.workspaceId);
   } else if (filepath) {
     workspace = await getWorkspaceFromFilepath(context, filepath);
   }

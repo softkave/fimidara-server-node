@@ -1,23 +1,11 @@
-import {IPublicPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
+import {IPublicPermissionItem} from '../../../definitions/permissionItem';
 import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {IPermissionItemInput, IPermissionItemInputEntity} from '../types';
 
-export interface INewPermissionItemInput {
-  containerId: string;
-  containerType: AppResourceType;
-  targetId?: string;
-  targetType: AppResourceType;
-  action: BasicCRUDActions;
-  grantAccess: boolean;
-  permissionEntityId: string;
-  permissionEntityType: AppResourceType;
-  appliesTo: PermissionItemAppliesTo;
-}
-
-export interface IAddPermissionItemsEndpointParams {
-  workspaceId?: string;
-  items: INewPermissionItemInput[];
+export interface IAddPermissionItemsEndpointParams extends IEndpointOptionalWorkspaceIDParam {
+  entity?: IPermissionItemInputEntity;
+  items: IPermissionItemInput[];
 }
 
 export interface IAddPermissionItemsEndpointResult {

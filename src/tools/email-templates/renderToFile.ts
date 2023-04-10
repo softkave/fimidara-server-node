@@ -5,33 +5,34 @@ import {
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   ICollaborationRequestEmailProps,
-} from '../../email-templates/collaborationRequest';
+} from '../../emailTemplates/collaborationRequest';
 import {
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
   ICollaborationRequestResponseEmailProps,
-} from '../../email-templates/collaborationRequestResponse';
+} from '../../emailTemplates/collaborationRequestResponse';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   ICollaborationRequestRevokedEmailProps,
-} from '../../email-templates/collaborationRequestRevoked';
+} from '../../emailTemplates/collaborationRequestRevoked';
 import {
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
   IConfirmEmailAddressEmailProps,
-} from '../../email-templates/confirmEmailAddress';
+} from '../../emailTemplates/confirmEmailAddress';
 import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
   IForgotPasswordEmailProps,
-} from '../../email-templates/forgotPassword';
+} from '../../emailTemplates/forgotPassword';
+import {getTimestamp} from '../../utils/dateFns';
 
 // Confirm email address email
 const comfirmEmailAddressHTMLFile =
-  './tools/email-templates/templates/confirm-email-address-html.html';
+  './tools/emailTemplates/templates/confirm-email-address-html.html';
 const confirmEmailAddressTxtFile =
-  './tools/email-templates/templates/confirm-email-address-text.txt';
+  './tools/emailTemplates/templates/confirm-email-address-text.txt';
 
 export function renderConfirmEmailAddressMedia() {
   const props: IConfirmEmailAddressEmailProps = {
@@ -46,10 +47,8 @@ export function renderConfirmEmailAddressMedia() {
 }
 
 // Forgot password email
-const forgotPasswordEmailHTMLFile =
-  './tools/email-templates/templates/forgot-password-html.html';
-const forgotPasswordEmailTxtFile =
-  './tools/email-templates/templates/forgot-password-text.txt';
+const forgotPasswordEmailHTMLFile = './tools/emailTemplates/templates/forgot-password-html.html';
+const forgotPasswordEmailTxtFile = './tools/emailTemplates/templates/forgot-password-text.txt';
 
 export function renderForgotPasswordMedia() {
   const props: IForgotPasswordEmailProps = {
@@ -65,9 +64,9 @@ export function renderForgotPasswordMedia() {
 
 // Collaboration request email
 const collaborationRequestEmailHTMLFile =
-  './tools/email-templates/templates/collaboration-request-html.html';
+  './tools/emailTemplates/templates/collaboration-request-html.html';
 const collaborationRequestEmailTxtFile =
-  './tools/email-templates/templates/collaboration-request-text.txt';
+  './tools/emailTemplates/templates/collaboration-request-text.txt';
 
 export function renderCollaborationRequestMedia() {
   const props: ICollaborationRequestEmailProps = {
@@ -75,10 +74,8 @@ export function renderCollaborationRequestMedia() {
     isRecipientAUser: true,
     loginLink: 'https://fimidara.com/accounts/signup',
     signupLink: 'https://fimidara.com/accounts/login',
-    expires: new Date().toISOString(),
-    message:
-      'Test collaboration request message. ' +
-      'Not too long, and not too short.',
+    expires: getTimestamp(),
+    message: 'Test collaboration request message. ' + 'Not too long, and not too short.',
   };
 
   const renderedHTML = collaborationRequestEmailHTML(props);
@@ -89,9 +86,9 @@ export function renderCollaborationRequestMedia() {
 
 // Collaboration request revoked email
 const collaborationRequestRevokedEmailHTMLFile =
-  './tools/email-templates/templates/collaboration-request-revoked-html.html';
+  './tools/emailTemplates/templates/collaboration-request-revoked-html.html';
 const collaborationRequestRevokedEmailTxtFile =
-  './tools/email-templates/templates/collaboration-request-revoked-text.txt';
+  './tools/emailTemplates/templates/collaboration-request-revoked-text.txt';
 
 export function renderCollaborationRequestRevokedMedia() {
   const props: ICollaborationRequestRevokedEmailProps = {
@@ -108,9 +105,9 @@ export function renderCollaborationRequestRevokedMedia() {
 
 // Collaboration request response email
 const collaborationRequestResponseEmailHTMLFile =
-  './tools/email-templates/templates/collaboration-request-response-html.html';
+  './tools/emailTemplates/templates/collaboration-request-response-html.html';
 const collaborationRequestResponseEmailTxtFile =
-  './tools/email-templates/templates/collaboration-request-response-text.txt';
+  './tools/emailTemplates/templates/collaboration-request-response-text.txt';
 
 export function renderCollaborationRequestResponseMedia() {
   const props: ICollaborationRequestResponseEmailProps = {

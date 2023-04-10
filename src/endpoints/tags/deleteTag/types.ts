@@ -1,4 +1,5 @@
 import {IBaseContext} from '../../contexts/types';
+import {ILongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
 export interface IDeleteTagEndpointParams {
@@ -7,5 +8,6 @@ export interface IDeleteTagEndpointParams {
 
 export type DeleteTagEndpoint = Endpoint<
   IBaseContext,
-  IDeleteTagEndpointParams
+  IDeleteTagEndpointParams,
+  ILongRunningJobResult
 >;

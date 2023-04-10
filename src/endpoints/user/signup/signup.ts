@@ -1,13 +1,9 @@
-import {merge} from 'lodash';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {makeUserSessionAgent} from '../../contexts/SessionContext';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {
-  getUserClientAssignedToken,
-  getUserToken,
-  toLoginResult,
-} from '../login/utils';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
 import {SignupEndpoint} from './types';
 import {internalSignupUser} from './utils';
@@ -25,19 +21,13 @@ async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
   const user = await internalSignupUser(context, data);
-  const userToken = await getUserToken(context, user);
-  const clientAssignedToken = await getUserClientAssignedToken(
-    context,
-    user.resourceId
+  const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
+    Promise.all([
+      getUserToken(context, user.resourceId, opts),
+      getUserClientAssignedToken(context, user.resourceId, opts),
+    ])
   );
-
-  // Make the user token available to other requests
-  // made with this request data
-  instData.agent = makeUserSessionAgent(
-    userToken,
-    merge(user, {workspaces: []})
-  );
-
+  instData.agent = makeUserSessionAgent(user, userToken);
   await callComfirmEmail(context, instData);
   return toLoginResult(context, user, userToken, clientAssignedToken);
 };

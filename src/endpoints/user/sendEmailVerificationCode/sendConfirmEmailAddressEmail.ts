@@ -3,11 +3,10 @@ import {
   confirmEmailAddressEmailText,
   confirmEmailAddressEmailTitle,
   IConfirmEmailAddressEmailProps,
-} from '../../../email-templates/confirmEmailAddress';
+} from '../../../emailTemplates/confirmEmailAddress';
 import {IBaseContext} from '../../contexts/types';
 
-export interface ISendConfirmEmailAddressEmailParams
-  extends IConfirmEmailAddressEmailProps {
+export interface ISendConfirmEmailAddressEmailParams extends IConfirmEmailAddressEmailProps {
   emailAddress: string;
 }
 
