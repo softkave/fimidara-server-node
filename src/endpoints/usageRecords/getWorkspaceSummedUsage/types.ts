@@ -1,5 +1,5 @@
 import {
-  IUsageRecord,
+  IPublicUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
 } from '../../../definitions/usageRecord';
@@ -28,7 +28,7 @@ export interface IGetWorkspaceSummedUsageEndpointParams
     IPaginationQuery {}
 
 export interface IGetWorkspaceSummedUsageEndpointResult extends IPaginatedResult {
-  records: IUsageRecord[];
+  records: IPublicUsageRecord[];
 }
 
 export type GetWorkspaceSummedUsageEndpoint = Endpoint<

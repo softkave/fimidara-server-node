@@ -7,8 +7,7 @@ import {
   updateAgentTokenEndpointDefinition,
 } from '../endpoints/agentTokens/endpoints.mddoc';
 import {
-  getCollaborationRequestForUserEndpointDefinition,
-  getCollaborationRequestForWorkspaceEndpointDefinition,
+  getUserCollaborationRequestEndpointDefinition,
   getWorkspaceCollaborationRequestEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
@@ -49,7 +48,7 @@ import {
   getWorkspaceEndpointDefinition,
   updateWorkspaceEndpointDefinition,
 } from '../endpoints/workspaces/endpoints.mddoc';
-import {docEndpoint, HttpEndpointDefinition} from './mddoc';
+import {HttpEndpointDefinition, docEndpoint} from './mddoc';
 import path = require('path');
 
 const endpoints = [
@@ -95,8 +94,8 @@ const endpoints = [
   getWorkspaceCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
-  getCollaborationRequestForUserEndpointDefinition,
-  getCollaborationRequestForWorkspaceEndpointDefinition,
+  getUserCollaborationRequestEndpointDefinition,
+  getWorkspaceCollaborationRequestEndpointDefinition,
   revokeCollaborationRequestEndpointDefinition,
 
   // collaborators
@@ -123,6 +122,7 @@ description: ${endpoint.assertGetDescription()}
 # {% $markdoc.frontmatter.title %}
 ${md}
 `;
+
   fse.ensureFileSync(filename);
   return fse.writeFile(filename, doc, {encoding: 'utf-8'});
 }

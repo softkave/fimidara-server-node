@@ -4,14 +4,14 @@ import {
   IPublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldArray,
   FieldObject,
   FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
   HttpEndpointResponse,
+  asFieldObjectAny,
+  cloneAndMarkNotRequired,
 } from '../../mddoc/mddoc';
 import {
   endpointHttpHeaderItems,
@@ -249,26 +249,26 @@ export const sendCollaborationRequestEndpointDefinition = new HttpEndpointDefini
   .setRequestBody(asFieldObjectAny(sendCollaborationRequestParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(sendCollaborationRequestResult)
-  .setName('Add Collaboration Request Endpoint')
+  .setName('AddCollaborationRequestEndpoint')
   .setDescription('Add collaboration request endpoint.');
 
-export const getCollaborationRequestForUserEndpointDefinition = new HttpEndpointDefinition()
+export const getUserCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaborationRequestForUserParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getCollaborationRequestForUserResult)
-  .setName('Get Collaboration Request Endpoint')
-  .setDescription('Get collaboration request endpoint.');
+  .setName('GetUserCollaborationRequestEndpoint')
+  .setDescription('Get user collaboration request endpoint.');
 
-export const getCollaborationRequestForWorkspaceEndpointDefinition = new HttpEndpointDefinition()
+export const getWorkspaceCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaborationRequestForWorkspaceParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getCollaborationRequestForWorkspaceResult)
-  .setName('Get Collaboration Request Endpoint')
-  .setDescription('Get collaboration request endpoint.');
+  .setName('GetWorkspaceCollaborationRequestEndpoint')
+  .setDescription('Get workspace collaboration request endpoint.');
 
 export const updateCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collabRequestConstants.routes.updateRequest)
@@ -276,7 +276,7 @@ export const updateCollaborationRequestEndpointDefinition = new HttpEndpointDefi
   .setRequestBody(asFieldObjectAny(updateCollaborationRequestParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateCollaborationRequestResult)
-  .setName('Update Collaboration Request Endpoint')
+  .setName('UpdateCollaborationRequestEndpoint')
   .setDescription('Update collaboration request endpoint.');
 
 export const revokeCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
@@ -285,14 +285,14 @@ export const revokeCollaborationRequestEndpointDefinition = new HttpEndpointDefi
   .setRequestBody(asFieldObjectAny(revokeCollaborationRequestParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(revokeCollaborationRequestResult)
-  .setName('Revoke Collaboration Request Endpoint')
+  .setName('RevokeCollaborationRequestEndpoint')
   .setDescription('Revoke collaboration request endpoint.');
 
-export const getWorkspaceCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getWorkspaceCollaborationRequestsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceCollaborationRequestsResult)
-  .setName('Get Workspace Collaboration Requests Endpoint')
-  .setDescription('Get workspace collaboration requests endpoint.');
+// export const getWorkspaceCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
+//   .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
+//   .setMethod(HttpEndpointMethod.Post)
+//   .setRequestBody(asFieldObjectAny(getWorkspaceCollaborationRequestsParams))
+//   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+//   .setResponses(getWorkspaceCollaborationRequestsResult)
+//   .setName('GetWorkspaceCollaborationRequestsEndpoint')
+//   .setDescription('Get workspace collaboration requests endpoint.');

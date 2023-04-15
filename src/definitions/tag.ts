@@ -5,6 +5,7 @@ export interface ITag extends IWorkspaceResource {
   description?: string;
 }
 
+// TODO: Not the right tag input. Tags should be assigned by name.
 export interface IAssignedTagInput {
   tagId: string;
 }

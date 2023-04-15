@@ -18,6 +18,7 @@ export async function getWorkspaceSummedUsageQuery(
   workspaceId: string,
   data: IGetWorkspaceSummedUsageEndpointParams
 ) {
+  // TODO: should we include permissions check for usage records?
   await checkWorkspaceAuthorization02(context, agent, AppActionType.Read, workspaceId);
 
   const query: LiteralDataQuery<IUsageRecord> = {

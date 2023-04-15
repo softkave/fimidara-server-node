@@ -3,12 +3,14 @@ import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../defi
 import {
   IBandwidthUsageRecordArtifact,
   IFileUsageRecordArtifact,
+  IPublicUsageRecord,
   IUsageRecord,
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
 import {IWorkspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {appMessages} from '../../utils/messages';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
@@ -17,6 +19,7 @@ import {IBaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
+import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(
@@ -198,3 +201,16 @@ export function throwUsageRecordNotFound() {
 export function assertUsageRecord(item?: IUsageRecord | null): asserts item {
   appAssert(item, reuseableErrors.usageRecord.notFound());
 }
+
+const usageRecordFields = getFields<IPublicUsageRecord>({
+  ...workspaceResourceFields,
+  category: true,
+  fulfillmentStatus: true,
+  month: true,
+  year: true,
+  usage: true,
+  usageCost: true,
+});
+
+export const usageRecordExtractor = makeExtract(usageRecordFields);
+export const usageRecordListExtractor = makeListExtract(usageRecordFields);

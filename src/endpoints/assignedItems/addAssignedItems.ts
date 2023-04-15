@@ -180,6 +180,8 @@ export async function addAssignedTagList(
     );
   }
 
+  // TODO: This logic is wrong, try creating tags that don't exist, then assign
+  // them if not yet assigned.
   const items = tags.map(tag => {
     return withAssignedAgent(
       agent,

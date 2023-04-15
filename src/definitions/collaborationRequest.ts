@@ -11,22 +11,6 @@ export type CollaborationRequestResponse =
   | CollaborationRequestStatusType.Accepted
   | CollaborationRequestStatusType.Declined;
 
-export interface ICollaborationRequestStatus {
-  status: CollaborationRequestStatusType;
-  date: number;
-}
-
-export enum CollaborationRequestEmailReason {
-  RequestNotification = 'request-notification',
-  RequestRevoked = 'request-revoked',
-  RequestUpdated = 'request-updated',
-}
-
-export interface ICollaborationRequestSentEmailHistoryItem {
-  date: number;
-  reason: CollaborationRequestEmailReason;
-}
-
 export interface ICollaborationRequest extends IWorkspaceResource {
   recipientEmail: string;
   message: string;
@@ -37,10 +21,7 @@ export interface ICollaborationRequest extends IWorkspaceResource {
   statusDate: number;
 }
 
-export type IPublicCollaborationRequestForUser = Pick<
-  IPublicResource,
-  'resourceId' | 'createdAt' | 'lastUpdatedAt'
-> &
+export type IPublicCollaborationRequestForUser = IPublicResource &
   Pick<
     ICollaborationRequest,
     | 'message'
@@ -53,6 +34,4 @@ export type IPublicCollaborationRequestForUser = Pick<
   >;
 
 export type IPublicCollaborationRequestForWorkspace =
-  ConvertAgentToPublicAgent<ICollaborationRequest> & {
-    // permissionGroupsAssignedOnAcceptingRequest: IPublicAssignedPermissionGroupMeta[];
-  };
+  ConvertAgentToPublicAgent<ICollaborationRequest>;

@@ -2,16 +2,17 @@ import {
   AppActionType,
   AppResourceType,
   ConvertAgentToPublicAgent,
+  IPublicWorkspaceResource,
   IWorkspaceResource,
 } from './system';
 
 export enum UsageRecordCategory {
-  Storage = 'storage',
-  BandwidthIn = 'bandwidthIn',
-  BandwidthOut = 'bandwidthOut',
+  Storage = 's',
+  BandwidthIn = 'bin',
+  BandwidthOut = 'bout',
   // Request = 'request',
   // DatabaseObject = 'dbObject',
-  Total = 'total',
+  Total = 't',
 }
 
 export enum UsageRecordArtifactType {
@@ -28,11 +29,11 @@ export interface IUsageRecordArtifact {
 
 export enum UsageRecordFulfillmentStatus {
   // Default status
-  Undecided = 'undecided',
+  Undecided = 'u',
   // usage record has been fulfilled
-  Fulfilled = 'fulfilled',
+  Fulfilled = 'f',
   // usage record has not been fulfilled
-  Dropped = 'dropped',
+  Dropped = 'd',
 }
 
 export enum UsageRecordDropReason {
@@ -68,7 +69,10 @@ export interface IUsageRecord extends IWorkspaceResource {
   year: number;
 }
 
-export type IPublicUsageRecord = ConvertAgentToPublicAgent<IUsageRecord>;
+export type IPublicUsageRecord = IPublicWorkspaceResource &
+  ConvertAgentToPublicAgent<
+    Pick<IUsageRecord, 'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'>
+  >;
 
 export interface IFileUsageRecordArtifact {
   fileId: string;

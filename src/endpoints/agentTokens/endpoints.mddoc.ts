@@ -63,7 +63,7 @@ const addAgentTokenParams = new FieldObject<IAddAgentTokenEndpointParams>()
     token: newAgentTokenInput,
   })
   .setRequired(true)
-  .setDescription('Add program access token endpoint params.');
+  .setDescription('Add agent token endpoint params.');
 const addAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -74,7 +74,7 @@ const addAgentTokenResult = [
         .setName('AddAgentTokenEndpointSuccessResult')
         .setFields({token: agentToken})
         .setRequired(true)
-        .setDescription('Add program access token endpoint success result.')
+        .setDescription('Add agent token endpoint success result.')
     ),
 ];
 
@@ -86,7 +86,7 @@ const getWorkspaceAgentTokensParams = new FieldObject<IGetWorkspaceAgentTokensEn
     pageSize: fReusables.pageSizeNotRequired,
   })
   .setRequired(true)
-  .setDescription('Get workspace program access tokens endpoint params.');
+  .setDescription('Get workspace agent tokens endpoint params.');
 const getWorkspaceAgentTokensResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -97,7 +97,7 @@ const getWorkspaceAgentTokensResult = [
         .setName('GetWorkspaceAgentTokensEndpointSuccessResult')
         .setFields({tokens: new FieldArray().setType(agentToken), page: fReusables.page})
         .setRequired(true)
-        .setDescription('Get workspace program access tokens endpoint success result.')
+        .setDescription('Get workspace agent tokens endpoint success result.')
     ),
 ];
 
@@ -111,7 +111,7 @@ const updateAgentTokenParams = new FieldObject<IUpdateAgentTokenEndpointParams>(
     providedResourceId: fReusables.providedResourceIdNotRequired,
   })
   .setRequired(true)
-  .setDescription('Update program access token endpoint params.');
+  .setDescription('Update agent token endpoint params.');
 const updateAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -122,7 +122,7 @@ const updateAgentTokenResult = [
         .setName('UpdateAgentTokenEndpointSuccessResult')
         .setFields({token: agentToken})
         .setRequired(true)
-        .setDescription('Update program access token endpoint success result.')
+        .setDescription('Update agent token endpoint success result.')
     ),
 ];
 
@@ -135,7 +135,7 @@ const getAgentTokenParams = new FieldObject<IGetAgentTokenEndpointParams>()
     onReferenced: fReusables.effectOnReferencedNotRequired,
   })
   .setRequired(true)
-  .setDescription('Get program access token endpoint params.');
+  .setDescription('Get agent token endpoint params.');
 const getAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
@@ -146,7 +146,7 @@ const getAgentTokenResult = [
         .setName('UpdateAgentTokenEndpointSuccessResult')
         .setFields({token: agentToken})
         .setRequired(true)
-        .setDescription('Get program access token endpoint success result.')
+        .setDescription('Get agent token endpoint success result.')
     ),
 ];
 
@@ -159,7 +159,7 @@ const deleteAgentTokenParams = new FieldObject<IDeleteAgentTokenEndpointParams>(
     workspaceId: fReusables.workspaceIdInputNotRequired,
   })
   .setRequired(true)
-  .setDescription('Delete program access token endpoint params.');
+  .setDescription('Delete agent token endpoint params.');
 
 export const addAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.addToken)
@@ -167,8 +167,8 @@ export const addAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(addAgentTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(addAgentTokenResult)
-  .setName('Add Program Access Token Endpoint')
-  .setDescription('Add program access token endpoint.');
+  .setName('AddAgentTokenEndpoint')
+  .setDescription('Add agent token endpoint.');
 
 export const getAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.getToken)
@@ -176,8 +176,8 @@ export const getAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(getAgentTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getAgentTokenResult)
-  .setName('Get Program Access Token Endpoint')
-  .setDescription('Get program access token endpoint.');
+  .setName('GetAgentTokenEndpoint')
+  .setDescription('Get agent token endpoint.');
 
 export const updateAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.updateToken)
@@ -185,8 +185,8 @@ export const updateAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(updateAgentTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateAgentTokenResult)
-  .setName('Update Program Access Token Endpoint')
-  .setDescription('Update program access token endpoint.');
+  .setName('UpdateAgentTokenEndpoint')
+  .setDescription('Update agent token endpoint.');
 
 export const deleteAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.deleteToken)
@@ -194,8 +194,8 @@ export const deleteAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(deleteAgentTokenParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete Program Access Token Endpoint')
-  .setDescription('Delete program access token endpoint.');
+  .setName('DeleteAgentTokenEndpoint')
+  .setDescription('Delete agent token endpoint.');
 
 export const getWorkspaceAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
@@ -203,5 +203,5 @@ export const getWorkspaceAgentTokenEndpointDefinition = new HttpEndpointDefiniti
   .setRequestBody(asFieldObjectAny(getWorkspaceAgentTokensParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getWorkspaceAgentTokensResult)
-  .setName('Get Workspace Program Access Tokens Endpoint')
-  .setDescription('Get workspace program access tokens endpoint.');
+  .setName('GetWorkspaceAgentTokensEndpoint')
+  .setDescription('Get workspace agent tokens endpoint.');

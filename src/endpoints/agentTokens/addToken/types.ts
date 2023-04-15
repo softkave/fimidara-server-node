@@ -1,5 +1,4 @@
 import {IPublicAgentToken} from '../../../definitions/agentToken';
-import {IAssignedTagInput} from '../../../definitions/tag';
 import {IBaseContext} from '../../contexts/types';
 import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
 
@@ -8,7 +7,6 @@ export interface INewAgentTokenInput {
   name?: string;
   description?: string;
   expires?: number;
-  tags?: IAssignedTagInput[];
 }
 
 export interface IAddAgentTokenEndpointParams extends IEndpointOptionalWorkspaceIDParam {

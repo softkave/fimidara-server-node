@@ -1,8 +1,6 @@
 import {IFileMatcher, IPublicFile} from '../../definitions/file';
 import {ExcludeTags} from '../../definitions/tag';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldBinary,
   FieldObject,
   FieldObjectFields,
@@ -12,8 +10,10 @@ import {
   HttpEndpointHeaders,
   HttpEndpointMethod,
   HttpEndpointMultipartFormdata,
-  HttpEndpointParameterPathnameItem,
+  HttpEndpointPathParameterItem,
   HttpEndpointResponse,
+  asFieldObjectAny,
+  cloneAndMarkNotRequired,
   orUndefined,
 } from '../../mddoc/mddoc';
 import {
@@ -25,7 +25,7 @@ import {
 import {fileConstants} from './constants';
 import {IDeleteFileEndpointParams} from './deleteFile/types';
 import {IGetFileDetailsEndpointParams, IGetFileDetailsEndpointResult} from './getFileDetails/types';
-import {IImageTransformationParams} from './readFile/types';
+import {IImageTransformationParams, IReadFileEndpointParams} from './readFile/types';
 import {IReadFileEndpointQueryParams} from './setupRESTEndpoints';
 import {
   IUpdateFileDetailsEndpointParams,
@@ -90,7 +90,7 @@ const fileMatcherParts: FieldObjectFields<IFileMatcher> = {
   fileId: fReusables.fileIdNotRequired,
 };
 
-const filepathParameterPathname = new HttpEndpointParameterPathnameItem()
+const filepathParameterPathname = new HttpEndpointPathParameterItem()
   .setName('filepath')
   .setType(
     new FieldString()
@@ -147,7 +147,7 @@ const deleteFileParams = new FieldObject<IDeleteFileEndpointParams>()
   .setRequired(true)
   .setDescription('Delete file endpoint params.');
 
-const getFileParams = new FieldObject<IGetFileEndpointParams>()
+const readFileParams = new FieldObject<IReadFileEndpointParams>()
   .setName('GetFileEndpointParams')
   .setFields({
     ...fileMatcherParts,
@@ -160,7 +160,7 @@ const getFileParams = new FieldObject<IGetFileEndpointParams>()
   })
   .setRequired(true)
   .setDescription('Get file endpoint params.');
-const getFileResult = [
+const readFileResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
     .setStatusCode(endpointStatusCodes.success)
@@ -217,7 +217,7 @@ const uploadFileResult = [
 
 export const readFileEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(fileConstants.routes.readFile)
-  .setParameterPathnames([filepathParameterPathname])
+  .setPathParamaters([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setQuery(
     asFieldObjectAny(
@@ -227,19 +227,19 @@ export const readFileEndpointDefinition = new HttpEndpointDefinition()
       })
     )
   )
-  .setRequestBody(asFieldObjectAny(getFileParams))
-  .setResponses(getFileResult)
-  .setName('Get File Endpoint')
-  .setDescription('Get file endpoint.');
+  .setRequestBody(asFieldObjectAny(readFileParams))
+  .setResponses(readFileResult)
+  .setName('ReadFileEndpoint')
+  .setDescription('Read file endpoint.');
 
 export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(fileConstants.routes.uploadFile)
-  .setParameterPathnames([filepathParameterPathname])
+  .setPathParamaters([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(uploadFileResult)
-  .setName('Upload File Endpoint')
+  .setName('UploadFileEndpoint')
   .setDescription('Upload file endpoint.');
 
 export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
@@ -248,7 +248,7 @@ export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(getFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getFileDetailsResult)
-  .setName('Get File details Endpoint')
+  .setName('GetFileDetailsEndpoint')
   .setDescription('Get file details endpoint.');
 
 export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
@@ -257,7 +257,7 @@ export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(updateFileDetailsParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateFileDetailsResult)
-  .setName('Update File Details Endpoint')
+  .setName('UpdateFileDetailsEndpoint')
   .setDescription('Update file details endpoint.');
 
 export const deleteFileEndpointDefinition = new HttpEndpointDefinition()
@@ -266,7 +266,7 @@ export const deleteFileEndpointDefinition = new HttpEndpointDefinition()
   .setRequestBody(asFieldObjectAny(deleteFileParams))
   .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete File Endpoint')
+  .setName('DeleteFileEndpoint')
   .setDescription('Delete file endpoint.');
 
 export const fileEndpointsParts = {file};
