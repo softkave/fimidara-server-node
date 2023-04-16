@@ -6,8 +6,6 @@ import {
   WorkspaceBillStatus,
 } from '../../definitions/workspace';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldBoolean,
   FieldNumber,
   FieldObject,
@@ -15,13 +13,15 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
   HttpEndpointResponse,
+  asFieldObjectAny,
+  cloneAndMarkNotRequired,
   orUndefined,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {IEndpointOptionalWorkspaceIDParam} from '../types';
 import {IAddWorkspaceEndpointParams, IAddWorkspaceEndpointResult} from './addWorkspace/types';
@@ -43,7 +43,8 @@ const usageRecordCategory = new FieldString()
   .setRequired(true)
   .setDescription('Usage record category.')
   .setExample(UsageRecordCategory.Storage)
-  .setValid(Object.values(UsageRecordCategory));
+  .setValid(Object.values(UsageRecordCategory))
+  .setEnumName('UsageRecordCategory');
 const price = new FieldNumber().setRequired(true).setDescription('Price in USD.').setExample(5);
 const usageThreshold = new FieldObject<IUsageThreshold>().setName('UsageThreshold').setFields({
   lastUpdatedBy: fReusables.agent,
@@ -81,6 +82,7 @@ const workspace = new FieldObject<IPublicWorkspace>().setName('Workspace').setFi
       .setDescription('Workspace bill status')
       .setExample(WorkspaceBillStatus.Ok)
       .setValid(Object.values(WorkspaceBillStatus))
+      .setEnumName('WorkspaceBillStatus')
   ),
   usageThresholds: orUndefined(
     new FieldObject<IPublicWorkspace['usageThresholds']>()
@@ -116,8 +118,8 @@ const addWorkspaceParams = new FieldObject<IAddWorkspaceEndpointParams>()
 const addWorkspaceResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IAddWorkspaceEndpointResult>()
         .setName('AddWorkspaceEndpointSuccessResult')
@@ -137,8 +139,8 @@ const getWorkspaceParams = new FieldObject<IEndpointOptionalWorkspaceIDParam>()
 const getWorkspaceResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetWorkspaceEndpointResult>()
         .setName('GetWorkspaceEndpointSuccessResult')
@@ -162,8 +164,8 @@ const updateWorkspaceParams = new FieldObject<IUpdateWorkspaceEndpointParams>()
 const updateWorkspaceResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUpdateWorkspaceEndpointResult>()
         .setName('UpdateWorkspaceEndpointSuccessResult')
@@ -185,34 +187,34 @@ export const addWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(workspaceConstants.routes.addWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(addWorkspaceResult)
-  .setName('Add Workspace Endpoint')
+  .setName('AddWorkspaceEndpoint')
   .setDescription('Add workspace endpoint.');
 
 export const getWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(workspaceConstants.routes.getWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getWorkspaceResult)
-  .setName('Get Workspace Endpoint')
+  .setName('GetWorkspaceEndpoint')
   .setDescription('Get workspace endpoint.');
 
 export const updateWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(workspaceConstants.routes.updateWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateWorkspaceResult)
-  .setName('Update Workspace Endpoint')
+  .setName('UpdateWorkspaceEndpoint')
   .setDescription('Update workspace endpoint.');
 
 export const deleteWorkspaceEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(workspaceConstants.routes.deleteWorkspace)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete Workspace Endpoint')
+  .setName('DeleteWorkspaceEndpoint')
   .setDescription('Delete workspace endpoint.');

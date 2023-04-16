@@ -2,8 +2,6 @@ import {IPublicPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType, getWorkspaceResourceTypeList} from '../../definitions/system';
 import {ExcludeTags} from '../../definitions/tag';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldArray,
   FieldBoolean,
   FieldObject,
@@ -11,13 +9,15 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
   HttpEndpointResponse,
+  asFieldObjectAny,
+  cloneAndMarkNotRequired,
   orUndefined,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {
   IAddPermissionItemsEndpointParams,
@@ -33,11 +33,7 @@ import {
   IGetResourcePermissionItemsEndpointParams,
   IGetResourcePermissionItemsEndpointResult,
 } from './getResourcePermissionItems/types';
-import {
-  IPermissionItemInput,
-  IPermissionItemInputEntity,
-  IPermissionItemInputTarget,
-} from './types';
+import {IPermissionItemInput, IPermissionItemInputTarget} from './types';
 
 const targetId = fReusables.workspaceId
   .clone()
@@ -49,23 +45,8 @@ const targetType = fReusables.resourceType
       'You can pass only the resource type to retrieve all the permission items ' +
       'that grant access to a resource type, or also pass a resource ID to restrict it to just that resource.'
   )
-  .setValid(getWorkspaceResourceTypeList());
-const containerId = fReusables.workspaceId
-  .clone()
-  .setDescription(
-    'Resource ID of the container resource to search under. ' +
-      'Defaults to workspace ID. ' +
-      'Containers serve to subclass permission so that you can for example, ' +
-      'grant access to all files in a folder without risking granting permission to all the files in a workspace.'
-  );
-const containerType = new FieldString()
-  .setDescription(
-    'Resource type of the container resource to search under. ' +
-      'Defaults to workspace. ' +
-      'Containers serve to subclass permission so that you can for example, ' +
-      'grant access to all files in a folder without risking granting permission to all the files in a workspace.'
-  )
-  .setValid([AppResourceType.Workspace, AppResourceType.Folder]);
+  .setValid(getWorkspaceResourceTypeList())
+  .setEnumName('WorkspaceAppResourceType');
 const entityId = fReusables.permissionGroupId
   .clone()
   .setDescription(
@@ -79,30 +60,25 @@ const entityType = new FieldString()
       'Permission entity is the resource granted access. ' +
       'This can be a user, a permission group, a permission item, or a client assigned token.'
   )
-  .setValid([AppResourceType.User, AppResourceType.PermissionGroup, AppResourceType.AgentToken]);
+  .setValid([AppResourceType.User, AppResourceType.PermissionGroup, AppResourceType.AgentToken])
+  .setEnumName('EntityAppResourceType');
 const grantAccess = new FieldBoolean().setDescription(
   'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
 );
 const targetIdOrUndefined = orUndefined(targetId);
-const containerIdNotRequired = cloneAndMarkNotRequired(containerId);
 const targetIdNotRequired = cloneAndMarkNotRequired(targetId);
 const entityIdNotRequired = cloneAndMarkNotRequired(entityId);
 
 // TODO: add or array to target, container, and entity, and confirm mddoc md
 // renderer renders it well.
 const target = new FieldObject<ExcludeTags<IPermissionItemInputTarget>>()
-  .setName('NewPermissionItemInput')
+  .setName('NewPermissionItemInputTarget')
   .setFields({
     targetType,
     targetId: targetIdNotRequired,
     filepath: fReusables.filepathNotRequired,
     folderpath: fReusables.folderpathNotRequired,
     workspaceRootname: fReusables.rootnameNotRequired,
-  });
-const entity = new FieldObject<ExcludeTags<IPermissionItemInputEntity>>()
-  .setName('NewPermissionItemInput')
-  .setFields({
-    entityId: entityIdNotRequired,
   });
 
 const newPermissionItemInput = new FieldObject<ExcludeTags<IPermissionItemInput>>()
@@ -150,8 +126,8 @@ const addPermissionItemsParams = new FieldObject<IAddPermissionItemsEndpointPara
 const addPermissionItemsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IAddPermissionItemsEndpointResult>()
         .setName('AddPermissionItemsEndpointSuccessResult')
@@ -176,8 +152,8 @@ const getResourcePermissionItemsParams =
 const getResourcePermissionItemsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetResourcePermissionItemsEndpointResult>()
         .setName('GetResourcePermissionItemsEndpointSuccessResult')
@@ -203,8 +179,8 @@ const getEntityPermissionItemsParams = new FieldObject<IGetEntityPermissionItems
 const getEntityPermissionItemsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetEntityPermissionItemsEndpointResult>()
         .setName('getEntityPermissionItemsEndpointSuccessResult')
@@ -229,34 +205,34 @@ export const addPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(permissionItemConstants.routes.addItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addPermissionItemsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(addPermissionItemsResult)
-  .setName('Add Permission Items Endpoint')
+  .setName('AddPermissionItemsEndpoint')
   .setDescription('Add permission items endpoint.');
 
 export const getEntityPermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(permissionItemConstants.routes.getEntityPermissionItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getEntityPermissionItemsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getEntityPermissionItemsResult)
-  .setName('Get Entity Permission Items Endpoint')
+  .setName('GetEntityPermissionItemsEndpoint')
   .setDescription('Get entity permission items endpoint.');
 
 export const deletePermissionItemsByIdEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(permissionItemConstants.routes.deleteItemsById)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deletePermissionItemsByIdParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete Permission Items Endpoint')
+  .setName('DeletePermissionItemsEndpoint')
   .setDescription('Delete permission items endpoint.');
 
 export const getResourcePermissionItemsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(permissionItemConstants.routes.getResourcePermissionItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getResourcePermissionItemsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getResourcePermissionItemsResult)
-  .setName('Get Resource Permission Items Endpoint')
+  .setName('GetResourcePermissionItemsEndpoint')
   .setDescription('Get resource permission items endpoint.');

@@ -11,10 +11,10 @@ import {
   partialFieldObject,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {
   IAddAgentTokenEndpointParams,
@@ -67,8 +67,8 @@ const addAgentTokenParams = new FieldObject<IAddAgentTokenEndpointParams>()
 const addAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IAddAgentTokenEndpointResult>()
         .setName('AddAgentTokenEndpointSuccessResult')
@@ -90,8 +90,8 @@ const getWorkspaceAgentTokensParams = new FieldObject<IGetWorkspaceAgentTokensEn
 const getWorkspaceAgentTokensResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetWorkspaceAgentTokensEndpointResult>()
         .setName('GetWorkspaceAgentTokensEndpointSuccessResult')
@@ -115,8 +115,8 @@ const updateAgentTokenParams = new FieldObject<IUpdateAgentTokenEndpointParams>(
 const updateAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUpdateAgentTokenEndpointResult>()
         .setName('UpdateAgentTokenEndpointSuccessResult')
@@ -139,8 +139,8 @@ const getAgentTokenParams = new FieldObject<IGetAgentTokenEndpointParams>()
 const getAgentTokenResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetAgentTokenEndpointResult>()
         .setName('UpdateAgentTokenEndpointSuccessResult')
@@ -165,7 +165,7 @@ export const addAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(addAgentTokenResult)
   .setName('AddAgentTokenEndpoint')
   .setDescription('Add agent token endpoint.');
@@ -174,7 +174,7 @@ export const getAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getAgentTokenResult)
   .setName('GetAgentTokenEndpoint')
   .setDescription('Get agent token endpoint.');
@@ -183,7 +183,7 @@ export const updateAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateAgentTokenResult)
   .setName('UpdateAgentTokenEndpoint')
   .setDescription('Update agent token endpoint.');
@@ -192,7 +192,7 @@ export const deleteAgentTokenEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(agentTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
   .setName('DeleteAgentTokenEndpoint')
   .setDescription('Delete agent token endpoint.');
@@ -201,7 +201,7 @@ export const getWorkspaceAgentTokenEndpointDefinition = new HttpEndpointDefiniti
   .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceAgentTokensParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getWorkspaceAgentTokensResult)
   .setName('GetWorkspaceAgentTokensEndpoint')
   .setDescription('Get workspace agent tokens endpoint.');

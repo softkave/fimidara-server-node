@@ -25,7 +25,8 @@ export const FieldString = withClassAccessors(
       public example?: string,
       public valid?: string[],
       public min?: number,
-      public max?: number
+      public max?: number,
+      public enumName?: string
     ) {
       super(required, description);
     }
@@ -163,7 +164,7 @@ export enum HttpEndpointMethod {
 
 export const HttpEndpointMultipartFormdata = withClassAccessors(
   class HttpEndpointMultipartFormdata_ {
-    constructor(public items?: MddocTypeFieldObject, public isSingularBlob?: boolean) {}
+    constructor(public items?: MddocTypeFieldObject) {}
   }
 );
 
@@ -596,16 +597,23 @@ export function isMultipartFormdata(f: any): f is MddocTypeHttpEndpointMultipart
   return f instanceof HttpEndpointMultipartFormdata;
 }
 
+export function isFieldBinary(f: any): f is MddocTypeFieldBinary {
+  return f instanceof FieldBinary;
+}
+
 export function mddoc() {
   return new MdDocumenter();
 }
 
-export function httpHeadersToFieldObject(headers: Array<MddocTypeHttpEndpointHeaderItem>) {
+export function httpHeadersToFieldObject(
+  headers: Array<MddocTypeHttpEndpointHeaderItem>,
+  name = 'HTTPHeaders'
+) {
   const kf = indexArray(headers, {
     indexer: h => h.assertGetName(),
     reducer: h => h.assertGetType(),
   });
-  return new FieldObject().setFields(kf).setName('HTTPHeaders');
+  return new FieldObject().setFields(kf).setName(name);
 }
 
 export function httpPathParameterToFieldObject(
@@ -811,13 +819,9 @@ export function docEndpoint(endpoint: MddocTypeHttpEndpoint) {
     if (b instanceof FieldObject) {
       m.insertObjectAsMdTable(undefined, b, hideRequiredCell);
     } else if (b instanceof HttpEndpointMultipartFormdata) {
-      if (b.getIsSingularBlob()) {
-        m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
-      } else {
-        m.insertBoldText(title)
-          .insertNewLine()
-          .insertObjectAsMdTable(undefined, b.assertGetItems(), hideRequiredCell);
-      }
+      m.insertBoldText(title)
+        .insertNewLine()
+        .insertObjectAsMdTable(undefined, b.assertGetItems(), hideRequiredCell);
     } else if (b instanceof FieldBinary) {
       m.insertBoldText(title).insertInlineSeparator().insertInlineCode('binary');
     }
@@ -864,4 +868,10 @@ export function docEndpointListToC(endpoints: Array<MddocTypeHttpEndpoint>) {
       mddoc().insertText(endpoint.basePathname).insertInlineSeparator().insertText(endpoint.method)
         .content
   );
+}
+
+export function objectHasRequiredFields(item: MddocTypeFieldObject) {
+  return item.getFields()
+    ? Object.values(item.assertGetFields()).findIndex(next => next.getRequired()) !== -1
+    : false;
 }

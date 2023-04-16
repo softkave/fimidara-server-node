@@ -29,7 +29,7 @@ import {endpointConstants} from './constants';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {IBaseEndpointResult} from './types';
 
-export const endpointStatusCodes = {
+export const mddocEndpointStatusCodes = {
   success: `${endpointConstants.httpStatusCode.ok}`,
   error: '4XX or 5XX',
 };
@@ -119,7 +119,7 @@ const jsonResponseHeaders = new HttpEndpointHeaders().setItems([
   responseContentLengthHeaderItem,
 ]);
 
-export const endpointHttpHeaderItems = {
+export const mddocEndpointHttpHeaderItems = {
   authorizationHeaderItem,
   requestContentTypeHeaderItem,
   responseContentTypeHeaderItem,
@@ -150,7 +150,7 @@ const errorObject = new FieldObject().setName('OperationError').setFields({
 });
 
 const errorResponse = new HttpEndpointResponse()
-  .setStatusCode(endpointStatusCodes.error)
+  .setStatusCode(mddocEndpointStatusCodes.error)
   .setResponseHeaders(jsonResponseHeaders)
   .setResponseBody(
     asFieldObjectAny(
@@ -167,7 +167,7 @@ const errorResponse = new HttpEndpointResponse()
   );
 
 const emptySuccessResponse = new HttpEndpointResponse()
-  .setStatusCode(endpointStatusCodes.success)
+  .setStatusCode(mddocEndpointStatusCodes.success)
   .setResponseHeaders(jsonResponseHeaders)
   .setResponseBody(
     asFieldObjectAny(
@@ -195,7 +195,8 @@ const agent = new FieldObject<IAgent>().setName('Agent').setFields({
     .setRequired(true)
     .setDescription('Agent type')
     .setExample(AppResourceType.AgentToken)
-    .setValid(VALID_AGENT_TYPES),
+    .setValid(VALID_AGENT_TYPES)
+    .setEnumName('AgentType'),
   agentTokenId: new FieldString().setRequired(true).setDescription('Agent token ID.'),
 });
 const date = new FieldString().setRequired(false).setDescription('Date string.');
@@ -304,24 +305,28 @@ const action = new FieldString()
   .setRequired(true)
   .setDescription('Action')
   .setExample(AppActionType.Create)
-  .setValid(Object.values(AppActionType));
+  .setValid(Object.values(AppActionType))
+  .setEnumName('AppActionType');
 const nonWorkspaceAction = new FieldString()
   .setRequired(true)
   .setDescription('Action')
   .setExample(AppActionType.Create)
-  .setValid(getNonWorkspaceActionList());
+  .setValid(getNonWorkspaceActionList())
+  .setEnumName('NonWorkspaceAppActionType');
 const resourceType = new FieldString()
   .setRequired(true)
   .setDescription('Resource type.')
   .setExample(AppResourceType.File)
-  .setValid(Object.values(AppResourceType));
+  .setValid(Object.values(AppResourceType))
+  .setEnumName('AppResourceType');
 const appliesTo = new FieldString()
   .setRequired(true)
   .setDescription(
     "Whether this permission applies to the target, the target's children of the type declared in the permission, or the target and it's children if th."
   )
   .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
-  .setValid(Object.values(PermissionItemAppliesTo));
+  .setValid(Object.values(PermissionItemAppliesTo))
+  .setEnumName('PermissionItemAppliesTo');
 const page = new FieldNumber()
   .setDescription(
     'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'

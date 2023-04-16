@@ -14,10 +14,10 @@ import {
   cloneAndMarkNotRequired,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {collabRequestConstants} from './constants';
 import {
@@ -51,7 +51,8 @@ const recipientEmail = new FieldString().setDescription("Recipient's email addre
 const message = new FieldString().setDescription('Message to recipient.');
 const statusType = new FieldString()
   .setDescription('Collaboration request status.')
-  .setValid(Object.values(CollaborationRequestStatusType));
+  .setValid(Object.values(CollaborationRequestStatusType))
+  .setEnumName('CollaborationRequestStatusType');
 const messageNotRequired = cloneAndMarkNotRequired(message);
 const newCollaborationRequestInput = new FieldObject<ICollaborationRequestInput>()
   .setName('NewCollaborationRequestInput')
@@ -115,8 +116,8 @@ const sendCollaborationRequestParams = new FieldObject<ISendCollaborationRequest
 const sendCollaborationRequestResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<ISendCollaborationRequestEndpointResult>()
         .setName('SendCollaborationRequestEndpointSuccessResult')
@@ -139,8 +140,8 @@ const getWorkspaceCollaborationRequestsParams =
 const getWorkspaceCollaborationRequestsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetWorkspaceCollaborationRequestsEndpointResult>()
         .setName('GetWorkspaceCollaborationRequestsEndpointSuccessResult')
@@ -165,8 +166,8 @@ const updateCollaborationRequestParams =
 const updateCollaborationRequestResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUpdateCollaborationRequestEndpointResult>()
         .setName('UpdateCollaborationRequestEndpointSuccessResult')
@@ -187,8 +188,8 @@ const getCollaborationRequestForUserParams =
 const getCollaborationRequestForUserResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetUserCollaborationRequestEndpointResult>()
         .setName('GetCollaborationRequestEndpointSuccessResult')
@@ -210,8 +211,8 @@ const getCollaborationRequestForWorkspaceParams =
 const getCollaborationRequestForWorkspaceResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetWorkspaceCollaborationRequestEndpointResult>()
         .setName('GetCollaborationRequestEndpointSuccessResult')
@@ -232,8 +233,8 @@ const revokeCollaborationRequestParams =
 const revokeCollaborationRequestResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IRevokeCollaborationRequestEndpointResult>()
         .setName('RevokeCollaborationRequestEndpointSuccessResult')
@@ -247,7 +248,7 @@ export const sendCollaborationRequestEndpointDefinition = new HttpEndpointDefini
   .setBasePathname(collabRequestConstants.routes.sendRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(sendCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(sendCollaborationRequestResult)
   .setName('AddCollaborationRequestEndpoint')
   .setDescription('Add collaboration request endpoint.');
@@ -256,7 +257,7 @@ export const getUserCollaborationRequestEndpointDefinition = new HttpEndpointDef
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaborationRequestForUserParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getCollaborationRequestForUserResult)
   .setName('GetUserCollaborationRequestEndpoint')
   .setDescription('Get user collaboration request endpoint.');
@@ -265,7 +266,7 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = new HttpEndpoi
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaborationRequestForWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getCollaborationRequestForWorkspaceResult)
   .setName('GetWorkspaceCollaborationRequestEndpoint')
   .setDescription('Get workspace collaboration request endpoint.');
@@ -274,7 +275,7 @@ export const updateCollaborationRequestEndpointDefinition = new HttpEndpointDefi
   .setBasePathname(collabRequestConstants.routes.updateRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateCollaborationRequestResult)
   .setName('UpdateCollaborationRequestEndpoint')
   .setDescription('Update collaboration request endpoint.');
@@ -283,7 +284,7 @@ export const revokeCollaborationRequestEndpointDefinition = new HttpEndpointDefi
   .setBasePathname(collabRequestConstants.routes.revokeRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(revokeCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(revokeCollaborationRequestResult)
   .setName('RevokeCollaborationRequestEndpoint')
   .setDescription('Revoke collaboration request endpoint.');

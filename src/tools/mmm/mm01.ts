@@ -29,14 +29,6 @@ interface ParamsDictionary {
   [key: string]: string;
 }
 
-/**
- * Returns route parameters, example:
- * @example
- * ```
- * type P = RouteParameters<"workspace/getWorkspace/:workspaceId">
- * // => {workspaceId: string}
- * ```
- */
 type RouteParameters<Route extends string> = string extends Route
   ? ParamsDictionary
   : Route extends `${string}(${string}`
@@ -60,7 +52,10 @@ type HttpEndpointMethod = ObjectValues<typeof HttpEndpointMethodsMap>;
 type HttpEndpointQuery = Record<string, string | number | boolean>;
 type HttpEndpointBodyLiterals = string | number | boolean | null | undefined | Date;
 type HttpEndpointBodyObjectMap = {
-  [Key: string]: HttpEndpointBodyLiterals | Array<HttpEndpointBodyLiterals> | HttpEndpointBodyObjectMap;
+  [Key: string]:
+    | HttpEndpointBodyLiterals
+    | Array<HttpEndpointBodyLiterals>
+    | HttpEndpointBodyObjectMap;
 };
 
 type HttpEndpointBodyMultipartFormDataBlob = '<<<multipart/form-data blob>>>';
@@ -68,7 +63,9 @@ type HttpEndpointBodyMultipartFormDataMap = {
   [Key: string]: HttpEndpointBodyLiterals | HttpEndpointBodyMultipartFormDataBlob;
 };
 
-type HttpEndpointBodyMultipartFormData = HttpEndpointBodyMultipartFormDataBlob | HttpEndpointBodyMultipartFormDataMap;
+type HttpEndpointBodyMultipartFormData =
+  | HttpEndpointBodyMultipartFormDataBlob
+  | HttpEndpointBodyMultipartFormDataMap;
 type HttpEndpointRequestBody = HttpEndpointBodyObjectMap;
 //| HttpEndpointBodyMultipartFormData | undefined;
 type HttpEndpointResultBlob = '<<<http result blob>>>';
@@ -104,12 +101,8 @@ type GF00001234 = HttpEndpoint<
   HttpEndpointResultBlob
 >;
 
-// type MF0000124 = HttpEndpoint<
-//   'get',
-//   '/files/getFile',
-//   undefined,
-//   {Authorization: string},
-//   IUploadFileEndpointParams,
-//   {'Content-Type': string},
-//   HttpEndpointResultBlob
-// >;
+/**
+ * Endpoint
+ * HTTPEndpoint
+ * Exported endpoints
+ */

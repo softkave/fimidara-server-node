@@ -8,10 +8,10 @@ import {
   HttpEndpointResponse,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {collaboratorConstants} from './constants';
 import {
@@ -45,8 +45,8 @@ const getWorkspaceCollaboratorsParams = new FieldObject<IGetWorkspaceCollaborato
 const getWorkspaceCollaboratorsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetWorkspaceCollaboratorsEndpointResult>()
         .setName('GetWorkspaceCollaboratorsEndpointSuccessResult')
@@ -67,8 +67,8 @@ const getCollaboratorParams = new FieldObject<IGetCollaboratorEndpointParams>()
 const getCollaboratorResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetCollaboratorEndpointResult>()
         .setName('GetCollaboratorEndpointSuccessResult')
@@ -91,25 +91,25 @@ export const getCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collaboratorConstants.routes.getCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getCollaboratorParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getCollaboratorResult)
-  .setName('Get Collaborator Endpoint')
+  .setName('GetCollaboratorEndpoint')
   .setDescription('Get collaborator endpoint.');
 
 export const removeCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collaboratorConstants.routes.removeCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(removeCollaboratorParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Remove Collaborator Endpoint')
+  .setName('RemoveCollaboratorEndpoint')
   .setDescription('Remove collaborator endpoint.');
 
 export const getWorkspaceCollaboratorEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(collaboratorConstants.routes.getWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getWorkspaceCollaboratorsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getWorkspaceCollaboratorsResult)
-  .setName('Get Workspace Collaborators Endpoint')
+  .setName('GetWorkspaceCollaboratorsEndpoint')
   .setDescription('Get workspace collaborators endpoint.');

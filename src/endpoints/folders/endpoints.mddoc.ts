@@ -2,8 +2,6 @@ import {IFolderMatcher, IPublicFolder} from '../../definitions/folder';
 import {AppResourceType} from '../../definitions/system';
 import {ExcludeTags} from '../../definitions/tag';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldArray,
   FieldBoolean,
   FieldObject,
@@ -12,12 +10,14 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
   HttpEndpointResponse,
+  asFieldObjectAny,
+  cloneAndMarkNotRequired,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
 import {
@@ -37,28 +37,6 @@ import {
   IUpdateFolderEndpointResult,
   IUpdateFolderInput,
 } from './updateFolder/types';
-
-// const folderPublicAccessOpInput = new FieldObject<IPublicAccessOpInput>()
-//   .setName('PublicAccessOpInput')
-//   .setFields({
-//     action: fReusables.nonWorkspaceAction,
-//     resourceType: new FieldString()
-//       .setRequired(true)
-//       .setDescription('Resource type this public access permission applies.')
-//       .setExample(AppResourceType.File)
-//       .setValid([AppResourceType.Folder, AppResourceType.File]),
-//     appliesTo: new FieldString()
-//       .setRequired(true)
-//       .setDescription(
-//         "Whether this permission applies to both the containing folder and it's children, just the container, or just the children."
-//       )
-//       .setExample(PermissionItemAppliesTo.ContainerAndChildren)
-//       .setValid(Object.values(PermissionItemAppliesTo)),
-//   });
-
-// const folderPublicAccessOpInputList = new FieldArray()
-//   .setType(folderPublicAccessOpInput)
-//   .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
 
 const newFolderInput = new FieldObject<ExcludeTags<INewFolderInput>>()
   .setName('NewFolderInput')
@@ -108,8 +86,8 @@ const addFolderParams = new FieldObject<IAddFolderEndpointParams>()
 const addFolderResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IAddFolderEndpointResult>()
         .setName('AddFolderEndpointSuccessResult')
@@ -136,8 +114,8 @@ const listFolderContentParams = new FieldObject<IListFolderContentEndpointParams
 const listFolderContentResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IListFolderContentEndpointResult>()
         .setName('ListFolderContentEndpointSuccessResult')
@@ -162,8 +140,8 @@ const updateFolderParams = new FieldObject<IUpdateFolderEndpointParams>()
 const updateFolderResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUpdateFolderEndpointResult>()
         .setName('UpdateFolderEndpointSuccessResult')
@@ -181,8 +159,8 @@ const getFolderParams = new FieldObject<IGetFolderEndpointParams>()
 const getFolderResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetFolderEndpointResult>()
         .setName('GetFolderEndpointSuccessResult')
@@ -202,43 +180,43 @@ export const addFolderEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(addFolderParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(addFolderResult)
-  .setName('Add Folder Endpoint')
+  .setName('AddFolderEndpoint')
   .setDescription('Add folder endpoint.');
 
 export const getFolderEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getFolderParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getFolderResult)
-  .setName('Get Folder Endpoint')
+  .setName('GetFolderEndpoint')
   .setDescription('Get folder endpoint.');
 
 export const updateFolderEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateFolderParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateFolderResult)
-  .setName('Update Folder Endpoint')
+  .setName('UpdateFolderEndpoint')
   .setDescription('Update folder endpoint.');
 
 export const deleteFolderEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteFolderParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete Folder Endpoint')
+  .setName('DeleteFolderEndpoint')
   .setDescription('Delete folder endpoint.');
 
 export const listFolderContentEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(listFolderContentParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(listFolderContentResult)
-  .setName('List Folder Content Endpoint')
+  .setName('ListFolderContentEndpoint')
   .setDescription('List folder content endpoint.');

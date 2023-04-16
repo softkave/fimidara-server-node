@@ -23,7 +23,7 @@
     "dev": "tsc && env-cmd -f \".env.local\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
     "mddoc": "ts-node src/mddoc/mddoc.fimidara.ts",
-    "gen-js-sdk": "ts-node src/mddoc/typegen.ts",
+    "gen-js-sdk": "ts-node src/mddoc/typegen00.ts",
     "start-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath mongo-rs-data"
   },
   "dependencies": {

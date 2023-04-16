@@ -17,10 +17,10 @@ import {
   orUndefined,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
   endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointStatusCodes,
 } from '../endpoints.mddoc';
 import {fileConstants} from './constants';
 import {IDeleteFileEndpointParams} from './deleteFile/types';
@@ -44,7 +44,8 @@ const size = new FieldString().setDescription('File size in bytes');
 const extension = new FieldString().setDescription('File extension');
 const uploadFilePublicAccessAction = new FieldString()
   .setDescription('Public access actions allowed on a file')
-  .setValid(Object.values(UploadFilePublicAccessActions));
+  .setValid(Object.values(UploadFilePublicAccessActions))
+  .setEnumName('UploadFilePublicAccessActions');
 const height = new FieldString().setDescription('Resize to height if file is an image.');
 const width = new FieldString().setDescription('Resize to width if file is an image.');
 const mimetypeOrUndefined = orUndefined(mimetype);
@@ -111,8 +112,8 @@ const updateFileDetailsParams = new FieldObject<IUpdateFileDetailsEndpointParams
 const updateFileDetailsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUpdateFileDetailsEndpointResult>()
         .setName('UpdateFileDetailsEndpointSuccessResult')
@@ -130,8 +131,8 @@ const getFileDetailsParams = new FieldObject<IGetFileDetailsEndpointParams>()
 const getFileDetailsResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IGetFileDetailsEndpointResult>()
         .setName('GetFileDetailsEndpointSuccessResult')
@@ -163,7 +164,7 @@ const readFileParams = new FieldObject<IReadFileEndpointParams>()
 const readFileResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
+    .setStatusCode(mddocEndpointStatusCodes.success)
     .setResponseHeaders(
       new HttpEndpointHeaders().setItems([
         new HttpEndpointHeaderItem()
@@ -180,7 +181,7 @@ const readFileResult = [
           )
           .setRequired(true)
           .setDescription('Response content type.'),
-        endpointHttpHeaderItems.responseContentLengthHeaderItem,
+        mddocEndpointHttpHeaderItems.responseContentLengthHeaderItem,
       ])
     )
     .setResponseBody(new FieldBinary()),
@@ -193,7 +194,6 @@ const updloadFileParams = new HttpEndpointMultipartFormdata().setItems(
       data: new FieldBinary().setRequired(true).setDescription('File binary.'),
       description: fReusables.descriptionNotRequired,
       mimetype: mimetypeNotRequired,
-      // publicAccessAction: uploadFilePublicAccessActionNotRequired,
       encoding: encodingNotRequired,
       extension: extensionNotRequired,
     })
@@ -204,8 +204,8 @@ const updloadFileParams = new HttpEndpointMultipartFormdata().setItems(
 const uploadFileResult = [
   endpointHttpResponseItems.errorResponse,
   new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
+    .setStatusCode(mddocEndpointStatusCodes.success)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
     .setResponseBody(
       new FieldObject<IUploadFileEndpointResult>()
         .setName('UploadFileEndpointSuccessResult')
@@ -237,7 +237,7 @@ export const uploadFileEndpointDefinition = new HttpEndpointDefinition()
   .setPathParamaters([filepathParameterPathname])
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(uploadFileResult)
   .setName('UploadFileEndpoint')
   .setDescription('Upload file endpoint.');
@@ -246,7 +246,7 @@ export const getFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(fileConstants.routes.getFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(getFileDetailsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(getFileDetailsResult)
   .setName('GetFileDetailsEndpoint')
   .setDescription('Get file details endpoint.');
@@ -255,7 +255,7 @@ export const updateFileDetailsEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(fileConstants.routes.updateFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(asFieldObjectAny(updateFileDetailsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(updateFileDetailsResult)
   .setName('UpdateFileDetailsEndpoint')
   .setDescription('Update file details endpoint.');
@@ -264,7 +264,7 @@ export const deleteFileEndpointDefinition = new HttpEndpointDefinition()
   .setBasePathname(fileConstants.routes.deleteFile)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(asFieldObjectAny(deleteFileParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
   .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
   .setName('DeleteFileEndpoint')
   .setDescription('Delete file endpoint.');

@@ -46,6 +46,7 @@
 - [ ] Revamp UI
 - [ ] Refresh jwt tokens and group for collaborators not yet given permission groups
 - [ ] Implement public access actions for resources and check that requesting agent has permission to perform action. Can do similar thing for collaboration request's permission groups assigned on accept.
+- [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 
 ## Later
 
