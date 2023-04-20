@@ -1,6 +1,7 @@
 import {AppActionType, AppResourceType} from '../../definitions/system';
 import {ExportedHttpEndpoint} from '../types';
 import {AddFolderEndpoint} from './addFolder/types';
+import {CountFolderContentEndpoint} from './countFolderContent/types';
 import {DeleteFolderEndpoint} from './deleteFolder/types';
 import {GetFolderEndpoint} from './getFolder/types';
 import {ListFolderContentEndpoint} from './listFolderContent/types';
@@ -17,5 +18,6 @@ export type FoldersExportedEndpoints = {
   deleteFolder: ExportedHttpEndpoint<DeleteFolderEndpoint>;
   getFolder: ExportedHttpEndpoint<GetFolderEndpoint>;
   listFolderContent: ExportedHttpEndpoint<ListFolderContentEndpoint>;
+  countFolderContent: ExportedHttpEndpoint<CountFolderContentEndpoint>;
   updateFolder: ExportedHttpEndpoint<UpdateFolderEndpoint>;
 };

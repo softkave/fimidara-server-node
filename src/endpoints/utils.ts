@@ -245,17 +245,15 @@ export function assertUpdateNotEmpty(update: AnyObject) {
   appAssert(!isObjectEmpty(update), new InvalidRequestError('Update data provided is empty.'));
 }
 
-export function registerExpressRoutes(
+export function registerExpressRouteFromEndpoint(
   ctx: BaseContext,
-  endpoints: Array<ExportedHttpEndpoint<any>>,
+  endpoint: ExportedHttpEndpoint<any>,
   app: Express
 ) {
-  endpoints.forEach(next => {
-    const p = next.mddocHttpDefinition.assertGetBasePathname();
-    const expressPath = next.mddocHttpDefinition.getPathParamaters() ? `${p}*` : p;
-    app[next.mddocHttpDefinition.assertGetMethod()](
-      expressPath,
-      wrapEndpointREST(next.fn, ctx, next.handleResponse, next.getDataFromReq)
-    );
-  });
+  const p = endpoint.mddocHttpDefinition.assertGetBasePathname();
+  const expressPath = endpoint.mddocHttpDefinition.getPathParamaters() ? `${p}*` : p;
+  app[endpoint.mddocHttpDefinition.assertGetMethod()](
+    expressPath,
+    wrapEndpointREST(endpoint.fn, ctx, endpoint.handleResponse, endpoint.getDataFromReq)
+  );
 }

@@ -4,7 +4,7 @@ import {GetWorkspaceAgentTokensEndpointParamsBase} from '../getWorkspaceTokens/t
 
 export type CountWorkspaceAgentTokensEndpointParams = GetWorkspaceAgentTokensEndpointParamsBase;
 
-export type GetWorkspaceAgentTokenEndpoint = Endpoint<
+export type CountWorkspaceAgentTokenEndpoint = Endpoint<
   BaseContext,
   CountWorkspaceAgentTokensEndpointParams,
   CountItemsEndpointResult

@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import {Request, RequestHandler, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
 import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
 import OperationError from '../utils/OperationError';
@@ -90,4 +90,5 @@ export type ExportedHttpEndpoint<TEndpoint extends Endpoint> = {
   }>;
   getDataFromReq?: (req: Request) => InferEndpointParams<TEndpoint>;
   handleResponse?: (res: Response, data: InferEndpointResult<TEndpoint>) => void;
+  expressRouteMiddleware?: RequestHandler;
 };

@@ -50,6 +50,7 @@
 - [ ] Ensure that streaming works on clientside when uploading that the formdata is not waiting for all data to be available b4 uploading
 - [ ] Add array or singular item type to permission item mddoc definitions
 - [ ] Make sure min and max is set for mddoc fields
+- [ ] CORS and origin restrict non-public endpoints to just fimidara frontend
 
 ## Later
 

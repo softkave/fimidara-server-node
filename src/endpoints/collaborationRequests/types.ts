@@ -1,4 +1,6 @@
 import {ExportedHttpEndpoint} from '../types';
+import {CountUserCollaborationRequestsEndpoint} from './countUserRequests/types';
+import {CountWorkspaceCollaborationRequestsEndpoint} from './countWorkspaceRequests/types';
 import {DeleteCollaborationRequestEndpoint} from './deleteRequest/types';
 import {GetUserCollaborationRequestEndpoint} from './getUserRequest/types';
 import {GetUserCollaborationRequestsEndpoint} from './getUserRequests/types';
@@ -14,6 +16,8 @@ export type CollaborationRequestsExportedEndpoints = {
   deleteRequest: ExportedHttpEndpoint<DeleteCollaborationRequestEndpoint>;
   getWorkspaceRequests: ExportedHttpEndpoint<GetWorkspaceCollaborationRequestsEndpoint>;
   getUserRequests: ExportedHttpEndpoint<GetUserCollaborationRequestsEndpoint>;
+  countWorkspaceRequests: ExportedHttpEndpoint<CountWorkspaceCollaborationRequestsEndpoint>;
+  countUserRequests: ExportedHttpEndpoint<CountUserCollaborationRequestsEndpoint>;
   respondToRequest: ExportedHttpEndpoint<RespondToCollaborationRequestEndpoint>;
   revokeRequest: ExportedHttpEndpoint<RevokeCollaborationRequestEndpoint>;
   updateRequest: ExportedHttpEndpoint<UpdateCollaborationRequestEndpoint>;
