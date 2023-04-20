@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -13,14 +13,14 @@ import {
 import UserQueries from '../UserQueries';
 import {userExtractor} from '../utils';
 import updateUser from './handler';
-import {IUpdateUserEndpointParams} from './types';
+import {UpdateUserEndpointParams} from './types';
 
 /**
  * TODO:
  * - test that email verification was voided if email was updated
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -33,7 +33,7 @@ afterAll(async () => {
 test('user data updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IUpdateUserEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       firstName: faker.name.firstName(),

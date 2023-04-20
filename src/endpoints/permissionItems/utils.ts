@@ -1,36 +1,32 @@
 import {flatten} from 'lodash';
-import {IPermissionItem, IPublicPermissionItem} from '../../definitions/permissionItem';
+import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
 import {
+  Agent,
   AppActionType,
   AppResourceType,
-  IAgent,
-  ISessionAgent,
+  SessionAgent,
   getWorkspaceResourceTypeList,
 } from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {makeKey, toArray, toNonNullableArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {BaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
-import {IFetchResourceItem} from '../resources/types';
+import {FetchResourceItem} from '../resources/types';
 import {workspaceResourceFields} from '../utils';
 import {INTERNAL_addPermissionItems} from './addItems/utils';
 import {DeletePermissionItemInput} from './deleteItems/types';
 import {INTERNAL_deletePermissionItems} from './deleteItems/utils';
-import {
-  IPermissionItemInput,
-  IPermissionItemInputEntity,
-  IPermissionItemInputTarget,
-} from './types';
+import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
 
-const permissionItemFields = getFields<IPublicPermissionItem>({
+const permissionItemFields = getFields<PublicPermissionItem>({
   ...workspaceResourceFields,
   entityId: true,
   entityType: true,
@@ -49,11 +45,11 @@ export function throwPermissionItemNotFound() {
 }
 
 export async function updatePublicPermissionGroupAccessOps(props: {
-  context: IBaseContext;
-  agent: IAgent;
-  workspace: IWorkspace;
-  opts: ISemanticDataAccessProviderMutationRunOptions;
-  items?: IPermissionItemInput[];
+  context: BaseContext;
+  agent: Agent;
+  workspace: Workspace;
+  opts: SemanticDataAccessProviderMutationRunOptions;
+  items?: PermissionItemInput[];
   deleteItems?: DeletePermissionItemInput[];
 }) {
   const {context, agent, workspace, items, opts, deleteItems} = props;
@@ -80,7 +76,7 @@ export async function updatePublicPermissionGroupAccessOps(props: {
   }
 }
 
-export interface IPermissionItemBase {
+export interface PermissionItemBase {
   containerId: string;
   targetId?: string;
   targetType: AppResourceType;
@@ -105,7 +101,7 @@ export function getTargetType(data: {targetId?: string; targetType?: AppResource
   return targetType;
 }
 
-export const permissionItemIndexer = (item: IPermissionItemBase) => {
+export const permissionItemIndexer = (item: PermissionItemBase) => {
   return makeKey([
     item.entityId,
     item.containerId,
@@ -117,15 +113,15 @@ export const permissionItemIndexer = (item: IPermissionItemBase) => {
   ]);
 };
 
-export function assertPermissionItem(item?: IPermissionItem | null): asserts item {
+export function assertPermissionItem(item?: PermissionItem | null): asserts item {
   appAssert(item, reuseableErrors.permissionItem.notFound());
 }
 
 export async function getPermissionItemEntities(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContext,
+  agent: SessionAgent,
   workspaceId: string,
-  entities: IPermissionItemInputEntity[]
+  entities: PermissionItemInputEntity[]
 ) {
   let resources = await INTERNAL_getResources({
     context,
@@ -153,17 +149,17 @@ export async function getPermissionItemEntities(
 }
 
 export async function getPermissionItemTargets(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  target: Partial<IPermissionItemInputTarget> | Partial<IPermissionItemInputTarget>[]
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[]
 ) {
   return await INTERNAL_getResources({
     context,
     agent,
     workspaceId: workspace.resourceId,
     allowedTypes: getWorkspaceResourceTypeList(),
-    inputResources: toArray(target).map((nextTarget): IFetchResourceItem => {
+    inputResources: toArray(target).map((nextTarget): FetchResourceItem => {
       return {
         resourceId: nextTarget.targetId,
         filepath: nextTarget.filepath,

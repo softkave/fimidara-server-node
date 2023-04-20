@@ -1,24 +1,24 @@
 import {Request} from 'express';
 import {Logger} from 'winston';
-import {IBaseTokenData} from '../../definitions/system';
-import {IAppVariables} from '../../resources/vars';
-import {IAppRuntimeStateDataProvider, IJobDataProvider, IResourceDataProvider} from './data/types';
+import {BaseTokenData} from '../../definitions/system';
+import {AppVariables} from '../../resources/vars';
 import {IEmailProviderContext} from './EmailProviderContext';
-import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {FilePersistenceProviderContext} from './FilePersistenceProviderContext';
+import {SessionContext} from './SessionContext';
+import {AppRuntimeStateDataProvider, JobDataProvider, ResourceDataProvider} from './data/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {
-  IAgentTokenMemStoreProvider,
-  IAssignedItemMemStoreProvider,
-  ICollaborationRequestMemStoreProvider,
-  IFileMemStoreProvider,
-  IFolderMemStoreProvider,
-  IPermissionGroupMemStoreProvider,
-  IPermissionItemMemStoreProvider,
-  ITagMemStoreProvider,
-  IUsageRecordMemStoreProvider,
-  IUserMemStoreProvider,
-  IWorkspaceMemStoreProvider,
+  AgentTokenMemStoreProvider,
+  CollaborationRequestMemStoreProvider,
+  FileMemStoreProvider,
+  FolderMemStoreProvider,
+  PermissionGroupMemStoreProvider,
+  PermissionItemMemStoreProvider,
+  TagMemStoreProvider,
+  UsageRecordMemStoreProvider,
+  UserMemStoreProvider,
+  WorkspaceMemStoreProvider,
 } from './mem/types';
 import {ISemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
 import {ISemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
@@ -32,39 +32,38 @@ import {ISemanticDataAccessTagProvider} from './semantic/tag/types';
 import {ISemanticDataAccessUsageRecordProvider} from './semantic/usageRecord/types';
 import {ISemanticDataAccessUserProvider} from './semantic/user/types';
 import {ISemanticDataAccessWorkspaceProvider} from './semantic/workspace/types';
-import {ISessionContext} from './SessionContext';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
-  auth?: IBaseTokenData;
+  auth?: BaseTokenData;
 }
 
-export interface IBaseContextDataProviders {
-  resource: IResourceDataProvider;
-  job: IJobDataProvider;
-  appRuntimeState: IAppRuntimeStateDataProvider;
+export interface BaseContextDataProviders {
+  resource: ResourceDataProvider;
+  job: JobDataProvider;
+  appRuntimeState: AppRuntimeStateDataProvider;
 }
 
-export interface IBaseContextMemStoreProviders {
-  folder: IFolderMemStoreProvider;
-  file: IFileMemStoreProvider;
-  agentToken: IAgentTokenMemStoreProvider;
-  permissionItem: IPermissionItemMemStoreProvider;
-  permissionGroup: IPermissionGroupMemStoreProvider;
-  workspace: IWorkspaceMemStoreProvider;
-  collaborationRequest: ICollaborationRequestMemStoreProvider;
-  user: IUserMemStoreProvider;
-  tag: ITagMemStoreProvider;
-  assignedItem: IAssignedItemMemStoreProvider;
-  usageRecord: IUsageRecordMemStoreProvider;
+export interface BaseContextMemStoreProviders {
+  folder: FolderMemStoreProvider;
+  file: FileMemStoreProvider;
+  agentToken: AgentTokenMemStoreProvider;
+  permissionItem: PermissionItemMemStoreProvider;
+  permissionGroup: PermissionGroupMemStoreProvider;
+  workspace: WorkspaceMemStoreProvider;
+  collaborationRequest: CollaborationRequestMemStoreProvider;
+  user: UserMemStoreProvider;
+  tag: TagMemStoreProvider;
+  assignedItem: AssignedItemMemStoreProvider;
+  usageRecord: UsageRecordMemStoreProvider;
 }
 
-export interface IBaseContextLogicProviders {
+export interface BaseContextLogicProviders {
   usageRecord: UsageRecordLogicProvider;
   permissions: PermissionsLogicProvider;
 }
 
-export interface IBaseContextSemanticDataProviders {
+export interface BaseContextSemanticDataProviders {
   permissions: ISemanticDataAccessPermissionProvider;
   workspace: ISemanticDataAccessWorkspaceProvider;
   permissionGroup: ISemanticDataAccessPermissionGroupProvider;
@@ -79,17 +78,17 @@ export interface IBaseContextSemanticDataProviders {
   user: ISemanticDataAccessUserProvider;
 }
 
-export interface IBaseContext<
-  Data extends IBaseContextDataProviders = IBaseContextDataProviders,
+export interface BaseContext<
+  Data extends BaseContextDataProviders = BaseContextDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
-  FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  AppVars extends IAppVariables = IAppVariables,
-  MemStore extends IBaseContextMemStoreProviders = IBaseContextMemStoreProviders,
-  Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
-  SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
+  FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
+  AppVars extends AppVariables = AppVariables,
+  MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
 > {
   appVariables: AppVars;
-  session: ISessionContext;
+  session: SessionContext;
   data: Data;
   semantic: SemanticData;
   memstore: MemStore;

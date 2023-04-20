@@ -1,10 +1,10 @@
-import {IUser} from '../../definitions/user';
+import {User} from '../../definitions/user';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<IUser>();
+  return new DataProviderFilterBuilder<User>();
 }
 
 function getByEmail(email: string) {

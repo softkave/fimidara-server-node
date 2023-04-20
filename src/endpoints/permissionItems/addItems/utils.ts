@@ -1,13 +1,13 @@
 import {forEach, merge} from 'lodash';
-import {IFile} from '../../../definitions/file';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {File} from '../../../definitions/file';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
-  IResourceWrapper,
-  ISessionAgent,
+  ResourceWrapper,
+  SessionAgent,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {extractResourceIdList, newWorkspaceResource, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
@@ -16,23 +16,23 @@ import {
   sortOutPermissionItems,
   uniquePermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContext} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {folderConstants} from '../../folders/constants';
-import {IPermissionItemInputEntity, IPermissionItemInputTarget} from '../types';
+import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
 import {getPermissionItemEntities, getPermissionItemTargets, getTargetType} from '../utils';
-import {IAddPermissionItemsEndpointParams} from './types';
+import {AddPermissionItemsEndpointParams} from './types';
 
 export const INTERNAL_addPermissionItems = async (
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  data: IAddPermissionItemsEndpointParams,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: AddPermissionItemsEndpointParams,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
-  let inputEntities: IPermissionItemInputEntity[] = [];
-  let inputTargets: IPermissionItemInputTarget[] = [];
+  let inputEntities: PermissionItemInputEntity[] = [];
+  let inputTargets: PermissionItemInputTarget[] = [];
 
   if (data.entity) inputEntities = toNonNullableArray(data.entity);
   data.items.forEach(item => {
@@ -47,9 +47,9 @@ export const INTERNAL_addPermissionItems = async (
     getPermissionItemTargets(context, agent, workspace, inputTargets),
   ]);
 
-  const indexByNamePath = (item: IResourceWrapper) => {
+  const indexByNamePath = (item: ResourceWrapper) => {
     if (item.resourceType === AppResourceType.File || item.resourceType === AppResourceType.Folder)
-      return (item.resource as unknown as Pick<IFile, 'namePath'>).namePath.join(
+      return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );
     else return '';
@@ -58,14 +58,14 @@ export const INTERNAL_addPermissionItems = async (
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
   const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
-  const workspaceWrapper: IResourceWrapper = {
+  const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
     resourceType: AppResourceType.Workspace,
   };
 
-  const getEntities = (entity: IPermissionItemInputEntity) => {
-    let entities: Record<string, IResourceWrapper> = {};
+  const getEntities = (entity: PermissionItemInputEntity) => {
+    let entities: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
     toNonNullableArray(entity.entityId).forEach(entityId => {
@@ -74,8 +74,8 @@ export const INTERNAL_addPermissionItems = async (
     return entities;
   };
 
-  const getTargets = (target: IPermissionItemInputTarget) => {
-    let targets: Record<string, IResourceWrapper> = {};
+  const getTargets = (target: PermissionItemInputTarget) => {
+    let targets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
@@ -106,9 +106,9 @@ export const INTERNAL_addPermissionItems = async (
   };
 
   type ProcessedPermissionItemInput = {
-    entity: IResourceWrapper;
+    entity: ResourceWrapper;
     action: AppActionType;
-    target: IResourceWrapper;
+    target: ResourceWrapper;
     targetType: AppResourceType;
     grantAccess: boolean;
     appliesTo: PermissionItemAppliesTo;
@@ -148,7 +148,7 @@ export const INTERNAL_addPermissionItems = async (
     });
   });
 
-  let inputItems: IPermissionItem[] = processedItems.map(item => {
+  let inputItems: PermissionItem[] = processedItems.map(item => {
     const targetType = getTargetType(item);
     return newWorkspaceResource(agent, AppResourceType.PermissionItem, workspace.resourceId, {
       targetType,

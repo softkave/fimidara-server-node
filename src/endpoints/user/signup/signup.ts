@@ -1,7 +1,7 @@
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
@@ -9,7 +9,7 @@ import {SignupEndpoint} from './types';
 import {internalSignupUser} from './utils';
 import {signupJoiSchema} from './validation';
 
-async function callComfirmEmail(context: IBaseContext, reqData: RequestData) {
+async function callComfirmEmail(context: BaseContext, reqData: RequestData) {
   const sendEmailReqData = RequestData.clone(reqData, reqData.data);
   const result = await sendEmailVerificationCode(context, sendEmailReqData);
   return {

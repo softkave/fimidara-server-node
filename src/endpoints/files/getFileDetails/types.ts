@@ -1,15 +1,15 @@
-import {IFileMatcher, IPublicFile} from '../../../definitions/file';
-import {IBaseContext} from '../../contexts/types';
+import {FileMatcher, PublicFile} from '../../../definitions/file';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export type IGetFileDetailsEndpointParams = IFileMatcher;
+export type GetFileDetailsEndpointParams = FileMatcher;
 
-export interface IGetFileDetailsEndpointResult {
-  file: IPublicFile;
+export interface GetFileDetailsEndpointResult {
+  file: PublicFile;
 }
 
 export type GetFileDetailsEndpoint = Endpoint<
-  IBaseContext,
-  IGetFileDetailsEndpointParams,
-  IGetFileDetailsEndpointResult
+  BaseContext,
+  GetFileDetailsEndpointParams,
+  GetFileDetailsEndpointResult
 >;

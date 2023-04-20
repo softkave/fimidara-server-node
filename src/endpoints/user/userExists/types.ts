@@ -1,16 +1,16 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUserExistsEndpointParams {
+export interface UserExistsEndpointParams {
   email: string;
 }
 
-export interface IUserExistsEndpointResult {
+export interface UserExistsEndpointResult {
   exists: boolean;
 }
 
 export type UserExistsEndpoint = Endpoint<
-  IBaseContext,
-  IUserExistsEndpointParams,
-  IUserExistsEndpointResult
+  BaseContext,
+  UserExistsEndpointParams,
+  UserExistsEndpointResult
 >;

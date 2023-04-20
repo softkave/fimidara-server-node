@@ -1,5 +1,5 @@
-import {ITag} from '../../../../definitions/tag';
+import {Tag} from '../../../../definitions/tag';
 import {ISemanticDataAccessWorkspaceResourceProvider} from '../types';
 
 export interface ISemanticDataAccessTagProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<ITag> {}
+  extends ISemanticDataAccessWorkspaceResourceProvider<Tag> {}

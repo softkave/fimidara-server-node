@@ -1,9 +1,9 @@
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {ResourceExistsError} from '../errors';
 
 export async function checkPermissionGroupNameExists(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   name: string,
   opts?: ISemanticDataAccessProviderRunOptions

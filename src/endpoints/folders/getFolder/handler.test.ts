@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -12,9 +12,9 @@ import {
 } from '../../testUtils/testUtils';
 import {addRootnameToPath} from '../utils';
 import getFolder from './handler';
-import {IGetFolderEndpointParams} from './types';
+import {GetFolderEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -30,7 +30,7 @@ test('folder returned', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       folderpath: addRootnameToPath(folder01.name, workspace.rootname),

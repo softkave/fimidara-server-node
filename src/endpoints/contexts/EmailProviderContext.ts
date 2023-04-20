@@ -1,7 +1,7 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
-import {IBaseContext} from './types';
+import {BaseContext} from './types';
 
-export interface ISendEmailParams {
+export interface SendEmailParams {
   destination: string[];
   source: string;
   subject: string;
@@ -12,7 +12,7 @@ export interface ISendEmailParams {
 }
 
 export interface IEmailProviderContext {
-  sendEmail: (context: IBaseContext, params: ISendEmailParams) => Promise<void>;
+  sendEmail: (context: BaseContext, params: SendEmailParams) => Promise<void>;
   close: () => void | Promise<void>;
 }
 
@@ -23,7 +23,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     this.ses = new SESv2Client({region});
   }
 
-  sendEmail = async (context: IBaseContext, params: ISendEmailParams) => {
+  sendEmail = async (context: BaseContext, params: SendEmailParams) => {
     const command = new SendEmailCommand({
       Destination: {
         ToAddresses: params.destination,

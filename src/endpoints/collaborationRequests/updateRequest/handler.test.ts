@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -14,9 +14,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import updateCollaborationRequest from './handler';
-import {IUpdateCollaborationRequestEndpointParams, IUpdateCollaborationRequestInput} from './types';
+import {UpdateCollaborationRequestEndpointParams, UpdateCollaborationRequestInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -36,12 +36,12 @@ describe('updateCollaborationRequest', () => {
       userToken,
       workspace.resourceId
     );
-    const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
+    const updateCollaborationRequestInput: UpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
       expires: add(Date.now(), {days: 1}).valueOf(),
     };
 
-    const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
+    const instData = RequestData.fromExpressRequest<UpdateCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {requestId: request01.resourceId, request: updateCollaborationRequestInput}
     );

@@ -1,15 +1,16 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import addWorkspace from './addWorkspace/handler';
 import {workspaceConstants} from './constants';
 import deleteWorkspace from './deleteWorkspace/handler';
 import getUserWorkspaces from './getUserWorkspaces/handler';
 import getWorkspace from './getWorkspace/handler';
+import {WorkspacesExportedEndpoints} from './types';
 import updateWorkspace from './updateWorkspace/handler';
 
-export default function setupWorkspacesRESTEndpoints(ctx: IBaseContext, app: Express) {
-  const endpoints = {
+export default function setupWorkspacesRESTEndpoints(ctx: BaseContext, app: Express) {
+  const endpoints: WorkspacesExportedEndpoints = {
     addWorkspace: wrapEndpointREST(addWorkspace, ctx),
     deleteWorkspace: wrapEndpointREST(deleteWorkspace, ctx),
     getWorkspace: wrapEndpointREST(getWorkspace, ctx),

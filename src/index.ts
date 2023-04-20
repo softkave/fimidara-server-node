@@ -10,7 +10,6 @@ import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupREST
 import {endpointConstants} from './endpoints/constants';
 import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {IBaseContext} from './endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -72,7 +71,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
-function setupJWT(ctx: IBaseContext) {
+function setupJWT(ctx: BaseContext) {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({

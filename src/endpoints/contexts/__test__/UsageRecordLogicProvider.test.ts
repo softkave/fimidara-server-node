@@ -3,7 +3,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {AppResourceType} from '../../../definitions/system';
 import {
-  IUsageRecord,
+  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
@@ -19,9 +19,8 @@ import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
 import {completeTest} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
-import {IUsageRecordInput} from '../logic/UsageRecordLogicProvider';
+import {UsageRecordInput} from '../logic/UsageRecordLogicProvider';
 import {executeWithMutationRunOptions} from '../semantic/utils';
-import {IBaseContext} from '../types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -33,7 +32,7 @@ import {
 import assert = require('assert');
 
 let connection: Connection | null = null;
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   const testVars = extractEnvVariables(extractProdEnvsSchema);
@@ -66,11 +65,11 @@ function assertDeps() {
   return {connection, context};
 }
 
-async function getSumRecords(ctx: IBaseContext, recordId: string) {
+async function getSumRecords(ctx: BaseContext, recordId: string) {
   const record = await ctx.data.resource.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
-  return {record: record.resource as IUsageRecord};
+  return {record: record.resource as UsageRecord};
 }
 
 describe('UsageRecordLogicProvider', () => {
@@ -81,7 +80,7 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
@@ -103,7 +102,7 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
@@ -124,7 +123,7 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
@@ -145,7 +144,7 @@ describe('UsageRecordLogicProvider', () => {
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,

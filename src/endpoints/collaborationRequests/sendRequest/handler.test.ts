@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -12,9 +12,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
-import {ICollaborationRequestInput} from './types';
+import {CollaborationRequestInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -30,7 +30,7 @@ describe('sendCollaborationRequest', () => {
     const {userToken} = await insertUserForTest(context);
     const {user: user02} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const requestInput: ICollaborationRequestInput = {
+    const requestInput: CollaborationRequestInput = {
       recipientEmail: user02.email,
       message: faker.lorem.paragraph(),
       expires: getTimestamp(add(Date.now(), {days: 1})),

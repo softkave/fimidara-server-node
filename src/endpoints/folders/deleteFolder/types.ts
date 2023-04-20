@@ -1,11 +1,11 @@
-import {IFolderMatcher} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {FolderMatcher} from '../../../definitions/folder';
+import {BaseContext} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
-export type IDeleteFolderEndpointParams = IFolderMatcher;
+export type DeleteFolderEndpointParams = FolderMatcher;
 export type DeleteFolderEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteFolderEndpointParams,
-  ILongRunningJobResult
+  BaseContext,
+  DeleteFolderEndpointParams,
+  LongRunningJobResult
 >;

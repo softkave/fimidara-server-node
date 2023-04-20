@@ -1,17 +1,17 @@
 import {ProjectionType, SortOrder} from 'mongoose';
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IJob} from '../../../definitions/job';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResourceWrapper} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
-import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AgentToken} from '../../../definitions/agentToken';
+import {AssignedItem} from '../../../definitions/assignedItem';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {Job} from '../../../definitions/job';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
+import {User} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {AnyObject} from '../../../utils/types';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
@@ -121,7 +121,7 @@ export type BulkOpItem<T> =
   | {type: BulkOpType.DeleteMany; query: DataQuery<T>};
 
 // TODO: infer resulting type from projection, otherwise default to full object
-export interface IBaseDataProvider<
+export interface BaseDataProvider<
   DataType,
   QueryType extends DataQuery<DataType> = DataQuery<DataType>
 > {
@@ -174,29 +174,29 @@ export interface IBaseDataProvider<
   TRANSACTION_bulkWrite(ops: Array<BulkOpItem<DataType>>): Promise<void>;
 }
 
-export type IAgentTokenQuery = DataQuery<IAgentToken>;
-export type IAgentTokenDataProvider = IBaseDataProvider<IAgentToken>;
-export type IAppRuntimeStateQuery = DataQuery<IAppRuntimeState>;
-export type IAppRuntimeStateDataProvider = IBaseDataProvider<IAppRuntimeState>;
-export type IAssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<IAssignedItem<T>>;
-export type IAssignedItemDataProvider = IBaseDataProvider<IAssignedItem>;
-export type ICollaborationRequestQuery = DataQuery<ICollaborationRequest>;
-export type ICollaborationRequestDataProvider = IBaseDataProvider<ICollaborationRequest>;
-export type IFileQuery = DataQuery<IFile>;
-export type IFileDataProvider = IBaseDataProvider<IFile>;
-export type IFolderQuery = DataQuery<IFolder>;
-export type IFolderDataProvider = IBaseDataProvider<IFolder>;
-export type IPermissionGroupQuery = DataQuery<IPermissionGroup>;
-export type IPermissionGroupDataProvider = IBaseDataProvider<IPermissionGroup>;
-export type IPermissionItemQuery = DataQuery<IPermissionItem>;
-export type IPermissionItemDataProvider = IBaseDataProvider<IPermissionItem>;
-export type ITagQuery = DataQuery<ITag>;
-export type ITagDataProvider = IBaseDataProvider<ITag>;
-export type IUsageRecordQuery = DataQuery<IUsageRecord>;
-export type IUsageRecordDataProvider = IBaseDataProvider<IUsageRecord>;
-export type IUserQuery = DataQuery<IUser>;
-export type IUserDataProvider = IBaseDataProvider<IUser>;
-export type IWorkspaceQuery = DataQuery<IWorkspace>;
-export type IWorkspaceDataProvider = IBaseDataProvider<IWorkspace>;
-export type IResourceDataProvider = IBaseDataProvider<IResourceWrapper>;
-export type IJobDataProvider = IBaseDataProvider<IJob>;
+export type AgentTokenQuery = DataQuery<AgentToken>;
+export type AgentTokenDataProvider = BaseDataProvider<AgentToken>;
+export type AppRuntimeStateQuery = DataQuery<AppRuntimeState>;
+export type AppRuntimeStateDataProvider = BaseDataProvider<AppRuntimeState>;
+export type AssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<AssignedItem<T>>;
+export type AssignedItemDataProvider = BaseDataProvider<AssignedItem>;
+export type CollaborationRequestQuery = DataQuery<CollaborationRequest>;
+export type CollaborationRequestDataProvider = BaseDataProvider<CollaborationRequest>;
+export type FileQuery = DataQuery<File>;
+export type FileDataProvider = BaseDataProvider<File>;
+export type FolderQuery = DataQuery<Folder>;
+export type FolderDataProvider = BaseDataProvider<Folder>;
+export type PermissionGroupQuery = DataQuery<PermissionGroup>;
+export type PermissionGroupDataProvider = BaseDataProvider<PermissionGroup>;
+export type PermissionItemQuery = DataQuery<PermissionItem>;
+export type PermissionItemDataProvider = BaseDataProvider<PermissionItem>;
+export type TagQuery = DataQuery<Tag>;
+export type TagDataProvider = BaseDataProvider<Tag>;
+export type UsageRecordQuery = DataQuery<UsageRecord>;
+export type UsageRecordDataProvider = BaseDataProvider<UsageRecord>;
+export type UserQuery = DataQuery<User>;
+export type UserDataProvider = BaseDataProvider<User>;
+export type WorkspaceQuery = DataQuery<Workspace>;
+export type WorkspaceDataProvider = BaseDataProvider<Workspace>;
+export type ResourceDataProvider = BaseDataProvider<ResourceWrapper>;
+export type JobDataProvider = BaseDataProvider<Job>;

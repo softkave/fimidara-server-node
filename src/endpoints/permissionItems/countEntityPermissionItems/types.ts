@@ -1,11 +1,11 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetEntityPermissionItemsEndpointParamsBase} from '../getEntityPermissionItems/types';
+import {BaseContext} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetEntityPermissionItemsEndpointParamsBase} from '../getEntityPermissionItems/types';
 
-export type ICountEntityPermissionItemsEndpointParams = IGetEntityPermissionItemsEndpointParamsBase;
+export type CountEntityPermissionItemsEndpointParams = GetEntityPermissionItemsEndpointParamsBase;
 
 export type CountEntityPermissionItemsEndpoint = Endpoint<
-  IBaseContext,
-  ICountEntityPermissionItemsEndpointParams,
-  ICountItemsEndpointResult
+  BaseContext,
+  CountEntityPermissionItemsEndpointParams,
+  CountItemsEndpointResult
 >;

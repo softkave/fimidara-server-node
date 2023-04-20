@@ -1,17 +1,17 @@
-import {IResource, IWorkspaceResource} from '../../../definitions/system';
+import {Resource, WorkspaceResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 import {MemStore} from '../mem/Mem';
 import {IMemStore} from '../mem/types';
-import {IBaseContext} from '../types';
+import {BaseContext} from '../types';
 import {
   ISemanticDataAccessBaseProvider,
-  ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
   ISemanticDataAccessWorkspaceResourceProvider,
+  SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessWorkspaceResourceProviderBaseType,
 } from './types';
 
-export class SemanticDataAccessBaseProvider<T extends IResource>
+export class SemanticDataAccessBaseProvider<T extends Resource>
   implements ISemanticDataAccessBaseProvider<T>
 {
   constructor(
@@ -19,43 +19,43 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     protected assertFn: (item?: T | null) => asserts item
   ) {}
 
-  async insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions) {
+  async insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions) {
     await this.memstore.createItems(item, opts.transaction);
   }
 
   async insertIfNotExist(
     item: T | T[],
     q: LiteralDataQuery<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.createIfNotExist(item, q, opts.transaction);
   }
 
   async getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions) {
-    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    const query: LiteralDataQuery<Resource> = {resourceId: id};
     return await this.memstore.readItem(query as LiteralDataQuery<T>, opts?.transaction);
   }
 
   async existsById(id: string, opts?: ISemanticDataAccessProviderRunOptions) {
-    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    const query: LiteralDataQuery<Resource> = {resourceId: id};
     return await this.memstore.exists(query as LiteralDataQuery<T>, opts?.transaction);
   }
 
   async updateOneById(
     id: string,
     update: Partial<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) {
-    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    const query: LiteralDataQuery<Resource> = {resourceId: id};
     await this.memstore.updateItem(query as LiteralDataQuery<T>, update, opts.transaction);
   }
 
   async getAndUpdateOneById(
     id: string,
     update: Partial<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) {
-    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    const query: LiteralDataQuery<Resource> = {resourceId: id};
     const item = await this.memstore.updateItem(
       query as LiteralDataQuery<T>,
       update,
@@ -67,17 +67,17 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
 
   async deleteManyByIdList(
     idList: string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
+    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     await this.memstore.deleteManyItems(query as LiteralDataQuery<T>, opts.transaction);
   }
 
   async deleteOneById(
     id: string,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    const query: LiteralDataQuery<IResource> = {resourceId: id};
+    const query: LiteralDataQuery<Resource> = {resourceId: id};
     await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
@@ -85,7 +85,7 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     opts?: ISemanticDataAccessProviderRunOptions
   ): Promise<number> {
-    const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
+    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
   }
 
@@ -93,7 +93,7 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
     idList: string[],
     options?: (IDataProvideQueryListParams<T> & ISemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const query: LiteralDataQuery<IResource> = {resourceId: {$in: idList}};
+    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.memstore.readManyItems(
       query as LiteralDataQuery<T>,
       options?.transaction,
@@ -146,7 +146,7 @@ export class SemanticDataAccessBaseProvider<T extends IResource>
 
   async deleteManyByQuery(
     q: LiteralDataQuery<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(q, opts.transaction);
   }
@@ -204,9 +204,9 @@ export class SemanticDataAccessWorkspaceResourceProvider<
 
   async deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    const query: LiteralDataQuery<IWorkspaceResource> = {workspaceId};
+    const query: LiteralDataQuery<WorkspaceResource> = {workspaceId};
     await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
   }
 
@@ -263,8 +263,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
 }
 
 export async function executeWithMutationRunOptions<T>(
-  context: IBaseContext,
-  fn: (opts: ISemanticDataAccessProviderMutationRunOptions) => Promise<T>
+  context: BaseContext,
+  fn: (opts: SemanticDataAccessProviderMutationRunOptions) => Promise<T>
 ): Promise<T> {
   return await MemStore.withTransaction(context, async transaction => await fn({transaction}));
 }

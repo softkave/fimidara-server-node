@@ -79,7 +79,7 @@ export enum UsageRecordArtifactType {
   DatabaseObject = 'db-object',
 }
 
-export interface IUsageRecordArtifact {
+export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
   action?: BasicCRUDActions;
@@ -106,7 +106,7 @@ enum UsageRecordFulfillmentStatus {
   Fulfilled = 1,
 }
 
-export interface IUsageRecord {
+export interface UsageRecord {
   resourceId: string;
   createdAt: Date | string;
   createdBystring
@@ -115,13 +115,13 @@ export interface IUsageRecord {
   workspaceId: string;
   label: UsageRecordLabel;
   usage: number;
-  artifacts: IUsageRecordArtifact[];
+  artifacts: UsageRecordArtifact[];
   summationLevel: UsageRecordSummationLevel;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
 }
 
-interface IUsageRecordDataProvider {
-  insert(usageRecord: IUsageRecord): Promise<IUsageRecord>;
+interface UsageRecordDataProvider {
+  insert(usageRecord: UsageRecord): Promise<UsageRecord>;
   updateSummationTwoById(
     id: string,
     count: number,
@@ -131,14 +131,14 @@ interface IUsageRecordDataProvider {
     workspaceId: string,
     label: UsageRecordLabel,
     summationLevel: UsageRecordSummationLevel
-  ): Promise<IUsageRecord>;
+  ): Promise<UsageRecord>;
 }
 
-interface IUsageRecordLogicProvider {
+interface UsageRecordLogicProvider {
   // private cache of usage records summation level 2
   // we'll be using this to guard against excess usage
   // when limit is exceeded, so need quick access to the usage records.
-  usageRecords: Record<string, IUsageRecord>;
+  usageRecords: Record<string, UsageRecord>;
 
   /**
    * - if sum level 2 doesn't exist, create it
@@ -153,18 +153,18 @@ interface IUsageRecordLogicProvider {
    *   - queue update summation level 2
    *   - return false
    */
-  insert(usageRecord: IUsageRecord): Promise<boolean>;
+  insert(usageRecord: UsageRecord): Promise<boolean>;
 }
 
 // Artifact types
-interface IFileUsageRecordArtifact {
+interface FileUsageRecordArtifact {
   fileId: string;
   filepath: string;
   oldFileSize?: number;
   requestId: string;
 }
 
-interface IBandwidthUsageRecordArtifact {
+interface BandwidthUsageRecordArtifact {
   // bytes: number;
   // direction: 'in' | 'out';
 
@@ -183,7 +183,7 @@ interface IRequestUsageRecordArtifact {
   url: '/files/getFile';
 }
 
-interface IDatabaseObjectUsageRecordArtifact {
+interface DatabaseObjectUsageRecordArtifact {
   resourceId: string;
   requestId: string;
 
@@ -191,7 +191,7 @@ interface IDatabaseObjectUsageRecordArtifact {
   // action: BasicCRUDActions;
 }
 
-interface IUsageThresholdByLabel {
+interface UsageThresholdByLabel {
   resourceId: string;
   createdAt: Date | string;
   createdBystring
@@ -221,11 +221,11 @@ enum WorkspaceUsageStatus {
   Locked = 3,
 }
 
-interface IWorkspace {
+interface Workspace {
   usageStatusAssignedAt?: Date | string;
   usageStatus: WorkspaceUsageStatus;
   totalUsageThreshold?: ITotalUsageThreshold;
-  usageThresholds: IUsageThresholdByLabel[];
+  usageThresholds: UsageThresholdByLabel[];
 }
 
 class RequestData {
@@ -252,7 +252,7 @@ class RequestData {
 For every file stored, updated, and deleted, we want to track the size of the file in the number of bytes stored.
 
 ```typescript
-const fileStoredRecord: IUsageRecord = {
+const fileStoredRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -276,7 +276,7 @@ const fileStoredRecord: IUsageRecord = {
   fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
 };
 
-const fileUpdatedRecord: IUsageRecord = {
+const fileUpdatedRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -301,7 +301,7 @@ const fileUpdatedRecord: IUsageRecord = {
   fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
 };
 
-const fileDeletedRecord: IUsageRecord = {
+const fileDeletedRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -326,7 +326,7 @@ const fileDeletedRecord: IUsageRecord = {
 };
 
 // usage record summation level 2
-const storageRecordLevel2: IUsageRecord = {
+const storageRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -343,7 +343,7 @@ const storageRecordLevel2: IUsageRecord = {
 ### BandwidthIn
 
 ```typescript
-const bandwidthInRecord: IUsageRecord = {
+const bandwidthInRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -367,7 +367,7 @@ const bandwidthInRecord: IUsageRecord = {
 };
 
 // usage record summation level 2
-const bandwidthInRecordLevel2: IUsageRecord = {
+const bandwidthInRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -384,7 +384,7 @@ const bandwidthInRecordLevel2: IUsageRecord = {
 ### BandwidthOut
 
 ```typescript
-const bandwidthOutRecord: IUsageRecord = {
+const bandwidthOutRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -408,7 +408,7 @@ const bandwidthOutRecord: IUsageRecord = {
 };
 
 // usage record summation level 2
-const bandwidthOutRecordLevel2: IUsageRecord = {
+const bandwidthOutRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -425,7 +425,7 @@ const bandwidthOutRecordLevel2: IUsageRecord = {
 ### Request
 
 ```typescript
-const requestRecord: IUsageRecord = {
+const requestRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -450,7 +450,7 @@ const requestRecord: IUsageRecord = {
 };
 
 // usage record summation level 2
-const requestRecordLevel2: IUsageRecord = {
+const requestRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -464,7 +464,7 @@ const requestRecordLevel2: IUsageRecord = {
 };
 
 // unfulfilled usage record, since we'll only have unfulfilled records for requests as it gates other record types
-const requestRecordUnfulfilled: IUsageRecord = {
+const requestRecordUnfulfilled: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -488,7 +488,7 @@ const requestRecordUnfulfilled: IUsageRecord = {
 };
 
 // usage record summation level 2 for unfulfilled usage records
-const requestRecordLevel2: IUsageRecord = {
+const requestRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -505,7 +505,7 @@ const requestRecordLevel2: IUsageRecord = {
 ### DatabaseObject
 
 ```typescript
-const dbObjectRecord: IUsageRecord = {
+const dbObjectRecord: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {
@@ -529,7 +529,7 @@ const dbObjectRecord: IUsageRecord = {
 };
 
 // usage record summation level 2
-const dbObjectRecordLevel2: IUsageRecord = {
+const dbObjectRecordLevel2: UsageRecord = {
   resourceId: 'record-id',
   createdAt: new Date(),
   createdBy: {

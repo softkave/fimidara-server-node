@@ -1,7 +1,7 @@
 import {SchemaMap} from 'joi';
 
 /* eslint-disable @typescript-eslint/ban-types */
-export interface IUpdateItemById<T> {
+export interface UpdateItemById<T> {
   id: string;
   data: Partial<T>;
 }
@@ -21,7 +21,7 @@ export type ConvertTypeOneToTypeTwo<T extends object, One, Two> = {
 };
 
 export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<T, Date, string>;
-export type AnyFn<Args extends unknown[] = any, Result = any> = (...args: Args) => Result;
+export type AnyFn<Args extends any[] = any[], Result = any> = (...args: Args) => Result;
 
 type Join<K, P> = K extends string | number
   ? P extends string | number

@@ -1,11 +1,11 @@
-import {IFile} from '../../../../definitions/file';
+import {File} from '../../../../definitions/file';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessFileProvider} from './types';
 
 export class MemorySemanticDataAccessFile
-  extends SemanticDataAccessWorkspaceResourceProvider<IFile>
+  extends SemanticDataAccessWorkspaceResourceProvider<File>
   implements ISemanticDataAccessFileProvider
 {
   async getOneByNamePath(
@@ -13,7 +13,7 @@ export class MemorySemanticDataAccessFile
     namePath: string[],
     extension?: string | undefined,
     opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IFile | null> {
+  ): Promise<File | null> {
     return await this.memstore.readItem(
       {workspaceId, extension, namePath: {$eq: namePath}},
       opts?.transaction
@@ -28,9 +28,9 @@ export class MemorySemanticDataAccessFile
       excludeResourceIdList?: string[] | undefined;
     },
     options?:
-      | (IDataProvideQueryListParams<IFile> & ISemanticDataAccessProviderRunOptions)
+      | (IDataProvideQueryListParams<File> & ISemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<IFile[]> {
+  ): Promise<File[]> {
     return await this.memstore.readManyItems(
       {
         workspaceId: q.workspaceId,

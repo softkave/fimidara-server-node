@@ -1,22 +1,22 @@
 import {URL} from 'url';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAccessScope,
 } from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -28,7 +28,7 @@ afterAll(async () => {
 
 async function createTestEmailVerificationToken(userId: string) {
   assertContext(context);
-  const token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(AppResourceType.AgentToken, {
     separateEntityId: userId,
     scope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
@@ -66,7 +66,7 @@ describe('withConfirmEmailAddress', () => {
       {
         resourceId: getNewIdForResource(AppResourceType.User),
         isEmailVerified: false,
-      } as IUser,
+      } as User,
       prevLink
     );
     assertLinkWithToken(link, null, prevLink);
@@ -79,7 +79,7 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
       context,
-      {resourceId: userId, isEmailVerified: false} as IUser,
+      {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
     const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
@@ -97,7 +97,7 @@ describe('withConfirmEmailAddress', () => {
       {
         resourceId: getNewIdForResource(AppResourceType.User),
         isEmailVerified: false,
-      } as IUser,
+      } as User,
       prevLink
     );
     assertLinkWithToken(link, encodedToken);
@@ -112,7 +112,7 @@ describe('withConfirmEmailAddress', () => {
       {
         resourceId: getNewIdForResource(AppResourceType.User),
         isEmailVerified: true,
-      } as IUser,
+      } as User,
       prevLink
     );
     const url = new URL(link);

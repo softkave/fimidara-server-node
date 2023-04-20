@@ -2,12 +2,12 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import tagValidationSchemas from '../../tags/validation';
 import {endpointValidationSchemas} from '../../validation';
-import {IAddAgentTokenEndpointParams} from './types';
+import {AddAgentTokenEndpointParams} from './types';
 
-export const addAgentTokenJoiSchema = Joi.object<IAddAgentTokenEndpointParams>()
+export const addAgentTokenJoiSchema = Joi.object<AddAgentTokenEndpointParams>()
   .keys({
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
-    token: Joi.object<IAddAgentTokenEndpointParams['token']>()
+    token: Joi.object<AddAgentTokenEndpointParams['token']>()
       .keys({
         expires: validationSchemas.time.allow(null),
         providedResourceId: validationSchemas.providedResourceId.allow(null),

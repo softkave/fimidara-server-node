@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -14,10 +14,10 @@ import {
 } from '../../testUtils/testUtils';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
-import {IAddWorkspaceEndpointParams} from './types';
+import {AddWorkspaceEndpointParams} from './types';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME} from './utils';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -32,7 +32,7 @@ describe('addWorkspace', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const companyName = faker.company.name();
-    const companyInput: IAddWorkspaceEndpointParams = {
+    const companyInput: AddWorkspaceEndpointParams = {
       name: companyName,
       rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),

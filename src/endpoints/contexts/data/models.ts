@@ -1,16 +1,16 @@
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IJob} from '../../../definitions/job';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResourceWrapper} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
-import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AgentToken} from '../../../definitions/agentToken';
+import {AssignedItem} from '../../../definitions/assignedItem';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {Job} from '../../../definitions/job';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
+import {User} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {throwAssignedItemNotFound} from '../../assignedItems/utils';
 import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
 import {throwFileNotFound} from '../../files/utils';
@@ -24,111 +24,105 @@ import {throwUserNotFound} from '../../user/utils';
 import {throwAgentTokenNotFound, throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
 import {
-  IAgentTokenDataProvider,
-  IAppRuntimeStateDataProvider,
-  IAssignedItemDataProvider,
-  ICollaborationRequestDataProvider,
-  IFileDataProvider,
-  IFolderDataProvider,
-  IJobDataProvider,
-  IPermissionGroupDataProvider,
-  IPermissionItemDataProvider,
-  IResourceDataProvider,
-  ITagDataProvider,
-  IUsageRecordDataProvider,
-  IUserDataProvider,
-  IWorkspaceDataProvider,
+  AgentTokenDataProvider,
+  AppRuntimeStateDataProvider,
+  AssignedItemDataProvider,
+  CollaborationRequestDataProvider,
+  FileDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
+  PermissionGroupDataProvider,
+  PermissionItemDataProvider,
+  ResourceDataProvider,
+  TagDataProvider,
+  UsageRecordDataProvider,
+  UserDataProvider,
+  WorkspaceDataProvider,
 } from './types';
 import {BaseMongoDataProvider} from './utils';
 
 export class WorkspaceMongoDataProvider
-  extends BaseMongoDataProvider<IWorkspace>
-  implements IWorkspaceDataProvider
+  extends BaseMongoDataProvider<Workspace>
+  implements WorkspaceDataProvider
 {
   throwNotFound = throwWorkspaceNotFound;
 }
 
-export class UserMongoDataProvider
-  extends BaseMongoDataProvider<IUser>
-  implements IUserDataProvider
-{
+export class UserMongoDataProvider extends BaseMongoDataProvider<User> implements UserDataProvider {
   throwNotFound = throwUserNotFound;
 }
 
 export class UsageRecordMongoDataProvider
-  extends BaseMongoDataProvider<IUsageRecord>
-  implements IUsageRecordDataProvider
+  extends BaseMongoDataProvider<UsageRecord>
+  implements UsageRecordDataProvider
 {
   throwNotFound = throwUsageRecordNotFound;
 }
 
-export class TagMongoDataProvider extends BaseMongoDataProvider<ITag> implements ITagDataProvider {
+export class TagMongoDataProvider extends BaseMongoDataProvider<Tag> implements TagDataProvider {
   throwNotFound = throwTagNotFound;
 }
 
 export class PermissionItemMongoDataProvider
-  extends BaseMongoDataProvider<IPermissionItem>
-  implements IPermissionItemDataProvider
+  extends BaseMongoDataProvider<PermissionItem>
+  implements PermissionItemDataProvider
 {
   throwNotFound = throwPermissionItemNotFound;
 }
 
 export class PermissionGroupMongoDataProvider
-  extends BaseMongoDataProvider<IPermissionGroup>
-  implements IPermissionGroupDataProvider
+  extends BaseMongoDataProvider<PermissionGroup>
+  implements PermissionGroupDataProvider
 {
   throwNotFound = throwPermissionGroupNotFound;
 }
 
 export class FolderMongoDataProvider
-  extends BaseMongoDataProvider<IFolder>
-  implements IFolderDataProvider
+  extends BaseMongoDataProvider<Folder>
+  implements FolderDataProvider
 {
   throwNotFound = throwFolderNotFound;
 }
 
-export class FileMongoDataProvider
-  extends BaseMongoDataProvider<IFile>
-  implements IFileDataProvider
-{
+export class FileMongoDataProvider extends BaseMongoDataProvider<File> implements FileDataProvider {
   throwNotFound = throwFileNotFound;
 }
 
 export class CollaborationRequestMongoDataProvider
-  extends BaseMongoDataProvider<ICollaborationRequest>
-  implements ICollaborationRequestDataProvider
+  extends BaseMongoDataProvider<CollaborationRequest>
+  implements CollaborationRequestDataProvider
 {
   throwNotFound = throwCollaborationRequestNotFound;
 }
 
 export class AssignedItemMongoDataProvider
-  extends BaseMongoDataProvider<IAssignedItem>
-  implements IAssignedItemDataProvider
+  extends BaseMongoDataProvider<AssignedItem>
+  implements AssignedItemDataProvider
 {
   throwNotFound = throwAssignedItemNotFound;
 }
 
 export class AppRuntimeStateMongoDataProvider
-  extends BaseMongoDataProvider<IAppRuntimeState>
-  implements IAppRuntimeStateDataProvider
+  extends BaseMongoDataProvider<AppRuntimeState>
+  implements AppRuntimeStateDataProvider
 {
   throwNotFound = throwAppRuntimeStateFound;
 }
 
 export class AgentTokenMongoDataProvider
-  extends BaseMongoDataProvider<IAgentToken>
-  implements IAgentTokenDataProvider
+  extends BaseMongoDataProvider<AgentToken>
+  implements AgentTokenDataProvider
 {
   throwNotFound = throwAgentTokenNotFound;
 }
 
 export class ResourceMongoDataProvider
-  extends BaseMongoDataProvider<IResourceWrapper>
-  implements IResourceDataProvider
+  extends BaseMongoDataProvider<ResourceWrapper>
+  implements ResourceDataProvider
 {
   throwNotFound = throwNotFound;
 }
 
-export class JobMongoDataProvider extends BaseMongoDataProvider<IJob> implements IJobDataProvider {
+export class JobMongoDataProvider extends BaseMongoDataProvider<Job> implements JobDataProvider {
   throwNotFound = throwNotFound;
 }

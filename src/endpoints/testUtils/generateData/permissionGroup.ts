@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 
-export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> = {}) {
+export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
-  const createdBy: IAgent = {
+  const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: AppResourceType.User,
     agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-  const token: IPermissionGroup = {
+  const token: PermissionGroup = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -29,9 +29,9 @@ export function generatePermissionGroupForTest(seed: Partial<IPermissionGroup> =
 
 export function generatePermissionGroupListForTest(
   count = 20,
-  seed: Partial<IPermissionGroup> = {}
+  seed: Partial<PermissionGroup> = {}
 ) {
-  const items: IPermissionGroup[] = [];
+  const items: PermissionGroup[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generatePermissionGroupForTest(seed));
   }
@@ -39,9 +39,9 @@ export function generatePermissionGroupListForTest(
 }
 
 export async function generateAndInsertPermissionGroupListForTest(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   count = 20,
-  seed: Partial<IPermissionGroup> = {}
+  seed: Partial<PermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
   await executeWithMutationRunOptions(ctx, async opts =>

@@ -1,23 +1,19 @@
 import {URL} from 'url';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAccessScope,
 } from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/fns';
 import {MemStore} from '../../contexts/mem/Mem';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {userConstants} from '../constants';
 
-export async function withConfirmEmailAddressToken(
-  context: IBaseContext,
-  user: IUser,
-  link: string
-) {
+export async function withConfirmEmailAddressToken(context: BaseContext, user: User, link: string) {
   const url = new URL(link);
   if (!url.searchParams.has(userConstants.confirmEmailTokenQueryParam) && !user.isEmailVerified) {
     let token = await context.semantic.agentToken.getOneAgentToken(
@@ -26,7 +22,7 @@ export async function withConfirmEmailAddressToken(
     );
 
     if (!token) {
-      token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+      token = newResource<AgentToken>(AppResourceType.AgentToken, {
         scope: [TokenAccessScope.ConfirmEmailAddress],
         version: CURRENT_TOKEN_VERSION,
         separateEntityId: user.resourceId,

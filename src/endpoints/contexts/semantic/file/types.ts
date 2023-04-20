@@ -1,4 +1,4 @@
-import {IFile} from '../../../../definitions/file';
+import {File} from '../../../../definitions/file';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
   ISemanticDataAccessProviderRunOptions,
@@ -6,13 +6,13 @@ import {
 } from '../types';
 
 export interface ISemanticDataAccessFileProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<IFile> {
+  extends ISemanticDataAccessWorkspaceResourceProvider<File> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],
     extension?: string,
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IFile | null>;
+  ): Promise<File | null>;
   getManyByWorkspaceParentAndIdList(
     q: {
       workspaceId: string;
@@ -20,8 +20,8 @@ export interface ISemanticDataAccessFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: IDataProvideQueryListParams<IFile> & ISemanticDataAccessProviderRunOptions
-  ): Promise<IFile[]>;
+    options?: IDataProvideQueryListParams<File> & ISemanticDataAccessProviderRunOptions
+  ): Promise<File[]>;
   countManyParentByIdList(
     q: {
       workspaceId: string;

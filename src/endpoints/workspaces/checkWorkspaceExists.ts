@@ -1,9 +1,9 @@
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(
-  context: IBaseContext,
+  context: BaseContext,
   name: string,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
@@ -14,7 +14,7 @@ export async function checkWorkspaceNameExists(
 }
 
 export async function checkWorkspaceRootnameExists(
-  context: IBaseContext,
+  context: BaseContext,
   rootname: string,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {

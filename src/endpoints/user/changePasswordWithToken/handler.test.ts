@@ -1,5 +1,5 @@
 import {add} from 'date-fns';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
@@ -8,10 +8,10 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
+import {BaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -21,10 +21,10 @@ import {
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {IChangePasswordParameters} from '../changePassword/types';
+import {ChangePasswordEndpointParams} from '../changePassword/types';
 import {userConstants} from '../constants';
 import login from '../login/login';
-import {ILoginParams} from '../login/types';
+import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
 import changePasswordWithToken from './handler';
 
@@ -35,7 +35,7 @@ import changePasswordWithToken from './handler';
  * - test that user cannot login with old password
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -50,7 +50,7 @@ async function changePasswordWithTokenTest() {
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {password: oldPassword});
   const newPassword = 'abd784_!new';
-  const token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(AppResourceType.AgentToken, {
     scope: [TokenAccessScope.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: getTimestamp(
@@ -69,7 +69,7 @@ async function changePasswordWithTokenTest() {
   );
   const result = await changePasswordWithToken(
     context,
-    RequestData.fromExpressRequest<IChangePasswordParameters>(
+    RequestData.fromExpressRequest<ChangePasswordEndpointParams>(
       mockExpressRequestWithAgentToken(token),
       {password: newPassword}
     )
@@ -79,7 +79,7 @@ async function changePasswordWithTokenTest() {
     EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
   expect(result.user).toMatchObject(userExtractor(updatedUser));
-  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
     password: newPassword,
     email: user.email,
   });

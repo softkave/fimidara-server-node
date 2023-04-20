@@ -2,8 +2,8 @@ import assert from 'assert';
 import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
@@ -20,7 +20,7 @@ import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermis
 import {makeKeyFromAssignedPermissionGroupMetaOrInput, toAssignedPgListInput} from '../testUtils';
 import assignPermissionGroups from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

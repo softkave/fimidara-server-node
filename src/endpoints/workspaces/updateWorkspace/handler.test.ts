@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,9 +14,9 @@ import {
 } from '../../testUtils/testUtils';
 import {WorkspaceExistsError} from '../errors';
 import updateWorkspace from './handler';
-import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
+import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -32,14 +32,14 @@ describe('updateWorkspce', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const companyName = faker.company.name();
-    const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
+    const workspaceUpdateInput: Partial<UpdateWorkspaceInput> = {
       name: companyName,
       // rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       // usageThresholds: generateTestUsageThresholdInputMap(500),
     };
 
-    const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
+    const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
@@ -63,7 +63,7 @@ describe('updateWorkspce', () => {
     const {workspace: w02} = await insertWorkspaceForTest(context, userToken);
     await expectErrorThrown(async () => {
       assertContext(context);
-      const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
+      const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
       );

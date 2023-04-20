@@ -1,5 +1,5 @@
-import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,7 +14,7 @@ import {
 } from '../../testUtils/testUtils';
 import deletePermissionGroup from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -33,7 +33,7 @@ test('permissionGroup permission group deleted', async () => {
     userToken,
     workspace.resourceId
   );
-  const instData = RequestData.fromExpressRequest<IPermissionGroupMatcher>(
+  const instData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
     mockExpressRequestWithAgentToken(userToken),
     {
       permissionGroupId: permissionGroup.resourceId,

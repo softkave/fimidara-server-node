@@ -1,18 +1,18 @@
 import {
+  ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
   confirmEmailAddressEmailTitle,
-  IConfirmEmailAddressEmailProps,
 } from '../../../emailTemplates/confirmEmailAddress';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 
-export interface ISendConfirmEmailAddressEmailParams extends IConfirmEmailAddressEmailProps {
+export interface SendConfirmEmailAddressEmailParams extends ConfirmEmailAddressEmailProps {
   emailAddress: string;
 }
 
 async function sendConfirmEmailAddressEmail(
-  ctx: IBaseContext,
-  props: ISendConfirmEmailAddressEmailParams
+  ctx: BaseContext,
+  props: SendConfirmEmailAddressEmailParams
 ) {
   const html = confirmEmailAddressEmailHTML(props);
   const text = confirmEmailAddressEmailText(props);

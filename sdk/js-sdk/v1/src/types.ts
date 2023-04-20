@@ -1,6 +1,8 @@
 // This file is auto-generated, do not modify directly. 
 // Reach out to @abayomi to suggest changes.
 
+import {Readable} from "isomorphic-form-data"
+import {Headers} from "cross-fetch"
 
 export type ImageTransformationParams = {
   width?: string;
@@ -11,19 +13,13 @@ export type GetFileEndpointParams = {
   fileId?: string;
   imageTranformation?: ImageTransformationParams;
 }
-export type ReadFileEndpointResponseHeaders = {
-  "Content-Type": string;
-  "Content-Length": string;
-}
 export type ReadFileEndpointRequestParams = {
   authToken?: string;
   body: GetFileEndpointParams;
 }
 export type ReadFileEndpointResult = {
-  statusCode: "200";
-  statusText: string;
-  headers: ReadFileEndpointResponseHeaders;
   body: string | Readable | ReadableStream;
+  headers: typeof Headers;
 }
 export type AddWorkspaceEndpointParams = {
   name: string;
@@ -82,19 +78,13 @@ export type Workspace = {
 export type AddWorkspaceEndpointSuccessResult = {
   workspace?: Workspace;
 }
-export type HTTPResponseHeadersWithJSONContentType = {
-  "Content-Type": "application/json";
-  "Content-Length": string;
-}
 export type AddWorkspaceEndpointRequestParams = {
   authToken?: string;
   body: AddWorkspaceEndpointParams;
 }
 export type AddWorkspaceEndpointResult = {
-  statusCode: "200";
-  statusText: string;
-  headers: HTTPResponseHeadersWithJSONContentType;
   body: AddWorkspaceEndpointSuccessResult;
+  headers: typeof Headers;
 }
 export type WorkspaceAppResourceType = "*" | "workspace" | "collaborationRequest" | "agentToken" | "permissionGroup" | "permissionItem" | "folder" | "file" | "user" | "tag" | "usageRecord"
 export type NewPermissionItemInputTarget = {
@@ -143,10 +133,8 @@ export type AddPermissionItemsEndpointRequestParams = {
   body: AddPermissionItemsEndpointParams;
 }
 export type AddPermissionItemsEndpointResult = {
-  statusCode: "200";
-  statusText: string;
-  headers: HTTPResponseHeadersWithJSONContentType;
   body: AddPermissionItemsEndpointSuccessResult;
+  headers: typeof Headers;
 }
 
 export type ReadFileEndpoint = (params: ReadFileEndpointRequestParams) => Promise<ReadFileEndpointResult>

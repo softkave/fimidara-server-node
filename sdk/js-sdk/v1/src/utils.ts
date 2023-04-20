@@ -1,4 +1,5 @@
 import {fetch, Headers} from 'cross-fetch';
+import * as FormData from 'isomorphic-form-data';
 
 type EndpointErrorItem = {
   name: string;
@@ -44,40 +45,44 @@ const serverAddr =
   (process ? process.env.FIMIDARA_SERVER_ADDR : undefined) ??
   'https://api.fimidara.com';
 
-export const HTTP_HEADER_CONTENT_TYPE = 'Content-Type';
-export const HTTP_HEADER_AUTHORIZATION = 'Authorization';
-export const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
-export const CONTENT_TYPE_MULTIPART_FORMDATA = 'multipart/form-data';
+const HTTP_HEADER_CONTENT_TYPE = 'Content-Type';
+const HTTP_HEADER_AUTHORIZATION = 'Authorization';
+const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 
 export interface IInvokeEndpointParams {
+  token?: string;
   data?: any;
+  formdata?: any;
   path: string;
   headers?: Record<string, string>;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
 }
 
-export async function invokeEndpoint<T extends any = any>(
-  props: IInvokeEndpointParams
-) {
-  const {data, path, headers, method} = props;
-  const incomingHeaders = {
-    [HTTP_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON,
-    ...headers,
-  };
+export async function invokeEndpoint(props: IInvokeEndpointParams) {
+  const {data, path, headers, method, token, formdata} = props;
+  const incomingHeaders = {...headers};
+  let contentBody = undefined;
 
-  let contentBody = data;
+  if (formdata) {
+    const contentFormdata = new FormData();
+    for (const key in formdata) {
+      contentFormdata.append(key, formdata[key]);
+    }
+    contentBody = contentFormdata;
+  } else if (data) {
+    contentBody = JSON.stringify(data);
+    incomingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
+  }
 
-  if (typeof contentBody === 'object') {
-    contentBody = {...data};
-    delete contentBody.authToken;
-    contentBody = JSON.stringify(contentBody);
+  if (token) {
+    incomingHeaders[HTTP_HEADER_AUTHORIZATION] = `Bearer ${token}`;
   }
 
   const endpointAddr = serverAddr + path;
   const result = await fetch(endpointAddr, {
     method,
     headers: incomingHeaders,
-    body: contentBody,
+    body: contentBody as any,
     mode: 'cors',
   });
 
@@ -106,23 +111,6 @@ export async function invokeEndpoint<T extends any = any>(
     result.statusText,
     result.headers as any
   );
-}
-
-export interface IInvokeEndpointWithAuthParams extends IInvokeEndpointParams {
-  token: string;
-}
-
-export async function invokeEndpointWithAuth<T extends any = any>(
-  props: IInvokeEndpointWithAuthParams
-) {
-  const {token} = props;
-  return invokeEndpoint<T>({
-    ...props,
-    headers: {
-      [HTTP_HEADER_AUTHORIZATION]: `Bearer ${token}`,
-      ...props.headers,
-    },
-  });
 }
 
 export class EndpointsBase extends FimidaraJsConfig {

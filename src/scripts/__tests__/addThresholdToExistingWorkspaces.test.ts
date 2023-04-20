@@ -4,7 +4,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
 import {disposeApplicationGlobalUtilities} from '../../endpoints/globalUtils';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
@@ -32,8 +32,8 @@ afterAll(async () => {
 });
 
 function assertThresholds(
-  ut1: IWorkspace['usageThresholds'] = {},
-  ut2: IWorkspace['usageThresholds'] = {}
+  ut1: Workspace['usageThresholds'] = {},
+  ut2: Workspace['usageThresholds'] = {}
 ) {
   Object.values(UsageRecordCategory).forEach(category => {
     const threshold1 = ut1[category];

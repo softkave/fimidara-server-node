@@ -1,12 +1,12 @@
 import {last} from 'lodash';
-import {IFolder} from '../../../definitions/folder';
+import {Folder} from '../../../definitions/folder';
 import {
   AppActionType,
   AppResourceType,
-  ISessionAgent,
   PERMISSION_AGENT_TYPES,
+  SessionAgent,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newWorkspaceResource} from '../../../utils/fns';
@@ -21,17 +21,17 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderMutationRunOptions,
 } from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderExtractor, splitPathWithDetails} from '../utils';
-import {AddFolderEndpoint, INewFolderInput} from './types';
+import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
 export async function getClosestExistingFolder(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   splitParentPath: string[],
   opts?: ISemanticDataAccessProviderRunOptions
@@ -54,11 +54,11 @@ export async function getClosestExistingFolder(
 }
 
 export async function createFolderList(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  input: INewFolderInput,
-  opts: ISemanticDataAccessProviderMutationRunOptions,
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  input: NewFolderInput,
+  opts: SemanticDataAccessProviderMutationRunOptions,
   UNSAFE_skipAuthCheck = false
 ) {
   const pathWithDetails = splitPathWithDetails(input.folderpath);
@@ -85,7 +85,7 @@ export async function createFolderList(
   }
 
   let previousFolder = closestExistingFolder;
-  const newFolders: IFolder[] = [];
+  const newFolders: Folder[] = [];
 
   for (let i = closestExistingFolderIndex + 1; i < pathWithDetails.itemSplitPath.length; i++) {
     if (existingFolders[i]) {
@@ -97,7 +97,7 @@ export async function createFolderList(
     const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
     const name = pathWithDetails.itemSplitPath[i];
     const folderId = getNewIdForResource(AppResourceType.Folder);
-    const folder: IFolder = newWorkspaceResource(
+    const folder: Folder = newWorkspaceResource(
       agent,
       AppResourceType.Folder,
       workspace.resourceId,
@@ -119,7 +119,7 @@ export async function createFolderList(
   if (newFolders.length) {
     const mainFolder = last(newFolders);
     appAssert(mainFolder, new ServerError('Error creating folder.'));
-    // const items: IPermissionItemInput[] = input.publicAccessOps
+    // const items: PermissionItemInput[] = input.publicAccessOps
     //   ? input.publicAccessOps.map(op => {
     //       if (op.appliesToFolder && op.resourceType === AppResourceType.Folder) {
     //         return {

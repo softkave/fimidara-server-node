@@ -1,4 +1,4 @@
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
@@ -34,7 +34,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
       data.permissionGroup.name,
       opts
     );
-    const permissionGroup = newWorkspaceResource<IPermissionGroup>(
+    const permissionGroup = newWorkspaceResource<PermissionGroup>(
       agent,
       AppResourceType.PermissionGroup,
       workspace.resourceId,

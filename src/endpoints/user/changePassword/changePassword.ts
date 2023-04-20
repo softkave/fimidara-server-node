@@ -4,7 +4,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {ChangePasswordEndpoint} from './types';
@@ -15,7 +15,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
   const hash = await argon2.hash(result.password);
   const updatedUser = await MemStore.withTransaction(context, async txn => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
     const updatedUser = await context.semantic.user.getAndUpdateOneById(
       agent.agentId,
       {hash, passwordLastChangedAt: getTimestamp()},

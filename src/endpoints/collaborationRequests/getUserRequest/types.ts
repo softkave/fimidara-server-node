@@ -1,17 +1,17 @@
-import {IPublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetUserCollaborationRequestEndpointParams {
+export interface GetUserCollaborationRequestEndpointParams {
   requestId: string;
 }
 
-export interface IGetUserCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequestForUser;
+export interface GetUserCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForUser;
 }
 
 export type GetUserCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IGetUserCollaborationRequestEndpointParams,
-  IGetUserCollaborationRequestEndpointResult
+  BaseContext,
+  GetUserCollaborationRequestEndpointParams,
+  GetUserCollaborationRequestEndpointResult
 >;

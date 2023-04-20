@@ -1,5 +1,5 @@
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
@@ -20,7 +20,7 @@ import getUserCollaborationRequests from './handler';
  * - Confirm that all the requests returned belong to the user
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

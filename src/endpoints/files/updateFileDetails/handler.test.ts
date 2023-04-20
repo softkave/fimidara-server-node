@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -17,9 +17,9 @@ import {
 import {fileConstants} from '../constants';
 import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
-import {IUpdateFileDetailsEndpointParams, IUpdateFileDetailsInput} from './types';
+import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -34,12 +34,12 @@ test('file updated', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
-  const updateInput: IUpdateFileDetailsInput = {
+  const updateInput: UpdateFileDetailsInput = {
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFileDetailsEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       filepath: addRootnameToPath(

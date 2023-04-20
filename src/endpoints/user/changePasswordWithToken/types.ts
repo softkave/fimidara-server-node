@@ -1,10 +1,11 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {IChangePasswordParameters} from '../changePassword/types';
-import {ILoginResult} from '../login/types';
+import {ChangePasswordEndpointParams} from '../changePassword/types';
+import {LoginResult} from '../login/types';
 
+export type ChangePasswordWithTokenEndpointParams = ChangePasswordEndpointParams;
 export type ChangePasswordWithTokenEndpoint = Endpoint<
-  IBaseContext,
-  IChangePasswordParameters,
-  ILoginResult
+  BaseContext,
+  ChangePasswordEndpointParams,
+  LoginResult
 >;

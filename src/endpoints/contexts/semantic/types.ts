@@ -1,4 +1,4 @@
-import {IResource} from '../../../definitions/system';
+import {Resource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
 import {IMemStoreTransaction} from '../mem/types';
 
@@ -6,18 +6,18 @@ export interface ISemanticDataAccessProviderRunOptions {
   transaction?: IMemStoreTransaction;
 }
 
-export interface ISemanticDataAccessProviderMutationRunOptions {
+export interface SemanticDataAccessProviderMutationRunOptions {
   transaction: IMemStoreTransaction;
 }
 
-export interface ISemanticDataAccessBaseProvider<T extends IResource> {
-  insertItem(item: T | T[], opts: ISemanticDataAccessProviderMutationRunOptions): Promise<void>;
+export interface ISemanticDataAccessBaseProvider<T extends Resource> {
+  insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions): Promise<void>;
 
   // TODO: add a function to execute if query match exists
   insertIfNotExist(
     item: T | T[],
     q: LiteralDataQuery<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getOneById(id: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<T | null>;
   getManyByIdList(
@@ -32,17 +32,17 @@ export interface ISemanticDataAccessBaseProvider<T extends IResource> {
   updateOneById(
     id: string,
     update: Partial<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getAndUpdateOneById(
     id: string,
     update: Partial<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<T>;
-  deleteOneById(id: string, opts: ISemanticDataAccessProviderMutationRunOptions): Promise<void>;
+  deleteOneById(id: string, opts: SemanticDataAccessProviderMutationRunOptions): Promise<void>;
   deleteManyByIdList(
     idList: string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getOneByLiteralDataQuery(
     q: LiteralDataQuery<T>,
@@ -66,11 +66,11 @@ export interface ISemanticDataAccessBaseProvider<T extends IResource> {
   ): Promise<boolean>;
   deleteManyByQuery(
     q: LiteralDataQuery<T>,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
 }
 
-export type SemanticDataAccessWorkspaceResourceProviderBaseType = IResource & {
+export type SemanticDataAccessWorkspaceResourceProviderBaseType = Resource & {
   workspaceId?: string | null;
   providedResourceId?: string | null;
   name?: string;
@@ -101,7 +101,7 @@ export interface ISemanticDataAccessWorkspaceResourceProvider<
   ): Promise<boolean>;
   deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getManyByWorkspaceAndIdList(
     q: {workspaceId: string; resourceIdList?: string[]; excludeResourceIdList?: string[]},

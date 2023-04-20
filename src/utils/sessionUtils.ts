@@ -1,11 +1,11 @@
-import {IAgentToken} from '../definitions/agentToken';
-import {AppResourceType, IAgent, IBaseTokenData, ISessionAgent} from '../definitions/system';
-import {IUser} from '../definitions/user';
+import {AgentToken} from '../definitions/agentToken';
+import {Agent, AppResourceType, BaseTokenData, SessionAgent} from '../definitions/system';
+import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {PermissionDeniedError} from '../endpoints/user/errors';
 import {getResourceTypeFromId} from './resource';
 
-export function makeAgentTokenAgent(agentToken: IAgentToken): ISessionAgent {
+export function makeAgentTokenAgent(agentToken: AgentToken): SessionAgent {
   return {
     agentToken,
     agentId: agentToken.resourceId,
@@ -14,7 +14,7 @@ export function makeAgentTokenAgent(agentToken: IAgentToken): ISessionAgent {
   };
 }
 
-export function makeUserSessionAgent(user: IUser, agentToken: IAgentToken): ISessionAgent {
+export function makeUserSessionAgent(user: User, agentToken: AgentToken): SessionAgent {
   return {
     agentToken,
     user,
@@ -24,7 +24,7 @@ export function makeUserSessionAgent(user: IUser, agentToken: IAgentToken): ISes
   };
 }
 
-export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?: string) {
+export function getWorkspaceIdNoThrow(agent: SessionAgent, providedWorkspaceId?: string) {
   const workspaceId = providedWorkspaceId
     ? providedWorkspaceId
     : agent.agentToken
@@ -33,7 +33,7 @@ export function getWorkspaceIdNoThrow(agent: ISessionAgent, providedWorkspaceId?
   return workspaceId;
 }
 
-export function getWorkspaceIdFromSessionAgent(agent: ISessionAgent, providedWorkspaceId?: string) {
+export function getWorkspaceIdFromSessionAgent(agent: SessionAgent, providedWorkspaceId?: string) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
@@ -42,7 +42,7 @@ export function getWorkspaceIdFromSessionAgent(agent: ISessionAgent, providedWor
 }
 
 export function tryGetAgentTokenId(
-  agent: ISessionAgent,
+  agent: SessionAgent,
   providedTokenId?: string | null,
   onReferenced?: boolean
 ) {
@@ -55,9 +55,9 @@ export function tryGetAgentTokenId(
 }
 
 export function assertIncomingToken(
-  incomingTokenData: IBaseTokenData | undefined | null,
+  incomingTokenData: BaseTokenData | undefined | null,
   type: AppResourceType
-): incomingTokenData is IBaseTokenData {
+): incomingTokenData is BaseTokenData {
   if (!incomingTokenData) {
     throw new PermissionDeniedError();
   }
@@ -67,7 +67,7 @@ export function assertIncomingToken(
   return true;
 }
 
-export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
+export function assertGetWorkspaceIdFromAgent(agent: SessionAgent) {
   const workspaceId = agent.agentToken ? agent.agentToken.workspaceId : null;
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
@@ -76,8 +76,8 @@ export function assertGetWorkspaceIdFromAgent(agent: ISessionAgent) {
   return workspaceId;
 }
 
-export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAgent {
-  const agent: IAgent = {
+export function getActionAgentFromSessionAgent(sessionAgent: SessionAgent): Agent {
+  const agent: Agent = {
     agentId: sessionAgent.agentId,
     agentType: sessionAgent.agentType,
     agentTokenId: sessionAgent.agentTokenId,
@@ -85,13 +85,13 @@ export function getActionAgentFromSessionAgent(sessionAgent: ISessionAgent): IAg
   return agent;
 }
 
-export function isSessionAgent(agent: any): agent is ISessionAgent {
-  if (!(agent as ISessionAgent).agentId || !(agent as ISessionAgent).agentType) return false;
+export function isSessionAgent(agent: any): agent is SessionAgent {
+  if (!(agent as SessionAgent).agentId || !(agent as SessionAgent).agentType) return false;
   if (
-    (agent as ISessionAgent).agentToken ||
-    (agent as ISessionAgent).user ||
-    (agent as ISessionAgent).agentType === AppResourceType.System ||
-    (agent as ISessionAgent).agentType === AppResourceType.Public
+    (agent as SessionAgent).agentToken ||
+    (agent as SessionAgent).user ||
+    (agent as SessionAgent).agentType === AppResourceType.System ||
+    (agent as SessionAgent).agentType === AppResourceType.Public
   )
     return true;
 

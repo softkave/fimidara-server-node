@@ -1,17 +1,17 @@
-import {IPermissionItem} from '../../../../definitions/permissionItem';
+import {PermissionItem} from '../../../../definitions/permissionItem';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessWorkspaceResourceProvider,
+  SemanticDataAccessProviderMutationRunOptions,
 } from '../types';
 
 export interface ISemanticDataAccessPermissionItemProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<IPermissionItem> {
+  extends ISemanticDataAccessWorkspaceResourceProvider<PermissionItem> {
   deleteManyByTargetId(
     id: string | string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   deleteManyByEntityId(
     id: string | string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
 }

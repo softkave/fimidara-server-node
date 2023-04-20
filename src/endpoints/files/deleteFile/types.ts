@@ -1,13 +1,13 @@
-import {IFileMatcher} from '../../../definitions/file';
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {FileMatcher} from '../../../definitions/file';
+import {BaseContext} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
-export type IDeleteFileEndpointParams = IFileMatcher;
+export type DeleteFileEndpointParams = FileMatcher;
 export type DeleteFileEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteFileEndpointParams,
-  ILongRunningJobResult
+  BaseContext,
+  DeleteFileEndpointParams,
+  LongRunningJobResult
 >;
 
 export type DeleteFileCascadeDeleteFnsArgs = {

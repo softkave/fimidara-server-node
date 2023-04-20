@@ -1,8 +1,8 @@
-import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, ISessionAgent, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Folder} from '../../../definitions/folder';
+import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from '../listFolderContent/utils';
 import {CountFolderContentEndpoint} from './types';
 import {countFolderContentJoiSchema} from './validation';
@@ -19,10 +19,10 @@ const countFolderContent: CountFolderContentEndpoint = async (context, instData)
 };
 
 async function countFolders(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  parentFolder: IFolder | null
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  parentFolder: Folder | null
 ) {
   const q = await listFolderContentQuery(
     context,
@@ -35,10 +35,10 @@ async function countFolders(
 }
 
 async function countFiles(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  parentFolder: IFolder | null
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  parentFolder: Folder | null
 ) {
   const q = await listFolderContentQuery(
     context,

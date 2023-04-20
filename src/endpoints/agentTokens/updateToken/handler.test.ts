@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -15,7 +15,7 @@ import {
 } from '../../testUtils/testUtils';
 import {agentTokenExtractor, getPublicAgentToken} from '../utils';
 import updateAgentToken from './handler';
-import {IUpdateAgentTokenEndpointParams, IUpdateAgentTokenInput} from './types';
+import {UpdateAgentTokenEndpointParams, UpdateAgentTokenInput} from './types';
 
 /**
  * TODO:
@@ -23,7 +23,7 @@ import {IUpdateAgentTokenEndpointParams, IUpdateAgentTokenInput} from './types';
  * - [Low] Test that onReferenced feature works
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -38,12 +38,12 @@ test('program access token updated', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token: token01} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
-  const tokenUpdateInput: IUpdateAgentTokenInput = {
+  const tokenUpdateInput: UpdateAgentTokenInput = {
     name: faker.lorem.words(10),
     description: faker.lorem.words(10),
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateAgentTokenEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdateAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {tokenId: token01.resourceId, token: tokenUpdateInput, workspaceId: workspace.resourceId}
   );

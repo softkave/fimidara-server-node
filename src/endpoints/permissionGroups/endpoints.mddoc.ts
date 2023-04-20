@@ -1,62 +1,82 @@
-import {IPermissionGroupMatcher, IPublicPermissionGroup} from '../../definitions/permissionGroups';
-import {ExcludeTags} from '../../definitions/tag';
+import {
+  AssignPermissionGroupInput,
+  PermissionGroupMatcher,
+  PublicAssignedPermissionGroupMeta,
+  PublicPermissionGroup,
+} from '../../definitions/permissionGroups';
 import {
   FieldArray,
+  FieldBoolean,
   FieldObject,
   FieldObjectFields,
-  FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
-  HttpEndpointResponse,
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
-  partialFieldObject,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpResponseItems,
+  MddocEndpointRequestHeaders_AuthRequired_ContentType,
+  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
-  mddocEndpointStatusCodes,
+  mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
+import {LongRunningJobResult} from '../jobs/types';
+import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc';
+import {CountItemsEndpointResult} from '../types';
 import {
-  IAddPermissionGroupEndpointParams,
-  IAddPermissionGroupEndpointResult,
-  INewPermissionGroupInput,
+  AddPermissionGroupEndpointParams,
+  AddPermissionGroupEndpointResult,
+  NewPermissionGroupInput,
 } from './addPermissionGroup/types';
+import {AssignPermissionGroupsEndpointParams} from './assignPermissionGroups/types';
 import {permissionGroupConstants} from './constants';
-import {IDeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
+import {CountWorkspacePermissionGroupsEndpointParams} from './countWorkspacePermissionGroups/types';
+import {DeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
 import {
-  IGetPermissionGroupEndpointParams,
-  IGetPermissionGroupEndpointResult,
+  GetEntityAssignedPermissionGroupsEndpointParams,
+  GetEntityAssignedPermissionGroupsEndpointResult,
+} from './getEntityAssignedPermissionGroups/types';
+import {
+  GetPermissionGroupEndpointParams,
+  GetPermissionGroupEndpointResult,
 } from './getPermissionGroup/types';
 import {
-  IGetWorkspacePermissionGroupsEndpointParams,
-  IGetWorkspacePermissionGroupsEndpointResult,
+  GetWorkspacePermissionGroupsEndpointParams,
+  GetWorkspacePermissionGroupsEndpointResult,
 } from './getWorkspacePermissionGroups/types';
 import {
-  IUpdatePermissionGroupEndpointParams,
-  IUpdatePermissionGroupEndpointResult,
+  UpdatePermissionGroupEndpointParams,
+  UpdatePermissionGroupEndpointResult,
+  UpdatePermissionGroupInput,
 } from './udpatePermissionGroup/types';
 
-const newPermissionGroupInput = new FieldObject<ExcludeTags<INewPermissionGroupInput>>()
+const newPermissionGroupInput = FieldObject.construct<NewPermissionGroupInput>()
   .setName('NewPermissionGroupInput')
   .setFields({
-    name: fReusables.name,
-    description: fReusables.descriptionNotRequired,
+    name: FieldObject.requiredField(fReusables.name),
+    description: FieldObject.optionalField(fReusables.description),
   });
 
-const permissionGroup = new FieldObject<ExcludeTags<IPublicPermissionGroup>>()
+const permissionGroup = FieldObject.construct<PublicPermissionGroup>()
   .setName('PermissionGroup')
   .setFields({
-    resourceId: new FieldString(),
-    createdBy: fReusables.agent,
-    createdAt: fReusables.date,
-    lastUpdatedBy: fReusables.agent,
-    lastUpdatedAt: fReusables.date,
-    name: fReusables.name,
-    description: fReusables.descriptionOrUndefined,
-    workspaceId: fReusables.workspaceId,
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
+    resourceId: FieldObject.requiredField(fReusables.id),
+    createdBy: FieldObject.requiredField(fReusables.agent),
+    createdAt: FieldObject.requiredField(fReusables.date),
+    lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
+    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
+    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
+    name: FieldObject.requiredField(fReusables.name),
+    description: FieldObject.optionalField(fReusables.description),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+  });
+
+const assignedPermissionGroupMeta = FieldObject.construct<PublicAssignedPermissionGroupMeta>()
+  .setName('PermissionGroup')
+  .setFields({
+    permissionGroupId: FieldObject.requiredField(fReusables.permissionGroupId),
+    assignedBy: FieldObject.requiredField(fReusables.agent),
+    assignedAt: FieldObject.requiredField(fReusables.date),
+    assigneeEntityId: FieldObject.requiredField(permissionItemMddocParts.entityId),
   });
 
 const permissionGroupId = fReusables.permissionGroupId
@@ -69,160 +89,260 @@ const name = fReusables.name
   .setDescription(
     'Permission group name. Either provide the permission group ID, or provide the workspace ID and permission group name.'
   );
-const workspaceIdInput = fReusables.workspaceId
+const workspaceIdInput = fReusables.workspaceIdInput
   .clone()
   .setDescription(
-    fReusables.workspaceIdInputNotRequired.assertGetDescription() +
+    fReusables.workspaceIdInput.assertGetDescription() +
       'Either provide the permission group ID, or provide the workspace ID and permission group name.'
   );
 
-const permissionGroupIdNotRequired = cloneAndMarkNotRequired(permissionGroupId);
-const nameNotRequired = cloneAndMarkNotRequired(name);
-const workspaceIdInputNotRequired = cloneAndMarkNotRequired(workspaceIdInput);
-
-const permissionGroupMatcherParts: FieldObjectFields<IPermissionGroupMatcher> = {
-  permissionGroupId: permissionGroupIdNotRequired,
-  name: nameNotRequired,
-  workspaceId: workspaceIdInputNotRequired,
+const permissionGroupMatcherParts: FieldObjectFields<PermissionGroupMatcher> = {
+  permissionGroupId: FieldObject.optionalField(permissionGroupId),
+  name: FieldObject.optionalField(name),
+  workspaceId: FieldObject.optionalField(workspaceIdInput),
 };
 
-const addPermissionGroupParams = new FieldObject<IAddPermissionGroupEndpointParams>()
+const addPermissionGroupParams = FieldObject.construct<AddPermissionGroupEndpointParams>()
   .setName('AddPermissionGroupEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    permissionGroup: newPermissionGroupInput,
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    permissionGroup: FieldObject.requiredField(newPermissionGroupInput),
   })
   .setRequired(true)
   .setDescription('Add permission group endpoint params.');
-const addPermissionGroupResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(mddocEndpointStatusCodes.success)
-    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IAddPermissionGroupEndpointResult>()
-        .setName('AddPermissionGroupEndpointSuccessResult')
-        .setFields({permissionGroup})
-        .setRequired(true)
-        .setDescription('Add permission group endpoint success result.')
-    ),
-];
+const addPermissionGroupResponseBody = FieldObject.construct<AddPermissionGroupEndpointResult>()
+  .setName('AddPermissionGroupEndpointSuccessResult')
+  .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
+  .setRequired(true)
+  .setDescription('Add permission group endpoint success result.');
 
 const getWorkspacePermissionGroupsParams =
-  new FieldObject<IGetWorkspacePermissionGroupsEndpointParams>()
+  FieldObject.construct<GetWorkspacePermissionGroupsEndpointParams>()
     .setName('GetWorkspacePermissionGroupsEndpointParams')
     .setFields({
-      workspaceId: fReusables.workspaceIdInputNotRequired,
-      page: fReusables.pageNotRequired,
-      pageSize: fReusables.pageSizeNotRequired,
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+      page: FieldObject.optionalField(fReusables.page),
+      pageSize: FieldObject.optionalField(fReusables.pageSize),
     })
     .setRequired(true)
     .setDescription('Get workspace permission groups endpoint params.');
-const getWorkspacePermissionGroupsResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(mddocEndpointStatusCodes.success)
-    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetWorkspacePermissionGroupsEndpointResult>()
-        .setName('GetWorkspacePermissionGroupsEndpointSuccessResult')
-        .setFields({
-          permissionGroups: new FieldArray().setType(permissionGroup),
-          page: fReusables.page,
-        })
-        .setRequired(true)
-        .setDescription('Get workspace permission groups endpoint success result.')
-    ),
-];
+const getWorkspacePermissionGroupsResponseBody =
+  FieldObject.construct<GetWorkspacePermissionGroupsEndpointResult>()
+    .setName('GetWorkspacePermissionGroupsEndpointSuccessResult')
+    .setFields({
+      permissionGroups: FieldObject.requiredField(
+        FieldArray.construct<PublicPermissionGroup>().setType(permissionGroup)
+      ),
+      page: FieldObject.requiredField(fReusables.page),
+    })
+    .setRequired(true)
+    .setDescription('Get workspace permission groups endpoint success result.');
 
-const updatePermissionGroupParams = new FieldObject<IUpdatePermissionGroupEndpointParams>()
+const getEntityAssignedPermissionGroupsParams =
+  FieldObject.construct<GetEntityAssignedPermissionGroupsEndpointParams>()
+    .setName('GetEntityAssignedPermissionGroupsParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+      entityId: FieldObject.requiredField(permissionItemMddocParts.entityId),
+      includeInheritedPermissionGroups: FieldObject.optionalField(
+        FieldBoolean.construct().setDescription(
+          'Whether to include permission groups not directly assigned but inherited through permission groups assigned to entity.'
+        )
+      ),
+    })
+    .setRequired(true)
+    .setDescription('Get entity assigned permission groups endpoint params.');
+const getEntityAssignedPermissionGroupsResponseBody =
+  FieldObject.construct<GetEntityAssignedPermissionGroupsEndpointResult>()
+    .setName('GetEntityAssignedPermissionGroupsEndpointSuccessResult')
+    .setFields({
+      permissionGroups: FieldObject.requiredField(
+        FieldArray.construct<PublicPermissionGroup>().setType(permissionGroup)
+      ),
+      immediateAssignedPermissionGroupsMeta: FieldObject.requiredField(
+        FieldArray.construct<PublicAssignedPermissionGroupMeta>().setType(
+          assignedPermissionGroupMeta
+        )
+      ),
+    })
+    .setRequired(true)
+    .setDescription('Get entity assigned permission groups endpoint success result.');
+
+const countWorkspacePermissionGroupsParams =
+  FieldObject.construct<CountWorkspacePermissionGroupsEndpointParams>()
+    .setName('CountWorkspacePermissionGroupsEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    })
+    .setRequired(true)
+    .setDescription('Count workspace permission groups endpoint params.');
+
+const updatePermissionGroupParams = FieldObject.construct<UpdatePermissionGroupEndpointParams>()
   .setName('UpdatePermissionGroupEndpointParams')
   .setFields({
     ...permissionGroupMatcherParts,
-    data: partialFieldObject(newPermissionGroupInput),
+    data: FieldObject.requiredField(
+      FieldObject.construct<UpdatePermissionGroupInput>().setFields({
+        name: FieldObject.optionalField(fReusables.name),
+        description: FieldObject.optionalField(fReusables.description),
+      })
+    ),
   })
   .setRequired(true)
   .setDescription('Update permission group endpoint params.');
-const updatePermissionGroupResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(mddocEndpointStatusCodes.success)
-    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IUpdatePermissionGroupEndpointResult>()
-        .setName('UpdatePermissionGroupEndpointSuccessResult')
-        .setFields({permissionGroup})
-        .setRequired(true)
-        .setDescription('Update permission group endpoint success result.')
-    ),
-];
+const updatePermissionGroupResponseBody =
+  FieldObject.construct<UpdatePermissionGroupEndpointResult>()
+    .setName('UpdatePermissionGroupEndpointSuccessResult')
+    .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
+    .setRequired(true)
+    .setDescription('Update permission group endpoint success result.');
 
-const getPermissionGroupParams = new FieldObject<IGetPermissionGroupEndpointParams>()
+const assignPermissionGroupsParams = FieldObject.construct<AssignPermissionGroupsEndpointParams>()
+  .setName('AssignPermissionGroupsEndpointParams')
+  .setFields({
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    entityId: FieldObject.requiredField(permissionItemMddocParts.entityId),
+    permissionGroups: FieldObject.requiredField(
+      FieldArray.construct<AssignPermissionGroupInput>().setType(
+        FieldObject.construct<AssignPermissionGroupInput>().setFields({
+          permissionGroupId: FieldObject.requiredField(fReusables.permissionGroupId),
+        })
+      )
+    ),
+  })
+  .setRequired(true)
+  .setDescription('Assign permission groups endpoint params.');
+
+const getPermissionGroupParams = FieldObject.construct<GetPermissionGroupEndpointParams>()
   .setName('GetPermissionGroupEndpointParams')
   .setFields(permissionGroupMatcherParts)
   .setRequired(true)
   .setDescription('Get permission group endpoint params.');
-const getPermissionGroupResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(mddocEndpointStatusCodes.success)
-    .setResponseHeaders(mddocEndpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetPermissionGroupEndpointResult>()
-        .setName('GetPermissionGroupEndpointSuccessResult')
-        .setFields({permissionGroup})
-        .setRequired(true)
-        .setDescription('Get permission group endpoint success result.')
-    ),
-];
+const getPermissionGroupResponseBody = FieldObject.construct<GetPermissionGroupEndpointResult>()
+  .setName('GetPermissionGroupEndpointSuccessResult')
+  .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
+  .setRequired(true)
+  .setDescription('Get permission group endpoint success result.');
 
-const deletePermissionGroupParams = new FieldObject<IDeletePermissionGroupEndpointParams>()
+const deletePermissionGroupParams = FieldObject.construct<DeletePermissionGroupEndpointParams>()
   .setName('DeletePermissionGroupEndpointParams')
   .setFields(permissionGroupMatcherParts)
   .setRequired(true)
   .setDescription('Delete permission group endpoint params.');
 
-export const addPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
+export const addPermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: AddPermissionGroupEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: AddPermissionGroupEndpointResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(permissionGroupConstants.routes.addPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(addPermissionGroupParams))
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addPermissionGroupResult)
+  .setRequestBody(addPermissionGroupParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(addPermissionGroupResponseBody)
   .setName('AddPermissionGroupEndpoint')
   .setDescription('Add permission group endpoint.');
 
-export const getPermissionGroupEndpointDefinition = new HttpEndpointDefinition()
+export const getPermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetPermissionGroupEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetPermissionGroupEndpointResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(permissionGroupConstants.routes.getPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getPermissionGroupParams))
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getPermissionGroupResult)
+  .setRequestBody(getPermissionGroupParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getPermissionGroupResponseBody)
   .setName('GetPermissionGroupEndpoint')
   .setDescription('Get permission group endpoint.');
 
-export const updatePermissionGroupEndpointDefinition = new HttpEndpointDefinition()
+export const updatePermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: UpdatePermissionGroupEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: UpdatePermissionGroupEndpointResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(permissionGroupConstants.routes.updatePermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(updatePermissionGroupParams))
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updatePermissionGroupResult)
+  .setRequestBody(updatePermissionGroupParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(updatePermissionGroupResponseBody)
   .setName('UpdatePermissionGroupEndpoint')
   .setDescription('Update permission group endpoint.');
 
-export const deletePermissionGroupEndpointDefinition = new HttpEndpointDefinition()
+export const deletePermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: DeletePermissionGroupEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: LongRunningJobResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(permissionGroupConstants.routes.deletePermissionGroup)
   .setMethod(HttpEndpointMethod.Delete)
-  .setRequestBody(asFieldObjectAny(deletePermissionGroupParams))
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
+  .setRequestBody(deletePermissionGroupParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeletePermissionGroupEndpoint')
   .setDescription('Delete permission group endpoint.');
 
-export const getWorkspacePermissionGroupsEndpointDefinition = new HttpEndpointDefinition()
+export const getWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetWorkspacePermissionGroupsEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetWorkspacePermissionGroupsEndpointResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(permissionGroupConstants.routes.getWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getWorkspacePermissionGroupsParams))
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspacePermissionGroupsResult)
+  .setRequestBody(getWorkspacePermissionGroupsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getWorkspacePermissionGroupsResponseBody)
   .setName('GetWorkspacePermissionGroupsEndpoint')
   .setDescription('Get workspace permission groups endpoint.');
+
+export const countWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: CountWorkspacePermissionGroupsEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: CountItemsEndpointResult;
+  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(permissionGroupConstants.routes.countWorkspacePermissionGroups)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(countWorkspacePermissionGroupsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+  .setName('CountWorkspacePermissionGroupsEndpoint')
+  .setDescription('Count workspace permission groups endpoint.');
+
+export const assignPermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: AssignPermissionGroupsEndpointParams;
+  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+}>()
+  .setBasePathname(permissionGroupConstants.routes.assignPermissionGroups)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(assignPermissionGroupsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setName('AssignPermissionGroupsEndpoint')
+  .setDescription('Assign permission groups endpoint.');
+
+export const getEntityAssignedPermissionGroupsEndpointDefinition =
+  HttpEndpointDefinition.construct<{
+    requestBody: GetEntityAssignedPermissionGroupsEndpointParams;
+    requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+    responseBody: GetEntityAssignedPermissionGroupsEndpointResult;
+    responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  }>()
+    .setBasePathname(permissionGroupConstants.routes.getEntityAssignedPermissionGroups)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(getEntityAssignedPermissionGroupsParams)
+    .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+    .setResponseBody(getEntityAssignedPermissionGroupsResponseBody)
+    .setName('GetEntityAssignedPermissionGroupsEndpoint')
+    .setDescription('Get entity assigned permission groups endpoint.');

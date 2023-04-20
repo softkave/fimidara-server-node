@@ -1,14 +1,14 @@
 import {defaultTo, first, isArray, last} from 'lodash';
-import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {AppActionType, ISessionAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
+import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -16,7 +16,7 @@ import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
-const folderFields = getFields<IPublicFolder>({
+const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
   parentId: true,
   name: true,
@@ -55,7 +55,7 @@ export function assertSplitFolderpath(path: string) {
   return splitPath;
 }
 
-export interface IFolderpathWithDetails {
+export interface FolderpathWithDetails {
   providedPath: string | string[];
   name: string;
 
@@ -70,7 +70,7 @@ export interface IFolderpathWithDetails {
   workspaceRootname: string;
 }
 
-export function splitPathWithDetails(providedPath: string | string[]): IFolderpathWithDetails {
+export function splitPathWithDetails(providedPath: string | string[]): FolderpathWithDetails {
   const splitPath = splitFolderpath(providedPath);
   const workspaceRootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');
@@ -103,11 +103,11 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  folder: IFolder,
+  context: BaseContext,
+  agent: SessionAgent,
+  folder: Folder,
   action: AppActionType,
-  workspace?: IWorkspace
+  workspace?: Workspace
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(context, folder.workspaceId);
@@ -127,18 +127,18 @@ export async function checkFolderAuthorization(
 }
 
 export async function checkFolderAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFolderMatcher,
+  context: BaseContext,
+  agent: SessionAgent,
+  matcher: FolderMatcher,
   action: AppActionType,
-  workspace?: IWorkspace,
+  workspace?: Workspace,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher, opts);
   return checkFolderAuthorization(context, agent, folder, action, workspace);
 }
 
-export function getFolderName(folder: IFolder) {
+export function getFolderName(folder: Folder) {
   return folder.namePath.join(folderConstants.nameSeparator);
 }
 
@@ -168,7 +168,7 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   return <T>`${rootname}${folderConstants.nameSeparator}${path}`;
 }
 
-export function assertFolder(folder: IFolder | null | undefined): asserts folder {
+export function assertFolder(folder: Folder | null | undefined): asserts folder {
   if (!folder) {
     throwFolderNotFound();
   }

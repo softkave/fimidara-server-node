@@ -1,18 +1,18 @@
 import {TokenAccessScope} from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContext} from '../../contexts/types';
 import {assertUser} from '../utils';
 
 /**
  * Confirms the email address of the user. For internal use only.
  */
 export default async function internalConfirmEmailAddress(
-  context: IBaseContext,
+  context: BaseContext,
   userId: string,
-  user?: IUser | null
+  user?: User | null
 ) {
   if (!user) {
     user = await context.semantic.user.getOneById(userId);
@@ -23,7 +23,7 @@ export default async function internalConfirmEmailAddress(
   }
 
   user = await MemStore.withTransaction(context, async txn => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
     const [user] = await Promise.all([
       context.semantic.user.getAndUpdateOneById(
         userId,

@@ -1,12 +1,12 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetWorkspaceCollaborationRequestsEndpointParamsBase} from '../getWorkspaceRequests/types';
+import {BaseContext} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetWorkspaceCollaborationRequestsEndpointParamsBase} from '../getWorkspaceRequests/types';
 
-export type ICountWorkspaceCollaborationRequestsEndpointParams =
-  IGetWorkspaceCollaborationRequestsEndpointParamsBase;
+export type CountWorkspaceCollaborationRequestsEndpointParams =
+  GetWorkspaceCollaborationRequestsEndpointParamsBase;
 
 export type CountWorkspaceCollaborationRequestsEndpoint = Endpoint<
-  IBaseContext,
-  ICountWorkspaceCollaborationRequestsEndpointParams,
-  ICountItemsEndpointResult
+  BaseContext,
+  CountWorkspaceCollaborationRequestsEndpointParams,
+  CountItemsEndpointResult
 >;

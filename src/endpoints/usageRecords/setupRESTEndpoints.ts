@@ -1,12 +1,13 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import {usageRecordConstants} from './constants';
 import getUsageCosts from './getUsageCosts/handler';
 import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler';
+import {UsageRecordsExportedEndpoints} from './types';
 
-export default function setupUsageRecordsRESTEndpoints(ctx: IBaseContext, app: Express) {
-  const endpoints = {
+export default function setupUsageRecordsRESTEndpoints(ctx: BaseContext, app: Express) {
+  const endpoints: UsageRecordsExportedEndpoints = {
     getUsageCosts: wrapEndpointREST(getUsageCosts, ctx),
     getWorkspaceSummedUsage: wrapEndpointREST(getWorkspaceSummedUsage, ctx),
   };

@@ -1,21 +1,21 @@
-import {IFile} from '../../definitions/file';
+import {File} from '../../definitions/file';
 import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
-  IBandwidthUsageRecordArtifact,
-  IFileUsageRecordArtifact,
-  IPublicUsageRecord,
-  IUsageRecord,
+  BandwidthUsageRecordArtifact,
+  FileUsageRecordArtifact,
+  PublicUsageRecord,
+  UsageRecord,
   UsageRecordArtifactType,
   UsageRecordCategory,
 } from '../../definitions/usageRecord';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {appMessages} from '../../utils/messages';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
-import {IUsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {IBaseContext} from '../contexts/types';
+import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
+import {BaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
@@ -23,9 +23,9 @@ import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   reqData: RequestData,
-  input: IUsageRecordInput,
+  input: UsageRecordInput,
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
@@ -40,21 +40,21 @@ async function insertRecord(
 }
 
 export async function insertStorageUsageRecordInput(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   reqData: RequestData,
-  file: IFile,
+  file: File,
   action: AppActionType = AppActionType.Create,
-  artifactMetaInput: Partial<IFileUsageRecordArtifact> = {},
+  artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
   nothrow = false
 ) {
-  const artifactMeta: IFileUsageRecordArtifact = {
+  const artifactMeta: FileUsageRecordArtifact = {
     fileId: file.resourceId,
     filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
     ...artifactMetaInput,
   };
 
-  const input: IUsageRecordInput = {
+  const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.Storage,
     usage: file.size,
@@ -72,19 +72,19 @@ export async function insertStorageUsageRecordInput(
 }
 
 export async function insertBandwidthInUsageRecordInput(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   reqData: RequestData,
-  file: IFile,
+  file: File,
   action: AppActionType = AppActionType.Create,
   nothrow = false
 ) {
-  const artifactMeta: IBandwidthUsageRecordArtifact = {
+  const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
     filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
 
-  const input: IUsageRecordInput = {
+  const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.BandwidthIn,
     usage: file.size,
@@ -102,19 +102,19 @@ export async function insertBandwidthInUsageRecordInput(
 }
 
 export async function insertBandwidthOutUsageRecordInput(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   reqData: RequestData,
-  file: IFile,
+  file: File,
   action: AppActionType = AppActionType.Read,
   nothrow = false
 ) {
-  const artifactMeta: IBandwidthUsageRecordArtifact = {
+  const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
     filepath: file.namePath.join(fileConstants.nameExtensionSeparator),
     requestId: reqData.requestId,
   };
 
-  const input: IUsageRecordInput = {
+  const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
     category: UsageRecordCategory.BandwidthOut,
     usage: file.size,
@@ -132,7 +132,7 @@ export async function insertBandwidthOutUsageRecordInput(
 }
 
 // export async function insertDbObjectUsageRecordInput(
-//   ctx: IBaseContext,
+//   ctx: BaseContext,
 //   reqData: RequestData,
 //   workspaceId: string,
 //   resourceId: string,
@@ -140,12 +140,12 @@ export async function insertBandwidthOutUsageRecordInput(
 //   resourceType: AppResourceType,
 //   nothrow: boolean = false
 // ) {
-//   const artifactMeta: IDatabaseObjectUsageRecordArtifact = {
+//   const artifactMeta: DatabaseObjectUsageRecordArtifact = {
 //     resourceId,
 //     requestId: reqData.requestId,
 //   };
 
-//   const input: IUsageRecordInput = {
+//   const input: UsageRecordInput = {
 //     workspaceId,
 //     category: UsageRecordCategory.DatabaseObject,
 //     usage: 1,
@@ -169,12 +169,12 @@ export function getRecordingPeriod() {
   return {month: m, year: y};
 }
 
-export function getUsageThreshold(w: IWorkspace, category: UsageRecordCategory) {
+export function getUsageThreshold(w: Workspace, category: UsageRecordCategory) {
   const thresholds = w.usageThresholds ?? {};
   return thresholds[category];
 }
 
-export function workspaceHasUsageThresholds(w: IWorkspace) {
+export function workspaceHasUsageThresholds(w: Workspace) {
   const thresholds = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).some(k => {
     const usage = thresholds[k];
@@ -182,7 +182,7 @@ export function workspaceHasUsageThresholds(w: IWorkspace) {
   });
 }
 
-export function sumWorkspaceThresholds(w: IWorkspace, exclude?: UsageRecordCategory[]) {
+export function sumWorkspaceThresholds(w: Workspace, exclude?: UsageRecordCategory[]) {
   const threshold = w.usageThresholds ?? {};
   return Object.values(UsageRecordCategory).reduce((acc, k) => {
     if (exclude && exclude.includes(k)) {
@@ -198,11 +198,11 @@ export function throwUsageRecordNotFound() {
   throw new NotFoundError(appMessages.usageRecord.notFound());
 }
 
-export function assertUsageRecord(item?: IUsageRecord | null): asserts item {
+export function assertUsageRecord(item?: UsageRecord | null): asserts item {
   appAssert(item, reuseableErrors.usageRecord.notFound());
 }
 
-const usageRecordFields = getFields<IPublicUsageRecord>({
+const usageRecordFields = getFields<PublicUsageRecord>({
   ...workspaceResourceFields,
   category: true,
   fulfillmentStatus: true,

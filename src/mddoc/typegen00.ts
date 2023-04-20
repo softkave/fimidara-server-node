@@ -1,5 +1,5 @@
 import * as fse from 'fs-extra';
-import {set} from 'lodash';
+import {set, uniq, upperFirst} from 'lodash';
 import {mddocEndpointHttpHeaderItems, mddocEndpointStatusCodes} from '../endpoints/endpoints.mddoc';
 import {readFileEndpointDefinition} from '../endpoints/files/endpoints.mddoc';
 import {addPermissionItemsEndpointDefinition} from '../endpoints/permissionItems/endpoints.mddoc';
@@ -27,12 +27,16 @@ import {
   MddocTypeFieldUndefined,
   MddocTypeHttpEndpoint,
   httpHeadersToFieldObject,
-  isFieldBinary,
-  isMultipartFormdata,
-  isObjectField,
+  isMddocFieldBinary,
+  isMddocFieldObject,
+  isMddocMultipartFormdata,
   objectHasRequiredFields,
 } from './mddoc';
 import path = require('path');
+
+type DocAppendOptions = {
+  skipIndentation?: boolean;
+};
 
 class Doc {
   protected disclaimer =
@@ -40,21 +44,28 @@ class Doc {
     '// Reach out to @abayomi to suggest changes.\n';
   protected endpointsText = '';
   protected typesText = '';
-  protected importsText = '';
+  protected docImports: Record<string, {importing: string[]; from: string}> = {};
   protected indentationCount = 0;
 
-  appendType(typeText: string) {
-    this.typesText += this.getLineIndentation() + typeText + '\n';
+  appendType(typeText: string, opts: DocAppendOptions = {}) {
+    this.typesText += this.getLineIndentation(opts) + typeText + '\n';
     return this;
   }
 
-  appendEndpoint(endpoint: string) {
-    this.endpointsText += this.getLineIndentation() + endpoint + '\n';
+  appendEndpoint(endpoint: string, opts: DocAppendOptions = {}) {
+    this.endpointsText += this.getLineIndentation(opts) + endpoint + '\n';
     return this;
   }
 
-  appendImport(importText: string) {
-    this.importsText += importText + '\n';
+  appendImport(importing: string[], from: string) {
+    let entry = this.docImports[from];
+    if (!entry) {
+      entry = {from, importing};
+      this.docImports[from] = entry;
+    } else {
+      entry.importing = uniq(entry.importing.concat(importing));
+    }
+
     return this;
   }
 
@@ -70,14 +81,30 @@ class Doc {
 
   compileText() {
     return (
-      this.disclaimer + '\n' + this.importsText + '\n' + this.typesText + '\n' + this.endpointsText
+      this.disclaimer +
+      '\n' +
+      this.compileImports() +
+      '\n' +
+      this.typesText +
+      '\n' +
+      this.endpointsText
     );
   }
 
-  protected getLineIndentation() {
+  protected getLineIndentation(opts: DocAppendOptions) {
+    if (opts.skipIndentation) return '';
     return this.indentationCount
       ? new Array(this.indentationCount + 1).fill(undefined).join('  ')
       : '';
+  }
+
+  protected compileImports() {
+    let importsText = '';
+    for (const from in this.docImports) {
+      const {importing} = this.docImports[from];
+      importsText += `import {${importing.join(', ')}} from "${from}"\n`;
+    }
+    return importsText;
   }
 }
 
@@ -131,7 +158,8 @@ function getOrCombinationType(doc: Doc, item: MddocTypeFieldOrCombination) {
     .map(next => getType(doc, next))
     .join(' | ');
 }
-function getBinaryType(item: MddocTypeFieldBinary) {
+function getBinaryType(doc: Doc, item: MddocTypeFieldBinary) {
+  doc.appendImport(['Readable'], 'isomorphic-form-data');
   return 'string | Readable | ReadableStream';
 }
 
@@ -153,7 +181,7 @@ function getType(doc: Doc, item: MddocTypeFieldBase): string {
   } else if (item instanceof FieldOrCombination) {
     return getOrCombinationType(doc, item);
   } else if (item instanceof FieldBinary) {
-    return getBinaryType(item);
+    return getBinaryType(doc, item);
   } else if (item instanceof FieldObject) {
     return generateObjectDefinition(doc, item);
   } else {
@@ -168,8 +196,10 @@ function shouldEncloseObjectKeyInQuotes(key: string) {
 function generateObjectDefinition(
   doc: Doc,
   item: MddocTypeFieldObject,
-  name = item.assertGetName()
+  name?: string,
+  extraFields: string[] = []
 ) {
+  name = name ?? item.assertGetName();
   if (generatedTypeCache.has(name)) {
     return name;
   }
@@ -184,70 +214,34 @@ function generateObjectDefinition(
     const entry = `${key}${separator} ${entryType};`;
     entries.push(entry);
 
-    if (isObjectField(definition)) generateObjectDefinition(doc, definition);
+    if (isMddocFieldObject(definition)) generateObjectDefinition(doc, definition);
     else if (definition instanceof FieldArray && definition.assertGetType() instanceof FieldObject)
       generateObjectDefinition(doc, definition.assertGetType() as MddocTypeFieldObject);
   }
 
-  //   const text = `export type ${name} = {
-  // ${entries.join(';\n')}
-  // }`;
-
   doc.appendType(`export type ${name} = {`).startIndentation();
-  entries.forEach(entry => doc.appendType(entry));
+  entries.concat(extraFields).forEach(entry => doc.appendType(entry));
   doc.endIndentation().appendType('}');
   generatedTypeCache.set(name, true);
-  // doc.appendType(text);
   return name;
 }
 
-function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint) {
-  // Path paramters
-  // const pathParamatersObject = endpoint.getPathParamaters()
-  //   ? httpPathParameterToFieldObject(endpoint.assertGetPathParamaters()).setName(
-  //       `${endpoint.assertGetName()}PathParameters`
-  //     )
-  //   : undefined;
-  // if (pathParamatersObject) generateObjectDefinition(doc, pathParamatersObject);
-
-  // Query
-  // const queryObject = endpoint.getQuery();
-  // if (queryObject) {
-  //   queryObject.setName(`${endpoint.assertGetName()}Query`);
-  //   generateObjectDefinition(doc, queryObject);
-  // }
-
+function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint) {
   // Request body
   const requestBodyRaw = endpoint.getRequestBody();
-  const requestBodyObject = isObjectField(requestBodyRaw) ? requestBodyRaw : undefined;
-  if (requestBodyObject) {
-    generateObjectDefinition(doc, requestBodyObject);
-  }
-
-  // Request headers
-  // const requestHeaders = endpoint.getRequestHeaders();
-  // const requestHeadersObject = endpoint.getRequestHeaders()
-  //   ? httpHeadersToFieldObject(endpoint.assertGetRequestHeaders().assertGetItems())
-  //   : undefined;
-
-  // if (requestHeaders === mddocEndpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  //   requestHeadersObject?.setName('HTTPRequestHeadersWithAuthAndJSONContentType');
-  // if (requestHeaders === mddocEndpointHttpHeaderItems.authRequestHeaders)
-  //   requestHeadersObject?.setName('HTTPRequestHeadersWithAuth');
-  // // Is custom header, name after endpoint
-  // else requestHeadersObject?.setName(`${endpoint.assertGetName()}RequestHeaders`);
-
-  // if (requestHeadersObject) generateObjectDefinition(doc, requestHeadersObject);
+  const requestBodyObject = isMddocFieldObject(requestBodyRaw) ? requestBodyRaw : undefined;
+  const requestFormdataObject = isMddocMultipartFormdata(requestBodyRaw)
+    ? requestBodyRaw.assertGetItems()
+    : undefined;
 
   // Success response body
   const successResponse = endpoint
     .getResponses()
     ?.find(response => response.getStatusCode() === mddocEndpointStatusCodes.success);
-  const successResponseBody = successResponse?.getResponseBody();
-  const successResponseBodyObject = isObjectField(successResponseBody)
-    ? successResponseBody
+  const successResponseBodyRaw = successResponse?.getResponseBody();
+  const successResponseBodyObject = isMddocFieldObject(successResponseBodyRaw)
+    ? successResponseBodyRaw
     : undefined;
-  if (successResponseBodyObject) generateObjectDefinition(doc, successResponseBodyObject);
 
   // Success response headers
   const successResponseHeaders = successResponse?.getResponseHeaders();
@@ -262,86 +256,92 @@ function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint) {
     successResponseHeadersObject?.setName(`${endpoint.assertGetName()}ResponseHeaders`);
   }
 
-  if (successResponseHeadersObject) generateObjectDefinition(doc, successResponseHeadersObject);
-
-  // TODO: support custom error responses. Currently all error responses follow
-  // same order so we don't need it.
-
-  // const errorResponse = endpoint
-  //   .getResponses()
-  //   ?.find(response => response.getStatusCode() === mddocEndpointStatusCodes.error);
-  // const errorResponseBody = errorResponse?.getResponseBody();
-  // if (errorResponseBody) {
-  //   assert(isObjectField(errorResponseBody));
-  //   generateObjectDefinition(doc, errorResponseBody);
-  // }
-
   type SdkEndpointParamsType = {
-    // path?: any;
-    // query?: any;
-    // headers?: any;
     body?: any;
     authToken: MddocTypeFieldString;
   };
   type SdkEndpointResponseType = {
-    headers?: any;
+    // headers?: any;
     body?: any;
-    // statusCode: MddocTypeFieldString;
-    // statusText: MddocTypeFieldString;
   };
 
   const paramsObjectFields: SdkEndpointParamsType = {
-    authToken: new FieldString().setDescription('Agent token.'),
+    authToken: FieldString.construct().setDescription('Agent token.'),
   };
-  const successObjectFields: SdkEndpointResponseType = {
-    // statusCode: new FieldString().setValid([mddocEndpointStatusCodes.success]).setRequired(true),
-    // statusText: new FieldString().setRequired(true).setDescription('HTTP response status text'),
-  };
+  const successObjectFields: SdkEndpointResponseType = {};
 
-  // if (pathParamatersObject) {
-  //   if (objectHasRequiredFields(pathParamatersObject)) pathParamatersObject.setRequired(true);
-  //   paramsObjectFields.path = pathParamatersObject;
-  // }
-  // if (queryObject) {
-  //   if (objectHasRequiredFields(queryObject)) queryObject.setRequired(true);
-  //   paramsObjectFields.query = queryObject;
-  // }
-  // if (requestHeadersObject) {
-  //   if (objectHasRequiredFields(requestHeadersObject)) requestHeadersObject.setRequired(true);
-  //   paramsObjectFields.headers = requestHeadersObject;
-  // }
   if (requestBodyObject) {
     if (objectHasRequiredFields(requestBodyObject)) requestBodyObject.setRequired(true);
     paramsObjectFields.body = requestBodyObject;
-  } else if (isMultipartFormdata(requestBodyRaw)) {
-    const formdataObject = requestBodyRaw.assertGetItems();
-    if (objectHasRequiredFields(formdataObject)) formdataObject.setRequired(true);
-    paramsObjectFields.body = generateObjectDefinition(doc, formdataObject);
+  } else if (requestFormdataObject) {
+    if (objectHasRequiredFields(requestFormdataObject)) requestFormdataObject.setRequired(true);
+    paramsObjectFields.body = requestFormdataObject.assertGetName();
   }
 
-  if (successResponseHeadersObject) {
-    if (objectHasRequiredFields(successResponseHeadersObject))
-      successResponseHeadersObject.setRequired(true);
-    successObjectFields.headers = successResponseHeadersObject;
-  }
+  // if (successResponseHeadersObject) {
+  //   if (objectHasRequiredFields(successResponseHeadersObject))
+  //     successResponseHeadersObject.setRequired(true);
+  //   successObjectFields.headers = successResponseHeadersObject;
+  // }
   if (successResponseBodyObject) {
     if (objectHasRequiredFields(successResponseBodyObject))
       successResponseBodyObject.setRequired(true);
     successObjectFields.body = successResponseBodyObject;
-  } else if (isFieldBinary(successResponseBody)) {
-    successObjectFields.body = successResponseBody.setRequired(true);
+  } else if (isMddocFieldBinary(successResponseBodyRaw)) {
+    successObjectFields.body = successResponseBodyRaw.setRequired(true);
   }
 
-  const paramsObject = new FieldObject()
+  const paramsObject = FieldObject.construct()
     .setFields(paramsObjectFields)
     .setRequired(true)
     .setName(endpoint.assertGetName() + 'RequestParams');
-  const successObject = new FieldObject()
+  const successObject = FieldObject.construct()
     .setFields(successObjectFields)
     .setRequired(true)
     .setName(endpoint.assertGetName() + 'Result');
+
+  return {
+    paramsObject,
+    successObject,
+    requestBodyRaw,
+    requestBodyObject,
+    successResponse,
+    successResponseBodyRaw,
+    successResponseBodyObject,
+    successResponseHeadersObject,
+    requestFormdataObject,
+  };
+}
+
+function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint) {
+  const {
+    paramsObject,
+    successObject,
+    requestBodyObject,
+    successResponseBodyObject,
+    requestFormdataObject,
+  } = getTypesFromEndpoint(endpoint);
+
+  // Request body
+  if (requestBodyObject) {
+    generateObjectDefinition(doc, requestBodyObject);
+  } else if (requestFormdataObject) {
+    generateObjectDefinition(doc, requestFormdataObject);
+  }
+
+  // Success response headers
+  // if (successResponseHeadersObject) {
+  //   generateObjectDefinition(doc, successResponseHeadersObject);
+  // }
+
+  // Success response body
+  if (successResponseBodyObject) {
+    generateObjectDefinition(doc, successResponseBodyObject);
+  }
+
   generateObjectDefinition(doc, paramsObject);
-  generateObjectDefinition(doc, successObject);
+  generateObjectDefinition(doc, successObject, undefined, [`headers: typeof Headers;`]);
+  doc.appendImport(['Headers'], 'cross-fetch');
 
   const text = `export type ${endpoint.assertGetName()} = (params: ${paramsObject.assertGetName()}) => Promise<${successObject.assertGetName()}>`;
   doc.appendEndpoint(text);
@@ -357,7 +357,6 @@ function documentGroupedEndpointTypes(doc: Doc, endpoints: Array<MddocTypeHttpEn
     const [empty, version, group, fnName] = next.assertGetBasePathname().split('/');
     set(apis, `${group}.${fnName}`, next.assertGetName());
   });
-
   doc.appendEndpoint('export type Endpoints = {').startIndentation();
 
   for (const groupName in apis) {
@@ -376,46 +375,95 @@ function documentGroupedEndpointTypes(doc: Doc, endpoints: Array<MddocTypeHttpEn
 }
 
 function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpoint>) {
-  const apis: Record<string, Record<string, string>> = {};
+  const apis: Record<
+    string,
+    Record<
+      string,
+      {endpoint: MddocTypeHttpEndpoint; types: ReturnType<typeof getTypesFromEndpoint>}
+    >
+  > = {};
   endpoints.forEach(next => {
     const [empty, version, group, fnName] = next.assertGetBasePathname().split('/');
-    set(apis, `${group}.${fnName}`, next.assertGetName());
+    set(apis, `${group}.${fnName}`, {endpoint: next, types: getTypesFromEndpoint(next)});
   });
-
-  doc.appendEndpoint('export type Endpoints = {').startIndentation();
+  doc.appendImport(['invokeEndpoint, EndpointsBase'], './utils');
 
   for (const groupName in apis) {
     const group = apis[groupName];
-    doc.appendEndpoint(`${groupName}: {`).startIndentation();
+    doc
+      .appendType(`class ${upperFirst(groupName)}Endpoints extends EndpointsBase {`)
+      .startIndentation();
+    // doc.appendType(`${groupName} = {`).startIndentation();
 
     for (const fnName in group) {
-      const fnType = group[fnName];
-      doc.appendEndpoint(`${fnName}: ${fnType};`);
+      const {types, endpoint} = group[fnName];
+      const {
+        paramsObject,
+        requestBodyObject,
+        requestFormdataObject,
+        successObject,
+        successResponseBodyRaw,
+      } = types;
+
+      doc.appendImport([paramsObject.assertGetName(), successObject.assertGetName()], './types');
+      const text = `${fnName} = async (props: ${paramsObject.assertGetName()}): Promise<${successObject.assertGetName()}> => {
+  const response = await invokeEndpoint({
+    token: this.getAuthToken(props),
+    data: ${requestBodyObject ? 'props.body' : 'undefined'},
+    formdata: ${requestFormdataObject ? 'props.body' : 'undefined'},
+    path: "${endpoint.assertGetBasePathname()}",
+    method: "${endpoint.assertGetMethod().toUpperCase()}"
+  });
+  const result = {
+    headers: response.headers as any,
+    body: ${
+      isMddocFieldBinary(successResponseBodyRaw) ? 'response.body as any' : 'await response.json()'
+    }
+  };
+  return result;
+}`;
+
+      doc.appendType(text, {skipIndentation: true});
     }
 
-    doc.endIndentation().appendEndpoint('}');
+    doc.endIndentation().appendType('}');
   }
 
-  doc.endIndentation().appendEndpoint('}');
+  doc.appendType('export class FimidaraEndpoints extends EndpointsBase {').startIndentation();
+  for (const groupName in apis) {
+    doc.appendType(`${groupName} = new ${upperFirst(groupName)}Endpoints(this.config);`);
+  }
+  doc.endIndentation().appendType('}');
 }
 
 async function main() {
   const endpointsDir = './sdk/js-sdk/v1/src';
-  const filename = path.normalize(endpointsDir + '/types.ts');
-  const doc = new Doc();
+  const typesFilename = path.normalize(endpointsDir + '/types.ts');
+  const codesFilename = path.normalize(endpointsDir + '/endpoints.ts');
+  const typesDoc = new Doc();
+  const codesDoc = new Doc();
 
-  documentTypesFromEndpoint(doc, readFileEndpointDefinition);
-  documentTypesFromEndpoint(doc, addWorkspaceEndpointDefinition);
-  documentTypesFromEndpoint(doc, addPermissionItemsEndpointDefinition);
+  documentTypesFromEndpoint(typesDoc, readFileEndpointDefinition);
+  documentTypesFromEndpoint(typesDoc, addWorkspaceEndpointDefinition);
+  documentTypesFromEndpoint(typesDoc, addPermissionItemsEndpointDefinition);
 
-  documentGroupedEndpointTypes(doc, [
+  // documentGroupedEndpointTypes(typesDoc, [
+  //   readFileEndpointDefinition,
+  //   addWorkspaceEndpointDefinition,
+  //   addPermissionItemsEndpointDefinition,
+  // ]);
+
+  generateGroupedEndpointCode(codesDoc, [
     readFileEndpointDefinition,
     addWorkspaceEndpointDefinition,
     addPermissionItemsEndpointDefinition,
   ]);
 
-  fse.ensureFileSync(filename);
-  return fse.writeFile(filename, doc.compileText(), {encoding: 'utf-8'});
+  fse.ensureFileSync(typesFilename);
+  return Promise.all([
+    fse.writeFile(typesFilename, typesDoc.compileText(), {encoding: 'utf-8'}),
+    fse.writeFile(codesFilename, codesDoc.compileText(), {encoding: 'utf-8'}),
+  ]);
 }
 
 main()

@@ -1,11 +1,11 @@
 import {
+  CollaborationRequest,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {
-  ICollaborationRequestEmailProps,
+  CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   collaborationRequestEmailTitle,
@@ -16,8 +16,8 @@ import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContext} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {
@@ -41,7 +41,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
   });
 
   let {request, existingUser} = await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     const [existingUser, existingRequest] = await Promise.all([
       context.semantic.user.getByEmail(data.request.recipientEmail),
       context.semantic.collaborationRequest.getOneByWorkspaceIdEmail(
@@ -73,7 +73,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
       );
     }
 
-    const request: ICollaborationRequest = newWorkspaceResource(
+    const request: CollaborationRequest = newWorkspaceResource(
       agent,
       AppResourceType.CollaborationRequest,
       workspace.resourceId,
@@ -99,11 +99,11 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
 };
 
 async function sendCollaborationRequestEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
-  toUser: IUser | null
+  context: BaseContext,
+  request: CollaborationRequest,
+  toUser: User | null
 ) {
-  const emailProps: ICollaborationRequestEmailProps = {
+  const emailProps: CollaborationRequestEmailProps = {
     workspaceName: request.workspaceName,
     isRecipientAUser: !!toUser,
     loginLink: context.appVariables.clientLoginLink,

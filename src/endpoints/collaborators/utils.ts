@@ -1,19 +1,19 @@
-import {AppActionType, ISessionAgent} from '../../definitions/system';
-import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../user/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: string) => {
+export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
   if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
 
-  const collaborator: IPublicCollaborator = {
+  const collaborator: PublicCollaborator = {
     resourceId: item.resourceId,
     firstName: item.firstName,
     lastName: item.lastName,
@@ -24,15 +24,15 @@ export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: str
   return collaborator;
 };
 
-export const collaboratorListExtractor = (items: IUserWithWorkspace[], workspaceId: string) => {
+export const collaboratorListExtractor = (items: UserWithWorkspace[], workspaceId: string) => {
   return items.map(item => collaboratorExtractor(item, workspaceId));
 };
 
 export async function checkCollaboratorAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContext,
+  agent: SessionAgent,
   workspaceId: string,
-  collaborator: IUserWithWorkspace,
+  collaborator: UserWithWorkspace,
   action: AppActionType
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
@@ -53,8 +53,8 @@ export async function checkCollaboratorAuthorization(
 }
 
 export async function checkCollaboratorAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContext,
+  agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,
   action: AppActionType
@@ -69,14 +69,14 @@ export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
 }
 
-export function getCollaboratorWorkspace(user: IUserWithWorkspace, workspaceId: string) {
+export function getCollaboratorWorkspace(user: UserWithWorkspace, workspaceId: string) {
   return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
 export function removeOtherUserWorkspaces(
-  collaborator: IUserWithWorkspace,
+  collaborator: UserWithWorkspace,
   workspaceId: string
-): IUserWithWorkspace {
+): UserWithWorkspace {
   return {
     ...collaborator,
     workspaces: collaborator.workspaces.filter(item => item.workspaceId === workspaceId),

@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -11,9 +11,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countWorkspaceAgentTokens from './handler';
-import {ICountWorkspaceAgentTokensEndpointParams} from './types';
+import {CountWorkspaceAgentTokensEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -34,7 +34,7 @@ describe('countWorkspaceAgentTokens', () => {
     const count = await context.semantic.agentToken.countByQuery({
       workspaceId: workspace.resourceId,
     });
-    const instData = RequestData.fromExpressRequest<ICountWorkspaceAgentTokensEndpointParams>(
+    const instData = RequestData.fromExpressRequest<CountWorkspaceAgentTokensEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );

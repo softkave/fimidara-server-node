@@ -1,5 +1,5 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -17,7 +17,7 @@ import {agentTokenExtractor, getPublicAgentToken} from '../utils';
  * [Low] - Test that hanlder fails if permissionGroups don't exist
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

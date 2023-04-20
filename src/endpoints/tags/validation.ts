@@ -1,5 +1,5 @@
 import Joi = require('joi');
-import {IAssignedTagInput} from '../../definitions/tag';
+import {AssignedTagInput} from '../../definitions/tag';
 import {validationSchemas} from '../../utils/validationUtils';
 import {tagConstants} from './constants';
 
@@ -9,7 +9,7 @@ const assignedTag = Joi.object().keys({
 
 const assignedTagsList = Joi.array()
   .items(assignedTag)
-  .unique((a: IAssignedTagInput, b: IAssignedTagInput) => a.tagId === b.tagId)
+  .unique((a: AssignedTagInput, b: AssignedTagInput) => a.tagId === b.tagId)
   .max(tagConstants.maxAssignedTags);
 
 const tagValidationSchemas = {

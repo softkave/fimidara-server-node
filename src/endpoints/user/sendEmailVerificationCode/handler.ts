@@ -1,8 +1,8 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {MemStore} from '../../contexts/mem/Mem';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import {EmailAddressVerifiedError} from '../errors';
@@ -50,7 +50,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (cont
   ]);
 };
 
-export async function getConfirmEmailLink(context: IBaseContext, user: IUser) {
+export async function getConfirmEmailLink(context: BaseContext, user: User) {
   return await withConfirmEmailAddressToken(
     context,
     user,

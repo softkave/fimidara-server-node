@@ -1,39 +1,39 @@
 import {
-  IPermissionGroup,
   PermissionEntityInheritanceMap,
+  PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
-import {IBaseContext} from '../../types';
+import {PermissionItem} from '../../../../definitions/permissionItem';
+import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
+import {BaseContext} from '../../types';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 
 export interface ISemanticDataAccessPermissionProvider {
   getEntityAssignedPermissionGroups(
     props: {
-      context: IBaseContext;
+      context: BaseContext;
       entityId: string;
       fetchDeep?: boolean;
     },
     options?: ISemanticDataAccessProviderRunOptions
   ): Promise<{
-    permissionGroups: IPermissionGroup[];
+    permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }>;
   getEntityInheritanceMap(
     props: {
-      context: IBaseContext;
+      context: BaseContext;
       entityId: string;
       fetchDeep?: boolean;
     },
     options?: ISemanticDataAccessProviderRunOptions
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
-    props: {context: IBaseContext; entityId: string},
+    props: {context: BaseContext; entityId: string},
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IResource | null>;
+  ): Promise<Resource | null>;
   getPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContext;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
@@ -48,10 +48,10 @@ export interface ISemanticDataAccessPermissionProvider {
       sortByContainer?: boolean;
     },
     options?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IPermissionItem[]>;
+  ): Promise<PermissionItem[]>;
   countPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContext;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];

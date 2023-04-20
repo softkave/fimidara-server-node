@@ -1,16 +1,16 @@
-import {IWorkspace} from '../../../../definitions/workspace';
+import {Workspace} from '../../../../definitions/workspace';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessWorkspaceProvider} from './types';
 
 export class MemorySemanticDataAccessWorkspace
-  extends SemanticDataAccessWorkspaceResourceProvider<IWorkspace>
+  extends SemanticDataAccessWorkspaceResourceProvider<Workspace>
   implements ISemanticDataAccessWorkspaceProvider
 {
   async getByRootname(
     name: string,
     opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IWorkspace | null> {
+  ): Promise<Workspace | null> {
     return await this.memstore.readItem({rootname: {$lowercaseEq: name}}, opts?.transaction);
   }
 

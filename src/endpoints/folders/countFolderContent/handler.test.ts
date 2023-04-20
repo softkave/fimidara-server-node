@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
@@ -12,9 +12,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countFolderContent from './handler';
-import {ICountFolderContentEndpointParams} from './types';
+import {CountFolderContentEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -46,7 +46,7 @@ describe('countFolderContent', () => {
         parentId: null,
       }),
     ]);
-    const instData = RequestData.fromExpressRequest<ICountFolderContentEndpointParams>(
+    const instData = RequestData.fromExpressRequest<CountFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {folderpath: workspace.rootname}
     );

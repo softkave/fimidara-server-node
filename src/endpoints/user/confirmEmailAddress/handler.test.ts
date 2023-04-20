@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
@@ -7,9 +7,9 @@ import {
 } from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/fns';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
@@ -21,7 +21,7 @@ import {
 } from '../../testUtils/testUtils';
 import confirmEmailAddress from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -37,7 +37,7 @@ test('email address is confirmed', async () => {
   const {user, userTokenStr} = await insertUserForTest(context, {
     password,
   });
-  const token = newResource<IAgentToken>(AppResourceType.All, {
+  const token = newResource<AgentToken>(AppResourceType.All, {
     separateEntityId: user.resourceId,
     scope: [TokenAccessScope.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,

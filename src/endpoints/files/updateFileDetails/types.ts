@@ -1,22 +1,22 @@
-import {IFileMatcher, IPublicFile} from '../../../definitions/file';
-import {IBaseContext} from '../../contexts/types';
+import {FileMatcher, PublicFile} from '../../../definitions/file';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateFileDetailsInput {
+export interface UpdateFileDetailsInput {
   description?: string;
   mimetype?: string;
 }
 
-export interface IUpdateFileDetailsEndpointParams extends IFileMatcher {
-  file: IUpdateFileDetailsInput;
+export interface UpdateFileDetailsEndpointParams extends FileMatcher {
+  file: UpdateFileDetailsInput;
 }
 
-export interface IUpdateFileDetailsEndpointResult {
-  file: IPublicFile;
+export interface UpdateFileDetailsEndpointResult {
+  file: PublicFile;
 }
 
 export type UpdateFileDetailsEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateFileDetailsEndpointParams,
-  IUpdateFileDetailsEndpointResult
+  BaseContext,
+  UpdateFileDetailsEndpointParams,
+  UpdateFileDetailsEndpointResult
 >;

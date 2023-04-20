@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
 import {getWorkspacePermissionGroupsBaseJoiSchemaParts} from '../getWorkspacePermissionGroups/validation';
-import {ICountWorkspacePermissionGroupsEndpointParams} from './types';
+import {CountWorkspacePermissionGroupsEndpointParams} from './types';
 
 export const countWorkspacePermissionGroupsJoiSchema =
-  Joi.object<ICountWorkspacePermissionGroupsEndpointParams>()
+  Joi.object<CountWorkspacePermissionGroupsEndpointParams>()
     .keys(getWorkspacePermissionGroupsBaseJoiSchemaParts)
     .required();

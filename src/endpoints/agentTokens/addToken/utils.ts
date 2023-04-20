@@ -1,34 +1,34 @@
 import {defaultTo, omit} from 'lodash';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
+  Agent,
   AppActionType,
   AppResourceType,
   CURRENT_TOKEN_VERSION,
-  IAgent,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContext} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {checkAgentTokenAuthorization} from '../utils';
-import {INewAgentTokenInput} from './types';
+import {NewAgentTokenInput} from './types';
 
 /**
  * Creates a new program access token. Does not check authorization.
  */
 export const internalCreateAgentToken = async (
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace,
-  data: INewAgentTokenInput,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContext,
+  agent: Agent,
+  workspace: Workspace,
+  data: NewAgentTokenInput,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
-  let token: IAgentToken | null = null;
+  let token: AgentToken | null = null;
 
   if (data.providedResourceId) {
     token = await context.semantic.agentToken.getByProvidedId(
@@ -39,7 +39,7 @@ export const internalCreateAgentToken = async (
   }
 
   if (token) {
-    const tokenUpdate: Partial<IAgentToken> = {
+    const tokenUpdate: Partial<AgentToken> = {
       ...omit(data, 'tags'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
@@ -55,7 +55,7 @@ export const internalCreateAgentToken = async (
       opts
     );
   } else {
-    token = newWorkspaceResource<IAgentToken>(
+    token = newWorkspaceResource<AgentToken>(
       agent,
       AppResourceType.AgentToken,
       workspace.resourceId,

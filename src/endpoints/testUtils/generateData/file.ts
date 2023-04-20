@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
 import {first} from 'lodash';
-import {IFile} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
 import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {generateTestFolderName} from './folder';
 
 function removeExtension(name: string) {
@@ -31,12 +31,12 @@ export function generateTestFileName({includeExtension = true} = {includeExtensi
 }
 
 export function generateTestFile(
-  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
+  extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const id = getNewIdForResource(AppResourceType.File);
   const name = generateTestFileName();
   const createdAt = getTimestamp();
-  const file: IFile = {
+  const file: File = {
     name,
     createdAt,
     description: faker.lorem.paragraph(),
@@ -58,9 +58,9 @@ export function generateTestFile(
 
 export function generateTestFiles(
   count = 20,
-  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
+  extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
-  const files: IFile[] = [];
+  const files: File[] = [];
   for (let i = 0; i < count; i++) {
     files.push(generateTestFile(extra));
   }
@@ -68,9 +68,9 @@ export function generateTestFiles(
 }
 
 export async function generateAndInsertTestFiles(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   count = 20,
-  extra: Partial<IFile> & {parentId: string | null} = {parentId: null}
+  extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
   await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.file.insertItem(items, opts));

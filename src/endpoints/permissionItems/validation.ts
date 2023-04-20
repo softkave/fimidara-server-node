@@ -6,11 +6,7 @@ import fileValidationSchemas from '../files/validation';
 import folderValidationSchemas from '../folders/validation';
 import workspaceValidationSchemas from '../workspaces/validation';
 import {permissionItemConstants} from './constants';
-import {
-  IPermissionItemInput,
-  IPermissionItemInputEntity,
-  IPermissionItemInputTarget,
-} from './types';
+import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
 
 const targetId = validationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
@@ -35,7 +31,7 @@ const targetParts = {
   ),
   workspaceRootname: workspaceValidationSchemas.rootname,
 };
-const target = Joi.object<IPermissionItemInputTarget>().keys({
+const target = Joi.object<PermissionItemInputTarget>().keys({
   targetId: targetParts.targetId.required(),
   targetType: targetParts.targetType,
   folderpath: targetParts.folderpath,
@@ -45,10 +41,10 @@ const target = Joi.object<IPermissionItemInputTarget>().keys({
 const entityParts = {
   entityId: Joi.alternatives().try(entityId, Joi.array().items(entityId).max(100)),
 };
-const entity = Joi.object<IPermissionItemInputEntity>().keys({
+const entity = Joi.object<PermissionItemInputEntity>().keys({
   entityId: entityParts.entityId,
 });
-const itemInput = Joi.object<IPermissionItemInput>().keys({
+const itemInput = Joi.object<PermissionItemInput>().keys({
   entity,
   target: target.required(),
   action: validationSchemas.crudAction.required(),

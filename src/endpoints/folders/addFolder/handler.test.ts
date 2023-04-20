@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
 import {addFolderBaseTest} from './addFolderTestUtils';
@@ -9,7 +9,7 @@ import {addFolderBaseTest} from './addFolderTestUtils';
  * - Test on root
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

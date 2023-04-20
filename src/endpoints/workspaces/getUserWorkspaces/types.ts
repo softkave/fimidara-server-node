@@ -1,15 +1,15 @@
-import {IPublicWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {PublicWorkspace} from '../../../definitions/workspace';
+import {BaseContext} from '../../contexts/types';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
 
-export interface IGetUserWorkspacesEndpointParams extends IPaginationQuery {}
+export interface GetUserWorkspacesEndpointParams extends PaginationQuery {}
 
-export interface IGetUserWorkspacesEndpointResult extends IPaginatedResult {
-  workspaces: IPublicWorkspace[];
+export interface GetUserWorkspacesEndpointResult extends PaginatedResult {
+  workspaces: PublicWorkspace[];
 }
 
 export type GetUserWorkspacesEndpoint = Endpoint<
-  IBaseContext,
-  IGetUserWorkspacesEndpointParams,
-  IGetUserWorkspacesEndpointResult
+  BaseContext,
+  GetUserWorkspacesEndpointParams,
+  GetUserWorkspacesEndpointResult
 >;

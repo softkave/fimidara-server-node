@@ -29,6 +29,7 @@
     "show-packlist": "npm pack --dry-run"
   },
   "devDependencies": {
+    "@types/isomorphic-form-data": "^2.0.1",
     "@types/node": "^14.11.2",
     "gts": "^3.1.1",
     "typescript": "~4.7.0"

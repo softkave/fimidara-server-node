@@ -1,11 +1,11 @@
-import {IAgentToken} from '../../definitions/agentToken';
+import {AgentToken} from '../../definitions/agentToken';
 import {TokenAccessScope} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 import EndpointReusableQueries from '../queries';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<IAgentToken>();
+  return new DataProviderFilterBuilder<AgentToken>();
 }
 
 function getByUserIdAndTokenAccessScope(userId: string, tokenAccessScope: TokenAccessScope) {

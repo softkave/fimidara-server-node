@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import changePassword from './changePassword/changePassword';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
@@ -11,11 +11,12 @@ import getUserData from './getUserData/getUserData';
 import login from './login/login';
 import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
 import signup from './signup/signup';
+import {UsersExportedEndpoints} from './types';
 import updateUser from './updateUser/handler';
 import userExists from './userExists/handler';
 
-export default function setupAccountRESTEndpoints(ctx: IBaseContext, app: Express) {
-  const account = {
+export default function setupAccountRESTEndpoints(ctx: BaseContext, app: Express) {
+  const account: UsersExportedEndpoints = {
     signup: wrapEndpointREST(signup, ctx),
     login: wrapEndpointREST(login, ctx),
     forgotPassword: wrapEndpointREST(forgotPassword, ctx),

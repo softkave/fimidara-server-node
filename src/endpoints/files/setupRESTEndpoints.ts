@@ -2,16 +2,17 @@ import {Express, Request, Response} from 'express';
 import {last, merge} from 'lodash';
 import * as multer from 'multer';
 import {endpointConstants} from '../constants';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {endpointDecodeURIComponent, wrapEndpointREST} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
 import getFileDetails from './getFileDetails/handler';
 import readFile from './readFile/handler';
-import {IReadFileEndpointParams, ReadFileEndpoint} from './readFile/types';
+import {ReadFileEndpoint, ReadFileEndpointParams} from './readFile/types';
+import {FilesExportedEndpoints} from './types';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
-import {IUploadFileEndpointParams} from './uploadFile/types';
+import {UploadFileEndpointParams} from './uploadFile/types';
 
 const uploadFilePath = fileConstants.routes.uploadFile;
 const readFilePath = fileConstants.routes.readFile;
@@ -26,12 +27,12 @@ function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFi
   result.stream.pipe(res);
 }
 
-export interface IReadFileEndpointQueryParams {
+export interface ReadFileEndpointQueryParams {
   w?: number;
   h?: number;
 }
 
-function extractReadFileParamsFromReq(req: Request): IReadFileEndpointParams {
+function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   const p = req.path;
   const filepath = endpointDecodeURIComponent(last(p.split(readFilePath)));
   const width = endpointDecodeURIComponent(req.query.w);
@@ -43,13 +44,13 @@ function extractReadFileParamsFromReq(req: Request): IReadFileEndpointParams {
   };
 }
 
-function extractUploadFilesParamsFromPath(req: Request): Partial<IUploadFileEndpointParams> {
+function extractUploadFilesParamsFromPath(req: Request): Partial<UploadFileEndpointParams> {
   const p = req.path;
   const filepath = endpointDecodeURIComponent(last(p.split(uploadFilePath)));
   return {filepath};
 }
 
-function extractUploadFilesParamsFromFormData(req: Request): IUploadFileEndpointParams {
+function extractUploadFilesParamsFromFormData(req: Request): UploadFileEndpointParams {
   const file = req.file;
   return {
     ...req.body,
@@ -58,16 +59,16 @@ function extractUploadFilesParamsFromFormData(req: Request): IUploadFileEndpoint
   };
 }
 
-function extractUploadFilesParamsFromReq(req: Request): IUploadFileEndpointParams {
+function extractUploadFilesParamsFromReq(req: Request): UploadFileEndpointParams {
   return merge(extractUploadFilesParamsFromPath(req), extractUploadFilesParamsFromFormData(req));
 }
 
 export default function setupFilesRESTEndpoints(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   app: Express,
   upload: multer.Multer
 ) {
-  const endpoints = {
+  const endpoints: FilesExportedEndpoints = {
     deleteFile: wrapEndpointREST(deleteFile, ctx),
     getFileDetails: wrapEndpointREST(getFileDetails, ctx),
     updateFileDetails: wrapEndpointREST(updateFileDetails, ctx),

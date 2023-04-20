@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {first, merge} from 'lodash';
-import {IResource} from '../../../../definitions/system';
+import {Resource} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {
   extractResourceIdList,
@@ -405,7 +405,7 @@ describe('MemStore', () => {
   });
 });
 
-interface ITestResource extends IResource {
+interface ITestResource extends Resource {
   field01: string;
   field02: string;
 }

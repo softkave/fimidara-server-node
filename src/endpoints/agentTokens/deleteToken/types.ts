@@ -1,14 +1,14 @@
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
-import {Endpoint, IEndpointWorkspaceResourceParam} from '../../types';
+import {BaseContext} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
+import {Endpoint, EndpointWorkspaceResourceParam} from '../../types';
 
-export interface IDeleteAgentTokenEndpointParams extends IEndpointWorkspaceResourceParam {
+export interface DeleteAgentTokenEndpointParams extends EndpointWorkspaceResourceParam {
   tokenId?: string;
   onReferenced?: boolean;
 }
 
 export type DeleteAgentTokenEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteAgentTokenEndpointParams,
-  ILongRunningJobResult
+  BaseContext,
+  DeleteAgentTokenEndpointParams,
+  LongRunningJobResult
 >;

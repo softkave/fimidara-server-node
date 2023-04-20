@@ -1,12 +1,12 @@
 import {
+  Agent,
   AppResourceType,
   ConvertAgentToPublicAgent,
-  IAgent,
-  IPublicWorkspaceResource,
-  IResource,
+  PublicWorkspaceResource,
+  Resource,
 } from './system';
 
-export interface IAgentToken extends IResource {
+export interface AgentToken extends Resource {
   name?: string;
   description?: string;
   version: number;
@@ -14,8 +14,8 @@ export interface IAgentToken extends IResource {
   agentType: AppResourceType;
   workspaceId: string | null;
   providedResourceId?: string | null;
-  lastUpdatedBy: IAgent;
-  createdBy: IAgent;
+  lastUpdatedBy: Agent;
+  createdBy: Agent;
 
   /**
    * not same as iat in token, may be a litte bit behind or after and is a ISO
@@ -25,9 +25,9 @@ export interface IAgentToken extends IResource {
   scope?: string[];
 }
 
-export type IPublicAgentToken = IPublicWorkspaceResource &
+export type PublicAgentToken = PublicWorkspaceResource &
   Pick<
-    ConvertAgentToPublicAgent<IAgentToken>,
+    ConvertAgentToPublicAgent<AgentToken>,
     'name' | 'description' | 'expires' | 'lastUpdatedBy' | 'createdBy'
   > & {
     tokenStr: string;

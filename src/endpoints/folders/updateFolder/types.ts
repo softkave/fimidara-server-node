@@ -1,22 +1,21 @@
-import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/types';
+import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateFolderInput {
+export interface UpdateFolderInput {
   description?: string;
-  removePublicAccessOps?: boolean;
 }
 
-export interface IUpdateFolderEndpointParams extends IFolderMatcher {
-  folder: IUpdateFolderInput;
+export interface UpdateFolderEndpointParams extends FolderMatcher {
+  folder: UpdateFolderInput;
 }
 
-export interface IUpdateFolderEndpointResult {
-  folder: IPublicFolder;
+export interface UpdateFolderEndpointResult {
+  folder: PublicFolder;
 }
 
 export type UpdateFolderEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateFolderEndpointParams,
-  IUpdateFolderEndpointResult
+  BaseContext,
+  UpdateFolderEndpointParams,
+  UpdateFolderEndpointResult
 >;

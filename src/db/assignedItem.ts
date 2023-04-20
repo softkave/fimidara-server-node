@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {IAssignedItem} from '../definitions/assignedItem';
+import {AssignedItem} from '../definitions/assignedItem';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const assignedItemSchema = ensureMongoTypeFields<IAssignedItem>({
+const assignedItemSchema = ensureMongoTypeFields<AssignedItem>({
   ...workspaceResourceSchema,
   assignedItemId: {type: String, index: true},
   assignedItemType: {type: String, index: true},
@@ -11,15 +11,15 @@ const assignedItemSchema = ensureMongoTypeFields<IAssignedItem>({
   meta: {type: SchemaTypes.Map},
 });
 
-export type IAssignedItemDocument = Document<IAssignedItem>;
+export type AssignedItemDocument = Document<AssignedItem>;
 
-const schema = new Schema<IAssignedItem>(assignedItemSchema);
+const schema = new Schema<AssignedItem>(assignedItemSchema);
 const modelName = 'assigned-item';
 const collectionName = 'assigned-items';
 
 export function getAssignedItemModel(connection: Connection) {
-  const model = connection.model<IAssignedItem>(modelName, schema, collectionName);
+  const model = connection.model<AssignedItem>(modelName, schema, collectionName);
   return model;
 }
 
-export type IAssignedItemModel = Model<IAssignedItem>;
+export type AssignedItemModel = Model<AssignedItem>;

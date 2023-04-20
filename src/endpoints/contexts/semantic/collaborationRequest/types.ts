@@ -1,4 +1,4 @@
-import {ICollaborationRequest} from '../../../../definitions/collaborationRequest';
+import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
   ISemanticDataAccessProviderRunOptions,
@@ -6,20 +6,20 @@ import {
 } from '../types';
 
 export interface ISemanticDataAccessCollaborationRequestProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<ICollaborationRequest> {
+  extends ISemanticDataAccessWorkspaceResourceProvider<CollaborationRequest> {
   getManyByEmail(
     email: string,
-    options?: IDataProvideQueryListParams<ICollaborationRequest> &
+    options?: IDataProvideQueryListParams<CollaborationRequest> &
       ISemanticDataAccessProviderRunOptions
-  ): Promise<ICollaborationRequest[]>;
+  ): Promise<CollaborationRequest[]>;
   getOneByEmail(
     email: string,
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<ICollaborationRequest | null>;
+  ): Promise<CollaborationRequest | null>;
   getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<ICollaborationRequest | null>;
+  ): Promise<CollaborationRequest | null>;
   countByEmail(email: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<number>;
 }

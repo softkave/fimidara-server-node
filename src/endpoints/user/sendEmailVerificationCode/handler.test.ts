@@ -1,5 +1,5 @@
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -17,7 +17,7 @@ import sendEmailVerificationCode from './handler';
  * - that email has verification link
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -52,7 +52,7 @@ test('email verification code sent', async () => {
   // with the token generating different strings and I don't have the time now
   // to figure out why.
 
-  // const confirmEmailProps: IConfirmEmailAddressEmailProps = {
+  // const confirmEmailProps: ConfirmEmailAddressEmailProps = {
   //   firstName: user.firstName,
   //   link: await getConfirmEmailLink(context, rawUser),
   // };

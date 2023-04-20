@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -18,7 +18,7 @@ import {
 import {folderConstants} from '../constants';
 import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
-import {IDeleteFolderEndpointParams} from './types';
+import {DeleteFolderEndpointParams} from './types';
 
 /**
  * TODO:
@@ -26,7 +26,7 @@ import {IDeleteFolderEndpointParams} from './types';
  * - Test path strings
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -36,7 +36,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-async function assertFolderDeleted(context: IBaseContext, id: string) {
+async function assertFolderDeleted(context: BaseContext, id: string) {
   const exists = await context.semantic.folder.existsByQuery(
     EndpointReusableQueries.getByResourceId(id)
   );
@@ -44,7 +44,7 @@ async function assertFolderDeleted(context: IBaseContext, id: string) {
   expect(exists).toBeFalsy();
 }
 
-async function assertFileDeleted(context: IBaseContext, id: string) {
+async function assertFileDeleted(context: BaseContext, id: string) {
   const exists = await context.semantic.file.existsByQuery(
     EndpointReusableQueries.getByResourceId(id)
   );
@@ -70,7 +70,7 @@ test('folder deleted', async () => {
     ),
   });
 
-  const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
   );

@@ -1,19 +1,19 @@
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {BaseContext} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {
   DeleteResourceCascadeFnDefaultArgs,
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
+  EndpointOptionalWorkspaceIDParam,
 } from '../../types';
 
-export interface IRemoveCollaboratorEndpointParams extends IEndpointOptionalWorkspaceIDParam {
+export interface RemoveCollaboratorEndpointParams extends EndpointOptionalWorkspaceIDParam {
   collaboratorId: string;
 }
 
 export type RemoveCollaboratorEndpoint = Endpoint<
-  IBaseContext,
-  IRemoveCollaboratorEndpointParams,
-  ILongRunningJobResult
+  BaseContext,
+  RemoveCollaboratorEndpointParams,
+  LongRunningJobResult
 >;
 
 export type RemoveCollaboratorCascadeFnsArgs = DeleteResourceCascadeFnDefaultArgs & {

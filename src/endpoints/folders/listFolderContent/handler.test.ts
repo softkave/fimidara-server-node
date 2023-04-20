@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles, generateTestFileName} from '../../testUtils/generateData/file';
 import {
@@ -22,14 +22,14 @@ import {
 import {folderConstants} from '../constants';
 import {addRootnameToPath} from '../utils';
 import listFolderContent from './handler';
-import {IListFolderContentEndpointParams} from './types';
+import {ListFolderContentEndpointParams} from './types';
 
 /**
  * TODO:
  * - Test root path
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -60,7 +60,7 @@ describe('listFolderContent', () => {
       }),
     ]);
 
-    const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
     );
@@ -83,7 +83,7 @@ describe('listFolderContent', () => {
       }),
     ]);
 
-    const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {folderpath: workspace.rootname}
     );
@@ -111,7 +111,7 @@ describe('listFolderContent', () => {
       ),
     });
 
-    const fetchFilesReqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    const fetchFilesReqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         folderpath: addRootnameToPath(folder01.name, workspace.rootname),
@@ -122,7 +122,7 @@ describe('listFolderContent', () => {
     assertEndpointResultOk(fetchFilesResult);
     expect(fetchFilesResult.files).toContainEqual(file);
 
-    const fetchFoldersReqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    const fetchFoldersReqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         folderpath: addRootnameToPath(folder01.name, workspace.rootname),
@@ -133,7 +133,7 @@ describe('listFolderContent', () => {
     assertEndpointResultOk(fetchFoldersResult);
     expect(fetchFoldersResult.folders).toContainEqual(folder02);
 
-    const reqData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         folderpath: addRootnameToPath(folder01.name, workspace.rootname),
@@ -177,7 +177,7 @@ describe('listFolderContent', () => {
 
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    let instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, folderpath: workspace.rootname}
     );
@@ -190,7 +190,7 @@ describe('listFolderContent', () => {
     expectContainsExactly(result01.files, filesPage01, getResourceId);
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+    instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, folderpath: workspace.rootname}
     );

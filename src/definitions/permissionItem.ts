@@ -2,7 +2,7 @@ import {
   AppActionType,
   AppResourceType,
   ConvertAgentToPublicAgent,
-  IWorkspaceResource,
+  WorkspaceResource,
 } from './system';
 
 export enum PermissionItemAppliesTo {
@@ -11,7 +11,7 @@ export enum PermissionItemAppliesTo {
   ChildrenOfType = 'c',
 }
 
-export interface IPermissionItem extends IWorkspaceResource {
+export interface PermissionItem extends WorkspaceResource {
   /**
    * One of user, client token, program token, or permission group. It's the
    * entity this permission item was created for.
@@ -25,4 +25,4 @@ export interface IPermissionItem extends IWorkspaceResource {
   action: AppActionType;
 }
 
-export type IPublicPermissionItem = ConvertAgentToPublicAgent<IPermissionItem>;
+export type PublicPermissionItem = ConvertAgentToPublicAgent<PermissionItem>;

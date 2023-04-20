@@ -1,17 +1,16 @@
-import {AnyObject} from '../../../utils/types';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export type IClientLog = {
+export type ClientLog = {
   timestamp: number;
   level: string;
   message: string;
   service: string;
   stack?: string;
-} & AnyObject;
+};
 
-export interface IIngestLogsEndpointParams {
-  logs: IClientLog[];
+export interface IngestLogsEndpointParams {
+  logs: ClientLog[];
 }
 
-export type IngestLogsEndpoint = Endpoint<IBaseContext, IIngestLogsEndpointParams>;
+export type IngestLogsEndpoint = Endpoint<BaseContext, IngestLogsEndpointParams>;

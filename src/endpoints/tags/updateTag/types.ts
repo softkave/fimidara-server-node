@@ -1,21 +1,21 @@
-import {IPublicTag} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
+import {PublicTag} from '../../../definitions/tag';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {INewTagInput} from '../addTag/types';
+import {NewTagInput} from '../addTag/types';
 
-export type IUpdateTagInput = Partial<INewTagInput>;
+export type UpdateTagInput = Partial<NewTagInput>;
 
-export interface IUpdateTagEndpointParams {
+export interface UpdateTagEndpointParams {
   tagId: string;
-  tag: IUpdateTagInput;
+  tag: UpdateTagInput;
 }
 
-export interface IUpdateTagEndpointResult {
-  tag: IPublicTag;
+export interface UpdateTagEndpointResult {
+  tag: PublicTag;
 }
 
 export type UpdateTagEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateTagEndpointParams,
-  IUpdateTagEndpointResult
+  BaseContext,
+  UpdateTagEndpointParams,
+  UpdateTagEndpointResult
 >;

@@ -1,4 +1,8 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export type SendEmailVerificationCodeEndpoint = Endpoint<IBaseContext>;
+export type SendEmailVerificationCodeEndpointParams = {};
+export type SendEmailVerificationCodeEndpoint = Endpoint<
+  BaseContext,
+  SendEmailVerificationCodeEndpointParams
+>;

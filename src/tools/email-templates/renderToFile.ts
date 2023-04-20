@@ -2,29 +2,29 @@ import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
 import {
+  CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
-  ICollaborationRequestEmailProps,
 } from '../../emailTemplates/collaborationRequest';
 import {
+  CollaborationRequestResponseEmailProps,
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
-  ICollaborationRequestResponseEmailProps,
 } from '../../emailTemplates/collaborationRequestResponse';
 import {
+  CollaborationRequestRevokedEmailProps,
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
-  ICollaborationRequestRevokedEmailProps,
 } from '../../emailTemplates/collaborationRequestRevoked';
 import {
+  ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
-  IConfirmEmailAddressEmailProps,
 } from '../../emailTemplates/confirmEmailAddress';
 import {
+  ForgotPasswordEmailProps,
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
-  IForgotPasswordEmailProps,
 } from '../../emailTemplates/forgotPassword';
 import {getTimestamp} from '../../utils/dateFns';
 
@@ -35,7 +35,7 @@ const confirmEmailAddressTxtFile =
   './tools/emailTemplates/templates/confirm-email-address-text.txt';
 
 export function renderConfirmEmailAddressMedia() {
-  const props: IConfirmEmailAddressEmailProps = {
+  const props: ConfirmEmailAddressEmailProps = {
     firstName: 'Abayomi',
     link: 'https://fimidara.com/accounts/confirm-email-address?t=jwt-token',
   };
@@ -51,7 +51,7 @@ const forgotPasswordEmailHTMLFile = './tools/emailTemplates/templates/forgot-pas
 const forgotPasswordEmailTxtFile = './tools/emailTemplates/templates/forgot-password-text.txt';
 
 export function renderForgotPasswordMedia() {
-  const props: IForgotPasswordEmailProps = {
+  const props: ForgotPasswordEmailProps = {
     expiration: new Date(),
     link: 'https://fimidara.com/accounts/forgot-password?t=jwt-token',
   };
@@ -69,7 +69,7 @@ const collaborationRequestEmailTxtFile =
   './tools/emailTemplates/templates/collaboration-request-text.txt';
 
 export function renderCollaborationRequestMedia() {
-  const props: ICollaborationRequestEmailProps = {
+  const props: CollaborationRequestEmailProps = {
     workspaceName: 'Fimidara',
     isRecipientAUser: true,
     loginLink: 'https://fimidara.com/accounts/signup',
@@ -91,7 +91,7 @@ const collaborationRequestRevokedEmailTxtFile =
   './tools/emailTemplates/templates/collaboration-request-revoked-text.txt';
 
 export function renderCollaborationRequestRevokedMedia() {
-  const props: ICollaborationRequestRevokedEmailProps = {
+  const props: CollaborationRequestRevokedEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
@@ -110,7 +110,7 @@ const collaborationRequestResponseEmailTxtFile =
   './tools/emailTemplates/templates/collaboration-request-response-text.txt';
 
 export function renderCollaborationRequestResponseMedia() {
-  const props: ICollaborationRequestResponseEmailProps = {
+  const props: CollaborationRequestResponseEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',

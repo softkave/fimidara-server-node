@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {AppActionType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -8,7 +8,7 @@ import {validate} from '../../../utils/validate';
 import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {assertAgentToken, checkAgentTokenAuthorization, getPublicAgentToken} from '../utils';
@@ -21,8 +21,8 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   const token = await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
-    let token: IAgentToken | null = null;
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
+    let token: AgentToken | null = null;
 
     if (tokenId) {
       token = await context.semantic.agentToken.getOneById(tokenId, opts);
@@ -35,7 +35,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
     }
 
     assertAgentToken(token);
-    const tokenUpdate: Partial<IAgentToken> = {
+    const tokenUpdate: Partial<AgentToken> = {
       ...omit(data.token, 'tags'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),

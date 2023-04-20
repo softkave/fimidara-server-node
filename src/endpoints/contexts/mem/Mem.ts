@@ -12,18 +12,17 @@ import {
   merge,
   set,
 } from 'lodash';
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResource, IResourceWrapper} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
-import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AgentToken} from '../../../definitions/agentToken';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
+import {User} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {makeKey, toArray, toNonNullableArray} from '../../../utils/fns';
@@ -38,30 +37,29 @@ import {
   INumberLiteralFieldQueryOps,
   LiteralDataQuery,
 } from '../data/types';
-import {IBaseContext} from '../types';
+import {BaseContext} from '../types';
 import {StackedArray} from './memArrayHelpers';
 import {
-  IAgentTokenMemStoreProvider,
-  IAppRuntimeStateMemStoreProvider,
-  IAssignedItemMemStoreProvider,
-  ICollaborationRequestMemStoreProvider,
-  IFileMemStoreProvider,
-  IFolderMemStoreProvider,
+  AgentTokenMemStoreProvider,
+  AppRuntimeStateMemStoreProvider,
+  CollaborationRequestMemStoreProvider,
+  FileMemStoreProvider,
+  FolderMemStoreProvider,
   IMemStore,
   IMemStoreIndex,
   IMemStoreOptions,
   IMemStoreTransaction,
-  IPermissionGroupMemStoreProvider,
-  IPermissionItemMemStoreProvider,
-  ITagMemStoreProvider,
-  IUsageRecordMemStoreProvider,
-  IUserMemStoreProvider,
-  IWorkspaceMemStoreProvider,
   MemStoreIndexOptions,
   MemStoreIndexTypes,
   MemStoreTransactionConsistencyOp,
   MemStoreTransactionConsistencyOpTypes,
   MemStoreTransactionState,
+  PermissionGroupMemStoreProvider,
+  PermissionItemMemStoreProvider,
+  TagMemStoreProvider,
+  UsageRecordMemStoreProvider,
+  UserMemStoreProvider,
+  WorkspaceMemStoreProvider,
 } from './types';
 
 type Mem_FieldQueryOps = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> &
@@ -86,17 +84,17 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   protected state: MemStoreTransactionState = MemStoreTransactionState.Pending;
   protected cache: Record<
     string,
-    {version: number; item: IResource; storeRef: IMemStore<IResource>}
+    {version: number; item: Resource; storeRef: IMemStore<Resource>}
   > = {};
   protected deletedItemsIdMap: Record<string, boolean> = {};
   protected consistencyOps: MemStoreTransactionConsistencyOp[] = [];
-  protected indexViews: Map<IMemStoreIndex<IResource>, unknown> = new Map();
-  protected locks = new Map<IMemStore<IResource>, Record<number, number>>();
+  protected indexViews: Map<IMemStoreIndex<Resource>, unknown> = new Map();
+  protected locks = new Map<IMemStore<Resource>, Record<number, number>>();
   protected error: unknown | undefined = undefined;
 
   // TODO: how to maintain storeRef without having to store it for each item? I
   // don't think it really matters, but it's a nice to have.
-  addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>) {
+  addToCache(item: Resource | Resource[], storeRef: IMemStore<Resource>) {
     this.assertTxnValid();
     const itemsList = toNonNullableArray(item);
     itemsList.forEach(item => {
@@ -109,7 +107,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     });
   }
 
-  getFromCache<T extends IResource>(id: string) {
+  getFromCache<T extends Resource>(id: string) {
     this.assertTxnValid();
     return this.cache[id]?.item as T | undefined;
   }
@@ -156,24 +154,24 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     }
   }
 
-  addIndexView(ref: IMemStoreIndex<IResource>, index: unknown) {
+  addIndexView(ref: IMemStoreIndex<Resource>, index: unknown) {
     this.assertTxnValid();
     if (!this.indexViews.has(ref)) {
       this.indexViews.set(ref, index);
     }
   }
 
-  getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>) {
+  getIndexView<T = unknown>(ref: IMemStoreIndex<Resource>) {
     this.assertTxnValid();
     return (this.indexViews.get(ref) ?? null) as T | null;
   }
 
-  hasIndexView(ref: IMemStoreIndex<IResource>): boolean {
+  hasIndexView(ref: IMemStoreIndex<Resource>): boolean {
     this.assertTxnValid();
     return this.indexViews.has(ref);
   }
 
-  setLock(storeRef: IMemStore<IResource>, lockId: number): void {
+  setLock(storeRef: IMemStore<Resource>, lockId: number): void {
     this.assertTxnValid();
     if (this.locks.has(storeRef)) {
       this.locks.get(storeRef)![lockId] = lockId;
@@ -213,7 +211,7 @@ type MemStoreMapIndexView = Record<
   Record</** memstore resource ID */ string, /** memstore resource ID */ string>
 >;
 
-class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreMapIndex<T extends Resource> implements IMemStoreIndex<T> {
   protected map: MemStoreMapIndexView = {};
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -291,7 +289,7 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
     const txnMap =
       transaction?.getIndexView<MemStoreMapIndexView>(
-        this as unknown as IMemStoreIndex<IResource>
+        this as unknown as IMemStoreIndex<Resource>
       ) ?? {};
     const map = this.map;
     const keyList = toArray(key);
@@ -314,12 +312,12 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   protected startIndexView(transaction?: IMemStoreTransaction) {
     const map = transaction
       ? transaction.getIndexView<MemStoreMapIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as IMemStoreIndex<Resource>
         ) ?? {}
       : this.map;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, map);
+    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<Resource>)) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<Resource>, map);
     }
 
     return map;
@@ -339,7 +337,7 @@ type MemStoreArrayMapIndexView = {
   splitMap: Record<string, Record<string, string>>;
 };
 
-class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreArrayMapIndex<T extends Resource> implements IMemStoreIndex<T> {
   protected static getNewIndexView(): MemStoreArrayMapIndexView {
     return {fullMap: {}, splitMap: {}};
   }
@@ -392,7 +390,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
 
   indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
     const txnMap = transaction?.getIndexView<MemStoreArrayMapIndexView>(
-      this as unknown as IMemStoreIndex<IResource>
+      this as unknown as IMemStoreIndex<Resource>
     );
     const map = this.map;
     let item0: Record<string, string> | undefined = undefined;
@@ -436,12 +434,12 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   protected startIndexView(transaction?: IMemStoreTransaction) {
     const map: MemStoreArrayMapIndexView = transaction
       ? transaction.getIndexView<MemStoreArrayMapIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as IMemStoreIndex<Resource>
         ) ?? MemStoreArrayMapIndex.getNewIndexView()
       : this.map;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, map);
+    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<Resource>)) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<Resource>, map);
     }
 
     return map;
@@ -485,7 +483,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
 type MemStoreStaticTimestampIndexItem = {timestamp: number; id: string};
 type MemStoreStaticTimestampIndexView = StackedArray<MemStoreStaticTimestampIndexItem>;
 
-class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreStaticTimestampIndex<T extends Resource> implements IMemStoreIndex<T> {
   sortedList = new StackedArray<MemStoreStaticTimestampIndexItem>();
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -575,12 +573,12 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
   protected startIndexView(transaction?: IMemStoreTransaction) {
     const indexList = transaction
       ? transaction.getIndexView<MemStoreStaticTimestampIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as IMemStoreIndex<Resource>
         ) ?? StackedArray.from(this.sortedList)
       : this.sortedList;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, indexList);
+    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<Resource>)) {
+      transaction.addIndexView(this as unknown as IMemStoreIndex<Resource>, indexList);
     }
 
     return indexList;
@@ -589,7 +587,7 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
   protected getIndexView(transaction?: IMemStoreTransaction) {
     return (
       transaction?.getIndexView<MemStoreStaticTimestampIndexView>(
-        this as unknown as IMemStoreIndex<IResource>
+        this as unknown as IMemStoreIndex<Resource>
       ) ?? this.sortedList
     );
   }
@@ -646,12 +644,12 @@ export class MemStoreLockTimeoutError extends Error {
 }
 
 // TODO: Needs massive refactoring!
-export class MemStore<T extends IResource> implements IMemStore<T> {
+export class MemStore<T extends Resource> implements IMemStore<T> {
   static MEMSTORE_ID = Symbol.for('MEMSTORE_ID');
   static TXN_LOCK_TIMEOUT_MS = 5000; // 5 seconds
 
   static async withTransaction<Result>(
-    ctx: IBaseContext,
+    ctx: BaseContext,
     fn: (transaction: IMemStoreTransaction) => Promise<Result>
   ): Promise<Result> {
     const txn = new MemStoreTransaction();
@@ -699,7 +697,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       throw new Error(`Unsupported index type ${opts.type}`);
     });
 
-    const traversalField: keyof IResource = 'createdAt';
+    const traversalField: keyof Resource = 'createdAt';
     this.traversalIndex = new MemStoreStaticTimestampIndex({
       field: traversalField,
       type: MemStoreIndexTypes.StaticTimestampIndex,
@@ -1589,7 +1587,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     const opOrValue = query.resourceId;
     const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
     const matchedItems: Record<string, T> = {};
-    const resourceIdKey: keyof IResource = 'resourceId';
+    const resourceIdKey: keyof Resource = 'resourceId';
     let goodRun = false;
 
     for (const opKey in op) {
@@ -1672,17 +1670,17 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   }
 }
 
-export function isMemStoreImpl(store: IMemStore<IResource>): store is MemStore<IResource> {
-  return (store as MemStore<IResource>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
+export function isMemStoreImpl(store: IMemStore<Resource>): store is MemStore<Resource> {
+  return (store as MemStore<Resource>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
 }
 
 export async function syncTxnOps(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   consistencyOps: MemStoreTransactionConsistencyOp[],
   txn: IMemStoreTransaction
 ) {
-  const items: Array<IResource | undefined> = [];
-  const bulkOps: BulkOpItem<IResourceWrapper>[] = [];
+  const items: Array<Resource | undefined> = [];
+  const bulkOps: BulkOpItem<ResourceWrapper>[] = [];
 
   for (const op of consistencyOps) {
     if (
@@ -1724,31 +1722,31 @@ export async function syncTxnOps(
   await ctx.data.resource.TRANSACTION_bulkWrite(bulkOps);
 }
 
-export class FolderMemStoreProvider extends MemStore<IFolder> implements IFolderMemStoreProvider {}
-export class FileMemStoreProvider extends MemStore<IFile> implements IFileMemStoreProvider {}
+export class FolderMemStoreProvider extends MemStore<Folder> implements FolderMemStoreProvider {}
+export class FileMemStoreProvider extends MemStore<File> implements FileMemStoreProvider {}
 export class AgentTokenMemStoreProvider
-  extends MemStore<IAgentToken>
-  implements IAgentTokenMemStoreProvider {}
+  extends MemStore<AgentToken>
+  implements AgentTokenMemStoreProvider {}
 export class PermissionItemMemStoreProvider
-  extends MemStore<IPermissionItem>
-  implements IPermissionItemMemStoreProvider {}
+  extends MemStore<PermissionItem>
+  implements PermissionItemMemStoreProvider {}
 export class PermissionGroupMemStoreProvider
-  extends MemStore<IPermissionGroup>
-  implements IPermissionGroupMemStoreProvider {}
+  extends MemStore<PermissionGroup>
+  implements PermissionGroupMemStoreProvider {}
 export class WorkspaceMemStoreProvider
-  extends MemStore<IWorkspace>
-  implements IWorkspaceMemStoreProvider {}
+  extends MemStore<Workspace>
+  implements WorkspaceMemStoreProvider {}
 export class CollaborationRequestMemStoreProvider
-  extends MemStore<ICollaborationRequest>
-  implements ICollaborationRequestMemStoreProvider {}
-export class UserMemStoreProvider extends MemStore<IUser> implements IUserMemStoreProvider {}
+  extends MemStore<CollaborationRequest>
+  implements CollaborationRequestMemStoreProvider {}
+export class UserMemStoreProvider extends MemStore<User> implements UserMemStoreProvider {}
 export class AppRuntimeStateMemStoreProvider
-  extends MemStore<IAppRuntimeState>
-  implements IAppRuntimeStateMemStoreProvider {}
-export class TagMemStoreProvider extends MemStore<ITag> implements ITagMemStoreProvider {}
+  extends MemStore<AppRuntimeState>
+  implements AppRuntimeStateMemStoreProvider {}
+export class TagMemStoreProvider extends MemStore<Tag> implements TagMemStoreProvider {}
 export class AssignedItemMemStoreProvider
-  extends MemStore<IAssignedItem>
-  implements IAssignedItemMemStoreProvider {}
+  extends MemStore<AssignedItem>
+  implements AssignedItemMemStoreProvider {}
 export class UsageRecordMemStoreProvider
-  extends MemStore<IUsageRecord>
-  implements IUsageRecordMemStoreProvider {}
+  extends MemStore<UsageRecord>
+  implements UsageRecordMemStoreProvider {}

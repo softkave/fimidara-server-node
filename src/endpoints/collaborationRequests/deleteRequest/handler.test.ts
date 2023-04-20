@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -13,9 +13,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteCollaborationRequest from './handler';
-import {IDeleteCollaborationRequestEndpointParams} from './types';
+import {DeleteCollaborationRequestEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -30,7 +30,7 @@ test('collaboration request deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
-  const instData = RequestData.fromExpressRequest<IDeleteCollaborationRequestEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeleteCollaborationRequestEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {requestId: request.resourceId}
   );

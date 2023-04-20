@@ -1,4 +1,4 @@
-import {ConvertAgentToPublicAgent, IPublicResource, IWorkspaceResource} from './system';
+import {ConvertAgentToPublicAgent, PublicResource, WorkspaceResource} from './system';
 
 export enum CollaborationRequestStatusType {
   Accepted = 'accepted',
@@ -11,7 +11,7 @@ export type CollaborationRequestResponse =
   | CollaborationRequestStatusType.Accepted
   | CollaborationRequestStatusType.Declined;
 
-export interface ICollaborationRequest extends IWorkspaceResource {
+export interface CollaborationRequest extends WorkspaceResource {
   recipientEmail: string;
   message: string;
   expiresAt?: number;
@@ -21,9 +21,9 @@ export interface ICollaborationRequest extends IWorkspaceResource {
   statusDate: number;
 }
 
-export type IPublicCollaborationRequestForUser = IPublicResource &
+export type PublicCollaborationRequestForUser = PublicResource &
   Pick<
-    ICollaborationRequest,
+    CollaborationRequest,
     | 'message'
     | 'expiresAt'
     | 'readAt'
@@ -33,5 +33,5 @@ export type IPublicCollaborationRequestForUser = IPublicResource &
     | 'workspaceName'
   >;
 
-export type IPublicCollaborationRequestForWorkspace =
-  ConvertAgentToPublicAgent<ICollaborationRequest>;
+export type PublicCollaborationRequestForWorkspace =
+  ConvertAgentToPublicAgent<CollaborationRequest>;

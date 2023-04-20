@@ -1,9 +1,9 @@
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
+import {AssignedItem} from '../../../definitions/assignedItem';
+import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
@@ -16,7 +16,7 @@ import {
 } from '../../testUtils/testUtils';
 import {addAssignedPermissionGroupList} from '../addAssignedItems';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -80,5 +80,5 @@ describe('addAssignedItems', () => {
   });
 });
 
-const pgAssignedItemKey = (item: IAssignedItem) => makeKey([item.assignedItemId]);
-const pgInputKey = (item: IAssignPermissionGroupInput) => makeKey([item.permissionGroupId]);
+const pgAssignedItemKey = (item: AssignedItem) => makeKey([item.assignedItemId]);
+const pgInputKey = (item: AssignPermissionGroupInput) => makeKey([item.permissionGroupId]);

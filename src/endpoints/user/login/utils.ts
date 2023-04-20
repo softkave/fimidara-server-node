@@ -1,26 +1,26 @@
-import {IAgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken';
 import {
   AppResourceType,
   CURRENT_TOKEN_VERSION,
   TokenAccessScope,
 } from '../../../definitions/system';
-import {IUserWithWorkspace} from '../../../definitions/user';
+import {UserWithWorkspace} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/fns';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContext} from '../../contexts/types';
 import {userExtractor} from '../utils';
-import {ILoginResult} from './types';
+import {LoginResult} from './types';
 
 export function toLoginResult(
-  context: IBaseContext,
-  user: IUserWithWorkspace,
-  token: IAgentToken,
-  clientAssignedToken: IAgentToken
-): ILoginResult {
+  context: BaseContext,
+  user: UserWithWorkspace,
+  token: AgentToken,
+  clientAssignedToken: AgentToken
+): LoginResult {
   return {
     user: userExtractor(user),
     token: context.session.encodeToken(context, token.resourceId, token.expires),
@@ -33,9 +33,9 @@ export function toLoginResult(
 }
 
 export async function getUserClientAssignedToken(
-  context: IBaseContext,
+  context: BaseContext,
   userId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set.');
   appAssert(
@@ -56,7 +56,7 @@ export async function getUserClientAssignedToken(
   );
 
   if (!token) {
-    token = newResource<IAgentToken>(AppResourceType.AgentToken, {
+    token = newResource<AgentToken>(AppResourceType.AgentToken, {
       providedResourceId: userId,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
@@ -86,9 +86,9 @@ export async function getUserClientAssignedToken(
 }
 
 export async function getUserToken(
-  context: IBaseContext,
+  context: BaseContext,
   userId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   let userToken = await context.semantic.agentToken.getOneAgentToken(
     userId,
@@ -97,7 +97,7 @@ export async function getUserToken(
   );
 
   if (!userToken) {
-    userToken = newResource<IAgentToken>(AppResourceType.AgentToken, {
+    userToken = newResource<AgentToken>(AppResourceType.AgentToken, {
       scope: [TokenAccessScope.Login],
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: userId,

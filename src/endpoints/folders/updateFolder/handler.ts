@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {IFolder} from '../../../definitions/folder';
+import {Folder} from '../../../definitions/folder';
 import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -23,7 +23,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
       /** workspace */ undefined,
       opts
     );
-    const update: Partial<IFolder> = {
+    const update: Partial<Folder> = {
       ...omit(data.folder, 'publicAccessOps'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),

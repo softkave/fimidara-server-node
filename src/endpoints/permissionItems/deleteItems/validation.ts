@@ -2,13 +2,13 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
-import {IPermissionItemInputTarget} from '../types';
+import {PermissionItemInputTarget} from '../types';
 import permissionItemValidationSchemas from '../validation';
-import {DeletePermissionItemInput, IDeletePermissionItemsEndpointParams} from './types';
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
 
 const itemInput = Joi.object<DeletePermissionItemInput>().keys({
   entity: permissionItemValidationSchemas.entity,
-  target: Joi.object<Partial<IPermissionItemInputTarget>>().keys({
+  target: Joi.object<Partial<PermissionItemInputTarget>>().keys({
     targetId: permissionItemValidationSchemas.targetParts.targetId,
     targetType: permissionItemValidationSchemas.targetParts.targetType,
     folderpath: permissionItemValidationSchemas.targetParts.folderpath,
@@ -20,7 +20,7 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
   appliesTo: permissionItemValidationSchemas.appliesTo,
 });
 
-export const deletePermissionItemsJoiSchema = Joi.object<IDeletePermissionItemsEndpointParams>()
+export const deletePermissionItemsJoiSchema = Joi.object<DeletePermissionItemsEndpointParams>()
   .keys({
     workspaceId: validationSchemas.resourceId,
     entity: permissionItemValidationSchemas.entity,

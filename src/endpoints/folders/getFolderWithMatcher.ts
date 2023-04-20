@@ -1,12 +1,12 @@
-import {IFolderMatcher} from '../../definitions/folder';
+import {FolderMatcher} from '../../definitions/folder';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFolder, splitPathWithDetails} from './utils';
 
 export async function getFolderWithMatcher(
-  context: IBaseContext,
-  matcher: IFolderMatcher,
+  context: BaseContext,
+  matcher: FolderMatcher,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
   if (matcher.folderId) {
@@ -29,8 +29,8 @@ export async function getFolderWithMatcher(
 }
 
 export async function assertGetFolderWithMatcher(
-  context: IBaseContext,
-  matcher: IFolderMatcher,
+  context: BaseContext,
+  matcher: FolderMatcher,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
   const folder = await getFolderWithMatcher(context, matcher, opts);

@@ -1,16 +1,16 @@
-import {IPublicUserData} from '../../../definitions/user';
-import {IBaseContext} from '../../contexts/types';
+import {PublicUser} from '../../../definitions/user';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface ILoginParams {
+export interface LoginEndpointParams {
   email: string;
   password: string;
 }
 
-export interface ILoginResult {
-  user: IPublicUserData;
+export interface LoginResult {
+  user: PublicUser;
   token: string;
   clientAssignedToken: string;
 }
 
-export type LoginEndpoint = Endpoint<IBaseContext, ILoginParams, ILoginResult>;
+export type LoginEndpoint = Endpoint<BaseContext, LoginEndpointParams, LoginResult>;

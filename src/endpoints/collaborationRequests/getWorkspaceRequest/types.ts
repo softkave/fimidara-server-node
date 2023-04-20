@@ -1,18 +1,18 @@
-import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {BaseContext} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IGetWorkspaceCollaborationRequestEndpointParams
-  extends IEndpointOptionalWorkspaceIDParam {
+export interface GetWorkspaceCollaborationRequestEndpointParams
+  extends EndpointOptionalWorkspaceIDParam {
   requestId: string;
 }
 
-export interface IGetWorkspaceCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequestForWorkspace;
+export interface GetWorkspaceCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForWorkspace;
 }
 
 export type GetWorkspaceCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IGetWorkspaceCollaborationRequestEndpointParams,
-  IGetWorkspaceCollaborationRequestEndpointResult
+  BaseContext,
+  GetWorkspaceCollaborationRequestEndpointParams,
+  GetWorkspaceCollaborationRequestEndpointResult
 >;

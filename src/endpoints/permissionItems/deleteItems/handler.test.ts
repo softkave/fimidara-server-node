@@ -1,6 +1,6 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {canEntityPerformActionOnTargetType} from '../../testUtils/helpers/permissionItem';
@@ -16,9 +16,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deletePermissionItems from './handler';
-import {IDeletePermissionItemsEndpointParams} from './types';
+import {DeletePermissionItemsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -44,7 +44,7 @@ test('permission items deleted', async () => {
     action: AppActionType.Read,
     appliesTo: PermissionItemAppliesTo.ChildrenOfType,
   });
-  const instData = RequestData.fromExpressRequest<IDeletePermissionItemsEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,

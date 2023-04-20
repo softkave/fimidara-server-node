@@ -1,4 +1,4 @@
-import {IUser} from '../../../definitions/user';
+import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -10,7 +10,7 @@ import {updateUserJoiSchema} from './validation';
 const updateUser: UpdateUserEndpoint = async (context, instData) => {
   let user = await context.session.getUser(context, instData);
   const data = validate(instData.data, updateUserJoiSchema);
-  const update: Partial<IUser> = {
+  const update: Partial<User> = {
     ...data,
     lastUpdatedAt: getTimestamp(),
   };

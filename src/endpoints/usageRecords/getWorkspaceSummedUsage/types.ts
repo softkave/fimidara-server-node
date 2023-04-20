@@ -1,38 +1,38 @@
 import {
-  IPublicUsageRecord,
+  PublicUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
 } from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  PaginatedResult,
+  PaginationQuery,
 } from '../../types';
 
-export type IWorkspaceSummedUsageQuery = {
+export type WorkspaceSummedUsageQuery = {
   category?: UsageRecordCategory | UsageRecordCategory[];
   fromDate?: number;
   toDate?: number;
   fulfillmentStatus?: UsageRecordFulfillmentStatus | UsageRecordFulfillmentStatus[];
 };
 
-export interface IGetWorkspaceSummedUsageEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {
-  query?: IWorkspaceSummedUsageQuery;
+export interface GetWorkspaceSummedUsageEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {
+  query?: WorkspaceSummedUsageQuery;
 }
 
-export interface IGetWorkspaceSummedUsageEndpointParams
-  extends IGetWorkspaceSummedUsageEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetWorkspaceSummedUsageEndpointParams
+  extends GetWorkspaceSummedUsageEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IGetWorkspaceSummedUsageEndpointResult extends IPaginatedResult {
-  records: IPublicUsageRecord[];
+export interface GetWorkspaceSummedUsageEndpointResult extends PaginatedResult {
+  records: PublicUsageRecord[];
 }
 
 export type GetWorkspaceSummedUsageEndpoint = Endpoint<
-  IBaseContext,
-  IGetWorkspaceSummedUsageEndpointParams,
-  IGetWorkspaceSummedUsageEndpointResult
+  BaseContext,
+  GetWorkspaceSummedUsageEndpointParams,
+  GetWorkspaceSummedUsageEndpointResult
 >;

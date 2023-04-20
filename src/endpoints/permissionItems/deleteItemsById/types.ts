@@ -1,12 +1,12 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IDeletePermissionItemsByIdEndpointParams {
+export interface DeletePermissionItemsByIdEndpointParams {
   workspaceId?: string;
   itemIds: string[];
 }
 
 export type DeletePermissionItemsByIdEndpoint = Endpoint<
-  IBaseContext,
-  IDeletePermissionItemsByIdEndpointParams
+  BaseContext,
+  DeletePermissionItemsByIdEndpointParams
 >;

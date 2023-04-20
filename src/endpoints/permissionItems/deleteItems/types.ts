@@ -1,28 +1,28 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {BaseContext} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
-import {IPermissionItemInputEntity, IPermissionItemInputTarget} from '../types';
+import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
 
 export type DeletePermissionItemInput = {
-  target: Partial<IPermissionItemInputTarget> | Partial<IPermissionItemInputTarget>[];
+  target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[];
   action?: AppActionType | AppActionType[];
   grantAccess?: boolean;
   appliesTo?: PermissionItemAppliesTo;
-  entity?: IPermissionItemInputEntity;
+  entity?: PermissionItemInputEntity;
 };
 
-export interface IDeletePermissionItemsEndpointParams {
+export interface DeletePermissionItemsEndpointParams {
   workspaceId?: string;
-  entity?: IPermissionItemInputEntity;
+  entity?: PermissionItemInputEntity;
   items?: DeletePermissionItemInput[];
 }
 
 export type DeletePermissionItemsEndpoint = Endpoint<
-  IBaseContext,
-  IDeletePermissionItemsEndpointParams,
-  ILongRunningJobResult
+  BaseContext,
+  DeletePermissionItemsEndpointParams,
+  LongRunningJobResult
 >;
 
 export type DeletePermissionItemsCascadeFnsArgs = {

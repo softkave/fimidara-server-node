@@ -1,5 +1,5 @@
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -13,9 +13,9 @@ import {
 } from '../../testUtils/testUtils';
 import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
-import {IGetCollaboratorEndpointParams} from './types';
+import {GetCollaboratorEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -29,7 +29,7 @@ test('collaborator returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
+  const instData = RequestData.fromExpressRequest<GetCollaboratorEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,

@@ -1,10 +1,10 @@
 import {defaultTo} from 'lodash';
-import {IAssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
-import {AppResourceType, IResource} from '../../definitions/system';
-import {IUser, IUserWorkspace} from '../../definitions/user';
+import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
+import {AppResourceType, Resource} from '../../definitions/system';
+import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} from './utils';
 
 /**
@@ -14,7 +14,7 @@ import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} fr
  * @param assignedItemTypes
  */
 export async function getResourceAssignedItems(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
@@ -37,7 +37,7 @@ export async function getResourceAssignedItems(
  * contain empty arrays if no assigned items of the specified type are found.
  */
 export async function getResourceAssignedItemsSortedByType(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
@@ -52,11 +52,11 @@ export async function getResourceAssignedItemsSortedByType(
   );
 
   // Add default values if specific assigned item types are specified
-  const sortedItems: Record<string, IAssignedItem[]> = assignedItemTypes
+  const sortedItems: Record<string, AssignedItem[]> = assignedItemTypes
     ? assignedItemTypes.reduce((acc, type) => {
         acc[type] = [];
         return acc;
-      }, {} as Record<string, IAssignedItem[]>)
+      }, {} as Record<string, AssignedItem[]>)
     : {};
 
   items.forEach(item => {
@@ -69,10 +69,10 @@ export async function getResourceAssignedItemsSortedByType(
 }
 
 export async function populateAssignedItems<
-  T extends IResource,
+  T extends Resource,
   AT extends Array<AppResourceType.Tag>
 >(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   resource: T,
   assignedItemTypes: AT = [AppResourceType.Tag] as any
@@ -113,11 +113,11 @@ export async function populateAssignedItems<
 }
 
 export async function populateAssignedTags<
-  T extends IResource,
+  T extends Resource,
   R extends T | undefined = undefined,
   Final = R extends undefined ? ResourceWithTags<T> : R
 >(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   resource: NonNullable<T>,
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
@@ -137,10 +137,10 @@ export async function populateAssignedTags<
 }
 
 export async function populateResourceListWithAssignedTags<
-  T extends IResource,
+  T extends Resource,
   R extends T | undefined = undefined
 >(
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   resources: T[],
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
@@ -150,11 +150,11 @@ export async function populateResourceListWithAssignedTags<
   );
 }
 
-export async function populateUserWorkspaces<T extends IUser>(
-  context: IBaseContext,
+export async function populateUserWorkspaces<T extends User>(
+  context: BaseContext,
   resource: T,
   opts?: ISemanticDataAccessProviderRunOptions
-): Promise<T & {workspaces: IUserWorkspace[]}> {
+): Promise<T & {workspaces: UserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
     /** workspaceId */ undefined,
@@ -162,9 +162,9 @@ export async function populateUserWorkspaces<T extends IUser>(
     undefined,
     opts
   );
-  let assignedWorkspaceItems: IAssignedItem[] = [];
-  const updatedResource: T & {workspaces: IUserWorkspace[]} = resource as T & {
-    workspaces: IUserWorkspace[];
+  let assignedWorkspaceItems: AssignedItem[] = [];
+  const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
+    workspaces: UserWorkspace[];
   };
 
   for (const type in sortedItems) {
@@ -179,8 +179,8 @@ export async function populateUserWorkspaces<T extends IUser>(
   return updatedResource;
 }
 
-export async function populateUserListWithWorkspaces<T extends IUser>(
-  context: IBaseContext,
+export async function populateUserListWithWorkspaces<T extends User>(
+  context: BaseContext,
   resources: T[]
 ) {
   return await Promise.all(resources.map(resource => populateUserWorkspaces(context, resource)));

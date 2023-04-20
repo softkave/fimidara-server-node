@@ -3,20 +3,20 @@
  * Currently in hiatus.
  */
 
-type IFileMatcher = {
+type FileMatcher = {
   // file path with workspace root name
   filepath?: string;
   fileId?: string;
 };
 
-type IImageTransformationParams = {
+type ImageTransformationParams = {
   width?: number;
   height?: number;
 };
 
-type IGetFileEndpointParams = {
-  imageTranformation?: IImageTransformationParams;
-} & IFileMatcher;
+type GetFileEndpointParams = {
+  imageTranformation?: ImageTransformationParams;
+} & FileMatcher;
 
 type ObjectValues<T> = T[keyof T];
 type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}` ? P : S;
@@ -96,7 +96,7 @@ type GF00001234 = HttpEndpoint<
   '/files/getFile',
   undefined,
   {Authorization: string},
-  IGetFileEndpointParams,
+  GetFileEndpointParams,
   {'Content-Type': string},
   HttpEndpointResultBlob
 >;

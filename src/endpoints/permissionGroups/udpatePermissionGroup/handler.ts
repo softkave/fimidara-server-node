@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -23,7 +23,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
       AppActionType.Update,
       opts
     );
-    const update: Partial<IPermissionGroup> = {
+    const update: Partial<PermissionGroup> = {
       ...omit(data.data, 'permissionGroups'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),

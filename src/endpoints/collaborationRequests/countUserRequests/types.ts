@@ -1,8 +1,8 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
+import {BaseContext} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
 
 export type CountUserCollaborationRequestsEndpoint = Endpoint<
-  IBaseContext,
+  BaseContext,
   {},
-  ICountItemsEndpointResult
+  CountItemsEndpointResult
 >;

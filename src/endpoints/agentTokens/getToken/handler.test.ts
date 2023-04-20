@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -11,14 +11,14 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getAgentToken from './handler';
-import {IGetAgentTokenEndpointParams} from './types';
+import {GetAgentTokenEndpointParams} from './types';
 
 /**
  * TODO:
  * - [Low] Check that onReferenced feature works
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -34,7 +34,7 @@ test('referenced program access token returned', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token: token01} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
 
-  const instData = RequestData.fromExpressRequest<IGetAgentTokenEndpointParams>(
+  const instData = RequestData.fromExpressRequest<GetAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
   );

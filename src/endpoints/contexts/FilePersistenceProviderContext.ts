@@ -7,10 +7,10 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {IAppVariables} from '../../resources/vars';
+import {AppVariables} from '../../resources/vars';
 import {endpointConstants} from '../constants';
 
-export interface IFilePersistenceUploadFileParams {
+export interface FilePersistenceUploadFileParams {
   bucket: string;
   key: string;
   body: Buffer;
@@ -19,12 +19,12 @@ export interface IFilePersistenceUploadFileParams {
   contentLength?: number;
 }
 
-export interface IFilePersistenceGetFileParams {
+export interface FilePersistenceGetFileParams {
   bucket: string;
   key: string;
 }
 
-export interface IFilePersistenceDeleteFilesParams {
+export interface FilePersistenceDeleteFilesParams {
   bucket: string;
   keys: string[];
 }
@@ -34,22 +34,22 @@ export interface IPersistedFile {
   contentLength?: number;
 }
 
-export interface IFilePersistenceProviderContext {
-  uploadFile: (params: IFilePersistenceUploadFileParams) => Promise<void>;
-  getFile: (params: IFilePersistenceGetFileParams) => Promise<IPersistedFile>;
-  deleteFiles: (params: IFilePersistenceDeleteFilesParams) => Promise<void>;
+export interface FilePersistenceProviderContext {
+  uploadFile: (params: FilePersistenceUploadFileParams) => Promise<void>;
+  getFile: (params: FilePersistenceGetFileParams) => Promise<IPersistedFile>;
+  deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
   ensureBucketReady: (name: string, region: string) => Promise<void>;
   close: () => Promise<void>;
 }
 
-export class S3FilePersistenceProviderContext implements IFilePersistenceProviderContext {
+export class S3FilePersistenceProviderContext implements FilePersistenceProviderContext {
   protected s3: S3Client;
 
   constructor(region: string) {
     this.s3 = new S3Client({region});
   }
 
-  uploadFile = async (params: IFilePersistenceUploadFileParams) => {
+  uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const command = new PutObjectCommand({
       Bucket: params.bucket,
       Key: params.key,
@@ -62,7 +62,7 @@ export class S3FilePersistenceProviderContext implements IFilePersistenceProvide
     await this.s3.send(command);
   };
 
-  getFile = async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
+  getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
     const command = new GetObjectCommand({
       Bucket: params.bucket,
       Key: params.key,
@@ -75,7 +75,7 @@ export class S3FilePersistenceProviderContext implements IFilePersistenceProvide
     };
   };
 
-  deleteFiles = async (params: IFilePersistenceDeleteFilesParams) => {
+  deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
     if (params.keys.length === 0) {
       return;
     }
@@ -120,10 +120,12 @@ export class S3FilePersistenceProviderContext implements IFilePersistenceProvide
 }
 
 export async function ensureAppBucketsReady(
-  fileProvider: IFilePersistenceProviderContext,
-  appVariables: IAppVariables
+  fileProvider: FilePersistenceProviderContext,
+  appVariables: AppVariables
 ) {
-  return Promise.all([fileProvider.ensureBucketReady(appVariables.S3Bucket, appVariables.awsRegion)]);
+  return Promise.all([
+    fileProvider.ensureBucketReady(appVariables.S3Bucket, appVariables.awsRegion),
+  ]);
 }
 
 export function getBufferFromStream(body: NodeJS.ReadableStream): Promise<Buffer> {

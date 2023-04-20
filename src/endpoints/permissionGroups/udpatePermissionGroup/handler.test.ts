@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {BaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -15,14 +15,14 @@ import {
 } from '../../testUtils/testUtils';
 import {permissionGroupExtractor} from '../utils';
 import updatePermissionGroup from './handler';
-import {IUpdatePermissionGroupEndpointParams, IUpdatePermissionGroupInput} from './types';
+import {UpdatePermissionGroupEndpointParams, UpdatePermissionGroupInput} from './types';
 
 /**
  * TODO:
  * - [Low] Test that hanlder fails if assigned permissionGroups doesn't exist
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -52,11 +52,11 @@ test('permissionGroup updated', async () => {
     workspace.resourceId
   );
 
-  const updatePermissionGroupInput: IUpdatePermissionGroupInput = {
+  const updatePermissionGroupInput: UpdatePermissionGroupInput = {
     name: faker.lorem.words(2),
     description: faker.lorem.words(10),
   };
-  const instData = RequestData.fromExpressRequest<IUpdatePermissionGroupEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdatePermissionGroupEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       permissionGroupId: permissionGroup00.resourceId,

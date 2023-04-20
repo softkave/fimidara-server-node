@@ -1,15 +1,16 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import addFolder from './addFolder/handler';
 import {folderConstants} from './constants';
 import deleteFolder from './deleteFolder/handler';
 import getFolder from './getFolder/handler';
 import listFolderContent from './listFolderContent/handler';
+import {FoldersExportedEndpoints} from './types';
 import updateFolder from './updateFolder/handler';
 
-export default function setupFoldersRESTEndpoints(ctx: IBaseContext, app: Express) {
-  const endpoints = {
+export default function setupFoldersRESTEndpoints(ctx: BaseContext, app: Express) {
+  const endpoints: FoldersExportedEndpoints = {
     addFolder: wrapEndpointREST(addFolder, ctx),
     deleteFolder: wrapEndpointREST(deleteFolder, ctx),
     getFolder: wrapEndpointREST(getFolder, ctx),

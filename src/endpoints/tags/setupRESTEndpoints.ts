@@ -1,15 +1,16 @@
 import {Express} from 'express';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {wrapEndpointREST} from '../utils';
 import addTag from './addTag/handler';
 import {tagConstants} from './constants';
 import deleteTag from './deleteTag/handler';
 import getTag from './getTag/handler';
 import getWorkspaceTags from './getWorkspaceTags/handler';
+import {TagsExportedEndpoints} from './types';
 import updateTag from './updateTag/handler';
 
-export default function setupTagsRESTEndpoints(ctx: IBaseContext, app: Express) {
-  const endpoints = {
+export default function setupTagsRESTEndpoints(ctx: BaseContext, app: Express) {
+  const endpoints: TagsExportedEndpoints = {
     addTag: wrapEndpointREST(addTag, ctx),
     deleteTag: wrapEndpointREST(deleteTag, ctx),
     getWorkspaceTags: wrapEndpointREST(getWorkspaceTags, ctx),

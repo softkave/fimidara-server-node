@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -12,12 +12,12 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import login from '../login/login';
-import {ILoginParams} from '../login/types';
+import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
 import changePassword from './changePassword';
-import {IChangePasswordParameters} from './types';
+import {ChangePasswordEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -35,7 +35,7 @@ test('password changed', async () => {
   });
 
   const newPassword = 'bgr984_!hg';
-  const instData = RequestData.fromExpressRequest<IChangePasswordParameters>(
+  const instData = RequestData.fromExpressRequest<ChangePasswordEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {password: newPassword}
   );
@@ -50,7 +50,7 @@ test('password changed', async () => {
   expect(updatedUser.hash).not.toEqual(oldHash);
   expect(updatedUser.resourceId).toEqual(rawUser.resourceId);
 
-  const loginReqData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
     password: newPassword,
     email: user.email,
   });

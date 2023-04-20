@@ -1,14 +1,14 @@
-import {IAssignPermissionGroupInput, IPermissionGroup} from '../../definitions/permissionGroups';
+import {AssignPermissionGroupInput, PermissionGroup} from '../../definitions/permissionGroups';
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppActionType, ISessionAgent} from '../../definitions/system';
+import {AppActionType, SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
-import {IBaseContext, IServerRequest} from '../contexts/types';
+import {BaseContext, IServerRequest} from '../contexts/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
 import RequestData from '../RequestData';
 
-export function includesPermissionGroupById(pgList: IPermissionGroup[], id: string) {
+export function includesPermissionGroupById(pgList: PermissionGroup[], id: string) {
   return !!pgList.find(pg => pg.resourceId === id);
 }
 
@@ -16,20 +16,20 @@ export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {permissionG
   return makeKey([item.permissionGroupId]);
 }
 
-export function toAssignedPgListInput(pgList: Pick<IPermissionGroup, 'resourceId'>[]) {
+export function toAssignedPgListInput(pgList: Pick<PermissionGroup, 'resourceId'>[]) {
   return pgList.map(
-    (pg): IAssignPermissionGroupInput => ({
+    (pg): AssignPermissionGroupInput => ({
       permissionGroupId: pg.resourceId,
     })
   );
 }
 
 export async function assignPgListToIdList(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContext,
+  agent: SessionAgent,
   workspaceId: string,
   idList: string[],
-  pgListAssignedTo01Input: IAssignPermissionGroupInput[]
+  pgListAssignedTo01Input: AssignPermissionGroupInput[]
 ) {
   await executeWithMutationRunOptions(context, async opts =>
     addAssignedPermissionGroupList(
@@ -47,7 +47,7 @@ export async function assignPgListToIdList(
 }
 
 export async function grantReadPermission(
-  context: IBaseContext,
+  context: BaseContext,
   req: IServerRequest,
   workspaceId: string,
   agentId: string,

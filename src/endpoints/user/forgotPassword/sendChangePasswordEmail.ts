@@ -3,15 +3,15 @@ import {
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
 } from '../../../emailTemplates/forgotPassword';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 
-export interface ISendChangePasswordEmailParams {
+export interface SendChangePasswordEmailParams {
   emailAddress: string;
   link: string;
   expiration: Date;
 }
 
-async function sendChangePasswordEmail(ctx: IBaseContext, props: ISendChangePasswordEmailParams) {
+async function sendChangePasswordEmail(ctx: BaseContext, props: SendChangePasswordEmailParams) {
   const html = forgotPasswordEmailHTML(props);
   const text = forgotPasswordEmailText(props);
   await ctx.email.sendEmail(ctx, {

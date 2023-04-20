@@ -1,18 +1,17 @@
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {PermissionDeniedError} from '../../user/errors';
 
 export async function getWorkspaceCollaboratorsQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace
-): Promise<LiteralDataQuery<IAssignedItem>> {
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace
+): Promise<LiteralDataQuery<AssignedItem>> {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,

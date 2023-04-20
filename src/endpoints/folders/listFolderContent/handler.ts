@@ -1,11 +1,11 @@
-import {IFolder} from '../../../definitions/folder';
-import {AppResourceType, ISessionAgent, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Folder} from '../../../definitions/folder';
+import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
-import {IPaginationQuery} from '../../types';
+import {PaginationQuery} from '../../types';
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {folderListExtractor} from '../utils';
 import {ListFolderContentEndpoint} from './types';
@@ -45,11 +45,11 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
 };
 
 async function fetchFolders(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  parentFolder: IFolder | null,
-  pagination: IPaginationQuery
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  parentFolder: Folder | null,
+  pagination: PaginationQuery
 ) {
   const q = await listFolderContentQuery(
     context,
@@ -62,11 +62,11 @@ async function fetchFolders(
 }
 
 async function fetchFiles(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  parentFolder: IFolder | null,
-  pagination: IPaginationQuery
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  parentFolder: Folder | null,
+  pagination: PaginationQuery
 ) {
   const q = await listFolderContentQuery(
     context,

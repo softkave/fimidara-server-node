@@ -1,13 +1,13 @@
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
+import {BaseContext} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IAssignPermissionGroupsEndpointParams extends IEndpointOptionalWorkspaceIDParam {
-  permissionGroups: IAssignPermissionGroupInput[];
+export interface AssignPermissionGroupsEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  permissionGroups: AssignPermissionGroupInput[];
   entityId: string | string[];
 }
 
 export type AssignPermissionGroupsEndpoint = Endpoint<
-  IBaseContext,
-  IAssignPermissionGroupsEndpointParams
+  BaseContext,
+  AssignPermissionGroupsEndpointParams
 >;

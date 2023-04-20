@@ -1,15 +1,15 @@
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResource} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
-import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AgentToken} from '../../../definitions/agentToken';
+import {AssignedItem} from '../../../definitions/assignedItem';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppRuntimeState, Resource} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
+import {User} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {AnyObject} from '../../../utils/types';
 import {LiteralDataQuery} from '../data/types';
 
@@ -35,7 +35,7 @@ export enum MemStoreTransactionConsistencyOpTypes {
 export type MemStoreTransactionConsistencyOp = {
   type: MemStoreTransactionConsistencyOpTypes;
   idList: string[];
-  storeRef: IMemStore<IResource>;
+  storeRef: IMemStore<Resource>;
 };
 
 export type MemStoreTransactionCommitSyncFn = (
@@ -50,16 +50,16 @@ export enum MemStoreTransactionState {
 }
 
 export interface IMemStoreTransaction {
-  addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>): void;
-  getFromCache<T extends IResource = IResource>(id: string): T | undefined;
+  addToCache(item: Resource | Resource[], storeRef: IMemStore<Resource>): void;
+  getFromCache<T extends Resource = Resource>(id: string): T | undefined;
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]): void;
   commit(syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
   abort(error: unknown): void;
   getState(): MemStoreTransactionState;
-  addIndexView(ref: IMemStoreIndex<IResource>, index: unknown): void;
-  getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>): T | null;
-  hasIndexView(ref: IMemStoreIndex<IResource>): boolean;
-  setLock(storeRef: IMemStore<IResource>, lockId: number): void;
+  addIndexView(ref: IMemStoreIndex<Resource>, index: unknown): void;
+  getIndexView<T = unknown>(ref: IMemStoreIndex<Resource>): T | null;
+  hasIndexView(ref: IMemStoreIndex<Resource>): boolean;
+  setLock(storeRef: IMemStore<Resource>, lockId: number): void;
   isItemDeleted(id: string): boolean;
 }
 
@@ -79,7 +79,7 @@ export type MemStoreIndexOptions<T> = {
   field: keyof T;
 };
 
-export interface IMemStoreIndex<T extends IResource> {
+export interface IMemStoreIndex<T extends Resource> {
   index(
     /** `item` and `existingItem` should be lined up in index, so index 0 in
      * `item` should be the same item in index 0 of `existingItem` if an array
@@ -147,15 +147,15 @@ export interface IMemStore<T extends AnyObject> {
   dispose(): void;
 }
 
-export type IFolderMemStoreProvider = IMemStore<IFolder>;
-export type IFileMemStoreProvider = IMemStore<IFile>;
-export type IAgentTokenMemStoreProvider = IMemStore<IAgentToken>;
-export type IPermissionItemMemStoreProvider = IMemStore<IPermissionItem>;
-export type IPermissionGroupMemStoreProvider = IMemStore<IPermissionGroup>;
-export type IWorkspaceMemStoreProvider = IMemStore<IWorkspace>;
-export type ICollaborationRequestMemStoreProvider = IMemStore<ICollaborationRequest>;
-export type IUserMemStoreProvider = IMemStore<IUser>;
-export type IAppRuntimeStateMemStoreProvider = IMemStore<IAppRuntimeState>;
-export type ITagMemStoreProvider = IMemStore<ITag>;
-export type IAssignedItemMemStoreProvider = IMemStore<IAssignedItem>;
-export type IUsageRecordMemStoreProvider = IMemStore<IUsageRecord>;
+export type FolderMemStoreProvider = IMemStore<Folder>;
+export type FileMemStoreProvider = IMemStore<File>;
+export type AgentTokenMemStoreProvider = IMemStore<AgentToken>;
+export type PermissionItemMemStoreProvider = IMemStore<PermissionItem>;
+export type PermissionGroupMemStoreProvider = IMemStore<PermissionGroup>;
+export type WorkspaceMemStoreProvider = IMemStore<Workspace>;
+export type CollaborationRequestMemStoreProvider = IMemStore<CollaborationRequest>;
+export type UserMemStoreProvider = IMemStore<User>;
+export type AppRuntimeStateMemStoreProvider = IMemStore<AppRuntimeState>;
+export type TagMemStoreProvider = IMemStore<Tag>;
+export type AssignedItemMemStoreProvider = IMemStore<AssignedItem>;
+export type UsageRecordMemStoreProvider = IMemStore<UsageRecord>;

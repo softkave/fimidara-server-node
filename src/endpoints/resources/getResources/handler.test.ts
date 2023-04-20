@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, getWorkspaceActionList, IResource} from '../../../definitions/system';
+import {AppActionType, getWorkspaceActionList, Resource} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
-import {IAddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types';
-import {IPermissionItemInput} from '../../permissionItems/types';
+import {AddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types';
+import {PermissionItemInput} from '../../permissionItems/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -18,13 +18,13 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {IFetchResourceItem} from '../types';
+import {FetchResourceItem} from '../types';
 import getResources from './handler';
-import {IGetResourcesEndpointParams} from './types';
+import {GetResourcesEndpointParams} from './types';
 
 // TODO: Test resources that the agent doesn't have read permission to
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -44,14 +44,14 @@ describe('getResources', () => {
       userToken,
       workspace.resourceId
     );
-    const inputItems: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+    const inputItems: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: workspace.resourceId},
       appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     }));
     const addPermissionItemsReqData =
-      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
           items: inputItems,
@@ -64,10 +64,10 @@ describe('getResources', () => {
     ]);
     assertEndpointResultOk(addPermissionItemsResult);
     const items = addPermissionItemsResult.items;
-    const resourcesInput: IFetchResourceItem[] = [];
+    const resourcesInput: FetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
 
-    const addToExpectedResourcesById = (item: Pick<IResource, 'resourceId'>) => {
+    const addToExpectedResourcesById = (item: Pick<Resource, 'resourceId'>) => {
       resourcesInput.push({resourceId: item.resourceId});
       resourcesMap[item.resourceId] = item;
     };
@@ -79,7 +79,7 @@ describe('getResources', () => {
     );
     items.forEach(item => addToExpectedResourcesById(item));
 
-    const instData = RequestData.fromExpressRequest<IGetResourcesEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetResourcesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
     );

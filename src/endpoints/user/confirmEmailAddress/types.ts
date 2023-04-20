@@ -1,5 +1,5 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {ILoginResult} from '../login/types';
+import {LoginResult} from '../login/types';
 
-export type ConfirmEmailAddressEndpoint = Endpoint<IBaseContext, {}, ILoginResult>;
+export type ConfirmEmailAddressEndpoint = Endpoint<BaseContext, {}, LoginResult>;

@@ -1,17 +1,17 @@
-import {IAssignedItem} from '../../../../definitions/assignedItem';
+import {AssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderMutationRunOptions,
 } from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessAssignedItemProvider} from './types';
 
 export class MemorySemanticDataAccessAssignedItem
-  extends SemanticDataAccessWorkspaceResourceProvider<IAssignedItem>
+  extends SemanticDataAccessWorkspaceResourceProvider<AssignedItem>
   implements ISemanticDataAccessAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(
@@ -19,10 +19,10 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<IAssignedItem<AnyObject>> &
+      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
           ISemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<IAssignedItem<AnyObject>[]> {
+  ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
       {
         workspaceId,
@@ -40,10 +40,10 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
     options?:
-      | (IDataProvideQueryListParams<IAssignedItem<AnyObject>> &
+      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
           ISemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<IAssignedItem<AnyObject>[]> {
+  ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
       {
         workspaceId,
@@ -61,10 +61,10 @@ export class MemorySemanticDataAccessAssignedItem
   async getUserWorkspaces(
     assigneeId: string,
     options?:
-      | (IDataProvideQueryListParams<IAssignedItem<AnyObject>> &
+      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
           ISemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<IAssignedItem<AnyObject>[]> {
+  ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
       {assigneeId, assignedItemType: AppResourceType.Workspace},
       options?.transaction,
@@ -78,7 +78,7 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<IAssignedItem<AnyObject>> &
+      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
           ISemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<boolean> {
@@ -95,7 +95,7 @@ export class MemorySemanticDataAccessAssignedItem
   async deleteWorkspaceAssignedItemResources(
     workspaceId: string,
     assignedItemId: string | string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(
       {
@@ -110,7 +110,7 @@ export class MemorySemanticDataAccessAssignedItem
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(
       {

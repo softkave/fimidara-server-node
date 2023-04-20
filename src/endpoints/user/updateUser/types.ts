@@ -1,19 +1,19 @@
-import {IPublicUserData} from '../../../definitions/user';
-import {IBaseContext} from '../../contexts/types';
+import {PublicUser} from '../../../definitions/user';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateUserEndpointParams {
+export interface UpdateUserEndpointParams {
   firstName?: string;
   lastName?: string;
   email?: string;
 }
 
-export interface IUpdateUserEndpointResult {
-  user: IPublicUserData;
+export interface UpdateUserEndpointResult {
+  user: PublicUser;
 }
 
 export type UpdateUserEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateUserEndpointParams,
-  IUpdateUserEndpointResult
+  BaseContext,
+  UpdateUserEndpointParams,
+  UpdateUserEndpointResult
 >;

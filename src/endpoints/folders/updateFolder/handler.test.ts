@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {IFolder} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/types';
+import {Folder} from '../../../definitions/folder';
+import {BaseContext} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -18,9 +18,9 @@ import {
 import {folderConstants} from '../constants';
 import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
-import {IUpdateFolderEndpointParams, IUpdateFolderInput} from './types';
+import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -31,11 +31,11 @@ afterAll(async () => {
 });
 
 async function updateFolderBaseTest(
-  ctx: IBaseContext,
-  incomingUpdateInput: Partial<IUpdateFolderInput> = {},
+  ctx: BaseContext,
+  incomingUpdateInput: Partial<UpdateFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
-  existingFolder?: IFolder
+  existingFolder?: Folder
 ) {
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
@@ -44,12 +44,12 @@ async function updateFolderBaseTest(
     ? {folder: existingFolder}
     : await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace);
 
-  const updateInput: IUpdateFolderInput = {
+  const updateInput: UpdateFolderInput = {
     description: faker.lorem.words(20),
     ...incomingUpdateInput,
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
       folderpath: addRootnameToPath(
@@ -78,11 +78,11 @@ async function updateFolderBaseTest(
 }
 
 // const updateFolderWithPublicAccessOpsTest = async (
-//   ctx: IBaseContext,
-//   incomingUpdateInput: Partial<IUpdateFolderInput> = {},
+//   ctx: BaseContext,
+//   incomingUpdateInput: Partial<UpdateFolderInput> = {},
 //   insertUserResult?: IInsertUserForTestResult,
 //   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
-//   existingFolder?: IFolder
+//   existingFolder?: Folder
 // ) => {
 //   const uploadResult = await updateFolderBaseTest(
 //     ctx,

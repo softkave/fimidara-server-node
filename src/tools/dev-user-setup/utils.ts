@@ -3,8 +3,8 @@ import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
 import {TokenAccessScope} from '../../definitions/system';
-import {IUserWithWorkspace} from '../../definitions/user';
-import {IWorkspace} from '../../definitions/workspace';
+import {UserWithWorkspace} from '../../definitions/user';
+import {Workspace} from '../../definitions/workspace';
 import {assertAgentToken} from '../../endpoints/agentTokens/utils';
 import {
   addAssignedPermissionGroupList,
@@ -13,11 +13,10 @@ import {
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
   ISemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderMutationRunOptions,
 } from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
-import {IBaseContext} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -116,7 +115,7 @@ async function promptUserInfo() {
 }
 
 async function isUserAdmin(
-  context: IBaseContext,
+  context: BaseContext,
   userId: string,
   adminPermissionGroupId: string,
   opts?: ISemanticDataAccessProviderRunOptions
@@ -132,11 +131,11 @@ async function isUserAdmin(
 }
 
 async function makeUserAdmin(
-  context: IBaseContext,
+  context: BaseContext,
   userId: string,
-  workspace: IWorkspace,
+  workspace: Workspace,
   adminPermissionGroupId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
   if (!isAdmin) {
@@ -155,10 +154,10 @@ async function makeUserAdmin(
   }
 }
 
-async function getUser(context: IBaseContext, runtimeOptions: AppRuntimeOptions) {
+async function getUser(context: BaseContext, runtimeOptions: AppRuntimeOptions) {
   const {email} = await runtimeOptions.getUserEmail();
   const userExists = await context.semantic.user.existsByEmail(email);
-  let user: IUserWithWorkspace;
+  let user: UserWithWorkspace;
   if (userExists) {
     user = await getCompleteUserDataByEmail(context, email);
   } else {

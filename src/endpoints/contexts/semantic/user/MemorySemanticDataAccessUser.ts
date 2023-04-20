@@ -1,16 +1,16 @@
-import {IUser} from '../../../../definitions/user';
+import {User} from '../../../../definitions/user';
 import {ISemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessBaseProvider} from '../utils';
 import {ISemanticDataAccessUserProvider} from './types';
 
 export class MemorySemanticDataAccessUser
-  extends SemanticDataAccessBaseProvider<IUser>
+  extends SemanticDataAccessBaseProvider<User>
   implements ISemanticDataAccessUserProvider
 {
   async getByEmail(
     email: string,
     opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IUser | null> {
+  ): Promise<User | null> {
     return await this.memstore.readItem({email: {$lowercaseEq: email}}, opts?.transaction);
   }
 

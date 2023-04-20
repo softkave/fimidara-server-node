@@ -1,11 +1,11 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetWorkspaceTagsEndpointParamsBase} from '../getWorkspaceTags/types';
+import {BaseContext} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetWorkspaceTagsEndpointParamsBase} from '../getWorkspaceTags/types';
 
-export type ICountWorkspaceTagsEndpointParams = IGetWorkspaceTagsEndpointParamsBase;
+export type CountWorkspaceTagsEndpointParams = GetWorkspaceTagsEndpointParamsBase;
 
 export type GetWorkspaceTagEndpoint = Endpoint<
-  IBaseContext,
-  ICountWorkspaceTagsEndpointParams,
-  ICountItemsEndpointResult
+  BaseContext,
+  CountWorkspaceTagsEndpointParams,
+  CountItemsEndpointResult
 >;

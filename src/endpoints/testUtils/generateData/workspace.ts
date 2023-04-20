@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
-import {INewWorkspaceInput} from '../../workspaces/addWorkspace/types';
+import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../../workspaces/utils';
 
 export function generateTestUsageThresholdInputMap(
   threshold = usageRecordConstants.defaultTotalThresholdInUSD
-): Required<INewWorkspaceInput>['usageThresholds'] {
+): Required<NewWorkspaceInput>['usageThresholds'] {
   return {
     [UsageRecordCategory.Storage]: {
       category: UsageRecordCategory.Storage,
@@ -42,16 +42,16 @@ export function generateTestUsageThresholdInputMap(
   };
 }
 
-export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
+export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
-  const createdBy: IAgent = {
+  const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: AppResourceType.User,
     agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
   const name = faker.company.name();
   const resourceId = getNewIdForResource(AppResourceType.Workspace);
-  const workspace: IWorkspace = {
+  const workspace: Workspace = {
     createdAt,
     createdBy,
     name,
@@ -71,8 +71,8 @@ export function generateTestWorkspace(seed: Partial<IWorkspace> = {}) {
   return workspace;
 }
 
-export function generateWorkspaceListForTest(count = 20, seed: Partial<IWorkspace> = {}) {
-  const workspaces: IWorkspace[] = [];
+export function generateWorkspaceListForTest(count = 20, seed: Partial<Workspace> = {}) {
+  const workspaces: Workspace[] = [];
   for (let i = 0; i < count; i++) {
     workspaces.push(generateTestWorkspace());
   }
@@ -80,9 +80,9 @@ export function generateWorkspaceListForTest(count = 20, seed: Partial<IWorkspac
 }
 
 export async function generateAndInsertWorkspaceListForTest(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   count = 20,
-  extra: Partial<IWorkspace> = {}
+  extra: Partial<Workspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
   await executeWithMutationRunOptions(ctx, async opts =>

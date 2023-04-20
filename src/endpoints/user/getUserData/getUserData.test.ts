@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -18,7 +18,7 @@ import getUserData from './getUserData';
  * - test that hanlder fails if user does not exist
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -3,8 +3,8 @@ import {getMongoConnection} from '../../../db/connection';
 import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -13,12 +13,12 @@ import {
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
 import ingestLogs from './handler';
-import {IClientLog, IIngestLogsEndpointParams} from './types';
+import {ClientLog, IngestLogsEndpointParams} from './types';
 import assert = require('assert');
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 let logsConnection: Connection | null = null;
-let model: Model<IClientLog> | null = null;
+let model: Model<ClientLog> | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -27,9 +27,9 @@ beforeAll(async () => {
     context.appVariables.logsDbName
   );
 
-  model = logsConnection.model<IClientLog>(
+  model = logsConnection.model<ClientLog>(
     'log',
-    new Schema<IClientLog>({meta: SchemaTypes.Map}),
+    new Schema<ClientLog>({meta: SchemaTypes.Map}),
     context.appVariables.logsCollectionName
   );
 });
@@ -42,7 +42,7 @@ afterAll(async () => {
 describe('ingestLogs', () => {
   test('client logs ingested', async () => {
     assertContext(context);
-    const testLogs: IClientLog[] = [];
+    const testLogs: ClientLog[] = [];
     const randomTag = Math.random().toString();
     for (let i = 0; i < 10; i++) {
       testLogs.push({
@@ -54,7 +54,7 @@ describe('ingestLogs', () => {
       });
     }
 
-    const reqData = RequestData.fromExpressRequest<IIngestLogsEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<IngestLogsEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {logs: testLogs}
     );

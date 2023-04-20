@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -13,14 +13,14 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteAgentToken from './handler';
-import {IDeleteAgentTokenEndpointParams} from './types';
+import {DeleteAgentTokenEndpointParams} from './types';
 
 /**
  * TODO:
  * - [Low] Check that onReferenced feature works
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -35,7 +35,7 @@ test('program access token deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
-  const instData = RequestData.fromExpressRequest<IDeleteAgentTokenEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeleteAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {tokenId: token.resourceId, workspaceId: workspace.resourceId}
   );

@@ -1,18 +1,15 @@
-import {
-  IPermissionGroupMatcher,
-  IPublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
+import {PermissionGroupMatcher, PublicPermissionGroup} from '../../../definitions/permissionGroups';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export type IGetPermissionGroupEndpointParams = IPermissionGroupMatcher;
+export type GetPermissionGroupEndpointParams = PermissionGroupMatcher;
 
-export interface IGetPermissionGroupEndpointResult {
-  permissionGroup: IPublicPermissionGroup;
+export interface GetPermissionGroupEndpointResult {
+  permissionGroup: PublicPermissionGroup;
 }
 
 export type GetPermissionGroupEndpoint = Endpoint<
-  IBaseContext,
-  IGetPermissionGroupEndpointParams,
-  IGetPermissionGroupEndpointResult
+  BaseContext,
+  GetPermissionGroupEndpointParams,
+  GetPermissionGroupEndpointResult
 >;

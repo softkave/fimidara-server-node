@@ -1,15 +1,15 @@
-import {IWorkspace} from '../../../../definitions/workspace';
+import {Workspace} from '../../../../definitions/workspace';
 import {
   ISemanticDataAccessProviderRunOptions,
   ISemanticDataAccessWorkspaceResourceProvider,
 } from '../types';
 
 export interface ISemanticDataAccessWorkspaceProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<IWorkspace> {
+  extends ISemanticDataAccessWorkspaceResourceProvider<Workspace> {
   getByRootname(
     name: string,
     opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IWorkspace | null>;
+  ): Promise<Workspace | null>;
   existsByRootname(name: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<boolean>;
   workspaceExistsByName(
     name: string,

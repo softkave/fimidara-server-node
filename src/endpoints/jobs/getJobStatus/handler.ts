@@ -1,4 +1,4 @@
-import {AppResourceType, IResourceWrapper} from '../../../definitions/system';
+import {AppResourceType, ResourceWrapper} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {NotFoundError} from '../../errors';
@@ -14,7 +14,7 @@ const getJobStatus: GetJobStatusEndpoint = async (context, instData) => {
   if (agent.user) agent.user = await populateUserWorkspaces(context, agent.user);
 
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const resource: IResourceWrapper = {
+  const resource: ResourceWrapper = {
     resourceId: agent.agentId,
     resource: (agent.user || agent.agentToken)!,
     resourceType: agent.user ? AppResourceType.User : AppResourceType.AgentToken,

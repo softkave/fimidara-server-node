@@ -1,27 +1,27 @@
 import {faker} from '@faker-js/faker';
 import {
+  CollaborationRequest,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {
-  defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,
+  defaultGeneratePartialTestDataFn,
   generateTestList,
 } from './utils';
 
-export function generateCollaborationRequestForTest(seed: Partial<ICollaborationRequest> = {}) {
+export function generateCollaborationRequestForTest(seed: Partial<CollaborationRequest> = {}) {
   const createdAt = getTimestamp();
-  const createdBy: IAgent = {
+  const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: AppResourceType.User,
     agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-  const item: ICollaborationRequest = {
+  const item: CollaborationRequest = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -40,15 +40,15 @@ export function generateCollaborationRequestForTest(seed: Partial<ICollaboration
 
 export function generateCollaborationRequestListForTest(
   count = 20,
-  genPartial: GeneratePartialTestDataFn<ICollaborationRequest> = defaultGeneratePartialTestDataFn
+  genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   return generateTestList(() => generateCollaborationRequestForTest(), count, genPartial);
 }
 
 export async function generateAndInsertCollaborationRequestListForTest(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   count = 20,
-  genPartial: GeneratePartialTestDataFn<ICollaborationRequest> = defaultGeneratePartialTestDataFn
+  genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
   await executeWithMutationRunOptions(ctx, async opts =>

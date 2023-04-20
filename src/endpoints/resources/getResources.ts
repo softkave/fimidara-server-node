@@ -1,11 +1,11 @@
 import {compact, forEach, get, map, mapKeys} from 'lodash';
-import {IFile} from '../../definitions/file';
+import {File} from '../../definitions/file';
 import {
   AppActionType,
   AppResourceType,
-  IResource,
-  IResourceWrapper,
-  ISessionAgent,
+  Resource,
+  ResourceWrapper,
+  SessionAgent,
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
@@ -20,13 +20,13 @@ import {
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
 import {checkResourcesBelongToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
-import {IFetchResourceItem} from './types';
+import {FetchResourceItem} from './types';
 
-export type IFetchResourceItemWithAction = IFetchResourceItem & {
+export type FetchResourceItemWithAction = FetchResourceItem & {
   action?: AppActionType;
 };
 
@@ -41,12 +41,12 @@ type InputsWithIdGroupedByType = PartialRecord<
 
 type FilePathsMap = PartialRecord</** filepath or folderpath */ string, AppActionType | undefined>;
 
-export interface IGetResourcesOptions {
-  context: IBaseContext;
-  inputResources: Array<IFetchResourceItemWithAction>;
+export interface GetResourcesOptions {
+  context: BaseContext;
+  inputResources: Array<FetchResourceItemWithAction>;
   allowedTypes: AppResourceType[];
   checkAuth?: boolean;
-  agent: ISessionAgent;
+  agent: SessionAgent;
   workspaceId: string;
   action: AppActionType;
   nothrowOnCheckError?: boolean;
@@ -60,7 +60,7 @@ export interface IGetResourcesOptions {
   checkBelongsToWorkspace?: boolean;
 }
 
-export async function INTERNAL_getResources(options: IGetResourcesOptions) {
+export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
     context,
     inputResources,
@@ -118,7 +118,7 @@ export async function INTERNAL_getResources(options: IGetResourcesOptions) {
 }
 
 function groupItemsToFetch(
-  inputResources: Array<IFetchResourceItemWithAction>,
+  inputResources: Array<FetchResourceItemWithAction>,
   allowedTypes: AppResourceType[]
 ) {
   const inputsWithIdByType: InputsWithIdGroupedByType = {};
@@ -164,7 +164,7 @@ function groupItemsToFetch(
 
 function groupByContainerId(
   workspaceId: string,
-  resources: Array<IResourceWrapper>,
+  resources: Array<ResourceWrapper>,
   inputsWithIdByType: InputsWithIdGroupedByType,
   filepathsMap: FilePathsMap,
   folderpathsMap: FilePathsMap,
@@ -172,11 +172,11 @@ function groupByContainerId(
 ) {
   const map: Record<
     /** container ID or key */ string,
-    Record</** action */ string, IResourceWrapper[]>
+    Record</** action */ string, ResourceWrapper[]>
   > = {};
   const JOINED_CONTAINERS_SEPARATOR = ';';
 
-  const getContainerKey = (resource: IResourceWrapper) => {
+  const getContainerKey = (resource: ResourceWrapper) => {
     let filepath: string | undefined = undefined;
     const containerIds = getResourcePermissionContainers(workspaceId, resource.resource);
     const containerKey = makeKey(containerIds, JOINED_CONTAINERS_SEPARATOR);
@@ -185,7 +185,7 @@ function groupByContainerId(
       resource.resourceType === AppResourceType.Folder ||
       resource.resourceType === AppResourceType.File
     ) {
-      filepath = (resource.resource as unknown as Pick<IFile, 'namePath'>).namePath.join(
+      filepath = (resource.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );
     }
@@ -217,13 +217,13 @@ function groupByContainerId(
 }
 
 async function fetchResourcesById(
-  context: IBaseContext,
+  context: BaseContext,
   idsGroupedByType: InputsWithIdGroupedByType,
   opts?: ISemanticDataAccessProviderRunOptions
 ) {
   if (isObjectEmpty(idsGroupedByType)) return [];
 
-  const promises: Array<IExtendedPromiseWithId<IResource[]>> = [];
+  const promises: Array<IExtendedPromiseWithId<Resource[]>> = [];
   mapKeys(idsGroupedByType, (typeMap, type) => {
     appAssert(typeMap);
     switch (type) {
@@ -299,7 +299,7 @@ async function fetchResourcesById(
     }
   });
 
-  const resources: Array<IResourceWrapper> = [];
+  const resources: Array<ResourceWrapper> = [];
   const settledPromises = await waitOnPromisesWithId(promises);
 
   settledPromises.forEach(item => {
@@ -320,7 +320,7 @@ async function fetchResourcesById(
 }
 
 const fetchFiles = async (
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   filepathsMap: FilePathsMap
 ) => {
@@ -337,7 +337,7 @@ const fetchFiles = async (
   );
 
   return compact(result).map(
-    (item): IResourceWrapper => ({
+    (item): ResourceWrapper => ({
       resourceId: item.resourceId,
       resourceType: AppResourceType.File,
       resource: item,
@@ -346,7 +346,7 @@ const fetchFiles = async (
 };
 
 const fetchFolders = async (
-  context: IBaseContext,
+  context: BaseContext,
   workspaceId: string,
   folderpathsMap: FilePathsMap
 ) => {
@@ -363,7 +363,7 @@ const fetchFolders = async (
   );
 
   return compact(result).map(
-    (item): IResourceWrapper => ({
+    (item): ResourceWrapper => ({
       resourceId: item.resourceId,
       resourceType: AppResourceType.Folder,
       resource: item,
@@ -371,11 +371,11 @@ const fetchFolders = async (
   );
 };
 
-const fetchWorkspace = async (context: IBaseContext, workspaceRootname?: string) => {
+const fetchWorkspace = async (context: BaseContext, workspaceRootname?: string) => {
   if (!workspaceRootname) return [];
 
   const result = await context.semantic.workspace.getByRootname(workspaceRootname);
-  const resources: IResourceWrapper[] = result
+  const resources: ResourceWrapper[] = result
     ? [
         {
           resourceId: result.resourceId,
@@ -388,10 +388,10 @@ const fetchWorkspace = async (context: IBaseContext, workspaceRootname?: string)
 };
 
 async function authCheckResources(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContext,
+  agent: SessionAgent,
   workspaceId: string,
-  resources: Array<IResourceWrapper>,
+  resources: Array<ResourceWrapper>,
   inputsWithIdByType: InputsWithIdGroupedByType,
   filepathsMap: FilePathsMap,
   folderpathsMap: FilePathsMap,
@@ -439,7 +439,7 @@ async function authCheckResources(
     }
   });
 
-  let authCheckedResources: Array<IResourceWrapper> = [];
+  let authCheckedResources: Array<ResourceWrapper> = [];
 
   forEach(groupedByContainer, (actionsMap, containerKey) => {
     forEach(actionsMap, (resourceList, nextAction) => {

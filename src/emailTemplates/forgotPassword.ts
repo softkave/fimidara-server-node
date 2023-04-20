@@ -9,14 +9,12 @@ import {
 
 export const forgotPasswordEmailTitle = 'Change your password';
 
-export interface IForgotPasswordEmailProps {
+export interface ForgotPasswordEmailProps {
   link: string;
   expiration: Date;
 }
 
-export function forgotPasswordEmailHTML(
-  props: IForgotPasswordEmailProps
-): string {
+export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string {
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -40,10 +38,10 @@ export function forgotPasswordEmailHTML(
       </p>
       <p>
         <strong>
-          This link expires in ${formatDistance(
-            props.expiration,
-            new Date()
-          )}, on ${format(props.expiration, 'MM/dd/yyyy hh:mm aaa')}.
+          This link expires in ${formatDistance(props.expiration, new Date())}, on ${format(
+    props.expiration,
+    'MM/dd/yyyy hh:mm aaa'
+  )}.
         </strong>
       </p>
       <p>
@@ -61,15 +59,11 @@ export function forgotPasswordEmailHTML(
   `;
 }
 
-export function forgotPasswordEmailText(
-  props: IForgotPasswordEmailProps
-): string {
+export function forgotPasswordEmailText(props: ForgotPasswordEmailProps): string {
   const text = `
 ${getHeaderText(forgotPasswordEmailTitle)}
 -
-To change your password, copy the following link, and visit in your browser:- ${
-    props.link
-  }
+To change your password, copy the following link, and visit in your browser:- ${props.link}
 -
 This link expires:
 1. Immediately after you change your password -OR-

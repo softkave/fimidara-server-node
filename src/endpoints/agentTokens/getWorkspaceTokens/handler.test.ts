@@ -1,5 +1,5 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -13,9 +13,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getWorkspaceAgentTokens from './handler';
-import {IGetWorkspaceAgentTokensEndpointParams} from './types';
+import {GetWorkspaceAgentTokensEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -34,7 +34,7 @@ describe('getWorkspaceAgentTokens', () => {
       insertAgentTokenForTest(context, userToken, workspace.resourceId),
       insertAgentTokenForTest(context, userToken, workspace.resourceId),
     ]);
-    const instData = RequestData.fromExpressRequest<IGetWorkspaceAgentTokensEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -54,7 +54,7 @@ describe('getWorkspaceAgentTokens', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceAgentTokensEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
@@ -64,7 +64,7 @@ describe('getWorkspaceAgentTokens', () => {
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceAgentTokensEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );

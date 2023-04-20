@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -11,9 +11,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getTag from './handler';
-import {IGetTagEndpointParams} from './types';
+import {GetTagEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -30,7 +30,7 @@ describe('getTag', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
 
-    const instData = RequestData.fromExpressRequest<IGetTagEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetTagEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag01.resourceId}
     );

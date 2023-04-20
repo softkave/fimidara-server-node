@@ -1,23 +1,23 @@
-import {IPublicFolder} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/types';
+import {PublicFolder} from '../../../definitions/folder';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface INewFolderInput {
+export interface NewFolderInput {
   // folder path should include the workspace rootname
   folderpath: string;
   description?: string;
 }
 
-export interface IAddFolderEndpointParams {
-  folder: INewFolderInput;
+export interface AddFolderEndpointParams {
+  folder: NewFolderInput;
 }
 
-export interface IAddFolderEndpointResult {
-  folder: IPublicFolder;
+export interface AddFolderEndpointResult {
+  folder: PublicFolder;
 }
 
 export type AddFolderEndpoint = Endpoint<
-  IBaseContext,
-  IAddFolderEndpointParams,
-  IAddFolderEndpointResult
+  BaseContext,
+  AddFolderEndpointParams,
+  AddFolderEndpointResult
 >;

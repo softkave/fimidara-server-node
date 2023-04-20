@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -10,9 +10,9 @@ import {
   mockExpressRequest,
 } from '../../testUtils/testUtils';
 import userExists from './handler';
-import {IUserExistsEndpointParams} from './types';
+import {UserExistsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -25,7 +25,7 @@ afterAll(async () => {
 test('returns true if user exists', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IUserExistsEndpointParams>(mockExpressRequest(), {
+  const instData = RequestData.fromExpressRequest<UserExistsEndpointParams>(mockExpressRequest(), {
     email: user.email,
   });
 
@@ -36,7 +36,7 @@ test('returns true if user exists', async () => {
 
 test('returns false if user does not exists', async () => {
   assertContext(context);
-  const instData = RequestData.fromExpressRequest<IUserExistsEndpointParams>(mockExpressRequest(), {
+  const instData = RequestData.fromExpressRequest<UserExistsEndpointParams>(mockExpressRequest(), {
     email: faker.internet.email(),
   });
 

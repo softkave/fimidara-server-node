@@ -3,9 +3,9 @@ import {validationSchemas} from '../../utils/validationUtils';
 import permissionItemValidationSchemas from '../permissionItems/validation';
 import workspaceValidationSchemas from '../workspaces/validation';
 import resourcesConstants from './constants';
-import {IFetchResourceItem} from './types';
+import {FetchResourceItem} from './types';
 
-const fetchResourceItem = Joi.object<IFetchResourceItem>().keys({
+const fetchResourceItem = Joi.object<FetchResourceItem>().keys({
   resourceId: validationSchemas.resourceId.required(),
   folderpath: permissionItemValidationSchemas.targetParts.folderpath,
   filepath: permissionItemValidationSchemas.targetParts.filepath,

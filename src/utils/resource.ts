@@ -4,7 +4,7 @@ import {AppResourceType} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import OperationError, {
   getErrorMessageFromParams,
-  IOperationErrorParameters,
+  OperationErrorParameters,
 } from './OperationError';
 import {InvertRecord} from './types';
 
@@ -49,7 +49,7 @@ export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
   statusCode = endpointConstants.httpStatusCode.badRequest;
 
-  constructor(props?: IOperationErrorParameters | string) {
+  constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Invalid resource ID');
   }

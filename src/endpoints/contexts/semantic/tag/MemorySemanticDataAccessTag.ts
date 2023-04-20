@@ -1,7 +1,7 @@
-import {ITag} from '../../../../definitions/tag';
+import {Tag} from '../../../../definitions/tag';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {ISemanticDataAccessTagProvider} from './types';
 
 export class MemorySemanticDataAccessTag
-  extends SemanticDataAccessWorkspaceResourceProvider<ITag>
+  extends SemanticDataAccessWorkspaceResourceProvider<Tag>
   implements ISemanticDataAccessTagProvider {}

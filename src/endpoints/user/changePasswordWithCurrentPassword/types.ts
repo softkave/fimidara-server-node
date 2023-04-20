@@ -1,14 +1,14 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {ILoginResult} from '../login/types';
+import {LoginResult} from '../login/types';
 
-export interface IChangePasswordWithCurrentPasswordEndpointParams {
+export interface ChangePasswordWithCurrentPasswordEndpointParams {
   currentPassword: string;
   password: string;
 }
 
 export type ChangePasswordWithCurrentPasswordEndpoint = Endpoint<
-  IBaseContext,
-  IChangePasswordWithCurrentPasswordEndpointParams,
-  ILoginResult
+  BaseContext,
+  ChangePasswordWithCurrentPasswordEndpointParams,
+  LoginResult
 >;

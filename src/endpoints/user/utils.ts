@@ -1,11 +1,11 @@
-import {IPublicUserData, IUser, IUserWithWorkspace, IUserWorkspace} from '../../definitions/user';
+import {PublicUser, User, UserWithWorkspace, UserWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 
-const publicUserWorkspaceFields = getFields<IUserWorkspace>({
+const publicUserWorkspaceFields = getFields<UserWorkspace>({
   workspaceId: true,
   joinedAt: true,
 });
@@ -13,7 +13,7 @@ const publicUserWorkspaceFields = getFields<IUserWorkspace>({
 export const userWorkspaceExtractor = makeExtract(publicUserWorkspaceFields);
 export const userWorkspaceListExtractor = makeListExtract(publicUserWorkspaceFields);
 
-const publicUserFields = getFields<IPublicUserData>({
+const publicUserFields = getFields<PublicUser>({
   resourceId: true,
   firstName: true,
   lastName: true,
@@ -33,21 +33,21 @@ export function throwUserNotFound() {
   throw reuseableErrors.user.notFound();
 }
 
-export function isUserInWorkspace(user: IUserWithWorkspace, workspaceId: string) {
+export function isUserInWorkspace(user: UserWithWorkspace, workspaceId: string) {
   return user.workspaces.some(workspace => workspace.workspaceId === workspaceId);
 }
 
-export function assertUser(user?: IUser | null): asserts user {
+export function assertUser(user?: User | null): asserts user {
   appAssert(user, reuseableErrors.user.notFound());
 }
 
-export async function getUserWithWorkspaceById(context: IBaseContext, userId: string) {
+export async function getUserWithWorkspaceById(context: BaseContext, userId: string) {
   const user = await context.semantic.user.getOneById(userId);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }
 
-export async function getCompleteUserDataByEmail(context: IBaseContext, email: string) {
+export async function getCompleteUserDataByEmail(context: BaseContext, email: string) {
   const user = await context.semantic.user.getByEmail(email);
   assertUser(user);
   return await populateUserWorkspaces(context, user);

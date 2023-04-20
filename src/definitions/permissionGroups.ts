@@ -1,20 +1,20 @@
-import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
+import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
-export interface IPermissionGroup extends IWorkspaceResource {
+export interface PermissionGroup extends WorkspaceResource {
   name: string;
   description?: string;
 }
 
-export interface IAssignedPermissionGroupMeta {
+export interface AssignedPermissionGroupMeta {
   permissionGroupId: string;
   assigneeEntityId: string;
   assignedAt: number;
-  assignedBy: IAgent;
+  assignedBy: Agent;
 }
 
 export type PermissionEntityInheritanceMapItem = {
   id: string;
-  items: IAssignedPermissionGroupMeta[];
+  items: AssignedPermissionGroupMeta[];
 
   // Order resolved in context of an inheritance map
   resolvedOrder?: number;
@@ -22,16 +22,16 @@ export type PermissionEntityInheritanceMapItem = {
 
 export type PermissionEntityInheritanceMap = Record<string, PermissionEntityInheritanceMapItem>;
 
-export interface IPermissionGroupMatcher {
+export interface PermissionGroupMatcher {
   permissionGroupId?: string;
   name?: string;
   workspaceId?: string;
 }
 
-export interface IAssignPermissionGroupInput {
+export interface AssignPermissionGroupInput {
   permissionGroupId: string;
 }
 
-export type IPublicPermissionGroup = ConvertAgentToPublicAgent<IPermissionGroup>;
-export type IPublicAssignedPermissionGroupMeta =
-  ConvertAgentToPublicAgent<IAssignedPermissionGroupMeta>;
+export type PublicPermissionGroup = ConvertAgentToPublicAgent<PermissionGroup>;
+export type PublicAssignedPermissionGroupMeta =
+  ConvertAgentToPublicAgent<AssignedPermissionGroupMeta>;

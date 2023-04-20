@@ -1,17 +1,14 @@
-import {IUser} from '../../definitions/user';
+import {User} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/types';
+import {BaseContext} from '../contexts/types';
 import {collaboratorExtractor, removeOtherUserWorkspaces} from './utils';
 
 export async function extractCollaborator(
-  context: IBaseContext,
-  collaborator: IUser,
+  context: BaseContext,
+  collaborator: User,
   workspaceId: string
 ) {
-  const userWithWorkspaces = await populateUserWorkspaces(
-    context,
-    collaborator
-  );
+  const userWithWorkspaces = await populateUserWorkspaces(context, collaborator);
   return collaboratorExtractor(
     removeOtherUserWorkspaces(userWithWorkspaces, workspaceId),
     workspaceId

@@ -1,5 +1,5 @@
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
@@ -14,14 +14,14 @@ import {
 } from '../../testUtils/testUtils';
 import getCollaborator from '../getCollaborator/handler';
 import removeCollaborator from './handler';
-import {IRemoveCollaboratorEndpointParams} from './types';
+import {RemoveCollaboratorEndpointParams} from './types';
 
 /**
  * TODO:
  * - Check that artifacts are removed
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -35,7 +35,7 @@ test('collaborator removed', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IRemoveCollaboratorEndpointParams>(
+  const instData = RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
   );

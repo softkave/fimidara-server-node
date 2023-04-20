@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
@@ -15,9 +15,9 @@ import {
 } from '../../testUtils/testUtils';
 import {fileConstants} from '../constants';
 import deleteFile from './handler';
-import {IDeleteFileEndpointParams} from './types';
+import {DeleteFileEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -27,7 +27,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-async function assertFileDeleted(context: IBaseContext, id: string) {
+async function assertFileDeleted(context: BaseContext, id: string) {
   const exists = await context.semantic.file.existsByQuery(
     EndpointReusableQueries.getByResourceId(id)
   );
@@ -39,7 +39,7 @@ test('file deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
-  const instData = RequestData.fromExpressRequest<IDeleteFileEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       filepath: addRootnameToPath(

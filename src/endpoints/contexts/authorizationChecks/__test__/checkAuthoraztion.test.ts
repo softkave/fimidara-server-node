@@ -1,12 +1,12 @@
 import {identity} from 'lodash';
-import {IAgentToken} from '../../../../definitions/agentToken';
+import {AgentToken} from '../../../../definitions/agentToken';
 import {PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
   getWorkspaceActionList,
 } from '../../../../definitions/system';
-import {IWorkspace} from '../../../../definitions/workspace';
+import {Workspace} from '../../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
 import {appAssert} from '../../../../utils/assertion';
 import RequestData from '../../../RequestData';
@@ -16,8 +16,8 @@ import {
 } from '../../../assignedItems/addAssignedItems';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGroups/testUtils';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
-import {IAddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
-import {IPermissionItemInput} from '../../../permissionItems/types';
+import {AddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
+import {PermissionItemInput} from '../../../permissionItems/types';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
@@ -32,7 +32,7 @@ import {
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../user/errors';
 import {executeWithMutationRunOptions} from '../../semantic/utils';
-import {IBaseContext} from '../../types';
+import {BaseContext} from '../../types';
 import {
   checkAuthorization,
   getFilePermissionContainers,
@@ -40,7 +40,7 @@ import {
   summarizeAgentPermissionItems,
 } from '../checkAuthorizaton';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -51,13 +51,13 @@ afterAll(async () => {
 });
 
 async function grantEveryPermission(
-  workspace: IWorkspace,
-  grantedBy: IAgentToken,
+  workspace: Workspace,
+  grantedBy: AgentToken,
   recipientUserId: string
 ) {
   assertContext(context);
   const items = getWorkspaceActionList().map(
-    (action): IPermissionItemInput => ({
+    (action): PermissionItemInput => ({
       action: action as AppActionType,
       grantAccess: true,
       target: {targetType: AppResourceType.All, targetId: workspace.resourceId},
@@ -65,7 +65,7 @@ async function grantEveryPermission(
       appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     })
   );
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(grantedBy),
     {items, workspaceId: workspace.resourceId}
   );
@@ -210,7 +210,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: IPermissionItemInput[] = [
+    const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.All,
         grantAccess: true,
@@ -221,7 +221,7 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    const pg03Items: IPermissionItemInput[] = [
+    const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: false,
@@ -232,7 +232,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -243,7 +243,7 @@ describe('checkAuthorization', () => {
       ),
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -273,7 +273,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: IPermissionItemInput[] = [
+    const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: true,
@@ -281,7 +281,7 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    const pg03Items: IPermissionItemInput[] = [
+    const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: false,
@@ -292,7 +292,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -303,7 +303,7 @@ describe('checkAuthorization', () => {
       ),
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -333,7 +333,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: IPermissionItemInput[] = [
+    const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: true,
@@ -341,7 +341,7 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.Self,
       },
     ];
-    const pg03Items: IPermissionItemInput[] = [
+    const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: false,
@@ -352,7 +352,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -363,7 +363,7 @@ describe('checkAuthorization', () => {
       ),
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -393,7 +393,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: IPermissionItemInput[] = [
+    const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: false,
@@ -401,7 +401,7 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.Self,
       },
     ];
-    const pg03Items: IPermissionItemInput[] = [
+    const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: true,
@@ -412,7 +412,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -423,7 +423,7 @@ describe('checkAuthorization', () => {
       ),
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -453,7 +453,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: IPermissionItemInput[] = [
+    const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: false,
@@ -461,7 +461,7 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    const pg03Items: IPermissionItemInput[] = [
+    const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
         grantAccess: true,
@@ -472,7 +472,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),
@@ -483,7 +483,7 @@ describe('checkAuthorization', () => {
       ),
       addPermissionItems(
         context,
-        RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             items: pg02Items.concat(pg03Items),

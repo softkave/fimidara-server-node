@@ -1,10 +1,10 @@
-import {IPublicUserData} from '../../../definitions/user';
-import {IBaseContext} from '../../contexts/types';
+import {PublicUser} from '../../../definitions/user';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {ILoginResult} from '../login/types';
+import {LoginResult} from '../login/types';
 
-export interface IGetUserDataResult {
-  user: IPublicUserData;
+export interface GetUserDataResult {
+  user: PublicUser;
 }
 
-export type GetUserDataEndpoint = Endpoint<IBaseContext, {}, ILoginResult>;
+export type GetUserDataEndpoint = Endpoint<BaseContext, {}, LoginResult>;

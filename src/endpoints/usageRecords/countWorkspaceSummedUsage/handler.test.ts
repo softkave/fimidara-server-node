@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -13,9 +13,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countWorkspaceSummedUsage from './handler';
-import {ICountWorkspaceSummedUsageEndpointParams} from './types';
+import {CountWorkspaceSummedUsageEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -40,7 +40,7 @@ describe('countWorkspaceSummedUsage', () => {
       summationType: UsageSummationType.Two,
       fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
     });
-    const instData = RequestData.fromExpressRequest<ICountWorkspaceSummedUsageEndpointParams>(
+    const instData = RequestData.fromExpressRequest<CountWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,

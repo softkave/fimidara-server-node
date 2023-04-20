@@ -1,64 +1,93 @@
+import {Request, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
+import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
 import OperationError from '../utils/OperationError';
-import {IDataProvideQueryListParams} from './contexts/data/types';
-import {ISemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
-import {IBaseContext} from './contexts/types';
+import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
+import {IDataProvideQueryListParams} from './contexts/data/types';
+import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
+import {BaseContext} from './contexts/types';
 
-export interface IBaseEndpointResult {
+export interface BaseEndpointResult {
   errors?: OperationError[];
 }
 
-export type Endpoint<Context extends IBaseContext = IBaseContext, Data = any, Result = any> = (
-  context: Context,
-  instData: RequestData<Data>
-) => Promise<Result & IBaseEndpointResult>;
+export type Endpoint<TContext extends BaseContext = BaseContext, TParams = any, TResult = any> = (
+  context: TContext,
+  instData: RequestData<TParams>
+) => Promise<TResult & BaseEndpointResult>;
 
-export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R>
-  ? R & IBaseEndpointResult
+export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
+  any,
+  any,
+  infer InferedResult
+>
+  ? InferedResult & BaseEndpointResult
   : any;
+
+export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
+  any,
+  infer InferedParams,
+  any
+>
+  ? InferedParams
+  : AnyObject;
 
 export enum ServerRecommendedActions {
   LoginAgain = 'LoginAgain',
   Logout = 'Logout',
 }
 
-export interface IRequestDataPendingPromise {
+export interface RequestDataPendingPromise {
   id: string | number;
   promise: Promise<any>;
 }
 
-export interface IPaginatedResult {
+export interface PaginatedResult {
   page: number;
 }
 
-export interface ICountItemsEndpointResult {
+export interface CountItemsEndpointResult {
   count: number;
 }
 
-export interface IEndpointOptionalWorkspaceIDParam {
+export interface EndpointOptionalWorkspaceIDParam {
   workspaceId?: string;
 }
 
-export interface IEndpointWorkspaceResourceParam extends IEndpointOptionalWorkspaceIDParam {
+export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspaceIDParam {
   providedResourceId?: string;
 }
 
-export type IPaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
-export type PaginatedEndpointCountParams<T extends IPaginationQuery> = Omit<
+export type PaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
+export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,
-  keyof IPaginationQuery
+  keyof PaginationQuery
 >;
 
 export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
 
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
-  context: IBaseContext,
+  context: BaseContext,
   args: Args,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => Promise<void>;
 
 export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> = Record<
   AppResourceType,
   DeleteResourceCascadeFn<Args>
 >;
+
+export type ExportedHttpEndpoint<TEndpoint extends Endpoint> = {
+  fn: TEndpoint;
+  mddocHttpDefinition: MddocTypeHttpEndpoint<{
+    pathParameters: any;
+    query: any;
+    requestHeaders: any;
+    requestBody: InferEndpointParams<TEndpoint>;
+    responseHeaders: any;
+    responseBody: InferEndpointResult<TEndpoint>;
+  }>;
+  getDataFromReq?: (req: Request) => InferEndpointParams<TEndpoint>;
+  handleResponse?: (res: Response, data: InferEndpointResult<TEndpoint>) => void;
+};

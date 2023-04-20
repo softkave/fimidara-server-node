@@ -8,27 +8,26 @@ import {
   getLoginSectionHTML,
   getLoginSectionText,
 } from './helpers';
-import {IBaseEmailTemplateProps} from './types';
+import {BaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestResponseEmailProps
-  extends IBaseEmailTemplateProps {
+export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;
   recipientEmail: string;
   response: CollaborationRequestResponse;
 }
 
 export function collaborationRequestResponseEmailTitle(
-  props: ICollaborationRequestResponseEmailProps
+  props: CollaborationRequestResponseEmailProps
 ) {
   return `${props.recipientEmail} ${props.response} your collaboration request`;
 }
 
-function getMessage(props: ICollaborationRequestResponseEmailProps) {
+function getMessage(props: CollaborationRequestResponseEmailProps) {
   return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}.`;
 }
 
 export function collaborationRequestResponseEmailHTML(
-  props: ICollaborationRequestResponseEmailProps
+  props: CollaborationRequestResponseEmailProps
 ) {
   const title = collaborationRequestResponseEmailTitle(props);
   return `
@@ -53,7 +52,7 @@ export function collaborationRequestResponseEmailHTML(
 }
 
 export function collaborationRequestResponseEmailText(
-  props: ICollaborationRequestResponseEmailProps
+  props: CollaborationRequestResponseEmailProps
 ) {
   const title = collaborationRequestResponseEmailTitle(props);
   const txt = `

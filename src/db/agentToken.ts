@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IAgentToken} from '../definitions/agentToken';
+import {AgentToken} from '../definitions/agentToken';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const agentTokenSchema = ensureMongoTypeFields<IAgentToken>({
+const agentTokenSchema = ensureMongoTypeFields<AgentToken>({
   ...workspaceResourceSchema,
   name: {type: String, index: true},
   separateEntityId: {type: String, index: true},
@@ -14,15 +14,15 @@ const agentTokenSchema = ensureMongoTypeFields<IAgentToken>({
   scope: {type: [String], index: true},
 });
 
-export type IAgentTokenDocument = Document<IAgentToken>;
+export type AgentTokenDocument = Document<AgentToken>;
 
-const schema = new Schema<IAgentToken>(agentTokenSchema);
+const schema = new Schema<AgentToken>(agentTokenSchema);
 const modelName = 'agent-token';
 const collectionName = 'agent-tokens';
 
 export function getAgentTokenModel(connection: Connection) {
-  const model = connection.model<IAgentToken>(modelName, schema, collectionName);
+  const model = connection.model<AgentToken>(modelName, schema, collectionName);
   return model;
 }
 
-export type IAgentTokenModel = Model<IAgentToken>;
+export type AgentTokenModel = Model<AgentToken>;

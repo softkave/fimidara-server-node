@@ -1,11 +1,11 @@
-// export const makeFilePublicReadAccessOps = (file: IFile): IPermissionItemInput[] => [
+// export const makeFilePublicReadAccessOps = (file: File): PermissionItemInput[] => [
 //   {
 //     action: AppActionType.Read,
 //     target: {targetId: file.resourceId},
 //   },
 // ];
 
-// export const makeFilePublicReadAndUpdateAccessOps = (file: IFile): IPermissionItemInput[] =>
+// export const makeFilePublicReadAndUpdateAccessOps = (file: File): PermissionItemInput[] =>
 //   makeFilePublicReadAccessOps(file).concat([
 //     {
 //       action: AppActionType.Update,
@@ -17,7 +17,7 @@
 //     },
 //   ]);
 
-// export const makeFilePublicReadUpdateAndDeleteAccessOps = (file: IFile): IPermissionItemInput[] =>
+// export const makeFilePublicReadUpdateAndDeleteAccessOps = (file: File): PermissionItemInput[] =>
 //   makeFilePublicReadAndUpdateAccessOps(file).concat([
 //     {
 //       action: AppActionType.Delete,
@@ -26,7 +26,7 @@
 //   ]);
 
 // export const makeFilePublicAccessOps = (
-//   file: IFile,
+//   file: File,
 //   action: UploadFilePublicAccessActions | undefined | null
 // ) => {
 //   switch (action) {

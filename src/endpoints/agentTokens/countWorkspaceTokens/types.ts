@@ -1,11 +1,11 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetWorkspaceAgentTokensEndpointParamsBase} from '../getWorkspaceTokens/types';
+import {BaseContext} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetWorkspaceAgentTokensEndpointParamsBase} from '../getWorkspaceTokens/types';
 
-export type ICountWorkspaceAgentTokensEndpointParams = IGetWorkspaceAgentTokensEndpointParamsBase;
+export type CountWorkspaceAgentTokensEndpointParams = GetWorkspaceAgentTokensEndpointParamsBase;
 
 export type GetWorkspaceAgentTokenEndpoint = Endpoint<
-  IBaseContext,
-  ICountWorkspaceAgentTokensEndpointParams,
-  ICountItemsEndpointResult
+  BaseContext,
+  CountWorkspaceAgentTokensEndpointParams,
+  CountItemsEndpointResult
 >;

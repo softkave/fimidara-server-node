@@ -3,19 +3,19 @@ import {first, random} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
-import {IFile} from '../../definitions/file';
+import {File} from '../../definitions/file';
 import {AppActionType} from '../../definitions/system';
 import {
-  IFileUsageRecordArtifact,
+  FileUsageRecordArtifact,
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../definitions/usageRecord';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
+import RequestData from '../../endpoints/RequestData';
 import BaseContext from '../../endpoints/contexts/BaseContext';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
-import {IBaseContext} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -25,7 +25,6 @@ import {
   ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
-import RequestData from '../../endpoints/RequestData';
 import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
 import {
   generateTestUsageThresholdInputMap,
@@ -53,7 +52,7 @@ import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';
 
-const contexts: IBaseContext[] = [];
+const contexts: BaseContext[] = [];
 const connections: Connection[] = [];
 const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent(), undefined);
 const runInfo = pipelineRunInfoFactory({
@@ -93,8 +92,8 @@ async function getContextAndConnection() {
 }
 
 async function insertUsageRecordsForFiles(
-  context: IBaseContext,
-  workspace: IWorkspace,
+  context: BaseContext,
+  workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
     UsageRecordCategory.Storage | UsageRecordCategory.BandwidthIn | UsageRecordCategory.BandwidthOut
@@ -156,7 +155,7 @@ async function insertUsageRecordsForFiles(
 }
 
 async function setupForFile(
-  context: IBaseContext,
+  context: BaseContext,
   exceedLimit = false,
   nothrow = true,
   exceedBy = 0
@@ -191,7 +190,7 @@ async function setupForFile(
  * @param expectedState
  */
 async function checkLocks(
-  context: IBaseContext,
+  context: BaseContext,
   wId: string,
   categories?: Partial<Record<UsageRecordCategory, boolean>> | null,
   expectedState = true
@@ -217,7 +216,7 @@ async function checkLocks(
   }
 }
 
-async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorkspace, f1: IFile) {
+async function checkFailedRecordExistsForFile(connection: Connection, w1: Workspace, f1: File) {
   const model = getUsageRecordModel(connection);
   const failedRecord = await model
     .findOne({
@@ -231,16 +230,16 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorks
     .exec();
 
   expect(failedRecord).toBeDefined();
-  const a = cast<IFileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
+  const a = cast<FileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
   expect(a).toBeDefined();
   expect(a?.fileId).toBe(f1.resourceId);
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
 async function assertRecordInsertionFails(
-  context: IBaseContext,
+  context: BaseContext,
   connection: Connection,
-  w1: IWorkspace
+  w1: Workspace
 ) {
   const f1 = generateTestFile({workspaceId: w1.resourceId, parentId: null});
   await expect(async () => {
@@ -255,7 +254,7 @@ async function assertRecordInsertionFails(
 
 async function assertRecordLevel2Exists(
   connection: Connection,
-  w: IWorkspace,
+  w: Workspace,
   category: UsageRecordCategory,
   usageCost: number,
   fulfillmentStatus: UsageRecordFulfillmentStatus

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {BaseContext} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -10,7 +10,7 @@ import {
   mockExpressRequest,
 } from '../../testUtils/testUtils';
 import login from './login';
-import {ILoginParams} from './types';
+import {LoginEndpointParams} from './types';
 
 /**
  * TODO:
@@ -18,7 +18,7 @@ import {ILoginParams} from './types';
  * - test that login fails on invalid email and password
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -35,7 +35,7 @@ test('user login successful with token reuse', async () => {
     password,
   });
 
-  const instData = RequestData.fromExpressRequest<ILoginParams>(mockExpressRequest(), {
+  const instData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
     password,
     email: user.email,
   });

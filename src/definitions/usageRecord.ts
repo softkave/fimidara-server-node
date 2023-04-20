@@ -2,8 +2,8 @@ import {
   AppActionType,
   AppResourceType,
   ConvertAgentToPublicAgent,
-  IPublicWorkspaceResource,
-  IWorkspaceResource,
+  PublicWorkspaceResource,
+  WorkspaceResource,
 } from './system';
 
 export enum UsageRecordCategory {
@@ -20,11 +20,11 @@ export enum UsageRecordArtifactType {
   // DatabaseObject = 'db-object',
 }
 
-export interface IUsageRecordArtifact {
+export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
   action?: AppActionType;
-  artifact: IFileUsageRecordArtifact | IBandwidthUsageRecordArtifact;
+  artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
 export enum UsageRecordFulfillmentStatus {
@@ -47,7 +47,7 @@ export enum UsageSummationType {
   Two = 2,
 }
 
-export interface IUsageRecord extends IWorkspaceResource {
+export interface UsageRecord extends WorkspaceResource {
   category: UsageRecordCategory;
 
   /**
@@ -60,7 +60,7 @@ export interface IUsageRecord extends IWorkspaceResource {
   summationType: UsageSummationType;
 
   /** Summation level 1 only. */
-  artifacts: IUsageRecordArtifact[];
+  artifacts: UsageRecordArtifact[];
   dropReason?: UsageRecordDropReason;
   dropMessage?: string;
 
@@ -69,30 +69,30 @@ export interface IUsageRecord extends IWorkspaceResource {
   year: number;
 }
 
-export type IPublicUsageRecord = IPublicWorkspaceResource &
+export type PublicUsageRecord = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
-    Pick<IUsageRecord, 'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'>
+    Pick<UsageRecord, 'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'>
   >;
 
-export interface IFileUsageRecordArtifact {
+export interface FileUsageRecordArtifact {
   fileId: string;
   filepath: string;
   oldFileSize?: number;
   requestId: string;
 }
 
-export interface IBandwidthUsageRecordArtifact {
+export interface BandwidthUsageRecordArtifact {
   fileId: string;
   filepath: string;
   requestId: string;
 }
 
-export interface IDatabaseObjectUsageRecordArtifact {
+export interface DatabaseObjectUsageRecordArtifact {
   resourceId: string;
   requestId: string;
 }
 
-// export interface IUsageRecordReportingPeriod {
+// export interface UsageRecordReportingPeriod {
 //   resourceId: string;
 //   startDate: number;
 //   endDate: number;
@@ -102,7 +102,7 @@ export interface IDatabaseObjectUsageRecordArtifact {
 //   createdBystring
 // }
 
-// export interface IUsageRecordCost {
+// export interface UsageRecordCost {
 //   resourceId: string;
 //   costPerUnit: number;
 //   createdAt: number;

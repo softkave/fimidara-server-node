@@ -1,11 +1,11 @@
 import {TokenAccessScope} from '../../../definitions/system';
 import {
   forgotPasswordEmailHTML,
+  ForgotPasswordEmailProps,
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
-  IForgotPasswordEmailProps,
 } from '../../../emailTemplates/forgotPassword';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -20,7 +20,7 @@ import forgotPassword, {
   getForgotPasswordExpiration,
   getForgotPasswordLinkFromToken,
 } from './forgotPassword';
-import {IForgotPasswordEndpointParams} from './types';
+import {ForgotPasswordEndpointParams} from './types';
 
 /**
  * TODO:
@@ -28,7 +28,7 @@ import {IForgotPasswordEndpointParams} from './types';
  * - that email has verification link
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -41,7 +41,7 @@ afterAll(async () => {
 test('forgot password with email sent', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IForgotPasswordEndpointParams>(
+  const instData = RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
     mockExpressRequest(),
     {email: user.email}
   );
@@ -57,7 +57,7 @@ test('forgot password with email sent', async () => {
 
   // confirm forgot password email was sent
   const link = getForgotPasswordLinkFromToken(context, forgotPasswordToken);
-  const forgotPasswordEmailProps: IForgotPasswordEmailProps = {
+  const forgotPasswordEmailProps: ForgotPasswordEmailProps = {
     link,
     expiration: getForgotPasswordExpiration(),
   };

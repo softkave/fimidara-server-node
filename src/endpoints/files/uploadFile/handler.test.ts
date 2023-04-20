@@ -1,5 +1,5 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
@@ -19,7 +19,7 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
  * - Test uploading to an existing file
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContext | null = null;
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
@@ -83,7 +83,7 @@ describe('uploadFile', () => {
   // test('file updated when new data uploaded', async () => {
   //   assertContext(context);
   //   const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
-  //   const update: Partial<IUploadFileEndpointParams> = {
+  //   const update: Partial<UploadFileEndpointParams> = {
   //     filepath: addRootnameToPath(
   //       getFilePathWithoutRootname(savedFile),
   //       insertWorkspaceResult.workspace.rootname
@@ -112,7 +112,7 @@ describe('uploadFile', () => {
   //       [AppActionType.Read, AppActionType.Update, AppActionType.Delete, AppActionType.Create]
   //     );
 
-  //   const update: Partial<IUploadFileEndpointParams> = {
+  //   const update: Partial<UploadFileEndpointParams> = {
   //     filepath: addRootnameToPath(
   //       getFilePathWithoutRootname(savedFile),
   //       insertWorkspaceResult.workspace.rootname

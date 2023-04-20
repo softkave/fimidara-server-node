@@ -1,21 +1,18 @@
 import {AnyFn} from '../../../utils/types';
 import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
-import {IFilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
-import {IBaseContext, IBaseContextDataProviders} from '../../contexts/types';
+import {FilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
+import {BaseContext, BaseContextDataProviders} from '../../contexts/types';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {
-  [K in keyof T]: T[K] extends AnyFn
-    ? jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>
-    : T[K];
+  [K in keyof T]: T[K] extends AnyFn ? jest.Mock<ReturnType<T[K]>, Parameters<T[K]>> : T[K];
 };
 
 export type ITestEmailProviderContext = LayerJestMock<IEmailProviderContext>;
-export type ITestFilePersistenceProviderContext =
-  LayerJestMock<IFilePersistenceProviderContext>;
+export type ITestFilePersistenceProviderContext = LayerJestMock<FilePersistenceProviderContext>;
 
-export type ITestBaseContext = IBaseContext<
-  IBaseContextDataProviders,
+export type ITestBaseContext = BaseContext<
+  BaseContextDataProviders,
   ITestEmailProviderContext,
   ITestFilePersistenceProviderContext
 >;

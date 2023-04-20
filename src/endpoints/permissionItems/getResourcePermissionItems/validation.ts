@@ -3,18 +3,18 @@ import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
 import permissionItemValidationSchemas from '../validation';
 import {
-  IGetResourcePermissionItemsEndpointParams,
-  IGetResourcePermissionItemsEndpointParamsBase,
+  GetResourcePermissionItemsEndpointParams,
+  GetResourcePermissionItemsEndpointParamsBase,
 } from './types';
 
-export const getResourcePermissionItemsBaseJoiSchemaParts: JoiSchemaParts<IGetResourcePermissionItemsEndpointParamsBase> =
+export const getResourcePermissionItemsBaseJoiSchemaParts: JoiSchemaParts<GetResourcePermissionItemsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     target: permissionItemValidationSchemas.target.required(),
   };
 
 export const getResourcePermissionItemsJoiSchema =
-  Joi.object<IGetResourcePermissionItemsEndpointParams>()
+  Joi.object<GetResourcePermissionItemsEndpointParams>()
     .keys({
       ...getResourcePermissionItemsBaseJoiSchemaParts,
       ...endpointValidationSchemas.paginationParts,

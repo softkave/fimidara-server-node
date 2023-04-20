@@ -1,23 +1,20 @@
-import {
-  IPermissionGroupMatcher,
-  IPublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
+import {PermissionGroupMatcher, PublicPermissionGroup} from '../../../definitions/permissionGroups';
+import {BaseContext} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {INewPermissionGroupInput} from '../addPermissionGroup/types';
+import {NewPermissionGroupInput} from '../addPermissionGroup/types';
 
-export type IUpdatePermissionGroupInput = Partial<INewPermissionGroupInput>;
+export type UpdatePermissionGroupInput = Partial<NewPermissionGroupInput>;
 
-export interface IUpdatePermissionGroupEndpointParams extends IPermissionGroupMatcher {
-  data: IUpdatePermissionGroupInput;
+export interface UpdatePermissionGroupEndpointParams extends PermissionGroupMatcher {
+  data: UpdatePermissionGroupInput;
 }
 
-export interface IUpdatePermissionGroupEndpointResult {
-  permissionGroup: IPublicPermissionGroup;
+export interface UpdatePermissionGroupEndpointResult {
+  permissionGroup: PublicPermissionGroup;
 }
 
 export type UpdatePermissionGroupEndpoint = Endpoint<
-  IBaseContext,
-  IUpdatePermissionGroupEndpointParams,
-  IUpdatePermissionGroupEndpointResult
+  BaseContext,
+  UpdatePermissionGroupEndpointParams,
+  UpdatePermissionGroupEndpointResult
 >;

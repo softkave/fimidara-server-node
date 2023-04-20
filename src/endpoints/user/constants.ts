@@ -24,5 +24,6 @@ export const userConstants = {
     userExists: `${endpointConstants.apiv1}/account/userExists`,
     confirmEmailAddress: `${endpointConstants.apiv1}/account/confirmEmailAddress`,
     sendEmailVerificationCode: `${endpointConstants.apiv1}/account/sendEmailVerificationCode`,
+    countUserWorkspaces: `${endpointConstants.apiv1}/account/countUserWorkspaces`,
   },
 };

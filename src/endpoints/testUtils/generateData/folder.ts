@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
-import {IFolder} from '../../../definitions/folder';
+import {Folder} from '../../../definitions/folder';
 import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContext} from '../../contexts/types';
 
 export function generateTestFolderName(
   {separatorChars}: {separatorChars: string[]} = {separatorChars: ['-', '_', ' ', '.']}
@@ -17,12 +17,12 @@ export function generateTestFolderName(
 }
 
 export function generateTestFolder(
-  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
+  extra: Partial<Folder> & {parentId: string | null} = {parentId: null}
 ) {
   const id = getNewIdForResource(AppResourceType.Folder);
   const name = generateTestFolderName();
   const createdAt = getTimestamp();
-  const folder: IFolder = {
+  const folder: Folder = {
     name,
     createdAt,
     description: faker.lorem.paragraph(),
@@ -40,9 +40,9 @@ export function generateTestFolder(
 
 export function generateTestFolders(
   count = 20,
-  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
+  extra: Partial<Folder> & {parentId: string | null} = {parentId: null}
 ) {
-  const folders: IFolder[] = [];
+  const folders: Folder[] = [];
   for (let i = 0; i < count; i++) {
     folders.push(generateTestFolder(extra));
   }
@@ -50,9 +50,9 @@ export function generateTestFolders(
 }
 
 export async function generateAndInsertTestFolders(
-  ctx: IBaseContext,
+  ctx: BaseContext,
   count = 20,
-  extra: Partial<IFolder> & {parentId: string | null} = {parentId: null}
+  extra: Partial<Folder> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFolders(count, extra);
   await executeWithMutationRunOptions(ctx, async opts =>

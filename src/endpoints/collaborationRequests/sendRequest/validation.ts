@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import userValidationSchemas from '../../user/validation';
-import {ICollaborationRequestInput, ISendCollaborationRequestEndpointParams} from './types';
+import {CollaborationRequestInput, SendCollaborationRequestEndpointParams} from './types';
 
-export const requestJoiSchema = Joi.object<ICollaborationRequestInput>().keys({
+export const requestJoiSchema = Joi.object<CollaborationRequestInput>().keys({
   recipientEmail: userValidationSchemas.email.required(),
   message: validationSchemas.description.allow(null),
   expires: validationSchemas.time.allow(null),
@@ -11,7 +11,7 @@ export const requestJoiSchema = Joi.object<ICollaborationRequestInput>().keys({
 });
 
 export const sendCollaborationRequestJoiSchema =
-  Joi.object<ISendCollaborationRequestEndpointParams>()
+  Joi.object<SendCollaborationRequestEndpointParams>()
     .keys({
       workspaceId: validationSchemas.resourceId,
       request: requestJoiSchema.required(),

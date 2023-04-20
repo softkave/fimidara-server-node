@@ -1,14 +1,14 @@
-import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/types';
-import {IGetEntityPermissionItemsEndpointParams} from './types';
+import {BaseContext} from '../../contexts/types';
+import {GetEntityPermissionItemsEndpointParams} from './types';
 
 export async function getEntityPermissionItemsQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  data: Pick<IGetEntityPermissionItemsEndpointParams, 'entityId'>
+  context: BaseContext,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: Pick<GetEntityPermissionItemsEndpointParams, 'entityId'>
 ) {
   if (agent.agentId !== data.entityId) {
     await checkAuthorization({

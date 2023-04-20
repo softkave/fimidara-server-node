@@ -3,7 +3,7 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
@@ -33,7 +33,7 @@ describe('unlockUsageThresholds', () => {
   test('usage thresholds unlocked', async () => {
     // setup
     const workspaces = generateWorkspaceListForTest(10);
-    const locks: IWorkspace['usageThresholdLocks'] = {};
+    const locks: Workspace['usageThresholdLocks'] = {};
     Object.values(UsageRecordCategory).forEach(k => {
       locks[k] = {
         locked: true,
