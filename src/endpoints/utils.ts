@@ -32,7 +32,7 @@ import {
   PaginationQuery,
   RequestDataPendingPromise,
 } from './types';
-import {PermissionDeniedError} from './user/errors';
+import {PermissionDeniedError} from './users/errors';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];

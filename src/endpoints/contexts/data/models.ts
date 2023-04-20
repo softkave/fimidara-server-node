@@ -20,7 +20,7 @@ import {throwPermissionItemNotFound} from '../../permissionItems/utils';
 import {throwAppRuntimeStateFound} from '../../runtime/utils';
 import {throwTagNotFound} from '../../tags/utils';
 import {throwUsageRecordNotFound} from '../../usageRecords/utils';
-import {throwUserNotFound} from '../../user/utils';
+import {throwUserNotFound} from '../../users/utils';
 import {throwAgentTokenNotFound, throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
 import {

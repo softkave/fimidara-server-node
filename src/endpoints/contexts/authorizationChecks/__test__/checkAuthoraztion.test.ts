@@ -30,7 +30,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../user/errors';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
 import {executeWithMutationRunOptions} from '../../semantic/utils';
 import {BaseContext} from '../../types';
 import {

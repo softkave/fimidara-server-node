@@ -23,7 +23,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
-import {PermissionDeniedError} from '../../user/errors';
+import {PermissionDeniedError} from '../../users/errors';
 import {fileConstants} from '../constants';
 import readFile from './handler';
 import {ReadFileEndpointParams} from './types';

@@ -50,10 +50,10 @@ import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/type
 import {PermissionItemInput} from '../permissionItems/types';
 import {setupApp} from '../runtime/initAppSetup';
 import {BaseEndpointResult} from '../types';
-import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
-import signup from '../user/signup/signup';
-import {SignupEndpointParams} from '../user/signup/types';
-import {assertUser} from '../user/utils';
+import internalConfirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
+import signup from '../users/signup/signup';
+import {SignupEndpointParams} from '../users/signup/types';
+import {assertUser} from '../users/utils';
 import addWorkspace from '../workspaces/addWorkspace/handler';
 import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';

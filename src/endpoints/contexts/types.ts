@@ -30,7 +30,7 @@ import {ISemanticDataAccessPermissionGroupProvider} from './semantic/permissionG
 import {ISemanticDataAccessPermissionItemProvider} from './semantic/permissionItem/types';
 import {ISemanticDataAccessTagProvider} from './semantic/tag/types';
 import {ISemanticDataAccessUsageRecordProvider} from './semantic/usageRecord/types';
-import {ISemanticDataAccessUserProvider} from './semantic/user/types';
+import {ISemanticDataAccessUserProvider} from './semantic/users/types';
 import {ISemanticDataAccessWorkspaceProvider} from './semantic/workspace/types';
 
 export interface IServerRequest extends Request {

@@ -1,5 +1,5 @@
 import {NotFoundError} from '../endpoints/errors';
-import {InvalidCredentialsError} from '../endpoints/user/errors';
+import {InvalidCredentialsError} from '../endpoints/users/errors';
 import {appMessages} from './messages';
 
 export const reuseableErrors = {

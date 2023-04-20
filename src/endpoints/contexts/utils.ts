@@ -24,7 +24,7 @@ import {assertPermissionGroup} from '../permissionGroups/utils';
 import {assertPermissionItem} from '../permissionItems/utils';
 import {assertTag} from '../tags/utils';
 import {assertUsageRecord} from '../usageRecords/utils';
-import {assertUser} from '../user/utils';
+import {assertUser} from '../users/utils';
 import {assertWorkspace} from '../workspaces/utils';
 import {
   AppRuntimeStateMongoDataProvider,
@@ -58,7 +58,7 @@ import {MemorySemanticDataAccessPermissionGroup} from './semantic/permissionGrou
 import {MemorySemanticDataAccessPermissionItem} from './semantic/permissionItem/MemorySemanticDataAccessPermissionItem';
 import {MemorySemanticDataAccessTag} from './semantic/tag/MemorySemanticDataAccessTag';
 import {MemorySemanticDataAccessUsageRecord} from './semantic/usageRecord/MemorySemanticDataAccessUsageRecord';
-import {MemorySemanticDataAccessUser} from './semantic/user/MemorySemanticDataAccessUser';
+import {MemorySemanticDataAccessUser} from './semantic/users/MemorySemanticDataAccessUser';
 import {MemorySemanticDataAccessWorkspace} from './semantic/workspace/MemorySemanticDataAccessWorkspace';
 import {BaseContext} from './types';
 

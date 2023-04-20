@@ -21,8 +21,8 @@ import {
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
-import {assertUser} from '../../user/utils';
+import {PermissionDeniedError} from '../../users/errors';
+import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {assertCollaborationRequest} from '../utils';
 import {RespondToCollaborationRequestEndpointParams} from './types';

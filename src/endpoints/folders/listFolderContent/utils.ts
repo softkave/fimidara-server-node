@@ -9,7 +9,7 @@ import {
   summarizeAgentPermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {BaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
+import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 

@@ -21,7 +21,7 @@ import {
   CredentialsExpiredError,
   InvalidCredentialsError,
   PermissionDeniedError,
-} from '../user/errors';
+} from '../users/errors';
 import {BaseContext} from './types';
 
 export interface SessionContext {

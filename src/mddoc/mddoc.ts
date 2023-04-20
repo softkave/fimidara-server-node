@@ -244,40 +244,6 @@ export class HttpEndpointHeaderItem {
   ) {}
 }
 
-// export type InferHttpEndpointSuccessResultType<T extends HttpEndpointResponse<any, any>> =
-//   T extends HttpEndpointResponse<infer InferedBody, infer InferedHeaders> ? InferedBody : never;
-
-// export class HttpEndpointResponse<
-//   TBody extends AnyObject = AnyObject,
-//   THeaders extends AnyObject = AnyObject
-// > {
-//   static construct<TBody extends AnyObject = AnyObject, THeaders extends AnyObject = AnyObject>() {
-//     return AccessorConstruct.wrap(new HttpEndpointResponse<TBody, THeaders>());
-//   }
-
-//   __id = HttpEndpointResponse.name;
-//   constructor(
-//     public statusCode?: string | number,
-//     public responseBody?: MddocTypeFieldObject<TBody> | MddocTypeFieldBinary,
-//     public responseHeaders?: MddocTypeFieldObject<THeaders>
-//   ) {}
-// }
-
-// export type HttpEndpointDefinitionResponseStructure<
-//   TSuccessBody extends AnyObject,
-//   TSuccessHeaders extends AnyObject,
-//   TErrorBody extends AnyObject,
-//   TErrorHeaders extends AnyObject
-// > = {
-//   '200'?: {
-//     headers: TSuccessHeaders;
-//     body: TSuccessBody;
-//   };
-//   '4XX or 5XX'?: {
-//     headers: TErrorHeaders;
-//     body: TErrorBody;
-//   };
-// };
 export type HttpEndpointDefinitionGenericsStructure = {
   pathParameters?: any;
   requestHeaders?: any;
@@ -305,10 +271,6 @@ export class HttpEndpointDefinition<TTypes extends HttpEndpointDefinitionGeneric
       | MddocTypeFieldObject<TTypes['requestBody']>
       | MddocTypeHttpEndpointMultipartFormdata<TTypes['requestBody']>,
     public requestHeaders?: MddocTypeFieldObject<TTypes['requestHeaders']>,
-    // public response?: MddocTypeHttpEndpointResponse<
-    //   TTypes['responseBody'],
-    //   TTypes['responseHeaders']
-    // >,
     public responseHeaders?: MddocTypeFieldObject<TTypes['responseHeaders']>,
     public responseBody?: TTypes['responseBody'] extends FieldBinary
       ? MddocTypeFieldBinary
@@ -335,10 +297,6 @@ export type MddocTypeHttpEndpoint<TTypes extends HttpEndpointDefinitionGenericsS
   ClassFieldsWithAccessorsMixin<HttpEndpointDefinition<TTypes>>;
 export type MddocTypeHttpEndpointMultipartFormdata<T extends object> =
   ClassFieldsWithAccessorsMixin<HttpEndpointMultipartFormdata<T>>;
-// export type MddocTypeHttpEndpointResponse<
-//   TBody extends AnyObject = AnyObject,
-//   THeaders extends AnyObject = AnyObject
-// > = ClassFieldsWithAccessorsMixin<HttpEndpointResponse<TBody, THeaders>>;
 
 export function isLiteralField(
   f: MddocTypeFieldBase

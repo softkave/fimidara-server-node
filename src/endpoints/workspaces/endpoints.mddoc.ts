@@ -24,7 +24,7 @@ import {
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
 import {CountItemsEndpointResult, EndpointOptionalWorkspaceIDParam} from '../types';
-import {userConstants} from '../user/constants';
+import {userConstants} from '../users/constants';
 import {AddWorkspaceEndpointParams, AddWorkspaceEndpointResult} from './addWorkspace/types';
 import {workspaceConstants} from './constants';
 import {

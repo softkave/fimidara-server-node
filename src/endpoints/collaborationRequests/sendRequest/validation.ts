@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
-import userValidationSchemas from '../../user/validation';
+import userValidationSchemas from '../../users/validation';
 import {CollaborationRequestInput, SendCollaborationRequestEndpointParams} from './types';
 
 export const requestJoiSchema = Joi.object<CollaborationRequestInput>().keys({

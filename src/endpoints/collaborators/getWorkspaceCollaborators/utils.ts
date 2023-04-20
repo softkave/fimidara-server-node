@@ -5,7 +5,7 @@ import {ServerError} from '../../../utils/errors';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {BaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
+import {PermissionDeniedError} from '../../users/errors';
 
 export async function getWorkspaceCollaboratorsQuery(
   context: BaseContext,

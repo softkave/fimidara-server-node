@@ -18,7 +18,7 @@ import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {logger} from '../../globalUtils';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {BaseContext} from '../types';
 
 export type AuthTarget = {

@@ -30,9 +30,9 @@ import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permission
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
-import internalConfirmEmailAddress from '../../endpoints/user/confirmEmailAddress/internalConfirmEmailAddress';
-import {internalSignupUser} from '../../endpoints/user/signup/utils';
-import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/user/utils';
+import internalConfirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
+import {internalSignupUser} from '../../endpoints/users/signup/utils';
+import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';

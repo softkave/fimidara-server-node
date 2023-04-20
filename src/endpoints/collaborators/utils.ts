@@ -4,7 +4,7 @@ import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {BaseContext} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {assertUser} from '../user/utils';
+import {assertUser} from '../users/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {

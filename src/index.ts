@@ -29,7 +29,7 @@ import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoint
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
 import setupUsageRecordsRESTEndpoints from './endpoints/usageRecords/setupRESTEndpoints';
-import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
+import setupAccountRESTEndpoints from './endpoints/users/setupRESTEndpoints';
 import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';

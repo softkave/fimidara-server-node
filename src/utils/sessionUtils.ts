@@ -2,7 +2,7 @@ import {AgentToken} from '../definitions/agentToken';
 import {Agent, AppResourceType, BaseTokenData, SessionAgent} from '../definitions/system';
 import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
-import {PermissionDeniedError} from '../endpoints/user/errors';
+import {PermissionDeniedError} from '../endpoints/users/errors';
 import {getResourceTypeFromId} from './resource';
 
 export function makeAgentTokenAgent(agentToken: AgentToken): SessionAgent {
