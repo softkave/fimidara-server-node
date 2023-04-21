@@ -21,8 +21,11 @@ import {LongRunningJobResult} from '../jobs/types';
 import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
-import {ImageTransformationParams, ReadFileEndpointParams} from './readFile/types';
-import {ReadFileEndpointQueryParams} from './setupRESTEndpoints';
+import {
+  ImageTransformationParams,
+  ReadFileEndpointHttpQuery,
+  ReadFileEndpointParams,
+} from './readFile/types';
 import {FileMatcherPathParameters} from './types';
 import {
   UpdateFileDetailsEndpointParams,
@@ -121,7 +124,7 @@ const readFileParams = FieldObject.construct<ReadFileEndpointParams>()
   })
   .setRequired(true)
   .setDescription('Get file endpoint params.');
-const readFileQuery = FieldObject.construct<ReadFileEndpointQueryParams>().setFields({
+const readFileQuery = FieldObject.construct<ReadFileEndpointHttpQuery>().setFields({
   w: FieldObject.optionalField(width),
   h: FieldObject.optionalField(height),
 });
@@ -149,7 +152,10 @@ const updloadFileParams =
       .setFields({
         ...fileMatcherParts,
         data: FieldObject.requiredField(
-          FieldBinary.construct().setRequired(true).setDescription('File binary.')
+          FieldBinary.construct()
+            .setRequired(true)
+            .setDescription('File binary.')
+            .setMax(fileConstants.maxFileSizeInBytes)
         ),
         description: FieldObject.optionalField(fReusables.description),
         mimetype: FieldObject.optionalField(mimetype),
@@ -167,7 +173,7 @@ const uploadFileResponseBody = FieldObject.construct<UploadFileEndpointResult>()
 
 export const readFileEndpointDefinition = HttpEndpointDefinition.construct<{
   pathParameters: FileMatcherPathParameters;
-  query: ReadFileEndpointQueryParams;
+  query: ReadFileEndpointHttpQuery;
   requestBody: ReadFileEndpointParams;
   requestHeaders: MddocEndpointRequestHeaders_AuthOptional_ContentType;
   responseBody: FieldBinary;

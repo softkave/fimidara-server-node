@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {isFunction} from 'lodash';
+import {isFunction, isObject} from 'lodash';
 import {capitalizeFirstLetter, cast} from './fns';
 import {AnyFn, AnyObject, ClassConstructor} from './types';
 
@@ -95,30 +95,59 @@ export function makeClone<T extends ClassConstructor>(
   };
 }
 
-export function addClassAccessors(instance: AnyObject) {
+export const CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX = ['__'];
+
+export function getClassAccessorFields(
+  instance: AnyObject,
+  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+) {
+  const accessorFields: string[] = [];
   for (const key in instance) {
     if (isFunction(instance[key])) continue;
-    if (key.startsWith('__')) continue;
 
+    // TODO: could be a potential bottleneck but since we're using only for docs
+    // for now, it should be okays
+    if (skipFieldsWithPrefix.some(prefix => key.startsWith(prefix))) continue;
+
+    accessorFields.push(key);
+  }
+
+  return accessorFields;
+}
+
+export function addClassAccessors(
+  instance: AnyObject,
+  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+) {
+  const accessorFields = getClassAccessorFields(instance, skipFieldsWithPrefix);
+  accessorFields.forEach(key => {
     const setAccessorName = `set${capitalizeFirstLetter(key)}`;
     const getAccessorName = `get${capitalizeFirstLetter(key)}`;
     const assertGetAccessorName = `assertGet${capitalizeFirstLetter(key)}`;
 
-    if (!instance[setAccessorName]) {
-      instance[setAccessorName] = makeSetAccessor(instance, key);
-    }
-
-    if (!instance[getAccessorName]) {
-      instance[getAccessorName] = makeGetAccessor(instance, key);
-    }
-
-    if (!instance[assertGetAccessorName]) {
+    if (!instance[setAccessorName]) instance[setAccessorName] = makeSetAccessor(instance, key);
+    if (!instance[getAccessorName]) instance[getAccessorName] = makeGetAccessor(instance, key);
+    if (!instance[assertGetAccessorName])
       instance[assertGetAccessorName] = makeAssertGetAccessor(instance, key);
-    }
-  }
+  });
 
   const cloneName = 'clone';
   instance[cloneName] = makeClone(instance);
+}
+
+export function accessorFieldsToObject(
+  instance: any,
+  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+) {
+  if (!isObject(instance)) return instance;
+
+  const json: AnyObject = {};
+  const accessorFields = getClassAccessorFields(instance, skipFieldsWithPrefix);
+  accessorFields.forEach(key => {
+    json[key] = accessorFieldsToObject((instance as AnyObject)[key], skipFieldsWithPrefix);
+  });
+
+  return json;
 }
 
 // TODO: look into using applyMixins function in './fns.ts' file

@@ -213,6 +213,9 @@ export class FieldBinary extends FieldBase {
 
   __id = FieldBinary.name;
   stringType = 'binary';
+  constructor(required?: boolean, description?: string, public min?: number, public max?: number) {
+    super(required, description);
+  }
 }
 
 export enum HttpEndpointMethod {
@@ -228,20 +231,6 @@ export class HttpEndpointMultipartFormdata<T extends object> {
 
   __id = HttpEndpointMultipartFormdata.name;
   constructor(public items?: MddocTypeFieldObject<T>) {}
-}
-
-export class HttpEndpointHeaderItem {
-  static construct() {
-    return AccessorConstruct.wrap(new HttpEndpointHeaderItem());
-  }
-
-  __id = HttpEndpointHeaderItem.name;
-  constructor(
-    public name?: string,
-    public type?: MddocTypeFieldString | MddocTypeFieldNumber,
-    public required?: boolean,
-    public description?: string
-  ) {}
 }
 
 export type HttpEndpointDefinitionGenericsStructure = {

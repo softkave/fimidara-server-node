@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {forEach} from 'lodash';
+import {forEach, get, set} from 'lodash';
 import {indexArray} from '../utils/indexArray';
 import {agentTokensExportedEndpoints} from './agentTokens/endpoints';
 import {AgentTokensExportedEndpoints} from './agentTokens/types';
@@ -29,9 +29,9 @@ import {registerExpressRouteFromEndpoint} from './utils';
 import {workspacesExportedEndpoints} from './workspaces/endpoints';
 import {WorkspacesExportedEndpoints} from './workspaces/types';
 
-type AppExportedHttpEndpoints = Record<string, Record<string, ExportedHttpEndpoint<any>>>;
+export type AppExportedHttpEndpoints = Record<string, Record<string, ExportedHttpEndpoint<any>>>;
 
-type FimidaraExportedHttpEndpoints = {
+export type FimidaraExportedHttpEndpoints = {
   agentTokens: AgentTokensExportedEndpoints;
   collaborationRequests: CollaborationRequestsExportedEndpoints;
   collaborators: CollaboratorsExportedEndpoints;
@@ -61,89 +61,118 @@ export const fimidaraExportedHttpEndpoints: FimidaraExportedHttpEndpoints = {
   workspaces: workspacesExportedEndpoints,
 };
 
-type PublicHttpEndpointsMap<T extends AppExportedHttpEndpoints> = {
+type ExportedHttpEndpointsKeys<T extends AppExportedHttpEndpoints> = {
   [K in keyof T]?: Array<keyof T[K]>;
 };
 
-function getPrivateHttpEndpoints<T extends AppExportedHttpEndpoints>(
+function getOppositeHttpEndpointsKeys<T extends AppExportedHttpEndpoints>(
   appEndpoints: AppExportedHttpEndpoints,
-  publicEndpoints: PublicHttpEndpointsMap<T>
+  publicEndpoints: ExportedHttpEndpointsKeys<T>
 ) {
-  const privateEndpoints: PublicHttpEndpointsMap<T> = {};
+  const oppositeEndpoints: ExportedHttpEndpointsKeys<T> = {};
   forEach(publicEndpoints, (groupPublicEndpoints, groupName) => {
-    privateEndpoints[groupName as keyof T] = [];
+    oppositeEndpoints[groupName as keyof T] = [];
     const completeGroupedEndpoints = appEndpoints[groupName];
     const groupPublicEndpointsMap = indexArray(groupPublicEndpoints);
 
     forEach(completeGroupedEndpoints, (endpoint, endpointName) => {
       if (!groupPublicEndpointsMap[endpointName]) {
-        privateEndpoints[groupName]?.push(endpointName);
+        oppositeEndpoints[groupName]?.push(endpointName);
       }
     });
   });
+
+  return oppositeEndpoints;
 }
 
 // TODO: how do we fix the TS error this ts-ignore hides away?
 // @ts-ignore
-export const fimidaraPublicHttpEndpoints: PublicHttpEndpointsMap<FimidaraExportedHttpEndpoints> = {
-  agentTokens: [
-    'addToken',
-    'deleteToken',
-    'getToken',
-    'getWorkspaceTokens',
-    'updateToken',
-    'countWorkspaceTokens',
-  ],
-  collaborationRequests: [
-    'countUserRequests',
-    'countWorkspaceRequests',
-    'deleteRequest',
-    'getUserRequest',
-    'getUserRequests',
-    'getWorkspaceRequest',
-    'getWorkspaceRequests',
-    'respondToRequest',
-    'revokeRequest',
-    'sendRequest',
-    'updateRequest',
-  ],
-  collaborators: [
-    'countWorkspaceCollaborators',
-    'getCollaborator',
-    'getWorkspaceCollaborators',
-    'removeCollaborator',
-  ],
-  files: ['deleteFile', 'getFileDetails', 'readFile', 'updateFileDetails', 'uploadFile'],
-  folders: ['addFolder', 'countFolderContent', 'deleteFolder', 'getFolder', 'updateFolder'],
-  jobs: ['getJobStatus'],
-  permissionGroups: [
-    'addPermissionGroup',
-    'deletePermissionGroup',
-    'getPermissionGroup',
-    'getWorkspacePermissionGroups',
-    'updatePermissionGroup',
-    'assignPermissionGroups',
-    'getEntityAssignedPermissionGroups',
-    'countWorkspacePermissionGroups',
-  ],
-  permissionItems: ['addItems', 'deleteItems'],
-  resources: ['getResources'],
-  usageRecords: ['getUsageCosts', 'getWorkspaceSummedUsage', 'countWorkspaceSummedUsage'],
-  users: ['getUserData'],
-  workspaces: [
-    'getWorkspace',
-    'updateWorkspace',
-    'deleteWorkspace',
-    'getUserWorkspaces',
-    'addWorkspace',
-    'countUserWorkspaces',
-  ],
-};
+export const fimidaraPublicHttpEndpointKeys: ExportedHttpEndpointsKeys<FimidaraExportedHttpEndpoints> =
+  {
+    agentTokens: [
+      'addToken',
+      'deleteToken',
+      'getToken',
+      'getWorkspaceTokens',
+      'updateToken',
+      'countWorkspaceTokens',
+    ],
+    collaborationRequests: [
+      'countUserRequests',
+      'countWorkspaceRequests',
+      'deleteRequest',
+      'getUserRequest',
+      'getUserRequests',
+      'getWorkspaceRequest',
+      'getWorkspaceRequests',
+      'respondToRequest',
+      'revokeRequest',
+      'sendRequest',
+      'updateRequest',
+    ],
+    collaborators: [
+      'countWorkspaceCollaborators',
+      'getCollaborator',
+      'getWorkspaceCollaborators',
+      'removeCollaborator',
+    ],
+    files: ['deleteFile', 'getFileDetails', 'readFile', 'updateFileDetails', 'uploadFile'],
+    folders: ['addFolder', 'countFolderContent', 'deleteFolder', 'getFolder', 'updateFolder'],
+    jobs: ['getJobStatus'],
+    permissionGroups: [
+      'addPermissionGroup',
+      'deletePermissionGroup',
+      'getPermissionGroup',
+      'getWorkspacePermissionGroups',
+      'updatePermissionGroup',
+      'assignPermissionGroups',
+      'getEntityAssignedPermissionGroups',
+      'countWorkspacePermissionGroups',
+    ],
+    permissionItems: ['addItems', 'deleteItems'],
+    resources: ['getResources'],
+    usageRecords: ['getUsageCosts', 'getWorkspaceSummedUsage', 'countWorkspaceSummedUsage'],
+    users: ['getUserData'],
+    workspaces: [
+      'getWorkspace',
+      'updateWorkspace',
+      'deleteWorkspace',
+      'getUserWorkspaces',
+      'addWorkspace',
+      'countUserWorkspaces',
+    ],
+  };
 
-export const fimidaraPrivateHttpEndpoints = getPrivateHttpEndpoints(
+export const fimidaraPrivateHttpEndpointKeys = getOppositeHttpEndpointsKeys(
   // @ts-ignore
   fimidaraExportedHttpEndpoints,
   fimidaraPublicHttpEndpoints
+);
+
+function extractEndpointsUsingEndpointkeys(
+  endpoints: AppExportedHttpEndpoints,
+  keys: ExportedHttpEndpointsKeys<AppExportedHttpEndpoints>
+) {
+  const extractedEndpoints: AppExportedHttpEndpoints = {};
+
+  forEach(keys, (endpointNameList, groupName) => {
+    endpointNameList?.forEach(endpointName => {
+      const key = `${groupName}.${endpointName}`;
+      const endpoint = get(endpoints, key);
+      if (endpoint) set(extractedEndpoints, key, endpoint);
+    });
+  });
+
+  return extractedEndpoints;
+}
+
+export const fimidaraPublicHttpEndpoints = extractEndpointsUsingEndpointkeys(
+  fimidaraExportedHttpEndpoints,
+  fimidaraPublicHttpEndpointKeys
+);
+export const fimidaraPrivateHttpEndpoints = extractEndpointsUsingEndpointkeys(
+  fimidaraExportedHttpEndpoints,
+  fimidaraPrivateHttpEndpointKeys
 );
 
 function setupAppHttpEndpoints(
