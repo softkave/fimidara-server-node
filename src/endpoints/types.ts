@@ -6,23 +6,24 @@ import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {IDataProvideQueryListParams} from './contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
-import {BaseContext} from './contexts/types';
+import {BaseContextType} from './contexts/types';
 
 export interface BaseEndpointResult {
   errors?: OperationError[];
 }
 
-export type Endpoint<TContext extends BaseContext = BaseContext, TParams = any, TResult = any> = (
-  context: TContext,
-  instData: RequestData<TParams>
-) => Promise<TResult & BaseEndpointResult>;
+export type Endpoint<
+  TContext extends BaseContextType = BaseContextType,
+  TParams = any,
+  TResult = any
+> = (context: TContext, instData: RequestData<TParams>) => Promise<TResult & BaseEndpointResult>;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
   any,
   any,
   infer InferedResult
 >
-  ? InferedResult & BaseEndpointResult
+  ? InferedResult
   : any;
 
 export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
@@ -68,7 +69,7 @@ export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
 export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
 
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
-  context: BaseContext,
+  context: BaseContextType,
   args: Args,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) => Promise<void>;
@@ -78,17 +79,62 @@ export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArg
   DeleteResourceCascadeFn<Args>
 >;
 
-export type ExportedHttpEndpoint<TEndpoint extends Endpoint> = {
-  fn: TEndpoint;
-  mddocHttpDefinition: MddocTypeHttpEndpoint<{
-    pathParameters: any;
-    query: any;
-    requestHeaders: any;
-    requestBody: InferEndpointParams<TEndpoint>;
-    responseHeaders: any;
-    responseBody: InferEndpointResult<TEndpoint>;
-  }>;
-  getDataFromReq?: (req: Request) => InferEndpointParams<TEndpoint>;
-  handleResponse?: (res: Response, data: InferEndpointResult<TEndpoint>) => void;
-  expressRouteMiddleware?: RequestHandler;
+export type HttpEndpointRequestHeaders_AuthOptional = {
+  Authorization?: string;
 };
+export type HttpEndpointRequestHeaders_AuthRequired =
+  Required<HttpEndpointRequestHeaders_AuthOptional>;
+export type HttpEndpointRequestHeaders_ContentType = {
+  'Content-Type': string;
+};
+export type HttpEndpointRequestHeaders_AuthOptional_ContentType =
+  HttpEndpointRequestHeaders_ContentType & HttpEndpointRequestHeaders_AuthOptional;
+export type HttpEndpointRequestHeaders_AuthRequired_ContentType =
+  Required<HttpEndpointRequestHeaders_AuthOptional_ContentType>;
+export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
+  'Content-Type': string;
+  'Content-Length': string;
+};
+
+export type HttpEndpointStructure = {
+  pathParameters?: any;
+  requestHeaders?: any;
+  query?: any;
+  requestBody?: any;
+  responseHeaders?: any;
+  responseBody?: any;
+};
+
+export type HttpEndpoint<
+  TEndpoint extends Endpoint,
+  TRequestBody = InferEndpointParams<TEndpoint>,
+  TResponseBody = InferEndpointResult<TEndpoint>,
+  TRequestHeaders = AnyObject,
+  TResponseHeaders = AnyObject,
+  TPathParameters = AnyObject,
+  TQuery = AnyObject
+> = {
+  pathParameters: TPathParameters;
+  requestHeaders: TRequestHeaders;
+  query: TQuery;
+  requestBody: TRequestBody;
+  responseHeaders: TResponseHeaders;
+  responseBody: TResponseBody;
+  endpoint: TEndpoint;
+};
+
+export type ExportedHttpEndpointWithMddocDefinition<THttpEndpoint extends HttpEndpoint<any, any>> =
+  {
+    fn: THttpEndpoint['endpoint'];
+    mddocHttpDefinition: MddocTypeHttpEndpoint<{
+      pathParameters: THttpEndpoint['pathParameters'];
+      query: THttpEndpoint['query'];
+      requestHeaders: THttpEndpoint['requestHeaders'];
+      requestBody: THttpEndpoint['requestBody'];
+      responseHeaders: THttpEndpoint['responseHeaders'];
+      responseBody: THttpEndpoint['responseBody'];
+    }>;
+    getDataFromReq?: (req: Request) => InferEndpointParams<THttpEndpoint['endpoint']>;
+    handleResponse?: (res: Response, data: InferEndpointResult<THttpEndpoint['endpoint']>) => void;
+    expressRouteMiddleware?: RequestHandler;
+  };

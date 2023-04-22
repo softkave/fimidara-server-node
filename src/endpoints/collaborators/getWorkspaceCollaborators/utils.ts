@@ -1,14 +1,15 @@
+import {AssignedItem} from '../../../definitions/assignedItem';
 import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 
 export async function getWorkspaceCollaboratorsQuery(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace
 ): Promise<LiteralDataQuery<AssignedItem>> {

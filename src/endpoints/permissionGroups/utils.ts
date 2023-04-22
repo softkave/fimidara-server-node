@@ -16,10 +16,10 @@ import {reuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -48,7 +48,7 @@ export const permissionGroupExtractor = makeExtract(permissionGroupFields);
 export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
 
 export async function checkPermissionGroupAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
   action: AppActionType
@@ -66,7 +66,7 @@ export async function checkPermissionGroupAuthorization(
 }
 
 export async function checkPermissionGroupAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   id: string,
   action: AppActionType
@@ -77,11 +77,11 @@ export async function checkPermissionGroupAuthorization02(
 }
 
 export async function checkPermissionGroupAuthorization03(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   input: PermissionGroupMatcher,
   action: AppActionType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   let permissionGroup: PermissionGroup | null = null;
   if (!input.permissionGroupId && !input.name) {
@@ -107,7 +107,7 @@ export async function checkPermissionGroupAuthorization03(
 }
 
 export async function checkPermissionGroupsExist(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   permissionGroupInputs: AssignPermissionGroupInput[],
   opts?: SemanticDataAccessProviderMutationRunOptions

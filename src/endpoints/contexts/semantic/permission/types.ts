@@ -4,36 +4,36 @@ import {
 } from '../../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
-import {BaseContext} from '../../types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {BaseContextType} from '../../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 
-export interface ISemanticDataAccessPermissionProvider {
+export interface SemanticDataAccessPermissionProviderType {
   getEntityAssignedPermissionGroups(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }>;
   getEntityInheritanceMap(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
-    props: {context: BaseContext; entityId: string},
-    opts?: ISemanticDataAccessProviderRunOptions
+    props: {context: BaseContextType; entityId: string},
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<Resource | null>;
   getPermissionItems(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
@@ -47,17 +47,17 @@ export interface ISemanticDataAccessPermissionProvider {
        * containers passed. */
       sortByContainer?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<PermissionItem[]>;
   countPermissionItems(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
 }

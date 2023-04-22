@@ -35,12 +35,12 @@ export enum MemStoreTransactionConsistencyOpTypes {
 export type MemStoreTransactionConsistencyOp = {
   type: MemStoreTransactionConsistencyOpTypes;
   idList: string[];
-  storeRef: IMemStore<Resource>;
+  storeRef: MemStoreType<Resource>;
 };
 
 export type MemStoreTransactionCommitSyncFn = (
   consistencyOps: MemStoreTransactionConsistencyOp[],
-  txn: IMemStoreTransaction
+  txn: MemStoreTransactionType
 ) => Promise<void>;
 
 export enum MemStoreTransactionState {
@@ -49,17 +49,17 @@ export enum MemStoreTransactionState {
   Aborted,
 }
 
-export interface IMemStoreTransaction {
-  addToCache(item: Resource | Resource[], storeRef: IMemStore<Resource>): void;
+export interface MemStoreTransactionType {
+  addToCache(item: Resource | Resource[], storeRef: MemStoreType<Resource>): void;
   getFromCache<T extends Resource = Resource>(id: string): T | undefined;
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]): void;
   commit(syncFn: MemStoreTransactionCommitSyncFn): Promise<void>;
   abort(error: unknown): void;
   getState(): MemStoreTransactionState;
-  addIndexView(ref: IMemStoreIndex<Resource>, index: unknown): void;
-  getIndexView<T = unknown>(ref: IMemStoreIndex<Resource>): T | null;
-  hasIndexView(ref: IMemStoreIndex<Resource>): boolean;
-  setLock(storeRef: IMemStore<Resource>, lockId: number): void;
+  addIndexView(ref: MemStoreIndexType<Resource>, index: unknown): void;
+  getIndexView<T = unknown>(ref: MemStoreIndexType<Resource>): T | null;
+  hasIndexView(ref: MemStoreIndexType<Resource>): boolean;
+  setLock(storeRef: MemStoreType<Resource>, lockId: number): void;
   isItemDeleted(id: string): boolean;
 }
 
@@ -79,18 +79,18 @@ export type MemStoreIndexOptions<T> = {
   field: keyof T;
 };
 
-export interface IMemStoreIndex<T extends Resource> {
+export interface MemStoreIndexType<T extends Resource> {
   index(
     /** `item` and `existingItem` should be lined up in index, so index 0 in
      * `item` should be the same item in index 0 of `existingItem` if an array
      * is passed. */
     item: T | T[],
     existingItem: T | Array<T | undefined> | undefined,
-    transaction: IMemStoreTransaction | undefined
+    transaction: MemStoreTransactionType | undefined
   ): void;
   commitView(view: unknown): void;
-  indexGet(key: unknown | unknown[], transaction: IMemStoreTransaction | undefined): string[];
-  traverse(fn: (id: string) => boolean, transaction: IMemStoreTransaction | undefined): void;
+  indexGet(key: unknown | unknown[], transaction: MemStoreTransactionType | undefined): string[];
+  traverse(fn: (id: string) => boolean, transaction: MemStoreTransactionType | undefined): void;
   getOptions(): MemStoreIndexOptions<T>;
   COMMIT_purge(item: T | T[]): void;
 }
@@ -108,54 +108,54 @@ export interface IMemStoreOptions<T> {
   commitItemsFilter?: (item: T | T[]) => T[];
 }
 
-export interface IMemStore<T extends AnyObject> {
-  createItems(items: T | T[], transaction: IMemStoreTransaction): Promise<void>;
+export interface MemStoreType<T extends AnyObject> {
+  createItems(items: T | T[], transaction: MemStoreTransactionType): Promise<void>;
   createIfNotExist(
     items: T | T[],
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ): Promise<T | T[] | null>;
   updateItem(
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ): Promise<T | null>;
   updateManyItems(
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ): Promise<T[]>;
-  deleteItem(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction): Promise<void>;
-  deleteManyItems(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction): Promise<void>;
-  readItem(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<T | null>;
+  deleteItem(query: LiteralDataQuery<T>, transaction: MemStoreTransactionType): Promise<void>;
+  deleteManyItems(query: LiteralDataQuery<T>, transaction: MemStoreTransactionType): Promise<void>;
+  readItem(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType): Promise<T | null>;
   readManyItems(
     query: LiteralDataQuery<T>,
-    transaction?: IMemStoreTransaction,
+    transaction?: MemStoreTransactionType,
     count?: number,
     page?: number
   ): Promise<T[]>;
-  countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<number>;
+  countItems(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType): Promise<number>;
 
   // TODO: replace the combination of exists and create with createIfNotExist
-  exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction): Promise<boolean>;
+  exists(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType): Promise<boolean>;
 
   TRANSACTION_commitItems(items: T[]): void;
   TRANSACTION_deleteItems(idList: string[]): void;
   UNSAFE_ingestItems(items: T | T[]): void;
-  releaseLocks(lockIds: number | number[], txn: IMemStoreTransaction): void;
+  releaseLocks(lockIds: number | number[], txn: MemStoreTransactionType): void;
 
   dispose(): void;
 }
 
-export type FolderMemStoreProvider = IMemStore<Folder>;
-export type FileMemStoreProvider = IMemStore<File>;
-export type AgentTokenMemStoreProvider = IMemStore<AgentToken>;
-export type PermissionItemMemStoreProvider = IMemStore<PermissionItem>;
-export type PermissionGroupMemStoreProvider = IMemStore<PermissionGroup>;
-export type WorkspaceMemStoreProvider = IMemStore<Workspace>;
-export type CollaborationRequestMemStoreProvider = IMemStore<CollaborationRequest>;
-export type UserMemStoreProvider = IMemStore<User>;
-export type AppRuntimeStateMemStoreProvider = IMemStore<AppRuntimeState>;
-export type TagMemStoreProvider = IMemStore<Tag>;
-export type AssignedItemMemStoreProvider = IMemStore<AssignedItem>;
-export type UsageRecordMemStoreProvider = IMemStore<UsageRecord>;
+export type FolderMemStoreProviderType = MemStoreType<Folder>;
+export type FileMemStoreProviderType = MemStoreType<File>;
+export type AgentTokenMemStoreProviderType = MemStoreType<AgentToken>;
+export type PermissionItemMemStoreProviderType = MemStoreType<PermissionItem>;
+export type PermissionGroupMemStoreProviderType = MemStoreType<PermissionGroup>;
+export type WorkspaceMemStoreProviderType = MemStoreType<Workspace>;
+export type CollaborationRequestMemStoreProviderType = MemStoreType<CollaborationRequest>;
+export type UserMemStoreProviderType = MemStoreType<User>;
+export type AppRuntimeStateMemStoreProviderType = MemStoreType<AppRuntimeState>;
+export type TagMemStoreProviderType = MemStoreType<Tag>;
+export type AssignedItemMemStoreProviderType = MemStoreType<AssignedItem>;
+export type UsageRecordMemStoreProviderType = MemStoreType<UsageRecord>;

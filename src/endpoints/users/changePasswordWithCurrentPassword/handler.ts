@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import changePassword from '../changePassword/changePassword';
 import {ChangePasswordEndpointParams} from '../changePassword/types';
 import {IncorrectPasswordError} from '../errors';
@@ -9,7 +9,7 @@ import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
 import {changePasswordWithPasswordJoiSchema} from './validation';
 
 export async function completeChangePassword(
-  context: BaseContext,
+  context: BaseContextType,
   reqData: RequestData,
   password: string
 ) {

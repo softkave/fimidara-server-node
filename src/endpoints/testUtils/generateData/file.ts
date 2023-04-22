@@ -7,7 +7,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateTestFolderName} from './folder';
 
 function removeExtension(name: string) {
@@ -68,7 +68,7 @@ export function generateTestFiles(
 }
 
 export async function generateAndInsertTestFiles(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {

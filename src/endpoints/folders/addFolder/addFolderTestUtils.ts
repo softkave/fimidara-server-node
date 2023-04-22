@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
@@ -32,7 +32,7 @@ import {addRootnameToPath, folderExtractor} from '../utils';
 import {NewFolderInput} from './types';
 
 export const addFolderBaseTest = async (
-  ctx: BaseContext,
+  ctx: BaseContextType,
   input: Partial<NewFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
@@ -66,7 +66,7 @@ export const addFolderBaseTest = async (
 // };
 
 export async function assertCanCreateFolderInPublicFolder(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: PublicWorkspace,
   folderpath: string
 ) {
@@ -76,7 +76,7 @@ export async function assertCanCreateFolderInPublicFolder(
 }
 
 export async function assertCanReadPublicFolder(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -93,7 +93,7 @@ export async function assertCanReadPublicFolder(
 }
 
 export async function assertCanUpdatePublicFolder(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -114,7 +114,7 @@ export async function assertCanUpdatePublicFolder(
 }
 
 export async function assertCanListContentOfPublicFolder(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -128,7 +128,7 @@ export async function assertCanListContentOfPublicFolder(
 }
 
 export async function assertCanDeletePublicFolder(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -142,7 +142,7 @@ export async function assertCanDeletePublicFolder(
 }
 
 export async function assertFolderPublicOps(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {

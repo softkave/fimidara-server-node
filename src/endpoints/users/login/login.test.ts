@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -18,7 +18,7 @@ import {LoginEndpointParams} from './types';
  * - test that login fails on invalid email and password
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -1,5 +1,5 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -15,7 +15,7 @@ import {
 import getWorkspaceAgentTokens from './handler';
 import {GetWorkspaceAgentTokensEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

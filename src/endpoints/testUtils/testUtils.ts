@@ -15,7 +15,7 @@ import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
-import {AddAgentTokenEndpointParams} from '../agentTokens/addToken/types';
+import {AddAgentTokenEndpointParams, NewAgentTokenInput} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import sendRequest from '../collaborationRequests/sendRequest/handler';

@@ -1,11 +1,11 @@
 import {PermissionItem} from '../../../../definitions/permissionItem';
 import {
-  ISemanticDataAccessWorkspaceResourceProvider,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface ISemanticDataAccessPermissionItemProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<PermissionItem> {
+export interface SemanticDataAccessPermissionItemProviderType
+  extends SemanticDataAccessWorkspaceResourceProviderType<PermissionItem> {
   deleteManyByTargetId(
     id: string | string[],
     opts: SemanticDataAccessProviderMutationRunOptions

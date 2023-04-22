@@ -1,6 +1,7 @@
 import {PublicAgentToken} from '../../../definitions/agentToken';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {NewAgentTokenInput} from '../addToken/types';
 
 export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 
@@ -16,7 +17,7 @@ export interface UpdateAgentTokenEndpointResult {
 }
 
 export type UpdateAgentTokenEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult
 >;

@@ -1,5 +1,4 @@
-import {PublicPermissionItem} from '../../../definitions/permissionItem';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInput, PermissionItemInputEntity} from '../types';
 
@@ -8,12 +7,7 @@ export interface AddPermissionItemsEndpointParams extends EndpointOptionalWorksp
   items: PermissionItemInput[];
 }
 
-export interface AddPermissionItemsEndpointResult {
-  items: PublicPermissionItem[];
-}
-
 export type AddPermissionItemsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   AddPermissionItemsEndpointParams
-  // AddPermissionItemsEndpointResult
 >;

@@ -1,5 +1,5 @@
 import {FolderMatcher} from '../../../definitions/folder';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types';
 
@@ -11,7 +11,7 @@ export interface CountFolderContentEndpointResult {
 }
 
 export type CountFolderContentEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   FolderMatcher,
   CountFolderContentEndpointResult
 >;

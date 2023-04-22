@@ -5,12 +5,11 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
-  fReusables,
-  mddocEndpointHttpHeaderItems,
-} from '../endpoints.mddoc';
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import resourcesConstants from './constants';
 import {GetResourcesEndpointParams, GetResourcesEndpointResult} from './getResources/types';
 import {FetchResourceItem} from './types';
@@ -71,9 +70,9 @@ const getResourcesResponseBody = FieldObject.construct<GetResourcesEndpointResul
 
 export const getResourcesEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetResourcesEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetResourcesEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(resourcesConstants.routes.getResources)
   .setMethod(HttpEndpointMethod.Post)

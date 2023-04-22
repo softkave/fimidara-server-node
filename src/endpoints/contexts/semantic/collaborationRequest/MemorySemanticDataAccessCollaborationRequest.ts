@@ -1,16 +1,16 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessCollaborationRequestProvider} from './types';
+import {SemanticDataAccessCollaborationRequestProvider} from './types';
 
 export class MemorySemanticDataAccessCollaborationRequest
   extends SemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
-  implements ISemanticDataAccessCollaborationRequestProvider
+  implements SemanticDataAccessCollaborationRequestProvider
 {
   async countByEmail(
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     return await this.memstore.countItems(
       {recipientEmail: {$lowercaseEq: email}},
@@ -20,7 +20,7 @@ export class MemorySemanticDataAccessCollaborationRequest
 
   async getOneByEmail(
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.memstore.readItem({recipientEmail: {$lowercaseEq: email}}, opts?.transaction);
   }
@@ -28,7 +28,7 @@ export class MemorySemanticDataAccessCollaborationRequest
   async getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.memstore.readItem(
       {workspaceId, recipientEmail: {$lowercaseEq: email}},
@@ -39,7 +39,7 @@ export class MemorySemanticDataAccessCollaborationRequest
   async getManyByEmail(
     email: string,
     options?:
-      | (IDataProvideQueryListParams<CollaborationRequest> & ISemanticDataAccessProviderRunOptions)
+      | (IDataProvideQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<CollaborationRequest[]> {
     return await this.memstore.readManyItems(

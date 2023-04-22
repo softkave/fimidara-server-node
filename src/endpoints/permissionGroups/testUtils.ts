@@ -4,7 +4,7 @@ import {AppActionType, SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
-import {BaseContext, IServerRequest} from '../contexts/types';
+import {BaseContextType, IServerRequest} from '../contexts/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
 import RequestData from '../RequestData';
 
@@ -25,7 +25,7 @@ export function toAssignedPgListInput(pgList: Pick<PermissionGroup, 'resourceId'
 }
 
 export async function assignPgListToIdList(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   idList: string[],
@@ -47,7 +47,7 @@ export async function assignPgListToIdList(
 }
 
 export async function grantReadPermission(
-  context: BaseContext,
+  context: BaseContextType,
   req: IServerRequest,
   workspaceId: string,
   agentId: string,

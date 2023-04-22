@@ -1,5 +1,5 @@
 import {PublicCollaborator} from '../../../definitions/user';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface GetCollaboratorEndpointParams {
@@ -12,7 +12,7 @@ export interface GetCollaboratorEndpointResult {
 }
 
 export type GetCollaboratorEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetCollaboratorEndpointParams,
   GetCollaboratorEndpointResult
 >;

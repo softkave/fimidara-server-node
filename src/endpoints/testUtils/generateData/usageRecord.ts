@@ -10,7 +10,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageRecordCategory[]) {
@@ -67,7 +67,7 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
 }
 
 export async function generateAndInsertUsageRecordList(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   extra: Partial<UsageRecord> = {}
 ) {

@@ -12,7 +12,6 @@ import {ServerError} from '../../../utils/errors';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorization,
@@ -21,20 +20,20 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
 import {folderExtractor, splitPathWithDetails} from '../utils';
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
 export async function getClosestExistingFolder(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   splitParentPath: string[],
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const existingFolders = await Promise.all(
     splitParentPath.map((p, i) => {
@@ -54,7 +53,7 @@ export async function getClosestExistingFolder(
 }
 
 export async function createFolderList(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput,
@@ -119,45 +118,6 @@ export async function createFolderList(
   if (newFolders.length) {
     const mainFolder = last(newFolders);
     appAssert(mainFolder, new ServerError('Error creating folder.'));
-    // const items: PermissionItemInput[] = input.publicAccessOps
-    //   ? input.publicAccessOps.map(op => {
-    //       if (op.appliesToFolder && op.resourceType === AppResourceType.Folder) {
-    //         return {
-    //           action: op.action,
-    //           target: [{targetType: op.resourceType}, {targetId: mainFolder.resourceId}],
-    //           container: {containerId: mainFolder.resourceId},
-    //         };
-    //       } else {
-    //         return {
-    //           action: op.action,
-    //           target: {targetType: op.resourceType},
-    //           container: {containerId: mainFolder.resourceId},
-    //         };
-    //       }
-    //     })
-    //   : [];
-
-    await Promise.all([
-      context.semantic.folder.insertItem(newFolders, opts),
-      saveResourceAssignedItems(
-        context,
-        agent,
-        workspace,
-        mainFolder.resourceId,
-        input,
-        /** delete existing */ false,
-        opts
-      ),
-      // publicAccessOps.length &&
-      //   updatePublicPermissionGroupAccessOps(
-      //     context,
-      //     agent,
-      //     workspace,
-      //     publicAccessOps,
-      //     mainFolder,
-      //     opts
-      //   ),
-    ]);
   }
 
   return previousFolder;

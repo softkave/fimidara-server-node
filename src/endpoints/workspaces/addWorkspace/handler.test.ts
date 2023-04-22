@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -17,7 +17,7 @@ import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../util
 import {AddWorkspaceEndpointParams} from './types';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME, DEFAULT_PUBLIC_PERMISSION_GROUP_NAME} from './utils';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

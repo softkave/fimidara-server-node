@@ -7,7 +7,7 @@ import {collaborationRequestsExportedEndpoints} from './collaborationRequests/en
 import {CollaborationRequestsExportedEndpoints} from './collaborationRequests/types';
 import {collaboratorsExportedEndpoints} from './collaborators/endpoints';
 import {CollaboratorsExportedEndpoints} from './collaborators/types';
-import {BaseContext} from './contexts/types';
+import {BaseContextType} from './contexts/types';
 import {filesExportedEndpoints} from './files/endpoints';
 import {FilesExportedEndpoints} from './files/types';
 import {foldersExportedEndpoints} from './folders/endpoints';
@@ -20,7 +20,7 @@ import {permissionItemsExportedEndpoints} from './permissionItems/endpoints';
 import {PermissionItemsExportedEndpoints} from './permissionItems/types';
 import {resourcesExportedEndpoints} from './resources/endpoints';
 import {ResourcesExportedEndpoints} from './resources/types';
-import {ExportedHttpEndpoint} from './types';
+import {ExportedHttpEndpointWithMddocDefinition} from './types';
 import {usageRecordsExportedEndpoints} from './usageRecords/endpoints';
 import {UsageRecordsExportedEndpoints} from './usageRecords/types';
 import {usersExportedEndpoints} from './users/endpoints';
@@ -29,7 +29,10 @@ import {registerExpressRouteFromEndpoint} from './utils';
 import {workspacesExportedEndpoints} from './workspaces/endpoints';
 import {WorkspacesExportedEndpoints} from './workspaces/types';
 
-export type AppExportedHttpEndpoints = Record<string, Record<string, ExportedHttpEndpoint<any>>>;
+export type AppExportedHttpEndpoints = Record<
+  string,
+  Record<string, ExportedHttpEndpointWithMddocDefinition<any>>
+>;
 
 export type FimidaraExportedHttpEndpoints = {
   agentTokens: AgentTokensExportedEndpoints;
@@ -144,9 +147,10 @@ export const fimidaraPublicHttpEndpointKeys: ExportedHttpEndpointsKeys<FimidaraE
   };
 
 export const fimidaraPrivateHttpEndpointKeys = getOppositeHttpEndpointsKeys(
+  // TODO: fix type.
   // @ts-ignore
   fimidaraExportedHttpEndpoints,
-  fimidaraPublicHttpEndpoints
+  fimidaraPublicHttpEndpointKeys
 );
 
 function extractEndpointsUsingEndpointkeys(
@@ -167,16 +171,20 @@ function extractEndpointsUsingEndpointkeys(
 }
 
 export const fimidaraPublicHttpEndpoints = extractEndpointsUsingEndpointkeys(
+  // TODO: fix type.
+  // @ts-ignore
   fimidaraExportedHttpEndpoints,
   fimidaraPublicHttpEndpointKeys
 );
 export const fimidaraPrivateHttpEndpoints = extractEndpointsUsingEndpointkeys(
+  // TODO: fix type.
+  // @ts-ignore
   fimidaraExportedHttpEndpoints,
   fimidaraPrivateHttpEndpointKeys
 );
 
 function setupAppHttpEndpoints(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   app: Express,
   endpointsMap: AppExportedHttpEndpoints
 ) {
@@ -187,7 +195,7 @@ function setupAppHttpEndpoints(
   });
 }
 
-export function setupFimidaraHttpEndpoints(ctx: BaseContext, app: Express) {
+export function setupFimidaraHttpEndpoints(ctx: BaseContextType, app: Express) {
   // @ts-ignore
   setupAppHttpEndpoints(ctx, app, fimidaraExportedHttpEndpoints);
 }

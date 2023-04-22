@@ -11,14 +11,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
+import {
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {AddFolderEndpointParams, AddFolderEndpointResult, NewFolderInput} from './addFolder/types';
 import {folderConstants} from './constants';
 import {
@@ -169,9 +171,9 @@ const deleteFolderParams = FieldObject.construct<DeleteFolderEndpointParams>()
 
 export const addFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddFolderEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: AddFolderEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -184,9 +186,9 @@ export const addFolderEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetFolderEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetFolderEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -199,9 +201,9 @@ export const getFolderEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const updateFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateFolderEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateFolderEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -214,9 +216,9 @@ export const updateFolderEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const deleteFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeleteFolderEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
@@ -229,9 +231,9 @@ export const deleteFolderEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const listFolderContentEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: ListFolderContentEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: ListFolderContentEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
@@ -244,9 +246,9 @@ export const listFolderContentEndpointDefinition = HttpEndpointDefinition.constr
 
 export const countFolderContentEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountFolderContentEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountFolderContentEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(folderConstants.routes.countFolderContent)
   .setMethod(HttpEndpointMethod.Post)

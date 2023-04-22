@@ -17,7 +17,7 @@ import {
   uniquePermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {folderConstants} from '../../folders/constants';
 import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
@@ -25,7 +25,7 @@ import {getPermissionItemEntities, getPermissionItemTargets, getTargetType} from
 import {AddPermissionItemsEndpointParams} from './types';
 
 export const INTERNAL_addPermissionItems = async (
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,

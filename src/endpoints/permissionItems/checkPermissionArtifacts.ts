@@ -8,7 +8,7 @@ import {
   getWorkspaceResourceTypeList,
 } from '../../definitions/system';
 import {getResourceTypeFromId} from '../../utils/resource';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {
   checkResourcesBelongToContainer,
@@ -18,7 +18,7 @@ import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 export async function checkPermissionEntitiesExist(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   entities: Array<string>,
@@ -52,7 +52,7 @@ export async function checkPermissionEntitiesExist(
 }
 
 export async function checkPermissionContainersExist(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
@@ -86,7 +86,7 @@ export async function checkPermissionContainersExist(
 const targetTypes = getWorkspaceResourceTypeList().filter(type => type !== AppResourceType.All);
 
 export async function checkPermissionTargetsExist(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,

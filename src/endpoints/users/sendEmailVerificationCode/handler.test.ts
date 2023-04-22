@@ -1,5 +1,5 @@
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -17,7 +17,7 @@ import sendEmailVerificationCode from './handler';
  * - that email has verification link
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

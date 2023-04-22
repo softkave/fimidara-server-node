@@ -5,11 +5,8 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
-import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  fReusables,
-  mddocEndpointHttpHeaderItems,
-} from '../endpoints.mddoc';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
+import {HttpEndpointRequestHeaders_AuthRequired_ContentType} from '../types';
 import clientLogsConstants from './constants';
 import {ClientLog, IngestLogsEndpointParams} from './ingestLogs/types';
 
@@ -32,7 +29,7 @@ const ingestLogsParams = FieldObject.construct<IngestLogsEndpointParams>()
 
 export const ingestLogsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: IngestLogsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
 }>()
   .setBasePathname(clientLogsConstants.routes.ingestLogs)
   .setMethod(HttpEndpointMethod.Post)

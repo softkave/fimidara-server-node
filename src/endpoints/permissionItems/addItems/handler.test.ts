@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, getWorkspaceActionList} from '../../../definitions/system';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   canEntityPerformActionOnTargetId,
   checkExplicitAccessPermissionsOnTargetId,
@@ -22,7 +22,7 @@ import {PermissionItemInput} from '../types';
 import addPermissionItems from './handler';
 import {AddPermissionItemsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

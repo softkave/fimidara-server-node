@@ -1,10 +1,10 @@
 import {User} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {collaboratorExtractor, removeOtherUserWorkspaces} from './utils';
 
 export async function extractCollaborator(
-  context: BaseContext,
+  context: BaseContextType,
   collaborator: User,
   workspaceId: string
 ) {

@@ -1,4 +1,6 @@
+import countWorkspaceCollaborators from './countWorkspaceCollaborators/handler';
 import {
+  countWorkspaceCollaboratorsEndpointDefinition,
   getCollaboratorEndpointDefinition,
   getWorkspaceCollaboratorsEndpointDefinition,
   removeCollaboratorEndpointDefinition,
@@ -16,6 +18,10 @@ export const collaboratorsExportedEndpoints: CollaboratorsExportedEndpoints = {
   getWorkspaceCollaborators: {
     fn: getWorkspaceCollaborators,
     mddocHttpDefinition: getWorkspaceCollaboratorsEndpointDefinition,
+  },
+  countWorkspaceCollaborators: {
+    fn: countWorkspaceCollaborators,
+    mddocHttpDefinition: countWorkspaceCollaboratorsEndpointDefinition,
   },
   removeCollaborator: {
     fn: removeCollaborator,

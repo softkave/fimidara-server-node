@@ -1,0 +1,54 @@
+{
+  "v1": {
+    "workspaces": {"getWorkspace": {}, "updateWorkspace": {}},
+    "folders": {"listFolderContent": {}, "addFolder": {}, "getFolder": {}, "updateFolder": {}},
+    "files": {
+      "deleteFile": {},
+      "uploadFile": {},
+      "getFile": {},
+      "getFileDetails": {},
+      "updateFileDetails": {}
+    },
+    "agentTokens": {
+      "getWorkspaceTokens": {},
+      "addToken": {},
+      "updateToken": {},
+      "getToken": {},
+      "deleteToken": {}
+    },
+    "clientAssignedTokens": {
+      "getWorkspaceTokens": {},
+      "addToken": {},
+      "updateToken": {},
+      "getToken": {},
+      "deleteToken": {}
+    },
+    "permissionGroups": {
+      "getWorkspacePermissionGroups": {},
+      "addPermissionGroup": {},
+      "updatePermissionGroup": {},
+      "getPermissionGroup": {},
+      "deletePermissionGroup": {}
+    },
+    "permissionItems": {
+      "addItems": {},
+      "getEntityPermissionItems": {},
+      "replaceItemsByEntity": {},
+      "deleteItemsById": {},
+      "getResourcePermissionItems": {}
+    },
+    "collaborationRequests": {
+      "getWorkspaceRequests": {},
+      "sendRequest": {},
+      "updateRequest": {},
+      "getRequest": {},
+      "revokeRequest": {}
+    },
+    "collaborators": {
+      "getWorkspaceCollaborators": {},
+      "updateCollaboratorPermissionGroups": {},
+      "getCollaborator": {},
+      "removeCollaborator": {}
+    }
+  }
+}

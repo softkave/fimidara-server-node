@@ -1,5 +1,5 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion';
@@ -21,7 +21,7 @@ import {GetWorkspaceCollaborationRequestsEndpointParams} from './types';
  * - Confirm that all the requests returned belong to the workspace
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

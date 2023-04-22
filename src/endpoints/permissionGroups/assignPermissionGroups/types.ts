@@ -1,5 +1,5 @@
 import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface AssignPermissionGroupsEndpointParams extends EndpointOptionalWorkspaceIDParam {
@@ -8,6 +8,6 @@ export interface AssignPermissionGroupsEndpointParams extends EndpointOptionalWo
 }
 
 export type AssignPermissionGroupsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   AssignPermissionGroupsEndpointParams
 >;

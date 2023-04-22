@@ -1,10 +1,10 @@
-import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
+import {Connection, Model, Schema} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -16,7 +16,7 @@ import ingestLogs from './handler';
 import {ClientLog, IngestLogsEndpointParams} from './types';
 import assert = require('assert');
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 let logsConnection: Connection | null = null;
 let model: Model<ClientLog> | null = null;
 
@@ -29,7 +29,13 @@ beforeAll(async () => {
 
   model = logsConnection.model<ClientLog>(
     'log',
-    new Schema<ClientLog>({meta: SchemaTypes.Map}),
+    new Schema<ClientLog>({
+      timestamp: Number,
+      level: String,
+      message: String,
+      service: String,
+      stack: String,
+    }),
     context.appVariables.logsCollectionName
   );
 });

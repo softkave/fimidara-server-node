@@ -12,7 +12,7 @@ import {
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
@@ -57,7 +57,7 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
   };
 
 export const INTERNAL_deletePermissionItems = async (
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: DeletePermissionItemsEndpointParams

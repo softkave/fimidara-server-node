@@ -1,7 +1,9 @@
 import addAgentTokenEndpoint from './addToken/handler';
+import countWorkspaceAgentTokens from './countWorkspaceTokens/handler';
 import deleteAgentToken from './deleteToken/handler';
 import {
   addAgentTokenEndpointDefinition,
+  countWorkspaceAgentTokensEndpointDefinition,
   deleteAgentTokenEndpointDefinition,
   getAgentTokenEndpointDefinition,
   getWorkspaceAgentTokensEndpointDefinition,
@@ -28,6 +30,10 @@ export const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {
   getWorkspaceTokens: {
     fn: getWorkspaceAgentTokens,
     mddocHttpDefinition: getWorkspaceAgentTokensEndpointDefinition,
+  },
+  countWorkspaceTokens: {
+    fn: countWorkspaceAgentTokens,
+    mddocHttpDefinition: countWorkspaceAgentTokensEndpointDefinition,
   },
   updateToken: {
     fn: updateAgentToken,

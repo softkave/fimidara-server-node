@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
@@ -7,7 +7,7 @@ export interface DeleteTagEndpointParams {
 }
 
 export type DeleteTagEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   DeleteTagEndpointParams,
   LongRunningJobResult
 >;

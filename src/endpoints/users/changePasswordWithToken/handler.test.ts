@@ -10,7 +10,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -35,7 +35,7 @@ import changePasswordWithToken from './handler';
  * - test that user cannot login with old password
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

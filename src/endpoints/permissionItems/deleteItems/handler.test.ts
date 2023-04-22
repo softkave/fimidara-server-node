@@ -1,6 +1,6 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {canEntityPerformActionOnTargetType} from '../../testUtils/helpers/permissionItem';
@@ -18,7 +18,7 @@ import {
 import deletePermissionItems from './handler';
 import {DeletePermissionItemsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

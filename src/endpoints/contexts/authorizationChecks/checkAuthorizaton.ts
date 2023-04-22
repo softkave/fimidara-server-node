@@ -19,7 +19,7 @@ import {reuseableErrors} from '../../../utils/reusableErrors';
 import {logger} from '../../globalUtils';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
-import {BaseContext} from '../types';
+import {BaseContextType} from '../types';
 
 export type AuthTarget = {
   /** Pass only target ID without target type when checking a single target. */
@@ -30,7 +30,7 @@ export type AuthTarget = {
 };
 
 export interface ICheckAuthorizationParams {
-  context: BaseContext;
+  context: BaseContextType;
   agent: SessionAgent;
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;

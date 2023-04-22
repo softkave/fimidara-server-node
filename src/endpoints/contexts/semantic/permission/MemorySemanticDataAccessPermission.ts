@@ -12,18 +12,20 @@ import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
 import {LiteralDataQuery} from '../../data/types';
-import {BaseContext} from '../../types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
-import {ISemanticDataAccessPermissionProvider} from './types';
+import {BaseContextType} from '../../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessPermissionProviderType} from './types';
 
-export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPermissionProvider {
+export class MemorySemanticDataAccessPermission
+  implements SemanticDataAccessPermissionProviderType
+{
   async getEntityInheritanceMap(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
       const {context} = props;
@@ -63,11 +65,11 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getEntityAssignedPermissionGroups(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
@@ -83,7 +85,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getPermissionItems(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
@@ -92,7 +94,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       sortByDate?: boolean;
       sortByContainer?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
 
@@ -140,14 +142,14 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async countPermissionItems(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
 
@@ -162,10 +164,10 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getEntity(
     props: {
-      context: BaseContext;
+      context: BaseContextType;
       entityId: string;
     },
-    opts?: ISemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};

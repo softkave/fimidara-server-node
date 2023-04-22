@@ -6,14 +6,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {AddTagEndpointParams, AddTagEndpointResult, NewTagInput} from './addTag/types';
 import {tagConstants} from './constants';
 import {CountWorkspaceTagsEndpointParams} from './countWorkspaceTags/types';
@@ -130,9 +132,9 @@ const deleteTagParams = FieldObject.construct<DeleteTagEndpointParams>()
 
 export const addTagEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddTagEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: AddTagEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.addTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -145,9 +147,9 @@ export const addTagEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getTagEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetTagEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetTagEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.getTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -160,9 +162,9 @@ export const getTagEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const updateTagEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateTagEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateTagEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.updateTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -175,9 +177,9 @@ export const updateTagEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const deleteTagEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeleteTagEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.deleteTag)
   .setMethod(HttpEndpointMethod.Delete)
@@ -190,9 +192,9 @@ export const deleteTagEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getWorkspaceTagsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspaceTagsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceTagsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.getWorkspaceTags)
   .setMethod(HttpEndpointMethod.Post)
@@ -205,9 +207,9 @@ export const getWorkspaceTagsEndpointDefinition = HttpEndpointDefinition.constru
 
 export const countWorkspaceTagsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountWorkspaceTagsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(tagConstants.routes.countWorkspaceTags)
   .setMethod(HttpEndpointMethod.Post)

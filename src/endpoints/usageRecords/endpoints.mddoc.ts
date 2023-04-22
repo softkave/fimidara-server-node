@@ -7,13 +7,15 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {usageRecordConstants} from './constants';
 import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types';
 import {GetUsageCostsEndpointResult} from './getUsageCosts/types';
@@ -108,9 +110,9 @@ const getUsageCostsResponseBody = FieldObject.construct<GetUsageCostsEndpointRes
   .setDescription('Get usage costs endpoint success result.');
 
 export const getUsageCostsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetUsageCostsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(usageRecordConstants.routes.getUsageCosts)
   .setMethod(HttpEndpointMethod.Post)
@@ -122,9 +124,9 @@ export const getUsageCostsEndpointDefinition = HttpEndpointDefinition.construct<
 
 export const getWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspaceSummedUsageEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceSummedUsageEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(usageRecordConstants.routes.getWorkspaceSummedUsage)
   .setMethod(HttpEndpointMethod.Post)
@@ -137,9 +139,9 @@ export const getWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.
 
 export const countWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountWorkspaceSummedUsageEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(usageRecordConstants.routes.countWorkspaceSummedUsage)
   .setMethod(HttpEndpointMethod.Post)

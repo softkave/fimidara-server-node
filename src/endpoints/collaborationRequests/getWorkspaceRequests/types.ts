@@ -1,5 +1,5 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -19,7 +19,7 @@ export interface GetWorkspaceCollaborationRequestsEndpointResult extends Paginat
 }
 
 export type GetWorkspaceCollaborationRequestsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetWorkspaceCollaborationRequestsEndpointParams,
   GetWorkspaceCollaborationRequestsEndpointResult
 >;

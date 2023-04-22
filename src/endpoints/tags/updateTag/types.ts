@@ -1,5 +1,5 @@
 import {PublicTag} from '../../../definitions/tag';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {NewTagInput} from '../addTag/types';
 
@@ -15,7 +15,7 @@ export interface UpdateTagEndpointResult {
 }
 
 export type UpdateTagEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateTagEndpointParams,
   UpdateTagEndpointResult
 >;

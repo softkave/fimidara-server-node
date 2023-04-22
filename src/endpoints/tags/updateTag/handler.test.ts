@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -16,7 +16,7 @@ import {tagExtractor} from '../utils';
 import updateTag from './handler';
 import {UpdateTagEndpointParams, UpdateTagInput} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

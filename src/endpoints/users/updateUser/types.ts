@@ -1,5 +1,5 @@
 import {PublicUser} from '../../../definitions/user';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface UpdateUserEndpointParams {
@@ -13,7 +13,7 @@ export interface UpdateUserEndpointResult {
 }
 
 export type UpdateUserEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateUserEndpointParams,
   UpdateUserEndpointResult
 >;

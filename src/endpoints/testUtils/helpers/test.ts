@@ -2,12 +2,12 @@ import {toNonNullableArray} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {disposeApplicationGlobalUtilities} from '../../globalUtils';
 import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
 
 export function mutationTest(
-  context: BaseContext,
+  context: BaseContextType,
   name: string,
   fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
   timeout?: number
@@ -17,7 +17,7 @@ export function mutationTest(
   });
 }
 
-export function setupMutationTesting(context: BaseContext) {
+export function setupMutationTesting(context: BaseContextType) {
   async function mutationTest(
     name: string,
     fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
@@ -33,7 +33,7 @@ export function setupMutationTesting(context: BaseContext) {
 
 export async function completeTest(
   props: {
-    context?: (BaseContext | null) | Array<BaseContext | null>;
+    context?: (BaseContextType | null) | Array<BaseContextType | null>;
   } = {}
 ) {
   const {context} = props;

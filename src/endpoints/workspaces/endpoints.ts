@@ -1,7 +1,9 @@
 import addWorkspace from './addWorkspace/handler';
+import countUserWorkspaces from './countUserWorkspaces/handler';
 import deleteWorkspace from './deleteWorkspace/handler';
 import {
   addWorkspaceEndpointDefinition,
+  countUserWorkspacesEndpointDefinition,
   deleteWorkspaceEndpointDefinition,
   getUserWorkspacesEndpointDefinition,
   getWorkspaceEndpointDefinition,
@@ -24,6 +26,10 @@ export const workspacesExportedEndpoints: WorkspacesExportedEndpoints = {
   getUserWorkspaces: {
     fn: getUserWorkspaces,
     mddocHttpDefinition: getUserWorkspacesEndpointDefinition,
+  },
+  countUserWorkspaces: {
+    fn: countUserWorkspaces,
+    mddocHttpDefinition: countUserWorkspacesEndpointDefinition,
   },
   getWorkspace: {
     fn: getWorkspace,

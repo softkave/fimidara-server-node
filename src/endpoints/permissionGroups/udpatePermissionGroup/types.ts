@@ -1,5 +1,5 @@
 import {PermissionGroupMatcher, PublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {NewPermissionGroupInput} from '../addPermissionGroup/types';
 
@@ -14,7 +14,7 @@ export interface UpdatePermissionGroupEndpointResult {
 }
 
 export type UpdatePermissionGroupEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdatePermissionGroupEndpointParams,
   UpdatePermissionGroupEndpointResult
 >;

@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {LoginResult} from '../login/types';
 
@@ -7,7 +7,7 @@ export interface ChangePasswordEndpointParams {
 }
 
 export type ChangePasswordEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   ChangePasswordEndpointParams,
   LoginResult
 >;

@@ -4,7 +4,7 @@ import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
@@ -39,7 +39,7 @@ export function generatePermissionGroupListForTest(
 }
 
 export async function generateAndInsertPermissionGroupListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   seed: Partial<PermissionGroup> = {}
 ) {

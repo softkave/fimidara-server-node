@@ -3,7 +3,7 @@ import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import RequestData from '../../RequestData';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
@@ -30,7 +30,7 @@ import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {

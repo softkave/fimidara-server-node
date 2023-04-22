@@ -4,7 +4,6 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -37,28 +36,6 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
 
     const workspace = await context.semantic.workspace.getOneById(file.workspaceId);
     assertWorkspace(workspace);
-
-    // if (data.file.publicAccessAction) {
-    //   const permissionItemInputs = makeFilePublicAccessOps(file, data.file.publicAccessAction);
-    //   await updatePublicPermissionGroupAccessOps({
-    //     context,
-    //     agent,
-    //     workspace,
-    //     opts,
-    //     items: permissionItemInputs,
-    //     deleteItems: [{target: {targetId: file.resourceId}}],
-    //   });
-    // }
-
-    await saveResourceAssignedItems(
-      context,
-      agent,
-      workspace,
-      file.resourceId,
-      data.file,
-      /** delete existing */ true,
-      opts
-    );
     return file;
   });
 

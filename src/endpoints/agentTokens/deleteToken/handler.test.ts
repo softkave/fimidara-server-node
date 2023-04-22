@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -20,7 +20,7 @@ import {DeleteAgentTokenEndpointParams} from './types';
  * - [Low] Check that onReferenced feature works
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

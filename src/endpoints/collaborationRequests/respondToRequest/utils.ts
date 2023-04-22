@@ -20,7 +20,7 @@ import {
 } from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -28,7 +28,7 @@ import {assertCollaborationRequest} from '../utils';
 import {RespondToCollaborationRequestEndpointParams} from './types';
 
 async function sendCollaborationRequestResponseEmail(
-  context: BaseContext,
+  context: BaseContextType,
   request: CollaborationRequest,
   response: CollaborationRequestResponse,
   toUser: Pick<User, 'email'>
@@ -51,7 +51,7 @@ async function sendCollaborationRequestResponseEmail(
 }
 
 async function assignUserRequestPermissionGroups(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   requestId: string,
@@ -81,7 +81,7 @@ async function assignUserRequestPermissionGroups(
 }
 
 export const internalRespondToCollaborationRequest = async (
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
   opts: SemanticDataAccessProviderMutationRunOptions
@@ -126,7 +126,7 @@ export const internalRespondToCollaborationRequest = async (
 };
 
 export async function notifyUserOnCollaborationRequestResponse(
-  context: BaseContext,
+  context: BaseContextType,
   request: CollaborationRequest,
   response: CollaborationRequestResponse
 ) {

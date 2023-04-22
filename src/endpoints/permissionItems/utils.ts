@@ -14,7 +14,7 @@ import {makeKey, toArray, toNonNullableArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
@@ -45,7 +45,7 @@ export function throwPermissionItemNotFound() {
 }
 
 export async function updatePublicPermissionGroupAccessOps(props: {
-  context: BaseContext;
+  context: BaseContextType;
   agent: Agent;
   workspace: Workspace;
   opts: SemanticDataAccessProviderMutationRunOptions;
@@ -118,7 +118,7 @@ export function assertPermissionItem(item?: PermissionItem | null): asserts item
 }
 
 export async function getPermissionItemEntities(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   entities: PermissionItemInputEntity[]
@@ -149,7 +149,7 @@ export async function getPermissionItemEntities(
 }
 
 export async function getPermissionItemTargets(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[]

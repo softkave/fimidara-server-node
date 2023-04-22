@@ -2,7 +2,7 @@ import {Folder} from '../../../definitions/folder';
 import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from '../listFolderContent/utils';
 import {CountFolderContentEndpoint} from './types';
 import {countFolderContentJoiSchema} from './validation';
@@ -19,7 +19,7 @@ const countFolderContent: CountFolderContentEndpoint = async (context, instData)
 };
 
 async function countFolders(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null
@@ -35,7 +35,7 @@ async function countFolders(
 }
 
 async function countFiles(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null

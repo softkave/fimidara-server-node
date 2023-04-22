@@ -11,7 +11,7 @@ import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
 import sendChangePasswordEmail from './sendChangePasswordEmail';
@@ -53,7 +53,7 @@ export function getForgotPasswordExpiration() {
   });
 }
 
-export function getForgotPasswordLinkFromToken(context: BaseContext, forgotToken: AgentToken) {
+export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotToken: AgentToken) {
   const encodedToken = context.session.encodeToken(
     context,
     forgotToken.resourceId,

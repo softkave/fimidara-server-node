@@ -10,10 +10,9 @@ import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {checkAgentTokenAuthorization} from '../utils';
 import {NewAgentTokenInput} from './types';
@@ -22,7 +21,7 @@ import {NewAgentTokenInput} from './types';
  * Creates a new program access token. Does not check authorization.
  */
 export const internalCreateAgentToken = async (
-  context: BaseContext,
+  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
   data: NewAgentTokenInput,
@@ -80,15 +79,15 @@ export const internalCreateAgentToken = async (
     ]);
     await Promise.all([
       context.semantic.agentToken.insertItem(token, opts),
-      saveResourceAssignedItems(
-        context,
-        agent,
-        workspace,
-        token.resourceId,
-        data,
-        /* deleteExisting */ token ? true : false,
-        opts
-      ),
+      // saveResourceAssignedItems(
+      //   context,
+      //   agent,
+      //   workspace,
+      //   token.resourceId,
+      //   data,
+      //   /* deleteExisting */ token ? true : false,
+      //   opts
+      // ),
     ]);
   }
 

@@ -15,7 +15,7 @@ import {
 } from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
 import {EndpointOptionalWorkspaceIDParam} from '../types';
@@ -79,14 +79,14 @@ export function assertWorkspace(workspace: Workspace | null | undefined): assert
   }
 }
 
-export async function checkWorkspaceExists(ctx: BaseContext, workspaceId: string) {
+export async function checkWorkspaceExists(ctx: BaseContextType, workspaceId: string) {
   const w = await ctx.semantic.workspace.getOneById(workspaceId);
   assertWorkspace(w);
   return w;
 }
 
 export async function checkWorkspaceExistsWithAgent(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   agent: SessionAgent,
   workspaceId?: string
 ) {
@@ -97,7 +97,7 @@ export async function checkWorkspaceExistsWithAgent(
 }
 
 export async function checkWorkspaceAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   action: AppActionType
@@ -114,7 +114,7 @@ export async function checkWorkspaceAuthorization(
 }
 
 export async function checkWorkspaceAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   action: AppActionType,
   id?: string
@@ -138,7 +138,7 @@ export function makeRootnameFromName(name: string): string {
 }
 
 export async function getWorkspaceFromEndpointInput(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   data: EndpointOptionalWorkspaceIDParam
 ) {

@@ -1,5 +1,5 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
@@ -19,7 +19,7 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
  * - Test uploading to an existing file
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {

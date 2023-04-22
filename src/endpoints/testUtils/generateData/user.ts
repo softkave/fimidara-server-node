@@ -4,7 +4,7 @@ import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,
@@ -36,7 +36,7 @@ export function generateUserListForTest(
 }
 
 export async function generateAndInsertUserListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   genPartial: GeneratePartialTestDataFn<User> = defaultGeneratePartialTestDataFn
 ) {

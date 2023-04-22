@@ -3,7 +3,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 
 const publicUserWorkspaceFields = getFields<UserWorkspace>({
   workspaceId: true,
@@ -41,13 +41,13 @@ export function assertUser(user?: User | null): asserts user {
   appAssert(user, reuseableErrors.user.notFound());
 }
 
-export async function getUserWithWorkspaceById(context: BaseContext, userId: string) {
+export async function getUserWithWorkspaceById(context: BaseContextType, userId: string) {
   const user = await context.semantic.user.getOneById(userId);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }
 
-export async function getCompleteUserDataByEmail(context: BaseContext, email: string) {
+export async function getCompleteUserDataByEmail(context: BaseContextType, email: string) {
   const user = await context.semantic.user.getByEmail(email);
   assertUser(user);
   return await populateUserWorkspaces(context, user);

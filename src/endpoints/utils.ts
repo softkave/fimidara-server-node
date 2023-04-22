@@ -21,14 +21,14 @@ import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {executeWithMutationRunOptions} from './contexts/semantic/utils';
-import {BaseContext, IServerRequest} from './contexts/types';
+import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import {
   DeleteResourceCascadeFnsMap,
   Endpoint,
-  ExportedHttpEndpoint,
+  ExportedHttpEndpointWithMddocDefinition,
   PaginationQuery,
   RequestDataPendingPromise,
 } from './types';
@@ -61,7 +61,7 @@ export function getPublicErrors(inputError: any) {
 }
 
 export const wrapEndpointREST = <
-  Context extends BaseContext,
+  Context extends BaseContextType,
   EndpointType extends Endpoint<Context>
 >(
   endpoint: EndpointType,
@@ -230,7 +230,7 @@ export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
 }
 
 export async function executeCascadeDelete<Args>(
-  context: BaseContext,
+  context: BaseContextType,
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
@@ -246,8 +246,8 @@ export function assertUpdateNotEmpty(update: AnyObject) {
 }
 
 export function registerExpressRouteFromEndpoint(
-  ctx: BaseContext,
-  endpoint: ExportedHttpEndpoint<any>,
+  ctx: BaseContextType,
+  endpoint: ExportedHttpEndpointWithMddocDefinition<any>,
   app: Express
 ) {
   const p = endpoint.mddocHttpDefinition.assertGetBasePathname();

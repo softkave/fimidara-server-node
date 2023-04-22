@@ -2,10 +2,10 @@ import {AppResourceType, ResourceWrapper} from '../../definitions/system';
 import {User} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
 import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 
 export async function resourceWithAssignedItems(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   resource: ResourceWrapper
 ) {
@@ -28,7 +28,7 @@ export async function resourceWithAssignedItems(
 }
 
 export async function resourceListWithAssignedItems(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   resourceList: ResourceWrapper[],
   forTypes: AppResourceType[] = Object.values(AppResourceType)

@@ -3,7 +3,7 @@ import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
 import {getResourceId} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -22,7 +22,7 @@ import {PermissionItemInput} from '../types';
 import {default as getResourcePermissionItems} from './handler';
 import {GetResourcePermissionItemsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -15,7 +15,7 @@ import {appMessages} from '../../utils/messages';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {fileConstants} from '../files/constants';
 import RequestData from '../RequestData';
@@ -23,7 +23,7 @@ import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   reqData: RequestData,
   input: UsageRecordInput,
   nothrow = false
@@ -40,7 +40,7 @@ async function insertRecord(
 }
 
 export async function insertStorageUsageRecordInput(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: AppActionType = AppActionType.Create,
@@ -72,7 +72,7 @@ export async function insertStorageUsageRecordInput(
 }
 
 export async function insertBandwidthInUsageRecordInput(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: AppActionType = AppActionType.Create,
@@ -102,7 +102,7 @@ export async function insertBandwidthInUsageRecordInput(
 }
 
 export async function insertBandwidthOutUsageRecordInput(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: AppActionType = AppActionType.Read,

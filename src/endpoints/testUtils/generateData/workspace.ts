@@ -5,7 +5,7 @@ import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
@@ -80,7 +80,7 @@ export function generateWorkspaceListForTest(count = 20, seed: Partial<Workspace
 }
 
 export async function generateAndInsertWorkspaceListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   extra: Partial<Workspace> = {}
 ) {

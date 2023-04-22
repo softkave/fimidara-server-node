@@ -111,3 +111,7 @@ export type InvertRecord<M> = M extends Record<infer K, infer V>
     ? Record<V, K>
     : Record<string, K>
   : never;
+
+export type DefaultTo<T, TDefault, TDefaultFrom = undefined> = T extends TDefaultFrom
+  ? TDefault
+  : T;

@@ -4,10 +4,10 @@ import {Workspace} from '../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export async function updateTestWorkspaceUsageLocks(
-  context: BaseContext,
+  context: BaseContextType,
   id: string,
   categories: UsageRecordCategory[]
 ) {

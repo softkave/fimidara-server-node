@@ -10,10 +10,14 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/fns';
 import {MemStore} from '../../contexts/mem/Mem';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 
-export async function withConfirmEmailAddressToken(context: BaseContext, user: User, link: string) {
+export async function withConfirmEmailAddressToken(
+  context: BaseContextType,
+  user: User,
+  link: string
+) {
   const url = new URL(link);
   if (!url.searchParams.has(userConstants.confirmEmailTokenQueryParam) && !user.isEmailVerified) {
     let token = await context.semantic.agentToken.getOneAgentToken(

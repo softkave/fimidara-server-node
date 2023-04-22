@@ -3,6 +3,10 @@ import {forEach} from 'lodash';
 import {posix} from 'path';
 import {formatWithOptions} from 'util';
 import {fimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
+import {
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointHttpResponseItems,
+} from '../endpoints/endpoints.mddoc';
 import {accessorFieldsToObject} from '../utils/classAccessors';
 import {MddocTypeHttpEndpoint} from './mddoc';
 
@@ -11,7 +15,12 @@ function generateEndpointInfoFromEndpoints() {
 
   forEach(fimidaraPublicHttpEndpoints, (groupedEndpoints, groupName) => {
     forEach(groupedEndpoints, endpoint => {
-      const info = accessorFieldsToObject(endpoint.mddocHttpDefinition, []);
+      const info = accessorFieldsToObject(
+        endpoint.mddocHttpDefinition
+          .setErrorResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+          .setErrorResponseBody(mddocEndpointHttpResponseItems.errorResponseBody),
+        []
+      );
       infoMap.set(endpoint.mddocHttpDefinition, formatWithOptions({depth: 100}, info));
     });
   });

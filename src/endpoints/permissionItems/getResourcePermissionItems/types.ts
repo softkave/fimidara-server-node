@@ -1,5 +1,5 @@
 import {PublicPermissionItem} from '../../../definitions/permissionItem';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 
@@ -17,7 +17,7 @@ export interface GetResourcePermissionItemsEndpointResult {
 }
 
 export type GetResourcePermissionItemsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetResourcePermissionItemsEndpointParams,
   GetResourcePermissionItemsEndpointResult
 >;

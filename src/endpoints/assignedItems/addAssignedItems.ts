@@ -9,7 +9,7 @@ import {indexArray} from '../../utils/indexArray';
 import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resource';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
 import {withAssignedAgent} from '../utils';
@@ -23,7 +23,7 @@ import {deleteResourceAssignedItems} from './deleteAssignedItems';
  * item, and `false` to not include item.
  */
 async function filterExistingItems<T extends AssignedItem>(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   items: T[],
   comparatorFn?: (item01: T, item02: AssignedItem) => boolean
@@ -71,7 +71,7 @@ async function filterExistingItems<T extends AssignedItem>(
  * @returns
  */
 export async function addAssignedItems<T extends AssignedItem>(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   items: T[],
   deletedExistingItems: boolean,
@@ -98,7 +98,7 @@ export async function addAssignedItems<T extends AssignedItem>(
 }
 
 export async function addAssignedPermissionGroupList(
-  context: BaseContext,
+  context: BaseContextType,
   agent: Agent,
   workspaceId: string,
   permissionGroupsInput: AssignPermissionGroupInput[],
@@ -162,7 +162,7 @@ export async function addAssignedPermissionGroupList(
 }
 
 export async function addAssignedTagList(
-  context: BaseContext,
+  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
   tags: AssignedTagInput[],
@@ -213,7 +213,7 @@ export interface ISaveResourceAssignedItemsOptions {
 }
 
 export async function saveResourceAssignedItems(
-  context: BaseContext,
+  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
 
@@ -240,7 +240,7 @@ export async function saveResourceAssignedItems(
 }
 
 export async function assignWorkspaceToUser(
-  context: BaseContext,
+  context: BaseContextType,
   agent: Agent,
   workspaceId: string,
   userId: string,

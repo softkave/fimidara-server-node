@@ -14,11 +14,10 @@ import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   insertBandwidthInUsageRecordInput,
   insertStorageUsageRecordInput,
@@ -95,15 +94,6 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     }
 
     await Promise.all([
-      saveResourceAssignedItems(
-        context,
-        agent,
-        workspace,
-        file.resourceId,
-        data,
-        isNewFile ? false : true,
-        opts
-      ),
       context.fileBackend.uploadFile({
         bucket: context.appVariables.S3Bucket,
         key: file.resourceId,
@@ -122,7 +112,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 };
 
 async function INTERNAL_updateFile(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   pathWithDetails: ISplitfilepathWithDetails,
@@ -184,7 +174,7 @@ function getNewFile(
 }
 
 async function INTERNAL_createFile(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: UploadFileEndpointParams,

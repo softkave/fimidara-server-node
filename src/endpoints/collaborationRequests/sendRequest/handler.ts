@@ -17,7 +17,7 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {
@@ -99,7 +99,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
 };
 
 async function sendCollaborationRequestEmail(
-  context: BaseContext,
+  context: BaseContextType,
   request: CollaborationRequest,
   toUser: User | null
 ) {

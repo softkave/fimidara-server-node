@@ -5,7 +5,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {workspaceResourceFields} from '../utils';
 
 const agentTokenFields = getFields<PublicAgentToken>({
@@ -21,7 +21,7 @@ export const agentTokenExtractor = makeExtract(agentTokenFields);
 export const agentTokenListExtractor = makeListExtract(agentTokenFields);
 
 export async function checkAgentTokenAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   token: AgentToken,
   action: AppActionType
@@ -38,7 +38,7 @@ export async function checkAgentTokenAuthorization(
 }
 
 export async function checkAgentTokenAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   tokenId: string | undefined | null,
@@ -65,7 +65,7 @@ export function throwAgentTokenNotFound() {
   throw reuseableErrors.agentToken.notFound();
 }
 
-export function getPublicAgentToken(context: BaseContext, token: AgentToken) {
+export function getPublicAgentToken(context: BaseContextType, token: AgentToken) {
   const tokenStr = context.session.encodeToken(context, token.resourceId, null, token.createdAt);
   cast<PublicAgentToken>(token).tokenStr = tokenStr;
   return agentTokenExtractor(token);

@@ -1,5 +1,5 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface RevokeCollaborationRequestEndpointParams {
@@ -11,7 +11,7 @@ export interface RevokeCollaborationRequestEndpointResult {
 }
 
 export type RevokeCollaborationRequestEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   RevokeCollaborationRequestEndpointParams,
   RevokeCollaborationRequestEndpointResult
 >;

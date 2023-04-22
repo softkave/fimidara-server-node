@@ -6,24 +6,20 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired,
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointRequestHeaders_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
-  fReusables,
-  mddocEndpointHttpHeaderItems,
-} from '../endpoints.mddoc';
+  HttpEndpointRequestHeaders_AuthRequired,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointRequestHeaders_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types';
-import {
-  ChangePasswordWithTokenEndpoint,
-  ChangePasswordWithTokenEndpointParams,
-} from './changePasswordWithToken/types';
+import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types';
 import {userConstants} from './constants';
 import {ForgotPasswordEndpointParams} from './forgotPassword/types';
 import {LoginEndpointParams, LoginResult} from './login/types';
 import {SignupEndpointParams} from './signup/types';
-import {UpdateUserEndpointParams} from './updateUser/types';
+import {UpdateUserEndpointParams, UpdateUserEndpointResult} from './updateUser/types';
 import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/types';
 
 const currentPassword = fReusables.password.clone().setDescription('Current password.');
@@ -92,16 +88,6 @@ const forgotPasswordParams = FieldObject.construct<ForgotPasswordEndpointParams>
   .setRequired(true)
   .setDescription('Forgot password endpoint params.');
 
-const changePasswordWithTokenParams = FieldObject.construct<ChangePasswordWithTokenEndpoint>()
-  .setName('ChangePasswordWithTokenEndpoint')
-  .setFields({
-    password: FieldObject.requiredField(newPassword),
-  })
-  .setRequired(true)
-  .setDescription(
-    'Change password with token endpoint params. Expects the token to be in the `Authorization` header.'
-  );
-
 const changePasswordWithCurrentPasswordParams =
   FieldObject.construct<ChangePasswordWithCurrentPasswordEndpointParams>()
     .setName('ChangePasswordWithCurrentPasswordEndpointParams')
@@ -121,6 +107,13 @@ const updateUserParams = FieldObject.construct<UpdateUserEndpointParams>()
   })
   .setRequired(true)
   .setDescription('Update user endpoint params.');
+const updateUserResponseBody = FieldObject.construct<UpdateUserEndpointResult>()
+  .setName('UpdateUserEndpointResult')
+  .setFields({
+    user: FieldObject.requiredField(user),
+  })
+  .setRequired(true)
+  .setDescription('Update user result.');
 
 const userExistsParams = FieldObject.construct<UserExistsEndpointParams>()
   .setName('UserExistsEndpointParams')
@@ -135,9 +128,9 @@ const userExistsHttpResponseBody = FieldObject.construct<UserExistsEndpointResul
 
 export const signupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: SignupEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_ContentType;
   responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.signup)
   .setMethod(HttpEndpointMethod.Post)
@@ -150,9 +143,9 @@ export const signupEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const loginEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: LoginEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_ContentType;
   responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.login)
   .setMethod(HttpEndpointMethod.Post)
@@ -165,7 +158,7 @@ export const loginEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const forgotPasswordEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: ForgotPasswordEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_ContentType;
 }>()
   .setBasePathname(userConstants.routes.forgotPassword)
   .setMethod(HttpEndpointMethod.Post)
@@ -176,9 +169,9 @@ export const forgotPasswordEndpointDefinition = HttpEndpointDefinition.construct
 
 export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: ChangePasswordWithTokenEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.changePasswordWithToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -191,9 +184,9 @@ export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.
 export const changePasswordWithCurrentPasswordEndpointDefinition =
   HttpEndpointDefinition.construct<{
     requestBody: ChangePasswordWithCurrentPasswordEndpointParams;
-    requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
     responseBody: LoginResult;
-    responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
   }>()
     .setBasePathname(userConstants.routes.changePasswordWithCurrentPassword)
     .setMethod(HttpEndpointMethod.Post)
@@ -205,9 +198,9 @@ export const changePasswordWithCurrentPasswordEndpointDefinition =
     .setDescription('Change password with current password endpoint.');
 
 export const confirmEmailAddressEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.confirmEmailAddress)
   .setMethod(HttpEndpointMethod.Post)
@@ -220,9 +213,9 @@ export const confirmEmailAddressEndpointDefinition = HttpEndpointDefinition.cons
   );
 
 export const getUserDataEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.getUserData)
   .setMethod(HttpEndpointMethod.Post)
@@ -233,7 +226,7 @@ export const getUserDataEndpointDefinition = HttpEndpointDefinition.construct<{
   .setDescription('Confirm email address endpoint. Uses the `Authorization` header.');
 
 export const sendEmailVerificationCodeEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired;
 }>()
   .setBasePathname(userConstants.routes.sendEmailVerificationCode)
   .setMethod(HttpEndpointMethod.Post)
@@ -245,24 +238,24 @@ export const sendEmailVerificationCodeEndpointDefinition = HttpEndpointDefinitio
 
 export const updateUserEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateUserEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: UpdateUserEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.updateUser)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateUserParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(loginResponseBody)
+  .setResponseBody(updateUserResponseBody)
   .setName('UpdateUserEndpoint')
   .setDescription('Update user endpoint.');
 
 export const userExistsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UserExistsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_ContentType;
   responseBody: UserExistsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.userExists)
   .setMethod(HttpEndpointMethod.Post)

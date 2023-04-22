@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -18,7 +18,7 @@ import {GetAgentTokenEndpointParams} from './types';
  * - [Low] Check that onReferenced feature works
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

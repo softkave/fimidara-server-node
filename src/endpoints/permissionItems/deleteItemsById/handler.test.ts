@@ -1,14 +1,12 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertPermissionGroupForTest,
-  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -17,7 +15,7 @@ import PermissionItemQueries from '../queries';
 import getEntityPermissionItems from './handler';
 import {DeletePermissionItemsByIdEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -37,13 +35,7 @@ describe('deleteItemsById', () => {
       userToken,
       workspace.resourceId
     );
-    const {items} = await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
-      entity: {entityId: permissionGroup.resourceId},
-      target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
-      grantAccess: true,
-      action: AppActionType.Read,
-      appliesTo: PermissionItemAppliesTo.ChildrenOfType,
-    });
+    const items = await generateAndInsertPermissionItemListForTest(context);
     const instData = RequestData.fromExpressRequest<DeletePermissionItemsByIdEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {

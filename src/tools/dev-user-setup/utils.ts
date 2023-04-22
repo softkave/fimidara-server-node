@@ -13,8 +13,8 @@ import {
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
 import {
@@ -118,7 +118,7 @@ async function isUserAdmin(
   context: BaseContext,
   userId: string,
   adminPermissionGroupId: string,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
     context,

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -20,7 +20,7 @@ import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -31,7 +31,7 @@ afterAll(async () => {
 });
 
 async function updateFolderBaseTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   incomingUpdateInput: Partial<UpdateFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult,

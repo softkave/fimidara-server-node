@@ -1,5 +1,5 @@
 import {PublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface NewPermissionGroupInput {
@@ -16,7 +16,7 @@ export interface AddPermissionGroupEndpointResult {
 }
 
 export type AddPermissionGroupEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   AddPermissionGroupEndpointParams,
   AddPermissionGroupEndpointResult
 >;

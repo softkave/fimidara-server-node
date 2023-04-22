@@ -2,7 +2,7 @@ import {AppActionType, SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../users/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -29,7 +29,7 @@ export const collaboratorListExtractor = (items: UserWithWorkspace[], workspaceI
 };
 
 export async function checkCollaboratorAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   collaborator: UserWithWorkspace,
@@ -53,7 +53,7 @@ export async function checkCollaboratorAuthorization(
 }
 
 export async function checkCollaboratorAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,

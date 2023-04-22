@@ -4,7 +4,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
@@ -27,7 +27,7 @@ export const tagExtractor = makeExtract(tagFields);
 export const tagListExtractor = makeListExtract(tagFields);
 
 export async function checkTagAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   tag: Tag,
   action: AppActionType
@@ -45,7 +45,7 @@ export async function checkTagAuthorization(
 }
 
 export async function checkTagAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   id: string,
   action: AppActionType

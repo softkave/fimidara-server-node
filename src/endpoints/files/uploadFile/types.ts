@@ -1,5 +1,5 @@
 import {FileMatcher, PublicFile} from '../../../definitions/file';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export enum UploadFilePublicAccessActions {
@@ -22,7 +22,7 @@ export interface UploadFileEndpointResult {
 }
 
 export type UploadFileEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UploadFileEndpointParams,
   UploadFileEndpointResult
 >;

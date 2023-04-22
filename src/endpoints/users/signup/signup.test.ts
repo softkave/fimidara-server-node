@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext, insertUserForTest} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
@@ -10,7 +10,7 @@ import UserQueries from '../UserQueries';
  * - test that email verification email is sent
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -9,7 +9,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -23,7 +23,7 @@ import {
 import getWorkspaceSummedUsage from './handler';
 import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -33,14 +33,17 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-function expectToOnlyHaveCategory(records01: UsageRecord[], category: UsageRecordCategory) {
+function expectToOnlyHaveCategory(
+  records01: Pick<UsageRecord, 'category'>[],
+  category: UsageRecordCategory
+) {
   records01.forEach(record => {
     expect(record.category).toBe(category);
   });
 }
 
 function expectToOnlyHaveFulfillmentStatus(
-  records01: UsageRecord[],
+  records01: Pick<UsageRecord, 'fulfillmentStatus'>[],
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
   records01.forEach(record => {
@@ -48,14 +51,14 @@ function expectToOnlyHaveFulfillmentStatus(
   });
 }
 
-function expectToBeFromDate(records01: UsageRecord[], fromDate: number) {
+function expectToBeFromDate(records01: Pick<UsageRecord, 'createdAt'>[], fromDate: number) {
   const date = getTimestamp(startOfMonth(fromDate));
   records01.forEach(record => {
     expect(record.createdAt).toBeGreaterThanOrEqual(date);
   });
 }
 
-function expectToBeToDate(records01: UsageRecord[], toDate: number) {
+function expectToBeToDate(records01: Pick<UsageRecord, 'createdAt'>[], toDate: number) {
   const date = getTimestamp(endOfMonth(toDate));
   records01.forEach(record => {
     expect(record.createdAt).toBeLessThanOrEqual(date);

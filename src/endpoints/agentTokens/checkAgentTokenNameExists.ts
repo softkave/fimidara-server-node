@@ -1,12 +1,12 @@
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {ResourceExistsError} from '../errors';
 
 export async function checkAgentTokenNameExists(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   name: string,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const itemExists = await context.semantic.agentToken.existsByName(workspaceId, name, opts);
   if (itemExists) {

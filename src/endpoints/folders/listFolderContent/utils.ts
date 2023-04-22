@@ -8,13 +8,13 @@ import {
   getResourcePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   contentType: AppResourceType.File | AppResourceType.Folder,
@@ -51,7 +51,7 @@ export async function listFolderContentQuery(
 }
 
 export async function getWorkspaceAndParentFolder(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher
 ) {

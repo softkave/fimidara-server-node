@@ -25,34 +25,22 @@ import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
 import {LongRunningJobResult} from './jobs/types';
 import {permissionGroupConstants} from './permissionGroups/constants';
-import {BaseEndpointResult, CountItemsEndpointResult, ServerRecommendedActions} from './types';
+import {
+  BaseEndpointResult,
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthOptional,
+  HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  HttpEndpointRequestHeaders_AuthRequired,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointRequestHeaders_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+  ServerRecommendedActions,
+} from './types';
 
 export const mddocEndpointStatusCodes = {
   success: `${endpointConstants.httpStatusCode.ok}`,
   error: '4XX or 5XX',
 } as const;
-
-export type MddocEndpointRequestHeaders_ContentType = {
-  'Content-Type': string;
-};
-export type MddocEndpointRequestHeaders_AuthRequired_ContentType = {
-  Authorization: string;
-  'Content-Type': string;
-};
-export type MddocEndpointRequestHeaders_AuthOptional_ContentType = {
-  Authorization?: string;
-  'Content-Type': string;
-};
-export type MddocEndpointRequestHeaders_AuthRequired = {
-  Authorization: string;
-};
-export type MddocEndpointRequestHeaders_AuthOptional = {
-  Authorization?: string;
-};
-export type MddocEndpointResponseHeaders_ContentType_ContentLength = {
-  'Content-Type': string;
-  'Content-Length': string;
-};
 
 const requestHeaderItem_JsonContentType = FieldString.construct()
   .setRequired(true)
@@ -82,43 +70,43 @@ const requestHeaderItem_ContentType = FieldString.construct()
   .setExample('application/json or multipart/form-data');
 
 const requestHeaders_AuthRequired_JsonContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthRequired_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired_ContentType>().setFields({
     Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
     'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
   });
 const requestHeaders_AuthOptional_JsonContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthOptional_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional_ContentType>().setFields({
     Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
     'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
   });
 const requestHeaders_JsonContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_ContentType>().setFields({
     'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
   });
 const requestHeaders_AuthRequired_MultipartContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthRequired_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired_ContentType>().setFields({
     Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
     'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
   });
 const requestHeaders_AuthOptional_MultipartContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthOptional_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional_ContentType>().setFields({
     Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
     'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
   });
 const requestHeaders_MultipartContentType =
-  FieldObject.construct<MddocEndpointRequestHeaders_ContentType>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_ContentType>().setFields({
     'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
   });
 const requestHeaders_AuthRequired =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthRequired>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired>().setFields({
     Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
   });
 const requestHeaders_AuthOptional =
-  FieldObject.construct<MddocEndpointRequestHeaders_AuthOptional>().setFields({
+  FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional>().setFields({
     Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
   });
 const responseHeaders_JsonContentType =
-  FieldObject.construct<MddocEndpointResponseHeaders_ContentType_ContentLength>().setFields({
+  FieldObject.construct<HttpEndpointResponseHeaders_ContentType_ContentLength>().setFields({
     'Content-Type': FieldObject.requiredField(responseHeaderItem_JsonContentType),
     'Content-Length': FieldObject.requiredField(responseHeaderItem_ContentLength),
   });

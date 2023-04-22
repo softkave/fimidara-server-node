@@ -6,14 +6,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {collaboratorConstants} from './constants';
 import {CountWorkspaceCollaboratorsEndpointParams} from './countWorkspaceCollaborators/types';
 import {
@@ -93,9 +95,9 @@ const removeCollaboratorParams = FieldObject.construct<RemoveCollaboratorEndpoin
 
 export const getCollaboratorEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetCollaboratorEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetCollaboratorEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collaboratorConstants.routes.getCollaborator)
   .setMethod(HttpEndpointMethod.Post)
@@ -108,9 +110,9 @@ export const getCollaboratorEndpointDefinition = HttpEndpointDefinition.construc
 
 export const removeCollaboratorEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: RemoveCollaboratorEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collaboratorConstants.routes.removeCollaborator)
   .setMethod(HttpEndpointMethod.Post)
@@ -123,9 +125,9 @@ export const removeCollaboratorEndpointDefinition = HttpEndpointDefinition.const
 
 export const getWorkspaceCollaboratorsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspaceCollaboratorsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceCollaboratorsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collaboratorConstants.routes.getWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)
@@ -138,9 +140,9 @@ export const getWorkspaceCollaboratorsEndpointDefinition = HttpEndpointDefinitio
 
 export const countWorkspaceCollaboratorsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountWorkspaceCollaboratorsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collaboratorConstants.routes.countWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)

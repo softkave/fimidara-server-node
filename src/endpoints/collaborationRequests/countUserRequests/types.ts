@@ -1,8 +1,8 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {CountItemsEndpointResult, Endpoint} from '../../types';
 
 export type CountUserCollaborationRequestsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   {},
   CountItemsEndpointResult
 >;

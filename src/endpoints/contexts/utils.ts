@@ -4,6 +4,7 @@ import {getJobModel} from '../../db/job';
 import {getResourceModel} from '../../db/resource';
 import {AppMongoModels} from '../../db/types';
 import {AgentToken} from '../../definitions/agentToken';
+import {AssignedItem} from '../../definitions/assignedItem';
 import {CollaborationRequest} from '../../definitions/collaborationRequest';
 import {File} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
@@ -58,9 +59,9 @@ import {MemorySemanticDataAccessPermissionGroup} from './semantic/permissionGrou
 import {MemorySemanticDataAccessPermissionItem} from './semantic/permissionItem/MemorySemanticDataAccessPermissionItem';
 import {MemorySemanticDataAccessTag} from './semantic/tag/MemorySemanticDataAccessTag';
 import {MemorySemanticDataAccessUsageRecord} from './semantic/usageRecord/MemorySemanticDataAccessUsageRecord';
-import {MemorySemanticDataAccessUser} from './semantic/users/MemorySemanticDataAccessUser';
+import {MemorySemanticDataAccessUser} from './semantic/user/MemorySemanticDataAccessUser';
 import {MemorySemanticDataAccessWorkspace} from './semantic/workspace/MemorySemanticDataAccessWorkspace';
-import {BaseContext} from './types';
+import {BaseContextType} from './types';
 
 export function getMongoModels(connection: Connection): AppMongoModels {
   return {
@@ -70,7 +71,7 @@ export function getMongoModels(connection: Connection): AppMongoModels {
   };
 }
 
-export function getDataProviders(models: AppMongoModels): BaseContext['data'] {
+export function getDataProviders(models: AppMongoModels): BaseContextType['data'] {
   return {
     resource: new ResourceMongoDataProvider(models.resource),
     job: new JobMongoDataProvider(models.job),
@@ -78,7 +79,7 @@ export function getDataProviders(models: AppMongoModels): BaseContext['data'] {
   };
 }
 
-export function getMemstoreDataProviders(models: AppMongoModels): BaseContext['memstore'] {
+export function getMemstoreDataProviders(models: AppMongoModels): BaseContextType['memstore'] {
   const workspaceIdIndexOpts: MemStoreIndexOptions<{workspaceId?: string | null}> = {
     field: 'workspaceId',
     type: MemStoreIndexTypes.MapIndex,
@@ -172,8 +173,8 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContext['m
 }
 
 export function getSemanticDataProviders(
-  memstores: BaseContext['memstore']
-): BaseContext['semantic'] {
+  memstores: BaseContextType['memstore']
+): BaseContextType['semantic'] {
   return {
     folder: new MemorySemanticDataAccessFolder(memstores.folder, assertFolder),
     file: new MemorySemanticDataAccessFile(memstores.file, assertFile),
@@ -199,14 +200,14 @@ export function getSemanticDataProviders(
   };
 }
 
-export function getLogicProviders(): BaseContext['logic'] {
+export function getLogicProviders(): BaseContextType['logic'] {
   return {
     usageRecord: new UsageRecordLogicProvider(),
     permissions: new PermissionsLogicProvider(),
   };
 }
 
-export async function ingestDataIntoMemStore(context: BaseContext) {
+export async function ingestDataIntoMemStore(context: BaseContextType) {
   // TODO: we only want to fetch L2 usage records
   const q1: DataQuery<ResourceWrapper> = {
     resourceType: {$ne: AppResourceType.UsageRecord},

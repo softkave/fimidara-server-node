@@ -1,11 +1,11 @@
 import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {getWorkspaceResourceListQuery00} from '../../utils';
 
 export async function getWorkspaceAgentTokensQuery(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace
 ) {

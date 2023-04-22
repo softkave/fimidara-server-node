@@ -5,7 +5,7 @@ import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -29,7 +29,7 @@ import {UploadFileEndpointParams} from './types';
 import assert = require('assert');
 
 export const uploadFileBaseTest = async (
-  ctx: BaseContext,
+  ctx: BaseContextType,
   input: Partial<UploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
@@ -136,7 +136,7 @@ export const uploadFileBaseTest = async (
 // };
 
 export async function assertFileUpdated(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   userToken: AgentToken,
   savedFile: File,
   updatedFile: File
@@ -159,7 +159,7 @@ export async function assertFileUpdated(
 }
 
 export async function assertCanReadPublicFile(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
@@ -173,7 +173,7 @@ export async function assertCanReadPublicFile(
 }
 
 export async function assertCanUploadToPublicFile(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: PublicWorkspace,
   filepath: string
 ) {
@@ -183,7 +183,7 @@ export async function assertCanUploadToPublicFile(
 }
 
 export async function assertCanUpdatePublicFile(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
@@ -205,7 +205,7 @@ export async function assertCanUpdatePublicFile(
 }
 
 export async function assertCanDeletePublicFile(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {

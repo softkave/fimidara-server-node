@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import RequestData from '../../RequestData';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -16,7 +16,7 @@ import {
 import updateCollaborationRequest from './handler';
 import {UpdateCollaborationRequestEndpointParams, UpdateCollaborationRequestInput} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

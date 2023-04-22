@@ -1,13 +1,17 @@
 import {faker} from '@faker-js/faker';
+import {flatten} from 'lodash';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, getWorkspaceActionList, Resource} from '../../../definitions/system';
+import {
+  AppActionType,
+  AppResourceType,
+  getWorkspaceActionList,
+  Resource,
+} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
-import {BaseContext} from '../../contexts/types';
-import addPermissionItems from '../../permissionItems/addItems/handler';
-import {AddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types';
-import {PermissionItemInput} from '../../permissionItems/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -24,7 +28,7 @@ import {GetResourcesEndpointParams} from './types';
 
 // TODO: Test resources that the agent doesn't have read permission to
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -44,26 +48,20 @@ describe('getResources', () => {
       userToken,
       workspace.resourceId
     );
-    const inputItems: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
-      action: action as AppActionType,
-      grantAccess: faker.datatype.boolean(),
-      target: {targetId: workspace.resourceId},
-      appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-    }));
-    const addPermissionItemsReqData =
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: inputItems,
+    const itemsList = await Promise.all(
+      getWorkspaceActionList().map(action =>
+        generateAndInsertPermissionItemListForTest(context!, 1, {
+          action: action as AppActionType,
+          grantAccess: faker.datatype.boolean(),
+          targetId: workspace.resourceId,
+          targetType: AppResourceType.Workspace,
+          appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
           workspaceId: workspace.resourceId,
-          entity: {entityId: permissionGroup.resourceId},
-        }
-      );
-    const [addPermissionItemsResult] = await Promise.all([
-      addPermissionItems(context, addPermissionItemsReqData),
-    ]);
-    assertEndpointResultOk(addPermissionItemsResult);
-    const items = addPermissionItemsResult.items;
+          entityId: permissionGroup.resourceId,
+        })
+      )
+    );
+    const items = flatten(itemsList);
     const resourcesInput: FetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
 

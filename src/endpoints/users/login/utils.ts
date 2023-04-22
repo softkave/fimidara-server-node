@@ -11,12 +11,12 @@ import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/fns';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';
 
 export function toLoginResult(
-  context: BaseContext,
+  context: BaseContextType,
   user: UserWithWorkspace,
   token: AgentToken,
   clientAssignedToken: AgentToken
@@ -33,7 +33,7 @@ export function toLoginResult(
 }
 
 export async function getUserClientAssignedToken(
-  context: BaseContext,
+  context: BaseContextType,
   userId: string,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
@@ -86,7 +86,7 @@ export async function getUserClientAssignedToken(
 }
 
 export async function getUserToken(
-  context: BaseContext,
+  context: BaseContextType,
   userId: string,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {

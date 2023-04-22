@@ -13,15 +13,17 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
 import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {
   AddPermissionGroupEndpointParams,
   AddPermissionGroupEndpointResult,
@@ -232,9 +234,9 @@ const deletePermissionGroupParams = FieldObject.construct<DeletePermissionGroupE
 
 export const addPermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddPermissionGroupEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: AddPermissionGroupEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.addPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -247,9 +249,9 @@ export const addPermissionGroupEndpointDefinition = HttpEndpointDefinition.const
 
 export const getPermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetPermissionGroupEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetPermissionGroupEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.getPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -262,9 +264,9 @@ export const getPermissionGroupEndpointDefinition = HttpEndpointDefinition.const
 
 export const updatePermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdatePermissionGroupEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdatePermissionGroupEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.updatePermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -277,9 +279,9 @@ export const updatePermissionGroupEndpointDefinition = HttpEndpointDefinition.co
 
 export const deletePermissionGroupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeletePermissionGroupEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.deletePermissionGroup)
   .setMethod(HttpEndpointMethod.Delete)
@@ -292,9 +294,9 @@ export const deletePermissionGroupEndpointDefinition = HttpEndpointDefinition.co
 
 export const getWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspacePermissionGroupsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspacePermissionGroupsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.getWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
@@ -307,9 +309,9 @@ export const getWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefini
 
 export const countWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountWorkspacePermissionGroupsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionGroupConstants.routes.countWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
@@ -322,7 +324,7 @@ export const countWorkspacePermissionGroupsEndpointDefinition = HttpEndpointDefi
 
 export const assignPermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AssignPermissionGroupsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
 }>()
   .setBasePathname(permissionGroupConstants.routes.assignPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
@@ -334,9 +336,9 @@ export const assignPermissionGroupsEndpointDefinition = HttpEndpointDefinition.c
 export const getEntityAssignedPermissionGroupsEndpointDefinition =
   HttpEndpointDefinition.construct<{
     requestBody: GetEntityAssignedPermissionGroupsEndpointParams;
-    requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
     responseBody: GetEntityAssignedPermissionGroupsEndpointResult;
-    responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
   }>()
     .setBasePathname(permissionGroupConstants.routes.getEntityAssignedPermissionGroups)
     .setMethod(HttpEndpointMethod.Post)

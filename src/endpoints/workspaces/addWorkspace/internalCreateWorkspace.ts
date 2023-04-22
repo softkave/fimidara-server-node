@@ -10,7 +10,7 @@ import {
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceExists';
 import {NewWorkspaceInput} from './types';
@@ -34,7 +34,7 @@ export function transformUsageThresholInput(
 }
 
 const internalCreateWorkspace = async (
-  context: BaseContext,
+  context: BaseContextType,
   data: NewWorkspaceInput,
   agent: Agent,
   userId: string | undefined,

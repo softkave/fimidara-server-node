@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -19,7 +19,7 @@ import {fileExtractor} from '../utils';
 import updateFileDetails from './handler';
 import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

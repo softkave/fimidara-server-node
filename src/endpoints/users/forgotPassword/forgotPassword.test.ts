@@ -5,7 +5,7 @@ import {
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
 } from '../../../emailTemplates/forgotPassword';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -28,7 +28,7 @@ import {ForgotPasswordEndpointParams} from './types';
  * - that email has verification link
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

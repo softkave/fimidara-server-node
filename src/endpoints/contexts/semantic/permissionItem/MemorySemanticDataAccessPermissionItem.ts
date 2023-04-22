@@ -2,11 +2,11 @@ import {PermissionItem} from '../../../../definitions/permissionItem';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {SemanticDataAccessProviderMutationRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessPermissionItemProvider} from './types';
+import {SemanticDataAccessPermissionItemProviderType} from './types';
 
 export class MemorySemanticDataAccessPermissionItem
   extends SemanticDataAccessWorkspaceResourceProvider<PermissionItem>
-  implements ISemanticDataAccessPermissionItemProvider
+  implements SemanticDataAccessPermissionItemProviderType
 {
   async deleteManyByEntityId(
     id: string | string[],

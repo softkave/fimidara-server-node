@@ -16,7 +16,7 @@ import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {SemanticDataAccessProviderMutationRunOptions} from '../semantic/types';
 import {executeWithMutationRunOptions} from '../semantic/utils';
-import {BaseContext} from '../types';
+import {BaseContextType} from '../types';
 
 export interface UsageRecordInput {
   resourceId?: string;
@@ -27,7 +27,7 @@ export interface UsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  insert = async (ctx: BaseContext, agent: Agent, input: UsageRecordInput) => {
+  insert = async (ctx: BaseContextType, agent: Agent, input: UsageRecordInput) => {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId);
     assertWorkspace(workspace);
@@ -94,7 +94,7 @@ export class UsageRecordLogicProvider {
   };
 
   private async getUsagel2(
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     category: UsageRecordCategory,
@@ -127,7 +127,7 @@ export class UsageRecordLogicProvider {
   }
 
   private checkWorkspaceBillStatus = async (
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord
@@ -160,7 +160,7 @@ export class UsageRecordLogicProvider {
   };
 
   private checkWorkspaceUsageLocks = async (
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord
@@ -196,7 +196,7 @@ export class UsageRecordLogicProvider {
   };
 
   private checkExceedsRemainingUsage = async (
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord
@@ -273,7 +273,7 @@ export class UsageRecordLogicProvider {
   };
 
   private fulfillRecord = async (
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     usageFulfilledL2: UsageRecord | undefined,
@@ -319,7 +319,7 @@ export class UsageRecordLogicProvider {
   };
 
   private dropRecord = async (
-    context: BaseContext,
+    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     dropReason: UsageRecordDropReason,

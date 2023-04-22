@@ -1,8 +1,17 @@
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../definitions/system';
-import {ExportedHttpEndpoint} from '../types';
-import {AddPermissionItemsEndpoint} from './addItems/types';
-import {DeletePermissionItemsEndpoint} from './deleteItems/types';
+import {LongRunningJobResult} from '../jobs/types';
+import {
+  ExportedHttpEndpointWithMddocDefinition,
+  HttpEndpoint,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
+import {AddPermissionItemsEndpoint, AddPermissionItemsEndpointParams} from './addItems/types';
+import {
+  DeletePermissionItemsEndpoint,
+  DeletePermissionItemsEndpointParams,
+} from './deleteItems/types';
 
 export interface PermissionItemInputTarget {
   targetId: string | string[];
@@ -25,7 +34,22 @@ export interface PermissionItemInput {
   entity?: PermissionItemInputEntity;
 }
 
+export type AddPermissionItemsHttpEndpoint = HttpEndpoint<
+  AddPermissionItemsEndpoint,
+  AddPermissionItemsEndpointParams,
+  {},
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  {}
+>;
+export type DeletePermissionItemsHttpEndpoint = HttpEndpoint<
+  DeletePermissionItemsEndpoint,
+  DeletePermissionItemsEndpointParams,
+  LongRunningJobResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength
+>;
+
 export type PermissionItemsExportedEndpoints = {
-  addItems: ExportedHttpEndpoint<AddPermissionItemsEndpoint>;
-  deleteItems: ExportedHttpEndpoint<DeletePermissionItemsEndpoint>;
+  addItems: ExportedHttpEndpointWithMddocDefinition<AddPermissionItemsHttpEndpoint>;
+  deleteItems: ExportedHttpEndpointWithMddocDefinition<DeletePermissionItemsHttpEndpoint>;
 };

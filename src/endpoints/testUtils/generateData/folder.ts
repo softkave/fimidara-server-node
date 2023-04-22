@@ -6,7 +6,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export function generateTestFolderName(
   {separatorChars}: {separatorChars: string[]} = {separatorChars: ['-', '_', ' ', '.']}
@@ -50,7 +50,7 @@ export function generateTestFolders(
 }
 
 export async function generateAndInsertTestFolders(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null}
 ) {

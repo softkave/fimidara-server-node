@@ -9,8 +9,8 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -44,7 +44,7 @@ const userCollaborationRequestForWorkspaceFields =
   });
 
 export async function checkCollaborationRequestAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   request: CollaborationRequest,
   action: AppActionType
@@ -62,11 +62,11 @@ export async function checkCollaborationRequestAuthorization(
 }
 
 export async function checkCollaborationRequestAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   requestId: string,
   action: AppActionType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
   assertCollaborationRequest(request);
@@ -91,7 +91,7 @@ export function throwCollaborationRequestNotFound() {
 }
 
 export async function populateRequestAssignedPermissionGroups(
-  context: BaseContext,
+  context: BaseContextType,
   request: CollaborationRequest
 ): Promise<
   CollaborationRequest & {
@@ -110,7 +110,7 @@ export async function populateRequestAssignedPermissionGroups(
 }
 
 export async function populateRequestListPermissionGroups(
-  context: BaseContext,
+  context: BaseContextType,
   requests: CollaborationRequest[]
 ) {
   return await Promise.all(

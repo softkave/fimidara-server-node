@@ -1,5 +1,5 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface GetUsageCostsEndpointParams {}
@@ -9,7 +9,7 @@ export interface GetUsageCostsEndpointResult {
 }
 
 export type GetUsageCostsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetUsageCostsEndpointParams,
   GetUsageCostsEndpointResult
 >;

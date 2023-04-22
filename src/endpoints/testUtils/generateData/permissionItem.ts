@@ -4,7 +4,7 @@ import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {randomAction, randomResourceType} from './utils';
 
 export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {
@@ -44,7 +44,7 @@ export function generatePermissionItemListForTest(count = 20, seed: Partial<Perm
 }
 
 export async function generateAndInsertPermissionItemListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   seed: Partial<PermissionItem> = {}
 ) {

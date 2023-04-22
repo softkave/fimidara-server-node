@@ -22,37 +22,37 @@ import {
   InvalidCredentialsError,
   PermissionDeniedError,
 } from '../users/errors';
-import {BaseContext} from './types';
+import {BaseContextType} from './types';
 
-export interface SessionContext {
+export interface SessionContextType {
   getAgent: (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes?: AppResourceType | AppResourceType[],
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
   getUser: (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<User>;
-  decodeToken: (ctx: BaseContext, token: string) => BaseTokenData<TokenSubjectDefault>;
+  decodeToken: (ctx: BaseContextType, token: string) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsTokenAccessScope: (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     tokenData: AgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => string;
 }
 
-export default class SessionContext implements SessionContext {
+export default class SessionContext implements SessionContextType {
   getAgent = async (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
       AppResourceType.User,
@@ -102,7 +102,7 @@ export default class SessionContext implements SessionContext {
   };
 
   getUser = async (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => {
@@ -111,7 +111,7 @@ export default class SessionContext implements SessionContext {
     return agent.user;
   };
 
-  decodeToken = (ctx: BaseContext, token: string) => {
+  decodeToken = (ctx: BaseContextType, token: string) => {
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
       jwt.verify(token, ctx.appVariables.jwtSecret, {
         complete: false,
@@ -126,7 +126,7 @@ export default class SessionContext implements SessionContext {
   };
 
   tokenContainsTokenAccessScope = (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     tokenData: AgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
@@ -138,7 +138,7 @@ export default class SessionContext implements SessionContext {
   };
 
   encodeToken = (
-    ctx: BaseContext,
+    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null

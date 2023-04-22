@@ -1,11 +1,11 @@
 import {FileMatcher} from '../../../definitions/file';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
 export type DeleteFileEndpointParams = FileMatcher;
 export type DeleteFileEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   DeleteFileEndpointParams,
   LongRunningJobResult
 >;

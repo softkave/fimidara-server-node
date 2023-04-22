@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../../definitions/system';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,7 +14,7 @@ import {
 import countEntityPermissionItems from './handler';
 import {CountEntityPermissionItemsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

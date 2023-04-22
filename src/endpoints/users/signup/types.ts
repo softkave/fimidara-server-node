@@ -1,6 +1,6 @@
-import { BaseContext } from '../../contexts/types';
-import { Endpoint } from '../../types';
-import { LoginResult } from '../login/types';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint} from '../../types';
+import {LoginResult} from '../login/types';
 
 export interface SignupEndpointParams {
   firstName: string;
@@ -9,4 +9,4 @@ export interface SignupEndpointParams {
   password: string;
 }
 
-export type SignupEndpoint = Endpoint<BaseContext, SignupEndpointParams, LoginResult>;
+export type SignupEndpoint = Endpoint<BaseContextType, SignupEndpointParams, LoginResult>;

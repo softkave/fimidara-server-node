@@ -4,14 +4,14 @@ import {
   confirmEmailAddressEmailText,
   confirmEmailAddressEmailTitle,
 } from '../../../emailTemplates/confirmEmailAddress';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export interface SendConfirmEmailAddressEmailParams extends ConfirmEmailAddressEmailProps {
   emailAddress: string;
 }
 
 async function sendConfirmEmailAddressEmail(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   props: SendConfirmEmailAddressEmailParams
 ) {
   const html = confirmEmailAddressEmailHTML(props);

@@ -4,7 +4,7 @@ import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
@@ -36,7 +36,7 @@ export function generateTagListForTest(count = 20, seed: Partial<Tag> = {}) {
 }
 
 export async function generateAndInsertTagListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   seed: Partial<Tag> = {}
 ) {

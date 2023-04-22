@@ -1,5 +1,9 @@
+import countUserCollaborationRequests from './countUserRequests/handler';
+import countWorkspaceCollaborationRequests from './countWorkspaceRequests/handler';
 import deleteCollaborationRequest from './deleteRequest/handler';
 import {
+  countUserCollaborationRequestsEndpointDefinition,
+  countWorkspaceCollaborationRequestsEndpointDefinition,
   deleteCollaborationRequestEndpointDefinition,
   getUserCollaborationRequestEndpointDefinition,
   getUserCollaborationRequestsEndpointDefinition,
@@ -33,6 +37,10 @@ export const collaborationRequestsExportedEndpoints: CollaborationRequestsExport
     fn: getUserCollaborationRequests,
     mddocHttpDefinition: getUserCollaborationRequestsEndpointDefinition,
   },
+  countUserRequests: {
+    fn: countUserCollaborationRequests,
+    mddocHttpDefinition: countUserCollaborationRequestsEndpointDefinition,
+  },
   getWorkspaceRequest: {
     fn: getWorkspaceCollaborationRequest,
     mddocHttpDefinition: getWorkspaceCollaborationRequestEndpointDefinition,
@@ -40,6 +48,10 @@ export const collaborationRequestsExportedEndpoints: CollaborationRequestsExport
   getWorkspaceRequests: {
     fn: getWorkspaceCollaborationRequests,
     mddocHttpDefinition: getWorkspaceCollaborationRequestsEndpointDefinition,
+  },
+  countWorkspaceRequests: {
+    fn: countWorkspaceCollaborationRequests,
+    mddocHttpDefinition: countWorkspaceCollaborationRequestsEndpointDefinition,
   },
   respondToRequest: {
     fn: respondToCollaborationRequest,

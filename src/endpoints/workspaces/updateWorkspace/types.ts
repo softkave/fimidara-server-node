@@ -1,5 +1,5 @@
 import {PublicWorkspace} from '../../../definitions/workspace';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {NewWorkspaceInput} from '../addWorkspace/types';
 
@@ -14,7 +14,7 @@ export interface UpdateWorkspaceEndpointResult {
 }
 
 export type UpdateWorkspaceEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateWorkspaceEndpointParams,
   UpdateWorkspaceEndpointResult
 >;

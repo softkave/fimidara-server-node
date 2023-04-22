@@ -1,18 +1,18 @@
 import {Workspace} from '../../../../definitions/workspace';
 import {
-  ISemanticDataAccessProviderRunOptions,
-  ISemanticDataAccessWorkspaceResourceProvider,
+  SemanticDataAccessProviderRunOptions,
+  SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface ISemanticDataAccessWorkspaceProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<Workspace> {
+export interface SemanticDataAccessWorkspaceProviderType
+  extends SemanticDataAccessWorkspaceResourceProviderType<Workspace> {
   getByRootname(
     name: string,
-    opts?: ISemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<Workspace | null>;
-  existsByRootname(name: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<boolean>;
+  existsByRootname(name: string, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
   workspaceExistsByName(
     name: string,
-    opts?: ISemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<boolean>;
 }

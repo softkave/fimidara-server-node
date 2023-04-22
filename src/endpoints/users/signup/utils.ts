@@ -6,11 +6,11 @@ import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {EmailAddressNotAvailableError} from '../errors';
 import {SignupEndpointParams} from './types';
 
-export const internalSignupUser = async (context: BaseContext, data: SignupEndpointParams) => {
+export const internalSignupUser = async (context: BaseContextType, data: SignupEndpointParams) => {
   const userExists = await context.semantic.user.existsByEmail(data.email);
   if (userExists) {
     throw new EmailAddressNotAvailableError();

@@ -3,14 +3,14 @@ import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {assertUser} from '../utils';
 
 /**
  * Confirms the email address of the user. For internal use only.
  */
 export default async function internalConfirmEmailAddress(
-  context: BaseContext,
+  context: BaseContextType,
   userId: string,
   user?: User | null
 ) {

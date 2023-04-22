@@ -1,13 +1,13 @@
 import {File, FileMatcher} from '../../definitions/file';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFile, splitfilepathWithDetails} from './utils';
 
 export async function getFileWithMatcher(
-  context: BaseContext,
+  context: BaseContextType,
   matcher: FileMatcher,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (matcher.fileId) {
     const file = await context.semantic.file.getOneById(matcher.fileId, opts);
@@ -33,9 +33,9 @@ export async function getFileWithMatcher(
 }
 
 export async function assertGetSingleFileWithMatcher(
-  context: BaseContext,
+  context: BaseContextType,
   matcher: FileMatcher,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ): Promise<File> {
   const file = await getFileWithMatcher(context, matcher, opts);
   assertFile(file);

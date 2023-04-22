@@ -1,18 +1,18 @@
 import {File} from '../../../../definitions/file';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessFileProvider} from './types';
+import {SemanticDataAccessFileProvider} from './types';
 
 export class MemorySemanticDataAccessFile
   extends SemanticDataAccessWorkspaceResourceProvider<File>
-  implements ISemanticDataAccessFileProvider
+  implements SemanticDataAccessFileProvider
 {
   async getOneByNamePath(
     workspaceId: string,
     namePath: string[],
     extension?: string | undefined,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<File | null> {
     return await this.memstore.readItem(
       {workspaceId, extension, namePath: {$eq: namePath}},
@@ -27,9 +27,7 @@ export class MemorySemanticDataAccessFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?:
-      | (IDataProvideQueryListParams<File> & ISemanticDataAccessProviderRunOptions)
-      | undefined
+    options?: (IDataProvideQueryListParams<File> & SemanticDataAccessProviderRunOptions) | undefined
   ): Promise<File[]> {
     return await this.memstore.readManyItems(
       {
@@ -50,7 +48,7 @@ export class MemorySemanticDataAccessFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     return await this.memstore.countItems(
       {

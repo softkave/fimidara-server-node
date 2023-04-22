@@ -1,6 +1,6 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import AssignedItemQueries from '../../assignedItems/queries';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -15,7 +15,7 @@ import {
 import countWorkspaceCollaborators from './handler';
 import {CountWorkspaceCollaboratorsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

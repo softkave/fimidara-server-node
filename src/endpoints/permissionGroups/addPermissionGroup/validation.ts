@@ -1,20 +1,14 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
-import tagValidationSchemas from '../../tags/validation';
-import permissionGroupsValidationSchemas from '../validation';
+import {AddPermissionGroupEndpointParams, NewPermissionGroupInput} from './types';
 
-export const addPermissionGroupJoiSchema = Joi.object()
+export const addPermissionGroupJoiSchema = Joi.object<AddPermissionGroupEndpointParams>()
   .keys({
     workspaceId: validationSchemas.resourceId,
-    permissionGroup: Joi.object()
+    permissionGroup: Joi.object<NewPermissionGroupInput>()
       .keys({
         name: validationSchemas.name.required(),
         description: validationSchemas.description.allow(null),
-        permissionGroups:
-          permissionGroupsValidationSchemas.assignedPermissionGroupsList.allow(
-            null
-          ),
-        tags: tagValidationSchemas.assignedTagsList.allow(null),
       })
       .required(),
   })

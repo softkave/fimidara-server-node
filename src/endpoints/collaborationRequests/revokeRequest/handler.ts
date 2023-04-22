@@ -13,7 +13,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {
   checkCollaborationRequestAuthorization02,
@@ -63,7 +63,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 };
 
 async function sendRevokeCollaborationRequestEmail(
-  context: BaseContext,
+  context: BaseContextType,
   request: CollaborationRequest,
   workspaceName: string
 ) {

@@ -1,5 +1,5 @@
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
@@ -21,7 +21,7 @@ import {RemoveCollaboratorEndpointParams} from './types';
  * - Check that artifacts are removed
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

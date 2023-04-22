@@ -19,8 +19,8 @@ import {
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
 import {checkResourcesBelongToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
@@ -42,7 +42,7 @@ type InputsWithIdGroupedByType = PartialRecord<
 type FilePathsMap = PartialRecord</** filepath or folderpath */ string, AppActionType | undefined>;
 
 export interface GetResourcesOptions {
-  context: BaseContext;
+  context: BaseContextType;
   inputResources: Array<FetchResourceItemWithAction>;
   allowedTypes: AppResourceType[];
   checkAuth?: boolean;
@@ -50,7 +50,7 @@ export interface GetResourcesOptions {
   workspaceId: string;
   action: AppActionType;
   nothrowOnCheckError?: boolean;
-  dataFetchRunOptions?: ISemanticDataAccessProviderRunOptions;
+  dataFetchRunOptions?: SemanticDataAccessProviderRunOptions;
 
   /** User workspaces are automatically filled-in if `checkAuth` is true. */
   fillAssignedItems?: boolean;
@@ -217,9 +217,9 @@ function groupByContainerId(
 }
 
 async function fetchResourcesById(
-  context: BaseContext,
+  context: BaseContextType,
   idsGroupedByType: InputsWithIdGroupedByType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (isObjectEmpty(idsGroupedByType)) return [];
 
@@ -320,7 +320,7 @@ async function fetchResourcesById(
 }
 
 const fetchFiles = async (
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   filepathsMap: FilePathsMap
 ) => {
@@ -346,7 +346,7 @@ const fetchFiles = async (
 };
 
 const fetchFolders = async (
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   folderpathsMap: FilePathsMap
 ) => {
@@ -371,7 +371,7 @@ const fetchFolders = async (
   );
 };
 
-const fetchWorkspace = async (context: BaseContext, workspaceRootname?: string) => {
+const fetchWorkspace = async (context: BaseContextType, workspaceRootname?: string) => {
   if (!workspaceRootname) return [];
 
   const result = await context.semantic.workspace.getByRootname(workspaceRootname);
@@ -388,7 +388,7 @@ const fetchWorkspace = async (context: BaseContext, workspaceRootname?: string) 
 };
 
 async function authCheckResources(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   resources: Array<ResourceWrapper>,

@@ -1,5 +1,5 @@
 import {FileMatcher, PublicFile} from '../../../definitions/file';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface UpdateFileDetailsInput {
@@ -16,7 +16,7 @@ export interface UpdateFileDetailsEndpointResult {
 }
 
 export type UpdateFileDetailsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult
 >;

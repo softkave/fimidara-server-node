@@ -8,12 +8,12 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {toArray} from '../../../utils/fns';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
 export async function getWorkspaceSummedUsageQuery(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   data: GetWorkspaceSummedUsageEndpointParams

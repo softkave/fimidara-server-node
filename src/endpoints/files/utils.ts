@@ -7,8 +7,8 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
 import {FolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
@@ -35,7 +35,7 @@ export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   file: File,
   action: AppActionType
@@ -55,11 +55,11 @@ export async function checkFileAuthorization(
 }
 
 export async function checkFileAuthorization03(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   matcher: FileMatcher,
   action: AppActionType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const file = await assertGetFileWithMatcher(context, matcher, opts);
   return checkFileAuthorization(context, agent, file, action);
@@ -120,7 +120,7 @@ export function getFilePathWithoutRootname(file: File) {
   }${file.extension}`;
 }
 
-export async function getWorkspaceFromFilepath(context: BaseContext, filepath: string) {
+export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
   const pathWithDetails = splitfilepathWithDetails(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
     pathWithDetails.workspaceRootname
@@ -130,7 +130,7 @@ export async function getWorkspaceFromFilepath(context: BaseContext, filepath: s
 }
 
 export async function getWorkspaceFromFileOrFilepath(
-  context: BaseContext,
+  context: BaseContextType,
   file?: File | null,
   filepath?: string
 ) {

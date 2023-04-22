@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
@@ -17,7 +17,7 @@ import {fileConstants} from '../constants';
 import deleteFile from './handler';
 import {DeleteFileEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -27,7 +27,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-async function assertFileDeleted(context: BaseContext, id: string) {
+async function assertFileDeleted(context: BaseContextType, id: string) {
   const exists = await context.semantic.file.existsByQuery(
     EndpointReusableQueries.getByResourceId(id)
   );

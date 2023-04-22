@@ -1,11 +1,11 @@
 import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {GetEntityPermissionItemsEndpointParams} from './types';
 
 export async function getEntityPermissionItemsQuery(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: Pick<GetEntityPermissionItemsEndpointParams, 'entityId'>

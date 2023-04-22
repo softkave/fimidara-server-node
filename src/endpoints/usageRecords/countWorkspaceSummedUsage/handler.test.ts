@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -15,7 +15,7 @@ import {
 import countWorkspaceSummedUsage from './handler';
 import {CountWorkspaceSummedUsageEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -1,4 +1,6 @@
+import countWorkspaceSummedUsage from './countWorkspaceSummedUsage/handler';
 import {
+  countWorkspaceSummedUsageEndpointDefinition,
   getUsageCostsEndpointDefinition,
   getWorkspaceSummedUsageEndpointDefinition,
 } from './endpoints.mddoc';
@@ -14,5 +16,9 @@ export const usageRecordsExportedEndpoints: UsageRecordsExportedEndpoints = {
   getWorkspaceSummedUsage: {
     fn: getWorkspaceSummedUsage,
     mddocHttpDefinition: getWorkspaceSummedUsageEndpointDefinition,
+  },
+  countWorkspaceSummedUsage: {
+    fn: countWorkspaceSummedUsage,
+    mddocHttpDefinition: countWorkspaceSummedUsageEndpointDefinition,
   },
 };

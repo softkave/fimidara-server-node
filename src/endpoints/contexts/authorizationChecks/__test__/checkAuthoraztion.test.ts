@@ -32,7 +32,7 @@ import {
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
 import {executeWithMutationRunOptions} from '../../semantic/utils';
-import {BaseContext} from '../../types';
+import {BaseContextType} from '../../types';
 import {
   checkAuthorization,
   getFilePermissionContainers,
@@ -40,7 +40,7 @@ import {
   summarizeAgentPermissionItems,
 } from '../checkAuthorizaton';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -3,7 +3,7 @@ import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups'
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
@@ -16,7 +16,7 @@ import {
 } from '../../testUtils/testUtils';
 import {addAssignedPermissionGroupList} from '../addAssignedItems';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

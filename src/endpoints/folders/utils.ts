@@ -7,8 +7,8 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -103,7 +103,7 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   folder: Folder,
   action: AppActionType,
@@ -127,12 +127,12 @@ export async function checkFolderAuthorization(
 }
 
 export async function checkFolderAuthorization02(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher,
   action: AppActionType,
   workspace?: Workspace,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher, opts);
   return checkFolderAuthorization(context, agent, folder, action, workspace);

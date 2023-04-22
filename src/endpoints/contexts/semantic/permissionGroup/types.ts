@@ -1,5 +1,5 @@
 import {PermissionGroup} from '../../../../definitions/permissionGroups';
-import {ISemanticDataAccessWorkspaceResourceProvider} from '../types';
+import {SemanticDataAccessWorkspaceResourceProviderType} from '../types';
 
-export interface ISemanticDataAccessPermissionGroupProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<PermissionGroup> {}
+export interface SemanticDataAccessPermissionGroupProviderType
+  extends SemanticDataAccessWorkspaceResourceProviderType<PermissionGroup> {}

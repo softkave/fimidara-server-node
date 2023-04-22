@@ -16,10 +16,10 @@ import {ID_SIZE, getNewIdForResource} from '../../utils/resource';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {MemStore} from '../contexts/mem/Mem';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {createFolderList} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
@@ -38,7 +38,7 @@ const appSetupVars = {
 };
 
 async function setupWorkspace(
-  context: BaseContext,
+  context: BaseContextType,
   name: string,
   rootname: string,
   opts: SemanticDataAccessProviderMutationRunOptions
@@ -57,7 +57,7 @@ async function setupWorkspace(
 }
 
 async function setupDefaultUserCollaborationRequest(
-  context: BaseContext,
+  context: BaseContextType,
   workspace: Workspace,
   userEmail: string,
   adminPermissionGroupId: string,
@@ -93,7 +93,7 @@ async function setupDefaultUserCollaborationRequest(
 }
 
 async function setupFolders(
-  context: BaseContext,
+  context: BaseContextType,
   workspace: Workspace,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
@@ -121,7 +121,7 @@ async function setupFolders(
 }
 
 async function setupImageUploadPermissionGroup(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   name: string,
   description: string,
@@ -163,8 +163,8 @@ async function setupImageUploadPermissionGroup(
 }
 
 async function isRootWorkspaceSetup(
-  context: BaseContext,
-  opts?: ISemanticDataAccessProviderRunOptions
+  context: BaseContextType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
@@ -173,9 +173,9 @@ async function isRootWorkspaceSetup(
 }
 
 async function getRootWorkspace(
-  context: BaseContext,
+  context: BaseContextType,
   appRuntimeState: AppRuntimeState,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const appRuntimeVars: AppRuntimeVars = {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
@@ -192,7 +192,7 @@ async function getRootWorkspace(
   return workspace;
 }
 
-export async function setupApp(context: BaseContext) {
+export async function setupApp(context: BaseContextType) {
   return await MemStore.withTransaction(context, async transaction => {
     const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     const appRuntimeState = await isRootWorkspaceSetup(context, opts);

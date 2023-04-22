@@ -1,5 +1,5 @@
 import {FileMatcher} from '../../../definitions/file';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type ImageTransformationParams = {
@@ -18,7 +18,7 @@ export interface ReadFileEndpointResult {
 }
 
 export type ReadFileEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   ReadFileEndpointParams,
   ReadFileEndpointResult
 >;

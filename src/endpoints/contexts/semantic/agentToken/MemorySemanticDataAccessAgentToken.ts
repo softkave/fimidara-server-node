@@ -2,15 +2,15 @@ import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessAgentTokenProvider} from './types';
+import {SemanticDataAccessAgentTokenProvider} from './types';
 
 export class MemorySemanticDataAccessAgentToken
   extends SemanticDataAccessWorkspaceResourceProvider<AgentToken>
-  implements ISemanticDataAccessAgentTokenProvider
+  implements SemanticDataAccessAgentTokenProvider
 {
   async deleteAgentTokens(
     agentId: string,
@@ -29,7 +29,7 @@ export class MemorySemanticDataAccessAgentToken
   async getOneAgentToken(
     agentId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<AgentToken | null> {
     return await this.memstore.readItem(
       {

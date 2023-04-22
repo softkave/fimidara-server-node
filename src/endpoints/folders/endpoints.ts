@@ -1,7 +1,9 @@
 import addFolder from './addFolder/handler';
+import countFolderContent from './countFolderContent/handler';
 import deleteFolder from './deleteFolder/handler';
 import {
   addFolderEndpointDefinition,
+  countFolderContentEndpointDefinition,
   deleteFolderEndpointDefinition,
   getFolderEndpointDefinition,
   listFolderContentEndpointDefinition,
@@ -28,6 +30,10 @@ export const foldersExportedEndpoints: FoldersExportedEndpoints = {
   listFolderContent: {
     fn: listFolderContent,
     mddocHttpDefinition: listFolderContentEndpointDefinition,
+  },
+  countFolderContent: {
+    fn: countFolderContent,
+    mddocHttpDefinition: countFolderContentEndpointDefinition,
   },
   updateFolder: {
     fn: updateFolder,

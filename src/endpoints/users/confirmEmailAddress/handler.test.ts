@@ -9,7 +9,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
@@ -21,7 +21,7 @@ import {
 } from '../../testUtils/testUtils';
 import confirmEmailAddress from './handler';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

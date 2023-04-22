@@ -1,5 +1,5 @@
 import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface UpdateFolderInput {
@@ -15,7 +15,7 @@ export interface UpdateFolderEndpointResult {
 }
 
 export type UpdateFolderEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   UpdateFolderEndpointParams,
   UpdateFolderEndpointResult
 >;

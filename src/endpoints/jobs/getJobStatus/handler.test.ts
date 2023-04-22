@@ -1,5 +1,5 @@
 import {JobStatus} from '../../../definitions/job';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -15,7 +15,7 @@ import {
 import {executeJob, waitForJob} from '../runner';
 import getJobStatus from './handler';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -3,8 +3,8 @@ import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {AppResourceType, Resource} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} from './utils';
 
 /**
@@ -14,11 +14,11 @@ import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} fr
  * @param assignedItemTypes
  */
 export async function getResourceAssignedItems(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   return await context.semantic.assignedItem.getWorkspaceResourceAssignedItems(
     workspaceId,
@@ -37,11 +37,11 @@ export async function getResourceAssignedItems(
  * contain empty arrays if no assigned items of the specified type are found.
  */
 export async function getResourceAssignedItemsSortedByType(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const items = await getResourceAssignedItems(
     context,
@@ -72,7 +72,7 @@ export async function populateAssignedItems<
   T extends Resource,
   AT extends Array<AppResourceType.Tag>
 >(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   resource: T,
   assignedItemTypes: AT = [AppResourceType.Tag] as any
@@ -117,7 +117,7 @@ export async function populateAssignedTags<
   R extends T | undefined = undefined,
   Final = R extends undefined ? ResourceWithTags<T> : R
 >(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   resource: NonNullable<T>,
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
@@ -140,7 +140,7 @@ export async function populateResourceListWithAssignedTags<
   T extends Resource,
   R extends T | undefined = undefined
 >(
-  context: BaseContext,
+  context: BaseContextType,
   workspaceId: string,
   resources: T[],
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
@@ -151,9 +151,9 @@ export async function populateResourceListWithAssignedTags<
 }
 
 export async function populateUserWorkspaces<T extends User>(
-  context: BaseContext,
+  context: BaseContextType,
   resource: T,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ): Promise<T & {workspaces: UserWorkspace[]}> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
@@ -180,7 +180,7 @@ export async function populateUserWorkspaces<T extends User>(
 }
 
 export async function populateUserListWithWorkspaces<T extends User>(
-  context: BaseContext,
+  context: BaseContextType,
   resources: T[]
 ) {
   return await Promise.all(resources.map(resource => populateUserWorkspaces(context, resource)));

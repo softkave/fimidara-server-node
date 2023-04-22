@@ -9,14 +9,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {AddPermissionItemsEndpointParams, AddPermissionItemsEndpointResult} from './addItems/types';
+import {
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
+import {AddPermissionItemsEndpointParams} from './addItems/types';
 import {permissionItemConstants} from './constants';
 import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './deleteItems/types';
 import {DeletePermissionItemsByIdEndpointParams} from './deleteItemsById/types';
@@ -146,15 +148,6 @@ const addPermissionItemsParams = FieldObject.construct<AddPermissionItemsEndpoin
   })
   .setRequired(true)
   .setDescription('Add permission items endpoint params.');
-const addPermissionItemsResponseBody = FieldObject.construct<AddPermissionItemsEndpointResult>()
-  .setName('AddPermissionItemsEndpointSuccessResult')
-  .setFields({
-    items: FieldObject.requiredField(
-      FieldArray.construct<PublicPermissionItem>().setType(permissionItem)
-    ),
-  })
-  .setRequired(true)
-  .setDescription('Add permission items endpoint success result.');
 
 const getResourcePermissionItemsParams =
   FieldObject.construct<GetResourcePermissionItemsEndpointParams>()
@@ -231,7 +224,7 @@ const deletePermissionItemsParams = FieldObject.construct<DeletePermissionItemsE
 
 export const addPermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddPermissionItemsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
 }>()
   .setBasePathname(permissionItemConstants.routes.addItems)
   .setMethod(HttpEndpointMethod.Post)
@@ -242,9 +235,9 @@ export const addPermissionItemsEndpointDefinition = HttpEndpointDefinition.const
 
 export const getEntityPermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetEntityPermissionItemsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetEntityPermissionItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionItemConstants.routes.getEntityPermissionItems)
   .setMethod(HttpEndpointMethod.Post)
@@ -257,9 +250,9 @@ export const getEntityPermissionItemsEndpointDefinition = HttpEndpointDefinition
 
 export const deletePermissionItemsByIdEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeletePermissionItemsByIdEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionItemConstants.routes.deleteItemsById)
   .setMethod(HttpEndpointMethod.Delete)
@@ -272,9 +265,9 @@ export const deletePermissionItemsByIdEndpointDefinition = HttpEndpointDefinitio
 
 export const deletePermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeletePermissionItemsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionItemConstants.routes.deleteItems)
   .setMethod(HttpEndpointMethod.Delete)
@@ -287,9 +280,9 @@ export const deletePermissionItemsEndpointDefinition = HttpEndpointDefinition.co
 
 export const getResourcePermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetResourcePermissionItemsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetResourcePermissionItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(permissionItemConstants.routes.getResourcePermissionItems)
   .setMethod(HttpEndpointMethod.Post)

@@ -8,13 +8,13 @@ import {
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 
 export async function checkUploadFileAuth(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   file: File | null,
@@ -52,7 +52,7 @@ export async function checkUploadFileAuth(
 }
 
 export async function createFileParentFolders(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   pathWithDetails: ISplitfilepathWithDetails,

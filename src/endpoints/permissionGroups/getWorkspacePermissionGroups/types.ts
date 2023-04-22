@@ -1,5 +1,5 @@
 import {PublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -19,7 +19,7 @@ export interface GetWorkspacePermissionGroupsEndpointResult extends PaginatedRes
 }
 
 export type GetWorkspacePermissionGroupsEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetWorkspacePermissionGroupsEndpointParams,
   GetWorkspacePermissionGroupsEndpointResult
 >;

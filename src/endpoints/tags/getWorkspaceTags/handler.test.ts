@@ -1,5 +1,5 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -15,7 +15,7 @@ import {
 import getWorkspaceTags from './handler';
 import {GetWorkspaceTagsEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

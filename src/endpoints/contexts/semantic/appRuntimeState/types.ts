@@ -1,5 +1,5 @@
 import {AppRuntimeState} from '../../../../definitions/system';
-import {ISemanticDataAccessBaseProvider} from '../types';
+import {SemanticDataAccessBaseProviderType} from '../types';
 
-export interface ISemanticDataAccessAppRuntimeStateProvider
-  extends ISemanticDataAccessBaseProvider<AppRuntimeState> {}
+export interface SemanticDataAccessAppRuntimeStateProvider
+  extends SemanticDataAccessBaseProviderType<AppRuntimeState> {}

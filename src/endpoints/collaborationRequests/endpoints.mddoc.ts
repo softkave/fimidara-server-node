@@ -11,15 +11,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired,
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {collabRequestConstants} from './constants';
 import {CountWorkspaceCollaborationRequestsEndpointParams} from './countWorkspaceRequests/types';
 import {DeleteCollaborationRequestEndpointParams} from './deleteRequest/types';
@@ -278,9 +279,9 @@ const deleteCollaborationRequestParams =
 
 export const sendCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: SendCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: SendCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.sendRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -293,9 +294,9 @@ export const sendCollaborationRequestEndpointDefinition = HttpEndpointDefinition
 
 export const getUserCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetUserCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetUserCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -308,9 +309,9 @@ export const getUserCollaborationRequestEndpointDefinition = HttpEndpointDefinit
 
 export const getWorkspaceCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspaceCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.getRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -323,9 +324,9 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = HttpEndpointDe
 
 export const updateCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.updateRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -338,9 +339,9 @@ export const updateCollaborationRequestEndpointDefinition = HttpEndpointDefiniti
 
 export const respondToCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: RespondToCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: RespondToCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.respondToRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -353,9 +354,9 @@ export const respondToCollaborationRequestEndpointDefinition = HttpEndpointDefin
 
 export const revokeCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: RevokeCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: RevokeCollaborationRequestEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.revokeRequest)
   .setMethod(HttpEndpointMethod.Post)
@@ -368,9 +369,9 @@ export const revokeCollaborationRequestEndpointDefinition = HttpEndpointDefiniti
 
 export const deleteCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeleteCollaborationRequestEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.deleteRequest)
   .setMethod(HttpEndpointMethod.Delete)
@@ -384,9 +385,9 @@ export const deleteCollaborationRequestEndpointDefinition = HttpEndpointDefiniti
 export const getWorkspaceCollaborationRequestsEndpointDefinition =
   HttpEndpointDefinition.construct<{
     requestBody: GetWorkspaceCollaborationRequestsEndpointParams;
-    requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
     responseBody: GetWorkspaceCollaborationRequestsEndpointResult;
-    responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
   }>()
     .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
     .setMethod(HttpEndpointMethod.Post)
@@ -399,9 +400,9 @@ export const getWorkspaceCollaborationRequestsEndpointDefinition =
 
 export const getUserCollaborationRequestsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetUserCollaborationRequestsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetUserCollaborationRequestsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.getUserRequests)
   .setMethod(HttpEndpointMethod.Post)
@@ -413,13 +414,13 @@ export const getUserCollaborationRequestsEndpointDefinition = HttpEndpointDefini
   .setDescription('Get user collaboration requests endpoint.');
 
 export const countUserCollaborationRequestsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(collabRequestConstants.routes.countUserRequests)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspaceCollaborationRequestsEndpoint')
@@ -428,9 +429,9 @@ export const countUserCollaborationRequestsEndpointDefinition = HttpEndpointDefi
 export const countWorkspaceCollaborationRequestsEndpointDefinition =
   HttpEndpointDefinition.construct<{
     requestBody: CountWorkspaceCollaborationRequestsEndpointParams;
-    requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
     responseBody: CountItemsEndpointResult;
-    responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
   }>()
     .setBasePathname(collabRequestConstants.routes.countWorkspaceRequests)
     .setMethod(HttpEndpointMethod.Post)

@@ -4,15 +4,15 @@ import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
-  ISemanticDataAccessProviderRunOptions,
   SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessAssignedItemProvider} from './types';
+import {SemanticDataAccessAssignedItemProvider} from './types';
 
 export class MemorySemanticDataAccessAssignedItem
   extends SemanticDataAccessWorkspaceResourceProvider<AssignedItem>
-  implements ISemanticDataAccessAssignedItemProvider
+  implements SemanticDataAccessAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
@@ -20,7 +20,7 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string | string[],
     options?:
       | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
-          ISemanticDataAccessProviderRunOptions)
+          SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
@@ -41,7 +41,7 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
     options?:
       | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
-          ISemanticDataAccessProviderRunOptions)
+          SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
@@ -62,7 +62,7 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string,
     options?:
       | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
-          ISemanticDataAccessProviderRunOptions)
+          SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.memstore.readManyItems(
@@ -79,7 +79,7 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string | string[],
     options?:
       | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
-          ISemanticDataAccessProviderRunOptions)
+          SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<boolean> {
     return await this.memstore.exists(

@@ -3,7 +3,7 @@ import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../de
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {PaginationQuery} from '../../types';
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
@@ -45,7 +45,7 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
 };
 
 async function fetchFolders(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null,
@@ -62,7 +62,7 @@ async function fetchFolders(
 }
 
 async function fetchFiles(
-  context: BaseContext,
+  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null,

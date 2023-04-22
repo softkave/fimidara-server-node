@@ -3,7 +3,7 @@ import {
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
 } from '../../../definitions/usageRecord';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -32,7 +32,7 @@ export interface GetWorkspaceSummedUsageEndpointResult extends PaginatedResult {
 }
 
 export type GetWorkspaceSummedUsageEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult
 >;

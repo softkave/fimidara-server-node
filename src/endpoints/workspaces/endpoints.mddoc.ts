@@ -15,15 +15,18 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired,
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {CountItemsEndpointResult, EndpointOptionalWorkspaceIDParam} from '../types';
+import {
+  CountItemsEndpointResult,
+  EndpointOptionalWorkspaceIDParam,
+  HttpEndpointRequestHeaders_AuthRequired,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {userConstants} from '../users/constants';
 import {AddWorkspaceEndpointParams, AddWorkspaceEndpointResult} from './addWorkspace/types';
 import {workspaceConstants} from './constants';
@@ -191,9 +194,9 @@ const deleteWorkspaceParams = FieldObject.construct<EndpointOptionalWorkspaceIDP
 
 export const addWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddWorkspaceEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: AddWorkspaceEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(workspaceConstants.routes.addWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -206,9 +209,9 @@ export const addWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: EndpointOptionalWorkspaceIDParam;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(workspaceConstants.routes.getWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -221,9 +224,9 @@ export const getWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getUserWorkspacesEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetUserWorkspacesEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetUserWorkspacesEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(workspaceConstants.routes.getUserWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
@@ -236,9 +239,9 @@ export const getUserWorkspacesEndpointDefinition = HttpEndpointDefinition.constr
 
 export const updateWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateWorkspaceEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateWorkspaceEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(workspaceConstants.routes.updateWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -251,9 +254,9 @@ export const updateWorkspaceEndpointDefinition = HttpEndpointDefinition.construc
 
 export const deleteWorkspaceEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: EndpointOptionalWorkspaceIDParam;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(workspaceConstants.routes.deleteWorkspace)
   .setMethod(HttpEndpointMethod.Delete)
@@ -265,9 +268,9 @@ export const deleteWorkspaceEndpointDefinition = HttpEndpointDefinition.construc
   .setDescription('Delete workspace endpoint.');
 
 export const countUserWorkspacesEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(userConstants.routes.countUserWorkspaces)
   .setMethod(HttpEndpointMethod.Post)

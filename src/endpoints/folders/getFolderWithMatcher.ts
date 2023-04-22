@@ -1,13 +1,13 @@
 import {FolderMatcher} from '../../definitions/folder';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFolder, splitPathWithDetails} from './utils';
 
 export async function getFolderWithMatcher(
-  context: BaseContext,
+  context: BaseContextType,
   matcher: FolderMatcher,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (matcher.folderId) {
     return await context.semantic.folder.getOneById(matcher.folderId, opts);
@@ -29,9 +29,9 @@ export async function getFolderWithMatcher(
 }
 
 export async function assertGetFolderWithMatcher(
-  context: BaseContext,
+  context: BaseContextType,
   matcher: FolderMatcher,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const folder = await getFolderWithMatcher(context, matcher, opts);
   assertFolder(folder);

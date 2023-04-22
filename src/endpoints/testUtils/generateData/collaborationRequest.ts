@@ -7,7 +7,7 @@ import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   GeneratePartialTestDataFn,
   defaultGeneratePartialTestDataFn,
@@ -46,7 +46,7 @@ export function generateCollaborationRequestListForTest(
 }
 
 export async function generateAndInsertCollaborationRequestListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {

@@ -3,7 +3,6 @@ import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
@@ -44,15 +43,6 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
       }
     );
     await context.semantic.permissionGroup.insertItem(permissionGroup, opts);
-    await saveResourceAssignedItems(
-      context,
-      agent,
-      workspace,
-      permissionGroup.resourceId,
-      data.permissionGroup,
-      /** delete existing */ false,
-      opts
-    );
     return permissionGroup;
   });
 

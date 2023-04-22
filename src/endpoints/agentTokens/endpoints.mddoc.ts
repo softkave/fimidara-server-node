@@ -6,14 +6,16 @@ import {
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
-import {CountItemsEndpointResult} from '../types';
+import {
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult,
@@ -144,9 +146,9 @@ const deleteAgentTokenParams = FieldObject.construct<DeleteAgentTokenEndpointPar
 
 export const addAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: AddAgentTokenEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: AddAgentTokenEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -158,9 +160,9 @@ export const addAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<
 
 export const getAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetAgentTokenEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetAgentTokenEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -173,9 +175,9 @@ export const getAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<
 
 export const updateAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateAgentTokenEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateAgentTokenEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -188,9 +190,9 @@ export const updateAgentTokenEndpointDefinition = HttpEndpointDefinition.constru
 
 export const deleteAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeleteAgentTokenEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
@@ -203,9 +205,9 @@ export const deleteAgentTokenEndpointDefinition = HttpEndpointDefinition.constru
 
 export const getWorkspaceAgentTokensEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetWorkspaceAgentTokensEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetWorkspaceAgentTokensEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
@@ -218,9 +220,9 @@ export const getWorkspaceAgentTokensEndpointDefinition = HttpEndpointDefinition.
 
 export const countWorkspaceAgentTokensEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: CountWorkspaceAgentTokensEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: CountItemsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(agentTokenConstants.routes.countWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)

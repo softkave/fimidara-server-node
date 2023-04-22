@@ -10,13 +10,13 @@ import {
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext from './SessionContext';
-import {IMemStore} from './mem/types';
+import {MemStoreType} from './mem/types';
 import {
-  BaseContext,
   BaseContextDataProviders,
   BaseContextLogicProviders,
   BaseContextMemStoreProviders,
   BaseContextSemanticDataProviders,
+  BaseContextType,
 } from './types';
 
 export default class BaseContext<
@@ -27,7 +27,7 @@ export default class BaseContext<
   MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
-> implements BaseContext<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
+> implements BaseContextType<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
 {
   data: Data;
   email: Email;
@@ -67,7 +67,7 @@ export default class BaseContext<
 
   dispose = async () => {
     forEach(this.memstore, store => {
-      (store as IMemStore<any>).dispose();
+      (store as MemStoreType<any>).dispose();
     });
 
     const promises = [this.fileBackend.close(), this.email.close()];

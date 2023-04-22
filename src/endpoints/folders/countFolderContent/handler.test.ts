@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
@@ -14,7 +14,7 @@ import {
 import countFolderContent from './handler';
 import {CountFolderContentEndpointParams} from './types';
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

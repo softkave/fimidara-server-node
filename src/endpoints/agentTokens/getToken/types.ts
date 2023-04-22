@@ -1,5 +1,5 @@
 import {PublicAgentToken} from '../../../definitions/agentToken';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointWorkspaceResourceParam} from '../../types';
 
 export interface GetAgentTokenEndpointParams extends EndpointWorkspaceResourceParam {
@@ -12,7 +12,7 @@ export interface GetAgentTokenEndpointResult {
 }
 
 export type GetAgentTokenEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetAgentTokenEndpointParams,
   GetAgentTokenEndpointResult
 >;

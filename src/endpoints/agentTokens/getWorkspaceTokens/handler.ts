@@ -3,11 +3,11 @@ import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssig
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
-import {GetWorkspaceAgentTokenEndpoint} from './types';
+import {GetWorkspaceAgentTokensEndpoint} from './types';
 import {getWorkspaceAgentTokensQuery} from './utils';
 import {getWorkspaceAgentTokenJoiSchema} from './validation';
 
-const getWorkspaceAgentTokens: GetWorkspaceAgentTokenEndpoint = async (context, instData) => {
+const getWorkspaceAgentTokens: GetWorkspaceAgentTokensEndpoint = async (context, instData) => {
   const data = validate(instData.data, getWorkspaceAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);

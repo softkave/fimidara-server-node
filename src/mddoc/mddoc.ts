@@ -1,16 +1,16 @@
 import {OptionalKeysOf} from 'type-fest';
+import {
+  BaseEndpointResult,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+  HttpEndpointStructure,
+} from '../endpoints/types';
 import {AccessorConstruct, ClassFieldsWithAccessorsMixin} from '../utils/classAccessors';
 import {AnyObject} from '../utils/types';
 
 // TODO: remove setRequired from others
-// TODO: HTTP header should be an object, same for path parameters
-// TODO: solve the issue with required or not for query and body
 // TODO: either return shorted enums to descriptive text or find a way to add comments to them in api and sdk.
 // TODO: stripSpaceFromNewline, padNewline, replaceLayoutPlaceholders
-// TODO: http endpoint result
-// TODO: count endpoints
 // TODO: clarify in docs, endpoints that have required body but same fields can be passed in path or query
-// TODO: mddoc path parameters show, add error response, change some wordings, allow linking to href of types, show json rep of type
 
 export class FieldBase {
   static construct() {
@@ -233,20 +233,11 @@ export class HttpEndpointMultipartFormdata<T extends object> {
   constructor(public items?: MddocTypeFieldObject<T>) {}
 }
 
-export type HttpEndpointDefinitionGenericsStructure = {
-  pathParameters?: any;
-  requestHeaders?: any;
-  query?: any;
-  requestBody?: any;
-  responseHeaders?: any;
-  responseBody?: any;
-};
-
 export type InferHttpEndpointTTypes<T extends HttpEndpointDefinition<any>> =
   T extends HttpEndpointDefinition<infer TTypes> ? TTypes : never;
 
-export class HttpEndpointDefinition<TTypes extends HttpEndpointDefinitionGenericsStructure> {
-  static construct<TTypes extends HttpEndpointDefinitionGenericsStructure>() {
+export class HttpEndpointDefinition<TStructure extends HttpEndpointStructure> {
+  static construct<TTypes extends HttpEndpointStructure>() {
     return AccessorConstruct.wrap(new HttpEndpointDefinition<TTypes>());
   }
 
@@ -254,18 +245,22 @@ export class HttpEndpointDefinition<TTypes extends HttpEndpointDefinitionGeneric
   constructor(
     public basePathname?: string,
     public method?: HttpEndpointMethod,
-    public pathParamaters?: MddocTypeFieldObject<TTypes['pathParameters']>,
-    public query?: MddocTypeFieldObject<TTypes['query']>,
+    public pathParamaters?: MddocTypeFieldObject<TStructure['pathParameters']>,
+    public query?: MddocTypeFieldObject<TStructure['query']>,
     public requestBody?:
-      | MddocTypeFieldObject<TTypes['requestBody']>
-      | MddocTypeHttpEndpointMultipartFormdata<TTypes['requestBody']>,
-    public requestHeaders?: MddocTypeFieldObject<TTypes['requestHeaders']>,
-    public responseHeaders?: MddocTypeFieldObject<TTypes['responseHeaders']>,
-    public responseBody?: TTypes['responseBody'] extends FieldBinary
+      | MddocTypeFieldObject<TStructure['requestBody']>
+      | MddocTypeHttpEndpointMultipartFormdata<TStructure['requestBody']>,
+    public requestHeaders?: MddocTypeFieldObject<TStructure['requestHeaders']>,
+    public responseHeaders?: MddocTypeFieldObject<TStructure['responseHeaders']>,
+    public responseBody?: TStructure['responseBody'] extends FieldBinary
       ? MddocTypeFieldBinary
-      : MddocTypeFieldObject<TTypes['responseBody']>,
+      : MddocTypeFieldObject<TStructure['responseBody']>,
     public name?: string,
-    public description?: string
+    public description?: string,
+
+    // no need to manually set these fields
+    public errorResponseHeaders?: MddocTypeFieldObject<HttpEndpointResponseHeaders_ContentType_ContentLength>,
+    public errorResponseBody?: MddocTypeFieldObject<BaseEndpointResult>
   ) {}
 }
 
@@ -282,7 +277,7 @@ export type MddocTypeFieldObject<TObject extends object = any> = ClassFieldsWith
 >;
 export type MddocTypeFieldOrCombination = ClassFieldsWithAccessorsMixin<FieldOrCombination>;
 export type MddocTypeFieldBinary = ClassFieldsWithAccessorsMixin<FieldBinary>;
-export type MddocTypeHttpEndpoint<TTypes extends HttpEndpointDefinitionGenericsStructure> =
+export type MddocTypeHttpEndpoint<TTypes extends HttpEndpointStructure> =
   ClassFieldsWithAccessorsMixin<HttpEndpointDefinition<TTypes>>;
 export type MddocTypeHttpEndpointMultipartFormdata<T extends object> =
   ClassFieldsWithAccessorsMixin<HttpEndpointMultipartFormdata<T>>;

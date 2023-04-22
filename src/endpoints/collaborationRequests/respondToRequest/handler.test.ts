@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -21,7 +21,7 @@ import {RespondToCollaborationRequestEndpointParams} from './types';
  * - Check if user declined, the update is "declined"
  */
 
-let context: BaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

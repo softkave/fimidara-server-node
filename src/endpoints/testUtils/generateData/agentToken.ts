@@ -4,7 +4,7 @@ import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definition
 import {newResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
@@ -41,7 +41,7 @@ export function generateAgentTokenListForTest(
 }
 
 export async function generateAndInsertAgentTokenListForTest(
-  ctx: BaseContext,
+  ctx: BaseContextType,
   count = 20,
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {

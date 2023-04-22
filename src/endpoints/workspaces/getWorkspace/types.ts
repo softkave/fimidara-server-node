@@ -1,5 +1,5 @@
 import {PublicWorkspace} from '../../../definitions/workspace';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface GetWorkspaceEndpointResult {
@@ -7,7 +7,7 @@ export interface GetWorkspaceEndpointResult {
 }
 
 export type GetWorkspaceEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   EndpointOptionalWorkspaceIDParam,
   GetWorkspaceEndpointResult
 >;

@@ -10,14 +10,16 @@ import {
   HttpEndpointMultipartFormdata,
 } from '../../mddoc/mddoc';
 import {
-  MddocEndpointRequestHeaders_AuthOptional_ContentType,
-  MddocEndpointRequestHeaders_AuthRequired_ContentType,
-  MddocEndpointResponseHeaders_ContentType_ContentLength,
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
+import {
+  HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
 import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
@@ -129,7 +131,7 @@ const readFileQuery = FieldObject.construct<ReadFileEndpointHttpQuery>().setFiel
   h: FieldObject.optionalField(height),
 });
 const readFileResponseHeaders =
-  FieldObject.construct<MddocEndpointResponseHeaders_ContentType_ContentLength>().setFields({
+  FieldObject.construct<HttpEndpointResponseHeaders_ContentType_ContentLength>().setFields({
     'Content-Type': FieldObject.requiredField(
       FieldString.construct()
         .setRequired(true)
@@ -175,9 +177,9 @@ export const readFileEndpointDefinition = HttpEndpointDefinition.construct<{
   pathParameters: FileMatcherPathParameters;
   query: ReadFileEndpointHttpQuery;
   requestBody: ReadFileEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthOptional_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthOptional_ContentType;
   responseBody: FieldBinary;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(fileConstants.routes.readFile)
   .setPathParamaters(fileMatcherPathParameters)
@@ -193,9 +195,9 @@ export const readFileEndpointDefinition = HttpEndpointDefinition.construct<{
 export const uploadFileEndpointDefinition = HttpEndpointDefinition.construct<{
   pathParameters: FileMatcherPathParameters;
   requestBody: UploadFileEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthOptional_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthOptional_ContentType;
   responseBody: UploadFileEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(fileConstants.routes.uploadFile)
   .setPathParamaters(fileMatcherPathParameters)
@@ -209,9 +211,9 @@ export const uploadFileEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const getFileDetailsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: GetFileDetailsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: GetFileDetailsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(fileConstants.routes.getFileDetails)
   .setMethod(HttpEndpointMethod.Post)
@@ -224,9 +226,9 @@ export const getFileDetailsEndpointDefinition = HttpEndpointDefinition.construct
 
 export const updateFileDetailsEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: UpdateFileDetailsEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: UpdateFileDetailsEndpointResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(fileConstants.routes.updateFileDetails)
   .setMethod(HttpEndpointMethod.Post)
@@ -239,9 +241,9 @@ export const updateFileDetailsEndpointDefinition = HttpEndpointDefinition.constr
 
 export const deleteFileEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: DeleteFileEndpointParams;
-  requestHeaders: MddocEndpointRequestHeaders_AuthRequired_ContentType;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
   responseBody: LongRunningJobResult;
-  responseHeaders: MddocEndpointResponseHeaders_ContentType_ContentLength;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
   .setBasePathname(fileConstants.routes.deleteFile)
   .setMethod(HttpEndpointMethod.Delete)

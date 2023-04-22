@@ -1,5 +1,5 @@
 import {PublicTag} from '../../../definitions/tag';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -17,8 +17,8 @@ export interface GetWorkspaceTagsEndpointResult extends PaginatedResult {
   tags: PublicTag[];
 }
 
-export type GetWorkspaceTagEndpoint = Endpoint<
-  BaseContext,
+export type GetWorkspaceTagsEndpoint = Endpoint<
+  BaseContextType,
   GetWorkspaceTagsEndpointParams,
   GetWorkspaceTagsEndpointResult
 >;

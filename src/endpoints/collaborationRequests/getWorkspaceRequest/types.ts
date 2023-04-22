@@ -1,5 +1,5 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface GetWorkspaceCollaborationRequestEndpointParams
@@ -12,7 +12,7 @@ export interface GetWorkspaceCollaborationRequestEndpointResult {
 }
 
 export type GetWorkspaceCollaborationRequestEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   GetWorkspaceCollaborationRequestEndpointParams,
   GetWorkspaceCollaborationRequestEndpointResult
 >;

@@ -1,4 +1,4 @@
-import {BaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {
   DeleteResourceCascadeFnDefaultArgs,
@@ -11,7 +11,7 @@ export interface RemoveCollaboratorEndpointParams extends EndpointOptionalWorksp
 }
 
 export type RemoveCollaboratorEndpoint = Endpoint<
-  BaseContext,
+  BaseContextType,
   RemoveCollaboratorEndpointParams,
   LongRunningJobResult
 >;
