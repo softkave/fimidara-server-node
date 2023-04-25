@@ -18,37 +18,40 @@ import getWorkspacePermissionGroups from './getWorkspacePermissionGroups/handler
 import {PermissionGroupsExportedEndpoints} from './types';
 import updatePermissionGroup from './udpatePermissionGroup/handler';
 
-export const permissionGroupsExportedEndpoints: PermissionGroupsExportedEndpoints = {
-  addPermissionGroup: {
-    fn: addPermissionGroup,
-    mddocHttpDefinition: addPermissionGroupEndpointDefinition,
-  },
-  assignPermissionGroups: {
-    fn: assignPermissionGroups,
-    mddocHttpDefinition: assignPermissionGroupsEndpointDefinition,
-  },
-  deletePermissionGroup: {
-    fn: deletePermissionGroup,
-    mddocHttpDefinition: deletePermissionGroupEndpointDefinition,
-  },
-  getPermissionGroup: {
-    fn: getPermissionGroup,
-    mddocHttpDefinition: getPermissionGroupEndpointDefinition,
-  },
-  getEntityAssignedPermissionGroups: {
-    fn: getEntityAssignedPermissionGroups,
-    mddocHttpDefinition: getEntityAssignedPermissionGroupsEndpointDefinition,
-  },
-  getWorkspacePermissionGroups: {
-    fn: getWorkspacePermissionGroups,
-    mddocHttpDefinition: getWorkspacePermissionGroupsEndpointDefinition,
-  },
-  countWorkspacePermissionGroups: {
-    fn: countWorkspacePermissionGroups,
-    mddocHttpDefinition: countWorkspacePermissionGroupsEndpointDefinition,
-  },
-  updatePermissionGroup: {
-    fn: updatePermissionGroup,
-    mddocHttpDefinition: updatePermissionGroupEndpointDefinition,
-  },
-};
+export function getPermissionGroupsPublicHttpEndpoints() {
+  const permissionGroupsExportedEndpoints: PermissionGroupsExportedEndpoints = {
+    addPermissionGroup: {
+      fn: addPermissionGroup,
+      mddocHttpDefinition: addPermissionGroupEndpointDefinition,
+    },
+    assignPermissionGroups: {
+      fn: assignPermissionGroups,
+      mddocHttpDefinition: assignPermissionGroupsEndpointDefinition,
+    },
+    deletePermissionGroup: {
+      fn: deletePermissionGroup,
+      mddocHttpDefinition: deletePermissionGroupEndpointDefinition,
+    },
+    getPermissionGroup: {
+      fn: getPermissionGroup,
+      mddocHttpDefinition: getPermissionGroupEndpointDefinition,
+    },
+    getEntityAssignedPermissionGroups: {
+      fn: getEntityAssignedPermissionGroups,
+      mddocHttpDefinition: getEntityAssignedPermissionGroupsEndpointDefinition,
+    },
+    getWorkspacePermissionGroups: {
+      fn: getWorkspacePermissionGroups,
+      mddocHttpDefinition: getWorkspacePermissionGroupsEndpointDefinition,
+    },
+    countWorkspacePermissionGroups: {
+      fn: countWorkspacePermissionGroups,
+      mddocHttpDefinition: countWorkspacePermissionGroupsEndpointDefinition,
+    },
+    updatePermissionGroup: {
+      fn: updatePermissionGroup,
+      mddocHttpDefinition: updatePermissionGroupEndpointDefinition,
+    },
+  };
+  return permissionGroupsExportedEndpoints;
+}

@@ -1,7 +1,7 @@
 import {fetch, Headers} from 'cross-fetch';
 import * as FormData from 'isomorphic-form-data';
 
-type EndpointErrorItem = {
+type FimidaraEndpointErrorItem = {
   name: string;
   message: string;
   field?: string;
@@ -9,7 +9,7 @@ type EndpointErrorItem = {
 
 export class FimidaraEndpointError extends Error {
   constructor(
-    public errors: Array<EndpointErrorItem>,
+    public errors: Array<FimidaraEndpointErrorItem>,
     public statusCode: number,
     public statusText: string,
     public headers: typeof Headers
@@ -23,21 +23,34 @@ export interface FimidaraJsConfigOptions {
 }
 
 export class FimidaraJsConfig {
-  constructor(
-    protected config: FimidaraJsConfigOptions &
-      Required<Pick<FimidaraJsConfigOptions, 'authToken'>>
-  ) {}
+  protected inheritors: FimidaraJsConfig[] = [];
 
-  setAuthToken(token: string) {
-    this.config.authToken = token;
+  constructor(
+    protected config: FimidaraJsConfigOptions = {},
+    protected inheritConfigFrom?: FimidaraJsConfig
+  ) {
+    inheritConfigFrom?.registerInheritor(this);
   }
 
-  setConfig(params: Partial<FimidaraJsConfig>) {
-    this.config = {...this.config, ...params};
+  setAuthToken(token: string) {
+    this.setConfig({authToken: token});
+  }
+
+  setConfig(update: Partial<FimidaraJsConfigOptions>) {
+    this.config = {...this.config, ...update};
+    this.fanoutConfigUpdate(update);
   }
 
   getConfig() {
     return this.config;
+  }
+
+  protected registerInheritor(inheritor: FimidaraJsConfig) {
+    this.inheritors.push(inheritor);
+  }
+
+  protected fanoutConfigUpdate(update: Partial<FimidaraJsConfigOptions>) {
+    this.inheritors.forEach(inheritor => inheritor.setConfig(update));
   }
 }
 
@@ -94,10 +107,10 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
     .get(HTTP_HEADER_CONTENT_TYPE)
     ?.includes(CONTENT_TYPE_APPLICATION_JSON);
 
-  let errors: EndpointErrorItem[] = [];
+  let errors: FimidaraEndpointErrorItem[] = [];
   if (isResultJSON) {
     const body = (await result.json()) as
-      | {errors: EndpointErrorItem[]}
+      | {errors: FimidaraEndpointErrorItem[]}
       | undefined;
 
     if (body?.errors) {
@@ -113,8 +126,46 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
   );
 }
 
-export class EndpointsBase extends FimidaraJsConfig {
+export class FimidaraEndpointsBase extends FimidaraJsConfig {
   protected getAuthToken(params?: {authToken?: string}) {
     return params?.authToken || this.config.authToken;
   }
+}
+
+export type FimidaraEndpointResult<T> = {
+  body: T;
+  headers: typeof Headers;
+};
+export type FimidaraEndpointParamsOptional<T> = {
+  authToken?: string;
+  body?: T;
+};
+export type FimidaraEndpointParamsRequired<T> = {
+  authToken?: string;
+  body: T;
+};
+
+export function getReadFileURL(props: {
+  /** Filepath including workspace rootname. */
+  filepath: string;
+  width?: number;
+  height?: number;
+}) {
+  let query = '';
+  if (props.width) query += `w=${props.width.toFixed()}`;
+  if (props.height) query += `h=${props.height.toFixed()}`;
+  if (query) query = '?' + query;
+
+  return (
+    serverAddr +
+    'v1/files/readFile' +
+    encodeURIComponent(props.filepath) +
+    query
+  );
+}
+
+export function getUploadFileURL(props: {filepath: string}) {
+  return (
+    serverAddr + 'v1/files/uploadFile' + encodeURIComponent(props.filepath)
+  );
 }

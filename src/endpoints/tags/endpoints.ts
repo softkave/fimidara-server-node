@@ -12,25 +12,28 @@ import getWorkspaceTags from './getWorkspaceTags/handler';
 import {TagsExportedEndpoints} from './types';
 import updateTag from './updateTag/handler';
 
-export const tagsExportedEndpoints: TagsExportedEndpoints = {
-  addTag: {
-    fn: addTag,
-    mddocHttpDefinition: addTagEndpointDefinition,
-  },
-  deleteTag: {
-    fn: deleteTag,
-    mddocHttpDefinition: deleteTagEndpointDefinition,
-  },
-  getTag: {
-    fn: getTag,
-    mddocHttpDefinition: getTagEndpointDefinition,
-  },
-  getWorkspaceTags: {
-    fn: getWorkspaceTags,
-    mddocHttpDefinition: getWorkspaceTagsEndpointDefinition,
-  },
-  updateTag: {
-    fn: updateTag,
-    mddocHttpDefinition: updateTagEndpointDefinition,
-  },
-};
+export function getTagsPublicHttpEndpoints() {
+  const tagsExportedEndpoints: TagsExportedEndpoints = {
+    addTag: {
+      fn: addTag,
+      mddocHttpDefinition: addTagEndpointDefinition,
+    },
+    deleteTag: {
+      fn: deleteTag,
+      mddocHttpDefinition: deleteTagEndpointDefinition,
+    },
+    getTag: {
+      fn: getTag,
+      mddocHttpDefinition: getTagEndpointDefinition,
+    },
+    getWorkspaceTags: {
+      fn: getWorkspaceTags,
+      mddocHttpDefinition: getWorkspaceTagsEndpointDefinition,
+    },
+    updateTag: {
+      fn: updateTag,
+      mddocHttpDefinition: updateTagEndpointDefinition,
+    },
+  };
+  return tagsExportedEndpoints;
+}

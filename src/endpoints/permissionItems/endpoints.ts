@@ -6,13 +6,16 @@ import {
 } from './endpoints.mddoc';
 import {PermissionItemsExportedEndpoints} from './types';
 
-export const permissionItemsExportedEndpoints: PermissionItemsExportedEndpoints = {
-  addItems: {
-    fn: addPermissionItems,
-    mddocHttpDefinition: addPermissionItemsEndpointDefinition,
-  },
-  deleteItems: {
-    fn: deletePermissionItems,
-    mddocHttpDefinition: deletePermissionItemsEndpointDefinition,
-  },
-};
+export function getPermissionItemsPublicHttpEndpoints() {
+  const permissionItemsExportedEndpoints: PermissionItemsExportedEndpoints = {
+    addItems: {
+      fn: addPermissionItems,
+      mddocHttpDefinition: addPermissionItemsEndpointDefinition,
+    },
+    deleteItems: {
+      fn: deletePermissionItems,
+      mddocHttpDefinition: deletePermissionItemsEndpointDefinition,
+    },
+  };
+  return permissionItemsExportedEndpoints;
+}

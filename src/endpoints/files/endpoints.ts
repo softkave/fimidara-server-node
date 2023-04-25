@@ -64,31 +64,34 @@ function extractUploadFilesParamsFromReq(req: Request): UploadFileEndpointParams
   return merge(extractUploadFilesParamsFromPath(req), extractUploadFilesParamsFromFormData(req));
 }
 
-export const filesExportedEndpoints: FilesExportedEndpoints = {
-  deleteFile: {
-    fn: deleteFile,
-    mddocHttpDefinition: deleteFileEndpointDefinition,
-  },
-  getFileDetails: {
-    fn: getFileDetails,
-    mddocHttpDefinition: getFileDetailsEndpointDefinition,
-  },
-  readFile: {
-    fn: readFile,
-    mddocHttpDefinition: readFileEndpointDefinition,
-    handleResponse: handleReadFileResponse,
-    getDataFromReq: extractReadFileParamsFromReq,
-  },
-  updateFileDetails: {
-    fn: updateFileDetails,
-    mddocHttpDefinition: updateFileDetailsEndpointDefinition,
-  },
-  uploadFile: {
-    fn: uploadFile,
-    mddocHttpDefinition: uploadFileEndpointDefinition,
-    getDataFromReq: extractUploadFilesParamsFromReq,
-    expressRouteMiddleware: multerUploadFileExpressMiddleware.single(
-      fileConstants.uploadedFileFieldName
-    ),
-  },
-};
+export function getFilesPublicHttpEndpoints() {
+  const filesExportedEndpoints: FilesExportedEndpoints = {
+    deleteFile: {
+      fn: deleteFile,
+      mddocHttpDefinition: deleteFileEndpointDefinition,
+    },
+    getFileDetails: {
+      fn: getFileDetails,
+      mddocHttpDefinition: getFileDetailsEndpointDefinition,
+    },
+    readFile: {
+      fn: readFile,
+      mddocHttpDefinition: readFileEndpointDefinition,
+      handleResponse: handleReadFileResponse,
+      getDataFromReq: extractReadFileParamsFromReq,
+    },
+    updateFileDetails: {
+      fn: updateFileDetails,
+      mddocHttpDefinition: updateFileDetailsEndpointDefinition,
+    },
+    uploadFile: {
+      fn: uploadFile,
+      mddocHttpDefinition: uploadFileEndpointDefinition,
+      getDataFromReq: extractUploadFilesParamsFromReq,
+      expressRouteMiddleware: multerUploadFileExpressMiddleware.single(
+        fileConstants.uploadedFileFieldName
+      ),
+    },
+  };
+  return filesExportedEndpoints;
+}

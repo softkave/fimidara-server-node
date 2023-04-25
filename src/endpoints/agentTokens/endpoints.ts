@@ -14,29 +14,32 @@ import getWorkspaceAgentTokens from './getWorkspaceTokens/handler';
 import {AgentTokensExportedEndpoints} from './types';
 import updateAgentToken from './updateToken/handler';
 
-export const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {
-  addToken: {
-    fn: addAgentTokenEndpoint,
-    mddocHttpDefinition: addAgentTokenEndpointDefinition,
-  },
-  deleteToken: {
-    fn: deleteAgentToken,
-    mddocHttpDefinition: deleteAgentTokenEndpointDefinition,
-  },
-  getToken: {
-    fn: getAgentToken,
-    mddocHttpDefinition: getAgentTokenEndpointDefinition,
-  },
-  getWorkspaceTokens: {
-    fn: getWorkspaceAgentTokens,
-    mddocHttpDefinition: getWorkspaceAgentTokensEndpointDefinition,
-  },
-  countWorkspaceTokens: {
-    fn: countWorkspaceAgentTokens,
-    mddocHttpDefinition: countWorkspaceAgentTokensEndpointDefinition,
-  },
-  updateToken: {
-    fn: updateAgentToken,
-    mddocHttpDefinition: updateAgentTokenEndpointDefinition,
-  },
-};
+export function getAgentTokenPublicHttpEndpoints() {
+  const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {
+    addToken: {
+      fn: addAgentTokenEndpoint,
+      mddocHttpDefinition: addAgentTokenEndpointDefinition,
+    },
+    deleteToken: {
+      fn: deleteAgentToken,
+      mddocHttpDefinition: deleteAgentTokenEndpointDefinition,
+    },
+    getToken: {
+      fn: getAgentToken,
+      mddocHttpDefinition: getAgentTokenEndpointDefinition,
+    },
+    getWorkspaceTokens: {
+      fn: getWorkspaceAgentTokens,
+      mddocHttpDefinition: getWorkspaceAgentTokensEndpointDefinition,
+    },
+    countWorkspaceTokens: {
+      fn: countWorkspaceAgentTokens,
+      mddocHttpDefinition: countWorkspaceAgentTokensEndpointDefinition,
+    },
+    updateToken: {
+      fn: updateAgentToken,
+      mddocHttpDefinition: updateAgentTokenEndpointDefinition,
+    },
+  };
+  return agentTokensExportedEndpoints;
+}

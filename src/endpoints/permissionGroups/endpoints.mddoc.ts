@@ -184,10 +184,12 @@ const updatePermissionGroupParams = FieldObject.construct<UpdatePermissionGroupE
   .setFields({
     ...permissionGroupMatcherParts,
     data: FieldObject.requiredField(
-      FieldObject.construct<UpdatePermissionGroupInput>().setFields({
-        name: FieldObject.optionalField(fReusables.name),
-        description: FieldObject.optionalField(fReusables.description),
-      })
+      FieldObject.construct<UpdatePermissionGroupInput>()
+        .setFields({
+          name: FieldObject.optionalField(fReusables.name),
+          description: FieldObject.optionalField(fReusables.description),
+        })
+        .setName('UpdatePermissionGroupInput')
     ),
   })
   .setRequired(true)
@@ -206,9 +208,11 @@ const assignPermissionGroupsParams = FieldObject.construct<AssignPermissionGroup
     entityId: FieldObject.requiredField(permissionItemMddocParts.entityId),
     permissionGroups: FieldObject.requiredField(
       FieldArray.construct<AssignPermissionGroupInput>().setType(
-        FieldObject.construct<AssignPermissionGroupInput>().setFields({
-          permissionGroupId: FieldObject.requiredField(fReusables.permissionGroupId),
-        })
+        FieldObject.construct<AssignPermissionGroupInput>()
+          .setFields({
+            permissionGroupId: FieldObject.requiredField(fReusables.permissionGroupId),
+          })
+          .setName('AssignPermissionGroupInput')
       )
     ),
   })

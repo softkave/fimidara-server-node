@@ -118,6 +118,7 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
     {field: 'targetId', type: MemStoreIndexTypes.MapIndex},
     {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
     {field: 'action', type: MemStoreIndexTypes.MapIndex},
+    {field: 'appliesTo', type: MemStoreIndexTypes.MapIndex},
   ];
   const permissionGroupIndexOpts: MemStoreIndexOptions<PermissionGroup>[] = [
     workspaceIdIndexOpts,

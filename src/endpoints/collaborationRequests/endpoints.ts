@@ -24,49 +24,52 @@ import sendCollaborationRequest from './sendRequest/handler';
 import {CollaborationRequestsExportedEndpoints} from './types';
 import updateCollaborationRequest from './updateRequest/handler';
 
-export const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints = {
-  deleteRequest: {
-    fn: deleteCollaborationRequest,
-    mddocHttpDefinition: deleteCollaborationRequestEndpointDefinition,
-  },
-  getUserRequest: {
-    fn: getUserCollaborationRequest,
-    mddocHttpDefinition: getUserCollaborationRequestEndpointDefinition,
-  },
-  getUserRequests: {
-    fn: getUserCollaborationRequests,
-    mddocHttpDefinition: getUserCollaborationRequestsEndpointDefinition,
-  },
-  countUserRequests: {
-    fn: countUserCollaborationRequests,
-    mddocHttpDefinition: countUserCollaborationRequestsEndpointDefinition,
-  },
-  getWorkspaceRequest: {
-    fn: getWorkspaceCollaborationRequest,
-    mddocHttpDefinition: getWorkspaceCollaborationRequestEndpointDefinition,
-  },
-  getWorkspaceRequests: {
-    fn: getWorkspaceCollaborationRequests,
-    mddocHttpDefinition: getWorkspaceCollaborationRequestsEndpointDefinition,
-  },
-  countWorkspaceRequests: {
-    fn: countWorkspaceCollaborationRequests,
-    mddocHttpDefinition: countWorkspaceCollaborationRequestsEndpointDefinition,
-  },
-  respondToRequest: {
-    fn: respondToCollaborationRequest,
-    mddocHttpDefinition: respondToCollaborationRequestEndpointDefinition,
-  },
-  revokeRequest: {
-    fn: revokeCollaborationRequest,
-    mddocHttpDefinition: revokeCollaborationRequestEndpointDefinition,
-  },
-  sendRequest: {
-    fn: sendCollaborationRequest,
-    mddocHttpDefinition: sendCollaborationRequestEndpointDefinition,
-  },
-  updateRequest: {
-    fn: updateCollaborationRequest,
-    mddocHttpDefinition: updateCollaborationRequestEndpointDefinition,
-  },
-};
+export function getCollaborationRequestsPublicHttpEndpoints() {
+  const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints = {
+    deleteRequest: {
+      fn: deleteCollaborationRequest,
+      mddocHttpDefinition: deleteCollaborationRequestEndpointDefinition,
+    },
+    getUserRequest: {
+      fn: getUserCollaborationRequest,
+      mddocHttpDefinition: getUserCollaborationRequestEndpointDefinition,
+    },
+    getUserRequests: {
+      fn: getUserCollaborationRequests,
+      mddocHttpDefinition: getUserCollaborationRequestsEndpointDefinition,
+    },
+    countUserRequests: {
+      fn: countUserCollaborationRequests,
+      mddocHttpDefinition: countUserCollaborationRequestsEndpointDefinition,
+    },
+    getWorkspaceRequest: {
+      fn: getWorkspaceCollaborationRequest,
+      mddocHttpDefinition: getWorkspaceCollaborationRequestEndpointDefinition,
+    },
+    getWorkspaceRequests: {
+      fn: getWorkspaceCollaborationRequests,
+      mddocHttpDefinition: getWorkspaceCollaborationRequestsEndpointDefinition,
+    },
+    countWorkspaceRequests: {
+      fn: countWorkspaceCollaborationRequests,
+      mddocHttpDefinition: countWorkspaceCollaborationRequestsEndpointDefinition,
+    },
+    respondToRequest: {
+      fn: respondToCollaborationRequest,
+      mddocHttpDefinition: respondToCollaborationRequestEndpointDefinition,
+    },
+    revokeRequest: {
+      fn: revokeCollaborationRequest,
+      mddocHttpDefinition: revokeCollaborationRequestEndpointDefinition,
+    },
+    sendRequest: {
+      fn: sendCollaborationRequest,
+      mddocHttpDefinition: sendCollaborationRequestEndpointDefinition,
+    },
+    updateRequest: {
+      fn: updateCollaborationRequest,
+      mddocHttpDefinition: updateCollaborationRequestEndpointDefinition,
+    },
+  };
+  return collaborationRequestsExportedEndpoints;
+}

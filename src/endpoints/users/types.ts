@@ -105,14 +105,16 @@ export type SendEmailVerificationCodeHttpEndpoint = HttpEndpoint<
   {}
 >;
 
-export type UsersExportedEndpoints = {
+export type UsersPublicExportedEndpoints = {
+  updateUser: ExportedHttpEndpointWithMddocDefinition<UpdateUserHttpEndpoint>;
+  getUserData: ExportedHttpEndpointWithMddocDefinition<GetUserDataHttpEndpoint>;
+};
+export type UsersPrivateExportedEndpoints = {
   signup: ExportedHttpEndpointWithMddocDefinition<SignupHttpEndpoint>;
   login: ExportedHttpEndpointWithMddocDefinition<LoginHttpEndpoint>;
   forgotPassword: ExportedHttpEndpointWithMddocDefinition<ForgotPasswordHttpEndpoint>;
   changePasswordWithCurrentPassword: ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithCurrentPasswordHttpEndpoint>;
   changePasswordWithToken: ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithTokenHttpEndpoint>;
-  updateUser: ExportedHttpEndpointWithMddocDefinition<UpdateUserHttpEndpoint>;
-  getUserData: ExportedHttpEndpointWithMddocDefinition<GetUserDataHttpEndpoint>;
   userExists: ExportedHttpEndpointWithMddocDefinition<UserExistsHttpEndpoint>;
   confirmEmailAddress: ExportedHttpEndpointWithMddocDefinition<ConfirmEmailAddressHttpEndpoint>;
   sendEmailVerificationCode: ExportedHttpEndpointWithMddocDefinition<SendEmailVerificationCodeHttpEndpoint>;

@@ -1,0 +1,318 @@
+{
+    "basePathname": "/v1/resources/getResources",
+    "method": "post",
+    "requestBody": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "ResourceWrapper",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "resources": {
+                "data": {
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "FetchResourceItem",
+                        "fields": {
+                            "resourceId": {
+                                "data": {
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "optional": true
+                            },
+                            "filepath": {
+                                "data": {
+                                    "description": "File path with workspace rootname.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                                },
+                                "optional": true
+                            },
+                            "folderpath": {
+                                "data": {
+                                    "description": "Folder path with workspace rootname.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
+                                },
+                                "optional": true
+                            },
+                            "workspaceRootname": {
+                                "data": {
+                                    "description": "Workspace root name, must be a URL compatible name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "fimidara-rootname"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Get resources endpoint success result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "GetResourcesEndpointResult",
+        "fields": {
+            "resources": {
+                "data": {
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "required": true,
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "ResourceWrapper",
+                        "fields": {
+                            "resourceId": {
+                                "data": {
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "resourceType": {
+                                "data": {
+                                    "description": "Resource type.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "file",
+                                    "valid": {
+                                        "0": "*",
+                                        "1": "system",
+                                        "2": "public",
+                                        "3": "workspace",
+                                        "4": "collaborationRequest",
+                                        "5": "agentToken",
+                                        "6": "permissionGroup",
+                                        "7": "permissionItem",
+                                        "8": "folder",
+                                        "9": "file",
+                                        "10": "user",
+                                        "11": "tag",
+                                        "12": "usageRecord",
+                                        "13": "assignedItem",
+                                        "14": "endpointRequest",
+                                        "15": "job"
+                                    },
+                                    "enumName": "AppResourceType"
+                                },
+                                "required": true
+                            },
+                            "resource": {
+                                "data": {
+                                    "description": "Resource shape depends on resource type.",
+                                    "__id": "FieldObject",
+                                    "stringType": "object",
+                                    "fields": {
+                                        "resourceId": {
+                                            "data": {
+                                                "description": "Resource ID.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "wrkspce_000000000000000000000"
+                                            },
+                                            "required": true
+                                        },
+                                        "createdAt": {
+                                            "data": {
+                                                "description": "UTC timestamp in milliseconds.",
+                                                "__id": "FieldNumber",
+                                                "stringType": "number"
+                                            },
+                                            "required": true
+                                        },
+                                        "lastUpdatedAt": {
+                                            "data": {
+                                                "description": "UTC timestamp in milliseconds.",
+                                                "__id": "FieldNumber",
+                                                "stringType": "number"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "GetResourcesEndpoint",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "valid": {
+                                        "0": "LoginAgain",
+                                        "1": "Logout"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldOrCombination",
+                                    "stringType": "string or undefined",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "stringType": "string",
+                                            "example": "workspace.innerField.secondInnerField"
+                                        },
+                                        "1": {
+                                            "__id": "FieldUndefined",
+                                            "stringType": "undefined"
+                                        }
+                                    }
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

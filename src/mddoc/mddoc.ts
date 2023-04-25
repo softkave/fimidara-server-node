@@ -7,11 +7,6 @@ import {
 import {AccessorConstruct, ClassFieldsWithAccessorsMixin} from '../utils/classAccessors';
 import {AnyObject} from '../utils/types';
 
-// TODO: remove setRequired from others
-// TODO: either return shorted enums to descriptive text or find a way to add comments to them in api and sdk.
-// TODO: stripSpaceFromNewline, padNewline, replaceLayoutPlaceholders
-// TODO: clarify in docs, endpoints that have required body but same fields can be passed in path or query
-
 export class FieldBase {
   static construct() {
     return AccessorConstruct.wrap(new FieldBase());
@@ -127,11 +122,11 @@ export class FieldArray<T> extends FieldBase {
 }
 
 export class FieldObjectFieldRequired<T> {
-  private optional = true;
+  required = true;
   constructor(public data: T) {}
 }
 export class FieldObjectFieldOptional<T> {
-  private required = true;
+  optional = true;
   constructor(public data: T) {}
 }
 
@@ -160,9 +155,9 @@ export class FieldObject<T extends object = any> extends FieldBase {
   static construct<TConstructFields extends object = any>(): ClassFieldsWithAccessorsMixin<
     FieldObject<TConstructFields>
   > {
-    return AccessorConstruct.wrap(
-      FieldObject.construct<TConstructFields>()
-    ) as ClassFieldsWithAccessorsMixin<FieldObject<TConstructFields>>;
+    return AccessorConstruct.wrap(new FieldObject()) as ClassFieldsWithAccessorsMixin<
+      FieldObject<TConstructFields>
+    >;
   }
 
   static optionalField<T1 extends MddocTypeFieldBase>(data: T1) {
@@ -282,44 +277,64 @@ export type MddocTypeHttpEndpoint<TTypes extends HttpEndpointStructure> =
 export type MddocTypeHttpEndpointMultipartFormdata<T extends object> =
   ClassFieldsWithAccessorsMixin<HttpEndpointMultipartFormdata<T>>;
 
-export function isLiteralField(
-  f: MddocTypeFieldBase
-): f is
-  | MddocTypeFieldBinary
-  | MddocTypeFieldNumber
-  | MddocTypeFieldString
-  | MddocTypeFieldBoolean
-  | MddocTypeFieldUndefined
-  | MddocTypeFieldNull {
+export function objectHasRequiredFields(item: MddocTypeFieldObject) {
+  return item.getFields()
+    ? Object.values(item.assertGetFields()).findIndex(next => !next.optional) !== -1
+    : false;
+}
+
+export function isMddocFieldBase(data: any): data is MddocTypeFieldBase {
+  return data && (data as FieldBase).__id === 'FieldBase';
+}
+
+export function isMddocFieldString(data: any): data is MddocTypeFieldString {
+  return data && (data as FieldString).__id === 'FieldString';
+}
+
+export function isMddocFieldNumber(data: any): data is MddocTypeFieldNumber {
+  return data && (data as FieldNumber).__id === 'FieldNumber';
+}
+
+export function isMddocFieldBoolean(data: any): data is MddocTypeFieldBoolean {
+  return data && (data as FieldBoolean).__id === 'FieldBoolean';
+}
+
+export function isMddocFieldNull(data: any): data is MddocTypeFieldNull {
+  return data && (data as FieldNull).__id === 'FieldNull';
+}
+
+export function isMddocFieldUndefined(data: any): data is MddocTypeFieldUndefined {
+  return data && (data as FieldUndefined).__id === 'FieldUndefined';
+}
+
+export function isMddocFieldDate(data: any): data is MddocTypeFieldDate {
+  return data && (data as FieldDate).__id === 'FieldDate';
+}
+
+export function isMddocFieldArray(data: any): data is MddocTypeFieldArray<any> {
+  return data && (data as FieldArray<any>).__id === 'FieldArray';
+}
+
+export function isMddocFieldObject(data: any): data is MddocTypeFieldObject {
+  return data && (data as FieldObject).__id === 'FieldObject';
+}
+
+export function isMddocFieldOrCombination(data: any): data is MddocTypeFieldOrCombination {
+  return data && (data as FieldOrCombination).__id === 'FieldOrCombination';
+}
+
+export function isMddocFieldBinary(data: any): data is MddocTypeFieldBinary {
+  return data && (data as FieldBinary).__id === 'FieldBinary';
+}
+
+export function isMddocMultipartFormdata(
+  data: any
+): data is MddocTypeHttpEndpointMultipartFormdata<any> {
   return (
-    f &&
-    (f.__id === FieldBinary.name ||
-      f.__id === FieldNumber.name ||
-      f.__id === FieldString.name ||
-      f.__id === FieldBoolean.name ||
-      f.__id === FieldUndefined.name ||
-      f.__id === FieldNull.name)
+    data && (data as HttpEndpointMultipartFormdata<any>).__id === 'HttpEndpointMultipartFormdata'
   );
 }
 
-export function isMddocFieldObject(f: any): f is MddocTypeFieldObject {
-  return f && f.__id == FieldObject.name;
-}
-
-export function isMddocFieldArray(f: any): f is MddocTypeFieldArray<any> {
-  return f && f.__id === FieldArray.name;
-}
-
-export function isMddocMultipartFormdata(f: any): f is MddocTypeHttpEndpointMultipartFormdata<any> {
-  return f && f.__id === HttpEndpointMultipartFormdata;
-}
-
-export function isMddocFieldBinary(f: any): f is MddocTypeFieldBinary {
-  return f && f.__id === FieldBinary.name;
-}
-
-export function objectHasRequiredFields(item: MddocTypeFieldObject) {
-  return item.getFields()
-    ? Object.values(item.assertGetFields()).findIndex(next => next.data.getRequired()) !== -1
-    : false;
+export function isMddocEndpoint(data: any): data is MddocTypeHttpEndpoint<any> {
+  return data && (data as HttpEndpointDefinition<any>).__id === 'HttpEndpointDefinition';
 }

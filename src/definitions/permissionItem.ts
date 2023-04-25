@@ -6,9 +6,9 @@ import {
 } from './system';
 
 export enum PermissionItemAppliesTo {
-  Self = 's',
-  SelfAndChildrenOfType = 'sc',
-  ChildrenOfType = 'c',
+  Self = 'self',
+  SelfAndChildrenOfType = 'selfAndChildren',
+  ChildrenOfType = 'children',
 }
 
 export interface PermissionItem extends WorkspaceResource {

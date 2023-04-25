@@ -1,0 +1,400 @@
+{
+    "basePathname": "/v1/collaborationRequests/getWorkspaceRequests",
+    "method": "post",
+    "requestBody": {
+        "required": true,
+        "description": "Get workspace collaboration requests endpoint params.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "GetWorkspaceCollaborationRequestsEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "page": {
+                "data": {
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
+                    "__id": "FieldNumber",
+                    "stringType": "number",
+                    "example": 0,
+                    "min": 0
+                },
+                "optional": true
+            },
+            "pageSize": {
+                "data": {
+                    "description": "Paginated list page size.",
+                    "__id": "FieldNumber",
+                    "stringType": "number",
+                    "example": 10,
+                    "min": 1,
+                    "max": 1000
+                },
+                "optional": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Get workspace collaboration requests endpoint success result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "GetWorkspaceCollaborationRequestsEndpointSuccessResult",
+        "fields": {
+            "requests": {
+                "data": {
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "CollaborationRequestForWorkspace",
+                        "fields": {
+                            "recipientEmail": {
+                                "data": {
+                                    "description": "Recipient's email address.",
+                                    "__id": "FieldString",
+                                    "stringType": "string"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Message to recipient.",
+                                    "__id": "FieldString",
+                                    "stringType": "string"
+                                },
+                                "required": true
+                            },
+                            "resourceId": {
+                                "data": {
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "createdBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "stringType": "object",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString",
+                                                "stringType": "string"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "createdAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber",
+                                    "stringType": "number"
+                                },
+                                "required": true
+                            },
+                            "expiresAt": {
+                                "data": {
+                                    "description": "Expiration date.",
+                                    "__id": "FieldDate",
+                                    "stringType": "number"
+                                },
+                                "optional": true
+                            },
+                            "workspaceName": {
+                                "data": {
+                                    "description": "Workspace name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "fimidara"
+                                },
+                                "required": true
+                            },
+                            "workspaceId": {
+                                "data": {
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "stringType": "object",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString",
+                                                "stringType": "string"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber",
+                                    "stringType": "number"
+                                },
+                                "required": true
+                            },
+                            "readAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber",
+                                    "stringType": "number"
+                                },
+                                "optional": true
+                            },
+                            "status": {
+                                "data": {
+                                    "description": "Collaboration request status.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "valid": {
+                                        "0": "accepted",
+                                        "1": "declined",
+                                        "2": "revoked",
+                                        "3": "pending"
+                                    },
+                                    "enumName": "CollaborationRequestStatusType"
+                                },
+                                "required": true
+                            },
+                            "statusDate": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber",
+                                    "stringType": "number"
+                                },
+                                "required": true
+                            },
+                            "providedResourceId": {
+                                "data": {
+                                    "description": "Resource ID provided by you.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "max": 50
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "page": {
+                "data": {
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
+                    "__id": "FieldNumber",
+                    "stringType": "number",
+                    "example": 0,
+                    "min": 0
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "GetWorkspaceCollaborationRequestsEndpoint",
+    "description": "Get workspace collaboration requests endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "valid": {
+                                        "0": "LoginAgain",
+                                        "1": "Logout"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldOrCombination",
+                                    "stringType": "string or undefined",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "stringType": "string",
+                                            "example": "workspace.innerField.secondInnerField"
+                                        },
+                                        "1": {
+                                            "__id": "FieldUndefined",
+                                            "stringType": "undefined"
+                                        }
+                                    }
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

@@ -27,7 +27,6 @@ import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
-import {userConstants} from '../users/constants';
 import {AddWorkspaceEndpointParams, AddWorkspaceEndpointResult} from './addWorkspace/types';
 import {workspaceConstants} from './constants';
 import {
@@ -272,7 +271,7 @@ export const countUserWorkspacesEndpointDefinition = HttpEndpointDefinition.cons
   responseBody: CountItemsEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
-  .setBasePathname(userConstants.routes.countUserWorkspaces)
+  .setBasePathname(workspaceConstants.routes.countUserWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)

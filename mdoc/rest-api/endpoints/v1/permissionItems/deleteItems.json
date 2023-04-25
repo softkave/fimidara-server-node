@@ -1,0 +1,356 @@
+{
+    "basePathname": "/v1/permissionItems/deleteItems",
+    "method": "delete",
+    "requestBody": {
+        "required": true,
+        "description": "Delete permission items endpoint params.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "DeletePermissionItemsEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "items": {
+                "data": {
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "DeletePermissionItemInput",
+                        "fields": {
+                            "target": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "stringType": "object",
+                                    "name": "DeletePermissionItemInputTarget",
+                                    "fields": {
+                                        "targetType": {
+                                            "data": {
+                                                "description": "Resource type to retrieve permission items for. You can pass only the resource type to retrieve all the permission items that grant access to a resource type, or also pass a resource ID to restrict it to just that resource.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "file",
+                                                "valid": {
+                                                    "0": "*",
+                                                    "1": "workspace",
+                                                    "2": "collaborationRequest",
+                                                    "3": "agentToken",
+                                                    "4": "permissionGroup",
+                                                    "5": "permissionItem",
+                                                    "6": "folder",
+                                                    "7": "file",
+                                                    "8": "user",
+                                                    "9": "tag",
+                                                    "10": "usageRecord"
+                                                },
+                                                "enumName": "WorkspaceAppResourceType"
+                                            },
+                                            "optional": true
+                                        },
+                                        "targetId": {
+                                            "data": {
+                                                "description": "Resource ID of the resource to retrieve permission items for.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "wrkspce_000000000000000000000"
+                                            },
+                                            "optional": true
+                                        },
+                                        "filepath": {
+                                            "data": {
+                                                "description": "File path with workspace rootname.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                                            },
+                                            "optional": true
+                                        },
+                                        "folderpath": {
+                                            "data": {
+                                                "description": "Folder path with workspace rootname.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
+                                            },
+                                            "optional": true
+                                        },
+                                        "workspaceRootname": {
+                                            "data": {
+                                                "description": "Workspace root name, must be a URL compatible name.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "fimidara-rootname"
+                                            },
+                                            "optional": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Action",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "create",
+                                    "valid": {
+                                        "0": "*",
+                                        "1": "create",
+                                        "2": "read",
+                                        "3": "update",
+                                        "4": "delete",
+                                        "5": "grantPermission"
+                                    },
+                                    "enumName": "AppActionType"
+                                },
+                                "optional": true
+                            },
+                            "grantAccess": {
+                                "data": {
+                                    "description": "Whether access is granted or not. Access is granted if true, denied if false.",
+                                    "__id": "FieldBoolean",
+                                    "stringType": "boolean"
+                                },
+                                "optional": true
+                            },
+                            "entity": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "stringType": "object",
+                                    "name": "NewPermissionItemInputEntity",
+                                    "fields": {
+                                        "entityId": {
+                                            "data": {
+                                                "description": "Permission entity resource ID. Permission entity is a resource granted access. This can be a user, a permission group, a permission item, or a client assigned token.",
+                                                "__id": "FieldString",
+                                                "stringType": "string",
+                                                "example": "pmgroup_000000000000000000000"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "appliesTo": {
+                                "data": {
+                                    "description": "Whether this permission applies to only to the target, or the target and children of same type, or only children of type declared in permission item.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "sc",
+                                    "valid": {
+                                        "0": "s",
+                                        "1": "sc",
+                                        "2": "c"
+                                    },
+                                    "enumName": "PermissionItemAppliesTo"
+                                },
+                                "optional": true
+                            }
+                        }
+                    },
+                    "max": 1000
+                },
+                "optional": true
+            },
+            "entity": {
+                "data": {
+                    "__id": "FieldObject",
+                    "stringType": "object",
+                    "name": "NewPermissionItemInputEntity",
+                    "fields": {
+                        "entityId": {
+                            "data": {
+                                "description": "Permission entity resource ID. Permission entity is a resource granted access. This can be a user, a permission group, a permission item, or a client assigned token.",
+                                "__id": "FieldString",
+                                "stringType": "string",
+                                "example": "pmgroup_000000000000000000000"
+                            },
+                            "required": true
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Long running job endpoint success result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "LongRunningJobResult",
+        "fields": {
+            "jobId": {
+                "data": {
+                    "description": "Long running job ID.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "job0000_000000000000000000000"
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "DeletePermissionItemsEndpoint",
+    "description": "Delete permission items endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "valid": {
+                                        "0": "LoginAgain",
+                                        "1": "Logout"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldOrCombination",
+                                    "stringType": "string or undefined",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "stringType": "string",
+                                            "example": "workspace.innerField.secondInnerField"
+                                        },
+                                        "1": {
+                                            "__id": "FieldUndefined",
+                                            "stringType": "undefined"
+                                        }
+                                    }
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

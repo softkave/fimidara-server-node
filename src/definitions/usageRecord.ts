@@ -7,17 +7,17 @@ import {
 } from './system';
 
 export enum UsageRecordCategory {
-  Storage = 's',
+  Storage = 'storage',
   BandwidthIn = 'bin',
   BandwidthOut = 'bout',
   // Request = 'request',
   // DatabaseObject = 'dbObject',
-  Total = 't',
+  Total = 'total',
 }
 
 export enum UsageRecordArtifactType {
   File = 'file',
-  // DatabaseObject = 'db-object',
+  // DatabaseObject = 'dbObject',
 }
 
 export interface UsageRecordArtifact {
@@ -29,11 +29,11 @@ export interface UsageRecordArtifact {
 
 export enum UsageRecordFulfillmentStatus {
   // Default status
-  Undecided = 'u',
+  Undecided = 'undecided',
   // usage record has been fulfilled
-  Fulfilled = 'f',
+  Fulfilled = 'fulfilled',
   // usage record has not been fulfilled
-  Dropped = 'd',
+  Dropped = 'dropped',
 }
 
 export enum UsageRecordDropReason {

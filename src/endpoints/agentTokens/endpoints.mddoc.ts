@@ -118,7 +118,7 @@ const updateAgentTokenSuccessResponseBody = FieldObject.construct<UpdateAgentTok
   .setDescription('Update agent token endpoint success result.');
 
 const getAgentTokenParams = FieldObject.construct<GetAgentTokenEndpointParams>()
-  .setName('UpdateAgentTokenEndpointParams')
+  .setName('GetAgentTokenEndpointParams')
   .setFields({
     workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
     providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
@@ -128,7 +128,7 @@ const getAgentTokenParams = FieldObject.construct<GetAgentTokenEndpointParams>()
   .setRequired(true)
   .setDescription('Get agent token endpoint params.');
 const getAgentTokenSuccessBody = FieldObject.construct<GetAgentTokenEndpointResult>()
-  .setName('UpdateAgentTokenEndpointSuccessResult')
+  .setName('GetAgentTokenEndpointResult')
   .setFields({token: FieldObject.requiredField(agentToken)})
   .setRequired(true)
   .setDescription('Get agent token endpoint success result.');

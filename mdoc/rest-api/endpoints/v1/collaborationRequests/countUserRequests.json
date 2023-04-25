@@ -1,0 +1,174 @@
+{
+    "basePathname": "/v1/collaborationRequests/countUserRequests",
+    "method": "post",
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Count endpoint success result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "LongRunningJobResult",
+        "fields": {
+            "count": {
+                "data": {
+                    "description": "Resource count.",
+                    "__id": "FieldNumber",
+                    "stringType": "number"
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "CountWorkspaceCollaborationRequestsEndpoint",
+    "description": "Count workspace collaboration requests endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "stringType": "object",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "stringType": "string",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString",
+                    "stringType": "string"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "stringType": "object",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "stringType": "array of (object)",
+                    "type": {
+                        "__id": "FieldObject",
+                        "stringType": "object",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "stringType": "string",
+                                    "valid": {
+                                        "0": "LoginAgain",
+                                        "1": "Logout"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldOrCombination",
+                                    "stringType": "string or undefined",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "stringType": "string",
+                                            "example": "workspace.innerField.secondInnerField"
+                                        },
+                                        "1": {
+                                            "__id": "FieldUndefined",
+                                            "stringType": "undefined"
+                                        }
+                                    }
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

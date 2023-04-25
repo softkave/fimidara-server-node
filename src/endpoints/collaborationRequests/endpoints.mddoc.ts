@@ -423,8 +423,8 @@ export const countUserCollaborationRequestsEndpointDefinition = HttpEndpointDefi
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceCollaborationRequestsEndpoint')
-  .setDescription('Count workspace collaboration requests endpoint.');
+  .setName('CountUserCollaborationRequestsEndpoint')
+  .setDescription('Count user collaboration requests endpoint.');
 
 export const countWorkspaceCollaborationRequestsEndpointDefinition =
   HttpEndpointDefinition.construct<{

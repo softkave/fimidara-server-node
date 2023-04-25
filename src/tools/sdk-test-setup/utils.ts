@@ -3,6 +3,7 @@ import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
 import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
+import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
@@ -90,6 +91,17 @@ export async function setupSDKTestReq() {
   const {workspace, token, tokenStr} = await executeWithMutationRunOptions(context, async opts => {
     const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
     const {token, tokenStr} = await createAgentToken(context, workspace, opts);
+    await addAssignedPermissionGroupList(
+      context,
+      SYSTEM_SESSION_AGENT,
+      workspace.resourceId,
+      [{permissionGroupId: adminPermissionGroup.resourceId}],
+      token.resourceId,
+      false, // don't delete existing assigned permission groups
+      true, // skip permission groups check
+      /** skip auth check */ true,
+      opts
+    );
     return {workspace, token, tokenStr};
   });
 

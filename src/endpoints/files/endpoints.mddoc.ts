@@ -95,7 +95,7 @@ const updateFileDetailsResponseBody = FieldObject.construct<UpdateFileDetailsEnd
   .setDescription('Update file details endpoint success result.');
 
 const getFileDetailsParams = FieldObject.construct<GetFileDetailsEndpointParams>()
-  .setName('GetFileDetailsEndpoint')
+  .setName('GetFileDetailsEndpointParams')
   .setFields(fileMatcherParts)
   .setRequired(true)
   .setDescription('Get file details endpoint params.');
@@ -106,13 +106,13 @@ const getFileDetailsResponseBody = FieldObject.construct<GetFileDetailsEndpointR
   .setDescription('Get file details endpoint success result.');
 
 const deleteFileParams = FieldObject.construct<DeleteFileEndpointParams>()
-  .setName('RevokeFileEndpointParams')
+  .setName('DeleteFileEndpointParams')
   .setFields(fileMatcherParts)
   .setRequired(true)
   .setDescription('Delete file endpoint params.');
 
 const readFileParams = FieldObject.construct<ReadFileEndpointParams>()
-  .setName('GetFileEndpointParams')
+  .setName('ReadFileEndpointParams')
   .setFields({
     ...fileMatcherParts,
     imageTranformation: FieldObject.optionalField(
@@ -203,7 +203,7 @@ export const uploadFileEndpointDefinition = HttpEndpointDefinition.construct<{
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_JsonContentType)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_MultipartContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(uploadFileResponseBody)
   .setName('UploadFileEndpoint')

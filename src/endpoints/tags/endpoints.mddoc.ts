@@ -35,7 +35,7 @@ const newTagInput = FieldObject.construct<NewTagInput>()
   });
 
 const updateTagInput = FieldObject.construct<UpdateTagInput>()
-  .setName('NewTagInput')
+  .setName('UpdateTagInput')
   .setFields({
     name: FieldObject.optionalField(fReusables.name),
     description: FieldObject.optionalField(fReusables.description),

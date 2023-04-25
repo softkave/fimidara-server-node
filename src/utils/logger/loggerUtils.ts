@@ -1,3 +1,4 @@
+import assert from 'assert';
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
 import 'winston-mongodb';
@@ -67,7 +68,16 @@ export function loggerFactory(opts: ICreateLoggerOptions) {
 }
 
 export function decideTransport(): ICreateLoggerOptions['transports'] {
-  return vars.nodeEnv === 'production' ? ['mongodb'] : ['console', 'mongodb'];
+  if (vars.nodeEnv === 'production') {
+    assert(vars.mongoDbURI);
+    return ['mongodb'];
+  } else {
+    if (vars.mongoDbURI) {
+      return ['console', 'mongodb'];
+    } else {
+      return ['console'];
+    }
+  }
 }
 
 export enum FimidaraLoggerServiceNames {

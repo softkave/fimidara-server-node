@@ -8,17 +8,20 @@ import getUsageCosts from './getUsageCosts/handler';
 import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler';
 import {UsageRecordsExportedEndpoints} from './types';
 
-export const usageRecordsExportedEndpoints: UsageRecordsExportedEndpoints = {
-  getUsageCosts: {
-    fn: getUsageCosts,
-    mddocHttpDefinition: getUsageCostsEndpointDefinition,
-  },
-  getWorkspaceSummedUsage: {
-    fn: getWorkspaceSummedUsage,
-    mddocHttpDefinition: getWorkspaceSummedUsageEndpointDefinition,
-  },
-  countWorkspaceSummedUsage: {
-    fn: countWorkspaceSummedUsage,
-    mddocHttpDefinition: countWorkspaceSummedUsageEndpointDefinition,
-  },
-};
+export function getUsageRecordsPublicHttpEndpoints() {
+  const usageRecordsExportedEndpoints: UsageRecordsExportedEndpoints = {
+    getUsageCosts: {
+      fn: getUsageCosts,
+      mddocHttpDefinition: getUsageCostsEndpointDefinition,
+    },
+    getWorkspaceSummedUsage: {
+      fn: getWorkspaceSummedUsage,
+      mddocHttpDefinition: getWorkspaceSummedUsageEndpointDefinition,
+    },
+    countWorkspaceSummedUsage: {
+      fn: countWorkspaceSummedUsage,
+      mddocHttpDefinition: countWorkspaceSummedUsageEndpointDefinition,
+    },
+  };
+  return usageRecordsExportedEndpoints;
+}

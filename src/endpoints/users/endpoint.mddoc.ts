@@ -122,9 +122,11 @@ const userExistsParams = FieldObject.construct<UserExistsEndpointParams>()
   })
   .setRequired(true)
   .setDescription('User exists endpoint params.');
-const userExistsHttpResponseBody = FieldObject.construct<UserExistsEndpointResult>().setFields({
-  exists: FieldObject.requiredField(FieldBoolean.construct()),
-});
+const userExistsHttpResponseBody = FieldObject.construct<UserExistsEndpointResult>()
+  .setFields({
+    exists: FieldObject.requiredField(FieldBoolean.construct()),
+  })
+  .setName('UserExistsEndpointResult');
 
 export const signupEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: SignupEndpointParams;

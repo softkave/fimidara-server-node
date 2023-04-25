@@ -14,7 +14,7 @@
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
-    "build/src/!(__tests__|testutils)*(js|d.ts)"
+    "build/src/!(__tests__|testutils|private)*(js|d.ts)"
   ],
   "keywords": [],
   "scripts": {
@@ -23,15 +23,17 @@
     "compile": "tsc",
     "fix": "gts fix",
     "prepare": "npm.cmd run compile",
-    "pretest": "npm.cmd run compile",
-    "posttest": "npm.cmd run lint",
+    "test": "env-cmd -f \".env.test\" jest --detectOpenHandles",
     "publish-to-npm": "npm run compile && npm publish",
     "show-packlist": "npm pack --dry-run"
   },
   "devDependencies": {
     "@types/isomorphic-form-data": "^2.0.1",
+    "@types/jest": "^29.5.1",
     "@types/node": "^14.11.2",
     "gts": "^3.1.1",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
     "typescript": "~4.7.0"
   },
   "dependencies": {

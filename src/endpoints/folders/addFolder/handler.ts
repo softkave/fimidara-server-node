@@ -1,4 +1,3 @@
-import {last} from 'lodash';
 import {Folder} from '../../../definitions/folder';
 import {
   AppActionType,
@@ -116,8 +115,7 @@ export async function createFolderList(
   }
 
   if (newFolders.length) {
-    const mainFolder = last(newFolders);
-    appAssert(mainFolder, new ServerError('Error creating folder.'));
+    await context.semantic.folder.insertItem(newFolders, opts);
   }
 
   return previousFolder;

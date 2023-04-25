@@ -1,5 +1,5 @@
 import {Express, Request, Response} from 'express';
-import {defaultTo, isNumber, isString} from 'lodash';
+import {compact, defaultTo, isNumber, isString} from 'lodash';
 import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
 import OperationError from '../utils/OperationError';
@@ -254,6 +254,9 @@ export function registerExpressRouteFromEndpoint(
   const expressPath = endpoint.mddocHttpDefinition.getPathParamaters() ? `${p}*` : p;
   app[endpoint.mddocHttpDefinition.assertGetMethod()](
     expressPath,
-    wrapEndpointREST(endpoint.fn, ctx, endpoint.handleResponse, endpoint.getDataFromReq)
+    ...compact([
+      endpoint.expressRouteMiddleware,
+      wrapEndpointREST(endpoint.fn, ctx, endpoint.handleResponse, endpoint.getDataFromReq),
+    ])
   );
 }
