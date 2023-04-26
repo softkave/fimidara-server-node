@@ -1,10 +1,11 @@
 ## Now
 
 - [ ] Waitlist for fimidara
-- [ ] Root user should be generated with requires password change for prod
 - [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Support providedResourceId for all resources
+- [ ] Handle password change required on the frontend
+- [ ] Change password with current password or forgot password on the frontend
 - [ ] Predefined resize pipelines
 - [ ] Public access op for files
 - [ ] Get version of readFile, we currently only have Post
