@@ -39,6 +39,8 @@ export async function restApiEndpointsInfoGen() {
   const infoMap = generateEndpointInfoFromEndpoints();
   const promises: Promise<any>[] = [];
 
+  await fse.remove(basepath);
+
   infoMap.forEach((info, endpoint) => {
     const endpointPath = posix.normalize(basepath + endpoint.assertGetBasePathname() + '.json');
     promises.push(writeEndpointInfoToFile(endpointPath, info));

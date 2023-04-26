@@ -6,20 +6,20 @@
             "/v1/agentTokens/deleteToken",
             "/v1/agentTokens/getToken",
             "/v1/agentTokens/getWorkspaceTokens",
-            "/v1/agentTokens/updateToken",
-            "/v1/agentTokens/countWorkspaceTokens"
+            "/v1/agentTokens/countWorkspaceTokens",
+            "/v1/agentTokens/updateToken"
         ]
     ],
     [
         "collaborationRequests",
         [
-            "/v1/collaborationRequests/countUserRequests",
-            "/v1/collaborationRequests/countWorkspaceRequests",
             "/v1/collaborationRequests/deleteRequest",
-            "/v1/collaborationRequests/getRequest",
+            "/v1/collaborationRequests/getUserRequest",
             "/v1/collaborationRequests/getUserRequests",
-            "/v1/collaborationRequests/getRequest",
+            "/v1/collaborationRequests/countUserRequests",
+            "/v1/collaborationRequests/getWorkspaceRequest",
             "/v1/collaborationRequests/getWorkspaceRequests",
+            "/v1/collaborationRequests/countWorkspaceRequests",
             "/v1/collaborationRequests/respondToRequest",
             "/v1/collaborationRequests/revokeRequest",
             "/v1/collaborationRequests/sendRequest",
@@ -29,9 +29,9 @@
     [
         "collaborators",
         [
-            "/v1/collaborators/countWorkspaceCollaborators",
             "/v1/collaborators/getCollaborator",
             "/v1/collaborators/getWorkspaceCollaborators",
+            "/v1/collaborators/countWorkspaceCollaborators",
             "/v1/collaborators/removeCollaborator"
         ]
     ],
@@ -49,9 +49,10 @@
         "folders",
         [
             "/v1/folders/addFolder",
-            "/v1/folders/countFolderContent",
             "/v1/folders/deleteFolder",
             "/v1/folders/getFolder",
+            "/v1/folders/listFolderContent",
+            "/v1/folders/countFolderContent",
             "/v1/folders/updateFolder"
         ]
     ],
@@ -65,13 +66,13 @@
         "permissionGroups",
         [
             "/v1/permissionGroups/addPermissionGroup",
+            "/v1/permissionGroups/assignPermissionGroups",
             "/v1/permissionGroups/deletePermissionGroup",
             "/v1/permissionGroups/getPermissionGroup",
-            "/v1/permissionGroups/getWorkspacePermissionGroups",
-            "/v1/permissionGroups/updatePermissionGroup",
-            "/v1/permissionGroups/assignPermissionGroups",
             "/v1/permissionGroups/getEntityAssignedPermissionGroups",
-            "/v1/permissionGroups/countWorkspacePermissionGroups"
+            "/v1/permissionGroups/getWorkspacePermissionGroups",
+            "/v1/permissionGroups/countWorkspacePermissionGroups",
+            "/v1/permissionGroups/updatePermissionGroup"
         ]
     ],
     [
@@ -98,18 +99,19 @@
     [
         "users",
         [
-            "/v1/account/getUserData"
+            "/v1/users/getUserData",
+            "/v1/users/updateUser"
         ]
     ],
     [
         "workspaces",
         [
-            "/v1/workspaces/getWorkspace",
-            "/v1/workspaces/updateWorkspace",
+            "/v1/workspaces/addWorkspace",
             "/v1/workspaces/deleteWorkspace",
             "/v1/workspaces/getUserWorkspaces",
-            "/v1/workspaces/addWorkspace",
-            "/v1/account/countUserWorkspaces"
+            "/v1/workspaces/countUserWorkspaces",
+            "/v1/workspaces/getWorkspace",
+            "/v1/workspaces/updateWorkspace"
         ]
     ]
 ]

@@ -91,7 +91,7 @@ export async function updateFileDetailsTest(
   return result;
 }
 
-export async function getFileTest(
+export async function readFileTest(
   endpoint: FimidaraEndpoints,
   vars: ITestVars,
   props: PartialDeep<ReadFileEndpointParams> = {}
@@ -121,11 +121,9 @@ export async function uploadFileTest(
 ) {
   const incomingFilepath = path.normalize(process.cwd() + vars.testFilepath);
   const genInput: UploadFileEndpointParams = {
-    // data: blobFromSync(filepath).stream(),
     data: createReadStream(incomingFilepath),
     description: faker.lorem.sentence(),
     encoding: 'base64',
-    // extension: faker.system.fileExt(),
     filepath: makeTestFilepath(vars.workspaceRootname, faker.system.filePath()),
     mimetype: faker.system.mimeType(),
   };

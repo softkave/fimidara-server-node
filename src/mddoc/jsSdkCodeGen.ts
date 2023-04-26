@@ -163,21 +163,26 @@ function getDateType(item: MddocTypeFieldDate) {
 }
 function getArrayType(doc: Doc, item: MddocTypeFieldArray<any>) {
   const ofType = item.assertGetType();
-  const typeString = getType(doc, ofType);
+  const typeString = getType(doc, ofType, /** asFetchResponseIfFieldBinary */ false);
   return `Array<${typeString}>`;
 }
 function getOrCombinationType(doc: Doc, item: MddocTypeFieldOrCombination) {
   return item
     .assertGetTypes()
-    .map(next => getType(doc, next))
+    .map(next => getType(doc, next, /** asFetchResponseIfFieldBinary */ false))
     .join(' | ');
 }
-function getBinaryType(doc: Doc, item: MddocTypeFieldBinary) {
-  doc.appendImport(['Readable'], 'isomorphic-form-data');
-  return 'string | Readable | ReadableStream';
+function getBinaryType(doc: Doc, item: MddocTypeFieldBinary, asFetchResponse: boolean) {
+  if (asFetchResponse) {
+    doc.appendImport(['Response'], 'cross-fetch');
+    return 'Response';
+  } else {
+    doc.appendImport(['Readable'], 'isomorphic-form-data');
+    return 'string | Readable | ReadableStream';
+  }
 }
 
-function getType(doc: Doc, item: any): string {
+function getType(doc: Doc, item: any, asFetchResponseIfFieldBinary: boolean): string {
   if (isMddocFieldString(item)) {
     return getStringType(doc, item);
   } else if (isMddocFieldNumber(item)) {
@@ -195,9 +200,9 @@ function getType(doc: Doc, item: any): string {
   } else if (isMddocFieldOrCombination(item)) {
     return getOrCombinationType(doc, item);
   } else if (isMddocFieldBinary(item)) {
-    return getBinaryType(doc, item);
+    return getBinaryType(doc, item, asFetchResponseIfFieldBinary);
   } else if (isMddocFieldObject(item)) {
-    return generateObjectDefinition(doc, item);
+    return generateObjectDefinition(doc, item, asFetchResponseIfFieldBinary);
   } else {
     return 'unknown';
   }
@@ -210,6 +215,7 @@ function shouldEncloseObjectKeyInQuotes(key: string) {
 function generateObjectDefinition(
   doc: Doc,
   item: MddocTypeFieldObject,
+  asFetchResponse: boolean,
   name?: string,
   extraFields: string[] = []
 ) {
@@ -222,16 +228,20 @@ function generateObjectDefinition(
   const entries: string[] = [];
   for (let key in fields) {
     const value = fields[key];
-    const entryType = getType(doc, value.data);
+    const entryType = getType(doc, value.data, asFetchResponse);
     const separator = value.optional ? '?:' : ':';
     key = shouldEncloseObjectKeyInQuotes(key) ? `"${key}"` : key;
     const entry = `${key}${separator} ${entryType};`;
     entries.push(entry);
 
     const valueData = value.data;
-    if (isMddocFieldObject(valueData)) generateObjectDefinition(doc, valueData);
+    if (isMddocFieldObject(valueData)) generateObjectDefinition(doc, valueData, asFetchResponse);
     else if (isMddocFieldArray(valueData) && valueData.assertGetType() instanceof FieldObject)
-      generateObjectDefinition(doc, valueData.assertGetType() as MddocTypeFieldObject);
+      generateObjectDefinition(
+        doc,
+        valueData.assertGetType() as MddocTypeFieldObject,
+        asFetchResponse
+      );
   }
 
   doc.appendType(`export type ${name} = {`);
@@ -289,11 +299,11 @@ function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint<any
   const {requestBodyObject, successResponseBodyObject} = getTypesFromEndpoint(endpoint);
 
   // Request body
-  if (requestBodyObject) generateObjectDefinition(doc, requestBodyObject);
+  if (requestBodyObject) generateObjectDefinition(doc, requestBodyObject, false);
 
   // Success response body
   if (successResponseBodyObject) {
-    generateObjectDefinition(doc, successResponseBodyObject);
+    generateObjectDefinition(doc, successResponseBodyObject, /** asFetchResponse */ true);
   }
 }
 
@@ -347,7 +357,7 @@ function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEnd
         doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
         resultTypeName = successResponseBodyObject.assertGetName();
       } else if (isMddocFieldBinary(successResponseBodyRaw)) {
-        resultTypeName = getBinaryType(doc, successResponseBodyRaw);
+        resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
       }
 
       const requestBodyObjectName = requestBodyObject?.assertGetName();
@@ -366,9 +376,7 @@ function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEnd
   });
   const result = {
     headers: response.headers as any,
-    body: ${
-      isMddocFieldBinary(successResponseBodyRaw) ? 'response.body as any' : 'await response.json()'
-    }
+    body: ${isMddocFieldBinary(successResponseBodyRaw) ? 'response' : 'await response.json()'}
   };
   return result;
 }`;

@@ -5,14 +5,12 @@
         "required": true,
         "description": "Delete agent token endpoint params.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "DeleteAgentTokenEndpointParams",
         "fields": {
             "tokenId": {
                 "data": {
                     "description": "Resource ID.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "wrkspce_000000000000000000000"
                 },
                 "optional": true
@@ -20,8 +18,7 @@
             "onReferenced": {
                 "data": {
                     "description": "Whether to perform action on the token used to authorize the API call when performing actions on tokens and a token ID or provided resource ID is not provided.",
-                    "__id": "FieldBoolean",
-                    "stringType": "boolean"
+                    "__id": "FieldBoolean"
                 },
                 "optional": true
             },
@@ -29,7 +26,6 @@
                 "data": {
                     "description": "Resource ID provided by you.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "max": 50
                 },
                 "optional": true
@@ -38,7 +34,6 @@
                 "data": {
                     "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "wrkspce_000000000000000000000"
                 },
                 "optional": true
@@ -47,13 +42,12 @@
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
                     "description": "Access token.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "Bearer <token>"
                 },
                 "required": true
@@ -62,7 +56,6 @@
                 "data": {
                     "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "application/json",
                     "valid": {
                         "0": "application/json"
@@ -74,13 +67,12 @@
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
                     "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "valid": {
                         "0": "application/json"
                     }
@@ -90,8 +82,7 @@
             "Content-Length": {
                 "data": {
                     "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString",
-                    "stringType": "string"
+                    "__id": "FieldString"
                 },
                 "required": true
             }
@@ -101,14 +92,12 @@
         "required": true,
         "description": "Long running job endpoint success result.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "LongRunningJobResult",
         "fields": {
             "jobId": {
                 "data": {
                     "description": "Long running job ID.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "job0000_000000000000000000000"
                 },
                 "required": true
@@ -119,13 +108,12 @@
     "description": "Delete agent token endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
                     "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "valid": {
                         "0": "application/json"
                     }
@@ -135,8 +123,7 @@
             "Content-Length": {
                 "data": {
                     "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString",
-                    "stringType": "string"
+                    "__id": "FieldString"
                 },
                 "required": true
             }
@@ -146,24 +133,20 @@
         "required": true,
         "description": "Endpoint error result.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
                     "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
-                    "stringType": "array of (object)",
                     "type": {
                         "__id": "FieldObject",
-                        "stringType": "object",
                         "name": "OperationError",
                         "fields": {
                             "name": {
                                 "data": {
                                     "description": "Error name.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "ValidationError"
                                 },
                                 "required": true
@@ -172,7 +155,6 @@
                                 "data": {
                                     "description": "Error message.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "Workspace name is invalid."
                                 },
                                 "required": true
@@ -181,7 +163,6 @@
                                 "data": {
                                     "description": "Recommended action.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "valid": {
                                         "0": "LoginAgain",
                                         "1": "Logout"
@@ -192,19 +173,8 @@
                             "field": {
                                 "data": {
                                     "description": "Invalid field failing validation when error is ValidationError.",
-                                    "__id": "FieldOrCombination",
-                                    "stringType": "string or undefined",
-                                    "types": {
-                                        "0": {
-                                            "__id": "FieldString",
-                                            "stringType": "string",
-                                            "example": "workspace.innerField.secondInnerField"
-                                        },
-                                        "1": {
-                                            "__id": "FieldUndefined",
-                                            "stringType": "undefined"
-                                        }
-                                    }
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
                                 },
                                 "optional": true
                             }

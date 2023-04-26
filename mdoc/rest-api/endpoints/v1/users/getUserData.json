@@ -1,33 +1,6 @@
 {
-    "basePathname": "/v1/collaborationRequests/getUserRequests",
+    "basePathname": "/v1/users/getUserData",
     "method": "post",
-    "requestBody": {
-        "required": true,
-        "description": "Get user collaboration requests endpoint params.",
-        "__id": "FieldObject",
-        "name": "GetUserCollaborationRequestsEndpointParams",
-        "fields": {
-            "page": {
-                "data": {
-                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
-                    "__id": "FieldNumber",
-                    "example": 0,
-                    "min": 0
-                },
-                "optional": true
-            },
-            "pageSize": {
-                "data": {
-                    "description": "Paginated list page size.",
-                    "__id": "FieldNumber",
-                    "example": 10,
-                    "min": 1,
-                    "max": 1000
-                },
-                "optional": true
-            }
-        }
-    },
     "requestHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
@@ -78,114 +51,137 @@
     },
     "responseBody": {
         "required": true,
-        "description": "Get user collaboration requests endpoint success result.",
+        "description": "User login result.",
         "__id": "FieldObject",
-        "name": "GetUserCollaborationRequestsEndpointSuccessResult",
+        "name": "LoginResult",
         "fields": {
-            "requests": {
+            "user": {
                 "data": {
-                    "__id": "FieldArray",
-                    "type": {
-                        "__id": "FieldObject",
-                        "name": "CollaborationRequestForUser",
-                        "fields": {
-                            "recipientEmail": {
-                                "data": {
-                                    "description": "Recipient's email address.",
-                                    "__id": "FieldString"
-                                },
-                                "required": true
+                    "__id": "FieldObject",
+                    "name": "PublicUser",
+                    "fields": {
+                        "resourceId": {
+                            "data": {
+                                "description": "Resource ID.",
+                                "__id": "FieldString",
+                                "example": "wrkspce_000000000000000000000"
                             },
-                            "message": {
-                                "data": {
-                                    "description": "Message to recipient.",
-                                    "__id": "FieldString"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "createdAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
                             },
-                            "resourceId": {
-                                "data": {
-                                    "description": "Resource ID.",
-                                    "__id": "FieldString",
-                                    "example": "wrkspce_000000000000000000000"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "lastUpdatedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
                             },
-                            "createdAt": {
-                                "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "firstName": {
+                            "data": {
+                                "description": "First name.",
+                                "__id": "FieldString",
+                                "example": "Jesus"
                             },
-                            "expiresAt": {
-                                "data": {
-                                    "description": "Expiration date.",
-                                    "__id": "FieldDate"
-                                },
-                                "optional": true
+                            "required": true
+                        },
+                        "lastName": {
+                            "data": {
+                                "description": "Last name.",
+                                "__id": "FieldString",
+                                "example": "Christ"
                             },
-                            "workspaceName": {
-                                "data": {
-                                    "description": "Workspace name.",
-                                    "__id": "FieldString",
-                                    "example": "fimidara"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "email": {
+                            "data": {
+                                "description": "Email address.",
+                                "__id": "FieldString",
+                                "example": "my-email-address@email-domain.com"
                             },
-                            "lastUpdatedAt": {
-                                "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "passwordLastChangedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
                             },
-                            "readAt": {
-                                "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
-                                },
-                                "optional": true
+                            "required": true
+                        },
+                        "isEmailVerified": {
+                            "data": {
+                                "__id": "FieldBoolean"
                             },
-                            "status": {
-                                "data": {
-                                    "description": "Collaboration request status.",
-                                    "__id": "FieldString",
-                                    "valid": {
-                                        "0": "accepted",
-                                        "1": "declined",
-                                        "2": "revoked",
-                                        "3": "pending"
-                                    },
-                                    "enumName": "CollaborationRequestStatusType"
-                                },
-                                "required": true
+                            "required": true
+                        },
+                        "emailVerifiedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
                             },
-                            "statusDate": {
-                                "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
-                                },
-                                "required": true
-                            }
+                            "optional": true
+                        },
+                        "emailVerificationEmailSentAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "optional": true
+                        },
+                        "workspaces": {
+                            "data": {
+                                "__id": "FieldArray",
+                                "type": {
+                                    "__id": "FieldObject",
+                                    "name": "UserWorkspace",
+                                    "fields": {
+                                        "joinedAt": {
+                                            "data": {
+                                                "description": "UTC timestamp in milliseconds.",
+                                                "__id": "FieldNumber"
+                                            },
+                                            "required": true
+                                        },
+                                        "workspaceId": {
+                                            "data": {
+                                                "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                                                "__id": "FieldString",
+                                                "example": "wrkspce_000000000000000000000"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                }
+                            },
+                            "required": true
                         }
                     }
                 },
                 "required": true
             },
-            "page": {
+            "token": {
                 "data": {
-                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
-                    "__id": "FieldNumber",
-                    "example": 0,
-                    "min": 0
+                    "description": "JWT token string.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            },
+            "clientAssignedToken": {
+                "data": {
+                    "description": "JWT token string.",
+                    "__id": "FieldString"
                 },
                 "required": true
             }
         }
     },
-    "name": "GetUserCollaborationRequestsEndpoint",
-    "description": "Get user collaboration requests endpoint.",
+    "name": "ConfirmEmailAddressEndpoint",
+    "description": "Confirm email address endpoint. Uses the `Authorization` header.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

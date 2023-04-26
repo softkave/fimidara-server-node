@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Waitlist for fimidara
+- [ ] Root user should be generated with requires password change for prod
 - [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Support providedResourceId for all resources
@@ -46,6 +47,10 @@
 - [ ] Include folders, files, names and IDs in error messages?
 - [ ] Memstore txn ops shouldn't wait if query or data to insert/update is empty
 - [ ] Memstore should run query for multiple queries at once instead of one query per loop. This can also be used to support $or and $and
+- [ ] Frontend endpoint doc should be generated for each route to reduce compute and cost. Currently, the file is loaded then rendered.
+- [ ] Error boundary page on the frontend
+- [ ] Seek file included in readFile
+- [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
 
 ## Later
 

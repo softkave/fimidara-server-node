@@ -1,17 +1,38 @@
 {
-    "basePathname": "/v1/agentTokens/getWorkspaceTokens",
+    "basePathname": "/v1/folders/listFolderContent",
     "method": "post",
     "requestBody": {
         "required": true,
-        "description": "Get workspace agent tokens endpoint params.",
+        "description": "List folder content endpoint params.",
         "__id": "FieldObject",
-        "name": "GetWorkspaceAgentTokensEndpointParams",
+        "name": "ListFolderContentEndpointParams",
         "fields": {
-            "workspaceId": {
+            "folderpath": {
                 "data": {
-                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "description": "Folder path with workspace rootname.",
                     "__id": "FieldString",
-                    "example": "wrkspce_000000000000000000000"
+                    "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
+                },
+                "optional": true
+            },
+            "folderId": {
+                "data": {
+                    "description": "Folder ID.",
+                    "__id": "FieldString",
+                    "example": "folder0_000000000000000000000"
+                },
+                "optional": true
+            },
+            "contentType": {
+                "data": {
+                    "required": false,
+                    "description": "Fetch children files or folders or both.",
+                    "__id": "FieldString",
+                    "example": "file",
+                    "valid": {
+                        "0": "file",
+                        "1": "folder"
+                    }
                 },
                 "optional": true
             },
@@ -86,22 +107,20 @@
     },
     "responseBody": {
         "required": true,
-        "description": "Add agent token endpoint success result.",
+        "description": "List folder content endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetWorkspaceAgentTokensEndpointResult",
+        "name": "ListFolderContentEndpointSuccessResult",
         "fields": {
-            "tokens": {
+            "folders": {
                 "data": {
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
-                        "name": "AgentToken",
+                        "name": "Folder",
                         "fields": {
                             "resourceId": {
                                 "data": {
-                                    "description": "Resource ID.",
-                                    "__id": "FieldString",
-                                    "example": "wrkspce_000000000000000000000"
+                                    "__id": "FieldString"
                                 },
                                 "required": true
                             },
@@ -182,7 +201,7 @@
                                     "description": "Name",
                                     "__id": "FieldString"
                                 },
-                                "optional": true
+                                "required": true
                             },
                             "description": {
                                 "data": {
@@ -199,17 +218,218 @@
                                 },
                                 "required": true
                             },
-                            "tokenStr": {
+                            "idPath": {
                                 "data": {
-                                    "description": "JWT token string.",
+                                    "description": "List of parent folder IDs.",
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "description": "Folder ID.",
+                                        "__id": "FieldString",
+                                        "example": "folder0_000000000000000000000"
+                                    }
+                                },
+                                "required": true
+                            },
+                            "namePath": {
+                                "data": {
+                                    "description": "List of parent folder names.",
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "description": "Folder name.",
+                                        "__id": "FieldString",
+                                        "example": "my-folder"
+                                    }
+                                },
+                                "required": true
+                            },
+                            "parentId": {
+                                "data": {
+                                    "description": "Folder ID.",
+                                    "__id": "FieldString",
+                                    "example": "folder0_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "providedResourceId": {
+                                "data": {
+                                    "description": "Resource ID provided by you.",
+                                    "__id": "FieldString",
+                                    "max": 50
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "files": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "File",
+                        "fields": {
+                            "size": {
+                                "data": {
+                                    "description": "File size in bytes",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "extension": {
+                                "data": {
+                                    "description": "File extension",
                                     "__id": "FieldString"
                                 },
                                 "required": true
                             },
-                            "expires": {
+                            "resourceId": {
                                 "data": {
-                                    "description": "Expiration date.",
-                                    "__id": "FieldDate"
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "workspaceId": {
+                                "data": {
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "parentId": {
+                                "data": {
+                                    "description": "Folder ID.",
+                                    "__id": "FieldString",
+                                    "example": "folder0_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "idPath": {
+                                "data": {
+                                    "description": "List of parent folder IDs.",
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "description": "Folder ID.",
+                                        "__id": "FieldString",
+                                        "example": "folder0_000000000000000000000"
+                                    }
+                                },
+                                "required": true
+                            },
+                            "namePath": {
+                                "data": {
+                                    "description": "List of parent folder names.",
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "description": "Folder name.",
+                                        "__id": "FieldString",
+                                        "example": "my-folder"
+                                    }
+                                },
+                                "required": true
+                            },
+                            "mimetype": {
+                                "data": {
+                                    "description": "File MIME type",
+                                    "__id": "FieldString"
+                                },
+                                "optional": true
+                            },
+                            "encoding": {
+                                "data": {
+                                    "description": "File encoding",
+                                    "__id": "FieldString"
+                                },
+                                "optional": true
+                            },
+                            "createdBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "createdAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "name": {
+                                "data": {
+                                    "description": "File name.",
+                                    "__id": "FieldString",
+                                    "example": "my-file"
+                                },
+                                "required": true
+                            },
+                            "description": {
+                                "data": {
+                                    "description": "Description",
+                                    "__id": "FieldString"
                                 },
                                 "optional": true
                             },
@@ -237,8 +457,8 @@
             }
         }
     },
-    "name": "GetWorkspaceAgentTokensEndpoint",
-    "description": "Get workspace agent tokens endpoint.",
+    "name": "ListFolderContentEndpoint",
+    "description": "List folder content endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

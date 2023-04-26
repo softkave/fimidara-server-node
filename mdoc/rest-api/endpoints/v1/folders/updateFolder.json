@@ -5,14 +5,12 @@
         "required": true,
         "description": "Update folder endpoint params.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "UpdateFolderEndpointParams",
         "fields": {
             "folderpath": {
                 "data": {
                     "description": "Folder path with workspace rootname.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
                 },
                 "optional": true
@@ -21,7 +19,6 @@
                 "data": {
                     "description": "Folder ID.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "folder0_000000000000000000000"
                 },
                 "optional": true
@@ -29,14 +26,12 @@
             "folder": {
                 "data": {
                     "__id": "FieldObject",
-                    "stringType": "object",
                     "name": "UpdateFolderInput",
                     "fields": {
                         "description": {
                             "data": {
                                 "description": "Description",
-                                "__id": "FieldString",
-                                "stringType": "string"
+                                "__id": "FieldString"
                             },
                             "optional": true
                         }
@@ -48,13 +43,12 @@
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
                     "description": "Access token.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "Bearer <token>"
                 },
                 "required": true
@@ -63,7 +57,6 @@
                 "data": {
                     "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "example": "application/json",
                     "valid": {
                         "0": "application/json"
@@ -75,13 +68,12 @@
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
                     "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "valid": {
                         "0": "application/json"
                     }
@@ -91,8 +83,7 @@
             "Content-Length": {
                 "data": {
                     "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString",
-                    "stringType": "string"
+                    "__id": "FieldString"
                 },
                 "required": true
             }
@@ -102,33 +93,28 @@
         "required": true,
         "description": "Update folder endpoint success result.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "UpdateFolderEndpointSuccessResult",
         "fields": {
             "folder": {
                 "data": {
                     "__id": "FieldObject",
-                    "stringType": "object",
                     "name": "Folder",
                     "fields": {
                         "resourceId": {
                             "data": {
-                                "__id": "FieldString",
-                                "stringType": "string"
+                                "__id": "FieldString"
                             },
                             "required": true
                         },
                         "createdBy": {
                             "data": {
                                 "__id": "FieldObject",
-                                "stringType": "object",
                                 "name": "Agent",
                                 "fields": {
                                     "agentId": {
                                         "data": {
                                             "description": "Agent ID. Possible agents are users and agent tokens.",
-                                            "__id": "FieldString",
-                                            "stringType": "string"
+                                            "__id": "FieldString"
                                         },
                                         "required": true
                                     },
@@ -136,7 +122,6 @@
                                         "data": {
                                             "description": "Agent type.",
                                             "__id": "FieldString",
-                                            "stringType": "string",
                                             "example": "agentToken",
                                             "valid": {
                                                 "0": "user",
@@ -153,22 +138,19 @@
                         "createdAt": {
                             "data": {
                                 "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber",
-                                "stringType": "number"
+                                "__id": "FieldNumber"
                             },
                             "required": true
                         },
                         "lastUpdatedBy": {
                             "data": {
                                 "__id": "FieldObject",
-                                "stringType": "object",
                                 "name": "Agent",
                                 "fields": {
                                     "agentId": {
                                         "data": {
                                             "description": "Agent ID. Possible agents are users and agent tokens.",
-                                            "__id": "FieldString",
-                                            "stringType": "string"
+                                            "__id": "FieldString"
                                         },
                                         "required": true
                                     },
@@ -176,7 +158,6 @@
                                         "data": {
                                             "description": "Agent type.",
                                             "__id": "FieldString",
-                                            "stringType": "string",
                                             "example": "agentToken",
                                             "valid": {
                                                 "0": "user",
@@ -193,24 +174,21 @@
                         "lastUpdatedAt": {
                             "data": {
                                 "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber",
-                                "stringType": "number"
+                                "__id": "FieldNumber"
                             },
                             "required": true
                         },
                         "name": {
                             "data": {
                                 "description": "Name",
-                                "__id": "FieldString",
-                                "stringType": "string"
+                                "__id": "FieldString"
                             },
                             "required": true
                         },
                         "description": {
                             "data": {
                                 "description": "Description",
-                                "__id": "FieldString",
-                                "stringType": "string"
+                                "__id": "FieldString"
                             },
                             "optional": true
                         },
@@ -218,7 +196,6 @@
                             "data": {
                                 "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                 "__id": "FieldString",
-                                "stringType": "string",
                                 "example": "wrkspce_000000000000000000000"
                             },
                             "required": true
@@ -227,11 +204,9 @@
                             "data": {
                                 "description": "List of parent folder IDs.",
                                 "__id": "FieldArray",
-                                "stringType": "array of (string)",
                                 "type": {
                                     "description": "Folder ID.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "folder0_000000000000000000000"
                                 }
                             },
@@ -241,11 +216,9 @@
                             "data": {
                                 "description": "List of parent folder names.",
                                 "__id": "FieldArray",
-                                "stringType": "array of (string)",
                                 "type": {
                                     "description": "Folder name.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "my-folder"
                                 }
                             },
@@ -255,7 +228,6 @@
                             "data": {
                                 "description": "Folder ID.",
                                 "__id": "FieldString",
-                                "stringType": "string",
                                 "example": "folder0_000000000000000000000"
                             },
                             "required": true
@@ -264,7 +236,6 @@
                             "data": {
                                 "description": "Resource ID provided by you.",
                                 "__id": "FieldString",
-                                "stringType": "string",
                                 "max": 50
                             },
                             "optional": true
@@ -279,13 +250,12 @@
     "description": "Update folder endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "stringType": "object",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
                     "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "stringType": "string",
                     "valid": {
                         "0": "application/json"
                     }
@@ -295,8 +265,7 @@
             "Content-Length": {
                 "data": {
                     "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString",
-                    "stringType": "string"
+                    "__id": "FieldString"
                 },
                 "required": true
             }
@@ -306,24 +275,20 @@
         "required": true,
         "description": "Endpoint error result.",
         "__id": "FieldObject",
-        "stringType": "object",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
                     "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
-                    "stringType": "array of (object)",
                     "type": {
                         "__id": "FieldObject",
-                        "stringType": "object",
                         "name": "OperationError",
                         "fields": {
                             "name": {
                                 "data": {
                                     "description": "Error name.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "ValidationError"
                                 },
                                 "required": true
@@ -332,7 +297,6 @@
                                 "data": {
                                     "description": "Error message.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "example": "Workspace name is invalid."
                                 },
                                 "required": true
@@ -341,7 +305,6 @@
                                 "data": {
                                     "description": "Recommended action.",
                                     "__id": "FieldString",
-                                    "stringType": "string",
                                     "valid": {
                                         "0": "LoginAgain",
                                         "1": "Logout"
@@ -352,19 +315,8 @@
                             "field": {
                                 "data": {
                                     "description": "Invalid field failing validation when error is ValidationError.",
-                                    "__id": "FieldOrCombination",
-                                    "stringType": "string or undefined",
-                                    "types": {
-                                        "0": {
-                                            "__id": "FieldString",
-                                            "stringType": "string",
-                                            "example": "workspace.innerField.secondInnerField"
-                                        },
-                                        "1": {
-                                            "__id": "FieldUndefined",
-                                            "stringType": "undefined"
-                                        }
-                                    }
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
                                 },
                                 "optional": true
                             }

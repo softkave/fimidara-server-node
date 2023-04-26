@@ -1,24 +1,17 @@
 {
-    "basePathname": "/v1/clientLogs/ingestLogs",
+    "basePathname": "/v1/collaborationRequests/getUserRequest",
     "method": "post",
     "requestBody": {
         "required": true,
+        "description": "Get collaboration request endpoint params.",
         "__id": "FieldObject",
-        "name": "GetJobStatusEndpointParams",
+        "name": "GetCollaborationRequestEndpointParams",
         "fields": {
-            "workspaceId": {
+            "requestId": {
                 "data": {
-                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "description": "Resource ID.",
                     "__id": "FieldString",
                     "example": "wrkspce_000000000000000000000"
-                },
-                "optional": true
-            },
-            "jobId": {
-                "data": {
-                    "description": "Long running job ID.",
-                    "__id": "FieldString",
-                    "example": "job0000_000000000000000000000"
                 },
                 "required": true
             }
@@ -74,27 +67,102 @@
     },
     "responseBody": {
         "required": true,
-        "description": "Get job status endpoint success result.",
+        "description": "Get collaboration request endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetJobStatusEndpointResult",
+        "name": "GetCollaborationRequestEndpointSuccessResult",
         "fields": {
-            "status": {
+            "request": {
                 "data": {
-                    "description": "Job status.",
-                    "__id": "FieldString",
-                    "valid": {
-                        "0": "pending",
-                        "1": "inProgress",
-                        "2": "completed",
-                        "3": "failed"
-                    },
-                    "enumName": "JobStatus"
+                    "__id": "FieldObject",
+                    "name": "CollaborationRequestForUser",
+                    "fields": {
+                        "recipientEmail": {
+                            "data": {
+                                "description": "Recipient's email address.",
+                                "__id": "FieldString"
+                            },
+                            "required": true
+                        },
+                        "message": {
+                            "data": {
+                                "description": "Message to recipient.",
+                                "__id": "FieldString"
+                            },
+                            "required": true
+                        },
+                        "resourceId": {
+                            "data": {
+                                "description": "Resource ID.",
+                                "__id": "FieldString",
+                                "example": "wrkspce_000000000000000000000"
+                            },
+                            "required": true
+                        },
+                        "createdAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "expiresAt": {
+                            "data": {
+                                "description": "Expiration date.",
+                                "__id": "FieldDate"
+                            },
+                            "optional": true
+                        },
+                        "workspaceName": {
+                            "data": {
+                                "description": "Workspace name.",
+                                "__id": "FieldString",
+                                "example": "fimidara"
+                            },
+                            "required": true
+                        },
+                        "lastUpdatedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "readAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "optional": true
+                        },
+                        "status": {
+                            "data": {
+                                "description": "Collaboration request status.",
+                                "__id": "FieldString",
+                                "valid": {
+                                    "0": "accepted",
+                                    "1": "declined",
+                                    "2": "revoked",
+                                    "3": "pending"
+                                },
+                                "enumName": "CollaborationRequestStatusType"
+                            },
+                            "required": true
+                        },
+                        "statusDate": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        }
+                    }
                 },
                 "required": true
             }
         }
     },
-    "name": "GetJobStatusEndpoint",
+    "name": "GetUserCollaborationRequestEndpoint",
+    "description": "Get user collaboration request endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

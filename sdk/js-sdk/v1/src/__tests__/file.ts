@@ -2,7 +2,7 @@ import {FimidaraEndpoints} from '..';
 import {
   deleteFileTest,
   getFileDetailsTest,
-  getFileTest,
+  readFileTest,
   updateFileDetailsTest,
   uploadFileTest,
 } from '../testutils/file';
@@ -16,8 +16,8 @@ describe('file', () => {
     await uploadFileTest(fimidara, vars);
   });
 
-  test('get file', async () => {
-    await getFileTest(fimidara, vars);
+  test('read file', async () => {
+    await readFileTest(fimidara, vars);
   });
 
   test('update file details', async () => {

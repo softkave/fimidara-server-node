@@ -298,7 +298,7 @@ export const getUserCollaborationRequestEndpointDefinition = HttpEndpointDefinit
   responseBody: GetUserCollaborationRequestEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
-  .setBasePathname(collabRequestConstants.routes.getRequest)
+  .setBasePathname(collabRequestConstants.routes.getUserRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getCollaborationRequestForUserParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
@@ -313,7 +313,7 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = HttpEndpointDe
   responseBody: GetWorkspaceCollaborationRequestEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
-  .setBasePathname(collabRequestConstants.routes.getRequest)
+  .setBasePathname(collabRequestConstants.routes.getWorkspaceRequest)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getCollaborationRequestForWorkspaceParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)

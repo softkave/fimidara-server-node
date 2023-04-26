@@ -13,7 +13,6 @@ export class FieldBase {
   }
 
   __id = FieldBase.name;
-  stringType = 'any';
   constructor(public required?: boolean, public description?: string) {}
 }
 
@@ -23,7 +22,6 @@ export class FieldString extends FieldBase {
   }
 
   __id = FieldString.name;
-  stringType = 'string';
   constructor(
     required?: boolean,
     description?: string,
@@ -42,7 +40,6 @@ export class FieldNumber extends FieldBase {
   }
 
   __id = FieldNumber.name;
-  stringType = 'number';
   constructor(
     required?: boolean,
     description?: string,
@@ -61,7 +58,6 @@ export class FieldBoolean extends FieldBase {
   }
 
   __id = FieldBoolean.name;
-  stringType = 'boolean';
   constructor(required?: boolean, description?: string, public example?: boolean) {
     super(required, description);
   }
@@ -73,7 +69,6 @@ export class FieldNull extends FieldBase {
   }
 
   __id = FieldNull.name;
-  stringType = 'null';
 }
 
 export class FieldUndefined extends FieldBase {
@@ -82,7 +77,6 @@ export class FieldUndefined extends FieldBase {
   }
 
   __id = FieldUndefined.name;
-  stringType = 'undefined';
 }
 
 export class FieldDate extends FieldBase {
@@ -91,7 +85,6 @@ export class FieldDate extends FieldBase {
   }
 
   __id = FieldDate.name;
-  stringType = 'number';
   constructor(required?: boolean, description?: string, public example?: string) {
     super(required, description);
   }
@@ -111,13 +104,6 @@ export class FieldArray<T> extends FieldBase {
     public max?: number
   ) {
     super(required, description);
-    this.stringType = `array of (${type ? type.stringType : 'unknown'})`;
-  }
-
-  setType(type?: ConvertToMddocType<T>) {
-    this.type = type;
-    if (type) this.stringType = `array of (${type.stringType})`;
-    return this;
   }
 }
 
@@ -171,7 +157,7 @@ export class FieldObject<T extends object = any> extends FieldBase {
   }
 
   __id = FieldObject.name;
-  stringType = 'object';
+
   constructor(
     required?: boolean,
     description?: string,
@@ -179,7 +165,6 @@ export class FieldObject<T extends object = any> extends FieldBase {
     public fields?: FieldObjectFields<T>
   ) {
     super(required, description);
-    this.stringType = name ?? this.stringType;
   }
 }
 
@@ -191,13 +176,6 @@ export class FieldOrCombination extends FieldBase {
   __id = FieldOrCombination.name;
   constructor(required?: boolean, description?: string, public types?: Array<MddocTypeFieldBase>) {
     super(required, description);
-    this.stringType = (types ?? []).map(f => f.stringType).join(' or ');
-  }
-
-  setTypes(types?: Array<MddocTypeFieldBase>) {
-    this.types = types;
-    if (types) this.stringType = types.map(f => f.stringType).join(' or ');
-    return this;
   }
 }
 
@@ -207,7 +185,6 @@ export class FieldBinary extends FieldBase {
   }
 
   __id = FieldBinary.name;
-  stringType = 'binary';
   constructor(required?: boolean, description?: string, public min?: number, public max?: number) {
     super(required, description);
   }

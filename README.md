@@ -1,4 +1,4 @@
-# Fimidara
+# fimidara
 
 ## Server Run Instructions
 

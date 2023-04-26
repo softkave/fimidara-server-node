@@ -12,6 +12,7 @@ export const collabRequestConstants = {
     respondToRequest: `${endpointConstants.apiv1}/collaborationRequests/respondToRequest`,
     revokeRequest: `${endpointConstants.apiv1}/collaborationRequests/revokeRequest`,
     updateRequest: `${endpointConstants.apiv1}/collaborationRequests/updateRequest`,
-    getRequest: `${endpointConstants.apiv1}/collaborationRequests/getRequest`,
+    getUserRequest: `${endpointConstants.apiv1}/collaborationRequests/getUserRequest`,
+    getWorkspaceRequest: `${endpointConstants.apiv1}/collaborationRequests/getWorkspaceRequest`,
   },
 };

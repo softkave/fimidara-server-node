@@ -98,7 +98,7 @@ import {
   UpdateWorkspaceEndpointParams,
   UpdateWorkspaceEndpointSuccessResult,
 } from './public-types';
-import {Readable} from 'isomorphic-form-data';
+import {Response} from 'cross-fetch';
 
 class AgentTokensEndpoints extends FimidaraEndpointsBase {
   addToken = async (
@@ -215,7 +215,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     };
     return result;
   };
-  getRequest = async (
+  getUserRequest = async (
     props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
   ): Promise<
     FimidaraEndpointResult<GetCollaborationRequestEndpointSuccessResult>
@@ -224,7 +224,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
-      path: '/v1/collaborationRequests/getRequest',
+      path: '/v1/collaborationRequests/getUserRequest',
       method: 'POST',
     });
     const result = {
@@ -259,6 +259,24 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
       data: undefined,
       formdata: undefined,
       path: '/v1/collaborationRequests/countUserRequests',
+      method: 'POST',
+    });
+    const result = {
+      headers: response.headers as any,
+      body: await response.json(),
+    };
+    return result;
+  };
+  getWorkspaceRequest = async (
+    props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
+  ): Promise<
+    FimidaraEndpointResult<GetCollaborationRequestEndpointSuccessResult>
+  > => {
+    const response = await invokeEndpoint({
+      token: this.getAuthToken(props),
+      data: props?.body,
+      formdata: undefined,
+      path: '/v1/collaborationRequests/getWorkspaceRequest',
       method: 'POST',
     });
     const result = {
@@ -477,7 +495,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
   };
   readFile = async (
     props?: FimidaraEndpointParamsOptional<ReadFileEndpointParams>
-  ): Promise<FimidaraEndpointResult<string | Readable | ReadableStream>> => {
+  ): Promise<FimidaraEndpointResult<Response>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -487,7 +505,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     });
     const result = {
       headers: response.headers as any,
-      body: response.body as any,
+      body: response,
     };
     return result;
   };

@@ -1,10 +1,10 @@
-# Fimidara JS SDK
+# fimidara JS SDK
 
-JS SDK for [Fimidara](https://www.fimidara.com), a file storage service.
+JS SDK for [fimidara](https://www.fimidara.com), a file storage service. [Click here for docs](https://www.fimidara.com/docs/fimidara-js-sdk).
 
 ## Installation
 
-`npm install fimidara`
+`npm install fimidara` or `yarn add fimidara`
 
 ## Usage
 
