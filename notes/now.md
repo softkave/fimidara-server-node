@@ -51,7 +51,7 @@
 - [ ] Error boundary page on the frontend
 - [ ] Seek file included in readFile
 - [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
-- [ ] Test session context getAgent scope
+- [ ] Switch assert to appAssert
 
 ## Later
 

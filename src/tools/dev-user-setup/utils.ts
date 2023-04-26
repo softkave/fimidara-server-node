@@ -5,6 +5,7 @@ import {CollaborationRequestStatusType} from '../../definitions/collaborationReq
 import {TokenAccessScope} from '../../definitions/system';
 import {UserWithWorkspace} from '../../definitions/user';
 import {Workspace} from '../../definitions/workspace';
+import RequestData from '../../endpoints/RequestData';
 import {assertAgentToken} from '../../endpoints/agentTokens/utils';
 import {
   addAssignedPermissionGroupList,
@@ -30,7 +31,10 @@ import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permission
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import {ChangePasswordEndpointParams} from '../../endpoints/users/changePassword/types';
+import changePasswordWithToken from '../../endpoints/users/changePasswordWithToken/handler';
 import internalConfirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
+import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgotPassword';
 import {internalSignupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
@@ -53,16 +57,12 @@ export interface PromptUserPasswordAnswers {
 }
 
 export interface ISetupDevUserOptions {
-  getUserEmail?: () => Promise<PromptEmailAnswers>;
-  getUserInfo?: () => Promise<PromptUserInfoAnswers>;
-  getUserPassword?: () => Promise<PromptUserPasswordAnswers>;
+  getUserEmail: () => Promise<PromptEmailAnswers>;
+  getUserInfo: () => Promise<PromptUserInfoAnswers>;
+  getUserPassword: () => Promise<PromptUserPasswordAnswers>;
 }
 
-type AppRuntimeOptions = Required<
-  Pick<ISetupDevUserOptions, 'getUserEmail' | 'getUserInfo' | 'getUserPassword'>
->;
-
-async function setupContext() {
+export async function devUserSetupInitContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
@@ -87,7 +87,7 @@ async function setupContext() {
   return ctx;
 }
 
-async function promptEmail() {
+export async function devUserSetupPromptEmail() {
   const answers = await inquirer.prompt([
     {
       type: 'input',
@@ -99,7 +99,7 @@ async function promptEmail() {
   return answers as PromptEmailAnswers;
 }
 
-async function promptUserInfo() {
+export async function devUserSetupPromptUserInfo() {
   const answers = await inquirer.prompt([
     {
       type: 'input',
@@ -121,7 +121,7 @@ async function promptUserInfo() {
   return answers as PromptUserInfoAnswers;
 }
 
-async function promptUserPassword() {
+export async function devUserSetupPromptUserPassword() {
   const answers = await inquirer.prompt([
     {
       type: 'input',
@@ -173,7 +173,7 @@ async function makeUserAdmin(
   }
 }
 
-async function getUser(context: BaseContext, runtimeOptions: AppRuntimeOptions) {
+async function getUser(context: BaseContext, runtimeOptions: ISetupDevUserOptions) {
   const {email} = await runtimeOptions.getUserEmail();
   const userExists = await context.semantic.user.existsByEmail(email);
   let user: UserWithWorkspace;
@@ -188,18 +188,26 @@ async function getUser(context: BaseContext, runtimeOptions: AppRuntimeOptions) 
   return user;
 }
 
-export async function setupDevUser(options: ISetupDevUserOptions = {}) {
-  const appOptions: AppRuntimeOptions = {
-    getUserEmail: promptEmail,
-    getUserInfo: promptUserInfo,
-    getUserPassword: promptUserPassword,
-    ...options,
-  };
-
-  const context = await setupContext();
+export async function setupDevUser(appOptions: ISetupDevUserOptions) {
+  const context = await devUserSetupInitContext();
 
   try {
     const workspace = await setupApp(context);
+    const user = await getUser(context, appOptions);
+    const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
+
+    if (user.requiresPasswordChange) {
+      const forgotToken = await getForgotPasswordToken(context, user);
+      const userPassword = await appOptions.getUserPassword();
+      await changePasswordWithToken(
+        context,
+        new RequestData<ChangePasswordEndpointParams>({
+          data: {password: userPassword.password},
+          agent: makeUserSessionAgent(user, forgotToken),
+        })
+      );
+    }
+
     await executeWithMutationRunOptions(context, async opts => {
       const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
         workspace.resourceId,
@@ -207,18 +215,6 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
         opts
       );
       assertPermissionGroup(adminPermissionGroup);
-
-      const user = await getUser(context, appOptions);
-
-      if (user.requiresPasswordChange) {
-        await context.semantic.user.updateOneById(
-          user.resourceId,
-          {requiresPasswordChange: false},
-          opts
-        );
-      }
-
-      const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
 
       if (isInWorkspace) {
         await makeUserAdmin(

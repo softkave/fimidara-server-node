@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {TokenAccessScope} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {assertAgentToken} from '../../agentTokens/utils';
@@ -6,7 +7,7 @@ import {changePasswordJoiSchema} from '../changePassword/validation';
 import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
 import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
-import {userExtractor} from '../utils';
+import {assertUser, userExtractor} from '../utils';
 import {ChangePasswordWithTokenEndpoint} from './types';
 
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context, instData) => {
@@ -19,20 +20,22 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context,
   );
 
   assertAgentToken(userToken);
-  const canChangePasswordWithToken = context.session.tokenContainsTokenAccessScope(
-    context,
-    userToken,
-    [TokenAccessScope.ChangePassword, TokenAccessScope.Login]
-  );
+  const canChangePasswordWithToken = context.session.tokenContainsScope(userToken, [
+    TokenAccessScope.ChangePassword,
+    TokenAccessScope.Login,
+  ]);
 
   if (!canChangePasswordWithToken || !userToken.expires) throw new InvalidCredentialsError();
   if (Date.now() > userToken.expires) throw new CredentialsExpiredError();
 
-  const result = await completeChangePassword(context, instData, data.password);
+  assert(userToken.separateEntityId);
+  let user = await context.semantic.user.getOneById(userToken.separateEntityId);
+  assertUser(user);
+  const result = await completeChangePassword(context, instData, user, data.password);
 
   // Verify user email address since the only way to change password
   // with token is to use the link sent to the user email address
-  const user = await internalConfirmEmailAddress(context, result.user.resourceId);
+  user = await internalConfirmEmailAddress(context, result.user.resourceId);
   const completeUserData = await populateUserWorkspaces(context, user);
   result.user = userExtractor(completeUserData);
   return result;

@@ -87,6 +87,7 @@ export class IncorrectPasswordError extends OperationError {
 export class ChangePasswordError extends OperationError {
   name = 'ChangePasswordError';
   statusCode = endpointConstants.httpStatusCode.unauthorized;
+  action = ServerRecommendedActions.RequestChangePassword;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, appMessages.user.changePassword());

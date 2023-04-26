@@ -1,3 +1,15 @@
-import {setupDevUser} from './utils';
+import {
+  ISetupDevUserOptions,
+  devUserSetupPromptEmail,
+  devUserSetupPromptUserInfo,
+  devUserSetupPromptUserPassword,
+  setupDevUser,
+} from './utils';
 
-setupDevUser();
+const appOptions: ISetupDevUserOptions = {
+  getUserEmail: devUserSetupPromptEmail,
+  getUserInfo: devUserSetupPromptUserInfo,
+  getUserPassword: devUserSetupPromptUserPassword,
+};
+
+setupDevUser(appOptions);

@@ -3,9 +3,10 @@ import {Agent, AppResourceType, BaseTokenData, SessionAgent} from '../definition
 import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {PermissionDeniedError} from '../endpoints/users/errors';
+import {appAssert} from './assertion';
 import {getResourceTypeFromId} from './resource';
 
-export function makeAgentTokenAgent(agentToken: AgentToken): SessionAgent {
+export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAgent {
   return {
     agentToken,
     agentId: agentToken.resourceId,
@@ -15,6 +16,7 @@ export function makeAgentTokenAgent(agentToken: AgentToken): SessionAgent {
 }
 
 export function makeUserSessionAgent(user: User, agentToken: AgentToken): SessionAgent {
+  appAssert(user.resourceId === agentToken.separateEntityId);
   return {
     agentToken,
     user,

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
 import {AgentToken} from '../../../definitions/agentToken';
@@ -6,6 +7,7 @@ import {
   CURRENT_TOKEN_VERSION,
   TokenAccessScope,
 } from '../../../definitions/system';
+import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
@@ -22,26 +24,12 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   const data = validate(instData.data, forgotPasswordJoiSchema);
   const user = await context.semantic.user.getByEmail(data.email);
   assertUser(user);
-  const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource<AgentToken>(AppResourceType.AgentToken, {
-    scope: [TokenAccessScope.ChangePassword],
-    version: CURRENT_TOKEN_VERSION,
-    expires: expiration.valueOf(),
-    separateEntityId: user.resourceId,
-    workspaceId: null,
-    agentType: AppResourceType.User,
-    createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
-  });
 
-  await MemStore.withTransaction(context, async txn => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
-    await context.semantic.agentToken.insertItem(forgotToken, opts);
-  });
-
+  const forgotToken = await getForgotPasswordToken(context, user);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
+  assert(forgotToken.expires);
   await sendChangePasswordEmail(context, {
-    expiration,
+    expiration: new Date(forgotToken.expires),
     link,
     emailAddress: user.email,
   });
@@ -68,3 +56,24 @@ export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotT
 }
 
 export default forgotPassword;
+
+export async function getForgotPasswordToken(context: BaseContextType, user: User) {
+  const expiration = getForgotPasswordExpiration();
+  const forgotToken = newResource<AgentToken>(AppResourceType.AgentToken, {
+    scope: [TokenAccessScope.ChangePassword],
+    version: CURRENT_TOKEN_VERSION,
+    expires: expiration.valueOf(),
+    separateEntityId: user.resourceId,
+    workspaceId: null,
+    agentType: AppResourceType.User,
+    createdBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+  });
+
+  await MemStore.withTransaction(context, async txn => {
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+    await context.semantic.agentToken.insertItem(forgotToken, opts);
+  });
+
+  return forgotToken;
+}

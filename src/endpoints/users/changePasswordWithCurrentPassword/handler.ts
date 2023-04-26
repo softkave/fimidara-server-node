@@ -1,4 +1,5 @@
 import * as argon2 from 'argon2';
+import {User} from '../../../definitions/user';
 import {validate} from '../../../utils/validate';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
@@ -11,8 +12,10 @@ import {changePasswordWithPasswordJoiSchema} from './validation';
 export async function completeChangePassword(
   context: BaseContextType,
   reqData: RequestData,
+  user: User,
   password: string
 ) {
+  reqData.user = user;
   const changePasswordReqData = RequestData.clone<ChangePasswordEndpointParams>(reqData, {
     password,
   });
@@ -30,7 +33,7 @@ const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoi
     throw new IncorrectPasswordError();
   }
 
-  const result = await completeChangePassword(context, instData, data.password);
+  const result = await completeChangePassword(context, instData, user, data.password);
   return result;
 };
 

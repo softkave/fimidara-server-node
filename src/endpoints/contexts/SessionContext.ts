@@ -13,9 +13,10 @@ import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast, toNonNullableArray} from '../../utils/fns';
+import {cast, toArray, toNonNullableArray} from '../../utils/fns';
+import {indexArray} from '../../utils/indexArray';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {makeAgentTokenAgent, makeUserSessionAgent} from '../../utils/sessionUtils';
+import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
 import {
   CredentialsExpiredError,
@@ -37,10 +38,9 @@ export interface SessionContextType {
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<User>;
   decodeToken: (ctx: BaseContextType, token: string) => BaseTokenData<TokenSubjectDefault>;
-  tokenContainsTokenAccessScope: (
-    ctx: BaseContextType,
+  tokenContainsScope: (
     tokenData: AgentToken,
-    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
+    expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
     ctx: BaseContextType,
@@ -75,7 +75,17 @@ export default class SessionContext implements SessionContextType {
         appAssert(agentToken.separateEntityId);
         user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
         appAssert(user, reuseableErrors.user.notFound());
-        appAssert(!user.requiresPasswordChange, reuseableErrors.user.changePassword());
+
+        if (!ctx.session.tokenContainsScope(agentToken, tokenAccessScope)) {
+          throw new PermissionDeniedError();
+        }
+
+        if (
+          user.requiresPasswordChange &&
+          !this.tokenContainsScope(agentToken, TokenAccessScope.ChangePassword)
+        ) {
+          throw reuseableErrors.user.changePassword();
+        }
       }
 
       if (permittedAgentTypes?.length) {
@@ -86,13 +96,10 @@ export default class SessionContext implements SessionContextType {
         if (!permittedAgent) throw new PermissionDeniedError();
       }
 
-      if (tokenAccessScope)
-        ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
-
       if (user) {
         return (data.agent = makeUserSessionAgent(user, agentToken));
       } else if (agentToken) {
-        return (data.agent = makeAgentTokenAgent(agentToken));
+        return (data.agent = makeWorkspaceAgentTokenAgent(agentToken));
       }
     }
 
@@ -124,15 +131,13 @@ export default class SessionContext implements SessionContextType {
     return tokenData;
   };
 
-  tokenContainsTokenAccessScope = (
-    ctx: BaseContextType,
+  tokenContainsScope = (
     tokenData: AgentToken,
-    expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
+    expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const tokenAccessScope = tokenData.scope ?? [];
-    const hasTokenAccessScope = !!tokenAccessScope.find(nextAud =>
-      expectedTokenAccessScope.includes(nextAud as TokenAccessScope)
-    );
+    const tokenScopes = tokenData.scope ?? [];
+    const expectedTokenScopesMap = indexArray(toArray(expectedTokenScopes), {reducer: () => true});
+    const hasTokenAccessScope = !!tokenScopes.find(nextScope => expectedTokenScopesMap[nextScope]);
     return hasTokenAccessScope;
   };
 
