@@ -8,14 +8,12 @@ import {
 
 export const confirmEmailAddressEmailTitle = 'Confirm your email address';
 
-export interface IConfirmEmailAddressEmailProps {
+export interface ConfirmEmailAddressEmailProps {
   firstName: string;
   link: string;
 }
 
-export function confirmEmailAddressEmailHTML(
-  props: IConfirmEmailAddressEmailProps
-): string {
+export function confirmEmailAddressEmailHTML(props: ConfirmEmailAddressEmailProps): string {
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -29,9 +27,7 @@ export function confirmEmailAddressEmailHTML(
   <div class="${emailTemplateConstants.classNamePrefix}-body">
     <div class="${emailTemplateConstants.classNamePrefix}-content-center">
       <p>
-        Hi ${
-          props.firstName
-        }, click the link below to verify your email address.
+        Hi ${props.firstName}, click the link below to verify your email address.
         <br />
         <a href="${props.link}">${props.link}</a>
       </p>
@@ -43,9 +39,7 @@ export function confirmEmailAddressEmailHTML(
   `;
 }
 
-export function confirmEmailAddressEmailText(
-  props: IConfirmEmailAddressEmailProps
-): string {
+export function confirmEmailAddressEmailText(props: ConfirmEmailAddressEmailProps): string {
   const text = `
 ${getHeaderText(confirmEmailAddressEmailTitle)}
 -

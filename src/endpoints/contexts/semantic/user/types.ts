@@ -1,7 +1,8 @@
-import {IUser} from '../../../../definitions/user';
-import {ISemanticDataAccessBaseProvider, ISemanticDataAccessProviderRunOptions} from '../types';
+import {User} from '../../../../definitions/user';
+import {SemanticDataAccessBaseProviderType, SemanticDataAccessProviderRunOptions} from '../types';
 
-export interface ISemanticDataAccessUserProvider extends ISemanticDataAccessBaseProvider<IUser> {
-  getByEmail(email: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<IUser | null>;
-  existsByEmail(email: string, opts?: ISemanticDataAccessProviderRunOptions): Promise<boolean>;
+export interface SemanticDataAccessUserProviderType
+  extends SemanticDataAccessBaseProviderType<User> {
+  getByEmail(email: string, opts?: SemanticDataAccessProviderRunOptions): Promise<User | null>;
+  existsByEmail(email: string, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
 }

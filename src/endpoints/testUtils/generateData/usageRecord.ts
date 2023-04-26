@@ -1,7 +1,7 @@
 import {defaultTo, random} from 'lodash';
 import {AppResourceType} from '../../../definitions/system';
 import {
-  IUsageRecord,
+  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
@@ -10,7 +10,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageRecordCategory[]) {
@@ -42,8 +42,8 @@ function randomFulfillmentStatus() {
   return items[random(0, items.length - 1)];
 }
 
-export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord> = {}) {
-  const records: IUsageRecord[] = [];
+export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> = {}) {
+  const records: UsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({
       workspaceId: getNewIdForResource(AppResourceType.Workspace),
@@ -67,9 +67,9 @@ export function generateUsageRecordList(count = 10, extra: Partial<IUsageRecord>
 }
 
 export async function generateAndInsertUsageRecordList(
-  ctx: IBaseContext,
+  ctx: BaseContextType,
   count = 20,
-  extra: Partial<IUsageRecord> = {}
+  extra: Partial<UsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
   await executeWithMutationRunOptions(ctx, async opts =>

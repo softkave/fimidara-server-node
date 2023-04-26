@@ -1,12 +1,12 @@
-import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
+import {BaseContextType} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
-export type IDeletePermissionGroupEndpointParams = IPermissionGroupMatcher;
+export type DeletePermissionGroupEndpointParams = PermissionGroupMatcher;
 
 export type DeletePermissionGroupEndpoint = Endpoint<
-  IBaseContext,
-  IDeletePermissionGroupEndpointParams,
-  ILongRunningJobResult
+  BaseContextType,
+  DeletePermissionGroupEndpointParams,
+  LongRunningJobResult
 >;

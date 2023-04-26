@@ -1,25 +1,25 @@
-import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  PaginatedResult,
+  PaginationQuery,
 } from '../../types';
 
-export interface IGetWorkspaceCollaborationRequestsEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {}
+export interface GetWorkspaceCollaborationRequestsEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {}
 
-export interface IGetWorkspaceCollaborationRequestsEndpointParams
-  extends IGetWorkspaceCollaborationRequestsEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetWorkspaceCollaborationRequestsEndpointParams
+  extends GetWorkspaceCollaborationRequestsEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IGetWorkspaceCollaborationRequestsEndpointResult extends IPaginatedResult {
-  requests: IPublicCollaborationRequestForWorkspace[];
+export interface GetWorkspaceCollaborationRequestsEndpointResult extends PaginatedResult {
+  requests: PublicCollaborationRequestForWorkspace[];
 }
 
 export type GetWorkspaceCollaborationRequestsEndpoint = Endpoint<
-  IBaseContext,
-  IGetWorkspaceCollaborationRequestsEndpointParams,
-  IGetWorkspaceCollaborationRequestsEndpointResult
+  BaseContextType,
+  GetWorkspaceCollaborationRequestsEndpointParams,
+  GetWorkspaceCollaborationRequestsEndpointResult
 >;

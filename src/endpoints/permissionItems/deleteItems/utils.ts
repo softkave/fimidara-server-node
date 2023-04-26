@@ -1,8 +1,8 @@
 import {flatten, forEach} from 'lodash';
-import {IFile} from '../../../definitions/file';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, IResourceWrapper, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {File} from '../../../definitions/file';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppResourceType, ResourceWrapper, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {
   extractResourceIdList,
   isObjectEmpty,
@@ -12,16 +12,16 @@ import {
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {IPermissionItemInputTarget} from '../types';
+import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemsCascadeFnsArgs,
-  IDeletePermissionItemsEndpointParams,
+  DeletePermissionItemsEndpointParams,
 } from './types';
 
 export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
@@ -57,12 +57,12 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
   };
 
 export const INTERNAL_deletePermissionItems = async (
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  data: IDeletePermissionItemsEndpointParams
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: DeletePermissionItemsEndpointParams
 ) => {
-  let inputTargets: Partial<IPermissionItemInputTarget>[] = [];
+  let inputTargets: Partial<PermissionItemInputTarget>[] = [];
 
   // Extract out targets
   data.items?.forEach(item => {
@@ -75,9 +75,9 @@ export const INTERNAL_deletePermissionItems = async (
   ]);
 
   // For indexing files and folders by name path
-  const indexByNamePath = (item: IResourceWrapper) => {
+  const indexByNamePath = (item: ResourceWrapper) => {
     if (item.resourceType === AppResourceType.File || AppResourceType.Folder)
-      return (item.resource as unknown as Pick<IFile, 'namePath'>).namePath.join(
+      return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );
     else return '';
@@ -87,14 +87,14 @@ export const INTERNAL_deletePermissionItems = async (
   // retrieval later down the line.
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
   const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
-  const workspaceWrapper: IResourceWrapper = {
+  const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
     resourceType: AppResourceType.Workspace,
   };
 
   const getTargets = (target: GetTypeFromTypeOrArray<DeletePermissionItemInput['target']>) => {
-    let targets: Record<string, IResourceWrapper> = {};
+    let targets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
@@ -137,7 +137,7 @@ export const INTERNAL_deletePermissionItems = async (
       targetsMap: Record<
         /** target ID */ string,
         {
-          resource: IResourceWrapper;
+          resource: ResourceWrapper;
           item: DeletePermissionItemInput;
           targetType: AppResourceType | AppResourceType[];
         }
@@ -148,7 +148,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   const insertIntoContainerTargetsMap = (
     entity: string | string[],
-    resource: IResourceWrapper,
+    resource: ResourceWrapper,
     targetType: AppResourceType | AppResourceType[] | undefined,
     item: DeletePermissionItemInput
   ) => {
@@ -220,13 +220,13 @@ export const INTERNAL_deletePermissionItems = async (
     });
   }
 
-  const queries: LiteralDataQuery<IPermissionItem>[] = [];
+  const queries: LiteralDataQuery<PermissionItem>[] = [];
 
   forEach(entityIdMap, (outerMap, entityId) => {
     const targets = Object.values(outerMap.targetsMap);
 
     targets.forEach(targetEntry => {
-      const query: LiteralDataQuery<IPermissionItem> = {
+      const query: LiteralDataQuery<PermissionItem> = {
         entityId,
         targetId: targetEntry.resource.resourceId,
         targetType: {$in: toNonNullableArray(targetEntry.targetType) as any},
@@ -241,7 +241,7 @@ export const INTERNAL_deletePermissionItems = async (
     });
 
     forEach(outerMap.targetTypesMap, ({item}, targetType) => {
-      const query: LiteralDataQuery<IPermissionItem> = {
+      const query: LiteralDataQuery<PermissionItem> = {
         entityId,
         targetType: targetType as AppResourceType,
         grantAccess: item.grantAccess,
@@ -257,7 +257,7 @@ export const INTERNAL_deletePermissionItems = async (
       const entityId = toNonNullableArray(data.entity.entityId);
 
       if (entityId.length) {
-        const query: LiteralDataQuery<IPermissionItem> = {
+        const query: LiteralDataQuery<PermissionItem> = {
           entityId: {$in: entityId},
         };
 

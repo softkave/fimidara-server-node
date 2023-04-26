@@ -1,15 +1,15 @@
-import {ConvertAgentToPublicAgent, IAgent, IWorkspaceResource} from './system';
+import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 import {UsageRecordCategory} from './usageRecord';
 
-export interface IUsageThreshold {
-  lastUpdatedBy: IAgent;
+export interface UsageThreshold {
+  lastUpdatedBy: Agent;
   lastUpdatedAt: number;
   category: UsageRecordCategory;
   budget: number; // price in USD
 }
 
-export interface IUsageThresholdLock {
-  lastUpdatedBy: IAgent;
+export interface UsageThresholdLock {
+  lastUpdatedBy: Agent;
   lastUpdatedAt: number;
   category: UsageRecordCategory;
   locked: boolean;
@@ -21,7 +21,7 @@ export enum WorkspaceBillStatus {
   BillOverdue = 'billOverdue',
 }
 
-export interface IWorkspace extends IWorkspaceResource {
+export interface Workspace extends WorkspaceResource {
   /**
    * Human readable name of the workspace.
    */
@@ -35,10 +35,10 @@ export interface IWorkspace extends IWorkspaceResource {
   publicPermissionGroupId: string;
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
-  usageThresholds: Partial<Record<UsageRecordCategory, IUsageThreshold>>;
-  usageThresholdLocks: Partial<Record<UsageRecordCategory, IUsageThresholdLock>>;
+  usageThresholds: Partial<Record<UsageRecordCategory, UsageThreshold>>;
+  usageThresholdLocks: Partial<Record<UsageRecordCategory, UsageThresholdLock>>;
 }
 
-export type IPublicWorkspace = ConvertAgentToPublicAgent<IWorkspace>;
-export type IPublicUsageThreshold = ConvertAgentToPublicAgent<IUsageThreshold>;
-export type IPublicUsageThresholdLock = ConvertAgentToPublicAgent<IUsageThresholdLock>;
+export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;
+export type PublicUsageThreshold = ConvertAgentToPublicAgent<UsageThreshold>;
+export type PublicUsageThresholdLock = ConvertAgentToPublicAgent<UsageThresholdLock>;

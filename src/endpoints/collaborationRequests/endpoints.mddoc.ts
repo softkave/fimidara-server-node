@@ -1,298 +1,443 @@
 import {
   CollaborationRequestStatusType,
-  IPublicCollaborationRequestForUser,
-  IPublicCollaborationRequestForWorkspace,
+  PublicCollaborationRequestForUser,
+  PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {
-  asFieldObjectAny,
-  cloneAndMarkNotRequired,
   FieldArray,
   FieldObject,
   FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
-  HttpEndpointResponse,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
-  endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {collabRequestConstants} from './constants';
+import {LongRunningJobResult} from '../jobs/types';
 import {
-  IGetUserCollaborationRequestEndpointParams,
-  IGetUserCollaborationRequestEndpointResult,
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
+import {collabRequestConstants} from './constants';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './countWorkspaceRequests/types';
+import {DeleteCollaborationRequestEndpointParams} from './deleteRequest/types';
+import {
+  GetUserCollaborationRequestEndpointParams,
+  GetUserCollaborationRequestEndpointResult,
 } from './getUserRequest/types';
 import {
-  IGetWorkspaceCollaborationRequestEndpointParams,
-  IGetWorkspaceCollaborationRequestEndpointResult,
+  GetUserCollaborationRequestsEndpointParams,
+  GetUserCollaborationRequestsEndpointResult,
+} from './getUserRequests/types';
+import {
+  GetWorkspaceCollaborationRequestEndpointParams,
+  GetWorkspaceCollaborationRequestEndpointResult,
 } from './getWorkspaceRequest/types';
 import {
-  IGetWorkspaceCollaborationRequestsEndpointParams,
-  IGetWorkspaceCollaborationRequestsEndpointResult,
+  GetWorkspaceCollaborationRequestsEndpointParams,
+  GetWorkspaceCollaborationRequestsEndpointResult,
 } from './getWorkspaceRequests/types';
 import {
-  IRevokeCollaborationRequestEndpointParams,
-  IRevokeCollaborationRequestEndpointResult,
+  RespondToCollaborationRequestEndpointParams,
+  RespondToCollaborationRequestEndpointResult,
+} from './respondToRequest/types';
+import {
+  RevokeCollaborationRequestEndpointParams,
+  RevokeCollaborationRequestEndpointResult,
 } from './revokeRequest/types';
 import {
-  ICollaborationRequestInput,
-  ISendCollaborationRequestEndpointParams,
-  ISendCollaborationRequestEndpointResult,
+  CollaborationRequestInput,
+  SendCollaborationRequestEndpointParams,
+  SendCollaborationRequestEndpointResult,
 } from './sendRequest/types';
 import {
-  IUpdateCollaborationRequestEndpointParams,
-  IUpdateCollaborationRequestEndpointResult,
-  IUpdateCollaborationRequestInput,
+  UpdateCollaborationRequestEndpointParams,
+  UpdateCollaborationRequestEndpointResult,
+  UpdateCollaborationRequestInput,
 } from './updateRequest/types';
 
-const recipientEmail = new FieldString().setDescription("Recipient's email address.");
-const message = new FieldString().setDescription('Message to recipient.');
-const statusType = new FieldString()
+const recipientEmail = FieldString.construct().setDescription("Recipient's email address.");
+const message = FieldString.construct().setDescription('Message to recipient.');
+const statusType = FieldString.construct()
   .setDescription('Collaboration request status.')
-  .setValid(Object.values(CollaborationRequestStatusType));
-const messageNotRequired = cloneAndMarkNotRequired(message);
-const newCollaborationRequestInput = new FieldObject<ICollaborationRequestInput>()
+  .setValid(Object.values(CollaborationRequestStatusType))
+  .setEnumName('CollaborationRequestStatusType');
+const response = FieldString.construct()
+  .setDescription('Collaboration request response.')
+  .setValid([CollaborationRequestStatusType.Accepted, CollaborationRequestStatusType.Declined])
+  .setEnumName('CollaborationRequestResponseType');
+const newCollaborationRequestInput = FieldObject.construct<CollaborationRequestInput>()
   .setName('NewCollaborationRequestInput')
   .setFields({
-    recipientEmail,
-    message,
-    expires: fReusables.expiresNotRequired,
-    // permissionGroupsAssignedOnAcceptingRequest: fReusables.assignPermissionGroupListNotRequired,
+    recipientEmail: FieldObject.requiredField(recipientEmail),
+    message: FieldObject.requiredField(message),
+    expires: FieldObject.optionalField(fReusables.expires),
   });
 
-const updateCollaborationRequestInput = new FieldObject<IUpdateCollaborationRequestInput>()
+const updateCollaborationRequestInput = FieldObject.construct<UpdateCollaborationRequestInput>()
   .setName('UpdateCollaborationRequestInput')
   .setFields({
-    message: messageNotRequired,
-    expires: fReusables.expiresNotRequired,
-    // permissionGroupsAssignedOnAcceptingRequest: fReusables.assignPermissionGroupListNotRequired,
+    message: FieldObject.optionalField(message),
+    expires: FieldObject.optionalField(fReusables.expires),
   });
 
-const collaborationRequestForUser = new FieldObject<IPublicCollaborationRequestForUser>()
+const collaborationRequestForUser = FieldObject.construct<PublicCollaborationRequestForUser>()
   .setName('CollaborationRequestForUser')
   .setFields({
-    recipientEmail,
-    message,
-    resourceId: fReusables.id,
-    createdAt: fReusables.date,
-    expiresAt: fReusables.expiresOrUndefined,
-    workspaceName: fReusables.workspaceName,
-    lastUpdatedAt: fReusables.date,
-    readAt: fReusables.dateOrUndefined,
-    status: statusType,
-    statusDate: fReusables.date,
+    recipientEmail: FieldObject.requiredField(recipientEmail),
+    message: FieldObject.requiredField(message),
+    resourceId: FieldObject.requiredField(fReusables.id),
+    createdAt: FieldObject.requiredField(fReusables.date),
+    expiresAt: FieldObject.optionalField(fReusables.expires),
+    workspaceName: FieldObject.requiredField(fReusables.workspaceName),
+    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
+    readAt: FieldObject.optionalField(fReusables.date),
+    status: FieldObject.requiredField(statusType),
+    statusDate: FieldObject.requiredField(fReusables.date),
   });
-const collaborationRequestForWorkspace = new FieldObject<IPublicCollaborationRequestForWorkspace>()
-  .setName('CollaborationRequestForWorkspace')
-  .setFields({
-    recipientEmail,
-    message,
-    resourceId: fReusables.id,
-    createdBy: fReusables.agent,
-    createdAt: fReusables.date,
-    expiresAt: fReusables.expiresOrUndefined,
-    workspaceName: fReusables.workspaceName,
-    workspaceId: fReusables.workspaceId,
-    lastUpdatedBy: fReusables.agent,
-    lastUpdatedAt: fReusables.date,
-    readAt: fReusables.dateOrUndefined,
-    status: statusType,
-    statusDate: fReusables.date,
-    providedResourceId: fReusables.providedResourceIdOrUndefined,
-    // permissionGroupsAssignedOnAcceptingRequest: fReusables.assignPermissionGroupList,
-  });
+const collaborationRequestForWorkspace =
+  FieldObject.construct<PublicCollaborationRequestForWorkspace>()
+    .setName('CollaborationRequestForWorkspace')
+    .setFields({
+      recipientEmail: FieldObject.requiredField(recipientEmail),
+      message: FieldObject.requiredField(message),
+      resourceId: FieldObject.requiredField(fReusables.id),
+      createdBy: FieldObject.requiredField(fReusables.agent),
+      createdAt: FieldObject.requiredField(fReusables.date),
+      expiresAt: FieldObject.optionalField(fReusables.expires),
+      workspaceName: FieldObject.requiredField(fReusables.workspaceName),
+      workspaceId: FieldObject.requiredField(fReusables.workspaceId),
+      lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
+      lastUpdatedAt: FieldObject.requiredField(fReusables.date),
+      readAt: FieldObject.optionalField(fReusables.date),
+      status: FieldObject.requiredField(statusType),
+      statusDate: FieldObject.requiredField(fReusables.date),
+      providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+    });
 
-const sendCollaborationRequestParams = new FieldObject<ISendCollaborationRequestEndpointParams>()
-  .setName('SendCollaborationRequestEndpointParams')
-  .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    request: newCollaborationRequestInput,
-  })
-  .setRequired(true)
-  .setDescription('Send collaboration request endpoint params.');
-const sendCollaborationRequestResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<ISendCollaborationRequestEndpointResult>()
-        .setName('SendCollaborationRequestEndpointSuccessResult')
-        .setFields({request: collaborationRequestForWorkspace})
-        .setRequired(true)
-        .setDescription('Add collaboration request endpoint success result.')
-    ),
-];
+const sendCollaborationRequestParams =
+  FieldObject.construct<SendCollaborationRequestEndpointParams>()
+    .setName('SendCollaborationRequestEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceId),
+      request: FieldObject.requiredField(newCollaborationRequestInput),
+    })
+    .setRequired(true)
+    .setDescription('Send collaboration request endpoint params.');
+const sendCollaborationRequestResponseBody =
+  FieldObject.construct<SendCollaborationRequestEndpointResult>()
+    .setName('SendCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
+    .setRequired(true)
+    .setDescription('Send collaboration request endpoint success result.');
 
 const getWorkspaceCollaborationRequestsParams =
-  new FieldObject<IGetWorkspaceCollaborationRequestsEndpointParams>()
+  FieldObject.construct<GetWorkspaceCollaborationRequestsEndpointParams>()
     .setName('GetWorkspaceCollaborationRequestsEndpointParams')
     .setFields({
-      workspaceId: fReusables.workspaceIdInputNotRequired,
-      page: fReusables.pageNotRequired,
-      pageSize: fReusables.pageSizeNotRequired,
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+      page: FieldObject.optionalField(fReusables.page),
+      pageSize: FieldObject.optionalField(fReusables.pageSize),
     })
     .setRequired(true)
     .setDescription('Get workspace collaboration requests endpoint params.');
-const getWorkspaceCollaborationRequestsResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetWorkspaceCollaborationRequestsEndpointResult>()
-        .setName('GetWorkspaceCollaborationRequestsEndpointSuccessResult')
-        .setFields({
-          requests: new FieldArray().setType(collaborationRequestForWorkspace),
-          page: fReusables.page,
-        })
-        .setRequired(true)
-        .setDescription('Get workspace collaboration requests endpoint success result.')
-    ),
-];
+const getWorkspaceCollaborationRequestsResponseBody =
+  FieldObject.construct<GetWorkspaceCollaborationRequestsEndpointResult>()
+    .setName('GetWorkspaceCollaborationRequestsEndpointSuccessResult')
+    .setFields({
+      requests: FieldObject.requiredField(
+        FieldArray.construct<PublicCollaborationRequestForWorkspace>().setType(
+          collaborationRequestForWorkspace
+        )
+      ),
+      page: FieldObject.requiredField(fReusables.page),
+    })
+    .setRequired(true)
+    .setDescription('Get workspace collaboration requests endpoint success result.');
+
+const countWorkspaceCollaborationRequestsParams =
+  FieldObject.construct<CountWorkspaceCollaborationRequestsEndpointParams>()
+    .setName('CountWorkspaceCollaborationRequestsEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    })
+    .setRequired(true)
+    .setDescription('Count workspace collaboration requests endpoint params.');
+
+const getUserCollaborationRequestsParams =
+  FieldObject.construct<GetUserCollaborationRequestsEndpointParams>()
+    .setName('GetUserCollaborationRequestsEndpointParams')
+    .setFields({
+      page: FieldObject.optionalField(fReusables.page),
+      pageSize: FieldObject.optionalField(fReusables.pageSize),
+    })
+    .setRequired(true)
+    .setDescription('Get user collaboration requests endpoint params.');
+const getUserCollaborationRequestsResponseBody =
+  FieldObject.construct<GetUserCollaborationRequestsEndpointResult>()
+    .setName('GetUserCollaborationRequestsEndpointSuccessResult')
+    .setFields({
+      requests: FieldObject.requiredField(
+        FieldArray.construct<PublicCollaborationRequestForUser>().setType(
+          collaborationRequestForUser
+        )
+      ),
+      page: FieldObject.requiredField(fReusables.page),
+    })
+    .setRequired(true)
+    .setDescription('Get user collaboration requests endpoint success result.');
 
 const updateCollaborationRequestParams =
-  new FieldObject<IUpdateCollaborationRequestEndpointParams>()
+  FieldObject.construct<UpdateCollaborationRequestEndpointParams>()
     .setName('UpdateCollaborationRequestEndpointParams')
     .setFields({
-      requestId: fReusables.id,
-      request: updateCollaborationRequestInput,
+      requestId: FieldObject.requiredField(fReusables.id),
+      request: FieldObject.requiredField(updateCollaborationRequestInput),
     })
     .setRequired(true)
     .setDescription('Update collaboration request endpoint params.');
-const updateCollaborationRequestResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IUpdateCollaborationRequestEndpointResult>()
-        .setName('UpdateCollaborationRequestEndpointSuccessResult')
-        .setFields({request: collaborationRequestForWorkspace})
-        .setRequired(true)
-        .setDescription('Update collaboration request endpoint success result.')
-    ),
-];
+const updateCollaborationRequestResponseBody =
+  FieldObject.construct<UpdateCollaborationRequestEndpointResult>()
+    .setName('UpdateCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
+    .setRequired(true)
+    .setDescription('Update collaboration request endpoint success result.');
+
+const respondToCollaborationRequestParams =
+  FieldObject.construct<RespondToCollaborationRequestEndpointParams>()
+    .setName('RespondToCollaborationRequestEndpointParams')
+    .setFields({
+      requestId: FieldObject.requiredField(fReusables.id),
+      response: FieldObject.requiredField(response),
+    })
+    .setRequired(true)
+    .setDescription('Respond to collaboration request endpoint params.');
+const respondToCollaborationRequestResponseBody =
+  FieldObject.construct<RespondToCollaborationRequestEndpointResult>()
+    .setName('RespondToCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForUser)})
+    .setRequired(true)
+    .setDescription('Respond to collaboration request endpoint success result.');
 
 const getCollaborationRequestForUserParams =
-  new FieldObject<IGetUserCollaborationRequestEndpointParams>()
+  FieldObject.construct<GetUserCollaborationRequestEndpointParams>()
     .setName('GetCollaborationRequestEndpointParams')
     .setFields({
-      requestId: fReusables.id,
+      requestId: FieldObject.requiredField(fReusables.id),
     })
     .setRequired(true)
     .setDescription('Get collaboration request endpoint params.');
-const getCollaborationRequestForUserResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetUserCollaborationRequestEndpointResult>()
-        .setName('GetCollaborationRequestEndpointSuccessResult')
-        .setFields({request: collaborationRequestForUser})
-        .setRequired(true)
-        .setDescription('Get collaboration request endpoint success result.')
-    ),
-];
+const getCollaborationRequestForUserResponseBody =
+  FieldObject.construct<GetUserCollaborationRequestEndpointResult>()
+    .setName('GetCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForUser)})
+    .setRequired(true)
+    .setDescription('Get collaboration request endpoint success result.');
 
 const getCollaborationRequestForWorkspaceParams =
-  new FieldObject<IGetWorkspaceCollaborationRequestEndpointParams>()
+  FieldObject.construct<GetWorkspaceCollaborationRequestEndpointParams>()
     .setName('GetCollaborationRequestEndpointParams')
     .setFields({
-      requestId: fReusables.id,
-      workspaceId: fReusables.workspaceIdInputNotRequired,
+      requestId: FieldObject.requiredField(fReusables.id),
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
     })
     .setRequired(true)
     .setDescription('Get collaboration request endpoint params.');
-const getCollaborationRequestForWorkspaceResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetWorkspaceCollaborationRequestEndpointResult>()
-        .setName('GetCollaborationRequestEndpointSuccessResult')
-        .setFields({request: collaborationRequestForWorkspace})
-        .setRequired(true)
-        .setDescription('Get collaboration request endpoint success result.')
-    ),
-];
+const getCollaborationRequestForWorkspaceResponseBody =
+  FieldObject.construct<GetWorkspaceCollaborationRequestEndpointResult>()
+    .setName('GetCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
+    .setRequired(true)
+    .setDescription('Get collaboration request endpoint success result.');
 
 const revokeCollaborationRequestParams =
-  new FieldObject<IRevokeCollaborationRequestEndpointParams>()
+  FieldObject.construct<RevokeCollaborationRequestEndpointParams>()
     .setName('RevokeCollaborationRequestEndpointParams')
     .setFields({
-      requestId: fReusables.id,
+      requestId: FieldObject.requiredField(fReusables.id),
     })
     .setRequired(true)
     .setDescription('Revoke collaboration request endpoint params.');
-const revokeCollaborationRequestResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IRevokeCollaborationRequestEndpointResult>()
-        .setName('RevokeCollaborationRequestEndpointSuccessResult')
-        .setFields({request: collaborationRequestForWorkspace})
-        .setRequired(true)
-        .setDescription('Revoke collaboration request endpoint success result.')
-    ),
-];
+const revokeCollaborationRequestResponseBody =
+  FieldObject.construct<RevokeCollaborationRequestEndpointResult>()
+    .setName('RevokeCollaborationRequestEndpointSuccessResult')
+    .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
+    .setRequired(true)
+    .setDescription('Revoke collaboration request endpoint success result.');
 
-export const sendCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
+const deleteCollaborationRequestParams =
+  FieldObject.construct<DeleteCollaborationRequestEndpointParams>()
+    .setName('DeleteCollaborationRequestEndpointParams')
+    .setFields({
+      requestId: FieldObject.requiredField(fReusables.id),
+    })
+    .setRequired(true)
+    .setDescription('Delete collaboration request endpoint params.');
+
+export const sendCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: SendCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: SendCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(collabRequestConstants.routes.sendRequest)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(sendCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(sendCollaborationRequestResult)
-  .setName('Add Collaboration Request Endpoint')
-  .setDescription('Add collaboration request endpoint.');
+  .setRequestBody(sendCollaborationRequestParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(sendCollaborationRequestResponseBody)
+  .setName('SendCollaborationRequestEndpoint')
+  .setDescription('Send collaboration request endpoint.');
 
-export const getCollaborationRequestForUserEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(collabRequestConstants.routes.getRequest)
+export const getUserCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetUserCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetUserCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.getUserRequest)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getCollaborationRequestForUserParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getCollaborationRequestForUserResult)
-  .setName('Get Collaboration Request Endpoint')
-  .setDescription('Get collaboration request endpoint.');
+  .setRequestBody(getCollaborationRequestForUserParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getCollaborationRequestForUserResponseBody)
+  .setName('GetUserCollaborationRequestEndpoint')
+  .setDescription('Get user collaboration request endpoint.');
 
-export const getCollaborationRequestForWorkspaceEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(collabRequestConstants.routes.getRequest)
+export const getWorkspaceCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetWorkspaceCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetWorkspaceCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.getWorkspaceRequest)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getCollaborationRequestForWorkspaceParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getCollaborationRequestForWorkspaceResult)
-  .setName('Get Collaboration Request Endpoint')
-  .setDescription('Get collaboration request endpoint.');
+  .setRequestBody(getCollaborationRequestForWorkspaceParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getCollaborationRequestForWorkspaceResponseBody)
+  .setName('GetWorkspaceCollaborationRequestEndpoint')
+  .setDescription('Get workspace collaboration request endpoint.');
 
-export const updateCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
+export const updateCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: UpdateCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: UpdateCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(collabRequestConstants.routes.updateRequest)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(updateCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateCollaborationRequestResult)
-  .setName('Update Collaboration Request Endpoint')
+  .setRequestBody(updateCollaborationRequestParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(updateCollaborationRequestResponseBody)
+  .setName('UpdateCollaborationRequestEndpoint')
   .setDescription('Update collaboration request endpoint.');
 
-export const revokeCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
+export const respondToCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: RespondToCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: RespondToCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.respondToRequest)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(respondToCollaborationRequestParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(respondToCollaborationRequestResponseBody)
+  .setName('RespondToCollaborationRequestEndpoint')
+  .setDescription('Respond to collaboration request endpoint.');
+
+export const revokeCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: RevokeCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: RevokeCollaborationRequestEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(collabRequestConstants.routes.revokeRequest)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(revokeCollaborationRequestParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(revokeCollaborationRequestResult)
-  .setName('Revoke Collaboration Request Endpoint')
+  .setRequestBody(revokeCollaborationRequestParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(revokeCollaborationRequestResponseBody)
+  .setName('RevokeCollaborationRequestEndpoint')
   .setDescription('Revoke collaboration request endpoint.');
 
-export const getWorkspaceCollaborationRequestEndpointDefinition = new HttpEndpointDefinition()
-  .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
+export const deleteCollaborationRequestEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: DeleteCollaborationRequestEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: LongRunningJobResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.deleteRequest)
+  .setMethod(HttpEndpointMethod.Delete)
+  .setRequestBody(deleteCollaborationRequestParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
+  .setName('DeleteCollaborationRequestEndpoint')
+  .setDescription('Delete collaboration request endpoint.');
+
+export const getWorkspaceCollaborationRequestsEndpointDefinition =
+  HttpEndpointDefinition.construct<{
+    requestBody: GetWorkspaceCollaborationRequestsEndpointParams;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+    responseBody: GetWorkspaceCollaborationRequestsEndpointResult;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+  }>()
+    .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(getWorkspaceCollaborationRequestsParams)
+    .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+    .setResponseBody(getWorkspaceCollaborationRequestsResponseBody)
+    .setName('GetWorkspaceCollaborationRequestsEndpoint')
+    .setDescription('Get workspace collaboration requests endpoint.');
+
+export const getUserCollaborationRequestsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetUserCollaborationRequestsEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetUserCollaborationRequestsEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.getUserRequests)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getWorkspaceCollaborationRequestsParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceCollaborationRequestsResult)
-  .setName('Get Workspace Collaboration Requests Endpoint')
-  .setDescription('Get workspace collaboration requests endpoint.');
+  .setRequestBody(getUserCollaborationRequestsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getUserCollaborationRequestsResponseBody)
+  .setName('GetUserCollaborationRequestsEndpoint')
+  .setDescription('Get user collaboration requests endpoint.');
+
+export const countUserCollaborationRequestsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: CountItemsEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(collabRequestConstants.routes.countUserRequests)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+  .setName('CountUserCollaborationRequestsEndpoint')
+  .setDescription('Count user collaboration requests endpoint.');
+
+export const countWorkspaceCollaborationRequestsEndpointDefinition =
+  HttpEndpointDefinition.construct<{
+    requestBody: CountWorkspaceCollaborationRequestsEndpointParams;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+    responseBody: CountItemsEndpointResult;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+  }>()
+    .setBasePathname(collabRequestConstants.routes.countWorkspaceRequests)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(countWorkspaceCollaborationRequestsParams)
+    .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+    .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+    .setName('CountWorkspaceCollaborationRequestsEndpoint')
+    .setDescription('Count workspace collaboration requests endpoint.');

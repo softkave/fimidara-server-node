@@ -1,14 +1,14 @@
 import {format} from 'util';
-import {IFile} from '../../definitions/file';
-import {IFolder} from '../../definitions/folder';
-import {AppResourceType, IResourceWrapper, IWorkspaceResource} from '../../definitions/system';
-import {IUserWithWorkspace} from '../../definitions/user';
+import {File} from '../../definitions/file';
+import {Folder} from '../../definitions/folder';
+import {AppResourceType, ResourceWrapper, WorkspaceResource} from '../../definitions/system';
+import {UserWithWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {NotFoundError} from '../errors';
 
-export function isResourcePartOfWorkspace(workspaceId: string, resource: IResourceWrapper) {
+export function isResourcePartOfWorkspace(workspaceId: string, resource: ResourceWrapper) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === workspaceId;
@@ -18,17 +18,17 @@ export function isResourcePartOfWorkspace(workspaceId: string, resource: IResour
     case AppResourceType.PermissionItem:
     case AppResourceType.Folder:
     case AppResourceType.File:
-      return (resource.resource as IWorkspaceResource).workspaceId === workspaceId;
+      return (resource.resource as WorkspaceResource).workspaceId === workspaceId;
     case AppResourceType.User:
-      const user = resource.resource as IUserWithWorkspace;
+      const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
-      return !!getCollaboratorWorkspace(resource.resource as IUserWithWorkspace, workspaceId);
+      return !!getCollaboratorWorkspace(resource.resource as UserWithWorkspace, workspaceId);
     default:
       return false;
   }
 }
 
-export function isResourcePartOfContainer(containerId: string, resource: IResourceWrapper) {
+export function isResourcePartOfContainer(containerId: string, resource: ResourceWrapper) {
   switch (resource.resourceType) {
     case AppResourceType.Workspace:
       return resource.resourceId === containerId;
@@ -36,40 +36,40 @@ export function isResourcePartOfContainer(containerId: string, resource: IResour
     case AppResourceType.AgentToken:
     case AppResourceType.PermissionGroup:
     case AppResourceType.PermissionItem:
-      return (resource.resource as IWorkspaceResource).workspaceId === containerId;
+      return (resource.resource as WorkspaceResource).workspaceId === containerId;
     case AppResourceType.Folder:
       return (
-        (resource.resource as IWorkspaceResource).workspaceId === containerId ||
-        (resource.resource as IWorkspaceResource).resourceId === containerId ||
-        (resource.resource as unknown as IFolder).idPath.includes(containerId)
+        (resource.resource as WorkspaceResource).workspaceId === containerId ||
+        (resource.resource as WorkspaceResource).resourceId === containerId ||
+        (resource.resource as unknown as Folder).idPath.includes(containerId)
       );
     case AppResourceType.File:
       return (
-        (resource.resource as IWorkspaceResource).workspaceId === containerId ||
-        (resource.resource as unknown as IFile).idPath.includes(containerId)
+        (resource.resource as WorkspaceResource).workspaceId === containerId ||
+        (resource.resource as unknown as File).idPath.includes(containerId)
       );
     case AppResourceType.User:
-      const user = resource.resource as IUserWithWorkspace;
+      const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
-      return !!getCollaboratorWorkspace(resource.resource as IUserWithWorkspace, containerId);
+      return !!getCollaboratorWorkspace(resource.resource as UserWithWorkspace, containerId);
     default:
       return false;
   }
 }
 
-export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
+export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
   return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function getResourcesPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
+export function getResourcesPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
   return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: IResourceWrapper[]) {
+export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
   return getResourcesNotPartOfWorkspace(workspaceId, resources).length > 0;
 }
 
-function returnNotFoundError(outsideResources: IResourceWrapper[]) {
+function returnNotFoundError(outsideResources: ResourceWrapper[]) {
   const message = format(
     'The following resources do not exist \n%s',
     outsideResources.map(item => item.resourceId).join(', ')
@@ -79,7 +79,7 @@ function returnNotFoundError(outsideResources: IResourceWrapper[]) {
 
 export function checkResourcesBelongToWorkspace(
   workspaceId: string,
-  resources: IResourceWrapper[],
+  resources: ResourceWrapper[],
   getErrorFn = returnNotFoundError
 ) {
   const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
@@ -88,13 +88,13 @@ export function checkResourcesBelongToWorkspace(
   }
 }
 
-export function getResourcesNotPartOfContainer(containerId: string, resources: IResourceWrapper[]) {
+export function getResourcesNotPartOfContainer(containerId: string, resources: ResourceWrapper[]) {
   return resources.filter(item => !isResourcePartOfContainer(containerId, item));
 }
 
 export function checkResourcesBelongToContainer(
   containerId: string,
-  resources: IResourceWrapper[],
+  resources: ResourceWrapper[],
   getErrorFn = returnNotFoundError
 ) {
   const outsideResources = getResourcesNotPartOfContainer(containerId, resources);

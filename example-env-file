@@ -1,6 +1,6 @@
 # Example env file
 
-CLIENT_DOMAIN = "http://localhost:3000"
+CLIENT_DOMAIN = "mongodb://localhost:27000,localhost:27001,localhost:27002?replicaSet=rs&serverSelectionTimeoutMS=50000"
 MONGODB_DATABASE_NAME = "fimidara-dev"
 MONGODB_URI = ""
 LOGS_DB_NAME = "ixtb-dev"

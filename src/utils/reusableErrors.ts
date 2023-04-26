@@ -1,5 +1,5 @@
-import {NotFoundError} from '../endpoints/errors';
-import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/user/errors';
+import {NotFoundError, ResourceExistsError} from '../endpoints/errors';
+import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {appMessages} from './messages';
 
 export const reuseableErrors = {
@@ -69,6 +69,12 @@ export const reuseableErrors = {
   agentToken: {
     notFound(id?: string) {
       return new NotFoundError(appMessages.agentToken.notFound(id));
+    },
+    withIdExists(id?: string) {
+      return new ResourceExistsError(appMessages.agentToken.withIdExists(id));
+    },
+    withProvidedIdExists(id?: string) {
+      return new ResourceExistsError(appMessages.agentToken.withProvidedIdExists(id));
     },
   },
   common: {

@@ -1,16 +1,16 @@
-import {IPermissionItem} from '../../../../definitions/permissionItem';
+import {PermissionItem} from '../../../../definitions/permissionItem';
 import {toNonNullableArray} from '../../../../utils/fns';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessPermissionItemProvider} from './types';
+import {SemanticDataAccessPermissionItemProviderType} from './types';
 
 export class MemorySemanticDataAccessPermissionItem
-  extends SemanticDataAccessWorkspaceResourceProvider<IPermissionItem>
-  implements ISemanticDataAccessPermissionItemProvider
+  extends SemanticDataAccessWorkspaceResourceProvider<PermissionItem>
+  implements SemanticDataAccessPermissionItemProviderType
 {
   async deleteManyByEntityId(
     id: string | string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(
       {entityId: {$in: toNonNullableArray(id)}},
@@ -20,7 +20,7 @@ export class MemorySemanticDataAccessPermissionItem
 
   async deleteManyByTargetId(
     id: string | string[],
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(
       {targetId: {$in: toNonNullableArray(id)}},

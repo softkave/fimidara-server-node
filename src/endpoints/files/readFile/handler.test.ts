@@ -3,7 +3,7 @@ import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import RequestData from '../../RequestData';
 import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
@@ -23,14 +23,14 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
-import {PermissionDeniedError} from '../../user/errors';
+import {PermissionDeniedError} from '../../users/errors';
 import {fileConstants} from '../constants';
 import readFile from './handler';
-import {IReadFileEndpointParams} from './types';
+import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
@@ -47,7 +47,7 @@ describe('readFile', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(context, userToken, workspace);
-    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(
@@ -81,7 +81,7 @@ describe('readFile', () => {
     });
     const expectedWidth = 300;
     const expectedHeight = 300;
-    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(
@@ -123,7 +123,7 @@ describe('readFile', () => {
         workspace.rootname
       ),
     });
-    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
         filepath: addRootnameToPath(
@@ -150,7 +150,7 @@ describe('readFile', () => {
       appliesTo: PermissionItemAppliesTo.Self,
       entity: {entityId: workspace.publicPermissionGroupId},
     });
-    const instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
         filepath: addRootnameToPath(
@@ -172,7 +172,7 @@ describe('readFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     let instData: RequestData | null = null;
     try {
-      instData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+      instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {
           filepath: addRootnameToPath(
@@ -199,7 +199,7 @@ describe('readFile', () => {
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
       UsageRecordCategory.BandwidthOut,
     ]);
-    const reqData = RequestData.fromExpressRequest<IReadFileEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         filepath: addRootnameToPath(

@@ -1,18 +1,18 @@
-import {IPublicCollaborator} from '../../../definitions/user';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborator} from '../../../definitions/user';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetCollaboratorEndpointParams {
+export interface GetCollaboratorEndpointParams {
   workspaceId?: string;
   collaboratorId: string;
 }
 
-export interface IGetCollaboratorEndpointResult {
-  collaborator: IPublicCollaborator;
+export interface GetCollaboratorEndpointResult {
+  collaborator: PublicCollaborator;
 }
 
 export type GetCollaboratorEndpoint = Endpoint<
-  IBaseContext,
-  IGetCollaboratorEndpointParams,
-  IGetCollaboratorEndpointResult
+  BaseContextType,
+  GetCollaboratorEndpointParams,
+  GetCollaboratorEndpointResult
 >;

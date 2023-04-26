@@ -1,21 +1,21 @@
-import {IAgentToken} from '../../../../definitions/agentToken';
+import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
-  ISemanticDataAccessProviderRunOptions,
-  ISemanticDataAccessWorkspaceResourceProvider,
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
+  SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface ISemanticDataAccessAgentTokenProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<IAgentToken> {
+export interface SemanticDataAccessAgentTokenProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<AgentToken> {
   deleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getOneAgentToken(
     agentId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[],
-    opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IAgentToken | null>;
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<AgentToken | null>;
 }

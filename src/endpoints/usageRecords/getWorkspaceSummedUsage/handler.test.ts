@@ -1,7 +1,7 @@
 import assert = require('assert');
 import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
 import {
-  IUsageRecord,
+  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
@@ -9,7 +9,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -21,9 +21,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getWorkspaceSummedUsage from './handler';
-import {IGetWorkspaceSummedUsageEndpointParams} from './types';
+import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -33,14 +33,17 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-function expectToOnlyHaveCategory(records01: IUsageRecord[], category: UsageRecordCategory) {
+function expectToOnlyHaveCategory(
+  records01: Pick<UsageRecord, 'category'>[],
+  category: UsageRecordCategory
+) {
   records01.forEach(record => {
     expect(record.category).toBe(category);
   });
 }
 
 function expectToOnlyHaveFulfillmentStatus(
-  records01: IUsageRecord[],
+  records01: Pick<UsageRecord, 'fulfillmentStatus'>[],
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
   records01.forEach(record => {
@@ -48,14 +51,14 @@ function expectToOnlyHaveFulfillmentStatus(
   });
 }
 
-function expectToBeFromDate(records01: IUsageRecord[], fromDate: number) {
+function expectToBeFromDate(records01: Pick<UsageRecord, 'createdAt'>[], fromDate: number) {
   const date = getTimestamp(startOfMonth(fromDate));
   records01.forEach(record => {
     expect(record.createdAt).toBeGreaterThanOrEqual(date);
   });
 }
 
-function expectToBeToDate(records01: IUsageRecord[], toDate: number) {
+function expectToBeToDate(records01: Pick<UsageRecord, 'createdAt'>[], toDate: number) {
   const date = getTimestamp(endOfMonth(toDate));
   records01.forEach(record => {
     expect(record.createdAt).toBeLessThanOrEqual(date);
@@ -75,7 +78,7 @@ describe('getWorkspaceSummedUsage', () => {
     });
 
     // run
-    const instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -130,14 +133,14 @@ describe('getWorkspaceSummedUsage', () => {
 
     // run
     // with preset category
-    let reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    let reqData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, query: {category: [records01Category]}}
     );
     const result01 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset fulfillment status
-    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    reqData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
@@ -147,7 +150,7 @@ describe('getWorkspaceSummedUsage', () => {
     const result02 = await getWorkspaceSummedUsage(context, reqData);
 
     // with preset from date and to date
-    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    reqData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
@@ -157,7 +160,7 @@ describe('getWorkspaceSummedUsage', () => {
     const result03 = await getWorkspaceSummedUsage(context, reqData);
 
     // all records
-    reqData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    reqData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -190,7 +193,7 @@ describe('getWorkspaceSummedUsage', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         page,
@@ -205,7 +208,7 @@ describe('getWorkspaceSummedUsage', () => {
     expect(result.records).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceSummedUsageEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         page,

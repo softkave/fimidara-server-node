@@ -1,16 +1,16 @@
-import {ICollaborationRequest} from '../../../../definitions/collaborationRequest';
+import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessCollaborationRequestProvider} from './types';
+import {SemanticDataAccessCollaborationRequestProvider} from './types';
 
 export class MemorySemanticDataAccessCollaborationRequest
-  extends SemanticDataAccessWorkspaceResourceProvider<ICollaborationRequest>
-  implements ISemanticDataAccessCollaborationRequestProvider
+  extends SemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
+  implements SemanticDataAccessCollaborationRequestProvider
 {
   async countByEmail(
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     return await this.memstore.countItems(
       {recipientEmail: {$lowercaseEq: email}},
@@ -20,16 +20,16 @@ export class MemorySemanticDataAccessCollaborationRequest
 
   async getOneByEmail(
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<ICollaborationRequest | null> {
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<CollaborationRequest | null> {
     return await this.memstore.readItem({recipientEmail: {$lowercaseEq: email}}, opts?.transaction);
   }
 
   async getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<ICollaborationRequest | null> {
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<CollaborationRequest | null> {
     return await this.memstore.readItem(
       {workspaceId, recipientEmail: {$lowercaseEq: email}},
       opts?.transaction
@@ -39,9 +39,9 @@ export class MemorySemanticDataAccessCollaborationRequest
   async getManyByEmail(
     email: string,
     options?:
-      | (IDataProvideQueryListParams<ICollaborationRequest> & ISemanticDataAccessProviderRunOptions)
+      | (IDataProvideQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<ICollaborationRequest[]> {
+  ): Promise<CollaborationRequest[]> {
     return await this.memstore.readManyItems(
       {recipientEmail: {$lowercaseEq: email}},
       options?.transaction,

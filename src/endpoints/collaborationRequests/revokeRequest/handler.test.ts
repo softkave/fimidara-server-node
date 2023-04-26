@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,9 +14,9 @@ import {
 } from '../../testUtils/testUtils';
 import {collaborationRequestForUserExtractor} from '../utils';
 import revokeCollaborationRequest from './handler';
-import {IRevokeCollaborationRequestEndpointParams} from './types';
+import {RevokeCollaborationRequestEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -37,7 +37,7 @@ test('collaboration request revoked', async () => {
     workspace.resourceId,
     {recipientEmail: user02.email}
   );
-  const instData = RequestData.fromExpressRequest<IRevokeCollaborationRequestEndpointParams>(
+  const instData = RequestData.fromExpressRequest<RevokeCollaborationRequestEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {requestId: request01.resourceId}
   );

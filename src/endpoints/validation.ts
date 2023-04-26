@@ -4,9 +4,9 @@ import {JoiSchemaParts} from '../utils/types';
 import {validationSchemas} from '../utils/validationUtils';
 import {endpointConstants} from './constants';
 import {
-  IEndpointOptionalWorkspaceIDParam,
-  IEndpointWorkspaceResourceParam,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  EndpointWorkspaceResourceParam,
+  PaginationQuery,
 } from './types';
 
 const comparisonOps = (schema: Joi.Schema) => ({
@@ -65,14 +65,14 @@ const op = (schema: Joi.Schema) =>
 
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
-const optionalWorkspaceIdParts: JoiSchemaParts<IEndpointOptionalWorkspaceIDParam> = {
+const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> = {
   workspaceId: validationSchemas.resourceId,
 };
-const workspaceResourceParts: JoiSchemaParts<IEndpointWorkspaceResourceParam> = {
+const workspaceResourceParts: JoiSchemaParts<EndpointWorkspaceResourceParam> = {
   workspaceId: validationSchemas.resourceId,
   providedResourceId: validationSchemas.resourceId,
 };
-const paginationParts: JoiSchemaParts<IPaginationQuery> = {
+const paginationParts: JoiSchemaParts<PaginationQuery> = {
   page,
   pageSize,
 };

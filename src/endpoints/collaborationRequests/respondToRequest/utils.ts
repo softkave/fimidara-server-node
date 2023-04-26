@@ -1,12 +1,12 @@
 import {
+  CollaborationRequest,
   CollaborationRequestResponse,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, ISessionAgent} from '../../../definitions/system';
-import {IUser} from '../../../definitions/user';
+import {AppResourceType, SessionAgent} from '../../../definitions/system';
+import {User} from '../../../definitions/user';
 import {
-  ICollaborationRequestResponseEmailProps,
+  CollaborationRequestResponseEmailProps,
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
   collaborationRequestResponseEmailTitle,
@@ -19,21 +19,21 @@ import {
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
-import {assertUser} from '../../user/utils';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
+import {PermissionDeniedError} from '../../users/errors';
+import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {assertCollaborationRequest} from '../utils';
-import {IRespondToCollaborationRequestEndpointParams} from './types';
+import {RespondToCollaborationRequestEndpointParams} from './types';
 
 async function sendCollaborationRequestResponseEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
+  context: BaseContextType,
+  request: CollaborationRequest,
   response: CollaborationRequestResponse,
-  toUser: Pick<IUser, 'email'>
+  toUser: Pick<User, 'email'>
 ) {
-  const emailProps: ICollaborationRequestResponseEmailProps = {
+  const emailProps: CollaborationRequestResponseEmailProps = {
     response,
     workspaceName: request.workspaceName,
     loginLink: context.appVariables.clientLoginLink,
@@ -51,11 +51,11 @@ async function sendCollaborationRequestResponseEmail(
 }
 
 async function assignUserRequestPermissionGroups(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   workspaceId: string,
   requestId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const permissionGroupsOnAccept = await getResourceAssignedItems(
     context,
@@ -81,10 +81,10 @@ async function assignUserRequestPermissionGroups(
 }
 
 export const internalRespondToCollaborationRequest = async (
-  context: IBaseContext,
-  agent: ISessionAgent,
-  data: IRespondToCollaborationRequestEndpointParams,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContextType,
+  agent: SessionAgent,
+  data: RespondToCollaborationRequestEndpointParams,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
   let request = await context.semantic.collaborationRequest.getOneById(data.requestId, opts);
   assertCollaborationRequest(request);
@@ -126,8 +126,8 @@ export const internalRespondToCollaborationRequest = async (
 };
 
 export async function notifyUserOnCollaborationRequestResponse(
-  context: IBaseContext,
-  request: ICollaborationRequest,
+  context: BaseContextType,
+  request: CollaborationRequest,
   response: CollaborationRequestResponse
 ) {
   const workspace = await context.semantic.workspace.getOneById(request.workspaceId);

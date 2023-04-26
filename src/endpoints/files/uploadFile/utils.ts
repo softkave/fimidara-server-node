@@ -1,24 +1,24 @@
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {
   checkAuthorization,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
 import {ISplitfilepathWithDetails} from '../utils';
 
 export async function checkUploadFileAuth(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  file: IFile | null,
-  closestExistingFolder: IFolder | null
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  file: File | null,
+  closestExistingFolder: Folder | null
 ) {
   // TODO: also have an update check if file exists
   // The issue with implementing it now is that it doesn't
@@ -52,11 +52,11 @@ export async function checkUploadFileAuth(
 }
 
 export async function createFileParentFolders(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
   pathWithDetails: ISplitfilepathWithDetails,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {
     return await createFolderList(

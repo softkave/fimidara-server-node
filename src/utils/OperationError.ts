@@ -7,6 +7,13 @@ export interface OperationErrorParameters {
   value?: any;
 }
 
+export type EndpointExportedError = {
+  name: string;
+  message: string;
+  field?: string;
+  action?: string;
+};
+
 export default class OperationError extends Error {
   message = 'Error';
   field?: string;

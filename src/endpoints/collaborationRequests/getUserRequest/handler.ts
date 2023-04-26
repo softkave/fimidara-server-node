@@ -3,10 +3,13 @@ import {reuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {assertCollaborationRequest, collaborationRequestForUserExtractor} from '../utils';
 import {GetUserCollaborationRequestEndpoint} from './types';
-import {getCollaborationRequestJoiSchema} from './validation';
+import {getUserCollaborationRequestJoiSchema} from './validation';
 
-const getCollaborationRequest: GetUserCollaborationRequestEndpoint = async (context, instData) => {
-  const data = validate(instData.data, getCollaborationRequestJoiSchema);
+const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint = async (
+  context,
+  instData
+) => {
+  const data = validate(instData.data, getUserCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const request = await context.semantic.collaborationRequest.getOneById(data.requestId);
   assertCollaborationRequest(request);
@@ -17,4 +20,4 @@ const getCollaborationRequest: GetUserCollaborationRequestEndpoint = async (cont
   return {request: collaborationRequestForUserExtractor(request)};
 };
 
-export default getCollaborationRequest;
+export default getUserCollaborationRequest;

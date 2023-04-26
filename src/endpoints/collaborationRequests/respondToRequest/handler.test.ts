@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,14 +14,14 @@ import {
 } from '../../testUtils/testUtils';
 import {collaborationRequestForUserExtractor} from '../utils';
 import respondToCollaborationRequest from './handler';
-import {IRespondToCollaborationRequestEndpointParams} from './types';
+import {RespondToCollaborationRequestEndpointParams} from './types';
 
 /**
  * TODO:
  * - Check if user declined, the update is "declined"
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -43,7 +43,7 @@ test('collaboration request declined', async () => {
     {recipientEmail: user02.email}
   );
 
-  const instData = RequestData.fromExpressRequest<IRespondToCollaborationRequestEndpointParams>(
+  const instData = RequestData.fromExpressRequest<RespondToCollaborationRequestEndpointParams>(
     mockExpressRequestWithAgentToken(user02Token),
     {requestId: request01.resourceId, response: CollaborationRequestStatusType.Accepted}
   );

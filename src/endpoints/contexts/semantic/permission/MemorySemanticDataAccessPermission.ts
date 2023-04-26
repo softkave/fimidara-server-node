@@ -1,29 +1,31 @@
 import {difference} from 'lodash';
 import {
-  IAssignedPermissionGroupMeta,
-  IPermissionGroup,
+  AssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
+  PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
+import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
 import {LiteralDataQuery} from '../../data/types';
-import {IBaseContext} from '../../types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
-import {ISemanticDataAccessPermissionProvider} from './types';
+import {BaseContextType} from '../../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessPermissionProviderType} from './types';
 
-export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPermissionProvider {
+export class MemorySemanticDataAccessPermission
+  implements SemanticDataAccessPermissionProviderType
+{
   async getEntityInheritanceMap(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
       const {context} = props;
@@ -46,7 +48,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
           nextIdMap[item.assignedItemId] = item.assignedItemId;
           map[item.assignedItemId] = {id: item.assignedItemId, items: []};
           const entry = map[item.assigneeId];
-          const meta: IAssignedPermissionGroupMeta = {
+          const meta: AssignedPermissionGroupMeta = {
             assignedAt: item.createdAt,
             assignedBy: item.createdBy,
             permissionGroupId: item.assignedItemId,
@@ -63,13 +65,13 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getEntityAssignedPermissionGroups(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<{
-    permissionGroups: IPermissionGroup[];
+    permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }> {
     const map = await this.getEntityInheritanceMap(props);
@@ -83,7 +85,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
@@ -92,8 +94,8 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       sortByDate?: boolean;
       sortByContainer?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IPermissionItem[]> {
+    options?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<PermissionItem[]> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
 
     // TODO: use $or query when implemented
@@ -140,14 +142,14 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async countPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
     },
-    options?: ISemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
 
@@ -162,13 +164,13 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
 
   async getEntity(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId: string;
     },
-    opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IResource | null> {
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
-    const query: LiteralDataQuery<IResource> = {resourceId: props.entityId};
+    const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
     if (type === AppResourceType.User)
       return await props.context.memstore.user.readItem(query, opts?.transaction);
     if (type === AppResourceType.AgentToken)
@@ -195,7 +197,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
       containerIdList.length && inputTargetIdList.length
         ? difference(inputTargetIdList, containerIdList)
         : inputTargetIdList;
-    const q01: LiteralDataQuery<IPermissionItem> = {
+    const q01: LiteralDataQuery<PermissionItem> = {
       entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
       action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
       targetId: containerIdList.length ? {$in: toNonNullableArray(containerIdList)} : undefined,
@@ -207,7 +209,7 @@ export class MemorySemanticDataAccessPermission implements ISemanticDataAccessPe
         ] as any,
       },
     };
-    const q02: LiteralDataQuery<IPermissionItem> = {
+    const q02: LiteralDataQuery<PermissionItem> = {
       entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
       action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
       targetId: targetIdList.length ? {$in: toNonNullableArray(targetIdList)} : undefined,

@@ -1,49 +1,56 @@
 ## Now
 
+- [ ] Waitlist for fimidara
+- [ ] Root user should be generated with requires password change for prod
+- [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
+- [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
+- [ ] Support providedResourceId for all resources
+- [ ] Predefined resize pipelines
+- [ ] Public access op for files
+- [ ] Get version of readFile, we currently only have Post
 - [ ] Mem, shard by workspace and other fields
 - [ ] Accepted collaboration requests should be put in their own space
-- [ ] Mem, support indexing non-static fields
 - [ ] Limit assigned permissions depth to 10
 - [ ] File and folder exists endpoints
 - [ ] Mem, test delete one and delete many items
-- [ ] Write tests for delete permission items
-- [ ] Waitlist for fimidara
-- [ ] Issue, permission items appliesTo to prevent container from getting matched when item shouldn't apply to container
-  - [ ] checkAuthorization
-  - [ ] Add permission items
-  - [ ] Delete permission items
-  - [ ] Get resource permission items
 - [ ] Grant permission should work on the resource level, like allowing access to grant permission for folder and children
 - [ ] Mem, sync persisted and current in-memory DBs
-- [ ] Public access op for files
-- [ ] Ensure mddoc is upto date
-- [ ] Predefined resize pipelines
-- [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
 - [ ] Add types to force you to write and update Joi schemas
-- [ ] Confirm that all mddoc types have the right names
-- [ ] Add description to mddoc endpoints and types
-- [ ] Add get collaboration request list endpoints to mddoc and confirm that all provided enpoints have mddoc
+- [ ] Add description/comments to mddoc endpoints and types
 - [ ] Filter out agent token ID if the agent type is user
-- [ ] Get version of readFile
-- [ ] mddoc object fields should be typed after the object for type checking
-- [ ] Endpoints, boolean can entity perform or not
-- [ ] Permission items for resources should match when target ID matches target type (getResourcePermissionItems)
 - [ ] resolveEntityPermissions
-- [ ] index appliesTo for permission items and rename it's values, and make sure other fields we use for matching are indexed
+- [ ] Make sure fields we use for matching are indexed
 - [ ] select smallest after index match when correlating
 - [ ] Capture stack trace for log functions like appAssert
 - [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
 - [ ] Get tags by name
-- [ ] resolvePermissions endpoint
 - [ ] Confirm that queries that should have index hits do
 - [ ] Think up a way to add context information to txns and lock timeout errors
 - [ ] Write tests to confirm that memstore is faster overall than mongodb
 - [ ] A memstore txn lock times out in deleteFolder test
-- [ ] Index name and find other field to index
 - [ ] Move logs to it's own service and not write directly to DB
-- [ ] Client API updates including sdk
-- [ ] Docs update
 - [ ] Revamp UI
+- [ ] Refresh jwt tokens and group for collaborators not yet given permission groups
+- [ ] Implement public access actions for resources and check that requesting agent has permission to perform action. Can do similar thing for collaboration request's permission groups assigned on accept.
+- [ ] Ensure that streaming works on clientside when uploading that the formdata is not waiting for all data to be available b4 uploading
+- [ ] Add array or singular item type to permission item mddoc definitions
+- [ ] Make sure min and max is set for mddoc fields
+- [ ] CORS and origin restrict non-public endpoints to just fimidara frontend
+- [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
+- [ ] either return shorted enums to descriptive text or find a way to add comments to them in api and sdk.
+- [ ] docs fns, stripSpaceFromNewline, padNewline, replaceLayoutPlaceholders
+- [ ] clarify in docs, endpoints that have required body but same fields can be passed in path or query
+- [ ] public / private endpoint getter functions
+- [ ] type and field comments from mddoc
+- [ ] gen validation schemas from mddoc
+- [ ] gen tests from mddoc
+- [ ] Include folders, files, names and IDs in error messages?
+- [ ] Memstore txn ops shouldn't wait if query or data to insert/update is empty
+- [ ] Memstore should run query for multiple queries at once instead of one query per loop. This can also be used to support $or and $and
+- [ ] Frontend endpoint doc should be generated for each route to reduce compute and cost. Currently, the file is loaded then rendered.
+- [ ] Error boundary page on the frontend
+- [ ] Seek file included in readFile
+- [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
 - [ ] Test session context getAgent scope
 
 ## Later

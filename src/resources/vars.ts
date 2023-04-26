@@ -117,13 +117,13 @@ interface IStaticVariables {
 }
 
 // Added after the app initialization phase.
-export interface IAppRuntimeVars {
+export interface AppRuntimeVars {
   appWorkspaceId: string;
   appWorkspacesImageUploadPermissionGroupId: string;
   appUsersImageUploadPermissionGroupId: string;
 }
 
-export interface IAppVariables extends ISuppliedVariables, IStaticVariables, IAppRuntimeVars {}
+export interface AppVariables extends ISuppliedVariables, IStaticVariables, AppRuntimeVars {}
 
 export type ExtractEnvSchema = Record<
   keyof ISuppliedVariables,
@@ -215,11 +215,11 @@ export const defaultStaticVars = {
 
 // Cast here is safe as long as nobody uses appVariables directly but through
 // getAppVariables where the required variables are checked
-let appVariables: IAppVariables = cast({
+let appVariables: AppVariables = cast({
   ...defaultStaticVars,
 });
 
-export function checkRequiredSuppliedVariables(schema: ExtractEnvSchema, base: IAppVariables) {
+export function checkRequiredSuppliedVariables(schema: ExtractEnvSchema, base: AppVariables) {
   // [Env name, key name]
   const missingVariables: Array<[string, string]> = [];
   Object.keys(schema).forEach(key => {
@@ -242,8 +242,8 @@ export function checkRequiredSuppliedVariables(schema: ExtractEnvSchema, base: I
 
 export function extractEnvVariables(
   schema: ExtractEnvSchema,
-  base: Partial<IAppVariables> = {}
-): IAppVariables {
+  base: Partial<AppVariables> = {}
+): AppVariables {
   const envVariables = Object.keys(schema).reduce((accumulator, key) => {
     const meta = schema[key as keyof ISuppliedVariables];
     const variable =
@@ -255,7 +255,7 @@ export function extractEnvVariables(
     return accumulator;
   }, {} as ISuppliedVariables);
 
-  const vars: IAppVariables = {
+  const vars: AppVariables = {
     ...defaultStaticVars,
     clientLoginLink: `${envVariables.clientDomain}/account/login`,
     clientSignupLink: `${envVariables.clientDomain}/account/signup`,
@@ -273,11 +273,11 @@ export function extractEnvVariables(
   return vars;
 }
 
-export function setAppVariables(...additionalVars: Array<Partial<IAppVariables>>) {
+export function setAppVariables(...additionalVars: Array<Partial<AppVariables>>) {
   appVariables = merge({}, appVariables, ...additionalVars);
 }
 
-export function setAppVariablesIfUndefined(...additionalVars: Array<Partial<IAppVariables>>) {
+export function setAppVariablesIfUndefined(...additionalVars: Array<Partial<AppVariables>>) {
   appVariables = mergeWith({}, appVariables, additionalVars, objValue => {
     if (objValue) {
       return objValue;
@@ -288,7 +288,7 @@ export function setAppVariablesIfUndefined(...additionalVars: Array<Partial<IApp
 export function getAppVariables(
   schema: ExtractEnvSchema,
   extractFromEnv = true,
-  base?: Partial<IAppVariables>,
+  base?: Partial<AppVariables>,
 
   // set to true if you want base (if provided) to
   // override the app variables, false otherwise

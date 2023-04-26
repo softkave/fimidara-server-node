@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {first, merge} from 'lodash';
-import {IResource} from '../../../../definitions/system';
+import {Resource} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {
   extractResourceIdList,
@@ -19,11 +19,11 @@ import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {LiteralDataQuery} from '../../data/types';
 import {MemStore, MemStoreLockTimeoutError, MemStoreTransaction} from '../Mem';
 import {
-  IMemStoreTransaction,
   MemStoreIndexTypes,
   MemStoreTransactionConsistencyOp,
   MemStoreTransactionConsistencyOpTypes,
   MemStoreTransactionState,
+  MemStoreTransactionType,
 } from '../types';
 
 const seedResources = seedTestResourceList(5);
@@ -306,19 +306,19 @@ describe('MemStore', () => {
     const items01Field01_update = getNewId();
     const items01 = seedTestResourceList(3, {field01: items01Field01});
 
-    const scenario01 = async (txn: IMemStoreTransaction) => {
+    const scenario01 = async (txn: MemStoreTransactionType) => {
       await mem01.createItems(items01, txn);
     };
 
     // Using txn read for exists call to block and force subsequent calls after
     // the first to wait.
-    const scenario01_01 = async (txn: IMemStoreTransaction) => {
+    const scenario01_01 = async (txn: MemStoreTransactionType) => {
       const exists = await mem01.exists({field01: items01Field01}, txn);
       if (!exists) await mem01.createItems(items01, txn);
     };
 
     // Wait until lock expires then attempt using it to confirm it's aborted.
-    const scenario02 = async (txn: IMemStoreTransaction) => {
+    const scenario02 = async (txn: MemStoreTransactionType) => {
       await waitTimeout(MemStore.TXN_LOCK_TIMEOUT_MS + 1000);
       await expectErrorThrown(async () => {
         await mem01.updateManyItems(
@@ -330,7 +330,7 @@ describe('MemStore', () => {
       expect(txn.getState()).toBe(MemStoreTransactionState.Aborted);
     };
 
-    const scenario03 = async (txn: IMemStoreTransaction) => {
+    const scenario03 = async (txn: MemStoreTransactionType) => {
       await mem01.updateManyItems({field01: items01Field01}, {field01: items01Field01_update}, txn);
       await txn.commit(noopAsync);
       expect(txn.getState()).toBe(MemStoreTransactionState.Completed);
@@ -405,7 +405,7 @@ describe('MemStore', () => {
   });
 });
 
-interface ITestResource extends IResource {
+interface ITestResource extends Resource {
   field01: string;
   field02: string;
 }
@@ -429,7 +429,7 @@ function checkConsistencyOps(
   consistencyOps: MemStoreTransactionConsistencyOp[],
   items: ITestResource[],
   type: MemStoreTransactionConsistencyOpTypes,
-  txn: IMemStoreTransaction,
+  txn: MemStoreTransactionType,
   checkExistence = true,
   checkMatchObject = type !== MemStoreTransactionConsistencyOpTypes.Delete
 ) {

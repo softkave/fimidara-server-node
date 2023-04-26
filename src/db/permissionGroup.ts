@@ -1,22 +1,22 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IPermissionGroup} from '../definitions/permissionGroups';
+import {PermissionGroup} from '../definitions/permissionGroups';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const permissionGroupsSchema = ensureMongoTypeFields<IPermissionGroup>({
+const permissionGroupsSchema = ensureMongoTypeFields<PermissionGroup>({
   ...workspaceResourceSchema,
   name: {type: String, index: true},
   description: {type: String},
 });
 
-export type IPermissionGroupDocument = Document<IPermissionGroup>;
+export type PermissionGroupDocument = Document<PermissionGroup>;
 
-const schema = new Schema<IPermissionGroup>(permissionGroupsSchema);
+const schema = new Schema<PermissionGroup>(permissionGroupsSchema);
 const modelName = 'permission-group';
 const collectionName = 'permission-groups';
 
 export function getPermissionGroupModel(connection: Connection) {
-  const model = connection.model<IPermissionGroup>(modelName, schema, collectionName);
+  const model = connection.model<PermissionGroup>(modelName, schema, collectionName);
   return model;
 }
 
-export type IPermissionGroupPermissionsItemModel = Model<IPermissionGroup>;
+export type PermissionGroupPermissionsItemModel = Model<PermissionGroup>;

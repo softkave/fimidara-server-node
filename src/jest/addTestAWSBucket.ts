@@ -1,11 +1,7 @@
 import {format} from 'date-fns';
-import {
-  AppEnvVariables,
-  FileBackendType,
-  IAppVariables,
-} from '../resources/vars';
+import {AppEnvVariables, AppVariables, FileBackendType} from '../resources/vars';
 
-export function addTestAWSBucket(vars: IAppVariables, testType = 'test') {
+export function addTestAWSBucket(vars: AppVariables, testType = 'test') {
   let bucketName = vars.S3Bucket;
   const useS3FileProvider = vars.fileBackend === FileBackendType.S3;
   if (useS3FileProvider && !bucketName) {

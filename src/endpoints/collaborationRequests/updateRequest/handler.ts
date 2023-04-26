@@ -3,7 +3,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {assertUpdateNotEmpty} from '../../utils';
 import {
   checkCollaborationRequestAuthorization02,
@@ -21,7 +21,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   assertUpdateNotEmpty(data.request);
   const agent = await context.session.getAgent(context, instData);
   let {request} = await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     let {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,

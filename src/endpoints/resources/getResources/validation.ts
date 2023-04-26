@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import resourcesValidationSchemas from '../validation';
-import {IGetResourcesEndpointParams} from './types';
+import {GetResourcesEndpointParams} from './types';
 
-export const getResourcesJoiSchema = Joi.object<IGetResourcesEndpointParams>()
+export const getResourcesJoiSchema = Joi.object<GetResourcesEndpointParams>()
   .keys({
     workspaceId: validationSchemas.resourceId,
     resources: resourcesValidationSchemas.fetchResourceItemList.required(),

@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -12,9 +12,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countEntityPermissionItems from './handler';
-import {ICountEntityPermissionItemsEndpointParams} from './types';
+import {CountEntityPermissionItemsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -38,7 +38,7 @@ describe('countEntityPermissionItems', () => {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
     });
-    const instData = RequestData.fromExpressRequest<ICountEntityPermissionItemsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<CountEntityPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, entityId: user.resourceId}
     );

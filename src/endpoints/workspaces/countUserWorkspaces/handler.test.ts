@@ -3,7 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
@@ -17,7 +17,7 @@ import {
 } from '../../testUtils/testUtils';
 import countUserWorkspaces from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

@@ -1,17 +1,17 @@
-import {IFolder} from '../../../../definitions/folder';
+import {Folder} from '../../../../definitions/folder';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
-  ISemanticDataAccessProviderRunOptions,
-  ISemanticDataAccessWorkspaceResourceProvider,
+  SemanticDataAccessProviderRunOptions,
+  SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface ISemanticDataAccessFolderProvider
-  extends ISemanticDataAccessWorkspaceResourceProvider<IFolder> {
+export interface SemanticDataAccessFolderProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<Folder> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],
-    opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IFolder | null>;
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<Folder | null>;
   getManyByWorkspaceParentAndIdList(
     q: {
       workspaceId: string;
@@ -19,8 +19,8 @@ export interface ISemanticDataAccessFolderProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: IDataProvideQueryListParams<IFolder> & ISemanticDataAccessProviderRunOptions
-  ): Promise<IFolder[]>;
+    options?: IDataProvideQueryListParams<Folder> & SemanticDataAccessProviderRunOptions
+  ): Promise<Folder[]>;
   countManyParentByIdList(
     q: {
       workspaceId: string;
@@ -28,6 +28,6 @@ export interface ISemanticDataAccessFolderProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    opts?: ISemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
 }

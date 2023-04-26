@@ -1,10 +1,9 @@
 import {omit} from 'lodash';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
@@ -23,7 +22,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
       AppActionType.Update,
       opts
     );
-    const update: Partial<IPermissionGroup> = {
+    const update: Partial<PermissionGroup> = {
       ...omit(data.data, 'permissionGroups'),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
@@ -38,16 +37,6 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
       update,
       opts
     );
-    await saveResourceAssignedItems(
-      context,
-      agent,
-      workspace,
-      permissionGroup.resourceId,
-      data.data,
-      /** delete existing */ false,
-      opts
-    );
-
     return permissionGroup;
   });
 

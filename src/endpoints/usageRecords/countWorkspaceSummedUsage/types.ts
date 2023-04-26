@@ -1,11 +1,11 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetWorkspaceSummedUsageEndpointParamsBase} from '../getWorkspaceSummedUsage/types';
+import {BaseContextType} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetWorkspaceSummedUsageEndpointParamsBase} from '../getWorkspaceSummedUsage/types';
 
-export type ICountWorkspaceSummedUsageEndpointParams = IGetWorkspaceSummedUsageEndpointParamsBase;
+export type CountWorkspaceSummedUsageEndpointParams = GetWorkspaceSummedUsageEndpointParamsBase;
 
 export type CountWorkspaceSummedUsageEndpoint = Endpoint<
-  IBaseContext,
-  ICountWorkspaceSummedUsageEndpointParams,
-  ICountItemsEndpointResult
+  BaseContextType,
+  CountWorkspaceSummedUsageEndpointParams,
+  CountItemsEndpointResult
 >;

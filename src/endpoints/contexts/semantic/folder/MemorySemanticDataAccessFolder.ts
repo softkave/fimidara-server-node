@@ -1,18 +1,18 @@
-import {IFolder} from '../../../../definitions/folder';
+import {Folder} from '../../../../definitions/folder';
 import {IDataProvideQueryListParams} from '../../data/types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessFolderProvider} from './types';
+import {SemanticDataAccessFolderProvider} from './types';
 
 export class MemorySemanticDataAccessFolder
-  extends SemanticDataAccessWorkspaceResourceProvider<IFolder>
-  implements ISemanticDataAccessFolderProvider
+  extends SemanticDataAccessWorkspaceResourceProvider<Folder>
+  implements SemanticDataAccessFolderProvider
 {
   async getOneByNamePath(
     workspaceId: string,
     namePath: string[],
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IFolder | null> {
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<Folder | null> {
     return await this.memstore.readItem(
       {workspaceId, namePath: {$eq: namePath}},
       opts?.transaction
@@ -27,9 +27,9 @@ export class MemorySemanticDataAccessFolder
       excludeResourceIdList?: string[] | undefined;
     },
     options?:
-      | (IDataProvideQueryListParams<IFolder> & ISemanticDataAccessProviderRunOptions)
+      | (IDataProvideQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
       | undefined
-  ): Promise<IFolder[]> {
+  ): Promise<Folder[]> {
     return await this.memstore.readManyItems(
       {
         workspaceId: q.workspaceId,
@@ -49,7 +49,7 @@ export class MemorySemanticDataAccessFolder
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     return await this.memstore.countItems(
       {

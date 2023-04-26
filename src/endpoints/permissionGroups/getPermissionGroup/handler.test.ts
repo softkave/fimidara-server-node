@@ -1,5 +1,5 @@
-import {IPermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -13,7 +13,7 @@ import {
 } from '../../testUtils/testUtils';
 import getPermissionGroup from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -33,7 +33,7 @@ test('referenced permissionGroup returned', async () => {
     workspace.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<IPermissionGroupMatcher>(
+  const instData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
     mockExpressRequestWithAgentToken(userToken),
     {permissionGroupId: permissionGroup.resourceId}
   );

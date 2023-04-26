@@ -1,21 +1,21 @@
-import {IAgentToken} from '../../../../definitions/agentToken';
+import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
-  ISemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessAgentTokenProvider} from './types';
+import {SemanticDataAccessAgentTokenProvider} from './types';
 
 export class MemorySemanticDataAccessAgentToken
-  extends SemanticDataAccessWorkspaceResourceProvider<IAgentToken>
-  implements ISemanticDataAccessAgentTokenProvider
+  extends SemanticDataAccessWorkspaceResourceProvider<AgentToken>
+  implements SemanticDataAccessAgentTokenProvider
 {
   async deleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
     await this.memstore.deleteManyItems(
       {
@@ -29,8 +29,8 @@ export class MemorySemanticDataAccessAgentToken
   async getOneAgentToken(
     agentId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IAgentToken | null> {
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<AgentToken | null> {
     return await this.memstore.readItem(
       {
         separateEntityId: agentId,

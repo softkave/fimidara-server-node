@@ -1,11 +1,11 @@
 import {isArray, isUndefined} from 'lodash';
-import {IAssignedItem, IAssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
+import {AssignedItem, AssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
 import {AppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<IAssignedItem>();
+  return new DataProviderFilterBuilder<AssignedItem>();
 }
 
 function getByAssignedItem(workspaceId: string, assignedItemId: string) {
@@ -64,7 +64,7 @@ function getByAssignedToResource(
   return filter.build();
 }
 
-function getByMainFields(matcher: IAssignedItemMainFieldsMatcher) {
+function getByMainFields(matcher: AssignedItemMainFieldsMatcher) {
   const filter = newFilter()
     .addItem('assignedItemId', matcher.assignedItemId, DataProviderFilterValueOperator.Equal)
     .addItem('assigneeId', matcher.assigneeId, DataProviderFilterValueOperator.Equal)

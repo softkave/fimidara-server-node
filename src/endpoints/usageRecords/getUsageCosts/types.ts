@@ -1,15 +1,15 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetUsageCostsEndpointParams {}
+export interface GetUsageCostsEndpointParams {}
 
-export interface IGetUsageCostsEndpointResult {
+export interface GetUsageCostsEndpointResult {
   costs: Record<UsageRecordCategory, number>;
 }
 
 export type GetUsageCostsEndpoint = Endpoint<
-  IBaseContext,
-  IGetUsageCostsEndpointParams,
-  IGetUsageCostsEndpointResult
+  BaseContextType,
+  GetUsageCostsEndpointParams,
+  GetUsageCostsEndpointResult
 >;

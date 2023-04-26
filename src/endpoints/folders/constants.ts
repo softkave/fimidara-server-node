@@ -10,6 +10,7 @@ export const folderConstants = {
     deleteFolder: `${endpointConstants.apiv1}/folders/deleteFolder`,
     getFolder: `${endpointConstants.apiv1}/folders/getFolder`,
     listFolderContent: `${endpointConstants.apiv1}/folders/listFolderContent`,
+    countFolderContent: `${endpointConstants.apiv1}/folders/countFolderContent`,
     updateFolder: `${endpointConstants.apiv1}/folders/updateFolder`,
   },
 };

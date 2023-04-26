@@ -1,12 +1,12 @@
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {
   AppActionType,
   AppResourceType,
-  ISessionAgent,
   PERMISSION_AGENT_TYPES,
+  SessionAgent,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
@@ -14,23 +14,22 @@ import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   insertBandwidthInUsageRecordInput,
   insertStorageUsageRecordInput,
 } from '../../usageRecords/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
+  ISplitfilepathWithDetails,
   fileExtractor,
   getWorkspaceFromFileOrFilepath,
-  ISplitfilepathWithDetails,
   splitfilepathWithDetails as splitFilepathWithDetails,
 } from '../utils';
-import {IUploadFileEndpointParams, UploadFileEndpoint} from './types';
+import {UploadFileEndpoint, UploadFileEndpointParams} from './types';
 import {checkUploadFileAuth, createFileParentFolders} from './utils';
 import {uploadFileJoiSchema} from './validation';
 
@@ -38,7 +37,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let file = await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     let file = await getFileWithMatcher(context, data, opts);
     const isNewFile = !file;
     const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
@@ -95,15 +94,6 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     }
 
     await Promise.all([
-      saveResourceAssignedItems(
-        context,
-        agent,
-        workspace,
-        file.resourceId,
-        data,
-        isNewFile ? false : true,
-        opts
-      ),
       context.fileBackend.uploadFile({
         bucket: context.appVariables.S3Bucket,
         key: file.resourceId,
@@ -117,18 +107,18 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     return file;
   });
 
-  file = await populateAssignedTags<IFile>(context, file.workspaceId, file);
+  file = await populateAssignedTags<File>(context, file.workspaceId, file);
   return {file: fileExtractor(file)};
 };
 
 async function INTERNAL_updateFile(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
   pathWithDetails: ISplitfilepathWithDetails,
-  existingFile: IFile,
-  data: IUploadFileEndpointParams,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  existingFile: File,
+  data: UploadFileEndpointParams,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const file = await context.semantic.file.getAndUpdateOneById(
     existingFile.resourceId,
@@ -158,14 +148,14 @@ async function INTERNAL_updateFile(
 }
 
 function getNewFile(
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  agent: SessionAgent,
+  workspace: Workspace,
   pathWithDetails: ISplitfilepathWithDetails,
-  data: IUploadFileEndpointParams,
-  parentFolder: IFolder | null
+  data: UploadFileEndpointParams,
+  parentFolder: Folder | null
 ) {
   const fileId = getNewIdForResource(AppResourceType.File);
-  const file = newWorkspaceResource<IFile>(agent, AppResourceType.File, workspace.resourceId, {
+  const file = newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
     extension: data.extension ?? pathWithDetails.extension ?? '',
@@ -184,12 +174,12 @@ function getNewFile(
 }
 
 async function INTERNAL_createFile(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  data: IUploadFileEndpointParams,
-  file: IFile,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: UploadFileEndpointParams,
+  file: File,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   await context.semantic.file.insertItem(file, opts);
   // const items = makeFilePublicAccessOps(file, data.publicAccessAction);

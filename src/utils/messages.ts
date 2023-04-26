@@ -66,6 +66,12 @@ export const appMessages = {
     notFound(id?: string) {
       return id ? `Agent token with ID ${id} not found.` : 'Agent token not found.';
     },
+    withIdExists(id?: string) {
+      return id ? `Agent token with ID ${id} exists.` : 'Agent token exists.';
+    },
+    withProvidedIdExists(id?: string) {
+      return id ? `Agent token with provided ID ${id} exists.` : 'Agent token exists.';
+    },
   },
   common: {
     notFound(id?: string) {

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -14,9 +14,9 @@ import {
 } from '../../testUtils/testUtils';
 import {tagExtractor} from '../utils';
 import updateTag from './handler';
-import {IUpdateTagEndpointParams, IUpdateTagInput} from './types';
+import {UpdateTagEndpointParams, UpdateTagInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -32,12 +32,12 @@ describe('updateTag', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
-    const tagUpdateInput: IUpdateTagInput = {
+    const tagUpdateInput: UpdateTagInput = {
       name: faker.lorem.words(3),
       description: faker.lorem.words(10),
     };
 
-    const instData = RequestData.fromExpressRequest<IUpdateTagEndpointParams>(
+    const instData = RequestData.fromExpressRequest<UpdateTagEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag01.resourceId, tag: tagUpdateInput}
     );

@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType, IAgent} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
+import {Agent, AppResourceType} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
-export function generateTagForTest(seed: Partial<ITag> = {}) {
+export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
-  const createdBy: IAgent = {
+  const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: AppResourceType.User,
     agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
-  const token: ITag = {
+  const token: Tag = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -27,8 +27,8 @@ export function generateTagForTest(seed: Partial<ITag> = {}) {
   return token;
 }
 
-export function generateTagListForTest(count = 20, seed: Partial<ITag> = {}) {
-  const items: ITag[] = [];
+export function generateTagListForTest(count = 20, seed: Partial<Tag> = {}) {
+  const items: Tag[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generateTagForTest(seed));
   }
@@ -36,9 +36,9 @@ export function generateTagListForTest(count = 20, seed: Partial<ITag> = {}) {
 }
 
 export async function generateAndInsertTagListForTest(
-  ctx: IBaseContext,
+  ctx: BaseContextType,
   count = 20,
-  seed: Partial<ITag> = {}
+  seed: Partial<Tag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
   await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.tag.insertItem(items, opts));

@@ -1,17 +1,17 @@
-import {IPublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IRevokeCollaborationRequestEndpointParams {
+export interface RevokeCollaborationRequestEndpointParams {
   requestId: string;
 }
 
-export interface IRevokeCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequestForWorkspace;
+export interface RevokeCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForWorkspace;
 }
 
 export type RevokeCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IRevokeCollaborationRequestEndpointParams,
-  IRevokeCollaborationRequestEndpointResult
+  BaseContextType,
+  RevokeCollaborationRequestEndpointParams,
+  RevokeCollaborationRequestEndpointResult
 >;

@@ -1,13 +1,13 @@
-import {AppResourceType, IResourceWrapper} from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {AppResourceType, ResourceWrapper} from '../../definitions/system';
+import {User} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
 import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {IBaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 
 export async function resourceWithAssignedItems(
-  context: IBaseContext,
+  context: BaseContextType,
   workspaceId: string,
-  resource: IResourceWrapper
+  resource: ResourceWrapper
 ) {
   switch (resource.resourceType) {
     case AppResourceType.AgentToken:
@@ -17,7 +17,7 @@ export async function resourceWithAssignedItems(
       resource.resource = await populateAssignedTags(context, workspaceId, resource.resource);
       return resource;
     case AppResourceType.User:
-      resource.resource = await populateUserWorkspaces(context, resource.resource as IUser);
+      resource.resource = await populateUserWorkspaces(context, resource.resource as User);
       return resource;
     case AppResourceType.Workspace:
     case AppResourceType.CollaborationRequest:
@@ -28,9 +28,9 @@ export async function resourceWithAssignedItems(
 }
 
 export async function resourceListWithAssignedItems(
-  context: IBaseContext,
+  context: BaseContextType,
   workspaceId: string,
-  resourceList: IResourceWrapper[],
+  resourceList: ResourceWrapper[],
   forTypes: AppResourceType[] = Object.values(AppResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);

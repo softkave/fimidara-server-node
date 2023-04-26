@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
 import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
+import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
-import {IBaseContext} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -49,8 +49,8 @@ async function setupContext() {
 }
 
 async function insertWorkspace(
-  context: IBaseContext,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContext,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const companyName = faker.company.name();
   return await internalCreateWorkspace(
@@ -67,9 +67,9 @@ async function insertWorkspace(
 }
 
 async function createAgentToken(
-  context: IBaseContext,
-  workspace: IWorkspace,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContext,
+  workspace: Workspace,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const token = await internalCreateAgentToken(
     context,
@@ -91,6 +91,17 @@ export async function setupSDKTestReq() {
   const {workspace, token, tokenStr} = await executeWithMutationRunOptions(context, async opts => {
     const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
     const {token, tokenStr} = await createAgentToken(context, workspace, opts);
+    await addAssignedPermissionGroupList(
+      context,
+      SYSTEM_SESSION_AGENT,
+      workspace.resourceId,
+      [{permissionGroupId: adminPermissionGroup.resourceId}],
+      token.resourceId,
+      false, // don't delete existing assigned permission groups
+      true, // skip permission groups check
+      /** skip auth check */ true,
+      opts
+    );
     return {workspace, token, tokenStr};
   });
 

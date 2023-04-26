@@ -1,14 +1,14 @@
-import {AppResourceType, IBaseTokenData, ISessionAgent} from '../definitions/system';
-import {IUser} from '../definitions/user';
+import {AppResourceType, BaseTokenData, SessionAgent} from '../definitions/system';
+import {User} from '../definitions/user';
 import {getNewIdForResource} from '../utils/resource';
 import {IServerRequest} from './contexts/types';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
   data?: T;
-  incomingTokenData?: IBaseTokenData | null;
-  agent?: ISessionAgent | null;
-  user?: IUser | null;
+  incomingTokenData?: BaseTokenData | null;
+  agent?: SessionAgent | null;
+  user?: User | null;
 }
 
 export default class RequestData<T = any> {
@@ -53,9 +53,9 @@ export default class RequestData<T = any> {
   requestId: string;
   req?: IServerRequest | null;
   data?: T;
-  incomingTokenData?: IBaseTokenData | null;
-  user?: IUser | null;
-  agent?: ISessionAgent | null;
+  incomingTokenData?: BaseTokenData | null;
+  user?: User | null;
+  agent?: SessionAgent | null;
 
   constructor(arg?: IRequestContructorParams<T>) {
     this.requestId = getNewIdForResource(AppResourceType.EndpointRequest);

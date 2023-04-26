@@ -1,11 +1,11 @@
-import {IPublicResource, IResource} from './system';
+import {PublicResource, Resource} from './system';
 
-export interface IUserWorkspace {
+export interface UserWorkspace {
   workspaceId: string;
   joinedAt: number;
 }
 
-export interface IUser extends IResource {
+export interface User extends Resource {
   firstName: string;
   lastName: string;
   email: string;
@@ -17,13 +17,13 @@ export interface IUser extends IResource {
   emailVerificationEmailSentAt?: number | null;
 }
 
-export interface IUserWithWorkspace extends IUser {
-  workspaces: IUserWorkspace[];
+export interface UserWithWorkspace extends User {
+  workspaces: UserWorkspace[];
 }
 
-export type IPublicUserData = IPublicResource &
+export type PublicUser = PublicResource &
   Pick<
-    IUser,
+    User,
     | 'email'
     | 'firstName'
     | 'lastName'
@@ -32,7 +32,7 @@ export type IPublicUserData = IPublicResource &
     | 'isEmailVerified'
     | 'emailVerifiedAt'
     | 'emailVerificationEmailSentAt'
-  > & {workspaces: IUserWorkspace[]};
+  > & {workspaces: UserWorkspace[]};
 
-export type IPublicCollaborator = IUserWorkspace &
-  Pick<IUser, 'firstName' | 'lastName' | 'email' | 'resourceId'>;
+export type PublicCollaborator = UserWorkspace &
+  Pick<User, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

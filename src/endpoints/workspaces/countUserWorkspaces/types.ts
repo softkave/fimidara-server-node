@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
+import {BaseContextType} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
 
-export type CountUserWorkspacesEndpoint = Endpoint<IBaseContext, {}, ICountItemsEndpointResult>;
+export type CountUserWorkspacesEndpoint = Endpoint<BaseContextType, {}, CountItemsEndpointResult>;

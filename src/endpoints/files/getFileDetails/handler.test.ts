@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -13,9 +13,9 @@ import {
 } from '../../testUtils/testUtils';
 import {fileConstants} from '../constants';
 import getFileDetails from './handler';
-import {IGetFileDetailsEndpointParams} from './types';
+import {GetFileDetailsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -31,7 +31,7 @@ test('file details returned', async () => {
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {file} = await insertFileForTest(context, userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<IGetFileDetailsEndpointParams>(
+  const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       filepath: addRootnameToPath(

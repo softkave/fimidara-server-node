@@ -7,20 +7,17 @@ import {
   getLoginSectionHTML,
   getLoginSectionText,
 } from './helpers';
-import {IBaseEmailTemplateProps} from './types';
+import {BaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestExpiredEmailProps
-  extends IBaseEmailTemplateProps {
+export interface CollaborationRequestExpiredEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;
 }
 
-function getTitle(props: ICollaborationRequestExpiredEmailProps) {
+function getTitle(props: CollaborationRequestExpiredEmailProps) {
   return `Collaboration request from ${props.workspaceName} expired`;
 }
 
-export function collaborationRequestExpiredEmailHTML(
-  props: ICollaborationRequestExpiredEmailProps
-) {
+export function collaborationRequestExpiredEmailHTML(props: CollaborationRequestExpiredEmailProps) {
   const title = getTitle(props);
   return `
 <!DOCTYPE html>
@@ -43,9 +40,7 @@ export function collaborationRequestExpiredEmailHTML(
 `;
 }
 
-export function collaborationRequestExpiredEmailText(
-  props: ICollaborationRequestExpiredEmailProps
-) {
+export function collaborationRequestExpiredEmailText(props: CollaborationRequestExpiredEmailProps) {
   const title = getTitle(props);
   const txt = `
 ${getHeaderText(title)}

@@ -1,5 +1,5 @@
 import {calculatePageSize, findItemWithField} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -13,9 +13,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getWorkspacePermissionGroups from './handler';
-import {IGetWorkspacePermissionGroupsEndpointParams} from './types';
+import {GetWorkspacePermissionGroupsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -41,7 +41,7 @@ describe('getWorkspacePermissionGroups', () => {
       workspace.resourceId
     );
 
-    const instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -74,7 +74,7 @@ describe('getWorkspacePermissionGroups', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
@@ -84,7 +84,7 @@ describe('getWorkspacePermissionGroups', () => {
     expect(result.permissionGroups).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspacePermissionGroupsEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );

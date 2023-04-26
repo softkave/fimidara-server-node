@@ -1,5 +1,5 @@
 import {defaultStaticVars} from '../resources/vars';
-import {IBaseEmailTemplateProps} from './types';
+import {BaseEmailTemplateProps} from './types';
 
 const maxWidth = '700px';
 const classNamePrefix = 'fimidara';
@@ -75,12 +75,10 @@ export function getCenteredContentHTML(content: string) {
 }
 
 export function getDoNotReplyHTML() {
-  return getCenteredContentHTML(
-    'This is an auto-generated email, do not reply.'
-  );
+  return getCenteredContentHTML('This is an auto-generated email, do not reply.');
 }
 
-export function getAccountAccessSectionHTML(props: IBaseEmailTemplateProps) {
+export function getAccountAccessSectionHTML(props: BaseEmailTemplateProps) {
   return `
 <div class="${emailTemplateConstants.classNamePrefix}-body">
   <div class="${emailTemplateConstants.classNamePrefix}-content-center">
@@ -91,16 +89,14 @@ export function getAccountAccessSectionHTML(props: IBaseEmailTemplateProps) {
     `;
 }
 
-export function getAccountAccessSectionText(props: IBaseEmailTemplateProps) {
+export function getAccountAccessSectionText(props: BaseEmailTemplateProps) {
   return `-
 Login to your account here - ${props.loginLink} - OR -
 Signup here - ${props.signupLink}
 `;
 }
 
-export function getLoginSectionHTML(
-  props: Pick<IBaseEmailTemplateProps, 'loginLink'>
-) {
+export function getLoginSectionHTML(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
   return `
 <div class="${emailTemplateConstants.classNamePrefix}-body">
   <div class="${emailTemplateConstants.classNamePrefix}-content-center">
@@ -110,9 +106,7 @@ export function getLoginSectionHTML(
     `;
 }
 
-export function getLoginSectionText(
-  props: Pick<IBaseEmailTemplateProps, 'loginLink'>
-) {
+export function getLoginSectionText(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
   return `-
 Login to your account here - ${props.loginLink}
 `;

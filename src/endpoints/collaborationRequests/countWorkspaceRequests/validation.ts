@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
 import {getWorkspaceCollaborationRequestsBaseJoiSchemaParts} from '../getWorkspaceRequests/validation';
-import {ICountWorkspaceCollaborationRequestsEndpointParams} from './types';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './types';
 
 export const countWorkspaceCollaborationRequestsJoiSchema =
-  Joi.object<ICountWorkspaceCollaborationRequestsEndpointParams>()
+  Joi.object<CountWorkspaceCollaborationRequestsEndpointParams>()
     .keys(getWorkspaceCollaborationRequestsBaseJoiSchemaParts)
     .required();

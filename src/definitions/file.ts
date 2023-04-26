@@ -1,6 +1,6 @@
-import {ConvertAgentToPublicAgent, IWorkspaceResource} from './system';
+import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
-export interface IFile extends IWorkspaceResource {
+export interface File extends WorkspaceResource {
   parentId: string | null;
   idPath: string[];
   namePath: string[];
@@ -12,8 +12,8 @@ export interface IFile extends IWorkspaceResource {
   description?: string;
 }
 
-export type IPublicFile = ConvertAgentToPublicAgent<IFile>;
-export type IFileMatcher = {
+export type PublicFile = ConvertAgentToPublicAgent<File>;
+export type FileMatcher = {
   // file path with workspace root name
   filepath?: string;
   fileId?: string;

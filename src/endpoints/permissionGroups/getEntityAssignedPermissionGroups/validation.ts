@@ -3,11 +3,11 @@ import {JoiSchemaParts} from '../../../utils/types';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
 import {
-  IGetEntityAssignedPermissionGroupsEndpointParams,
-  IGetEntityAssignedPermissionGroupsEndpointParamsBase,
+  GetEntityAssignedPermissionGroupsEndpointParams,
+  GetEntityAssignedPermissionGroupsEndpointParamsBase,
 } from './types';
 
-export const getEntityAssignedPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts<IGetEntityAssignedPermissionGroupsEndpointParamsBase> =
+export const getEntityAssignedPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts<GetEntityAssignedPermissionGroupsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     entityId: validationSchemas.resourceId.required(),
@@ -15,7 +15,7 @@ export const getEntityAssignedPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts
   };
 
 export const getEntityAssignedPermissionGroupsJoiSchema =
-  Joi.object<IGetEntityAssignedPermissionGroupsEndpointParams>()
+  Joi.object<GetEntityAssignedPermissionGroupsEndpointParams>()
     .keys({
       ...getEntityAssignedPermissionGroupsBaseJoiSchemaParts,
     })

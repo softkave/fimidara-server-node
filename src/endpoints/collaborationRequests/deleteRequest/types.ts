@@ -1,13 +1,13 @@
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
+import {BaseContextType} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
-export interface IDeleteCollaborationRequestEndpointParams {
+export interface DeleteCollaborationRequestEndpointParams {
   requestId: string;
 }
 
 export type DeleteCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteCollaborationRequestEndpointParams,
-  ILongRunningJobResult
+  BaseContextType,
+  DeleteCollaborationRequestEndpointParams,
+  LongRunningJobResult
 >;

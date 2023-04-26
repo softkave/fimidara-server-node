@@ -1,25 +1,25 @@
-import {IPublicAgentToken} from '../../../definitions/agentToken';
-import {IBaseContext} from '../../contexts/types';
+import {PublicAgentToken} from '../../../definitions/agentToken';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  PaginatedResult,
+  PaginationQuery,
 } from '../../types';
 
-export interface IGetWorkspaceAgentTokensEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {}
+export interface GetWorkspaceAgentTokensEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {}
 
-export interface IGetWorkspaceAgentTokensEndpointParams
-  extends IGetWorkspaceAgentTokensEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetWorkspaceAgentTokensEndpointParams
+  extends GetWorkspaceAgentTokensEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IGetWorkspaceAgentTokensEndpointResult extends IPaginatedResult {
-  tokens: IPublicAgentToken[];
+export interface GetWorkspaceAgentTokensEndpointResult extends PaginatedResult {
+  tokens: PublicAgentToken[];
 }
 
-export type GetWorkspaceAgentTokenEndpoint = Endpoint<
-  IBaseContext,
-  IGetWorkspaceAgentTokensEndpointParams,
-  IGetWorkspaceAgentTokensEndpointResult
+export type GetWorkspaceAgentTokensEndpoint = Endpoint<
+  BaseContextType,
+  GetWorkspaceAgentTokensEndpointParams,
+  GetWorkspaceAgentTokensEndpointResult
 >;

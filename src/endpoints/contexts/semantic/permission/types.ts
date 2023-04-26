@@ -1,39 +1,39 @@
 import {
-  IPermissionGroup,
   PermissionEntityInheritanceMap,
+  PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, IResource} from '../../../../definitions/system';
-import {IBaseContext} from '../../types';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {PermissionItem} from '../../../../definitions/permissionItem';
+import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
+import {BaseContextType} from '../../types';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 
-export interface ISemanticDataAccessPermissionProvider {
+export interface SemanticDataAccessPermissionProviderType {
   getEntityAssignedPermissionGroups(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<{
-    permissionGroups: IPermissionGroup[];
+    permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }>;
   getEntityInheritanceMap(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
-    props: {context: IBaseContext; entityId: string},
-    opts?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IResource | null>;
+    props: {context: BaseContextType; entityId: string},
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<Resource | null>;
   getPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
@@ -47,17 +47,17 @@ export interface ISemanticDataAccessPermissionProvider {
        * containers passed. */
       sortByContainer?: boolean;
     },
-    options?: ISemanticDataAccessProviderRunOptions
-  ): Promise<IPermissionItem[]>;
+    options?: SemanticDataAccessProviderRunOptions
+  ): Promise<PermissionItem[]>;
   countPermissionItems(
     props: {
-      context: IBaseContext;
+      context: BaseContextType;
       entityId?: string | string[];
       action?: AppActionType | AppActionType[];
       targetId?: string | string[];
       targetType?: AppResourceType | AppResourceType[];
       containerId?: string | string[];
     },
-    options?: ISemanticDataAccessProviderRunOptions
+    options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
 }

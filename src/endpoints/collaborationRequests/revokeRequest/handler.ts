@@ -1,6 +1,6 @@
 import {
+  CollaborationRequest,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
 import {AppActionType} from '../../../definitions/system';
 import {
@@ -12,8 +12,8 @@ import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {MemStore} from '../../contexts/mem/Mem';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {
   checkCollaborationRequestAuthorization02,
@@ -30,7 +30,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let {request, workspace} = await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     let {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,
@@ -63,8 +63,8 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 };
 
 async function sendRevokeCollaborationRequestEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
+  context: BaseContextType,
+  request: CollaborationRequest,
   workspaceName: string
 ) {
   const signupLink = context.appVariables.clientSignupLink;

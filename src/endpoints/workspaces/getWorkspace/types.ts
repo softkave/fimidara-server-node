@@ -1,13 +1,13 @@
-import {IPublicWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {PublicWorkspace} from '../../../definitions/workspace';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IGetWorkspaceEndpointResult {
-  workspace: IPublicWorkspace;
+export interface GetWorkspaceEndpointResult {
+  workspace: PublicWorkspace;
 }
 
 export type GetWorkspaceEndpoint = Endpoint<
-  IBaseContext,
-  IEndpointOptionalWorkspaceIDParam,
-  IGetWorkspaceEndpointResult
+  BaseContextType,
+  EndpointOptionalWorkspaceIDParam,
+  GetWorkspaceEndpointResult
 >;

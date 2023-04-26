@@ -1,18 +1,14 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
-import permissionItemValidationSchemas from '../../permissionItems/validation';
-import tagValidationSchemas from '../../tags/validation';
 import folderValidationSchemas from '../validation';
+import {AddFolderEndpointParams, NewFolderInput} from './types';
 
-export const addFolderJoiSchema = Joi.object()
+export const addFolderJoiSchema = Joi.object<AddFolderEndpointParams>()
   .keys({
-    folder: Joi.object()
+    folder: Joi.object<NewFolderInput>()
       .keys({
         folderpath: folderValidationSchemas.folderpath.required(),
         description: validationSchemas.description.allow(null),
-        publicAccessOps:
-          permissionItemValidationSchemas.publicAccessOpList.allow(null),
-        tags: tagValidationSchemas.assignedTagsList.allow(null),
       })
       .required(),
   })

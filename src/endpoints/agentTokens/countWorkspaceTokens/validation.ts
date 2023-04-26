@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
 import {getWorkspaceAgentTokenBaseJoiSchemaParts} from '../getWorkspaceTokens/validation';
-import {ICountWorkspaceAgentTokensEndpointParams} from './types';
+import {CountWorkspaceAgentTokensEndpointParams} from './types';
 
 export const countWorkspaceAgentTokenJoiSchema =
-  Joi.object<ICountWorkspaceAgentTokensEndpointParams>()
+  Joi.object<CountWorkspaceAgentTokensEndpointParams>()
     .keys(getWorkspaceAgentTokenBaseJoiSchemaParts)
     .required();

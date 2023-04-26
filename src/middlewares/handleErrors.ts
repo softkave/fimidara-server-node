@@ -3,7 +3,7 @@ import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
 import {logger} from '../endpoints/globalUtils';
-import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/user/errors';
+import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
 

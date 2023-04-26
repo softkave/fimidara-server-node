@@ -1,7 +1,7 @@
-import {AppResourceType, ISessionAgent} from '../definitions/system';
+import {AppResourceType, SessionAgent} from '../definitions/system';
 import {ID_SIZE, getNewIdForResource} from './resource';
 
-export const SYSTEM_SESSION_AGENT: ISessionAgent = {
+export const SYSTEM_SESSION_AGENT: SessionAgent = {
   agentId: getNewIdForResource(AppResourceType.System),
   agentType: AppResourceType.System,
   agentTokenId: getNewIdForResource(
@@ -11,7 +11,7 @@ export const SYSTEM_SESSION_AGENT: ISessionAgent = {
   ),
 };
 
-export const PUBLIC_SESSION_AGENT: ISessionAgent = {
+export const PUBLIC_SESSION_AGENT: SessionAgent = {
   agentId: getNewIdForResource(AppResourceType.Public),
   agentType: AppResourceType.Public,
   agentTokenId: getNewIdForResource(

@@ -2,14 +2,14 @@ import * as Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
 import {
-  IGetWorkspaceAgentTokensEndpointParams,
-  IGetWorkspaceAgentTokensEndpointParamsBase,
+  GetWorkspaceAgentTokensEndpointParams,
+  GetWorkspaceAgentTokensEndpointParamsBase,
 } from './types';
 
-export const getWorkspaceAgentTokenBaseJoiSchemaParts: JoiSchemaParts<IGetWorkspaceAgentTokensEndpointParamsBase> =
+export const getWorkspaceAgentTokenBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceAgentTokensEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
-export const getWorkspaceAgentTokenJoiSchema = Joi.object<IGetWorkspaceAgentTokensEndpointParams>()
+export const getWorkspaceAgentTokenJoiSchema = Joi.object<GetWorkspaceAgentTokensEndpointParams>()
   .keys({
     ...getWorkspaceAgentTokenBaseJoiSchemaParts,
     ...endpointValidationSchemas.paginationParts,

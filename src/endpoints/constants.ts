@@ -10,7 +10,7 @@ export const endpointConstants = {
     conflict: 409,
     tooManyRequests: 429,
     serverError: 500,
-  },
+  } as const,
   minPage: 0,
   minPageSize: 1,
   maxPageSize: 1000,

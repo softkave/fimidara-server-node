@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IFile} from '../definitions/file';
+import {File} from '../definitions/file';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const fileSchema = ensureMongoTypeFields<IFile>({
+const fileSchema = ensureMongoTypeFields<File>({
   ...workspaceResourceSchema,
   idPath: {type: [String], default: [], index: true},
   namePath: {type: [String], default: [], index: true},
@@ -15,15 +15,15 @@ const fileSchema = ensureMongoTypeFields<IFile>({
   mimetype: {type: String},
 });
 
-export type IFileDocument = Document<IFile>;
+export type FileDocument = Document<File>;
 
-const schema = new Schema<IFile>(fileSchema);
+const schema = new Schema<File>(fileSchema);
 const modelName = 'file';
 const collectionName = 'files';
 
 export function getFileModel(connection: Connection) {
-  const model = connection.model<IFile>(modelName, schema, collectionName);
+  const model = connection.model<File>(modelName, schema, collectionName);
   return model;
 }
 
-export type IFileModel = Model<IFile>;
+export type FileModel = Model<File>;

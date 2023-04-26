@@ -1,19 +1,19 @@
 import {defaultTo} from 'lodash';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export async function updateTestWorkspaceUsageLocks(
-  context: IBaseContext,
+  context: BaseContextType,
   id: string,
   categories: UsageRecordCategory[]
 ) {
   return await executeWithMutationRunOptions(context, async opts => {
     let workspace = await context.semantic.workspace.getOneById(id, opts);
-    const usageThresholdLocks: IWorkspace['usageThresholdLocks'] = {
+    const usageThresholdLocks: Workspace['usageThresholdLocks'] = {
       ...defaultTo(workspace?.usageThresholdLocks, {}),
     };
     categories.forEach(category => {
