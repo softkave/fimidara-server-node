@@ -18,7 +18,7 @@ const changePassword: ChangePasswordEndpoint = async (context, instData) => {
     const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction: txn};
     const updatedUser = await context.semantic.user.getAndUpdateOneById(
       agent.agentId,
-      {hash, passwordLastChangedAt: getTimestamp()},
+      {hash, passwordLastChangedAt: getTimestamp(), requiresPasswordChange: false},
       opts
     );
 

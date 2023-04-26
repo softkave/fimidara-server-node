@@ -21,11 +21,7 @@ export type InferEndpointResult<E> = E extends Endpoint<any, any, infer R>
 export enum ServerRecommendedActions {
   LoginAgain = 'LoginAgain',
   Logout = 'Logout',
-}
-
-export interface IRequestDataPendingPromise {
-  id: string | number;
-  promise: Promise<any>;
+  RequestChangePassword = 'RequestChangePassword',
 }
 
 export interface IPaginatedResult {

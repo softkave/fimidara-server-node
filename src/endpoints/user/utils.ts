@@ -24,6 +24,7 @@ const publicUserFields = getFields<IPublicUserData>({
   emailVerifiedAt: true,
   emailVerificationEmailSentAt: true,
   passwordLastChangedAt: true,
+  requiresPasswordChange: true,
   workspaces: userWorkspaceListExtractor,
 });
 

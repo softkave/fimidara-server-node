@@ -18,8 +18,7 @@ export interface IAgentToken extends IResource {
   createdBy: IAgent;
 
   /**
-   * not same as iat in token, may be a litte bit behind or after and is a ISO
-   * string, where iat is time in seconds
+   * Timestamp in milliseconds.
    */
   expires?: number;
   scope?: string[];

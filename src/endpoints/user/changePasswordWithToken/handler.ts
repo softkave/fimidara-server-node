@@ -25,12 +25,8 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context,
     [TokenAccessScope.ChangePassword, TokenAccessScope.Login]
   );
 
-  if (!canChangePasswordWithToken || !userToken.expires) {
-    throw new InvalidCredentialsError();
-  }
-  if (Date.now() > userToken.expires) {
-    throw new CredentialsExpiredError();
-  }
+  if (!canChangePasswordWithToken || !userToken.expires) throw new InvalidCredentialsError();
+  if (Date.now() > userToken.expires) throw new CredentialsExpiredError();
 
   const result = await completeChangePassword(context, instData, data.password);
 

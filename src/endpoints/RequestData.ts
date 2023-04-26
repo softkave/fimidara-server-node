@@ -2,7 +2,6 @@ import {AppResourceType, IBaseTokenData, ISessionAgent} from '../definitions/sys
 import {IUser} from '../definitions/user';
 import {getNewIdForResource} from '../utils/resource';
 import {IServerRequest} from './contexts/types';
-import {IRequestDataPendingPromise} from './types';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
@@ -10,7 +9,6 @@ export interface IRequestContructorParams<T = any> {
   incomingTokenData?: IBaseTokenData | null;
   agent?: ISessionAgent | null;
   user?: IUser | null;
-  pendingPromises?: IRequestDataPendingPromise[];
 }
 
 export default class RequestData<T = any> {
@@ -39,7 +37,6 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      pendingPromises: from.pendingPromises,
     });
   }
 
@@ -50,7 +47,6 @@ export default class RequestData<T = any> {
       incomingTokenData: from.incomingTokenData,
       agent: from.agent,
       user: from.user,
-      pendingPromises: from.pendingPromises.concat(to.pendingPromises),
     });
   }
 
@@ -60,37 +56,26 @@ export default class RequestData<T = any> {
   incomingTokenData?: IBaseTokenData | null;
   user?: IUser | null;
   agent?: ISessionAgent | null;
-  pendingPromises: IRequestDataPendingPromise[] = [];
 
   constructor(arg?: IRequestContructorParams<T>) {
     this.requestId = getNewIdForResource(AppResourceType.EndpointRequest);
-    if (!arg) {
-      return;
-    }
+    if (!arg) return;
 
     this.req = arg.req;
     this.data = arg.data;
     this.incomingTokenData = arg.incomingTokenData;
     this.agent = arg.agent;
     this.user = arg.user;
-    if (arg.pendingPromises) {
-      this.pendingPromises = arg.pendingPromises;
-    }
   }
 
   getIp() {
-    if (this.req) {
+    if (this.req)
       return Array.isArray(this.req.ips) && this.req.ips.length > 0 ? this.req.ips : [this.req.ip];
-    }
-
     return [];
   }
 
   getUserAgent() {
-    if (this.req) {
-      return this.req.headers['user-agent'];
-    }
-
+    if (this.req) return this.req.headers['user-agent'];
     return null;
   }
 }

@@ -1,8 +1,4 @@
 import {merge} from 'lodash';
-import {
-  CollaborationRequestStatusType,
-  ICollaborationRequest,
-} from '../../definitions/collaborationRequest';
 import {IPermissionGroup} from '../../definitions/permissionGroups';
 import {IPermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppActionType, AppResourceType, IAppRuntimeState} from '../../definitions/system';
@@ -12,7 +8,8 @@ import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {newWorkspaceResource} from '../../utils/fns';
-import {getNewIdForResource, ID_SIZE} from '../../utils/resource';
+import {ID_SIZE, getNewId, getNewIdForResource} from '../../utils/resource';
+import RequestData from '../RequestData';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {MemStore} from '../contexts/mem/Mem';
 import {
@@ -23,6 +20,9 @@ import {IBaseContext} from '../contexts/types';
 import {createFolderList} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
+import forgotPassword from '../user/forgotPassword/forgotPassword';
+import {ForgotPasswordEndpointParams} from '../user/forgotPassword/types';
+import {internalSignupUser} from '../user/signup/utils';
 import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
@@ -56,39 +56,36 @@ async function setupWorkspace(
   );
 }
 
-async function setupDefaultUserCollaborationRequest(
+async function setupDefaultUser(
   context: IBaseContext,
   workspace: IWorkspace,
-  userEmail: string,
   adminPermissionGroupId: string,
   opts: ISemanticDataAccessProviderMutationRunOptions
 ) {
-  const request = newWorkspaceResource<ICollaborationRequest>(
-    SYSTEM_SESSION_AGENT,
-    AppResourceType.CollaborationRequest,
-    workspace.resourceId,
+  const user = await internalSignupUser(
+    context,
     {
-      message:
-        'System-generated collaboration request ' +
-        "to the system-generated workspace that manages File's " +
-        'own operations',
-      workspaceName: workspace.name,
-      recipientEmail: userEmail,
-      status: CollaborationRequestStatusType.Pending,
-      statusDate: getTimestamp(),
-    }
+      email: context.appVariables.rootUserEmail,
+      firstName: context.appVariables.rootUserFirstName,
+      lastName: context.appVariables.rootUserLastName,
+      password: getNewId(),
+    },
+    {requiresPasswordChange: true}
   );
-  await context.semantic.collaborationRequest.insertItem(request, opts);
   await addAssignedPermissionGroupList(
     context,
     SYSTEM_SESSION_AGENT,
     workspace.resourceId,
     [{permissionGroupId: adminPermissionGroupId}],
-    request.resourceId,
+    user.resourceId,
     /** deleteExisting */ false,
     /** skipPermissionGroupsExistCheck */ true,
     /** skip auth check */ true,
     opts
+  );
+  await forgotPassword(
+    context,
+    new RequestData<ForgotPasswordEndpointParams>({data: {email: user.email}})
   );
 }
 
@@ -207,14 +204,8 @@ export async function setupApp(context: IBaseContext) {
       opts
     );
 
-    const [u1, {workspaceImagesFolder, userImagesFolder}] = await Promise.all([
-      setupDefaultUserCollaborationRequest(
-        context,
-        workspace,
-        context.appVariables.defaultUserEmailAddress,
-        adminPermissionGroup.resourceId,
-        opts
-      ),
+    const [user, {workspaceImagesFolder, userImagesFolder}] = await Promise.all([
+      setupDefaultUser(context, workspace, adminPermissionGroup.resourceId, opts),
       setupFolders(context, workspace, opts),
     ]);
 

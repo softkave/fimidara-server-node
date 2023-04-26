@@ -44,6 +44,7 @@
 - [ ] Client API updates including sdk
 - [ ] Docs update
 - [ ] Revamp UI
+- [ ] Test session context getAgent scope
 
 ## Later
 

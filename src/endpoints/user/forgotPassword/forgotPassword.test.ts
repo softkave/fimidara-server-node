@@ -20,7 +20,7 @@ import forgotPassword, {
   getForgotPasswordExpiration,
   getForgotPasswordLinkFromToken,
 } from './forgotPassword';
-import {IForgotPasswordEndpointParams} from './types';
+import {ForgotPasswordEndpointParams} from './types';
 
 /**
  * TODO:
@@ -41,7 +41,7 @@ afterAll(async () => {
 test('forgot password with email sent', async () => {
   assertContext(context);
   const {user} = await insertUserForTest(context);
-  const instData = RequestData.fromExpressRequest<IForgotPasswordEndpointParams>(
+  const instData = RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
     mockExpressRequest(),
     {email: user.email}
   );

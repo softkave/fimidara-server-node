@@ -1,5 +1,5 @@
 import {NotFoundError} from '../endpoints/errors';
-import {InvalidCredentialsError} from '../endpoints/user/errors';
+import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/user/errors';
 import {appMessages} from './messages';
 
 export const reuseableErrors = {
@@ -16,6 +16,9 @@ export const reuseableErrors = {
   user: {
     notFound(id?: string) {
       return new NotFoundError(appMessages.user.notFound(id));
+    },
+    changePassword() {
+      return new ChangePasswordError();
     },
   },
   permissionGroup: {

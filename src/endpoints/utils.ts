@@ -30,12 +30,7 @@ import {IBaseContext, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
-import {
-  DeleteResourceCascadeFnsMap,
-  Endpoint,
-  IPaginationQuery,
-  IRequestDataPendingPromise,
-} from './types';
+import {DeleteResourceCascadeFnsMap, Endpoint, IPaginationQuery} from './types';
 import {PermissionDeniedError} from './user/errors';
 
 export function getPublicErrors(inputError: any) {
@@ -119,14 +114,6 @@ export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResource
   createdBy: agentExtractor,
   lastUpdatedBy: agentExtractor,
 };
-
-export async function waitForWorks(works: IRequestDataPendingPromise[]) {
-  await Promise.all(
-    works.map(item => {
-      return item.promise;
-    })
-  );
-}
 
 export function throwNotFound() {
   throw new NotFoundError();

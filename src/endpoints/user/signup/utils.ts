@@ -10,7 +10,11 @@ import {IBaseContext} from '../../contexts/types';
 import {EmailAddressNotAvailableError} from '../errors';
 import {ISignupEndpointParams} from './types';
 
-export const internalSignupUser = async (context: IBaseContext, data: ISignupEndpointParams) => {
+export const internalSignupUser = async (
+  context: IBaseContext,
+  data: ISignupEndpointParams,
+  otherParams: Pick<IUser, 'requiresPasswordChange'> = {}
+) => {
   const userExists = await context.semantic.user.existsByEmail(data.email);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
@@ -28,6 +32,7 @@ export const internalSignupUser = async (context: IBaseContext, data: ISignupEnd
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
+    ...otherParams,
   });
 
   await MemStore.withTransaction(context, async txn => {

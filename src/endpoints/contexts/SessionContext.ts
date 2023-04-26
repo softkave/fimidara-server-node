@@ -75,6 +75,7 @@ export default class SessionContext implements ISessionContext {
         appAssert(agentToken.separateEntityId);
         user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
         appAssert(user, reuseableErrors.user.notFound());
+        appAssert(!user.requiresPasswordChange, reuseableErrors.user.changePassword());
       }
 
       if (permittedAgentTypes?.length) {
@@ -85,12 +86,10 @@ export default class SessionContext implements ISessionContext {
         if (!permittedAgent) throw new PermissionDeniedError();
       }
 
-      if (tokenAccessScope) {
+      if (tokenAccessScope)
         ctx.session.tokenContainsTokenAccessScope(ctx, agentToken, tokenAccessScope);
-      }
 
       if (user) {
-        appAssert(user, new ServerError());
         return (data.agent = makeUserSessionAgent(user, agentToken));
       } else if (agentToken) {
         return (data.agent = makeAgentTokenAgent(agentToken));

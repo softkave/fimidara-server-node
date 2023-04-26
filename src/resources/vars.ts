@@ -74,7 +74,9 @@ export enum AppEnvVariables {
   AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
   AWS_REGION = 'AWS_REGION',
-  DEFAULT_USER_EMAIL_ADDRESS = 'DEFAULT_USER_EMAIL_ADDRESS',
+  ROOT_USER_EMAIL = 'ROOT_USER_EMAIL',
+  ROOT_USER_FIRST_NAME = 'ROOT_USER_FIRST_NAME',
+  ROOT_USER_LAST_NAME = 'ROOT_USER_LAST_NAME',
   FILE_BACKEND = 'FILE_BACKEND',
 }
 
@@ -96,7 +98,9 @@ interface ISuppliedVariables {
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   awsRegion: string;
-  defaultUserEmailAddress: string;
+  rootUserEmail: string;
+  rootUserFirstName: string;
+  rootUserLastName: string;
   fileBackend: FileBackendType;
 }
 
@@ -181,8 +185,16 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     required: true,
     name: AppEnvVariables.AWS_REGION,
   },
-  defaultUserEmailAddress: {
-    name: AppEnvVariables.DEFAULT_USER_EMAIL_ADDRESS,
+  rootUserEmail: {
+    name: AppEnvVariables.ROOT_USER_EMAIL,
+    required: true,
+  },
+  rootUserFirstName: {
+    name: AppEnvVariables.ROOT_USER_FIRST_NAME,
+    required: true,
+  },
+  rootUserLastName: {
+    name: AppEnvVariables.ROOT_USER_LAST_NAME,
     required: true,
   },
   fileBackend: {

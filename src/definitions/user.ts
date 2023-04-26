@@ -11,6 +11,7 @@ export interface IUser extends IResource {
   email: string;
   hash: string;
   passwordLastChangedAt: number;
+  requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number | null;
   emailVerificationEmailSentAt?: number | null;
@@ -27,6 +28,7 @@ export type IPublicUserData = IPublicResource &
     | 'firstName'
     | 'lastName'
     | 'passwordLastChangedAt'
+    | 'requiresPasswordChange'
     | 'isEmailVerified'
     | 'emailVerifiedAt'
     | 'emailVerificationEmailSentAt'

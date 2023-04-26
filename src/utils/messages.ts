@@ -16,6 +16,9 @@ export const appMessages = {
     notFound(id?: string) {
       return id ? `User with ID ${id} not found.` : 'User not found.';
     },
+    changePassword() {
+      return 'Please change your password to continue.';
+    },
   },
   permissionGroup: {
     notFound(id?: string) {

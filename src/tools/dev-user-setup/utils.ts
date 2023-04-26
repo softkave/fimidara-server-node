@@ -39,22 +39,29 @@ import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
-export interface IPromptEmailAnswers {
+export interface PromptEmailAnswers {
   email: string;
 }
 
-export interface IPromptUserInfoAnswers {
+export interface PromptUserInfoAnswers {
   firstName: string;
   lastName: string;
   password: string;
 }
 
-export interface ISetupDevUserOptions {
-  getUserEmail?: () => Promise<IPromptEmailAnswers>;
-  getUserInfo?: () => Promise<IPromptUserInfoAnswers>;
+export interface PromptUserPasswordAnswers {
+  password: string;
 }
 
-type AppRuntimeOptions = Required<Pick<ISetupDevUserOptions, 'getUserEmail' | 'getUserInfo'>>;
+export interface ISetupDevUserOptions {
+  getUserEmail?: () => Promise<PromptEmailAnswers>;
+  getUserInfo?: () => Promise<PromptUserInfoAnswers>;
+  getUserPassword?: () => Promise<PromptUserPasswordAnswers>;
+}
+
+type AppRuntimeOptions = Required<
+  Pick<ISetupDevUserOptions, 'getUserEmail' | 'getUserInfo' | 'getUserPassword'>
+>;
 
 async function setupContext() {
   const appVariables = getAppVariables(extractProdEnvsSchema);
@@ -90,7 +97,7 @@ async function promptEmail() {
     },
   ]);
 
-  return answers as IPromptEmailAnswers;
+  return answers as PromptEmailAnswers;
 }
 
 async function promptUserInfo() {
@@ -112,7 +119,19 @@ async function promptUserInfo() {
     },
   ]);
 
-  return answers as IPromptUserInfoAnswers;
+  return answers as PromptUserInfoAnswers;
+}
+
+async function promptUserPassword() {
+  const answers = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'password',
+      message: 'Enter your password:',
+    },
+  ]);
+
+  return answers as PromptUserPasswordAnswers;
 }
 
 async function isUserAdmin(
@@ -174,6 +193,7 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
   const appOptions: AppRuntimeOptions = {
     getUserEmail: promptEmail,
     getUserInfo: promptUserInfo,
+    getUserPassword: promptUserPassword,
     ...options,
   };
 
@@ -190,6 +210,15 @@ export async function setupDevUser(options: ISetupDevUserOptions = {}) {
       assertPermissionGroup(adminPermissionGroup);
 
       const user = await getUser(context, appOptions);
+
+      if (user.requiresPasswordChange) {
+        await context.semantic.user.updateOneById(
+          user.resourceId,
+          {requiresPasswordChange: false},
+          opts
+        );
+      }
+
       const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
 
       if (isInWorkspace) {
