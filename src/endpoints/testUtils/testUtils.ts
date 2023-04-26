@@ -5,12 +5,8 @@ import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {
-  AppVariables,
-  FileBackendType,
-  extractEnvVariables,
-  extractProdEnvsSchema,
-} from '../../resources/vars';
+import {AppVariables, FileBackendType} from '../../resources/types';
+import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';

@@ -8,7 +8,7 @@ import {
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
-import {newResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/resource';
 import {MemStore} from '../../contexts/mem/Mem';
 import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';

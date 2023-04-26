@@ -17,13 +17,15 @@ import {
 } from './endpoints/contexts/utils';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {fileConstants} from './endpoints/files/constants';
-import {consoleLogger, logger} from './endpoints/globalUtils';
+import {getConsoleLogger, getLogger} from './endpoints/globalUtils';
 import {startJobRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
 
+const logger = getLogger();
+const consoleLogger = getConsoleLogger();
 logger.info('server initialization');
 
 const app = express();

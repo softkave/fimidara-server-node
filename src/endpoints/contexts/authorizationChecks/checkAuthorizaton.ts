@@ -16,7 +16,7 @@ import {ServerError} from '../../../utils/errors';
 import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
-import {logger} from '../../globalUtils';
+import {getLogger} from '../../globalUtils';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {BaseContextType} from '../types';
@@ -83,7 +83,7 @@ function newAccessChecker(
     targetType: AppResourceType,
     targetId?: string
   ) => {
-    logger.error(
+    getLogger().error(
       `Conflicting permission items ${accessItem.resourceId} and ${denyItem.resourceId} when resolving action ${action} for target type ${targetType} and target ID ${targetId}.`
     );
   };

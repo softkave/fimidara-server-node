@@ -9,9 +9,9 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {extractResourceIdList, newWorkspaceResource, toNonNullableArray} from '../../../utils/fns';
+import {extractResourceIdList, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {getResourceTypeFromId} from '../../../utils/resource';
+import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {
   sortOutPermissionItems,
   uniquePermissionItems,

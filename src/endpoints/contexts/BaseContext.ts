@@ -1,6 +1,6 @@
 import {forEach} from 'lodash';
 import {Logger} from 'winston';
-import {AppVariables, FileBackendType} from '../../resources/vars';
+import {AppVariables, FileBackendType} from '../../resources/types';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {IEmailProviderContext} from './EmailProviderContext';
@@ -9,7 +9,7 @@ import {
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
-import SessionContext from './SessionContext';
+import SessionContext, {SessionContextType} from './SessionContext';
 import {MemStoreType} from './mem/types';
 import {
   BaseContextDataProviders,
@@ -36,7 +36,7 @@ export default class BaseContext<
   memstore: MemStore;
   logic: Logic;
   semantic: SemanticData;
-  session: SessionContext = new SessionContext();
+  session: SessionContextType = new SessionContext();
   clientLogger: Logger = loggerFactory({
     transports: ['mongodb'],
     meta: {service: FimidaraLoggerServiceNames.WebClient},

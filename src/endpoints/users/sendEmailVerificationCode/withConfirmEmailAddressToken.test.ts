@@ -7,8 +7,7 @@ import {
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
-import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
+import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';

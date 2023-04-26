@@ -1,5 +1,5 @@
 import {format} from 'date-fns';
-import {AppEnvVariables, AppVariables, FileBackendType} from '../resources/vars';
+import {AppEnvVariables, AppVariables, FileBackendType} from '../resources/types';
 
 export function addTestAWSBucket(vars: AppVariables, testType = 'test') {
   let bucketName = vars.S3Bucket;

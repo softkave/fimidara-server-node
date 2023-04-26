@@ -1,6 +1,6 @@
 import {format} from 'date-fns';
 import mongoose from 'mongoose';
-import {AppEnvVariables, AppVariables} from '../resources/vars';
+import {AppEnvVariables, AppVariables} from '../resources/types';
 
 export async function setupMongoDb(vars: Partial<AppVariables>, testType = 'test') {
   let dbName = vars.mongoDbDatabaseName;

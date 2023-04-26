@@ -1,12 +1,20 @@
 import {invert} from 'lodash';
 import {nanoid} from 'nanoid';
-import {AppResourceType} from '../definitions/system';
+import {
+  Agent,
+  AppResourceType,
+  Resource,
+  SessionAgent,
+  WorkspaceResource,
+} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 import OperationError, {
-  getErrorMessageFromParams,
   OperationErrorParameters,
+  getErrorMessageFromParams,
 } from './OperationError';
-import {InvertRecord} from './types';
+import {getTimestamp} from './dateFns';
+import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
+import {AnyObject, InvertRecord} from './types';
 
 export const RESOURCE_TYPE_SHORT_NAME_MAX_LEN = 7;
 export const RESOURCE_TYPE_SHORT_NAME_PADDING = '0';
@@ -105,4 +113,37 @@ export function getResourceTypeFromId(id: string) {
     throw new InvalidResourceIdError();
   }
   return type;
+}
+
+export function newResource<T extends AnyObject>(
+  type: AppResourceType,
+  seed?: Omit<T, keyof Resource> & Partial<Resource>
+): Resource & T {
+  const createdAt = getTimestamp();
+  return {
+    createdAt,
+    resourceId: getNewIdForResource(type),
+    lastUpdatedAt: createdAt,
+    ...seed,
+  } as Resource & T;
+}
+
+export function newWorkspaceResource<T extends AnyObject>(
+  agent: Agent | SessionAgent,
+  type: AppResourceType,
+  workspaceId: string,
+  seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
+): WorkspaceResource & T {
+  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
+  const createdAt = getTimestamp();
+  const item: WorkspaceResource = {
+    createdBy,
+    createdAt,
+    workspaceId,
+    resourceId: getNewIdForResource(type),
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
+    ...seed,
+  };
+  return item as T & WorkspaceResource;
 }

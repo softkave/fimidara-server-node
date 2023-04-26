@@ -15,7 +15,7 @@ import {
   getSemanticDataProviders,
   ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
-import {consoleLogger} from '../../endpoints/globalUtils';
+import {getConsoleLogger} from '../../endpoints/globalUtils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
@@ -105,6 +105,7 @@ export async function setupSDKTestReq() {
     return {workspace, token, tokenStr};
   });
 
+  const consoleLogger = getConsoleLogger();
   consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
   consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);
   consoleLogger.info(`Program access token ID: ${token.resourceId}`);

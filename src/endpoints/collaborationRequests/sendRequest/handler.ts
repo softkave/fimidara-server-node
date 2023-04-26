@@ -12,7 +12,7 @@ import {
 } from '../../../emailTemplates/collaborationRequest';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {newWorkspaceResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';

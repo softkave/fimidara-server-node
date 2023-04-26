@@ -1,6 +1,6 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
-import {newWorkspaceResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {MemStore} from '../../contexts/mem/Mem';

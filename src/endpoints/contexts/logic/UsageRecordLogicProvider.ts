@@ -9,8 +9,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {newWorkspaceResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
+import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';

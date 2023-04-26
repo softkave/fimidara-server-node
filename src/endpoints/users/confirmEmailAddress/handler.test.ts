@@ -6,7 +6,7 @@ import {
   TokenAccessScope,
 } from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
-import {newResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';

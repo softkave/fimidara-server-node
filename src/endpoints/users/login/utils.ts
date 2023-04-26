@@ -8,7 +8,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {newResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';

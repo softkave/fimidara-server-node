@@ -8,13 +8,13 @@ import {
 import {AppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {newResource} from '../../utils/fns';
+import {newResource} from '../../utils/resource';
 import {DELETE_AGENT_TOKEN_CASCADE_FNS} from '../agentTokens/deleteToken/handler';
 import {DELETE_COLLABORATION_REQUEST_CASCADE_FNS} from '../collaborationRequests/deleteRequest/handler';
 import {BaseContextType} from '../contexts/types';
 import {DELETE_FILE_CASCADE_FNS} from '../files/deleteFile/handler';
 import {DELETE_FOLDER_CASCADE_FNS} from '../folders/deleteFolder/handler';
-import {logger} from '../globalUtils';
+import {getLogger} from '../globalUtils';
 import {DELETE_PERMISSION_GROUP_CASCADE_FNS} from '../permissionGroups/deletePermissionGroup/handler';
 import {DELETE_PERMISSION_ITEMS_CASCADE_FNS} from '../permissionItems/deleteItems/utils';
 import {DELETE_TAG_CASCADE_FNS} from '../tags/deleteTag/handler';
@@ -51,7 +51,7 @@ export async function startJobRunner(context: BaseContextType) {
       if (index !== -1) pendingJobsIdList.splice(index, 1);
       if (nextJob.createdAt > lastTimestamp) lastTimestamp = nextJob.createdAt;
     } catch (error: unknown) {
-      logger.error(error);
+      getLogger().error(error);
     }
   }
 }
@@ -82,7 +82,7 @@ async function jobRunner(context: BaseContextType, job: Job) {
     );
   } catch (error: unknown) {
     // TODO: different parts of the app should have their own tagged loggers
-    logger.error(error);
+    getLogger().error(error);
     await context.data.job.updateOneByQuery(
       {resourceId: job.resourceId},
       {status: JobStatus.Failed, errorTimestamp: getTimestamp()}

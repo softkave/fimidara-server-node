@@ -1,4 +1,4 @@
-import {consoleLogger} from '../../endpoints/globalUtils';
+import {getConsoleLogger} from '../../endpoints/globalUtils';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
@@ -7,6 +7,7 @@ import {
   renderForgotPasswordMedia,
 } from './renderToFile';
 
+const consoleLogger = getConsoleLogger();
 consoleLogger.info('Writing templates');
 renderConfirmEmailAddressMedia();
 renderForgotPasswordMedia();

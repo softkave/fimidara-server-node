@@ -7,7 +7,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {AppVariables} from '../../resources/vars';
+import {AppVariables} from '../../resources/types';
 import {endpointConstants} from '../constants';
 
 export interface FilePersistenceUploadFileParams {

@@ -1,5 +1,5 @@
 import {Dictionary, map} from 'lodash';
-import {logger} from '../endpoints/globalUtils';
+import {getLogger} from '../endpoints/globalUtils';
 
 export interface IPromiseWithId<T = any> {
   promise: Promise<T>;
@@ -78,7 +78,7 @@ export function logRejectedPromisesAndThrow(p: PromiseSettledResult<any>[]) {
 
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      logger.error(p.reason);
+      getLogger().error(p.reason);
     });
     throw new Error('One or more promises rejected');
   }

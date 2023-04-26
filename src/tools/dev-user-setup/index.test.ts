@@ -29,9 +29,10 @@ const appOptions: ISetupDevUserOptions = {
     }),
 };
 
-describe('dev user setup', async () => {
+describe('dev user setup', () => {
   test('dev user setup', async () => {
-    await setupDevUser(appOptions);
+    assert(context);
+    await setupDevUser(context, appOptions);
   });
 
   test('changes user password if user requires password change', async () => {
@@ -41,7 +42,7 @@ describe('dev user setup', async () => {
       requiresPasswordChange: true,
       email: userEmail.email,
     }));
-    await setupDevUser({
+    await setupDevUser(context, {
       ...appOptions,
       getUserEmail: () => Promise.resolve({email: userEmail.email}),
     });

@@ -1,5 +1,6 @@
 import {
   ISetupDevUserOptions,
+  devUserSetupInitContext,
   devUserSetupPromptEmail,
   devUserSetupPromptUserInfo,
   devUserSetupPromptUserPassword,
@@ -12,4 +13,11 @@ const appOptions: ISetupDevUserOptions = {
   getUserPassword: devUserSetupPromptUserPassword,
 };
 
-setupDevUser(appOptions);
+async function main() {
+  const context = await devUserSetupInitContext();
+  await setupDevUser(context, appOptions);
+}
+
+main()
+  .then(() => console.log('dev user setup complete'))
+  .catch(console.error.bind(console));

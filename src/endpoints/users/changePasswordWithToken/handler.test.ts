@@ -7,7 +7,7 @@ import {
 } from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {newResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
@@ -21,12 +21,12 @@ import {
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {ChangePasswordEndpointParams} from '../changePassword/types';
 import {userConstants} from '../constants';
 import login from '../login/login';
 import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
 import changePasswordWithToken from './handler';
+import {ChangePasswordWithTokenEndpointParams} from './types';
 
 /**
  * TODO:
@@ -69,7 +69,7 @@ async function changePasswordWithTokenTest() {
   );
   const result = await changePasswordWithToken(
     context,
-    RequestData.fromExpressRequest<ChangePasswordEndpointParams>(
+    RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),
       {password: newPassword}
     )

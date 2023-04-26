@@ -2,7 +2,7 @@ import {defaultTo, omit} from 'lodash';
 import {AgentToken} from '../../../definitions/agentToken';
 import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {newWorkspaceResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';

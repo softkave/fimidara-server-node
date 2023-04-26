@@ -42,6 +42,7 @@ const user = FieldObject.construct<PublicUser>()
     lastName: FieldObject.requiredField(fReusables.lastName),
     email: FieldObject.requiredField(fReusables.emailAddress),
     passwordLastChangedAt: FieldObject.requiredField(fReusables.date),
+    requiresPasswordChange: FieldObject.optionalField(FieldBoolean.construct()),
     isEmailVerified: FieldObject.requiredField(FieldBoolean.construct()),
     emailVerifiedAt: FieldObject.optionalField(fReusables.date),
     emailVerificationEmailSentAt: FieldObject.optionalField(fReusables.date),

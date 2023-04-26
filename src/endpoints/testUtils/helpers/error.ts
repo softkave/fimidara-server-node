@@ -12,7 +12,10 @@ export function assertErrorHasName(error: any, expectedErrorNames: string[]) {
     }
   });
 
-  assert(missingTypes.length === 0, new Error(`${missingTypes.join(', ')} not found in ${error}`));
+  assert(
+    missingTypes.length === 0,
+    new Error(`${missingTypes.join(', ')} not found in \n${JSON.stringify(error, null, 4)}`)
+  );
 }
 
 export async function expectErrorThrown(fn: AnyFn, expectedErrorNames?: string[]) {

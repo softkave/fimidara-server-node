@@ -1,6 +1,6 @@
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {newWorkspaceResource} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';

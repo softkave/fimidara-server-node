@@ -1,8 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
-import {newResource} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
+import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 

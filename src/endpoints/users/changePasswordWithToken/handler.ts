@@ -1,37 +1,28 @@
-import assert from 'assert';
-import {TokenAccessScope} from '../../../definitions/system';
+import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {assertAgentToken} from '../../agentTokens/utils';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {changePasswordJoiSchema} from '../changePassword/validation';
-import {completeChangePassword} from '../changePasswordWithCurrentPassword/handler';
 import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {assertUser, userExtractor} from '../utils';
 import {ChangePasswordWithTokenEndpoint} from './types';
+import {INTERNAL_changePassword} from './utils';
+import {changePasswordWithTokenJoiSchema} from './validation';
 
-const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context, instData) => {
-  const data = validate(instData.data, changePasswordJoiSchema);
-  const userToken = await context.semantic.agentToken.getOneById(
-    // It's okay to disable this check because incomingTokenData exists cause of
-    // the assertIncomingToken check
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    instData.incomingTokenData!.sub.id
+const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context, reqData) => {
+  const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
+  const agent = await context.session.getAgent(
+    context,
+    reqData,
+    [AppResourceType.User],
+    [TokenAccessScope.ChangePassword]
   );
 
-  assertAgentToken(userToken);
-  const canChangePasswordWithToken = context.session.tokenContainsScope(userToken, [
-    TokenAccessScope.ChangePassword,
-    TokenAccessScope.Login,
-  ]);
+  if (!agent.agentToken?.expires) throw new InvalidCredentialsError();
+  if (Date.now() > agent.agentToken.expires) throw new CredentialsExpiredError();
 
-  if (!canChangePasswordWithToken || !userToken.expires) throw new InvalidCredentialsError();
-  if (Date.now() > userToken.expires) throw new CredentialsExpiredError();
-
-  assert(userToken.separateEntityId);
-  let user = await context.semantic.user.getOneById(userToken.separateEntityId);
+  let user = agent.user;
   assertUser(user);
-  const result = await completeChangePassword(context, instData, user, data.password);
+  const result = await INTERNAL_changePassword(context, reqData, user.resourceId, data);
 
   // Verify user email address since the only way to change password
   // with token is to use the link sent to the user email address

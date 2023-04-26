@@ -9,7 +9,7 @@ import {
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
-import {newResource} from '../../../utils/fns';
+import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';

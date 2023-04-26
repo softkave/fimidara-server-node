@@ -4,9 +4,13 @@ import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
 import {Agent, AppActionType, AppResourceType} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
-import {makeKey, newWorkspaceResource} from '../../utils/fns';
+import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {getNewIdForResource, getResourceTypeFromId} from '../../utils/resource';
+import {
+  getNewIdForResource,
+  getResourceTypeFromId,
+  newWorkspaceResource,
+} from '../../utils/resource';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';

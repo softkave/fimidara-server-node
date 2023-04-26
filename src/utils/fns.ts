@@ -1,14 +1,5 @@
 import {compact, flatten} from 'lodash';
-import {
-  Agent,
-  AppResourceType,
-  Resource,
-  SessionAgent,
-  WorkspaceResource,
-} from '../definitions/system';
-import {getTimestamp} from './dateFns';
-import {getNewIdForResource} from './resource';
-import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
+import {Resource} from '../definitions/system';
 import {AnyFn, AnyObject} from './types';
 
 export function cast<ToType>(resource: any): ToType {
@@ -151,39 +142,6 @@ export function toCompactArray<T>(...args: Array<T | T[]>) {
 
 export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
   return array.length ? array : toCompactArray(data);
-}
-
-export function newResource<T extends AnyObject>(
-  type: AppResourceType,
-  seed?: Omit<T, keyof Resource> & Partial<Resource>
-): Resource & T {
-  const createdAt = getTimestamp();
-  return {
-    createdAt,
-    resourceId: getNewIdForResource(type),
-    lastUpdatedAt: createdAt,
-    ...seed,
-  } as Resource & T;
-}
-
-export function newWorkspaceResource<T extends AnyObject>(
-  agent: Agent | SessionAgent,
-  type: AppResourceType,
-  workspaceId: string,
-  seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
-): WorkspaceResource & T {
-  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
-  const createdAt = getTimestamp();
-  const item: WorkspaceResource = {
-    createdBy,
-    createdAt,
-    workspaceId,
-    resourceId: getNewIdForResource(type),
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
-    ...seed,
-  };
-  return item as T & WorkspaceResource;
 }
 
 export function loop(count = 1, fn: AnyFn) {

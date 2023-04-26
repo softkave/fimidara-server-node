@@ -1,4 +1,5 @@
 import * as jwt from 'jsonwebtoken';
+import {first} from 'lodash';
 import {AgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
@@ -13,7 +14,7 @@ import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast, toArray, toNonNullableArray} from '../../utils/fns';
+import {cast, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
@@ -60,51 +61,32 @@ export default class SessionContext implements SessionContextType {
     ],
     tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScope.Login
   ) => {
-    if (data.agent) {
-      return data.agent;
-    }
-
-    let user: User | null = null;
     const incomingTokenData = data.incomingTokenData;
+    let agent: SessionAgent | null | undefined = data.agent;
 
-    if (incomingTokenData) {
-      const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
-      appAssert(agentToken, new InvalidCredentialsError());
+    if (!agent) {
+      if (incomingTokenData) {
+        const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
+        appAssert(agentToken, new InvalidCredentialsError());
 
-      if (agentToken.agentType === AppResourceType.User) {
-        appAssert(agentToken.separateEntityId);
-        user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
-        appAssert(user, reuseableErrors.user.notFound());
-
-        if (!ctx.session.tokenContainsScope(agentToken, tokenAccessScope)) {
-          throw new PermissionDeniedError();
+        if (agentToken.agentType === AppResourceType.User) {
+          appAssert(agentToken.separateEntityId);
+          const user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
+          appAssert(user, reuseableErrors.user.notFound());
+          agent = makeUserSessionAgent(user, agentToken);
+        } else {
+          agent = makeWorkspaceAgentTokenAgent(agentToken);
         }
-
-        if (
-          user.requiresPasswordChange &&
-          !this.tokenContainsScope(agentToken, TokenAccessScope.ChangePassword)
-        ) {
-          throw reuseableErrors.user.changePassword();
-        }
-      }
-
-      if (permittedAgentTypes?.length) {
-        const permittedAgent = toNonNullableArray(permittedAgentTypes).find(
-          type => type === agentToken.agentType
-        );
-
-        if (!permittedAgent) throw new PermissionDeniedError();
-      }
-
-      if (user) {
-        return (data.agent = makeUserSessionAgent(user, agentToken));
-      } else if (agentToken) {
-        return (data.agent = makeWorkspaceAgentTokenAgent(agentToken));
+      } else {
+        agent = PUBLIC_SESSION_AGENT;
       }
     }
 
-    appAssert(permittedAgentTypes.includes(AppResourceType.Public), new PermissionDeniedError());
-    return PUBLIC_SESSION_AGENT;
+    this.checkPermittedAgentTypes(agent, permittedAgentTypes);
+    this.checkAgentTokenAccessScope(ctx, agent, tokenAccessScope);
+    this.checkRequiresPasswordChange(agent, tokenAccessScope);
+
+    return agent;
   };
 
   getUser = async (
@@ -157,4 +139,47 @@ export default class SessionContext implements SessionContextType {
 
     return jwt.sign(payload, ctx.appVariables.jwtSecret);
   };
+
+  private checkPermittedAgentTypes(
+    agent: SessionAgent,
+    permittedAgentTypes?: AppResourceType | AppResourceType[]
+  ) {
+    if (permittedAgentTypes?.length) {
+      const permittedAgent = toArray(permittedAgentTypes).find(type => type === agent.agentType);
+
+      if (!permittedAgent) throw new PermissionDeniedError();
+    }
+  }
+
+  private checkAgentTokenAccessScope(
+    ctx: BaseContextType,
+    agent: SessionAgent,
+    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+  ) {
+    if (tokenAccessScope && agent.agentType === AppResourceType.User && agent.agentToken) {
+      if (!ctx.session.tokenContainsScope(agent.agentToken, tokenAccessScope))
+        throw new PermissionDeniedError();
+    }
+  }
+
+  private checkRequiresPasswordChange(
+    agent: SessionAgent,
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
+  ) {
+    if (agent.agentType === AppResourceType.User) {
+      appAssert(agent.user);
+      if (agent.user.requiresPasswordChange) {
+        const scopeList = toArray(tokenAccessScope);
+        const agentToken = agent.agentToken;
+        if (
+          !agentToken ||
+          !this.tokenContainsScope(agentToken, TokenAccessScope.ChangePassword) ||
+          // Action must be strictly change password
+          first(scopeList) !== TokenAccessScope.ChangePassword ||
+          scopeList.length > 1
+        )
+          throw reuseableErrors.user.changePassword();
+      }
+    }
+  }
 }

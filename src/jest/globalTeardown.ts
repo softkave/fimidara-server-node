@@ -7,13 +7,8 @@ import {
 import mongoose from 'mongoose';
 import {disposeApplicationGlobalUtilities} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
-import {
-  AppVariables,
-  ExtractEnvSchema,
-  FileBackendType,
-  extractEnvVariables,
-  extractProdEnvsSchema,
-} from '../resources/vars';
+import {AppVariables, ExtractEnvSchema, FileBackendType} from '../resources/types';
+import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
 import {jestLogger} from './logger';
 import _ = require('lodash');
 
