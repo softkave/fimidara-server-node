@@ -675,7 +675,7 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
   protected waitingOnLocks: Array<LockWaiter> = [];
   protected currentLocks: PartialRecord<number, LockInfo> = {};
   protected locksCount = 0;
-  protected releaseLockHandle_timeout: NodeJS.Timeout | undefined = undefined;
+  protected releaseLocksHandle_timeout: NodeJS.Timeout | undefined = undefined;
   protected releaseTimedoutLocksHandle_timeout: NodeJS.Timeout | undefined = undefined;
 
   constructor(
@@ -862,15 +862,14 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
       }
     });
 
-    if (!this.releaseLockHandle_timeout) {
-      this.releaseLockHandle_timeout = setTimeout(this.clearFnsWaitingOnReleasedLocks, 0);
+    if (!this.releaseLocksHandle_timeout) {
+      this.releaseLocksHandle_timeout = setTimeout(this.clearFnsWaitingOnReleasedLocks, 0);
     }
   }
 
   dispose(): void {
-    if (this.releaseLockHandle_timeout) clearTimeout(this.releaseLockHandle_timeout);
-    if (this.releaseTimedoutLocksHandle_timeout)
-      clearTimeout(this.releaseTimedoutLocksHandle_timeout);
+    clearTimeout(this.releaseLocksHandle_timeout);
+    clearTimeout(this.releaseTimedoutLocksHandle_timeout);
 
     // this.indexes = [];
     // this.itemsMap = {};
@@ -1147,7 +1146,7 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     });
 
     this.waitingOnLocks = remainingWaiters.concat(this.waitingOnLocks);
-    this.releaseLockHandle_timeout = undefined;
+    this.releaseLocksHandle_timeout = undefined;
   };
 
   protected addTableLock(
@@ -1510,14 +1509,20 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     transaction: MemStoreTransactionType | undefined
   ) {
     let indexMatchRemainingQuery: LiteralDataQuery<T> = {};
-    const matchedItemsMapList: Array<Record<string, T>> = [];
+    const matchedItemsMapList: Array<{
+      idMap: Record<string, T>;
+      estimatedLength: number;
+    }> = [];
     let goodRun = false;
     const resourceIdMatch = this.matchResourceId(query, transaction);
 
     if (resourceIdMatch) {
       if (resourceIdMatch.goodRun) {
         goodRun = true;
-        matchedItemsMapList.push(resourceIdMatch.matchedItems);
+        matchedItemsMapList.push({
+          idMap: resourceIdMatch.matchedItems,
+          estimatedLength: Object.values(resourceIdMatch.matchedItems).length,
+        });
       }
       query = resourceIdMatch.remainingQuery;
     }
@@ -1559,12 +1564,16 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
           (nextOpKeyTyped === '$lowercaseEq' && index.getOptions().caseInsensitive) ||
           (nextOpKeyTyped === '$lowercaseIn' && index.getOptions().caseInsensitive)
         ) {
-          const matchedItems01: Record<string, T> = {};
-          matchedItemsMapList.push(matchedItems01);
+          const nextMatchedItemsMap: {
+            idMap: Record<string, T>;
+            estimatedLength: number;
+          } = {idMap: {}, estimatedLength: 0};
+          matchedItemsMapList.push(nextMatchedItemsMap);
           const idList = index.indexGet(nextOpKeyValue, transaction);
+          nextMatchedItemsMap.estimatedLength = idList.length;
           idList.forEach(id => {
             const item = this.getItem(id, transaction);
-            if (item) matchedItems01[item.resourceId] = item;
+            if (item) nextMatchedItemsMap.idMap[item.resourceId] = item;
           });
           goodRun = true;
           continue;
@@ -1574,9 +1583,13 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
       }
     }
 
-    const matchedItems = Object.values(matchedItemsMapList[0] ?? {}).filter(item => {
+    const smallestMap = matchedItemsMapList.reduce((selected, next) => {
+      return next.estimatedLength > selected.estimatedLength ? next : selected;
+    }, matchedItemsMapList[0]);
+
+    const matchedItems = Object.values(smallestMap.idMap ?? {}).filter(item => {
       for (let i = 1; i < matchedItemsMapList.length; i++) {
-        if (!matchedItemsMapList[i][item.resourceId]) return false;
+        if (!matchedItemsMapList[i].idMap[item.resourceId]) return false;
       }
       return true;
     });
