@@ -9,7 +9,7 @@ import {
   getLoginSectionText,
 } from './helpers';
 
-export interface IUsageExceededEmailProps {
+export interface UsageExceededEmailProps {
   loginLink: string;
   workspaceName: string;
   message: string;
@@ -19,7 +19,7 @@ export function usageExceededEmailTitle(workspaceName: string) {
   return `Usage Exceeded in ${workspaceName}`;
 }
 
-export function usageExceededEmailHTML(props: IUsageExceededEmailProps) {
+export function usageExceededEmailHTML(props: UsageExceededEmailProps) {
   const title = usageExceededEmailTitle(props.workspaceName);
   return `
 <!DOCTYPE html>
@@ -43,7 +43,7 @@ export function usageExceededEmailHTML(props: IUsageExceededEmailProps) {
     `;
 }
 
-export function usageExceededEmailText(props: IUsageExceededEmailProps) {
+export function usageExceededEmailText(props: UsageExceededEmailProps) {
   const title = usageExceededEmailTitle(props.workspaceName);
   const txt = `
 ${getHeaderText(title)}

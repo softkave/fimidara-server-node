@@ -1,15 +1,15 @@
 import {toNonNullableArray} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {disposeApplicationGlobalUtilities} from '../../globalUtils';
 import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
 
 export function mutationTest(
-  context: IBaseContext,
+  context: BaseContextType,
   name: string,
-  fn: AnyFn<[ISemanticDataAccessProviderMutationRunOptions]>,
+  fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
   timeout?: number
 ) {
   executeWithMutationRunOptions(context, async options => {
@@ -17,10 +17,10 @@ export function mutationTest(
   });
 }
 
-export function setupMutationTesting(context: IBaseContext) {
+export function setupMutationTesting(context: BaseContextType) {
   async function mutationTest(
     name: string,
-    fn: AnyFn<[ISemanticDataAccessProviderMutationRunOptions]>,
+    fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
     timeout?: number
   ) {
     executeWithMutationRunOptions(context, async options => {
@@ -33,7 +33,7 @@ export function setupMutationTesting(context: IBaseContext) {
 
 export async function completeTest(
   props: {
-    context?: (IBaseContext | null) | Array<IBaseContext | null>;
+    context?: (BaseContextType | null) | Array<BaseContextType | null>;
   } = {}
 ) {
   const {context} = props;

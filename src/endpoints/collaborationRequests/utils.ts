@@ -1,21 +1,21 @@
 import {
-  ICollaborationRequest,
-  IPublicCollaborationRequestForUser,
-  IPublicCollaborationRequestForWorkspace,
+  CollaborationRequest,
+  PublicCollaborationRequestForUser,
+  PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
-import {IAssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {AppActionType, ISessionAgent} from '../../definitions/system';
+import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
+import {AppActionType, SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-const userCollaborationRequestForUserFields = getFields<IPublicCollaborationRequestForUser>({
+const userCollaborationRequestForUserFields = getFields<PublicCollaborationRequestForUser>({
   resourceId: true,
   recipientEmail: true,
   message: true,
@@ -29,7 +29,7 @@ const userCollaborationRequestForUserFields = getFields<IPublicCollaborationRequ
 });
 
 const userCollaborationRequestForWorkspaceFields =
-  getFields<IPublicCollaborationRequestForWorkspace>({
+  getFields<PublicCollaborationRequestForWorkspace>({
     ...workspaceResourceFields,
     recipientEmail: true,
     message: true,
@@ -44,9 +44,9 @@ const userCollaborationRequestForWorkspaceFields =
   });
 
 export async function checkCollaborationRequestAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  request: ICollaborationRequest,
+  context: BaseContextType,
+  agent: SessionAgent,
+  request: CollaborationRequest,
   action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
@@ -62,11 +62,11 @@ export async function checkCollaborationRequestAuthorization(
 }
 
 export async function checkCollaborationRequestAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   requestId: string,
   action: AppActionType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
   assertCollaborationRequest(request);
@@ -91,11 +91,11 @@ export function throwCollaborationRequestNotFound() {
 }
 
 export async function populateRequestAssignedPermissionGroups(
-  context: IBaseContext,
-  request: ICollaborationRequest
+  context: BaseContextType,
+  request: CollaborationRequest
 ): Promise<
-  ICollaborationRequest & {
-    permissionGroupsAssignedOnAcceptingRequest: IAssignedPermissionGroupMeta[];
+  CollaborationRequest & {
+    permissionGroupsAssignedOnAcceptingRequest: AssignedPermissionGroupMeta[];
   }
 > {
   const inheritanceMap = await context.semantic.permissions.getEntityInheritanceMap({
@@ -110,16 +110,14 @@ export async function populateRequestAssignedPermissionGroups(
 }
 
 export async function populateRequestListPermissionGroups(
-  context: IBaseContext,
-  requests: ICollaborationRequest[]
+  context: BaseContextType,
+  requests: CollaborationRequest[]
 ) {
   return await Promise.all(
     requests.map(request => populateRequestAssignedPermissionGroups(context, request))
   );
 }
 
-export function assertCollaborationRequest(
-  request?: ICollaborationRequest | null
-): asserts request {
+export function assertCollaborationRequest(request?: CollaborationRequest | null): asserts request {
   appAssert(request, reuseableErrors.collaborationRequest.notFound());
 }

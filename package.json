@@ -22,7 +22,8 @@
     "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
     "dev": "tsc && env-cmd -f \".env.local\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
-    "mddoc": "ts-node src/mddoc/mddoc.fimidara.ts",
+    "rest-api-gen": "ts-node src/mddoc/restApiGen.ts",
+    "gen-js-sdk": "ts-node src/mddoc/jsSdkCodeGen.ts",
     "start-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath mongo-rs-data"
   },
   "dependencies": {
@@ -70,6 +71,7 @@
     "run-rs": "^0.7.7",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.9.1",
+    "type-fest": "^3.8.0",
     "typescript": "^5.0.2"
   }
 }

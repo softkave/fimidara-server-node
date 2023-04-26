@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
 import {getEntityPermissionItemsBaseJoiSchemaParts} from '../getEntityPermissionItems/validation';
-import {ICountEntityPermissionItemsEndpointParams} from './types';
+import {CountEntityPermissionItemsEndpointParams} from './types';
 
 export const countEntityPermissionItemsJoiSchema =
-  Joi.object<ICountEntityPermissionItemsEndpointParams>()
+  Joi.object<CountEntityPermissionItemsEndpointParams>()
     .keys(getEntityPermissionItemsBaseJoiSchemaParts)
     .required();

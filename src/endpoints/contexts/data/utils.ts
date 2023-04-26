@@ -4,12 +4,12 @@ import {cast} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {
+  BaseDataProvider,
   BulkOpItem,
   BulkOpType,
   DataProviderLiteralType,
   DataQuery,
   IArrayFieldQueryOps,
-  IBaseDataProvider,
   IComparisonLiteralFieldQueryOps,
   IDataProvideQueryListParams,
   INumberLiteralFieldQueryOps,
@@ -60,7 +60,7 @@ export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>
 export abstract class BaseMongoDataProvider<
   T extends AnyObject,
   Q extends DataQuery<AnyObject> = DataQuery<T>
-> implements IBaseDataProvider<T, Q>
+> implements BaseDataProvider<T, Q>
 {
   abstract throwNotFound: () => void;
   model: Model<T>;

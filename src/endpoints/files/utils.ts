@@ -1,23 +1,23 @@
-import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
-import {AppActionType, ISessionAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
+import {File, FileMatcher, PublicFile} from '../../definitions/file';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
 import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
+import {FolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
 
-const fileFields = getFields<IPublicFile>({
+const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,
   name: true,
   description: true,
@@ -35,9 +35,9 @@ export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  file: IFile,
+  context: BaseContextType,
+  agent: SessionAgent,
+  file: File,
   action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId);
@@ -55,11 +55,11 @@ export async function checkFileAuthorization(
 }
 
 export async function checkFileAuthorization03(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFileMatcher,
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FileMatcher,
   action: AppActionType,
-  opts?: ISemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const file = await assertGetFileWithMatcher(context, matcher, opts);
   return checkFileAuthorization(context, agent, file, action);
@@ -93,7 +93,7 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
 
 export interface ISplitfilepathWithDetails
   extends ISplitFilenameWithDetails,
-    IFolderpathWithDetails {
+    FolderpathWithDetails {
   splitPathWithoutExtension: string[];
 }
 
@@ -114,13 +114,13 @@ export function throwFileNotFound() {
   throw new NotFoundError('File not found');
 }
 
-export function getFilePathWithoutRootname(file: IFile) {
+export function getFilePathWithoutRootname(file: File) {
   return `${file.namePath.join(folderConstants.nameSeparator)}${
     fileConstants.nameExtensionSeparator
   }${file.extension}`;
 }
 
-export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: string) {
+export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
   const pathWithDetails = splitfilepathWithDetails(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
     pathWithDetails.workspaceRootname
@@ -130,11 +130,11 @@ export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: 
 }
 
 export async function getWorkspaceFromFileOrFilepath(
-  context: IBaseContext,
-  file?: IFile | null,
+  context: BaseContextType,
+  file?: File | null,
   filepath?: string
 ) {
-  let workspace: IWorkspace | null = null;
+  let workspace: Workspace | null = null;
   if (file) {
     workspace = await context.semantic.workspace.getOneById(file.workspaceId);
   } else if (filepath) {
@@ -145,7 +145,7 @@ export async function getWorkspaceFromFileOrFilepath(
   return workspace;
 }
 
-export function assertFile(file: IFile | null | undefined): asserts file {
+export function assertFile(file: File | null | undefined): asserts file {
   if (!file) {
     throwFileNotFound();
   }

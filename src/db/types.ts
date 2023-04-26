@@ -1,9 +1,9 @@
-import {IAppRuntimeStateModel} from './appRuntimeState';
-import {IJobModel} from './job';
-import {IResourceModel} from './resource';
+import {AppRuntimeStateModel} from './appRuntimeState';
+import {JobModel} from './job';
+import {ResourceModel} from './resource';
 
-export interface IAppMongoModels {
-  resource: IResourceModel;
-  job: IJobModel;
-  appRuntimeState: IAppRuntimeStateModel;
+export interface AppMongoModels {
+  resource: ResourceModel;
+  job: JobModel;
+  appRuntimeState: AppRuntimeStateModel;
 }

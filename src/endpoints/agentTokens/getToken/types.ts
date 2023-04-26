@@ -1,18 +1,18 @@
-import {IPublicAgentToken} from '../../../definitions/agentToken';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointWorkspaceResourceParam} from '../../types';
+import {PublicAgentToken} from '../../../definitions/agentToken';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointWorkspaceResourceParam} from '../../types';
 
-export interface IGetAgentTokenEndpointParams extends IEndpointWorkspaceResourceParam {
+export interface GetAgentTokenEndpointParams extends EndpointWorkspaceResourceParam {
   tokenId?: string;
   onReferenced?: boolean;
 }
 
-export interface IGetAgentTokenEndpointResult {
-  token: IPublicAgentToken;
+export interface GetAgentTokenEndpointResult {
+  token: PublicAgentToken;
 }
 
 export type GetAgentTokenEndpoint = Endpoint<
-  IBaseContext,
-  IGetAgentTokenEndpointParams,
-  IGetAgentTokenEndpointResult
+  BaseContextType,
+  GetAgentTokenEndpointParams,
+  GetAgentTokenEndpointResult
 >;

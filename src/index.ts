@@ -4,13 +4,9 @@ import http = require('http');
 import multer = require('multer');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
-import setupAgentTokensRESTEndpoints from './endpoints/agentTokens/setupRESTEndpoints';
-import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
-import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
 import {endpointConstants} from './endpoints/constants';
 import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
 import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {IBaseContext} from './endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -19,19 +15,11 @@ import {
   getSemanticDataProviders,
   ingestDataIntoMemStore,
 } from './endpoints/contexts/utils';
+import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {fileConstants} from './endpoints/files/constants';
-import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
-import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
 import {consoleLogger, logger} from './endpoints/globalUtils';
 import {startJobRunner} from './endpoints/jobs/runner';
-import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
-import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
-import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
 import {setupApp} from './endpoints/runtime/initAppSetup';
-import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
-import setupUsageRecordsRESTEndpoints from './endpoints/usageRecords/setupRESTEndpoints';
-import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
-import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
@@ -72,7 +60,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
-function setupJWT(ctx: IBaseContext) {
+function setupJWT(ctx: BaseContext) {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({
@@ -112,18 +100,7 @@ async function setup() {
   logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
-  setupCollaborationRequestsRESTEndpoints(ctx, app);
-  setupCollaboratorsRESTEndpoints(ctx, app);
-  setupFilesRESTEndpoints(ctx, app, upload);
-  setupFoldersRESTEndpoints(ctx, app);
-  setupWorkspacesRESTEndpoints(ctx, app);
-  setupPermissionItemsRESTEndpoints(ctx, app);
-  setupPermissionGroupsRESTEndpoints(ctx, app);
-  setupAgentTokensRESTEndpoints(ctx, app);
-  setupAccountRESTEndpoints(ctx, app);
-  setupResourcesRESTEndpoints(ctx, app);
-  setupTagsRESTEndpoints(ctx, app);
-  setupUsageRecordsRESTEndpoints(ctx, app);
+  setupFimidaraHttpEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);

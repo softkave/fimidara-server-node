@@ -1,24 +1,26 @@
-import {IFileMatcher} from '../../../definitions/file';
-import {IBaseContext} from '../../contexts/types';
+import {FileMatcher} from '../../../definitions/file';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export type IImageTransformationParams = {
+export type ImageTransformationParams = {
   width?: number;
   height?: number;
 };
 
-export type IReadFileEndpointParams = {
-  imageTranformation?: IImageTransformationParams;
-} & IFileMatcher;
+export type ReadFileEndpointParams = {
+  imageTranformation?: ImageTransformationParams;
+} & FileMatcher;
 
-export interface IReadFileEndpointResult {
+export interface ReadFileEndpointResult {
   stream: NodeJS.ReadableStream;
   mimetype?: string;
   contentLength?: number;
 }
 
 export type ReadFileEndpoint = Endpoint<
-  IBaseContext,
-  IReadFileEndpointParams,
-  IReadFileEndpointResult
+  BaseContextType,
+  ReadFileEndpointParams,
+  ReadFileEndpointResult
 >;
+
+export type ReadFileEndpointHttpQuery = {w?: number; h?: number};

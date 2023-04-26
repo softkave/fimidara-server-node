@@ -1,29 +1,29 @@
-import {IWorkspace} from '../../../../definitions/workspace';
-import {ISemanticDataAccessProviderRunOptions} from '../types';
+import {Workspace} from '../../../../definitions/workspace';
+import {SemanticDataAccessProviderRunOptions} from '../types';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessWorkspaceProvider} from './types';
+import {SemanticDataAccessWorkspaceProviderType} from './types';
 
 export class MemorySemanticDataAccessWorkspace
-  extends SemanticDataAccessWorkspaceResourceProvider<IWorkspace>
-  implements ISemanticDataAccessWorkspaceProvider
+  extends SemanticDataAccessWorkspaceResourceProvider<Workspace>
+  implements SemanticDataAccessWorkspaceProviderType
 {
   async getByRootname(
     name: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
-  ): Promise<IWorkspace | null> {
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<Workspace | null> {
     return await this.memstore.readItem({rootname: {$lowercaseEq: name}}, opts?.transaction);
   }
 
   async existsByRootname(
     name: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.memstore.exists({rootname: {$lowercaseEq: name}}, opts?.transaction);
   }
 
   async workspaceExistsByName(
     name: string,
-    opts?: ISemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.memstore.exists({name: {$lowercaseEq: name}}, opts?.transaction);
   }

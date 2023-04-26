@@ -3,7 +3,7 @@ import {DeleteFileCascadeDeleteFnsArgs} from '../endpoints/files/deleteFile/type
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
 import {AnyObject} from '../utils/types';
-import {AppResourceType, IResource} from './system';
+import {AppResourceType, Resource} from './system';
 
 export enum JobType {
   DeleteResource = 'deleteResource',
@@ -16,7 +16,7 @@ export enum JobStatus {
   Failed = 'failed',
 }
 
-export interface IJob extends IResource {
+export interface Job extends Resource {
   type: JobType;
   params: AnyObject;
   status: JobStatus;

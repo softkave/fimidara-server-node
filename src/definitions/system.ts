@@ -1,6 +1,6 @@
 import {AnyObject} from '../utils/types';
-import {IAgentToken} from './agentToken';
-import {IUser} from './user';
+import {AgentToken} from './agentToken';
+import {User} from './user';
 
 export const CURRENT_TOKEN_VERSION = 1;
 
@@ -10,18 +10,18 @@ export enum TokenAccessScope {
   ConfirmEmailAddress = 'confirmEmail',
 }
 
-export interface ITokenSubjectDefault {
+export interface TokenSubjectDefault {
   id: string;
 }
 
-export interface IBaseTokenData<Sub extends ITokenSubjectDefault = ITokenSubjectDefault> {
+export interface BaseTokenData<Sub extends TokenSubjectDefault = TokenSubjectDefault> {
   version: number;
   sub: Sub;
   iat: number;
   exp?: number;
 }
 
-export interface IAgent {
+export interface Agent {
   agentId: string;
 
   /**
@@ -31,18 +31,18 @@ export interface IAgent {
   agentTokenId: string;
 }
 
-export type IPublicAgent = Pick<IAgent, 'agentId' | 'agentType'>;
+export type PublicAgent = Pick<Agent, 'agentId' | 'agentType'>;
 export type ConvertAgentToPublicAgent<T> = {
-  [K in keyof T]: NonNullable<T[K]> extends IAgent
-    ? IPublicAgent
+  [K in keyof T]: NonNullable<T[K]> extends Agent
+    ? PublicAgent
     : NonNullable<T[K]> extends AnyObject
     ? ConvertAgentToPublicAgent<NonNullable<T[K]>>
     : T[K];
 };
 
-export interface ISessionAgent extends IAgent {
-  agentToken?: IAgentToken;
-  user?: IUser;
+export interface SessionAgent extends Agent {
+  agentToken?: AgentToken;
+  user?: User;
 }
 
 // TODO: separate data resources from symbolic resources (resources that are not
@@ -132,7 +132,7 @@ export function getNonWorkspaceActionList() {
 
 export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
 
-export interface IAppRuntimeState extends IResource {
+export interface AppRuntimeState extends Resource {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
   isAppSetup: boolean;
   appWorkspaceId: string;
@@ -140,24 +140,24 @@ export interface IAppRuntimeState extends IResource {
   appUsersImageUploadPermissionGroupId: string;
 }
 
-export interface IResource {
+export interface Resource {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
 }
 
-export interface IResourceWrapper<T extends IResource = IResource> {
+export interface ResourceWrapper<T extends Resource = Resource> {
   resourceId: string;
   resourceType: AppResourceType;
   resource: T;
 }
 
-export interface IWorkspaceResource extends IResource {
+export interface WorkspaceResource extends Resource {
   workspaceId: string;
   providedResourceId?: string | null;
-  lastUpdatedBy: IAgent;
-  createdBy: IAgent;
+  lastUpdatedBy: Agent;
+  createdBy: Agent;
 }
 
-export type IPublicResource = ConvertAgentToPublicAgent<IResource>;
-export type IPublicWorkspaceResource = ConvertAgentToPublicAgent<IWorkspaceResource>;
+export type PublicResource = ConvertAgentToPublicAgent<Resource>;
+export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResource>;

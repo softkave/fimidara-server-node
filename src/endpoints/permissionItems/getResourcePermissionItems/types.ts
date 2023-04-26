@@ -1,24 +1,23 @@
-import {IPublicPermissionItem} from '../../../definitions/permissionItem';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
-import {IPermissionItemInputTarget} from '../types';
+import {PublicPermissionItem} from '../../../definitions/permissionItem';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {PermissionItemInputTarget} from '../types';
 
-export interface IGetResourcePermissionItemsEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {
-  target: IPermissionItemInputTarget;
+export interface GetResourcePermissionItemsEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {
+  target: PermissionItemInputTarget;
 }
 
-export interface IGetResourcePermissionItemsEndpointParams
-  extends IEndpointOptionalWorkspaceIDParam {
-  target: IPermissionItemInputTarget;
+export interface GetResourcePermissionItemsEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  target: PermissionItemInputTarget;
 }
 
-export interface IGetResourcePermissionItemsEndpointResult {
-  items: IPublicPermissionItem[];
+export interface GetResourcePermissionItemsEndpointResult {
+  items: PublicPermissionItem[];
 }
 
 export type GetResourcePermissionItemsEndpoint = Endpoint<
-  IBaseContext,
-  IGetResourcePermissionItemsEndpointParams,
-  IGetResourcePermissionItemsEndpointResult
+  BaseContextType,
+  GetResourcePermissionItemsEndpointParams,
+  GetResourcePermissionItemsEndpointResult
 >;

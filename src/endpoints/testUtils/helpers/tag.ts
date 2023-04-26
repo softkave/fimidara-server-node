@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IBaseContext} from '../../contexts/types';
+import {AgentToken} from '../../../definitions/agentToken';
 import RequestData from '../../RequestData';
+import {BaseContextType} from '../../contexts/types';
 import addTag from '../../tags/addTag/handler';
-import {IAddTagEndpointParams, INewTagInput} from '../../tags/addTag/types';
+import {AddTagEndpointParams, NewTagInput} from '../../tags/addTag/types';
 import {
   assertEndpointResultOk,
   mockExpressRequestForPublicAgent,
@@ -11,12 +11,12 @@ import {
 } from '../testUtils';
 
 export async function insertTagForTest(
-  context: IBaseContext,
-  userToken: IAgentToken | null,
+  context: BaseContextType,
+  userToken: AgentToken | null,
   workspaceId: string,
-  tagInput: Partial<INewTagInput> = {}
+  tagInput: Partial<NewTagInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddTagEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddTagEndpointParams>(
     userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
     {
       workspaceId,

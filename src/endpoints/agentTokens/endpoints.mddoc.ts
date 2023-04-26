@@ -1,207 +1,234 @@
-import {IPublicAgentToken} from '../../definitions/agentToken';
-import {ExcludeTags} from '../../definitions/tag';
+import {PublicAgentToken} from '../../definitions/agentToken';
 import {
-  asFieldObjectAny,
   FieldArray,
   FieldObject,
-  FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
-  HttpEndpointResponse,
-  partialFieldObject,
 } from '../../mddoc/mddoc';
 import {
-  endpointHttpHeaderItems,
-  endpointHttpResponseItems,
-  endpointStatusCodes,
   fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
+import {LongRunningJobResult} from '../jobs/types';
 import {
-  IAddAgentTokenEndpointParams,
-  IAddAgentTokenEndpointResult,
-  INewAgentTokenInput,
+  CountItemsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
+import {
+  AddAgentTokenEndpointParams,
+  AddAgentTokenEndpointResult,
+  NewAgentTokenInput,
 } from './addToken/types';
 import {agentTokenConstants} from './constants';
-import {IDeleteAgentTokenEndpointParams} from './deleteToken/types';
-import {IGetAgentTokenEndpointParams, IGetAgentTokenEndpointResult} from './getToken/types';
+import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types';
+import {DeleteAgentTokenEndpointParams} from './deleteToken/types';
+import {GetAgentTokenEndpointParams, GetAgentTokenEndpointResult} from './getToken/types';
 import {
-  IGetWorkspaceAgentTokensEndpointParams,
-  IGetWorkspaceAgentTokensEndpointResult,
+  GetWorkspaceAgentTokensEndpointParams,
+  GetWorkspaceAgentTokensEndpointResult,
 } from './getWorkspaceTokens/types';
-import {
-  IUpdateAgentTokenEndpointParams,
-  IUpdateAgentTokenEndpointResult,
-} from './updateToken/types';
+import {UpdateAgentTokenEndpointParams, UpdateAgentTokenEndpointResult} from './updateToken/types';
 
-const newAgentTokenInput = new FieldObject<ExcludeTags<INewAgentTokenInput>>()
+const newAgentTokenInput = FieldObject.construct<NewAgentTokenInput>()
   .setName('NewAgentTokenInput')
   .setFields({
-    name: fReusables.nameNotRequired,
-    description: fReusables.descriptionNotRequired,
-    expires: fReusables.expiresNotRequired,
-    providedResourceId: fReusables.providedResourceIdNotRequired,
+    name: FieldObject.optionalField(fReusables.name),
+    description: FieldObject.optionalField(fReusables.description),
+    expires: FieldObject.optionalField(fReusables.expires),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
   });
 
-const agentToken = new FieldObject<IPublicAgentToken>().setName('AgentToken').setFields({
-  resourceId: new FieldString(),
-  createdBy: fReusables.agent,
-  createdAt: fReusables.date,
-  lastUpdatedBy: fReusables.agent,
-  lastUpdatedAt: fReusables.date,
-  name: fReusables.name,
-  description: fReusables.descriptionOrUndefined,
-  workspaceId: fReusables.workspaceId,
-  tokenStr: fReusables.tokenString,
-  expires: fReusables.expiresOrUndefined,
-  providedResourceId: fReusables.providedResourceIdOrUndefined,
-});
+const agentToken = FieldObject.construct<PublicAgentToken>()
+  .setName('AgentToken')
+  .setFields({
+    resourceId: FieldObject.requiredField(fReusables.id),
+    createdBy: FieldObject.requiredField(fReusables.agent),
+    createdAt: FieldObject.requiredField(fReusables.date),
+    lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
+    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
+    name: FieldObject.optionalField(fReusables.name),
+    description: FieldObject.optionalField(fReusables.description),
+    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
+    tokenStr: FieldObject.requiredField(fReusables.tokenString),
+    expires: FieldObject.optionalField(fReusables.expires),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+  });
 
-const addAgentTokenParams = new FieldObject<IAddAgentTokenEndpointParams>()
+const addAgentTokenParams = FieldObject.construct<AddAgentTokenEndpointParams>()
   .setName('AddAgentTokenEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    token: newAgentTokenInput,
+    workspaceId: FieldObject.optionalField(fReusables.workspaceId),
+    token: FieldObject.requiredField(newAgentTokenInput),
   })
   .setRequired(true)
-  .setDescription('Add program access token endpoint params.');
-const addAgentTokenResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IAddAgentTokenEndpointResult>()
-        .setName('AddAgentTokenEndpointSuccessResult')
-        .setFields({token: agentToken})
-        .setRequired(true)
-        .setDescription('Add program access token endpoint success result.')
-    ),
-];
+  .setDescription('Add agent token endpoint params.');
+const addAgentTokenSuccessResponseBody = FieldObject.construct<AddAgentTokenEndpointResult>()
+  .setName('AddAgentTokenEndpointSuccessResult')
+  .setFields({token: FieldObject.requiredField(agentToken)})
+  .setRequired(true)
+  .setDescription('Add agent token endpoint success result.');
 
-const getWorkspaceAgentTokensParams = new FieldObject<IGetWorkspaceAgentTokensEndpointParams>()
+const getWorkspaceAgentTokensParams = FieldObject.construct<GetWorkspaceAgentTokensEndpointParams>()
   .setName('GetWorkspaceAgentTokensEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    page: fReusables.pageNotRequired,
-    pageSize: fReusables.pageSizeNotRequired,
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    page: FieldObject.optionalField(fReusables.page),
+    pageSize: FieldObject.optionalField(fReusables.pageSize),
   })
   .setRequired(true)
-  .setDescription('Get workspace program access tokens endpoint params.');
-const getWorkspaceAgentTokensResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetWorkspaceAgentTokensEndpointResult>()
-        .setName('GetWorkspaceAgentTokensEndpointSuccessResult')
-        .setFields({tokens: new FieldArray().setType(agentToken), page: fReusables.page})
-        .setRequired(true)
-        .setDescription('Get workspace program access tokens endpoint success result.')
-    ),
-];
+  .setDescription('Get workspace agent tokens endpoint params.');
+const getWorkspaceAgentTokensSuccessResponseBody =
+  FieldObject.construct<GetWorkspaceAgentTokensEndpointResult>()
+    .setName('GetWorkspaceAgentTokensEndpointResult')
+    .setFields({
+      tokens: FieldObject.requiredField(
+        FieldArray.construct<PublicAgentToken>().setType(agentToken)
+      ),
+      page: FieldObject.requiredField(fReusables.page),
+    })
+    .setRequired(true)
+    .setDescription('Add agent token endpoint success result.');
 
-const updateAgentTokenParams = new FieldObject<IUpdateAgentTokenEndpointParams>()
+const countWorkspaceAgentTokensParams =
+  FieldObject.construct<CountWorkspaceAgentTokensEndpointParams>()
+    .setName('CountWorkspaceAgentTokensEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    })
+    .setRequired(true)
+    .setDescription('Count workspace agent tokens endpoint params.');
+
+const updateAgentTokenParams = FieldObject.construct<UpdateAgentTokenEndpointParams>()
   .setName('UpdateAgentTokenEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    tokenId: fReusables.idNotRequired,
-    onReferenced: fReusables.effectOnReferencedNotRequired,
-    token: partialFieldObject(newAgentTokenInput),
-    providedResourceId: fReusables.providedResourceIdNotRequired,
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    tokenId: FieldObject.optionalField(fReusables.id),
+    onReferenced: FieldObject.optionalField(fReusables.effectOnReferenced),
+    token: FieldObject.requiredField(newAgentTokenInput),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
   })
   .setRequired(true)
-  .setDescription('Update program access token endpoint params.');
-const updateAgentTokenResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IUpdateAgentTokenEndpointResult>()
-        .setName('UpdateAgentTokenEndpointSuccessResult')
-        .setFields({token: agentToken})
-        .setRequired(true)
-        .setDescription('Update program access token endpoint success result.')
-    ),
-];
+  .setDescription('Update agent token endpoint params.');
+const updateAgentTokenSuccessResponseBody = FieldObject.construct<UpdateAgentTokenEndpointResult>()
+  .setName('UpdateAgentTokenEndpointSuccessResult')
+  .setFields({token: FieldObject.requiredField(agentToken)})
+  .setRequired(true)
+  .setDescription('Update agent token endpoint success result.');
 
-const getAgentTokenParams = new FieldObject<IGetAgentTokenEndpointParams>()
-  .setName('UpdateAgentTokenEndpointParams')
+const getAgentTokenParams = FieldObject.construct<GetAgentTokenEndpointParams>()
+  .setName('GetAgentTokenEndpointParams')
   .setFields({
-    workspaceId: fReusables.workspaceIdInputNotRequired,
-    providedResourceId: fReusables.providedResourceIdNotRequired,
-    tokenId: fReusables.idNotRequired,
-    onReferenced: fReusables.effectOnReferencedNotRequired,
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+    tokenId: FieldObject.optionalField(fReusables.id),
+    onReferenced: FieldObject.optionalField(fReusables.effectOnReferenced),
   })
   .setRequired(true)
-  .setDescription('Get program access token endpoint params.');
-const getAgentTokenResult = [
-  endpointHttpResponseItems.errorResponse,
-  new HttpEndpointResponse()
-    .setStatusCode(endpointStatusCodes.success)
-    .setResponseHeaders(endpointHttpHeaderItems.jsonResponseHeaders)
-    .setResponseBody(
-      new FieldObject<IGetAgentTokenEndpointResult>()
-        .setName('UpdateAgentTokenEndpointSuccessResult')
-        .setFields({token: agentToken})
-        .setRequired(true)
-        .setDescription('Get program access token endpoint success result.')
-    ),
-];
+  .setDescription('Get agent token endpoint params.');
+const getAgentTokenSuccessBody = FieldObject.construct<GetAgentTokenEndpointResult>()
+  .setName('GetAgentTokenEndpointResult')
+  .setFields({token: FieldObject.requiredField(agentToken)})
+  .setRequired(true)
+  .setDescription('Get agent token endpoint success result.');
 
-const deleteAgentTokenParams = new FieldObject<IDeleteAgentTokenEndpointParams>()
+const deleteAgentTokenParams = FieldObject.construct<DeleteAgentTokenEndpointParams>()
   .setName('DeleteAgentTokenEndpointParams')
   .setFields({
-    tokenId: fReusables.idNotRequired,
-    onReferenced: fReusables.effectOnReferencedNotRequired,
-    providedResourceId: fReusables.providedResourceIdNotRequired,
-    workspaceId: fReusables.workspaceIdInputNotRequired,
+    tokenId: FieldObject.optionalField(fReusables.id),
+    onReferenced: FieldObject.optionalField(fReusables.effectOnReferenced),
+    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
   })
   .setRequired(true)
-  .setDescription('Delete program access token endpoint params.');
+  .setDescription('Delete agent token endpoint params.');
 
-export const addAgentTokenEndpointDefinition = new HttpEndpointDefinition()
+export const addAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: AddAgentTokenEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: AddAgentTokenEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(agentTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(addAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(addAgentTokenResult)
-  .setName('Add Program Access Token Endpoint')
-  .setDescription('Add program access token endpoint.');
+  .setRequestBody(addAgentTokenParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseBody(addAgentTokenSuccessResponseBody)
+  .setName('AddAgentTokenEndpoint')
+  .setDescription('Add agent token endpoint.');
 
-export const getAgentTokenEndpointDefinition = new HttpEndpointDefinition()
+export const getAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetAgentTokenEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetAgentTokenEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(agentTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getAgentTokenResult)
-  .setName('Get Program Access Token Endpoint')
-  .setDescription('Get program access token endpoint.');
+  .setRequestBody(getAgentTokenParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getAgentTokenSuccessBody)
+  .setName('GetAgentTokenEndpoint')
+  .setDescription('Get agent token endpoint.');
 
-export const updateAgentTokenEndpointDefinition = new HttpEndpointDefinition()
+export const updateAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: UpdateAgentTokenEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: UpdateAgentTokenEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(agentTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(updateAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(updateAgentTokenResult)
-  .setName('Update Program Access Token Endpoint')
-  .setDescription('Update program access token endpoint.');
+  .setRequestBody(updateAgentTokenParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(updateAgentTokenSuccessResponseBody)
+  .setName('UpdateAgentTokenEndpoint')
+  .setDescription('Update agent token endpoint.');
 
-export const deleteAgentTokenEndpointDefinition = new HttpEndpointDefinition()
+export const deleteAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: DeleteAgentTokenEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: LongRunningJobResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(agentTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
-  .setRequestBody(asFieldObjectAny(deleteAgentTokenParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(endpointHttpResponseItems.emptyEndpointResponse)
-  .setName('Delete Program Access Token Endpoint')
-  .setDescription('Delete program access token endpoint.');
+  .setRequestBody(deleteAgentTokenParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
+  .setName('DeleteAgentTokenEndpoint')
+  .setDescription('Delete agent token endpoint.');
 
-export const getWorkspaceAgentTokenEndpointDefinition = new HttpEndpointDefinition()
+export const getWorkspaceAgentTokensEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetWorkspaceAgentTokensEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetWorkspaceAgentTokensEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
   .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(asFieldObjectAny(getWorkspaceAgentTokensParams))
-  .setRequestHeaders(endpointHttpHeaderItems.jsonWithAuthRequestHeaders)
-  .setResponses(getWorkspaceAgentTokensResult)
-  .setName('Get Workspace Program Access Tokens Endpoint')
-  .setDescription('Get workspace program access tokens endpoint.');
+  .setRequestBody(getWorkspaceAgentTokensParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getWorkspaceAgentTokensSuccessResponseBody)
+  .setName('GetWorkspaceAgentTokensEndpoint')
+  .setDescription('Get workspace agent tokens endpoint.');
+
+export const countWorkspaceAgentTokensEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: CountWorkspaceAgentTokensEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: CountItemsEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(agentTokenConstants.routes.countWorkspaceTokens)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(countWorkspaceAgentTokensParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+  .setName('CountWorkspaceAgentTokensEndpoint')
+  .setDescription('Count workspace agent tokens endpoint.');

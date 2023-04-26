@@ -1,14 +1,14 @@
 import * as jwt from 'jsonwebtoken';
-import {IAgentToken} from '../../definitions/agentToken';
+import {AgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
+  BaseTokenData,
   CURRENT_TOKEN_VERSION,
-  IBaseTokenData,
-  ISessionAgent,
-  ITokenSubjectDefault,
+  SessionAgent,
   TokenAccessScope,
+  TokenSubjectDefault,
 } from '../../definitions/system';
-import {IUser} from '../../definitions/user';
+import {User} from '../../definitions/user';
 import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
@@ -21,38 +21,38 @@ import {
   CredentialsExpiredError,
   InvalidCredentialsError,
   PermissionDeniedError,
-} from '../user/errors';
-import {IBaseContext} from './types';
+} from '../users/errors';
+import {BaseContextType} from './types';
 
-export interface ISessionContext {
+export interface SessionContextType {
   getAgent: (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes?: AppResourceType | AppResourceType[],
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
-  ) => Promise<ISessionAgent>;
+  ) => Promise<SessionAgent>;
   getUser: (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
-  ) => Promise<IUser>;
-  decodeToken: (ctx: IBaseContext, token: string) => IBaseTokenData<ITokenSubjectDefault>;
+  ) => Promise<User>;
+  decodeToken: (ctx: BaseContextType, token: string) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsTokenAccessScope: (
-    ctx: IBaseContext,
-    tokenData: IAgentToken,
+    ctx: BaseContextType,
+    tokenData: AgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => string;
 }
 
-export default class SessionContext implements ISessionContext {
+export default class SessionContext implements SessionContextType {
   getAgent = async (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
       AppResourceType.User,
@@ -64,7 +64,7 @@ export default class SessionContext implements ISessionContext {
       return data.agent;
     }
 
-    let user: IUser | null = null;
+    let user: User | null = null;
     const incomingTokenData = data.incomingTokenData;
 
     if (incomingTokenData) {
@@ -102,7 +102,7 @@ export default class SessionContext implements ISessionContext {
   };
 
   getUser = async (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => {
@@ -111,8 +111,8 @@ export default class SessionContext implements ISessionContext {
     return agent.user;
   };
 
-  decodeToken = (ctx: IBaseContext, token: string) => {
-    const tokenData = cast<IBaseTokenData<ITokenSubjectDefault>>(
+  decodeToken = (ctx: BaseContextType, token: string) => {
+    const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
       jwt.verify(token, ctx.appVariables.jwtSecret, {
         complete: false,
       })
@@ -126,8 +126,8 @@ export default class SessionContext implements ISessionContext {
   };
 
   tokenContainsTokenAccessScope = (
-    ctx: IBaseContext,
-    tokenData: IAgentToken,
+    ctx: BaseContextType,
+    tokenData: AgentToken,
     expectedTokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
     const tokenAccessScope = tokenData.scope ?? [];
@@ -138,12 +138,12 @@ export default class SessionContext implements ISessionContext {
   };
 
   encodeToken = (
-    ctx: IBaseContext,
+    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => {
-    const payload: Omit<IBaseTokenData, 'iat'> & {iat?: number} = {
+    const payload: Omit<BaseTokenData, 'iat'> & {iat?: number} = {
       version: CURRENT_TOKEN_VERSION,
       sub: {id: tokenId},
     };

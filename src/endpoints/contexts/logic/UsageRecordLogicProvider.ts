@@ -1,33 +1,33 @@
 import {defaultTo} from 'lodash';
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {
-  IUsageRecord,
-  IUsageRecordArtifact,
+  UsageRecord,
+  UsageRecordArtifact,
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
-import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../semantic/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../semantic/types';
 import {executeWithMutationRunOptions} from '../semantic/utils';
-import {IBaseContext} from '../types';
+import {BaseContextType} from '../types';
 
-export interface IUsageRecordInput {
+export interface UsageRecordInput {
   resourceId?: string;
   workspaceId: string;
   category: UsageRecordCategory;
   usage: number;
-  artifacts?: IUsageRecordArtifact[];
+  artifacts?: UsageRecordArtifact[];
 }
 
 export class UsageRecordLogicProvider {
-  insert = async (ctx: IBaseContext, agent: IAgent, input: IUsageRecordInput) => {
+  insert = async (ctx: BaseContextType, agent: Agent, input: UsageRecordInput) => {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId);
     assertWorkspace(workspace);
@@ -54,8 +54,8 @@ export class UsageRecordLogicProvider {
     return true;
   };
 
-  private makeLevel01Record = (agent: IAgent, input: IUsageRecordInput) => {
-    const record: IUsageRecord = newWorkspaceResource(
+  private makeLevel01Record = (agent: Agent, input: UsageRecordInput) => {
+    const record: UsageRecord = newWorkspaceResource(
       agent,
       AppResourceType.UsageRecord,
       input.workspaceId,
@@ -74,11 +74,11 @@ export class UsageRecordLogicProvider {
   };
 
   private makeLevel02Record = (
-    agent: IAgent,
-    record: IUsageRecord,
-    seed: Partial<IUsageRecord> & Pick<IUsageRecord, 'fulfillmentStatus' | 'usage' | 'usageCost'>
+    agent: Agent,
+    record: UsageRecord,
+    seed: Partial<UsageRecord> & Pick<UsageRecord, 'fulfillmentStatus' | 'usage' | 'usageCost'>
   ) => {
-    return newWorkspaceResource<IUsageRecord>(
+    return newWorkspaceResource<UsageRecord>(
       agent,
       AppResourceType.UsageRecord,
       record.workspaceId,
@@ -94,9 +94,9 @@ export class UsageRecordLogicProvider {
   };
 
   private async getUsagel2(
-    context: IBaseContext,
-    agent: IAgent,
-    record: IUsageRecord,
+    context: BaseContextType,
+    agent: Agent,
+    record: UsageRecord,
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus
   ) {
@@ -127,10 +127,10 @@ export class UsageRecordLogicProvider {
   }
 
   private checkWorkspaceBillStatus = async (
-    context: IBaseContext,
-    agent: IAgent,
-    workspace: IWorkspace,
-    record: IUsageRecord
+    context: BaseContextType,
+    agent: Agent,
+    workspace: Workspace,
+    record: UsageRecord
   ) => {
     // Using per check txn plus Node.js' single-threadedness to ensure that
     // record L2 isn't created twice.
@@ -160,10 +160,10 @@ export class UsageRecordLogicProvider {
   };
 
   private checkWorkspaceUsageLocks = async (
-    context: IBaseContext,
-    agent: IAgent,
-    workspace: IWorkspace,
-    record: IUsageRecord
+    context: BaseContextType,
+    agent: Agent,
+    workspace: Workspace,
+    record: UsageRecord
   ) => {
     return await executeWithMutationRunOptions(context, async opts => {
       const usageLocks = workspace.usageThresholdLocks ?? {};
@@ -196,10 +196,10 @@ export class UsageRecordLogicProvider {
   };
 
   private checkExceedsRemainingUsage = async (
-    context: IBaseContext,
-    agent: IAgent,
-    workspace: IWorkspace,
-    record: IUsageRecord
+    context: BaseContextType,
+    agent: Agent,
+    workspace: Workspace,
+    record: UsageRecord
   ) => {
     return await executeWithMutationRunOptions(context, async opts => {
       let [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
@@ -273,12 +273,12 @@ export class UsageRecordLogicProvider {
   };
 
   private fulfillRecord = async (
-    context: IBaseContext,
-    agent: IAgent,
-    record: IUsageRecord,
-    usageFulfilledL2: IUsageRecord | undefined,
-    usageTotalFulfilled: IUsageRecord | undefined,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    context: BaseContextType,
+    agent: Agent,
+    record: UsageRecord,
+    usageFulfilledL2: UsageRecord | undefined,
+    usageTotalFulfilled: UsageRecord | undefined,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
     [usageFulfilledL2, usageTotalFulfilled] = await Promise.all([
       usageFulfilledL2 ??
@@ -319,12 +319,12 @@ export class UsageRecordLogicProvider {
   };
 
   private dropRecord = async (
-    context: IBaseContext,
-    agent: IAgent,
-    record: IUsageRecord,
+    context: BaseContextType,
+    agent: Agent,
+    record: UsageRecord,
     dropReason: UsageRecordDropReason,
-    usageDroppedL2: IUsageRecord | undefined,
-    opts: ISemanticDataAccessProviderMutationRunOptions
+    usageDroppedL2: UsageRecord | undefined,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
     if (!usageDroppedL2) {
       usageDroppedL2 = await this.getUsagel2(

@@ -1,12 +1,12 @@
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
+  Agent,
   AppActionType,
   AppResourceType,
   getWorkspaceActionList,
-  IAgent,
 } from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -16,12 +16,12 @@ export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
 export const DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME = 'Collaborator';
 
 function generateAdminPermissions(
-  agent: IAgent,
-  workspace: IWorkspace,
-  adminPermissionGroup: IPermissionGroup
+  agent: Agent,
+  workspace: Workspace,
+  adminPermissionGroup: PermissionGroup
 ) {
-  const permissionItems: IPermissionItem[] = getWorkspaceActionList().map(action => {
-    const item: IPermissionItem = newWorkspaceResource(
+  const permissionItems: PermissionItem[] = getWorkspaceActionList().map(action => {
+    const item: PermissionItem = newWorkspaceResource(
       agent,
       AppResourceType.PermissionItem,
       workspace.resourceId,
@@ -42,9 +42,9 @@ function generateAdminPermissions(
 }
 
 function generateCollaboratorPermissions(
-  agent: IAgent,
-  workspace: IWorkspace,
-  permissiongroup: IPermissionGroup
+  agent: Agent,
+  workspace: Workspace,
+  permissiongroup: PermissionGroup
 ) {
   function makePermission(
     actions: AppActionType[],
@@ -53,7 +53,7 @@ function generateCollaboratorPermissions(
     appliesTo: PermissionItemAppliesTo
   ) {
     return actions.map(action => {
-      const item: IPermissionItem = newWorkspaceResource(
+      const item: PermissionItem = newWorkspaceResource(
         agent,
         AppResourceType.PermissionItem,
         workspace.resourceId,
@@ -71,7 +71,7 @@ function generateCollaboratorPermissions(
     });
   }
 
-  let permissionItems: IPermissionItem[] = [];
+  let permissionItems: PermissionItem[] = [];
   permissionItems = permissionItems.concat(
     makePermission(
       [AppActionType.Read],
@@ -116,9 +116,9 @@ function generateCollaboratorPermissions(
   return permissionItems;
 }
 
-export function generateDefaultWorkspacePermissionGroups(agent: IAgent, workspace: IWorkspace) {
+export function generateDefaultWorkspacePermissionGroups(agent: Agent, workspace: Workspace) {
   const createdAt = getTimestamp();
-  const adminPermissionGroup: IPermissionGroup = {
+  const adminPermissionGroup: PermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
@@ -128,7 +128,7 @@ export function generateDefaultWorkspacePermissionGroups(agent: IAgent, workspac
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
     description: 'Auto-generated permission group with access to every resource in this workspace.',
   };
-  const publicPermissionGroup: IPermissionGroup = {
+  const publicPermissionGroup: PermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
@@ -140,7 +140,7 @@ export function generateDefaultWorkspacePermissionGroups(agent: IAgent, workspac
       'Auto-generated permission group for public/anonymous users. ' +
       'Assign permissions to this group for resource/actions you want to be publicly accessible.',
   };
-  const collaboratorPermissionGroup: IPermissionGroup = {
+  const collaboratorPermissionGroup: PermissionGroup = {
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,

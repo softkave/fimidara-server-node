@@ -1,23 +1,23 @@
-import {IPublicAgentToken} from '../../../definitions/agentToken';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
-import {INewAgentTokenInput} from '../addToken/types';
+import {PublicAgentToken} from '../../../definitions/agentToken';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {NewAgentTokenInput} from '../addToken/types';
 
-export type IUpdateAgentTokenInput = Partial<INewAgentTokenInput>;
+export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 
-export interface IUpdateAgentTokenEndpointParams extends IEndpointOptionalWorkspaceIDParam {
+export interface UpdateAgentTokenEndpointParams extends EndpointOptionalWorkspaceIDParam {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;
-  token: IUpdateAgentTokenInput;
+  token: UpdateAgentTokenInput;
 }
 
-export interface IUpdateAgentTokenEndpointResult {
-  token: IPublicAgentToken;
+export interface UpdateAgentTokenEndpointResult {
+  token: PublicAgentToken;
 }
 
 export type UpdateAgentTokenEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateAgentTokenEndpointParams,
-  IUpdateAgentTokenEndpointResult
+  BaseContextType,
+  UpdateAgentTokenEndpointParams,
+  UpdateAgentTokenEndpointResult
 >;

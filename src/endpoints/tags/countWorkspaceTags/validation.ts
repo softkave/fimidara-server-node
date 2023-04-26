@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {getWorkspaceTagBaseJoiSchemaParts} from '../getWorkspaceTags/validation';
-import {ICountWorkspaceTagsEndpointParams} from './types';
+import {CountWorkspaceTagsEndpointParams} from './types';
 
-export const countWorkspaceTagJoiSchema = Joi.object<ICountWorkspaceTagsEndpointParams>()
+export const countWorkspaceTagJoiSchema = Joi.object<CountWorkspaceTagsEndpointParams>()
   .keys(getWorkspaceTagBaseJoiSchemaParts)
   .required();

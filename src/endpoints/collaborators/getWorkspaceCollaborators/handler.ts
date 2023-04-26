@@ -1,4 +1,4 @@
-import {IUserWithWorkspace} from '../../../definitions/user';
+import {UserWithWorkspace} from '../../../definitions/user';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -20,7 +20,7 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
     assignedItemsQuery,
     data
   );
-  let usersWithWorkspaces: IUserWithWorkspace[] = [];
+  let usersWithWorkspaces: UserWithWorkspace[] = [];
   if (assignedItems.length > 0) {
     const userIdList = assignedItems.map(item => item.assigneeId);
     const users = await context.semantic.user.getManyByIdList(userIdList);

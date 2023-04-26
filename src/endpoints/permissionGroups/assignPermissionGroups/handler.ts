@@ -36,6 +36,9 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
 
   await executeWithMutationRunOptions(context, async opts => {
     // TODO: getEntityAssignedPermissionGroups should support entity ID array
+
+    // Get entities' immediately existing permission groups to avoid assigning
+    // twice
     const existingPermissionGroups = await Promise.all(
       entityIdList.map(entityId =>
         context.semantic.permissions.getEntityAssignedPermissionGroups(
@@ -44,37 +47,33 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
         )
       )
     );
-    const filteredPermissionGroupsByEntity = entityIdList.map((entityId, i) => {
+
+    // Filter out permission groups already assigned leaving the ones unassigned
+    const unassignedPermissionGroupsByEntity = entityIdList.map((entityId, i) => {
       const {inheritanceMap} = existingPermissionGroups[i];
-      return data.permissionGroups.filter(entry => !inheritanceMap[entry.permissionGroupId]);
+      return data.permissionGroups.filter(
+        permissionGroup => !inheritanceMap[permissionGroup.permissionGroupId]
+      );
     });
+
     await Promise.all(
-      filteredPermissionGroupsByEntity.map((pgInput, i) => {
+      unassignedPermissionGroupsByEntity.map((permissionGroupList, i) => {
         const entityId = entityIdList[i];
+        if (!permissionGroupList.length) return;
+
+        // Assign permission groups to entity
         return addAssignedPermissionGroupList(
           context,
           agent,
           workspace.resourceId,
-          pgInput,
+          permissionGroupList,
           entityId,
-          false, // don't delete existing
+          false, // don't delete existing assigned permission groups
           true, // skip permission groups check
           /** skip auth check */ true,
           opts
         );
       })
-    );
-
-    await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace.resourceId,
-      data.permissionGroups,
-      entityIdList,
-      false, // don't delete existing
-      false, // don't skip permission group check
-      /** skip auth check */ true,
-      opts
     );
   });
 };

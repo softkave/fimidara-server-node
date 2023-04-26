@@ -1,17 +1,17 @@
-import {IFolderMatcher} from '../../../definitions/folder';
-import {IBaseContext} from '../../contexts/types';
+import {FolderMatcher} from '../../../definitions/folder';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {IListFolderContentEndpointParamsBase} from '../listFolderContent/types';
+import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types';
 
-export type ICountFolderContentEndpointParams = IListFolderContentEndpointParamsBase;
+export type CountFolderContentEndpointParams = ListFolderContentEndpointParamsBase;
 
-export interface ICountFolderContentEndpointResult {
+export interface CountFolderContentEndpointResult {
   foldersCount: number;
   filesCount: number;
 }
 
 export type CountFolderContentEndpoint = Endpoint<
-  IBaseContext,
-  IFolderMatcher,
-  ICountFolderContentEndpointResult
+  BaseContextType,
+  FolderMatcher,
+  CountFolderContentEndpointResult
 >;

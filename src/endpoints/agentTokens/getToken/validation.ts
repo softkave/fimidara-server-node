@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
-import {IGetAgentTokenEndpointParams} from './types';
+import {GetAgentTokenEndpointParams} from './types';
 
-export const getAgentTokenJoiSchema = Joi.object<IGetAgentTokenEndpointParams>()
+export const getAgentTokenJoiSchema = Joi.object<GetAgentTokenEndpointParams>()
   .keys({
     ...endpointValidationSchemas.workspaceResourceParts,
     tokenId: validationSchemas.resourceId,

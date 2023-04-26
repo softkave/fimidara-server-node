@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IFolder} from '../definitions/folder';
+import {Folder} from '../definitions/folder';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const folderSchema = ensureMongoTypeFields<IFolder>({
+const folderSchema = ensureMongoTypeFields<Folder>({
   ...workspaceResourceSchema,
   idPath: {type: [String], default: [], index: true},
   namePath: {type: [String], default: [], index: true},
@@ -11,15 +11,15 @@ const folderSchema = ensureMongoTypeFields<IFolder>({
   description: {type: String},
 });
 
-export type IFolderDocument = Document<IFolder>;
+export type FolderDocument = Document<Folder>;
 
-const schema = new Schema<IFolder>(folderSchema);
+const schema = new Schema<Folder>(folderSchema);
 const modelName = 'folder';
 const collectionName = 'folders';
 
 export function getFolderDatabaseModel(connection: Connection) {
-  const model = connection.model<IFolder>(modelName, schema, collectionName);
+  const model = connection.model<Folder>(modelName, schema, collectionName);
   return model;
 }
 
-export type IFolderDatabaseModel = Model<IFolder>;
+export type FolderDatabaseModel = Model<Folder>;

@@ -1,11 +1,8 @@
 import {format} from 'date-fns';
 import mongoose from 'mongoose';
-import {AppEnvVariables, IAppVariables} from '../resources/vars';
+import {AppEnvVariables, AppVariables} from '../resources/vars';
 
-export async function setupMongoDb(
-  vars: Partial<IAppVariables>,
-  testType = 'test'
-) {
+export async function setupMongoDb(vars: Partial<AppVariables>, testType = 'test') {
   let dbName = vars.mongoDbDatabaseName;
   const mongoDbURI = vars.mongoDbURI;
   if (!mongoDbURI) {

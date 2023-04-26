@@ -2,7 +2,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
@@ -17,14 +17,14 @@ import {
 } from '../../testUtils/testUtils';
 import {collaboratorExtractor} from '../utils';
 import getWorkspaceCollaborators from './handler';
-import {IGetWorkspaceCollaboratorsEndpointParams} from './types';
+import {GetWorkspaceCollaboratorsEndpointParams} from './types';
 
 /**
  * TODO:
  * - Check that only permitted collaborators are returned
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -39,7 +39,7 @@ describe('getWorkspaceCollaborators', () => {
     assertContext(context);
     const {userToken, user} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const instData = RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -74,7 +74,7 @@ describe('getWorkspaceCollaborators', () => {
 
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {pageSize, workspaceId: workspace.resourceId}
     );
@@ -84,7 +84,7 @@ describe('getWorkspaceCollaborators', () => {
     expect(result.collaborators).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceCollaboratorsEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );

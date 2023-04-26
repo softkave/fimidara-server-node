@@ -1,5 +1,5 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
+import {Tag} from '../../../definitions/tag';
 import {newWorkspaceResource} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
@@ -23,7 +23,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     action: AppActionType.Create,
   });
 
-  const tag = newWorkspaceResource<ITag>(agent, AppResourceType.Tag, workspace.resourceId, {
+  const tag = newWorkspaceResource<Tag>(agent, AppResourceType.Tag, workspace.resourceId, {
     ...data.tag,
   });
   await MemStore.withTransaction(context, async txn => {

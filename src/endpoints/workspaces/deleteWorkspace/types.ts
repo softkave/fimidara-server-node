@@ -1,9 +1,9 @@
-import {IBaseContext} from '../../contexts/types';
-import {ILongRunningJobResult} from '../../jobs/types';
-import {Endpoint, IEndpointOptionalWorkspaceIDParam} from '../../types';
+import {BaseContextType} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export type DeleteWorkspaceEndpoint = Endpoint<
-  IBaseContext,
-  IEndpointOptionalWorkspaceIDParam,
-  ILongRunningJobResult
+  BaseContextType,
+  EndpointOptionalWorkspaceIDParam,
+  LongRunningJobResult
 >;

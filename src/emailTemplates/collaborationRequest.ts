@@ -6,9 +6,9 @@ import {
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
-import {IBaseEmailTemplateProps} from './types';
+import {BaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestEmailProps extends IBaseEmailTemplateProps {
+export interface CollaborationRequestEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;
   isRecipientAUser: boolean;
   message?: string;
@@ -19,7 +19,7 @@ export function collaborationRequestEmailTitle(workspaceName: string) {
   return `Collaboration request from ${workspaceName}`;
 }
 
-export function collaborationRequestEmailHTML(props: ICollaborationRequestEmailProps) {
+export function collaborationRequestEmailHTML(props: CollaborationRequestEmailProps) {
   const title = collaborationRequestEmailTitle(props.workspaceName);
   return `
 <!DOCTYPE html>
@@ -52,7 +52,7 @@ export function collaborationRequestEmailHTML(props: ICollaborationRequestEmailP
     `;
 }
 
-export function collaborationRequestEmailText(props: ICollaborationRequestEmailProps) {
+export function collaborationRequestEmailText(props: CollaborationRequestEmailProps) {
   let linkText = '';
   const title = collaborationRequestEmailTitle(props.workspaceName);
   if (props.isRecipientAUser) {

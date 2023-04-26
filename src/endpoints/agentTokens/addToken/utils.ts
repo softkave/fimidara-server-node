@@ -1,34 +1,22 @@
 import {defaultTo, omit} from 'lodash';
-import {IAgentToken} from '../../../definitions/agentToken';
-import {
-  AppActionType,
-  AppResourceType,
-  CURRENT_TOKEN_VERSION,
-  IAgent,
-} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
+import {AgentToken} from '../../../definitions/agentToken';
+import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/fns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {saveResourceAssignedItems} from '../../assignedItems/addAssignedItems';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {reuseableErrors} from '../../../utils/reusableErrors';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
-import {checkAgentTokenAuthorization} from '../utils';
-import {INewAgentTokenInput} from './types';
+import {NewAgentTokenInput} from './types';
 
-/**
- * Creates a new program access token. Does not check authorization.
- */
 export const internalCreateAgentToken = async (
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace,
-  data: INewAgentTokenInput,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContextType,
+  agent: Agent,
+  workspace: Workspace,
+  data: NewAgentTokenInput,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
-  let token: IAgentToken | null = null;
+  let token: AgentToken | null = null;
 
   if (data.providedResourceId) {
     token = await context.semantic.agentToken.getByProvidedId(
@@ -38,59 +26,23 @@ export const internalCreateAgentToken = async (
     );
   }
 
-  if (token) {
-    const tokenUpdate: Partial<IAgentToken> = {
-      ...omit(data, 'tags'),
-      lastUpdatedAt: getTimestamp(),
-      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-    };
-    const isNameChanged = data.name && data.name.toLowerCase() !== token.name?.toLowerCase();
-    await Promise.all([
-      checkAgentTokenAuthorization(context, agent, token, AppActionType.Update),
-      isNameChanged && checkAgentTokenNameExists(context, workspace.resourceId, data.name!, opts),
-    ]);
-    token = await context.semantic.agentToken.getAndUpdateOneById(
-      token.resourceId,
-      tokenUpdate,
-      opts
-    );
-  } else {
-    token = newWorkspaceResource<IAgentToken>(
-      agent,
-      AppResourceType.AgentToken,
-      workspace.resourceId,
-      {
-        ...omit(data, 'tags'),
-        providedResourceId: defaultTo(data.providedResourceId, null),
-        version: CURRENT_TOKEN_VERSION,
-        separateEntityId: null,
-        agentType: AppResourceType.AgentToken,
-      }
-    );
-    await Promise.all([
-      checkAuthorization({
-        context,
-        agent,
-        workspaceId: workspace.resourceId,
-        workspace: workspace,
-        targets: {targetType: AppResourceType.AgentToken},
-        action: AppActionType.Create,
-      }),
-      data.name && checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
-    ]);
-    await Promise.all([
-      context.semantic.agentToken.insertItem(token, opts),
-      saveResourceAssignedItems(
-        context,
-        agent,
-        workspace,
-        token.resourceId,
-        data,
-        /* deleteExisting */ token ? true : false,
-        opts
-      ),
-    ]);
-  }
+  if (token) throw reuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
 
+  token = newWorkspaceResource<AgentToken>(
+    agent,
+    AppResourceType.AgentToken,
+    workspace.resourceId,
+    {
+      ...omit(data, 'tags'),
+      providedResourceId: defaultTo(data.providedResourceId, null),
+      version: CURRENT_TOKEN_VERSION,
+      separateEntityId: null,
+      agentType: AppResourceType.AgentToken,
+    }
+  );
+  await Promise.all([
+    data.name && checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
+  ]);
+  await context.semantic.agentToken.insertItem(token, opts);
   return token;
 };

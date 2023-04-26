@@ -1,14 +1,14 @@
 import {endpointConstants} from '../endpoints/constants';
 import OperationError, {
   getErrorMessageFromParams,
-  IOperationErrorParameters,
+  OperationErrorParameters,
 } from './OperationError';
 
 export class ServerError extends OperationError {
   name = 'ServerError';
   statusCode = endpointConstants.httpStatusCode.serverError;
 
-  constructor(props?: IOperationErrorParameters | string) {
+  constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Server error');
   }

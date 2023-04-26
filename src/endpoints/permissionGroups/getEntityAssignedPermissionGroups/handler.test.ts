@@ -3,7 +3,7 @@ import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {
@@ -27,7 +27,7 @@ import {
 } from '../testUtils';
 import getEntityAssignedPermissionGroups from './handler';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();

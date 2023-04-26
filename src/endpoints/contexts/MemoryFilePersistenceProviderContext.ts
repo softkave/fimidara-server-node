@@ -1,23 +1,23 @@
 import {Readable} from 'stream';
 import {noopAsync} from '../../utils/fns';
 import {
-  IFilePersistenceDeleteFilesParams,
-  IFilePersistenceGetFileParams,
-  IFilePersistenceProviderContext,
-  IFilePersistenceUploadFileParams,
+  FilePersistenceDeleteFilesParams,
+  FilePersistenceGetFileParams,
+  FilePersistenceProviderContext,
+  FilePersistenceUploadFileParams,
   IPersistedFile,
 } from './FilePersistenceProviderContext';
 
 export default class MemoryFilePersistenceProviderContext
-  implements IFilePersistenceProviderContext
+  implements FilePersistenceProviderContext
 {
-  files: Record<string, IFilePersistenceUploadFileParams> = {};
+  files: Record<string, FilePersistenceUploadFileParams> = {};
 
-  uploadFile = async (params: IFilePersistenceUploadFileParams) => {
+  uploadFile = async (params: FilePersistenceUploadFileParams) => {
     this.files[params.bucket + '-' + params.key] = params;
   };
 
-  getFile = async (params: IFilePersistenceGetFileParams): Promise<IPersistedFile> => {
+  getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
     const file = this.files[params.bucket + '-' + params.key];
     if (file) {
       const readable = new Readable();
@@ -32,7 +32,7 @@ export default class MemoryFilePersistenceProviderContext
     return {body: undefined};
   };
 
-  deleteFiles = async (params: IFilePersistenceDeleteFilesParams) => {
+  deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
     params.keys.forEach(key => {
       delete this.files[params.bucket + '-' + key];
     });

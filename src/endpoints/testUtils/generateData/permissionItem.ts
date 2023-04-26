@@ -1,22 +1,22 @@
 import {faker} from '@faker-js/faker';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {randomAction, randomResourceType} from './utils';
 
-export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {}) {
+export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {
   const createdAt = getTimestamp();
-  const createdBy: IAgent = {
+  const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),
     agentType: AppResourceType.User,
     agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
   };
   const workspaceId = getNewIdForResource(AppResourceType.Workspace);
   const itemType = randomResourceType();
-  const item: IPermissionItem = {
+  const item: PermissionItem = {
     createdAt,
     createdBy,
     workspaceId,
@@ -35,8 +35,8 @@ export function generatePermissionItemForTest(seed: Partial<IPermissionItem> = {
   return item;
 }
 
-export function generatePermissionItemListForTest(count = 20, seed: Partial<IPermissionItem> = {}) {
-  const items: IPermissionItem[] = [];
+export function generatePermissionItemListForTest(count = 20, seed: Partial<PermissionItem> = {}) {
+  const items: PermissionItem[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generatePermissionItemForTest(seed));
   }
@@ -44,9 +44,9 @@ export function generatePermissionItemListForTest(count = 20, seed: Partial<IPer
 }
 
 export async function generateAndInsertPermissionItemListForTest(
-  ctx: IBaseContext,
+  ctx: BaseContextType,
   count = 20,
-  seed: Partial<IPermissionItem> = {}
+  seed: Partial<PermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
   await executeWithMutationRunOptions(ctx, async opts =>

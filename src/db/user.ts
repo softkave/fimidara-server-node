@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IUser} from '../definitions/user';
+import {User} from '../definitions/user';
 import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const userSchema = ensureMongoTypeFields<IUser>({
+const userSchema = ensureMongoTypeFields<User>({
   ...resourceSchema,
   email: {type: String, unique: true, index: true, lowercase: true},
   firstName: {type: String, index: true},
@@ -14,15 +14,15 @@ const userSchema = ensureMongoTypeFields<IUser>({
   emailVerificationEmailSentAt: {type: Number},
 });
 
-export type IUserDocument = Document<IUser>;
+export type UserDocument = Document<User>;
 
-const schema = new Schema<IUser>(userSchema);
+const schema = new Schema<User>(userSchema);
 const modelName = 'user';
 const collectionName = 'users';
 
 export function getUserModel(connection: Connection) {
-  const model = connection.model<IUser>(modelName, schema, collectionName);
+  const model = connection.model<User>(modelName, schema, collectionName);
   return model;
 }
 
-export type IUserModel = Model<IUser>;
+export type UserModel = Model<User>;

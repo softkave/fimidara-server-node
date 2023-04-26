@@ -1,25 +1,25 @@
 import {merge} from 'lodash';
 import {
+  CollaborationRequest,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../definitions/collaborationRequest';
-import {IPermissionGroup} from '../../definitions/permissionGroups';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppActionType, AppResourceType, IAppRuntimeState} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
-import {IAppRuntimeVars} from '../../resources/vars';
+import {PermissionGroup} from '../../definitions/permissionGroups';
+import {PermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
+import {AppActionType, AppResourceType, AppRuntimeState} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
+import {AppRuntimeVars} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {newWorkspaceResource} from '../../utils/fns';
-import {getNewIdForResource, ID_SIZE} from '../../utils/resource';
+import {ID_SIZE, getNewIdForResource} from '../../utils/resource';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {MemStore} from '../contexts/mem/Mem';
 import {
-  ISemanticDataAccessProviderMutationRunOptions,
-  ISemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
-import {IBaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {createFolderList} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
@@ -38,10 +38,10 @@ const appSetupVars = {
 };
 
 async function setupWorkspace(
-  context: IBaseContext,
+  context: BaseContextType,
   name: string,
   rootname: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   return await internalCreateWorkspace(
     context,
@@ -57,13 +57,13 @@ async function setupWorkspace(
 }
 
 async function setupDefaultUserCollaborationRequest(
-  context: IBaseContext,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  workspace: Workspace,
   userEmail: string,
   adminPermissionGroupId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const request = newWorkspaceResource<ICollaborationRequest>(
+  const request = newWorkspaceResource<CollaborationRequest>(
     SYSTEM_SESSION_AGENT,
     AppResourceType.CollaborationRequest,
     workspace.resourceId,
@@ -93,9 +93,9 @@ async function setupDefaultUserCollaborationRequest(
 }
 
 async function setupFolders(
-  context: IBaseContext,
-  workspace: IWorkspace,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  context: BaseContextType,
+  workspace: Workspace,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const [workspaceImagesFolder, userImagesFolder] = await Promise.all([
     createFolderList(
@@ -121,22 +121,22 @@ async function setupFolders(
 }
 
 async function setupImageUploadPermissionGroup(
-  context: IBaseContext,
+  context: BaseContextType,
   workspaceId: string,
   name: string,
   description: string,
   folderId: string,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const imageUploadPermissionGroup = newWorkspaceResource<IPermissionGroup>(
+  const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
     SYSTEM_SESSION_AGENT,
     AppResourceType.PermissionGroup,
     workspaceId,
     {name, description}
   );
-  const permissionItems: IPermissionItem[] = [AppActionType.Create, AppActionType.Read].map(
+  const permissionItems: PermissionItem[] = [AppActionType.Create, AppActionType.Read].map(
     action => {
-      const item: IPermissionItem = newWorkspaceResource<IPermissionItem>(
+      const item: PermissionItem = newWorkspaceResource<PermissionItem>(
         SYSTEM_SESSION_AGENT,
         AppResourceType.PermissionItem,
         workspaceId,
@@ -163,8 +163,8 @@ async function setupImageUploadPermissionGroup(
 }
 
 async function isRootWorkspaceSetup(
-  context: IBaseContext,
-  opts?: ISemanticDataAccessProviderRunOptions
+  context: BaseContextType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
@@ -173,11 +173,11 @@ async function isRootWorkspaceSetup(
 }
 
 async function getRootWorkspace(
-  context: IBaseContext,
-  appRuntimeState: IAppRuntimeState,
-  opts?: ISemanticDataAccessProviderRunOptions
+  context: BaseContextType,
+  appRuntimeState: AppRuntimeState,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const appRuntimeVars: IAppRuntimeVars = {
+  const appRuntimeVars: AppRuntimeVars = {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
     appWorkspacesImageUploadPermissionGroupId:
       appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
@@ -192,9 +192,9 @@ async function getRootWorkspace(
   return workspace;
 }
 
-export async function setupApp(context: IBaseContext) {
+export async function setupApp(context: BaseContextType) {
   return await MemStore.withTransaction(context, async transaction => {
-    const opts: ISemanticDataAccessProviderMutationRunOptions = {transaction};
+    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
     const appRuntimeState = await isRootWorkspaceSetup(context, opts);
     if (appRuntimeState) {
       return await getRootWorkspace(context, appRuntimeState, opts);
@@ -238,7 +238,7 @@ export async function setupApp(context: IBaseContext) {
         ),
       ]);
 
-    const appRuntimeVars: IAppRuntimeVars = {
+    const appRuntimeVars: AppRuntimeVars = {
       appWorkspaceId: workspace.resourceId,
       appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
       appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,

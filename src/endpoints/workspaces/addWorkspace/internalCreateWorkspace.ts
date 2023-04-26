@@ -1,7 +1,7 @@
 import assert = require('assert');
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -9,18 +9,18 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
-import {ISemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {IBaseContext} from '../../contexts/types';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceExists';
-import {INewWorkspaceInput} from './types';
+import {NewWorkspaceInput} from './types';
 import {generateDefaultWorkspacePermissionGroups} from './utils';
 
 export function transformUsageThresholInput(
-  agent: IAgent,
-  input: Required<INewWorkspaceInput>['usageThresholds']
+  agent: Agent,
+  input: Required<NewWorkspaceInput>['usageThresholds']
 ) {
-  const usageThresholds: IWorkspace['usageThresholds'] = {};
+  const usageThresholds: Workspace['usageThresholds'] = {};
   cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
     assert(usageThreshold);
@@ -34,11 +34,11 @@ export function transformUsageThresholInput(
 }
 
 const internalCreateWorkspace = async (
-  context: IBaseContext,
-  data: INewWorkspaceInput,
-  agent: IAgent,
+  context: BaseContextType,
+  data: NewWorkspaceInput,
+  agent: Agent,
   userId: string | undefined,
-  opts: ISemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
   await Promise.all([
     checkWorkspaceNameExists(context, data.name, opts),
@@ -49,7 +49,7 @@ const internalCreateWorkspace = async (
   const usageThresholds = getDefaultThresholds();
   const createdAt = getTimestamp();
   const id = getNewIdForResource(AppResourceType.Workspace);
-  const workspace: IWorkspace | null = {
+  const workspace: Workspace | null = {
     createdAt,
     usageThresholds,
     createdBy: agent,

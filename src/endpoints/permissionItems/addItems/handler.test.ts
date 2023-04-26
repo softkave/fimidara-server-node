@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, getWorkspaceActionList} from '../../../definitions/system';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {
   canEntityPerformActionOnTargetId,
   checkExplicitAccessPermissionsOnTargetId,
@@ -18,11 +18,11 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import PermissionItemQueries from '../queries';
-import {IPermissionItemInput} from '../types';
+import {PermissionItemInput} from '../types';
 import addPermissionItems from './handler';
-import {IAddPermissionItemsEndpointParams} from './types';
+import {AddPermissionItemsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -42,13 +42,13 @@ describe('addItems', () => {
       userToken,
       workspace.resourceId
     );
-    const items: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+    const items: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: workspace.resourceId},
       appliesTo: PermissionItemAppliesTo.Self,
     }));
-    const reqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {items, workspaceId: workspace.resourceId, entity: {entityId: permissionGroup.resourceId}}
     );
@@ -73,13 +73,13 @@ describe('addItems', () => {
       workspace.resourceId
     );
     const grantAccess = faker.datatype.boolean();
-    const itemsUniq: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+    const itemsUniq: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
       grantAccess,
       action: action as AppActionType,
       target: {targetId: workspace.resourceId},
       appliesTo: PermissionItemAppliesTo.Self,
     }));
-    const itemsDuplicated: IPermissionItemInput[] = getWorkspaceActionList()
+    const itemsDuplicated: PermissionItemInput[] = getWorkspaceActionList()
       .concat(getWorkspaceActionList())
       .map(action => ({
         grantAccess,
@@ -87,7 +87,7 @@ describe('addItems', () => {
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.Self,
       }));
-    const reqData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         items: itemsDuplicated,

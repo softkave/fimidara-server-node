@@ -1,5 +1,5 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
@@ -13,9 +13,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getWorkspaceTags from './handler';
-import {IGetWorkspaceTagsEndpointParams} from './types';
+import {GetWorkspaceTagsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -32,7 +32,7 @@ describe('getWorkspaceTags', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
     const {tag: tag02} = await insertTagForTest(context, userToken, workspace.resourceId);
-    const instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
@@ -50,7 +50,7 @@ describe('getWorkspaceTags', () => {
     const count = await context.semantic.tag.countByQuery({workspaceId: workspace.resourceId});
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
@@ -60,7 +60,7 @@ describe('getWorkspaceTags', () => {
     expect(result.tags).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );

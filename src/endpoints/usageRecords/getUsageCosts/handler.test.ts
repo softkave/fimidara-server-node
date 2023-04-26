@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -8,9 +8,9 @@ import {
 } from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';
-import {IGetUsageCostsEndpointParams} from './types';
+import {GetUsageCostsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -23,7 +23,7 @@ afterAll(async () => {
 describe('getUsageCosts', () => {
   test('should return usage costs', async () => {
     // setup
-    const instData = RequestData.fromExpressRequest<IGetUsageCostsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetUsageCostsEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {}
     );

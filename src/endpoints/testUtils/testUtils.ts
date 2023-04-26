@@ -1,30 +1,30 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {getMongoConnection} from '../../db/connection';
-import {IAgentToken} from '../../definitions/agentToken';
-import {CURRENT_TOKEN_VERSION, IBaseTokenData} from '../../definitions/system';
-import {IPublicUserData, IUserWithWorkspace} from '../../definitions/user';
-import {IPublicWorkspace, IWorkspace} from '../../definitions/workspace';
+import {AgentToken} from '../../definitions/agentToken';
+import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
+import {PublicUser, UserWithWorkspace} from '../../definitions/user';
+import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {
+  AppVariables,
   FileBackendType,
-  IAppVariables,
   extractEnvVariables,
   extractProdEnvsSchema,
 } from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';
-import addAgentToken from '../agentTokens/addToken/handler';
-import {IAddAgentTokenEndpointParams, INewAgentTokenInput} from '../agentTokens/addToken/types';
+import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
+import {AddAgentTokenEndpointParams, NewAgentTokenInput} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import sendRequest from '../collaborationRequests/sendRequest/handler';
 import {
-  ICollaborationRequestInput,
-  ISendCollaborationRequestEndpointParams,
+  CollaborationRequestInput,
+  SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import BaseContext from '../contexts/BaseContext';
-import {IBaseContext, IServerRequest} from '../contexts/types';
+import {IServerRequest} from '../contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -34,28 +34,28 @@ import {
   ingestDataIntoMemStore,
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
-import {IUploadFileEndpointParams} from '../files/uploadFile/types';
+import {UploadFileEndpointParams} from '../files/uploadFile/types';
 import {splitfilepathWithDetails} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
-import {IAddFolderEndpointParams, INewFolderInput} from '../folders/addFolder/types';
+import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
 import {addRootnameToPath} from '../folders/utils';
 import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
 import {
-  IAddPermissionGroupEndpointParams,
-  INewPermissionGroupInput,
+  AddPermissionGroupEndpointParams,
+  NewPermissionGroupInput,
 } from '../permissionGroups/addPermissionGroup/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
-import {IAddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
-import {IPermissionItemInput} from '../permissionItems/types';
+import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
+import {PermissionItemInput} from '../permissionItems/types';
 import {setupApp} from '../runtime/initAppSetup';
-import {IBaseEndpointResult} from '../types';
-import internalConfirmEmailAddress from '../user/confirmEmailAddress/internalConfirmEmailAddress';
-import signup from '../user/signup/signup';
-import {ISignupEndpointParams} from '../user/signup/types';
-import {assertUser} from '../user/utils';
+import {BaseEndpointResult} from '../types';
+import internalConfirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
+import signup from '../users/signup/signup';
+import {SignupEndpointParams} from '../users/signup/types';
+import {assertUser} from '../users/utils';
 import addWorkspace from '../workspaces/addWorkspace/handler';
-import {IAddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
+import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
@@ -66,11 +66,11 @@ import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
 
-export function getTestEmailProvider(appVariables: IAppVariables) {
+export function getTestEmailProvider(appVariables: AppVariables) {
   return new MockTestEmailProviderContext();
 }
 
-export function getTestFileProvider(appVariables: IAppVariables) {
+export function getTestFileProvider(appVariables: AppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
   } else {
@@ -102,17 +102,17 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
   return ctx;
 }
 
-export function assertContext(ctx: any): asserts ctx is IBaseContext {
+export function assertContext(ctx: any): asserts ctx is BaseContext {
   assert(ctx, 'Context is not yet initialized.');
 }
 
-export function assertEndpointResultOk(result: IBaseEndpointResult) {
+export function assertEndpointResultOk(result: BaseEndpointResult) {
   if (result?.errors?.length) {
     throw result.errors;
   }
 }
 
-export function mockExpressRequest(token?: IBaseTokenData) {
+export function mockExpressRequest(token?: BaseTokenData) {
   const req: IServerRequest = {
     auth: token,
   } as unknown as IServerRequest;
@@ -120,7 +120,7 @@ export function mockExpressRequest(token?: IBaseTokenData) {
 }
 
 export function mockExpressRequestWithAgentToken(
-  token: Pick<IAgentToken, 'resourceId' | 'createdAt' | 'expires'>
+  token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expires'>
 ) {
   const req: IServerRequest = {
     auth: {
@@ -141,19 +141,19 @@ export function mockExpressRequestForPublicAgent() {
 }
 
 export interface IInsertUserForTestResult {
-  rawUser: IUserWithWorkspace;
-  userToken: IAgentToken;
-  user: IPublicUserData;
+  rawUser: UserWithWorkspace;
+  userToken: AgentToken;
+  user: PublicUser;
   userTokenStr: string;
-  reqData: RequestData<ISignupEndpointParams>;
+  reqData: RequestData<SignupEndpointParams>;
 }
 
 export async function insertUserForTest(
-  context: IBaseContext,
-  userInput: Partial<ISignupEndpointParams> = {},
+  context: BaseContext,
+  userInput: Partial<SignupEndpointParams> = {},
   skipAutoVerifyEmail = false // Tests that mutate data will fail otherwise
 ): Promise<IInsertUserForTestResult> {
-  const instData = RequestData.fromExpressRequest<ISignupEndpointParams>(mockExpressRequest(), {
+  const instData = RequestData.fromExpressRequest<SignupEndpointParams>(mockExpressRequest(), {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
@@ -163,7 +163,7 @@ export async function insertUserForTest(
 
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
-  let rawUser: IUserWithWorkspace;
+  let rawUser: UserWithWorkspace;
   if (!skipAutoVerifyEmail) {
     const user = await internalConfirmEmailAddress(context, result.user.resourceId);
     rawUser = await populateUserWorkspaces(context, user);
@@ -186,17 +186,17 @@ export async function insertUserForTest(
 }
 
 export interface IInsertWorkspaceForTestResult {
-  workspace: IPublicWorkspace;
-  rawWorkspace: IWorkspace;
+  workspace: PublicWorkspace;
+  rawWorkspace: Workspace;
 }
 
 export async function insertWorkspaceForTest(
-  context: IBaseContext,
-  userToken: IAgentToken,
-  workspaceInput: Partial<IAddWorkspaceEndpointParams> = {}
+  context: BaseContext,
+  userToken: AgentToken,
+  workspaceInput: Partial<AddWorkspaceEndpointParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
   const companyName = faker.lorem.words(6);
-  const instData = RequestData.fromExpressRequest<IAddWorkspaceEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddWorkspaceEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       name: companyName,
@@ -215,12 +215,12 @@ export async function insertWorkspaceForTest(
 }
 
 export async function insertPermissionGroupForTest(
-  context: IBaseContext,
-  userToken: IAgentToken,
+  context: BaseContext,
+  userToken: AgentToken,
   workspaceId: string,
-  permissionGroupInput: Partial<INewPermissionGroupInput> = {}
+  permissionGroupInput: Partial<NewPermissionGroupInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddPermissionGroupEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddPermissionGroupEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
@@ -238,12 +238,12 @@ export async function insertPermissionGroupForTest(
 }
 
 export async function insertPermissionItemsForTest(
-  context: IBaseContext,
-  userToken: IAgentToken,
+  context: BaseContext,
+  userToken: AgentToken,
   workspaceId: string,
-  input: IPermissionItemInput | IPermissionItemInput[]
+  input: PermissionItemInput | PermissionItemInput[]
 ) {
-  const instData = RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {workspaceId, items: toNonNullableArray(input)}
   );
@@ -253,12 +253,12 @@ export async function insertPermissionItemsForTest(
 }
 
 export async function insertRequestForTest(
-  context: IBaseContext,
-  userToken: IAgentToken,
+  context: BaseContext,
+  userToken: AgentToken,
   workspaceId: string,
-  requestInput: Partial<ICollaborationRequestInput> = {}
+  requestInput: Partial<CollaborationRequestInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<ISendCollaborationRequestEndpointParams>(
+  const instData = RequestData.fromExpressRequest<SendCollaborationRequestEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
@@ -277,12 +277,12 @@ export async function insertRequestForTest(
 }
 
 export async function insertAgentTokenForTest(
-  context: IBaseContext,
-  userToken: IAgentToken,
+  context: BaseContext,
+  userToken: AgentToken,
   workspaceId: string,
-  tokenInput: Partial<INewAgentTokenInput> = {}
+  tokenInput: Partial<NewAgentTokenInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddAgentTokenEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
@@ -295,18 +295,18 @@ export async function insertAgentTokenForTest(
     }
   );
 
-  const result = await addAgentToken(context, instData);
+  const result = await addAgentTokenEndpoint(context, instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function insertFolderForTest(
-  context: IBaseContext,
-  userToken: IAgentToken | null,
-  workspace: IPublicWorkspace,
-  folderInput: Partial<INewFolderInput> = {}
+  context: BaseContext,
+  userToken: AgentToken | null,
+  workspace: PublicWorkspace,
+  folderInput: Partial<NewFolderInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<IAddFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
     userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
     {
       folder: {
@@ -349,14 +349,14 @@ export function generateTestTextFile() {
 }
 
 export async function insertFileForTest(
-  context: IBaseContext,
-  userToken: IAgentToken | null, // Pass null for public agent
-  workspace: Pick<IWorkspace, 'rootname'>,
-  fileInput: Partial<IUploadFileEndpointParams> = {},
+  context: BaseContext,
+  userToken: AgentToken | null, // Pass null for public agent
+  workspace: Pick<Workspace, 'rootname'>,
+  fileInput: Partial<UploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
-  const input: IUploadFileEndpointParams = {
+  const input: UploadFileEndpointParams = {
     filepath: addRootnameToPath(
       [generateTestFileName()].join(folderConstants.nameSeparator),
       workspace.rootname
@@ -386,7 +386,7 @@ export async function insertFileForTest(
     input.filepath = input.filepath + '.' + input.extension;
   }
 
-  const instData = RequestData.fromExpressRequest<IUploadFileEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
     userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
     input
   );

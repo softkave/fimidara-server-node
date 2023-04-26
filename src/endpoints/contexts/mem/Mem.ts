@@ -12,18 +12,18 @@ import {
   merge,
   set,
 } from 'lodash';
-import {IAgentToken} from '../../../definitions/agentToken';
-import {IAssignedItem} from '../../../definitions/assignedItem';
-import {ICollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IFile} from '../../../definitions/file';
-import {IFolder} from '../../../definitions/folder';
-import {IPermissionGroup} from '../../../definitions/permissionGroups';
-import {IPermissionItem} from '../../../definitions/permissionItem';
-import {IAppRuntimeState, IResource, IResourceWrapper} from '../../../definitions/system';
-import {ITag} from '../../../definitions/tag';
-import {IUsageRecord} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {AgentToken} from '../../../definitions/agentToken';
+import {AssignedItem} from '../../../definitions/assignedItem';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionItem} from '../../../definitions/permissionItem';
+import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
+import {User} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {makeKey, toArray, toNonNullableArray} from '../../../utils/fns';
@@ -38,30 +38,30 @@ import {
   INumberLiteralFieldQueryOps,
   LiteralDataQuery,
 } from '../data/types';
-import {IBaseContext} from '../types';
+import {BaseContextType} from '../types';
 import {StackedArray} from './memArrayHelpers';
 import {
-  IAgentTokenMemStoreProvider,
-  IAppRuntimeStateMemStoreProvider,
-  IAssignedItemMemStoreProvider,
-  ICollaborationRequestMemStoreProvider,
-  IFileMemStoreProvider,
-  IFolderMemStoreProvider,
-  IMemStore,
-  IMemStoreIndex,
+  AgentTokenMemStoreProviderType,
+  AppRuntimeStateMemStoreProviderType,
+  AssignedItemMemStoreProviderType,
+  CollaborationRequestMemStoreProviderType,
+  FileMemStoreProviderType,
+  FolderMemStoreProviderType,
   IMemStoreOptions,
-  IMemStoreTransaction,
-  IPermissionGroupMemStoreProvider,
-  IPermissionItemMemStoreProvider,
-  ITagMemStoreProvider,
-  IUsageRecordMemStoreProvider,
-  IUserMemStoreProvider,
-  IWorkspaceMemStoreProvider,
   MemStoreIndexOptions,
+  MemStoreIndexType,
   MemStoreIndexTypes,
   MemStoreTransactionConsistencyOp,
   MemStoreTransactionConsistencyOpTypes,
   MemStoreTransactionState,
+  MemStoreTransactionType,
+  MemStoreType,
+  PermissionGroupMemStoreProviderType,
+  PermissionItemMemStoreProviderType,
+  TagMemStoreProviderType,
+  UsageRecordMemStoreProviderType,
+  UserMemStoreProviderType,
+  WorkspaceMemStoreProviderType,
 } from './types';
 
 type Mem_FieldQueryOps = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> &
@@ -78,7 +78,7 @@ type Mem_FieldQueryOpKeys = keyof Mem_FieldQueryOps;
 // exists call (which should be false), because of the way JS await works, the
 // 2nd requests exists may run right after (also returning false), leading both
 // requests to insert the same row causing a conflict.
-export class MemStoreTransaction implements IMemStoreTransaction {
+export class MemStoreTransaction implements MemStoreTransactionType {
   static startTransaction() {
     return new MemStoreTransaction();
   }
@@ -86,17 +86,17 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   protected state: MemStoreTransactionState = MemStoreTransactionState.Pending;
   protected cache: Record<
     string,
-    {version: number; item: IResource; storeRef: IMemStore<IResource>}
+    {version: number; item: Resource; storeRef: MemStoreType<Resource>}
   > = {};
   protected deletedItemsIdMap: Record<string, boolean> = {};
   protected consistencyOps: MemStoreTransactionConsistencyOp[] = [];
-  protected indexViews: Map<IMemStoreIndex<IResource>, unknown> = new Map();
-  protected locks = new Map<IMemStore<IResource>, Record<number, number>>();
+  protected indexViews: Map<MemStoreIndexType<Resource>, unknown> = new Map();
+  protected locks = new Map<MemStoreType<Resource>, Record<number, number>>();
   protected error: unknown | undefined = undefined;
 
   // TODO: how to maintain storeRef without having to store it for each item? I
   // don't think it really matters, but it's a nice to have.
-  addToCache(item: IResource | IResource[], storeRef: IMemStore<IResource>) {
+  addToCache(item: Resource | Resource[], storeRef: MemStoreType<Resource>) {
     this.assertTxnValid();
     const itemsList = toNonNullableArray(item);
     itemsList.forEach(item => {
@@ -109,7 +109,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     });
   }
 
-  getFromCache<T extends IResource>(id: string) {
+  getFromCache<T extends Resource>(id: string) {
     this.assertTxnValid();
     return this.cache[id]?.item as T | undefined;
   }
@@ -128,7 +128,7 @@ export class MemStoreTransaction implements IMemStoreTransaction {
   async commit(
     syncFn: (
       consistencyOps: MemStoreTransactionConsistencyOp[],
-      txn: IMemStoreTransaction
+      txn: MemStoreTransactionType
     ) => Promise<void>
   ) {
     this.assertTxnValid();
@@ -156,24 +156,24 @@ export class MemStoreTransaction implements IMemStoreTransaction {
     }
   }
 
-  addIndexView(ref: IMemStoreIndex<IResource>, index: unknown) {
+  addIndexView(ref: MemStoreIndexType<Resource>, index: unknown) {
     this.assertTxnValid();
     if (!this.indexViews.has(ref)) {
       this.indexViews.set(ref, index);
     }
   }
 
-  getIndexView<T = unknown>(ref: IMemStoreIndex<IResource>) {
+  getIndexView<T = unknown>(ref: MemStoreIndexType<Resource>) {
     this.assertTxnValid();
     return (this.indexViews.get(ref) ?? null) as T | null;
   }
 
-  hasIndexView(ref: IMemStoreIndex<IResource>): boolean {
+  hasIndexView(ref: MemStoreIndexType<Resource>): boolean {
     this.assertTxnValid();
     return this.indexViews.has(ref);
   }
 
-  setLock(storeRef: IMemStore<IResource>, lockId: number): void {
+  setLock(storeRef: MemStoreType<Resource>, lockId: number): void {
     this.assertTxnValid();
     if (this.locks.has(storeRef)) {
       this.locks.get(storeRef)![lockId] = lockId;
@@ -213,7 +213,7 @@ type MemStoreMapIndexView = Record<
   Record</** memstore resource ID */ string, /** memstore resource ID */ string>
 >;
 
-class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreMapIndex<T extends Resource> implements MemStoreIndexType<T> {
   protected map: MemStoreMapIndexView = {};
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -221,7 +221,7 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   index(
     item: T | T[],
     existingItem: T | Array<T | undefined> | undefined,
-    transaction?: IMemStoreTransaction
+    transaction?: MemStoreTransactionType
   ) {
     const itemList = toNonNullableArray(item);
     const existingItemList = toNonNullableArray(existingItem ?? []);
@@ -288,10 +288,10 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     merge(this.map, mapView);
   }
 
-  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: MemStoreTransactionType): string[] {
     const txnMap =
       transaction?.getIndexView<MemStoreMapIndexView>(
-        this as unknown as IMemStoreIndex<IResource>
+        this as unknown as MemStoreIndexType<Resource>
       ) ?? {};
     const map = this.map;
     const keyList = toArray(key);
@@ -303,7 +303,7 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     return Object.values(acc);
   }
 
-  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: MemStoreTransactionType): void {
     appAssert(false, new ServerError(), 'Map index traversal not supported.');
   }
 
@@ -311,15 +311,15 @@ class MemStoreMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     return this.options;
   }
 
-  protected startIndexView(transaction?: IMemStoreTransaction) {
+  protected startIndexView(transaction?: MemStoreTransactionType) {
     const map = transaction
       ? transaction.getIndexView<MemStoreMapIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as MemStoreIndexType<Resource>
         ) ?? {}
       : this.map;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, map);
+    if (transaction && !transaction.hasIndexView(this as unknown as MemStoreIndexType<Resource>)) {
+      transaction.addIndexView(this as unknown as MemStoreIndexType<Resource>, map);
     }
 
     return map;
@@ -339,7 +339,7 @@ type MemStoreArrayMapIndexView = {
   splitMap: Record<string, Record<string, string>>;
 };
 
-class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> {
   protected static getNewIndexView(): MemStoreArrayMapIndexView {
     return {fullMap: {}, splitMap: {}};
   }
@@ -351,7 +351,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
   index(
     item: T | T[],
     existingItem: T | Array<T | undefined> | undefined,
-    transaction?: IMemStoreTransaction
+    transaction?: MemStoreTransactionType
   ) {
     const itemList = toNonNullableArray(item);
     const existingItemList = toNonNullableArray(existingItem ?? []);
@@ -390,9 +390,9 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     merge(this.map, view as MemStoreArrayMapIndexView);
   }
 
-  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: MemStoreTransactionType): string[] {
     const txnMap = transaction?.getIndexView<MemStoreArrayMapIndexView>(
-      this as unknown as IMemStoreIndex<IResource>
+      this as unknown as MemStoreIndexType<Resource>
     );
     const map = this.map;
     let item0: Record<string, string> | undefined = undefined;
@@ -409,7 +409,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     return item0 ? Object.values(item0) : [];
   }
 
-  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: MemStoreTransactionType): void {
     appAssert(false, new ServerError(), 'Array map index traversal not supported.');
   }
 
@@ -433,15 +433,15 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
     });
   }
 
-  protected startIndexView(transaction?: IMemStoreTransaction) {
+  protected startIndexView(transaction?: MemStoreTransactionType) {
     const map: MemStoreArrayMapIndexView = transaction
       ? transaction.getIndexView<MemStoreArrayMapIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as MemStoreIndexType<Resource>
         ) ?? MemStoreArrayMapIndex.getNewIndexView()
       : this.map;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, map);
+    if (transaction && !transaction.hasIndexView(this as unknown as MemStoreIndexType<Resource>)) {
+      transaction.addIndexView(this as unknown as MemStoreIndexType<Resource>, map);
     }
 
     return map;
@@ -485,7 +485,7 @@ class MemStoreArrayMapIndex<T extends IResource> implements IMemStoreIndex<T> {
 type MemStoreStaticTimestampIndexItem = {timestamp: number; id: string};
 type MemStoreStaticTimestampIndexView = StackedArray<MemStoreStaticTimestampIndexItem>;
 
-class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreIndex<T> {
+class MemStoreStaticTimestampIndex<T extends Resource> implements MemStoreIndexType<T> {
   sortedList = new StackedArray<MemStoreStaticTimestampIndexItem>();
 
   constructor(protected options: MemStoreIndexOptions<T>) {}
@@ -495,7 +495,7 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
 
     // Unused since this index is for static timestamps.
     existingItem: T | Array<T | undefined> | undefined,
-    transaction?: IMemStoreTransaction
+    transaction?: MemStoreTransactionType
   ): void {
     const itemList = this.sortItems(toNonNullableArray(item));
     const indexList = this.startIndexView(transaction);
@@ -552,7 +552,7 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
     this.sortedList.merge(view);
   }
 
-  indexGet(key: unknown | unknown[], transaction?: IMemStoreTransaction): string[] {
+  indexGet(key: unknown | unknown[], transaction?: MemStoreTransactionType): string[] {
     appAssert(
       false,
       new ServerError(),
@@ -560,7 +560,7 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
     );
   }
 
-  traverse(fn: (id: string) => boolean, transaction?: IMemStoreTransaction): void {
+  traverse(fn: (id: string) => boolean, transaction?: MemStoreTransactionType): void {
     const list = this.getIndexView(transaction);
     list.some((nextItem, i) => {
       i += 1;
@@ -572,24 +572,24 @@ class MemStoreStaticTimestampIndex<T extends IResource> implements IMemStoreInde
     return this.options;
   }
 
-  protected startIndexView(transaction?: IMemStoreTransaction) {
+  protected startIndexView(transaction?: MemStoreTransactionType) {
     const indexList = transaction
       ? transaction.getIndexView<MemStoreStaticTimestampIndexView>(
-          this as unknown as IMemStoreIndex<IResource>
+          this as unknown as MemStoreIndexType<Resource>
         ) ?? StackedArray.from(this.sortedList)
       : this.sortedList;
 
-    if (transaction && !transaction.hasIndexView(this as unknown as IMemStoreIndex<IResource>)) {
-      transaction.addIndexView(this as unknown as IMemStoreIndex<IResource>, indexList);
+    if (transaction && !transaction.hasIndexView(this as unknown as MemStoreIndexType<Resource>)) {
+      transaction.addIndexView(this as unknown as MemStoreIndexType<Resource>, indexList);
     }
 
     return indexList;
   }
 
-  protected getIndexView(transaction?: IMemStoreTransaction) {
+  protected getIndexView(transaction?: MemStoreTransactionType) {
     return (
       transaction?.getIndexView<MemStoreStaticTimestampIndexView>(
-        this as unknown as IMemStoreIndex<IResource>
+        this as unknown as MemStoreIndexType<Resource>
       ) ?? this.sortedList
     );
   }
@@ -620,7 +620,7 @@ type LockInfo = {
   action: MemStoreLockableActionTypes;
   lockId: number;
   rowId: string | undefined;
-  txnRefs: Map<IMemStoreTransaction, /** timestamp */ number>;
+  txnRefs: Map<MemStoreTransactionType, /** timestamp */ number>;
 };
 
 type LockWaiter = {
@@ -646,13 +646,13 @@ export class MemStoreLockTimeoutError extends Error {
 }
 
 // TODO: Needs massive refactoring!
-export class MemStore<T extends IResource> implements IMemStore<T> {
+export class MemStore<T extends Resource> implements MemStoreType<T> {
   static MEMSTORE_ID = Symbol.for('MEMSTORE_ID');
   static TXN_LOCK_TIMEOUT_MS = 5000; // 5 seconds
 
   static async withTransaction<Result>(
-    ctx: IBaseContext,
-    fn: (transaction: IMemStoreTransaction) => Promise<Result>
+    ctx: BaseContextType,
+    fn: (transaction: MemStoreTransactionType) => Promise<Result>
   ): Promise<Result> {
     const txn = new MemStoreTransaction();
     try {
@@ -666,10 +666,10 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   }
 
   MEMSTORE_ID = MemStore.MEMSTORE_ID;
-  protected indexes: IMemStoreIndex<T>[] = [];
+  protected indexes: MemStoreIndexType<T>[] = [];
   protected itemsMap: PartialRecord<string, T> = {};
-  protected mapIndexes: PartialRecord<string, IMemStoreIndex<T>> = {};
-  protected traversalIndex: IMemStoreIndex<T>;
+  protected mapIndexes: PartialRecord<string, MemStoreIndexType<T>> = {};
+  protected traversalIndex: MemStoreIndexType<T>;
   protected tableLocks: PartialRecord<MemStoreLockableActionTypes, LockInfo> = {};
   protected rowLocks: PartialRecord<string, LockInfo> = {};
   protected waitingOnLocks: Array<LockWaiter> = [];
@@ -699,7 +699,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
       throw new Error(`Unsupported index type ${opts.type}`);
     });
 
-    const traversalField: keyof IResource = 'createdAt';
+    const traversalField: keyof Resource = 'createdAt';
     this.traversalIndex = new MemStoreStaticTimestampIndex({
       field: traversalField,
       type: MemStoreIndexTypes.StaticTimestampIndex,
@@ -711,7 +711,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     this.releaseTimedoutLocks();
   }
 
-  createItems(newItems: T | T[], transaction: IMemStoreTransaction) {
+  createItems(newItems: T | T[], transaction: MemStoreTransactionType) {
     return this.executeOp(MemStoreLockableActionTypes.Create, transaction, this.__createItems, [
       newItems,
       transaction,
@@ -721,7 +721,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   createIfNotExist(
     items: T | T[],
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ): Promise<T | T[] | null> {
     return this.executeOp(
       MemStoreLockableActionTypes.Create,
@@ -731,7 +731,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     );
   }
 
-  readItem(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) {
+  readItem(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType) {
     return this.executeOp(
       MemStoreLockableActionTypes.TransactionRead,
       transaction,
@@ -742,7 +742,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   readManyItems(
     query: LiteralDataQuery<T>,
-    transaction?: IMemStoreTransaction,
+    transaction?: MemStoreTransactionType,
     count?: number,
     page?: number
   ) {
@@ -754,7 +754,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     );
   }
 
-  updateItem(query: LiteralDataQuery<T>, update: Partial<T>, transaction: IMemStoreTransaction) {
+  updateItem(query: LiteralDataQuery<T>, update: Partial<T>, transaction: MemStoreTransactionType) {
     return this.executeOp(MemStoreLockableActionTypes.Update, transaction, this.__updateItem, [
       query,
       update,
@@ -765,7 +765,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   updateManyItems(
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    transaction: IMemStoreTransaction,
+    transaction: MemStoreTransactionType,
     count?: number
   ) {
     return this.executeOp(MemStoreLockableActionTypes.Update, transaction, this.__updateManyItems, [
@@ -776,14 +776,18 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     ]);
   }
 
-  deleteItem(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction) {
+  deleteItem(query: LiteralDataQuery<T>, transaction: MemStoreTransactionType) {
     return this.executeOp(MemStoreLockableActionTypes.Update, transaction, this.__deleteItem, [
       query,
       transaction,
     ]);
   }
 
-  deleteManyItems(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction, count?: number) {
+  deleteManyItems(
+    query: LiteralDataQuery<T>,
+    transaction: MemStoreTransactionType,
+    count?: number
+  ) {
     return this.executeOp(MemStoreLockableActionTypes.Update, transaction, this.__deleteManyItems, [
       query,
       transaction,
@@ -791,7 +795,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     ]);
   }
 
-  countItems(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) {
+  countItems(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType) {
     return this.executeOp(
       MemStoreLockableActionTypes.TransactionRead,
       transaction,
@@ -800,7 +804,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     );
   }
 
-  exists(query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) {
+  exists(query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType) {
     return this.executeOp(MemStoreLockableActionTypes.TransactionRead, transaction, this.__exists, [
       query,
       transaction,
@@ -824,7 +828,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     this.NON_TRANSACTION_ingestItems(items);
   }
 
-  releaseLocks(lockIds: number | number[], txn: IMemStoreTransaction): void {
+  releaseLocks(lockIds: number | number[], txn: MemStoreTransactionType): void {
     toNonNullableArray(lockIds).forEach(lockId => {
       const lock = this.currentLocks[lockId];
       if (!lock) return;
@@ -879,7 +883,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     // this.locksCount = 0;
   }
 
-  protected __createItems = (newItems: T | T[], transaction: IMemStoreTransaction) => {
+  protected __createItems = (newItems: T | T[], transaction: MemStoreTransactionType) => {
     const newItemsList = toNonNullableArray(newItems);
 
     if (transaction) {
@@ -903,7 +907,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected __createIfNotExist = (
     newItems: T | T[],
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ) => {
     // TODO: skip action for these kinds of match checks
     const items = this.match(query, transaction, MemStoreLockableActionTypes.Create, 1);
@@ -913,14 +917,14 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     return newItems;
   };
 
-  protected __readItem = (query: LiteralDataQuery<T>, transaction?: IMemStoreTransaction) => {
+  protected __readItem = (query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType) => {
     const items = this.__readManyItems(query, transaction, 1);
     return first(items) ?? null;
   };
 
   protected __readManyItems = (
     query: LiteralDataQuery<T>,
-    transaction?: IMemStoreTransaction,
+    transaction?: MemStoreTransactionType,
     count?: number,
     page?: number
   ) => {
@@ -945,7 +949,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected __updateItem = (
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ) => {
     const updatedItems = this.__updateManyItems(query, update, transaction, 1);
     return first(updatedItems) ?? null;
@@ -954,7 +958,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected __updateManyItems = (
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    transaction: IMemStoreTransaction,
+    transaction: MemStoreTransactionType,
     count?: number
   ) => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.Update, count);
@@ -989,13 +993,13 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     return updatedItems;
   };
 
-  protected __deleteItem = (query: LiteralDataQuery<T>, transaction: IMemStoreTransaction) => {
+  protected __deleteItem = (query: LiteralDataQuery<T>, transaction: MemStoreTransactionType) => {
     this.__deleteManyItems(query, transaction, 1);
   };
 
   protected __deleteManyItems = (
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction,
+    transaction: MemStoreTransactionType,
     count?: number
   ) => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.Update, count);
@@ -1022,7 +1026,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected __countItems = (
     query: LiteralDataQuery<T>,
-    transaction?: IMemStoreTransaction
+    transaction?: MemStoreTransactionType
   ): number => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.TransactionRead);
     const count = items.length;
@@ -1038,7 +1042,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected __exists = (
     query: LiteralDataQuery<T>,
-    transaction?: IMemStoreTransaction
+    transaction?: MemStoreTransactionType
   ): boolean => {
     const items = this.match(query, transaction, MemStoreLockableActionTypes.TransactionRead, 1);
     const matchFound = !!items.length;
@@ -1054,7 +1058,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected executeOp<Fn extends AnyFn>(
     action: MemStoreLockableActionTypes,
-    transaction: IMemStoreTransaction | undefined,
+    transaction: MemStoreTransactionType | undefined,
     fn: Fn,
     args: Parameters<Fn>
   ) {
@@ -1099,7 +1103,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
   }
 
-  protected releaseTxnLock(lock: LockInfo, txn: IMemStoreTransaction) {
+  protected releaseTxnLock(lock: LockInfo, txn: MemStoreTransactionType) {
     lock.txnRefs.delete(txn);
   }
 
@@ -1148,7 +1152,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected addTableLock(
     action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ) {
     const timestamp = Date.now();
     toNonNullableArray(action).forEach(nextAction => {
@@ -1179,7 +1183,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected addRowLock(
     id: string,
     action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
-    transaction: IMemStoreTransaction
+    transaction: MemStoreTransactionType
   ) {
     const timestamp = Date.now();
     toNonNullableArray(action).forEach(nextAction => {
@@ -1211,7 +1215,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     });
   }
 
-  protected checkTableLock(action: MemStoreLockableActionTypes, txn: IMemStoreTransaction) {
+  protected checkTableLock(action: MemStoreLockableActionTypes, txn: MemStoreTransactionType) {
     const lock = this.tableLocks[action];
     if (lock && !lock.txnRefs.has(txn)) throw lock;
   }
@@ -1219,7 +1223,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected checkRowLock(
     id: string,
     action: MemStoreLockableActionTypes,
-    txn: IMemStoreTransaction
+    txn: MemStoreTransactionType
   ) {
     const lock = this.rowLocks[this.getRowLockId(id, action)];
     if (lock && !lock.txnRefs.has(txn)) throw lock;
@@ -1227,7 +1231,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected match(
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction | undefined,
+    transaction: MemStoreTransactionType | undefined,
     action: MemStoreLockableActionTypes,
     count?: number,
     page?: number
@@ -1501,7 +1505,10 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     }
   }
 
-  protected indexMatch(query: LiteralDataQuery<T>, transaction: IMemStoreTransaction | undefined) {
+  protected indexMatch(
+    query: LiteralDataQuery<T>,
+    transaction: MemStoreTransactionType | undefined
+  ) {
     let indexMatchRemainingQuery: LiteralDataQuery<T> = {};
     const matchedItemsMapList: Array<Record<string, T>> = [];
     let goodRun = false;
@@ -1579,7 +1586,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
 
   protected matchResourceId(
     query: LiteralDataQuery<T>,
-    transaction: IMemStoreTransaction | undefined
+    transaction: MemStoreTransactionType | undefined
   ) {
     if (!query.resourceId) return;
 
@@ -1589,7 +1596,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     const opOrValue = query.resourceId;
     const op = (isObject(opOrValue) ? opOrValue : {$eq: opOrValue}) as Mem_FieldQueryOps;
     const matchedItems: Record<string, T> = {};
-    const resourceIdKey: keyof IResource = 'resourceId';
+    const resourceIdKey: keyof Resource = 'resourceId';
     let goodRun = false;
 
     for (const opKey in op) {
@@ -1623,7 +1630,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
     return {remainingQuery, matchedItems, goodRun};
   }
 
-  protected getItem(id: string, transaction: IMemStoreTransaction | undefined) {
+  protected getItem(id: string, transaction: MemStoreTransactionType | undefined) {
     if (transaction?.isItemDeleted(id)) return undefined;
     let item: T | undefined = undefined;
     if (transaction) item = transaction.getFromCache<T>(id);
@@ -1634,7 +1641,7 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   protected indexIntoIndexes(
     item: T | T[],
     existingItem: T | Array<T | undefined> | undefined,
-    transaction: IMemStoreTransaction | undefined
+    transaction: MemStoreTransactionType | undefined
   ) {
     forEach(this.indexes, index => {
       index.index(item, existingItem, transaction);
@@ -1672,17 +1679,17 @@ export class MemStore<T extends IResource> implements IMemStore<T> {
   }
 }
 
-export function isMemStoreImpl(store: IMemStore<IResource>): store is MemStore<IResource> {
-  return (store as MemStore<IResource>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
+export function isMemStoreImpl(store: MemStoreType<Resource>): store is MemStore<Resource> {
+  return (store as MemStore<Resource>).MEMSTORE_ID === MemStore.MEMSTORE_ID;
 }
 
 export async function syncTxnOps(
-  ctx: IBaseContext,
+  ctx: BaseContextType,
   consistencyOps: MemStoreTransactionConsistencyOp[],
-  txn: IMemStoreTransaction
+  txn: MemStoreTransactionType
 ) {
-  const items: Array<IResource | undefined> = [];
-  const bulkOps: BulkOpItem<IResourceWrapper>[] = [];
+  const items: Array<Resource | undefined> = [];
+  const bulkOps: BulkOpItem<ResourceWrapper>[] = [];
 
   for (const op of consistencyOps) {
     if (
@@ -1724,31 +1731,33 @@ export async function syncTxnOps(
   await ctx.data.resource.TRANSACTION_bulkWrite(bulkOps);
 }
 
-export class FolderMemStoreProvider extends MemStore<IFolder> implements IFolderMemStoreProvider {}
-export class FileMemStoreProvider extends MemStore<IFile> implements IFileMemStoreProvider {}
+export class FolderMemStoreProvider
+  extends MemStore<Folder>
+  implements FolderMemStoreProviderType {}
+export class FileMemStoreProvider extends MemStore<File> implements FileMemStoreProviderType {}
 export class AgentTokenMemStoreProvider
-  extends MemStore<IAgentToken>
-  implements IAgentTokenMemStoreProvider {}
+  extends MemStore<AgentToken>
+  implements AgentTokenMemStoreProviderType {}
 export class PermissionItemMemStoreProvider
-  extends MemStore<IPermissionItem>
-  implements IPermissionItemMemStoreProvider {}
+  extends MemStore<PermissionItem>
+  implements PermissionItemMemStoreProviderType {}
 export class PermissionGroupMemStoreProvider
-  extends MemStore<IPermissionGroup>
-  implements IPermissionGroupMemStoreProvider {}
+  extends MemStore<PermissionGroup>
+  implements PermissionGroupMemStoreProviderType {}
 export class WorkspaceMemStoreProvider
-  extends MemStore<IWorkspace>
-  implements IWorkspaceMemStoreProvider {}
+  extends MemStore<Workspace>
+  implements WorkspaceMemStoreProviderType {}
 export class CollaborationRequestMemStoreProvider
-  extends MemStore<ICollaborationRequest>
-  implements ICollaborationRequestMemStoreProvider {}
-export class UserMemStoreProvider extends MemStore<IUser> implements IUserMemStoreProvider {}
+  extends MemStore<CollaborationRequest>
+  implements CollaborationRequestMemStoreProviderType {}
+export class UserMemStoreProvider extends MemStore<User> implements UserMemStoreProviderType {}
 export class AppRuntimeStateMemStoreProvider
-  extends MemStore<IAppRuntimeState>
-  implements IAppRuntimeStateMemStoreProvider {}
-export class TagMemStoreProvider extends MemStore<ITag> implements ITagMemStoreProvider {}
+  extends MemStore<AppRuntimeState>
+  implements AppRuntimeStateMemStoreProviderType {}
+export class TagMemStoreProvider extends MemStore<Tag> implements TagMemStoreProviderType {}
 export class AssignedItemMemStoreProvider
-  extends MemStore<IAssignedItem>
-  implements IAssignedItemMemStoreProvider {}
+  extends MemStore<AssignedItem>
+  implements AssignedItemMemStoreProviderType {}
 export class UsageRecordMemStoreProvider
-  extends MemStore<IUsageRecord>
-  implements IUsageRecordMemStoreProvider {}
+  extends MemStore<UsageRecord>
+  implements UsageRecordMemStoreProviderType {}

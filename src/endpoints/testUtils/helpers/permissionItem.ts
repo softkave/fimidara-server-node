@@ -1,10 +1,10 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {makeKey, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 
 export async function canEntityPerformActionOnTargetId(
-  context: IBaseContext,
+  context: BaseContextType,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
   targetId: string | string[],
@@ -38,7 +38,7 @@ export async function canEntityPerformActionOnTargetId(
 }
 
 export async function canEntityPerformActionOnTargetType(
-  context: IBaseContext,
+  context: BaseContextType,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
   targetType: AppResourceType | AppResourceType[],
@@ -70,7 +70,7 @@ export async function canEntityPerformActionOnTargetType(
 }
 
 export async function checkExplicitAccessPermissionsOnTargetId(
-  context: IBaseContext,
+  context: BaseContextType,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
   targetId: string | string[],
@@ -103,7 +103,7 @@ export async function checkExplicitAccessPermissionsOnTargetId(
 }
 
 export async function checkExplicitAccessPermissionsOnTargetType(
-  context: IBaseContext,
+  context: BaseContextType,
   entityId: string | string[],
   action: AppActionType | AppActionType[],
   targetType: AppResourceType | AppResourceType[],

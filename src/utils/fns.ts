@@ -1,10 +1,10 @@
 import {compact, flatten} from 'lodash';
 import {
+  Agent,
   AppResourceType,
-  IAgent,
-  IResource,
-  ISessionAgent,
-  IWorkspaceResource,
+  Resource,
+  SessionAgent,
+  WorkspaceResource,
 } from '../definitions/system';
 import {getTimestamp} from './dateFns';
 import {getNewIdForResource} from './resource';
@@ -121,11 +121,11 @@ export function calculatePageSize(count: number, pageSize: number, page: number)
   return pageCount;
 }
 
-export function getResourceId(resource: Pick<IResource, 'resourceId'>) {
+export function getResourceId(resource: Pick<Resource, 'resourceId'>) {
   return resource.resourceId;
 }
 
-export function extractResourceIdList(resources: Pick<IResource, 'resourceId'>[]) {
+export function extractResourceIdList(resources: Pick<Resource, 'resourceId'>[]) {
   return resources.map(getResourceId);
 }
 
@@ -155,26 +155,26 @@ export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
 
 export function newResource<T extends AnyObject>(
   type: AppResourceType,
-  seed?: Omit<T, keyof IResource> & Partial<IResource>
-): IResource & T {
+  seed?: Omit<T, keyof Resource> & Partial<Resource>
+): Resource & T {
   const createdAt = getTimestamp();
   return {
     createdAt,
     resourceId: getNewIdForResource(type),
     lastUpdatedAt: createdAt,
     ...seed,
-  } as IResource & T;
+  } as Resource & T;
 }
 
 export function newWorkspaceResource<T extends AnyObject>(
-  agent: IAgent | ISessionAgent,
+  agent: Agent | SessionAgent,
   type: AppResourceType,
   workspaceId: string,
-  seed?: Omit<T, keyof IWorkspaceResource> & Partial<IWorkspaceResource>
-): IWorkspaceResource & T {
+  seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
+): WorkspaceResource & T {
   const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
   const createdAt = getTimestamp();
-  const item: IWorkspaceResource = {
+  const item: WorkspaceResource = {
     createdBy,
     createdAt,
     workspaceId,
@@ -183,7 +183,7 @@ export function newWorkspaceResource<T extends AnyObject>(
     lastUpdatedBy: createdBy,
     ...seed,
   };
-  return item as T & IWorkspaceResource;
+  return item as T & WorkspaceResource;
 }
 
 export function loop(count = 1, fn: AnyFn) {

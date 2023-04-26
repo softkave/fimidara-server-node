@@ -1,33 +1,33 @@
 import {forEach} from 'lodash';
 import {Logger} from 'winston';
-import {FileBackendType, IAppVariables} from '../../resources/vars';
+import {AppVariables, FileBackendType} from '../../resources/vars';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import {IEmailProviderContext} from './EmailProviderContext';
 import {
-  IFilePersistenceProviderContext,
+  FilePersistenceProviderContext,
   S3FilePersistenceProviderContext,
 } from './FilePersistenceProviderContext';
 import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
-import SessionContext, {ISessionContext} from './SessionContext';
-import {IMemStore} from './mem/types';
+import SessionContext from './SessionContext';
+import {MemStoreType} from './mem/types';
 import {
-  IBaseContext,
-  IBaseContextDataProviders,
-  IBaseContextLogicProviders,
-  IBaseContextMemStoreProviders,
-  IBaseContextSemanticDataProviders,
+  BaseContextDataProviders,
+  BaseContextLogicProviders,
+  BaseContextMemStoreProviders,
+  BaseContextSemanticDataProviders,
+  BaseContextType,
 } from './types';
 
 export default class BaseContext<
-  Data extends IBaseContextDataProviders = IBaseContextDataProviders,
+  Data extends BaseContextDataProviders = BaseContextDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
-  FileBackend extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  AppVars extends IAppVariables = IAppVariables,
-  MemStore extends IBaseContextMemStoreProviders = IBaseContextMemStoreProviders,
-  Logic extends IBaseContextLogicProviders = IBaseContextLogicProviders,
-  SemanticData extends IBaseContextSemanticDataProviders = IBaseContextSemanticDataProviders
-> implements IBaseContext<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
+  FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
+  AppVars extends AppVariables = AppVariables,
+  MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
+> implements BaseContextType<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
 {
   data: Data;
   email: Email;
@@ -36,7 +36,7 @@ export default class BaseContext<
   memstore: MemStore;
   logic: Logic;
   semantic: SemanticData;
-  session: ISessionContext = new SessionContext();
+  session: SessionContext = new SessionContext();
   clientLogger: Logger = loggerFactory({
     transports: ['mongodb'],
     meta: {service: FimidaraLoggerServiceNames.WebClient},
@@ -67,7 +67,7 @@ export default class BaseContext<
 
   dispose = async () => {
     forEach(this.memstore, store => {
-      (store as IMemStore<any>).dispose();
+      (store as MemStoreType<any>).dispose();
     });
 
     const promises = [this.fileBackend.close(), this.email.close()];
@@ -80,7 +80,7 @@ export default class BaseContext<
   };
 }
 
-export function getFileProvider(appVariables: IAppVariables) {
+export function getFileProvider(appVariables: AppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new S3FilePersistenceProviderContext(appVariables.awsRegion);
   } else {

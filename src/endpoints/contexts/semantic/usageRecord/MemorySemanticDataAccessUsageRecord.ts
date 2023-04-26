@@ -1,7 +1,7 @@
-import {IUsageRecord} from '../../../../definitions/usageRecord';
+import {UsageRecord} from '../../../../definitions/usageRecord';
 import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {ISemanticDataAccessUsageRecordProvider} from './types';
+import {SemanticDataAccessUsageRecordProviderType} from './types';
 
 export class MemorySemanticDataAccessUsageRecord
-  extends SemanticDataAccessWorkspaceResourceProvider<IUsageRecord>
-  implements ISemanticDataAccessUsageRecordProvider {}
+  extends SemanticDataAccessWorkspaceResourceProvider<UsageRecord>
+  implements SemanticDataAccessUsageRecordProviderType {}

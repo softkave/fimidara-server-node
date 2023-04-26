@@ -3,7 +3,7 @@ import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
 import {getResourceId} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -17,12 +17,12 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import addPermissionItems from '../addItems/handler';
-import {IAddPermissionItemsEndpointParams} from '../addItems/types';
-import {IPermissionItemInput} from '../types';
+import {AddPermissionItemsEndpointParams} from '../addItems/types';
+import {PermissionItemInput} from '../types';
 import {default as getResourcePermissionItems} from './handler';
-import {IGetResourcePermissionItemsEndpointParams} from './types';
+import {GetResourcePermissionItemsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -41,14 +41,14 @@ describe.skip('getResourcePermissionItems', () => {
       insertPermissionGroupForTest(context, userToken, workspace.resourceId),
       insertPermissionGroupForTest(context, userToken, workspace.resourceId),
     ]);
-    const inputItems: IPermissionItemInput[] = getWorkspaceActionList().map(action => ({
+    const inputItems: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
       action: action as AppActionType,
       grantAccess: faker.datatype.boolean(),
       target: {targetId: pg02.resourceId},
       appliesTo: PermissionItemAppliesTo.Self,
     }));
     const addPermissionItemsReqData =
-      RequestData.fromExpressRequest<IAddPermissionItemsEndpointParams>(
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
           items: inputItems,
@@ -57,7 +57,7 @@ describe.skip('getResourcePermissionItems', () => {
         }
       );
     const {items} = await addPermissionItems(context, addPermissionItemsReqData);
-    const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, target: {targetId: pg02.resourceId}}
     );
@@ -76,7 +76,7 @@ describe.skip('getResourcePermissionItems', () => {
       targetId: workspace.resourceId,
     });
 
-    const instData = RequestData.fromExpressRequest<IGetResourcePermissionItemsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,

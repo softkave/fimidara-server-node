@@ -1,8 +1,8 @@
 import {AnyObject} from '../utils/types';
-import {AppResourceType, IWorkspaceResource} from './system';
-import {IAssignedTag} from './tag';
+import {AppResourceType, WorkspaceResource} from './system';
+import {AssignedTag} from './tag';
 
-export interface IAssignedItem<Meta extends AnyObject = AnyObject> extends IWorkspaceResource {
+export interface AssignedItem<Meta extends AnyObject = AnyObject> extends WorkspaceResource {
   assignedItemId: string;
   assignedItemType: AppResourceType;
   assigneeId: string;
@@ -10,11 +10,11 @@ export interface IAssignedItem<Meta extends AnyObject = AnyObject> extends IWork
   meta: Meta;
 }
 
-export type IAssignedItemMainFieldsMatcher = Pick<
-  IAssignedItem,
+export type AssignedItemMainFieldsMatcher = Pick<
+  AssignedItem,
   'assignedItemId' | 'assigneeId' | 'workspaceId'
 >;
 
 export type ResourceWithTags<T> = T & {
-  tags: IAssignedTag[];
+  tags: AssignedTag[];
 };

@@ -1,12 +1,12 @@
-import {IAgent} from '../../../definitions/system';
+import {Agent} from '../../../definitions/system';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertUserListForTest} from './user';
 
 export async function generateAndInsertCollaboratorListForTest(
-  ctx: IBaseContext,
-  agent: IAgent,
+  ctx: BaseContextType,
+  agent: Agent,
   workspaceId: string,
   count = 20
 ) {

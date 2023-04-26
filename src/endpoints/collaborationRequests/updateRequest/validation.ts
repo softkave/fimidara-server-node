@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
-import {IUpdateCollaborationRequestEndpointParams, IUpdateCollaborationRequestInput} from './types';
+import {UpdateCollaborationRequestEndpointParams, UpdateCollaborationRequestInput} from './types';
 
 export const updateCollaborationRequestInputJoiSchema =
-  Joi.object<IUpdateCollaborationRequestInput>().keys({
+  Joi.object<UpdateCollaborationRequestInput>().keys({
     message: validationSchemas.description.allow(null),
     expires: validationSchemas.time.allow(null),
     // permissionGroupsOnAccept:
@@ -11,7 +11,7 @@ export const updateCollaborationRequestInputJoiSchema =
   });
 
 export const updateCollaborationRequestJoiSchema =
-  Joi.object<IUpdateCollaborationRequestEndpointParams>()
+  Joi.object<UpdateCollaborationRequestEndpointParams>()
     .keys({
       requestId: validationSchemas.resourceId.required(),
       request: updateCollaborationRequestInputJoiSchema.required(),

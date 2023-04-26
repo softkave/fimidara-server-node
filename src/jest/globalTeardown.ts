@@ -8,9 +8,9 @@ import mongoose from 'mongoose';
 import {disposeApplicationGlobalUtilities} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {
+  AppVariables,
   ExtractEnvSchema,
   FileBackendType,
-  IAppVariables,
   extractEnvVariables,
   extractProdEnvsSchema,
 } from '../resources/vars';
@@ -23,7 +23,7 @@ async function waitOnPromises(promises: Promise<any>[]) {
   );
 }
 
-async function dropMongoCollections(globals: IAppVariables) {
+async function dropMongoCollections(globals: AppVariables) {
   const mongoURI = globals.mongoDbURI;
   const appDbName = globals.mongoDbDatabaseName;
   const logsDbName = globals.logsDbName;
@@ -44,7 +44,7 @@ async function dropMongoCollections(globals: IAppVariables) {
   await waitOnPromises([dropFn(appDbName), dropFn(logsDbName)]);
 }
 
-async function deleteAWSBucketObjects(globals: IAppVariables) {
+async function deleteAWSBucketObjects(globals: AppVariables) {
   const accessKeyId = globals.awsAccessKeyId;
   const secretAccessKey = globals.awsSecretAccessKey;
   const region = globals.awsRegion;

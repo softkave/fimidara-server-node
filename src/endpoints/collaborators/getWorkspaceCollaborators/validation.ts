@@ -2,15 +2,15 @@ import * as Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
 import {
-  IGetWorkspaceCollaboratorsEndpointParams,
-  IGetWorkspaceCollaboratorsEndpointParamsBase,
+  GetWorkspaceCollaboratorsEndpointParams,
+  GetWorkspaceCollaboratorsEndpointParamsBase,
 } from './types';
 
-export const getWorkspaceCollaboratorsBaseJoiSchemaParts: JoiSchemaParts<IGetWorkspaceCollaboratorsEndpointParamsBase> =
+export const getWorkspaceCollaboratorsBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceCollaboratorsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
 export const getWorkspaceCollaboratorsJoiSchema =
-  Joi.object<IGetWorkspaceCollaboratorsEndpointParams>()
+  Joi.object<GetWorkspaceCollaboratorsEndpointParams>()
     .keys({
       ...endpointValidationSchemas.paginationParts,
       ...getWorkspaceCollaboratorsBaseJoiSchemaParts,

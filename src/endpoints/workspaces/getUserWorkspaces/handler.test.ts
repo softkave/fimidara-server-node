@@ -4,7 +4,7 @@ import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
@@ -19,9 +19,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getUserWorkspaces from './handler';
-import {IGetUserWorkspacesEndpointParams} from './types';
+import {GetUserWorkspacesEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -38,7 +38,7 @@ describe('getUserWorkspaces', () => {
     const {workspace: workspace01} = await insertWorkspaceForTest(context, userToken);
     const {workspace: workspace02} = await insertWorkspaceForTest(context, userToken);
     const {workspace: workspace03} = await insertWorkspaceForTest(context, userToken);
-    const instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {}
     );
@@ -77,7 +77,7 @@ describe('getUserWorkspaces', () => {
     const count = user.workspaces.length;
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+    let instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize}
     );
@@ -87,7 +87,7 @@ describe('getUserWorkspaces', () => {
     expect(result00.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetUserWorkspacesEndpointParams>(
+    instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize}
     );

@@ -1,24 +1,24 @@
 import {first, isUndefined} from 'lodash';
-import {IFolder, IFolderMatcher} from '../../../definitions/folder';
-import {AppActionType, AppResourceType, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Folder, FolderMatcher} from '../../../definitions/folder';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {
   getResourcePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
+import {BaseContextType} from '../../contexts/types';
+import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
   contentType: AppResourceType.File | AppResourceType.Folder,
-  parentFolder?: IFolder | null
+  parentFolder?: Folder | null
 ) {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
@@ -51,12 +51,12 @@ export async function listFolderContentQuery(
 }
 
 export async function getWorkspaceAndParentFolder(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFolderMatcher
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FolderMatcher
 ) {
-  let workspace: IWorkspace | null | undefined = null,
-    parentFolder: IFolder | null | undefined = undefined;
+  let workspace: Workspace | null | undefined = null,
+    parentFolder: Folder | null | undefined = undefined;
 
   // Check if folderpath is rootname only and fetch root-level folders and files
   if (matcher.folderpath) {

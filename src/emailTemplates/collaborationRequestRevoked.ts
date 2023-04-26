@@ -7,10 +7,9 @@ import {
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
-import {IBaseEmailTemplateProps} from './types';
+import {BaseEmailTemplateProps} from './types';
 
-export interface ICollaborationRequestRevokedEmailProps
-  extends IBaseEmailTemplateProps {
+export interface CollaborationRequestRevokedEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;
 }
 
@@ -18,9 +17,7 @@ export function collaborationRequestRevokedEmailTitle(workspaceName: string) {
   return `Collaboration request from ${workspaceName} revoked`;
 }
 
-export function collaborationRequestRevokedEmailHTML(
-  props: ICollaborationRequestRevokedEmailProps
-) {
+export function collaborationRequestRevokedEmailHTML(props: CollaborationRequestRevokedEmailProps) {
   const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
   return `
 <!DOCTYPE html>
@@ -45,9 +42,7 @@ export function collaborationRequestRevokedEmailHTML(
 `;
 }
 
-export function collaborationRequestRevokedEmailText(
-  props: ICollaborationRequestRevokedEmailProps
-) {
+export function collaborationRequestRevokedEmailText(props: CollaborationRequestRevokedEmailProps) {
   const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
   const txt = `
 ${getHeaderText(title)}

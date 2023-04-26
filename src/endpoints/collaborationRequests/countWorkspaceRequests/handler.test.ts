@@ -1,4 +1,4 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -11,9 +11,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countWorkspaceCollaborationRequests from './handler';
-import {ICountWorkspaceCollaborationRequestsEndpointParams} from './types';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -35,7 +35,7 @@ describe('countWorkspaceRequests', () => {
       workspaceId: workspace.resourceId,
     });
     const instData =
-      RequestData.fromExpressRequest<ICountWorkspaceCollaborationRequestsEndpointParams>(
+      RequestData.fromExpressRequest<CountWorkspaceCollaborationRequestsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );

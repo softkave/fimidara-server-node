@@ -1,9 +1,9 @@
-import {ICollaborationRequest} from '../../definitions/collaborationRequest';
+import {CollaborationRequest} from '../../definitions/collaborationRequest';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
 function newFilter() {
-  return new DataProviderFilterBuilder<ICollaborationRequest>();
+  return new DataProviderFilterBuilder<CollaborationRequest>();
 }
 
 function getByWorkspaceIdAndUserEmail(workspaceId: string, userEmail: string) {

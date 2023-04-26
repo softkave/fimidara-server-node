@@ -1,16 +1,16 @@
 import {compact, difference, isEmpty, isUndefined, uniq} from 'lodash';
-import {IFile} from '../../../definitions/file';
-import {IPermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {File} from '../../../definitions/file';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
-  IResource,
-  ISessionAgent,
+  Resource,
+  SessionAgent,
   getWorkspaceActionList,
   getWorkspaceResourceTypeList,
 } from '../../../definitions/system';
-import {IUserWithWorkspace} from '../../../definitions/user';
-import {IWorkspace} from '../../../definitions/workspace';
+import {UserWithWorkspace} from '../../../definitions/user';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
@@ -18,8 +18,8 @@ import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {logger} from '../../globalUtils';
 import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../user/errors';
-import {IBaseContext} from '../types';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
+import {BaseContextType} from '../types';
 
 export type AuthTarget = {
   /** Pass only target ID without target type when checking a single target. */
@@ -30,16 +30,16 @@ export type AuthTarget = {
 };
 
 export interface ICheckAuthorizationParams {
-  context: IBaseContext;
-  agent: ISessionAgent;
+  context: BaseContextType;
+  agent: SessionAgent;
   workspaceId: string;
-  workspace?: Pick<IWorkspace, 'publicPermissionGroupId'>;
+  workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   containerId?: string | string[];
   targets: AuthTarget | Array<AuthTarget>;
   action: AppActionType;
 }
 
-type AccessMap = Partial<Record<string, IPermissionItem>>;
+type AccessMap = Partial<Record<string, PermissionItem>>;
 export interface IAuthAccessCheckers {
   params: ICheckAuthorizationParams | undefined;
   checkForTargetId: (
@@ -47,13 +47,13 @@ export interface IAuthAccessCheckers {
     action: AppActionType,
     containerId?: string | string[],
     nothrow?: boolean
-  ) => IPermissionItem | false;
+  ) => PermissionItem | false;
   checkForTargetType: (
     type: AppResourceType,
     action: AppActionType,
     containerId: string | string[],
     nothrow?: boolean
-  ) => IPermissionItem | false;
+  ) => PermissionItem | false;
   checkUsingCheckAuthParams: (params: ICheckAuthorizationParams) => void;
 }
 
@@ -63,7 +63,7 @@ function newAccessChecker(
   keyFn: GetItemAccessKeysFn,
   params: ICheckAuthorizationParams | undefined
 ) {
-  const handleNoAccess = (item?: IPermissionItem, nothrow = false) => {
+  const handleNoAccess = (item?: PermissionItem, nothrow = false) => {
     if (nothrow) return item ?? false;
     throw new PermissionDeniedError();
   };
@@ -77,8 +77,8 @@ function newAccessChecker(
   };
 
   const reportConflictingAccess = (
-    accessItem: IPermissionItem,
-    denyItem: IPermissionItem,
+    accessItem: PermissionItem,
+    denyItem: PermissionItem,
     action: AppActionType,
     targetType: AppResourceType,
     targetId?: string
@@ -256,7 +256,7 @@ export async function fetchAndSortAgentPermissionItems(params: ICheckAuthorizati
  * changes, change this function accordingly.
  */
 export function uniquePermissionItems(
-  items: IPermissionItem[],
+  items: PermissionItem[],
 
   /**
    * Set to `true` if you want `create`, `read`, and other actions to fold into
@@ -266,7 +266,7 @@ export function uniquePermissionItems(
 ) {
   const map: AccessMap = {};
 
-  const getItemAccessKeys = (item: IPermissionItem) => {
+  const getItemAccessKeys = (item: PermissionItem) => {
     const actions =
       foldPermissionItems && item.action === AppActionType.All
         ? getWorkspaceActionList()
@@ -284,7 +284,7 @@ export function uniquePermissionItems(
     return keys;
   };
 
-  const processItem = (item: IPermissionItem) => {
+  const processItem = (item: PermissionItem) => {
     const itemKeys = getItemAccessKeys(item);
     const exists = itemKeys.some(key => map[key]);
     if (exists) {
@@ -313,7 +313,7 @@ type GetItemAccessKeysFn = (item: {
 export type SortOutPermissionItemsSelectionFn = (p: {
   isAccessAllowed: boolean;
   isAccessDenied: boolean;
-  item: IPermissionItem;
+  item: PermissionItem;
 }) => boolean;
 
 const defaultSelectionFn: SortOutPermissionItemsSelectionFn = p => {
@@ -321,7 +321,7 @@ const defaultSelectionFn: SortOutPermissionItemsSelectionFn = p => {
 };
 
 export function sortOutPermissionItems(
-  items: IPermissionItem[],
+  items: PermissionItem[],
   selectionFn: SortOutPermissionItemsSelectionFn = defaultSelectionFn
 ) {
   const itemsAllowingAccess: AccessMap = {},
@@ -344,7 +344,7 @@ export function sortOutPermissionItems(
     return keys;
   };
 
-  const processItem = (item: IPermissionItem) => {
+  const processItem = (item: PermissionItem) => {
     const itemKeys = getItemAccessKeys(item);
     const isAccessAllowed = itemKeys.some(key => itemsAllowingAccess[key]);
     const isAccessDenied = itemKeys.some(key => itemsDenyingAccess[key]);
@@ -435,12 +435,12 @@ export function getFilePermissionContainers(workspaceId: string, resource: {idPa
 
 export function getResourcePermissionContainers(
   workspaceId: string,
-  resource?: IResource | (IResource & Pick<IFile, 'idPath'>) | null
+  resource?: Resource | (Resource & Pick<File, 'idPath'>) | null
 ) {
-  if (resource && (resource as Pick<IFile, 'idPath'>).idPath) {
-    return getFilePermissionContainers(workspaceId, resource as Pick<IFile, 'idPath'>);
+  if (resource && (resource as Pick<File, 'idPath'>).idPath) {
+    return getFilePermissionContainers(workspaceId, resource as Pick<File, 'idPath'>);
   } else if (resource && getResourceTypeFromId(resource.resourceId) === AppResourceType.User) {
-    const user = resource as unknown as IUserWithWorkspace;
+    const user = resource as unknown as UserWithWorkspace;
     checkResourcesBelongToWorkspace(workspaceId, [
       {resourceId: user.resourceId, resourceType: AppResourceType.User, resource: user},
     ]);

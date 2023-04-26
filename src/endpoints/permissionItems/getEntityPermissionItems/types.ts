@@ -1,27 +1,27 @@
-import {IPublicPermissionItem} from '../../../definitions/permissionItem';
-import {IBaseContext} from '../../contexts/types';
+import {PublicPermissionItem} from '../../../definitions/permissionItem';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  PaginatedResult,
+  PaginationQuery,
 } from '../../types';
 
-export interface IGetEntityPermissionItemsEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {
+export interface GetEntityPermissionItemsEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {
   entityId: string;
 }
 
-export interface IGetEntityPermissionItemsEndpointParams
-  extends IGetEntityPermissionItemsEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetEntityPermissionItemsEndpointParams
+  extends GetEntityPermissionItemsEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IGetEntityPermissionItemsEndpointResult extends IPaginatedResult {
-  items: IPublicPermissionItem[];
+export interface GetEntityPermissionItemsEndpointResult extends PaginatedResult {
+  items: PublicPermissionItem[];
 }
 
 export type GetEntityPermissionItemsEndpoint = Endpoint<
-  IBaseContext,
-  IGetEntityPermissionItemsEndpointParams,
-  IGetEntityPermissionItemsEndpointResult
+  BaseContextType,
+  GetEntityPermissionItemsEndpointParams,
+  GetEntityPermissionItemsEndpointResult
 >;

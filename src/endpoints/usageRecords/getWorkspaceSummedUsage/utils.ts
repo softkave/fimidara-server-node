@@ -1,26 +1,27 @@
 import {endOfMonth, startOfMonth} from 'date-fns';
-import {AppActionType, ISessionAgent} from '../../../definitions/system';
+import {AppActionType, SessionAgent} from '../../../definitions/system';
 import {
-  IUsageRecord,
+  UsageRecord,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
 import {toArray} from '../../../utils/fns';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
-import {IGetWorkspaceSummedUsageEndpointParams} from './types';
+import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
 export async function getWorkspaceSummedUsageQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   workspaceId: string,
-  data: IGetWorkspaceSummedUsageEndpointParams
+  data: GetWorkspaceSummedUsageEndpointParams
 ) {
+  // TODO: should we include permissions check for usage records?
   await checkWorkspaceAuthorization02(context, agent, AppActionType.Read, workspaceId);
 
-  const query: LiteralDataQuery<IUsageRecord> = {
+  const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
     summationType: {$eq: UsageSummationType.Two},
   };

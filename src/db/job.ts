@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {IJob} from '../definitions/job';
+import {Job} from '../definitions/job';
 import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const jobSchema = ensureMongoTypeFields<IJob>({
+const jobSchema = ensureMongoTypeFields<Job>({
   ...resourceSchema,
   type: {type: String},
   status: {type: String, index: true},
@@ -12,15 +12,15 @@ const jobSchema = ensureMongoTypeFields<IJob>({
   serverInstanceId: {type: String, index: true},
 });
 
-export type IJobDocument = Document<IJob>;
+export type JobDocument = Document<Job>;
 
-const schema = new Schema<IJob>(jobSchema);
+const schema = new Schema<Job>(jobSchema);
 const modelName = 'job';
 const collectionName = 'jobs';
 
 export function getJobModel(connection: Connection) {
-  const model = connection.model<IJob>(modelName, schema, collectionName);
+  const model = connection.model<Job>(modelName, schema, collectionName);
   return model;
 }
 
-export type IJobModel = Model<IJob>;
+export type JobModel = Model<Job>;

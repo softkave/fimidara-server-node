@@ -1,10 +1,10 @@
-import {AppActionType, ISessionAgent} from '../../definitions/system';
+import {AppActionType, SessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
-  IPublicUsageThreshold,
-  IPublicUsageThresholdLock,
-  IPublicWorkspace,
-  IWorkspace,
+  PublicUsageThreshold,
+  PublicUsageThresholdLock,
+  PublicWorkspace,
+  Workspace,
 } from '../../definitions/workspace';
 import {
   ExtractFieldsFrom,
@@ -15,19 +15,19 @@ import {
 } from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
-import {IEndpointOptionalWorkspaceIDParam} from '../types';
+import {EndpointOptionalWorkspaceIDParam} from '../types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 
-const usageThresholdSchema = getFields<IPublicUsageThreshold>({
+const usageThresholdSchema = getFields<PublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
   budget: true,
 });
-const usageThresholdLockSchema = getFields<IPublicUsageThresholdLock>({
+const usageThresholdLockSchema = getFields<PublicUsageThresholdLock>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
@@ -37,7 +37,7 @@ const usageThresholdLockSchema = getFields<IPublicUsageThresholdLock>({
 const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
 const usageThresholdLockIfExistExtractor = makeExtractIfPresent(usageThresholdLockSchema);
 
-const f: ExtractFieldsFrom<IPublicWorkspace> = {
+const f: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
   rootname: true,
@@ -46,7 +46,7 @@ const f: ExtractFieldsFrom<IPublicWorkspace> = {
   billStatus: true,
   billStatusAssignedAt: true,
   usageThresholds: data => {
-    const extract = {} as IPublicWorkspace['usageThresholds'];
+    const extract = {} as PublicWorkspace['usageThresholds'];
     for (const key in data) {
       extract[key as UsageRecordCategory] = usageThresholdIfExistExtractor(
         data[key as UsageRecordCategory]
@@ -55,7 +55,7 @@ const f: ExtractFieldsFrom<IPublicWorkspace> = {
     return extract;
   },
   usageThresholdLocks: data => {
-    const extract = {} as IPublicWorkspace['usageThresholdLocks'];
+    const extract = {} as PublicWorkspace['usageThresholdLocks'];
     for (const key in data) {
       extract[key as UsageRecordCategory] = usageThresholdLockIfExistExtractor(
         data[key as UsageRecordCategory]
@@ -64,7 +64,7 @@ const f: ExtractFieldsFrom<IPublicWorkspace> = {
     return extract;
   },
 };
-const workspaceFields = getFields<IPublicWorkspace>(f);
+const workspaceFields = getFields<PublicWorkspace>(f);
 
 export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);
@@ -73,21 +73,21 @@ export function throwWorkspaceNotFound() {
   throw new NotFoundError('Workspace not found');
 }
 
-export function assertWorkspace(workspace: IWorkspace | null | undefined): asserts workspace {
+export function assertWorkspace(workspace: Workspace | null | undefined): asserts workspace {
   if (!workspace) {
     throwWorkspaceNotFound();
   }
 }
 
-export async function checkWorkspaceExists(ctx: IBaseContext, workspaceId: string) {
+export async function checkWorkspaceExists(ctx: BaseContextType, workspaceId: string) {
   const w = await ctx.semantic.workspace.getOneById(workspaceId);
   assertWorkspace(w);
   return w;
 }
 
 export async function checkWorkspaceExistsWithAgent(
-  ctx: IBaseContext,
-  agent: ISessionAgent,
+  ctx: BaseContextType,
+  agent: SessionAgent,
   workspaceId?: string
 ) {
   if (!workspaceId) {
@@ -97,9 +97,9 @@ export async function checkWorkspaceExistsWithAgent(
 }
 
 export async function checkWorkspaceAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
   action: AppActionType
 ) {
   await checkAuthorization({
@@ -114,8 +114,8 @@ export async function checkWorkspaceAuthorization(
 }
 
 export async function checkWorkspaceAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   action: AppActionType,
   id?: string
 ) {
@@ -138,9 +138,9 @@ export function makeRootnameFromName(name: string): string {
 }
 
 export async function getWorkspaceFromEndpointInput(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  data: IEndpointOptionalWorkspaceIDParam
+  context: BaseContextType,
+  agent: SessionAgent,
+  data: EndpointOptionalWorkspaceIDParam
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);

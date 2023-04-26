@@ -1,12 +1,7 @@
-import {Request, Response} from 'express';
-import {defaultTo, isNumber, isString} from 'lodash';
-import {
-  IAgent,
-  IPublicAgent,
-  IPublicResource,
-  IPublicWorkspaceResource,
-} from '../definitions/system';
-import {IWorkspace} from '../definitions/workspace';
+import {Express, Request, Response} from 'express';
+import {compact, defaultTo, isNumber, isString} from 'lodash';
+import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
+import {Workspace} from '../definitions/workspace';
 import OperationError from '../utils/OperationError';
 import {appAssert} from '../utils/assertion';
 import {getTimestamp} from '../utils/dateFns';
@@ -26,17 +21,18 @@ import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {executeWithMutationRunOptions} from './contexts/semantic/utils';
-import {IBaseContext, IServerRequest} from './contexts/types';
+import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {logger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import {
   DeleteResourceCascadeFnsMap,
   Endpoint,
-  IPaginationQuery,
-  IRequestDataPendingPromise,
+  ExportedHttpEndpointWithMddocDefinition,
+  PaginationQuery,
+  RequestDataPendingPromise,
 } from './types';
-import {PermissionDeniedError} from './user/errors';
+import {PermissionDeniedError} from './users/errors';
 
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
@@ -65,7 +61,7 @@ export function getPublicErrors(inputError: any) {
 }
 
 export const wrapEndpointREST = <
-  Context extends IBaseContext,
+  Context extends BaseContextType,
   EndpointType extends Endpoint<Context>
 >(
   endpoint: EndpointType,
@@ -98,7 +94,7 @@ export const wrapEndpointREST = <
   };
 };
 
-const agentPublicFields = getFields<IPublicAgent>({
+const agentPublicFields = getFields<PublicAgent>({
   agentId: true,
   agentType: true,
 });
@@ -107,12 +103,12 @@ export const agentExtractor = makeExtract(agentPublicFields);
 export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
 export const agentListExtractor = makeListExtract(agentPublicFields);
 
-export const resourceFields: ExtractFieldsFrom<IPublicResource> = {
+export const resourceFields: ExtractFieldsFrom<PublicResource> = {
   resourceId: true,
   createdAt: true,
   lastUpdatedAt: true,
 };
-export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResource> = {
+export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
   ...resourceFields,
   providedResourceId: true,
   workspaceId: true,
@@ -120,7 +116,7 @@ export const workspaceResourceFields: ExtractFieldsFrom<IPublicWorkspaceResource
   lastUpdatedBy: agentExtractor,
 };
 
-export async function waitForWorks(works: IRequestDataPendingPromise[]) {
+export async function waitForWorks(works: RequestDataPendingPromise[]) {
   await Promise.all(
     works.map(item => {
       return item.promise;
@@ -136,13 +132,13 @@ export function throwAgentTokenNotFound() {
   throw reuseableErrors.agentToken.notFound();
 }
 
-export type IResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
+export type ResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
 type AssignedAgent = {
-  assignedBy: IAgent;
+  assignedBy: Agent;
   assignedAt: number;
 };
 
-export function withAssignedAgent<T extends AnyObject>(agent: IAgent, item: T): T & AssignedAgent {
+export function withAssignedAgent<T extends AnyObject>(agent: Agent, item: T): T & AssignedAgent {
   return {
     ...item,
     assignedAt: getTimestamp(),
@@ -155,7 +151,7 @@ export function withAssignedAgent<T extends AnyObject>(agent: IAgent, item: T): 
 }
 
 export function withAssignedAgentList<T extends AnyObject>(
-  agent: IAgent,
+  agent: Agent,
   items: T[] = []
 ): Array<T & AssignedAgent> {
   return items.map(item => ({
@@ -173,12 +169,12 @@ export function endpointDecodeURIComponent(d?: any) {
   return d && isString(d) ? decodeURIComponent(d) : undefined;
 }
 
-export function getEndpointPageFromInput(p: IPaginationQuery, defaultPage = 0): number {
+export function getEndpointPageFromInput(p: PaginationQuery, defaultPage = 0): number {
   return defaultTo(getPage(p.page), defaultPage);
 }
 
 export function getWorkspaceResourceListQuery(
-  workspace: IWorkspace,
+  workspace: Workspace,
   permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
 ) {
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
@@ -199,7 +195,7 @@ export function getWorkspaceResourceListQuery(
 }
 
 export function getWorkspaceResourceListQuery00(
-  workspace: IWorkspace,
+  workspace: Workspace,
   permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
 ) {
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
@@ -223,7 +219,7 @@ export function getWorkspaceResourceListQuery00(
   appAssert(false, new ServerError(), 'Control flow should not get here.');
 }
 
-export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
+export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
   if (!isNumber(data.page)) {
     data.page = endpointConstants.minPage;
   }
@@ -234,7 +230,7 @@ export function applyDefaultEndpointPaginationOptions(data: IPaginationQuery) {
 }
 
 export async function executeCascadeDelete<Args>(
-  context: IBaseContext,
+  context: BaseContextType,
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
@@ -247,4 +243,20 @@ export async function executeCascadeDelete<Args>(
 
 export function assertUpdateNotEmpty(update: AnyObject) {
   appAssert(!isObjectEmpty(update), new InvalidRequestError('Update data provided is empty.'));
+}
+
+export function registerExpressRouteFromEndpoint(
+  ctx: BaseContextType,
+  endpoint: ExportedHttpEndpointWithMddocDefinition<any>,
+  app: Express
+) {
+  const p = endpoint.mddocHttpDefinition.assertGetBasePathname();
+  const expressPath = endpoint.mddocHttpDefinition.getPathParamaters() ? `${p}*` : p;
+  app[endpoint.mddocHttpDefinition.assertGetMethod()](
+    expressPath,
+    ...compact([
+      endpoint.expressRouteMiddleware,
+      wrapEndpointREST(endpoint.fn, ctx, endpoint.handleResponse, endpoint.getDataFromReq),
+    ])
+  );
 }

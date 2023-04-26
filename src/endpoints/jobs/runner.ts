@@ -1,6 +1,6 @@
 import {
   DeleteResourceJobParams,
-  IJob,
+  Job,
   JOB_RUNNER_V1,
   JobStatus,
   JobType,
@@ -11,7 +11,7 @@ import {getTimestamp} from '../../utils/dateFns';
 import {newResource} from '../../utils/fns';
 import {DELETE_AGENT_TOKEN_CASCADE_FNS} from '../agentTokens/deleteToken/handler';
 import {DELETE_COLLABORATION_REQUEST_CASCADE_FNS} from '../collaborationRequests/deleteRequest/handler';
-import {IBaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import {DELETE_FILE_CASCADE_FNS} from '../files/deleteFile/handler';
 import {DELETE_FOLDER_CASCADE_FNS} from '../folders/deleteFolder/handler';
 import {logger} from '../globalUtils';
@@ -27,8 +27,8 @@ let noPendingJobs = false;
 const pendingJobsIdList: string[] = [];
 const JOB_INTERVAL = 1000; // 1 second
 
-export async function startJobRunner(context: IBaseContext) {
-  let nextJob: IJob | null = null;
+export async function startJobRunner(context: BaseContextType) {
+  let nextJob: Job | null = null;
   if (!noPendingJobs) await getNextUnfinishedJob(context);
   if (!nextJob) {
     noPendingJobs = true;
@@ -56,7 +56,7 @@ export async function startJobRunner(context: IBaseContext) {
   }
 }
 
-async function getNextUnfinishedJob(context: IBaseContext) {
+async function getNextUnfinishedJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
     status: JobStatus.InProgress,
     serverInstanceId: {$ne: context.appVariables.serverInstanceId},
@@ -65,7 +65,7 @@ async function getNextUnfinishedJob(context: IBaseContext) {
   });
 }
 
-async function getNextPendingJob(context: IBaseContext) {
+async function getNextPendingJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
     status: JobStatus.Pending,
     statusDate: {$gte: lastTimestamp},
@@ -73,7 +73,7 @@ async function getNextPendingJob(context: IBaseContext) {
   });
 }
 
-async function jobRunner(context: IBaseContext, job: IJob) {
+async function jobRunner(context: BaseContextType, job: Job) {
   try {
     if (job.type === JobType.DeleteResource) await executeDeleteResourceJob(context, job);
     await context.data.job.updateOneByQuery(
@@ -109,17 +109,17 @@ const cascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any
   [AppResourceType.PermissionItem]: DELETE_PERMISSION_ITEMS_CASCADE_FNS,
 };
 
-async function executeDeleteResourceJob(context: IBaseContext, job: IJob) {
+async function executeDeleteResourceJob(context: BaseContextType, job: Job) {
   const params = job.params as DeleteResourceJobParams;
   const cascadeDef = cascadeDeleteDefs[params.type];
   if (cascadeDef) await executeCascadeDelete(context, cascadeDef, params.args);
 }
 
 export async function enqueueDeleteResourceJob(
-  context: IBaseContext,
+  context: BaseContextType,
   params: DeleteResourceJobParams
 ) {
-  const job: IJob = newResource(AppResourceType.Job, {
+  const job: Job = newResource(AppResourceType.Job, {
     params,
     serverInstanceId: context.appVariables.serverInstanceId,
     status: JobStatus.Pending,
@@ -132,11 +132,14 @@ export async function enqueueDeleteResourceJob(
   return job;
 }
 
-export async function getJob(context: IBaseContext, jobId: string) {
+export async function getJob(context: BaseContextType, jobId: string) {
   return await context.data.job.assertGetOneByQuery({resourceId: jobId});
 }
 
-export async function waitForServerInstanceJobs(context: IBaseContext, serverInstanceId: string) {
+export async function waitForServerInstanceJobs(
+  context: BaseContextType,
+  serverInstanceId: string
+) {
   return new Promise<void>(resolve => {
     const getPendingJobs = async () => {
       const jobs = await context.data.job.getManyByQuery({
@@ -152,7 +155,10 @@ export async function waitForServerInstanceJobs(context: IBaseContext, serverIns
   });
 }
 
-export async function executeServerInstanceJobs(context: IBaseContext, serverInstanceId: string) {
+export async function executeServerInstanceJobs(
+  context: BaseContextType,
+  serverInstanceId: string
+) {
   const getPendingJobs = async () => {
     return await context.data.job.getManyByQuery({
       serverInstanceId,
@@ -167,7 +173,7 @@ export async function executeServerInstanceJobs(context: IBaseContext, serverIns
   }
 }
 
-export async function executeJob(context: IBaseContext, jobId: string) {
+export async function executeJob(context: BaseContextType, jobId: string) {
   const job = await context.data.job.getOneByQuery({
     resourceId: jobId,
     status: JobStatus.Pending,
@@ -176,7 +182,7 @@ export async function executeJob(context: IBaseContext, jobId: string) {
   if (job) await jobRunner(context, job);
 }
 
-export async function waitForJob(context: IBaseContext, jobId: string) {
+export async function waitForJob(context: BaseContextType, jobId: string) {
   return new Promise<void>(resolve => {
     const getPendingJob = async () => {
       const job = await context.data.job.getOneByQuery({

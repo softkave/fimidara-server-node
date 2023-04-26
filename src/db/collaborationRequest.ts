@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {ICollaborationRequest} from '../definitions/collaborationRequest';
+import {CollaborationRequest} from '../definitions/collaborationRequest';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const collaborationRequestSchema = ensureMongoTypeFields<ICollaborationRequest>({
+const collaborationRequestSchema = ensureMongoTypeFields<CollaborationRequest>({
   ...workspaceResourceSchema,
   recipientEmail: {type: String, index: true},
   workspaceName: {type: String},
@@ -13,15 +13,15 @@ const collaborationRequestSchema = ensureMongoTypeFields<ICollaborationRequest>(
   statusDate: {type: Number},
 });
 
-export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
+export type CollaborationRequestDocument = Document<CollaborationRequest>;
 
-const schema = new Schema<ICollaborationRequest>(collaborationRequestSchema);
+const schema = new Schema<CollaborationRequest>(collaborationRequestSchema);
 const modelName = 'collaboration-request';
 const collectionName = 'collaboration-requests';
 
 export function getCollaborationRequestModel(connection: Connection) {
-  const model = connection.model<ICollaborationRequest>(modelName, schema, collectionName);
+  const model = connection.model<CollaborationRequest>(modelName, schema, collectionName);
   return model;
 }
 
-export type ICollaborationRequestModel = Model<ICollaborationRequest>;
+export type CollaborationRequestModel = Model<CollaborationRequest>;

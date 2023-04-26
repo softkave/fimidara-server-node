@@ -1,7 +1,7 @@
-import {IAppRuntimeState} from '../../../../definitions/system';
+import {AppRuntimeState} from '../../../../definitions/system';
 import {SemanticDataAccessBaseProvider} from '../utils';
-import {ISemanticDataAccessAppRuntimeStateProvider} from './types';
+import {SemanticDataAccessAppRuntimeStateProvider} from './types';
 
 export class MemorySemanticDataAccessAppRuntimeState
-  extends SemanticDataAccessBaseProvider<IAppRuntimeState>
-  implements ISemanticDataAccessAppRuntimeStateProvider {}
+  extends SemanticDataAccessBaseProvider<AppRuntimeState>
+  implements SemanticDataAccessAppRuntimeStateProvider {}
