@@ -17,8 +17,8 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {LongRunningJobResult} from '../jobs/types';
-import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc';
+import { LongRunningJobResult } from '../jobs/types';
+import { permissionItemMddocParts } from '../permissionItems/endpoints.mddoc';
 import {
   CountItemsEndpointResult,
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
@@ -29,10 +29,10 @@ import {
   AddPermissionGroupEndpointResult,
   NewPermissionGroupInput,
 } from './addPermissionGroup/types';
-import {AssignPermissionGroupsEndpointParams} from './assignPermissionGroups/types';
-import {permissionGroupConstants} from './constants';
-import {CountWorkspacePermissionGroupsEndpointParams} from './countWorkspacePermissionGroups/types';
-import {DeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
+import { AssignPermissionGroupsEndpointParams } from './assignPermissionGroups/types';
+import { permissionGroupConstants } from './constants';
+import { CountWorkspacePermissionGroupsEndpointParams } from './countWorkspacePermissionGroups/types';
+import { DeletePermissionGroupEndpointParams } from './deletePermissionGroup/types';
 import {
   GetEntityAssignedPermissionGroupsEndpointParams,
   GetEntityAssignedPermissionGroupsEndpointResult,
@@ -113,7 +113,7 @@ const addPermissionGroupParams = FieldObject.construct<AddPermissionGroupEndpoin
   .setRequired(true)
   .setDescription('Add permission group endpoint params.');
 const addPermissionGroupResponseBody = FieldObject.construct<AddPermissionGroupEndpointResult>()
-  .setName('AddPermissionGroupEndpointSuccessResult')
+  .setName('AddPermissionGroupEndpointResult')
   .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
   .setRequired(true)
   .setDescription('Add permission group endpoint success result.');
@@ -130,7 +130,7 @@ const getWorkspacePermissionGroupsParams =
     .setDescription('Get workspace permission groups endpoint params.');
 const getWorkspacePermissionGroupsResponseBody =
   FieldObject.construct<GetWorkspacePermissionGroupsEndpointResult>()
-    .setName('GetWorkspacePermissionGroupsEndpointSuccessResult')
+    .setName('GetWorkspacePermissionGroupsEndpointResult')
     .setFields({
       permissionGroups: FieldObject.requiredField(
         FieldArray.construct<PublicPermissionGroup>().setType(permissionGroup)
@@ -156,7 +156,7 @@ const getEntityAssignedPermissionGroupsParams =
     .setDescription('Get entity assigned permission groups endpoint params.');
 const getEntityAssignedPermissionGroupsResponseBody =
   FieldObject.construct<GetEntityAssignedPermissionGroupsEndpointResult>()
-    .setName('GetEntityAssignedPermissionGroupsEndpointSuccessResult')
+    .setName('GetEntityAssignedPermissionGroupsEndpointResult')
     .setFields({
       permissionGroups: FieldObject.requiredField(
         FieldArray.construct<PublicPermissionGroup>().setType(permissionGroup)
@@ -196,7 +196,7 @@ const updatePermissionGroupParams = FieldObject.construct<UpdatePermissionGroupE
   .setDescription('Update permission group endpoint params.');
 const updatePermissionGroupResponseBody =
   FieldObject.construct<UpdatePermissionGroupEndpointResult>()
-    .setName('UpdatePermissionGroupEndpointSuccessResult')
+    .setName('UpdatePermissionGroupEndpointResult')
     .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
     .setRequired(true)
     .setDescription('Update permission group endpoint success result.');
@@ -225,7 +225,7 @@ const getPermissionGroupParams = FieldObject.construct<GetPermissionGroupEndpoin
   .setRequired(true)
   .setDescription('Get permission group endpoint params.');
 const getPermissionGroupResponseBody = FieldObject.construct<GetPermissionGroupEndpointResult>()
-  .setName('GetPermissionGroupEndpointSuccessResult')
+  .setName('GetPermissionGroupEndpointResult
   .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
   .setRequired(true)
   .setDescription('Get permission group endpoint success result.');

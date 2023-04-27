@@ -55,7 +55,7 @@ const getWorkspaceCollaboratorsParams =
     .setDescription('Get workspace collaborators endpoint params.');
 const getWorkspaceCollaboratorsResponseBody =
   FieldObject.construct<GetWorkspaceCollaboratorsEndpointResult>()
-    .setName('GetWorkspaceCollaboratorsEndpointSuccessResult')
+    .setName('GetWorkspaceCollaboratorsEndpointResult')
     .setFields({
       collaborators: FieldObject.requiredField(
         FieldArray.construct<PublicCollaborator>().setType(collaborator)
@@ -102,7 +102,7 @@ const getCollaboratorParams = FieldObject.construct<GetCollaboratorEndpointParam
   .setRequired(true)
   .setDescription('Get collaborator endpoint params.');
 const getCollaboratorResponseBody = FieldObject.construct<GetCollaboratorEndpointResult>()
-  .setName('GetCollaboratorEndpointSuccessResult')
+  .setName('GetCollaboratorEndpointResult')
   .setFields({collaborator: FieldObject.requiredField(collaborator)})
   .setRequired(true)
   .setDescription('Get collaborator endpoint success result.');

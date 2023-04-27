@@ -65,7 +65,7 @@ const addAgentTokenParams = FieldObject.construct<AddAgentTokenEndpointParams>()
   .setRequired(true)
   .setDescription('Add agent token endpoint params.');
 const addAgentTokenSuccessResponseBody = FieldObject.construct<AddAgentTokenEndpointResult>()
-  .setName('AddAgentTokenEndpointSuccessResult')
+  .setName('AddAgentTokenEndpointResult')
   .setFields({token: FieldObject.requiredField(agentToken)})
   .setRequired(true)
   .setDescription('Add agent token endpoint success result.');
@@ -112,7 +112,7 @@ const updateAgentTokenParams = FieldObject.construct<UpdateAgentTokenEndpointPar
   .setRequired(true)
   .setDescription('Update agent token endpoint params.');
 const updateAgentTokenSuccessResponseBody = FieldObject.construct<UpdateAgentTokenEndpointResult>()
-  .setName('UpdateAgentTokenEndpointSuccessResult')
+  .setName('UpdateAgentTokenEndpointResult')
   .setFields({token: FieldObject.requiredField(agentToken)})
   .setRequired(true)
   .setDescription('Update agent token endpoint success result.');

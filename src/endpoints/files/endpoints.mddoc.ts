@@ -89,7 +89,7 @@ const updateFileDetailsParams = FieldObject.construct<UpdateFileDetailsEndpointP
   .setRequired(true)
   .setDescription('Update file details endpoint params.');
 const updateFileDetailsResponseBody = FieldObject.construct<UpdateFileDetailsEndpointResult>()
-  .setName('UpdateFileDetailsEndpointSuccessResult')
+  .setName('UpdateFileDetailsEndpointResult')
   .setFields({file: FieldObject.requiredField(file)})
   .setRequired(true)
   .setDescription('Update file details endpoint success result.');
@@ -100,7 +100,7 @@ const getFileDetailsParams = FieldObject.construct<GetFileDetailsEndpointParams>
   .setRequired(true)
   .setDescription('Get file details endpoint params.');
 const getFileDetailsResponseBody = FieldObject.construct<GetFileDetailsEndpointResult>()
-  .setName('GetFileDetailsEndpointSuccessResult')
+  .setName('GetFileDetailsEndpointResult')
   .setFields({file: FieldObject.requiredField(file)})
   .setRequired(true)
   .setDescription('Get file details endpoint success result.');
@@ -168,7 +168,7 @@ const updloadFileParams =
       .setName('UploadFileEndpointParams')
   );
 const uploadFileResponseBody = FieldObject.construct<UploadFileEndpointResult>()
-  .setName('UploadFileEndpointSuccessResult')
+  .setName('UploadFileEndpointResult')
   .setFields({file: FieldObject.requiredField(file)})
   .setRequired(true)
   .setDescription('Upload file endpoint success result.');

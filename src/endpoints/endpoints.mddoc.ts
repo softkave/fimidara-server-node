@@ -368,7 +368,7 @@ const errorResponseBody = FieldObject.construct<BaseEndpointResult>()
   .setDescription('Endpoint error result.');
 
 const emptySuccessResponseBody = FieldObject.construct<AnyObject>()
-  .setName('EmptyEndpointSuccessResult')
+  .setName('EmptyEndpointResult')
   .setFields({})
   .setRequired(true)
   .setDescription('Empty endpoint success result.');

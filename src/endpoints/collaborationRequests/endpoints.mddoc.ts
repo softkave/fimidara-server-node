@@ -129,7 +129,7 @@ const sendCollaborationRequestParams =
     .setDescription('Send collaboration request endpoint params.');
 const sendCollaborationRequestResponseBody =
   FieldObject.construct<SendCollaborationRequestEndpointResult>()
-    .setName('SendCollaborationRequestEndpointSuccessResult')
+    .setName('SendCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
     .setRequired(true)
     .setDescription('Send collaboration request endpoint success result.');
@@ -146,7 +146,7 @@ const getWorkspaceCollaborationRequestsParams =
     .setDescription('Get workspace collaboration requests endpoint params.');
 const getWorkspaceCollaborationRequestsResponseBody =
   FieldObject.construct<GetWorkspaceCollaborationRequestsEndpointResult>()
-    .setName('GetWorkspaceCollaborationRequestsEndpointSuccessResult')
+    .setName('GetWorkspaceCollaborationRequestsEndpointResult')
     .setFields({
       requests: FieldObject.requiredField(
         FieldArray.construct<PublicCollaborationRequestForWorkspace>().setType(
@@ -178,7 +178,7 @@ const getUserCollaborationRequestsParams =
     .setDescription('Get user collaboration requests endpoint params.');
 const getUserCollaborationRequestsResponseBody =
   FieldObject.construct<GetUserCollaborationRequestsEndpointResult>()
-    .setName('GetUserCollaborationRequestsEndpointSuccessResult')
+    .setName('GetUserCollaborationRequestsEndpointResult')
     .setFields({
       requests: FieldObject.requiredField(
         FieldArray.construct<PublicCollaborationRequestForUser>().setType(
@@ -201,7 +201,7 @@ const updateCollaborationRequestParams =
     .setDescription('Update collaboration request endpoint params.');
 const updateCollaborationRequestResponseBody =
   FieldObject.construct<UpdateCollaborationRequestEndpointResult>()
-    .setName('UpdateCollaborationRequestEndpointSuccessResult')
+    .setName('UpdateCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
     .setRequired(true)
     .setDescription('Update collaboration request endpoint success result.');
@@ -217,7 +217,7 @@ const respondToCollaborationRequestParams =
     .setDescription('Respond to collaboration request endpoint params.');
 const respondToCollaborationRequestResponseBody =
   FieldObject.construct<RespondToCollaborationRequestEndpointResult>()
-    .setName('RespondToCollaborationRequestEndpointSuccessResult')
+    .setName('RespondToCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForUser)})
     .setRequired(true)
     .setDescription('Respond to collaboration request endpoint success result.');
@@ -232,7 +232,7 @@ const getCollaborationRequestForUserParams =
     .setDescription('Get collaboration request endpoint params.');
 const getCollaborationRequestForUserResponseBody =
   FieldObject.construct<GetUserCollaborationRequestEndpointResult>()
-    .setName('GetCollaborationRequestEndpointSuccessResult')
+    .setName('GetCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForUser)})
     .setRequired(true)
     .setDescription('Get collaboration request endpoint success result.');
@@ -248,7 +248,7 @@ const getCollaborationRequestForWorkspaceParams =
     .setDescription('Get collaboration request endpoint params.');
 const getCollaborationRequestForWorkspaceResponseBody =
   FieldObject.construct<GetWorkspaceCollaborationRequestEndpointResult>()
-    .setName('GetCollaborationRequestEndpointSuccessResult')
+    .setName('GetCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
     .setRequired(true)
     .setDescription('Get collaboration request endpoint success result.');
@@ -263,7 +263,7 @@ const revokeCollaborationRequestParams =
     .setDescription('Revoke collaboration request endpoint params.');
 const revokeCollaborationRequestResponseBody =
   FieldObject.construct<RevokeCollaborationRequestEndpointResult>()
-    .setName('RevokeCollaborationRequestEndpointSuccessResult')
+    .setName('RevokeCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
     .setRequired(true)
     .setDescription('Revoke collaboration request endpoint success result.');

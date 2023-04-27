@@ -1,5 +1,5 @@
-import {PublicPermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, getWorkspaceResourceTypeList} from '../../definitions/system';
+import { PublicPermissionItem } from '../../definitions/permissionItem';
+import { AppResourceType, getWorkspaceResourceTypeList } from '../../definitions/system';
 import {
   FieldArray,
   FieldBoolean,
@@ -13,15 +13,15 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {LongRunningJobResult} from '../jobs/types';
+import { LongRunningJobResult } from '../jobs/types';
 import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
-import {AddPermissionItemsEndpointParams} from './addItems/types';
-import {permissionItemConstants} from './constants';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './deleteItems/types';
-import {DeletePermissionItemsByIdEndpointParams} from './deleteItemsById/types';
+import { AddPermissionItemsEndpointParams } from './addItems/types';
+import { permissionItemConstants } from './constants';
+import { DeletePermissionItemInput, DeletePermissionItemsEndpointParams } from './deleteItems/types';
+import { DeletePermissionItemsByIdEndpointParams } from './deleteItemsById/types';
 import {
   GetEntityPermissionItemsEndpointParams,
   GetEntityPermissionItemsEndpointResult,
@@ -30,7 +30,7 @@ import {
   GetResourcePermissionItemsEndpointParams,
   GetResourcePermissionItemsEndpointResult,
 } from './getResourcePermissionItems/types';
-import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
+import { PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget } from './types';
 
 const targetId = fReusables.workspaceId
   .clone()
@@ -163,7 +163,7 @@ const getResourcePermissionItemsParams =
     );
 const getResourcePermissionItemsResponseBody =
   FieldObject.construct<GetResourcePermissionItemsEndpointResult>()
-    .setName('GetResourcePermissionItemsEndpointSuccessResult')
+    .setName('GetResourcePermissionItemsEndpointResult')
     .setFields({
       items: FieldObject.requiredField(
         FieldArray.construct<PublicPermissionItem>().setType(permissionItem)
@@ -188,7 +188,7 @@ const getEntityPermissionItemsParams =
     .setDescription('Get entity permission items endpoint params.');
 const getEntityPermissionItemsResponseBody =
   FieldObject.construct<GetEntityPermissionItemsEndpointResult>()
-    .setName('getEntityPermissionItemsEndpointSuccessResult')
+    .setName('getEntityPermissionItemsEndpointResult
     .setFields({
       items: FieldObject.requiredField(
         FieldArray.construct<PublicPermissionItem>().setType(permissionItem)

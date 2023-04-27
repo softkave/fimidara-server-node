@@ -64,7 +64,7 @@ const addTagParams = FieldObject.construct<AddTagEndpointParams>()
   .setRequired(true)
   .setDescription('Add tag endpoint params.');
 const addTagResponseBody = FieldObject.construct<AddTagEndpointResult>()
-  .setName('AddTagEndpointSuccessResult')
+  .setName('AddTagEndpointResult')
   .setFields({tag: FieldObject.requiredField(tag)})
   .setRequired(true)
   .setDescription('Add tag endpoint success result.');
@@ -79,7 +79,7 @@ const getWorkspaceTagsParams = FieldObject.construct<GetWorkspaceTagsEndpointPar
   .setRequired(true)
   .setDescription('Get workspace tags endpoint params.');
 const getWorkspaceTagsResponseBody = FieldObject.construct<GetWorkspaceTagsEndpointResult>()
-  .setName('GetWorkspaceTagsEndpointSuccessResult')
+  .setName('GetWorkspaceTagsEndpointResult')
   .setFields({
     tags: FieldObject.requiredField(FieldArray.construct<PublicTag>().setType(tag)),
     page: FieldObject.requiredField(fReusables.page),
@@ -104,7 +104,7 @@ const updateTagParams = FieldObject.construct<UpdateTagEndpointParams>()
   .setRequired(true)
   .setDescription('Update tag endpoint params.');
 const updateTagResponseBody = FieldObject.construct<UpdateTagEndpointResult>()
-  .setName('UpdateTagEndpointSuccessResult')
+  .setName('UpdateTagEndpointResult')
   .setFields({tag: FieldObject.requiredField(tag)})
   .setRequired(true)
   .setDescription('Update tag endpoint success result.');
@@ -117,7 +117,7 @@ const getTagParams = FieldObject.construct<GetTagEndpointParams>()
   .setRequired(true)
   .setDescription('Get tag endpoint params.');
 const getTagResponseBody = FieldObject.construct<GetTagEndpointResult>()
-  .setName('UpdateTagEndpointSuccessResult')
+  .setName('UpdateTagEndpointResult')
   .setFields({tag: FieldObject.requiredField(tag)})
   .setRequired(true)
   .setDescription('Get tag endpoint success result.');

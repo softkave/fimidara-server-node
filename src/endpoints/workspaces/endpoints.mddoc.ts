@@ -125,7 +125,7 @@ const addWorkspaceParams = FieldObject.construct<AddWorkspaceEndpointParams>()
   .setRequired(true)
   .setDescription('Add workspace endpoint params.');
 const addWorkspaceResponseBody = FieldObject.construct<AddWorkspaceEndpointResult>()
-  .setName('AddWorkspaceEndpointSuccessResult')
+  .setName('AddWorkspaceEndpointResult')
   .setFields({workspace: FieldObject.requiredField(workspace)})
   .setRequired(true)
   .setDescription('Add workspace endpoint success result.');
@@ -138,7 +138,7 @@ const getWorkspaceParams = FieldObject.construct<EndpointOptionalWorkspaceIDPara
   .setRequired(true)
   .setDescription('Get workspace endpoint params.');
 const getWorkspaceResponseBody = FieldObject.construct<GetWorkspaceEndpointResult>()
-  .setName('GetWorkspaceEndpointSuccessResult')
+  .setName('GetWorkspaceEndpointResult')
   .setFields({workspace: FieldObject.requiredField(workspace)})
   .setRequired(true)
   .setDescription('Get workspace endpoint success result.');
@@ -178,7 +178,7 @@ const updateWorkspaceParams = FieldObject.construct<UpdateWorkspaceEndpointParam
   .setRequired(true)
   .setDescription('Update workspace endpoint params.');
 const updateWorkspaceResponseBody = FieldObject.construct<UpdateWorkspaceEndpointResult>()
-  .setName('UpdateWorkspaceEndpointSuccessResult')
+  .setName('UpdateWorkspaceEndpointResult')
   .setFields({workspace: FieldObject.requiredField(workspace)})
   .setRequired(true)
   .setDescription('Update workspace endpoint success result.');
