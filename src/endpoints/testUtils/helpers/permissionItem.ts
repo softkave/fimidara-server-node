@@ -10,7 +10,8 @@ export async function canEntityPerformActionOnTargetId(
   targetId: string | string[],
   result: boolean
 ) {
-  // TODO: maybe use checkAuthorization's access check mechanisms
+  // TODO: maybe use checkAuthorization's access check mechanisms because this
+  // implementation is not factoring in appliesTo
 
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({

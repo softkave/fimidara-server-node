@@ -278,7 +278,7 @@ export function uniquePermissionItems(
     const keys: string[] = [];
     actions.forEach(action => {
       resourceTypes.forEach(type =>
-        keys.push(makeKey([type, action, item.targetId, item.grantAccess]))
+        keys.push(makeKey([type, action, item.targetId, item.grantAccess, item.entityId]))
       );
     });
     return keys;
@@ -298,7 +298,7 @@ export function uniquePermissionItems(
   };
 
   items = items.filter(processItem);
-  return {items, getItemAccessKeys, processItem};
+  return {items};
 }
 
 type GetItemAccessKeysFn = (item: {
@@ -387,13 +387,17 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
         'should have been sorted out, only one should remain.'
     );
 
+  // TODO: how can we short-circuit to end early if an item has full access or
+  // full deny
   for (const item of items) {
     if (item.grantAccess) {
       if (item.targetId && item.appliesTo === PermissionItemAppliesTo.Self) {
         scopeInvariantCheck(isUndefined(deniedResourceIdsMap[item.targetId]));
         allowedResourceIdsMap[item.targetId] = true;
       } else {
-        scopeInvariantCheck(isUndefined(hasFullOrLimitedAccess));
+        scopeInvariantCheck(
+          hasFullOrLimitedAccess === undefined || hasFullOrLimitedAccess === true
+        );
         hasFullOrLimitedAccess = true;
       }
     } else {
@@ -401,7 +405,9 @@ export async function summarizeAgentPermissionItems(params: ICheckAuthorizationP
         scopeInvariantCheck(isUndefined(allowedResourceIdsMap[item.targetId]));
         deniedResourceIdsMap[item.targetId] = true;
       } else {
-        scopeInvariantCheck(isUndefined(hasFullOrLimitedAccess));
+        scopeInvariantCheck(
+          hasFullOrLimitedAccess === undefined || hasFullOrLimitedAccess === false
+        );
         hasFullOrLimitedAccess = false;
       }
     }

@@ -1508,22 +1508,27 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     query: LiteralDataQuery<T>,
     transaction: MemStoreTransactionType | undefined
   ) {
-    let indexMatchRemainingQuery: LiteralDataQuery<T> = {};
-    const matchedItemsMapList: Array<{
+    type MatchedItemsMap = {
       idMap: Record<string, T>;
       estimatedLength: number;
-    }> = [];
+    };
+
+    let indexMatchRemainingQuery: LiteralDataQuery<T> = {};
+    const matchedItemsMapList: Array<MatchedItemsMap> = [];
     let goodRun = false;
+    let smallestMap: MatchedItemsMap | null = null;
+
     const resourceIdMatch = this.matchResourceId(query, transaction);
 
     if (resourceIdMatch) {
       if (resourceIdMatch.goodRun) {
         goodRun = true;
-        matchedItemsMapList.push({
+        smallestMap = {
           idMap: resourceIdMatch.matchedItems,
           estimatedLength: Object.values(resourceIdMatch.matchedItems).length,
-        });
+        };
       }
+
       query = resourceIdMatch.remainingQuery;
     }
 
@@ -1564,17 +1569,25 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
           (nextOpKeyTyped === '$lowercaseEq' && index.getOptions().caseInsensitive) ||
           (nextOpKeyTyped === '$lowercaseIn' && index.getOptions().caseInsensitive)
         ) {
-          const nextMatchedItemsMap: {
-            idMap: Record<string, T>;
-            estimatedLength: number;
-          } = {idMap: {}, estimatedLength: 0};
-          matchedItemsMapList.push(nextMatchedItemsMap);
+          const nextMatchedItemsMap: MatchedItemsMap = {idMap: {}, estimatedLength: 0};
           const idList = index.indexGet(nextOpKeyValue, transaction);
           nextMatchedItemsMap.estimatedLength = idList.length;
           idList.forEach(id => {
             const item = this.getItem(id, transaction);
             if (item) nextMatchedItemsMap.idMap[item.resourceId] = item;
           });
+
+          if (smallestMap) {
+            if (smallestMap.estimatedLength > idList.length) {
+              matchedItemsMapList.push(smallestMap);
+              smallestMap = nextMatchedItemsMap;
+            } else {
+              matchedItemsMapList.push(nextMatchedItemsMap);
+            }
+          } else {
+            smallestMap = nextMatchedItemsMap;
+          }
+
           goodRun = true;
           continue;
         }
@@ -1583,12 +1596,8 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
       }
     }
 
-    const smallestMap = matchedItemsMapList.reduce((selected, next) => {
-      return next.estimatedLength > selected.estimatedLength ? next : selected;
-    }, matchedItemsMapList[0]);
-
-    const matchedItems = Object.values(smallestMap.idMap ?? {}).filter(item => {
-      for (let i = 1; i < matchedItemsMapList.length; i++) {
+    const matchedItems = Object.values(smallestMap?.idMap ?? {}).filter(item => {
+      for (let i = 0; i < matchedItemsMapList.length; i++) {
         if (!matchedItemsMapList[i].idMap[item.resourceId]) return false;
       }
       return true;

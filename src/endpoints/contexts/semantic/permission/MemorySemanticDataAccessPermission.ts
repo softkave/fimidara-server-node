@@ -48,13 +48,16 @@ export class MemorySemanticDataAccessPermission
           nextIdMap[item.assignedItemId] = item.assignedItemId;
           map[item.assignedItemId] = {id: item.assignedItemId, items: []};
           const entry = map[item.assigneeId];
-          const meta: AssignedPermissionGroupMeta = {
-            assignedAt: item.createdAt,
-            assignedBy: item.createdBy,
-            permissionGroupId: item.assignedItemId,
-            assigneeEntityId: item.assigneeId,
-          };
-          entry.items.push(meta);
+
+          if (entry) {
+            const meta: AssignedPermissionGroupMeta = {
+              assignedAt: item.createdAt,
+              assignedBy: item.createdBy,
+              permissionGroupId: item.assignedItemId,
+              assigneeEntityId: item.assigneeId,
+            };
+            entry.items.push(meta);
+          }
         });
         nextIdList = Object.values(nextIdMap);
       }

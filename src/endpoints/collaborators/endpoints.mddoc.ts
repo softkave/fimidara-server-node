@@ -23,6 +23,10 @@ import {
   GetCollaboratorEndpointResult,
 } from './getCollaborator/types';
 import {
+  GetCollaboratorsWithoutPermissionEndpointParams,
+  GetCollaboratorsWithoutPermissionEndpointResult,
+} from './getCollaboratorsWithoutPermission/types';
+import {
   GetWorkspaceCollaboratorsEndpointParams,
   GetWorkspaceCollaboratorsEndpointResult,
 } from './getWorkspaceCollaborators/types';
@@ -60,6 +64,25 @@ const getWorkspaceCollaboratorsResponseBody =
     })
     .setRequired(true)
     .setDescription('Get workspace collaborators endpoint success result.');
+
+const getCollaboratorsWithoutPermissionParams =
+  FieldObject.construct<GetCollaboratorsWithoutPermissionEndpointParams>()
+    .setName('GetCollaboratorsWithoutPermissionEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+    })
+    .setRequired(true)
+    .setDescription('Get workspace collaborators without permissions endpoint params.');
+const getCollaboratorsWithoutPermissionResponseBody =
+  FieldObject.construct<GetCollaboratorsWithoutPermissionEndpointResult>()
+    .setName('GetCollaboratorsWithoutPermissionEndpointResult')
+    .setFields({
+      collaboratorIds: FieldObject.requiredField(
+        FieldArray.construct<string>().setType(fReusables.id)
+      ),
+    })
+    .setRequired(true)
+    .setDescription('Get workspace collaborators without permissions endpoint success result.');
 
 const countWorkspaceCollaboratorsParams =
   FieldObject.construct<CountWorkspaceCollaboratorsEndpointParams>()
@@ -152,3 +175,19 @@ export const countWorkspaceCollaboratorsEndpointDefinition = HttpEndpointDefinit
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspaceCollaboratorsEndpoint')
   .setDescription('Count workspace collaborators endpoint.');
+
+export const getCollaboratorsWithoutPermissionEndpointDefinition =
+  HttpEndpointDefinition.construct<{
+    requestBody: GetCollaboratorsWithoutPermissionEndpointParams;
+    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+    responseBody: GetCollaboratorsWithoutPermissionEndpointResult;
+    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+  }>()
+    .setBasePathname(collaboratorConstants.routes.getCollaboratorsWithoutPermission)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(getCollaboratorsWithoutPermissionParams)
+    .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+    .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+    .setResponseBody(getCollaboratorsWithoutPermissionResponseBody)
+    .setName('GetCollaboratorsWithoutPermissionEndpoint')
+    .setDescription('Get workspace collaborators without permissions endpoint.');

@@ -4,6 +4,7 @@
 - [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Support providedResourceId for all resources
+- [ ] In app notification
 - [ ] Handle password change required on the frontend
 - [ ] Change password with current password or forgot password on the frontend
 - [ ] Predefined resize pipelines
@@ -53,6 +54,7 @@
 - [ ] Seek file included in readFile
 - [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
 - [ ] Switch assert to appAssert
+- [ ] Include count in paged endpoints
 
 ## Later
 

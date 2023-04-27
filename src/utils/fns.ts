@@ -102,7 +102,11 @@ export function uncapitalizeFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
-export function calculatePageSize(count: number, pageSize: number, page: number) {
+export function calculatePageSize(
+  count: number,
+  pageSize: number,
+  /** zero-index based page */ page: number
+) {
   count = Math.max(count, 0);
   pageSize = Math.max(pageSize, 0);
   page = Math.max(page, 0);

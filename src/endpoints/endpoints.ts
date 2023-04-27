@@ -4,8 +4,14 @@ import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints';
 import {AgentTokensExportedEndpoints} from './agentTokens/types';
 import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints';
 import {CollaborationRequestsExportedEndpoints} from './collaborationRequests/types';
-import {getCollaboratorsPublicHttpEndpoints} from './collaborators/endpoints';
-import {CollaboratorsExportedEndpoints} from './collaborators/types';
+import {
+  getCollaboratorsPrivateHttpEndpoints,
+  getCollaboratorsPublicHttpEndpoints,
+} from './collaborators/endpoints';
+import {
+  CollaboratorsPrivateExportedEndpoints,
+  CollaboratorsPublicExportedEndpoints,
+} from './collaborators/types';
 import {BaseContextType} from './contexts/types';
 import {getFilesPublicHttpEndpoints} from './files/endpoints';
 import {FilesExportedEndpoints} from './files/types';
@@ -36,7 +42,7 @@ export type AppExportedHttpEndpoints = Record<
 export type FimidaraPublicExportedHttpEndpoints = {
   agentTokens: AgentTokensExportedEndpoints;
   collaborationRequests: CollaborationRequestsExportedEndpoints;
-  collaborators: CollaboratorsExportedEndpoints;
+  collaborators: CollaboratorsPublicExportedEndpoints;
   files: FilesExportedEndpoints;
   folders: FoldersExportedEndpoints;
   jobs: JobsExportedEndpoints;
@@ -49,6 +55,7 @@ export type FimidaraPublicExportedHttpEndpoints = {
 };
 export type FimidaraPrivateExportedHttpEndpoints = {
   users: UsersPrivateExportedEndpoints;
+  collaborators: CollaboratorsPrivateExportedEndpoints;
 };
 
 export function getFimidaraPublicHttpEndpoints() {
@@ -72,6 +79,7 @@ export function getFimidaraPublicHttpEndpoints() {
 export function getFimidaraPrivateHttpEndpoints() {
   const fimidaraExportedHttpEndpoints: FimidaraPrivateExportedHttpEndpoints = {
     users: getUsersPrivateHttpEndpoints(),
+    collaborators: getCollaboratorsPrivateHttpEndpoints(),
   };
   return fimidaraExportedHttpEndpoints;
 }

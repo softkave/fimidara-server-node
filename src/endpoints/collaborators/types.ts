@@ -16,6 +16,11 @@ import {
   GetCollaboratorEndpointResult,
 } from './getCollaborator/types';
 import {
+  GetCollaboratorsWithoutPermissionEndpoint,
+  GetCollaboratorsWithoutPermissionEndpointParams,
+  GetCollaboratorsWithoutPermissionEndpointResult,
+} from './getCollaboratorsWithoutPermission/types';
+import {
   GetWorkspaceCollaboratorsEndpoint,
   GetWorkspaceCollaboratorsEndpointParams,
   GetWorkspaceCollaboratorsEndpointResult,
@@ -53,10 +58,20 @@ export type RemoveCollaboratorHttpEndpoint = HttpEndpoint<
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength
 >;
+export type GetCollaboratorsWithoutPermissionHttpEndpoint = HttpEndpoint<
+  GetCollaboratorsWithoutPermissionEndpoint,
+  GetCollaboratorsWithoutPermissionEndpointParams,
+  GetCollaboratorsWithoutPermissionEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength
+>;
 
-export type CollaboratorsExportedEndpoints = {
+export type CollaboratorsPublicExportedEndpoints = {
   getCollaborator: ExportedHttpEndpointWithMddocDefinition<GetCollaboratorHttpEndpoint>;
   getWorkspaceCollaborators: ExportedHttpEndpointWithMddocDefinition<GetWorkspaceCollaboratorsHttpEndpoint>;
   countWorkspaceCollaborators: ExportedHttpEndpointWithMddocDefinition<CountWorkspaceCollaboratorsHttpEndpoint>;
   removeCollaborator: ExportedHttpEndpointWithMddocDefinition<RemoveCollaboratorHttpEndpoint>;
+};
+export type CollaboratorsPrivateExportedEndpoints = {
+  getCollaboratorsWithoutPermission: ExportedHttpEndpointWithMddocDefinition<GetCollaboratorsWithoutPermissionHttpEndpoint>;
 };

@@ -1,5 +1,5 @@
 import {Express, Request, Response} from 'express';
-import {compact, defaultTo, isNumber, isString} from 'lodash';
+import {compact, defaultTo, isString} from 'lodash';
 import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
 import OperationError from '../utils/OperationError';
@@ -211,12 +211,12 @@ export function getWorkspaceResourceListQuery00(
 }
 
 export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
-  if (!isNumber(data.page)) {
-    data.page = endpointConstants.minPage;
-  }
-  if (!isNumber(data.pageSize)) {
-    data.pageSize = endpointConstants.maxPageSize;
-  }
+  if (data.page === undefined) data.page = endpointConstants.minPage;
+  else data.page = Math.max(endpointConstants.minPage, data.page);
+
+  if (data.pageSize === undefined) data.pageSize = endpointConstants.maxPageSize;
+  else data.pageSize = Math.max(endpointConstants.minPageSize, data.pageSize);
+
   return data;
 }
 

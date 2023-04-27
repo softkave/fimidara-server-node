@@ -33,33 +33,80 @@ afterAll(async () => {
 });
 
 describe('addItems', () => {
-  test('permission items added', async () => {
+  test.only('permission items added', async () => {
+    // TODO: add more tests for target and appliesTo
+
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
+    const [
+      {permissionGroup: pg01},
+      {permissionGroup: pg02},
+      {permissionGroup: pg03},
+      {permissionGroup: pg04},
+    ] = await Promise.all([
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+    ]);
+
+    const grantAccess = faker.datatype.boolean();
+    const completeWorkspaceActions = getWorkspaceActionList();
+    const subsetWorkspaceActions = faker.helpers.arrayElements(completeWorkspaceActions);
+    const completeWorkspaceActionsInputItems: PermissionItemInput[] = completeWorkspaceActions.map(
+      action => ({
+        grantAccess,
+        action: action as AppActionType,
+        target: {targetId: workspace.resourceId},
+        appliesTo: PermissionItemAppliesTo.Self,
+      })
     );
-    const items: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
-      action: action as AppActionType,
-      grantAccess: faker.datatype.boolean(),
-      target: {targetId: workspace.resourceId},
-      appliesTo: PermissionItemAppliesTo.Self,
-    }));
+    const subsetWorkspaceActionsInputItems: PermissionItemInput[] = subsetWorkspaceActions.map(
+      action => ({
+        grantAccess,
+        action: action as AppActionType,
+        target: {targetId: workspace.resourceId},
+        appliesTo: PermissionItemAppliesTo.Self,
+      })
+    );
+
     const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {items, workspaceId: workspace.resourceId, entity: {entityId: permissionGroup.resourceId}}
+      {
+        items: completeWorkspaceActionsInputItems.concat(
+          subsetWorkspaceActionsInputItems.map(nextItem => ({
+            ...nextItem,
+            entity: {entityId: [pg03.resourceId, pg04.resourceId]},
+          }))
+        ),
+        workspaceId: workspace.resourceId,
+        entity: {entityId: [pg01.resourceId, pg02.resourceId]},
+      }
     );
     const result = await addPermissionItems(context, reqData);
     assertEndpointResultOk(result);
-    await canEntityPerformActionOnTargetId(
-      context,
-      permissionGroup.resourceId,
-      getWorkspaceActionList(),
-      workspace.resourceId,
-      /** expected result */ true
+    await Promise.all(
+      [pg01, pg02].map(pg =>
+        canEntityPerformActionOnTargetId(
+          context!,
+          pg.resourceId,
+          completeWorkspaceActions,
+          workspace.resourceId,
+          /** expected result */ grantAccess
+        )
+      )
+    );
+    await Promise.all(
+      [pg03, pg04].map(pg =>
+        canEntityPerformActionOnTargetId(
+          context!,
+          pg.resourceId,
+          subsetWorkspaceActions,
+          workspace.resourceId,
+          /** expected result */ grantAccess
+        )
+      )
     );
   });
 

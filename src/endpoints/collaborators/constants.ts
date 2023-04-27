@@ -6,5 +6,6 @@ export const collaboratorConstants = {
     getWorkspaceCollaborators: `${endpointConstants.apiv1}/collaborators/getWorkspaceCollaborators`,
     countWorkspaceCollaborators: `${endpointConstants.apiv1}/collaborators/countWorkspaceCollaborators`,
     removeCollaborator: `${endpointConstants.apiv1}/collaborators/removeCollaborator`,
+    getCollaboratorsWithoutPermission: `${endpointConstants.apiv1}/collaborators/getCollaboratorsWithoutPermission`,
   },
 };

@@ -64,45 +64,45 @@ export const INTERNAL_addPermissionItems = async (
     resourceType: AppResourceType.Workspace,
   };
 
-  const getEntities = (entity: PermissionItemInputEntity) => {
-    let entities: Record<string, ResourceWrapper> = {};
+  const getEntities = (inputEntity: PermissionItemInputEntity) => {
+    let resourceEntities: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
-    toNonNullableArray(entity.entityId).forEach(entityId => {
-      entities[entityId] = entitiesMapById[entityId];
+    toNonNullableArray(inputEntity.entityId).forEach(entityId => {
+      resourceEntities[entityId] = entitiesMapById[entityId];
     });
-    return entities;
+    return resourceEntities;
   };
 
-  const getTargets = (target: PermissionItemInputTarget) => {
-    let targets: Record<string, ResourceWrapper> = {};
+  const getTargets = (inputTarget: PermissionItemInputTarget) => {
+    let resourceTargets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
-    if (target.targetId) {
-      toNonNullableArray(target.targetId).forEach(targetId => {
-        targets[targetId] = targetsMapById[targetId];
+    if (inputTarget.targetId) {
+      toNonNullableArray(inputTarget.targetId).forEach(targetId => {
+        resourceTargets[targetId] = targetsMapById[targetId];
       });
     }
 
-    if (target.folderpath) {
-      toNonNullableArray(target.folderpath).forEach(folderpath => {
+    if (inputTarget.folderpath) {
+      toNonNullableArray(inputTarget.folderpath).forEach(folderpath => {
         const folder = targetsMapByNamepath[folderpath];
-        if (folder) targets[folder.resourceId] = folder;
+        if (folder) resourceTargets[folder.resourceId] = folder;
       });
     }
 
-    if (target.filepath) {
-      toNonNullableArray(target.filepath).forEach(filepath => {
+    if (inputTarget.filepath) {
+      toNonNullableArray(inputTarget.filepath).forEach(filepath => {
         const folder = targetsMapByNamepath[filepath];
-        if (folder) targets[folder.resourceId] = folder;
+        if (folder) resourceTargets[folder.resourceId] = folder;
       });
     }
 
-    if (target.workspaceRootname) {
-      targets[workspace.resourceId] = workspaceWrapper;
+    if (inputTarget.workspaceRootname) {
+      resourceTargets[workspace.resourceId] = workspaceWrapper;
     }
 
-    return targets;
+    return resourceTargets;
   };
 
   type ProcessedPermissionItemInput = {
@@ -193,10 +193,10 @@ export const INTERNAL_addPermissionItems = async (
     // Filter out item.
     return false;
   }));
-  ({items: existingPermissionItems} = uniquePermissionItems(
+  const {items: uniquePermissions} = uniquePermissionItems(
     existingPermissionItems.concat(inputItems)
-  ));
-  const itemsMap = indexArray(existingPermissionItems, {path: 'resourceId'});
+  );
+  const itemsMap = indexArray(uniquePermissions, {path: 'resourceId'});
   inputItems = inputItems.filter(item => !!itemsMap[item.resourceId]);
   await context.semantic.permissionItem.insertItem(inputItems, opts);
   return inputItems;
