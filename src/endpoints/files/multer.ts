@@ -1,6 +1,7 @@
 import multer = require('multer');
-import {fileConstants} from './files/constants';
+import {fileConstants} from './constants';
 
+// TODO: make sure these configs are efficient
 export const multerUploadFileExpressMiddleware = multer({
   limits: {
     fieldNameSize: 100,

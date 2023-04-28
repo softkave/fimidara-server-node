@@ -63,16 +63,9 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
   };
 
   getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
-    const command = new GetObjectCommand({
-      Bucket: params.bucket,
-      Key: params.key,
-    });
-
+    const command = new GetObjectCommand({Bucket: params.bucket, Key: params.key});
     const response = await this.s3.send(command);
-    return {
-      body: <Readable | undefined>response.Body,
-      contentLength: response.ContentLength,
-    };
+    return {body: <Readable | undefined>response.Body, contentLength: response.ContentLength};
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
@@ -82,12 +75,8 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
 
     const command = new DeleteObjectsCommand({
       Bucket: params.bucket,
-      Delete: {
-        Objects: params.keys.map(key => ({Key: key})),
-        Quiet: false,
-      },
+      Delete: {Objects: params.keys.map(key => ({Key: key})), Quiet: false},
     });
-
     await this.s3.send(command);
   };
 
@@ -105,11 +94,8 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
       const command = new CreateBucketCommand({
         Bucket: name,
         ACL: 'private',
-        CreateBucketConfiguration: {
-          LocationConstraint: region,
-        },
+        CreateBucketConfiguration: {LocationConstraint: region},
       });
-
       await this.s3.send(command);
     }
   };

@@ -1,7 +1,10 @@
 ## Now
 
+- [ ] resolveEntityPermissions
+- [ ] Move logs to it's own service and not write directly to DB
+- [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Waitlist for fimidara
-- [ ] List of accepted collaboration requests whose recipients are not given permission groups yet, and remove permission groups on accept collaboration request for now
+- [ ] Frontend for tags for collaborators without permissions
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Support providedResourceId for all resources
 - [ ] In app notification
@@ -20,9 +23,7 @@
 - [ ] Add types to force you to write and update Joi schemas
 - [ ] Add description/comments to mddoc endpoints and types
 - [ ] Filter out agent token ID if the agent type is user
-- [ ] resolveEntityPermissions
 - [ ] Make sure fields we use for matching are indexed
-- [ ] select smallest after index match when correlating
 - [ ] Capture stack trace for log functions like appAssert
 - [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
 - [ ] Get tags by name
@@ -30,7 +31,6 @@
 - [ ] Think up a way to add context information to txns and lock timeout errors
 - [ ] Write tests to confirm that memstore is faster overall than mongodb
 - [ ] A memstore txn lock times out in deleteFolder test
-- [ ] Move logs to it's own service and not write directly to DB
 - [ ] Revamp UI
 - [ ] Refresh jwt tokens and group for collaborators not yet given permission groups
 - [ ] Implement public access actions for resources and check that requesting agent has permission to perform action. Can do similar thing for collaboration request's permission groups assigned on accept.
@@ -38,11 +38,8 @@
 - [ ] Add array or singular item type to permission item mddoc definitions
 - [ ] Make sure min and max is set for mddoc fields
 - [ ] CORS and origin restrict non-public endpoints to just fimidara frontend
-- [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
-- [ ] either return shorted enums to descriptive text or find a way to add comments to them in api and sdk.
-- [ ] docs fns, stripSpaceFromNewline, padNewline, replaceLayoutPlaceholders
+- [ ] either return shortened enums to descriptive text or find a way to add comments to them in api and sdk.
 - [ ] clarify in docs, endpoints that have required body but same fields can be passed in path or query
-- [ ] public / private endpoint getter functions
 - [ ] type and field comments from mddoc
 - [ ] gen validation schemas from mddoc
 - [ ] gen tests from mddoc
@@ -50,7 +47,6 @@
 - [ ] Memstore txn ops shouldn't wait if query or data to insert/update is empty
 - [ ] Memstore should run query for multiple queries at once instead of one query per loop. This can also be used to support $or and $and
 - [ ] Frontend endpoint doc should be generated for each route to reduce compute and cost. Currently, the file is loaded then rendered.
-- [ ] Error boundary page on the frontend
 - [ ] Seek file included in readFile
 - [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
 - [ ] Switch assert to appAssert
@@ -58,7 +54,6 @@
 
 ## Later
 
-- [ ] Limit assigned permissions depth to 10
 - [ ] Mem, use traversal indexes for gt, gte, lt, lte
 - [ ] Use token version when querying tokens
 - [ ] Change events and audit logs
@@ -69,21 +64,13 @@
 - [ ] Check that all tags are saved
 - [ ] Ensure that all check auth calls use right actions
 - [ ] In the future, implement mark deleted, shallow delete, complete delete, per resource, and allow users to select fields to mask on shallow delete
-- [ ] App end
-  - [ ] Complete mongo sync
-  - [ ] Resumeable deletes
-  - [ ] save logs
-  - [ ] Graceful application updates
-- [ ] Tags and client program tokens on the frontend
 - [ ] Public deny all to remove implicit auth and external entity permissions for collaboration requests
 - [ ] Monorepo using turbo repo
 - [ ] Logs and retries
 - [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
-- [ ] unit tests
 - [ ] free flow tags and meta
-- [ ] add provided resource ID to all the resources
 - [ ] Add to public permission group description what it's for and that it cannot be deleted. Add similar information to admin permission group and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
 - [ ] delete permission items when entity, container, or resource is deleted
@@ -95,7 +82,6 @@
 - [ ] should we gate who can see who's permissions
 - [ ] swagger API documentation
 - [ ] use tags and update the names when workspace names or user names changes
-- [ ] free flowing tags
 - [ ] sort data by date by default
 - [ ] Use extension when file matching so that users can upload files with the same name but with different extensions and test that it works
 - [ ] Job to send reminder of collaboration requests to users who haven't accepted or rejected them in a while and when they expire

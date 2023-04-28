@@ -1,7 +1,6 @@
 import {Request, Response} from 'express';
 import {last, merge} from 'lodash';
 import {endpointConstants} from '../constants';
-import {multerUploadFileExpressMiddleware} from '../multer';
 import {endpointDecodeURIComponent} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
@@ -13,6 +12,7 @@ import {
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
 import getFileDetails from './getFileDetails/handler';
+import {multerUploadFileExpressMiddleware} from './multer';
 import readFile from './readFile/handler';
 import {ReadFileEndpoint, ReadFileEndpointParams} from './readFile/types';
 import {FilesExportedEndpoints} from './types';
