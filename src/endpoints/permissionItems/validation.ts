@@ -32,7 +32,7 @@ const targetParts = {
   workspaceRootname: workspaceValidationSchemas.rootname,
 };
 const target = Joi.object<PermissionItemInputTarget>().keys({
-  targetId: targetParts.targetId.required(),
+  targetId: targetParts.targetId,
   targetType: targetParts.targetType,
   folderpath: targetParts.folderpath,
   filepath: targetParts.filepath,

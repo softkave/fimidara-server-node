@@ -14,7 +14,7 @@ import {
 } from './deleteItems/types';
 
 export interface PermissionItemInputTarget {
-  targetId: string | string[];
+  targetId?: string | string[];
   targetType?: AppResourceType | AppResourceType[];
   filepath?: string | string[];
   folderpath?: string | string[];

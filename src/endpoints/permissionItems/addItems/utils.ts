@@ -9,7 +9,7 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {extractResourceIdList, toNonNullableArray} from '../../../utils/fns';
+import {extractResourceIdList, isObjectEmpty, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {
@@ -125,13 +125,21 @@ export const INTERNAL_addPermissionItems = async (
 
     forEach(itemEntitiesMap, entity => {
       toNonNullableArray(item.action).forEach(action => {
-        toNonNullableArray(item.target).forEach(nextTargets => {
-          const nextTargetsMap = getTargets(nextTargets);
+        toNonNullableArray(item.target).forEach(nextTarget => {
+          let nextTargetsMap = getTargets(nextTarget);
+          let targetTypes = toNonNullableArray(nextTarget.targetType ?? []);
+
+          // Default to workspace if there's no target resource
+          if (isObjectEmpty(nextTargetsMap) && targetTypes.length) {
+            nextTargetsMap = {[workspace.resourceId]: workspaceWrapper};
+          }
 
           forEach(nextTargetsMap, nextTargetFromMap => {
-            const targetTypes = toNonNullableArray(
-              nextTargets.targetType ?? getResourceTypeFromId(nextTargetFromMap.resourceId)
-            );
+            if (targetTypes.length === 0) {
+              // Default target type to resource type if there's isn't one
+              // provided
+              targetTypes = toNonNullableArray(getResourceTypeFromId(nextTargetFromMap.resourceId));
+            }
 
             toNonNullableArray(targetTypes).forEach(nextTargetType => {
               processedItems.push({

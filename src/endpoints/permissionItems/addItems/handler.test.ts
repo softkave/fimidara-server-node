@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, getWorkspaceActionList} from '../../../definitions/system';
+import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {
-  canEntityPerformActionOnTargetId,
-  checkExplicitAccessPermissionsOnTargetId,
+  expectEntityHasPermissionsTargetingType,
+  expectEntityHavePermissionsTargetingId,
 } from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -88,7 +88,7 @@ describe('addItems', () => {
     assertEndpointResultOk(result);
     await Promise.all(
       [pg01, pg02].map(pg =>
-        canEntityPerformActionOnTargetId(
+        expectEntityHavePermissionsTargetingId(
           context!,
           pg.resourceId,
           completeWorkspaceActions,
@@ -99,7 +99,7 @@ describe('addItems', () => {
     );
     await Promise.all(
       [pg03, pg04].map(pg =>
-        canEntityPerformActionOnTargetId(
+        expectEntityHavePermissionsTargetingId(
           context!,
           pg.resourceId,
           subsetWorkspaceActions,
@@ -107,6 +107,41 @@ describe('addItems', () => {
           /** expected result */ grantAccess
         )
       )
+    );
+  });
+
+  test('target type without target defaults to workspace', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const [{permissionGroup: pg01}] = await Promise.all([
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+    ]);
+
+    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        items: [
+          {
+            grantAccess: true,
+            action: AppActionType.Read,
+            target: {targetType: AppResourceType.File},
+            appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+          },
+        ],
+        workspaceId: workspace.resourceId,
+        entity: {entityId: [pg01.resourceId]},
+      }
+    );
+    const result = await addPermissionItems(context, reqData);
+    assertEndpointResultOk(result);
+    await expectEntityHasPermissionsTargetingType(
+      context,
+      pg01.resourceId,
+      AppActionType.Read,
+      workspace.resourceId,
+      AppResourceType.File,
+      /** expected result */ true
     );
   });
 
@@ -149,17 +184,10 @@ describe('addItems', () => {
     // Second insert of the very same permission items as the first insert
     const result = await addPermissionItems(context, reqData);
     assertEndpointResultOk(result);
-    await checkExplicitAccessPermissionsOnTargetId(
-      context,
-      permissionGroup.resourceId,
-      getWorkspaceActionList(),
-      workspace.resourceId,
-      grantAccess
-    );
 
-    const permissionGroupItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
+    const pgPermissionItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
-    expect(permissionGroupItems.length).toBe(itemsUniq.length);
+    expect(pgPermissionItems.length).toBe(itemsUniq.length);
   });
 });

@@ -44,6 +44,9 @@ const targetType = fReusables.resourceType
       Target ID or other target identifiers like folderpath 
       should be provided when using target type to limit from 
       which target an entity should have or not have access to. 
+      When adding permissions, target type without a target identifier will 
+      default to workspace. When deleting, target types without a target 
+      identifier will delete all permissions with that target type. 
       Having a target type means an entity is granted or denied 
       access to all resources of that type contained within a parent target 
       like all files in a folder, or all folders in a workspace. 
@@ -88,7 +91,7 @@ const target = FieldObject.construct<PermissionItemInputTarget>()
   .setName('NewPermissionItemInputTarget')
   .setFields({
     targetType: FieldObject.optionalField(targetType),
-    targetId: FieldObject.requiredField(targetId),
+    targetId: FieldObject.optionalField(targetId),
     filepath: FieldObject.optionalField(fReusables.filepath),
     folderpath: FieldObject.optionalField(fReusables.folderpath),
     workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),

@@ -3,7 +3,7 @@ import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
-import {canEntityPerformActionOnTargetType} from '../../testUtils/helpers/permissionItem';
+import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -56,10 +56,11 @@ test('permission items deleted', async () => {
   assertEndpointResultOk(result);
   await executeJob(context, result.jobId);
   await waitForJob(context, result.jobId);
-  await canEntityPerformActionOnTargetType(
+  await expectEntityHasPermissionsTargetingType(
     context,
     permissionGroup.resourceId,
     AppActionType.Read,
+    workspace.resourceId,
     AppResourceType.File,
     /** expected result */ false
   );
