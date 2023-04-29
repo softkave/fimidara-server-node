@@ -8,8 +8,8 @@ import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
 export type DeletePermissionItemInput = {
   target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[];
   action?: AppActionType | AppActionType[];
-  grantAccess?: boolean;
-  appliesTo?: PermissionItemAppliesTo;
+  grantAccess?: boolean | boolean[];
+  appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   entity?: PermissionItemInputEntity;
 };
 

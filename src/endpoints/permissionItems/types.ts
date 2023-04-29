@@ -12,6 +12,11 @@ import {
   DeletePermissionItemsEndpoint,
   DeletePermissionItemsEndpointParams,
 } from './deleteItems/types';
+import {
+  ResolveEntityPermissionsEndpoint,
+  ResolveEntityPermissionsEndpointParams,
+  ResolveEntityPermissionsEndpointResult,
+} from './resolveEntityPermissions/types';
 
 export interface PermissionItemInputTarget {
   targetId?: string | string[];
@@ -30,6 +35,8 @@ export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
   action: AppActionType | AppActionType[];
   grantAccess: boolean;
+
+  // TODO: support array
   appliesTo: PermissionItemAppliesTo;
   entity?: PermissionItemInputEntity;
 }
@@ -49,7 +56,16 @@ export type DeletePermissionItemsHttpEndpoint = HttpEndpoint<
   HttpEndpointResponseHeaders_ContentType_ContentLength
 >;
 
+export type ResolveEntityPermissionsHttpEndpoint = HttpEndpoint<
+  ResolveEntityPermissionsEndpoint,
+  ResolveEntityPermissionsEndpointParams,
+  ResolveEntityPermissionsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength
+>;
+
 export type PermissionItemsExportedEndpoints = {
   addItems: ExportedHttpEndpointWithMddocDefinition<AddPermissionItemsHttpEndpoint>;
   deleteItems: ExportedHttpEndpointWithMddocDefinition<DeletePermissionItemsHttpEndpoint>;
+  resolveEntityPermissions: ExportedHttpEndpointWithMddocDefinition<ResolveEntityPermissionsHttpEndpoint>;
 };

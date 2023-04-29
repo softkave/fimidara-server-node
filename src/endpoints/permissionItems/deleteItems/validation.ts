@@ -15,9 +15,9 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
     filepath: permissionItemValidationSchemas.targetParts.filepath,
     workspaceRootname: workspaceValidationSchemas.rootname,
   }),
-  action: validationSchemas.crudAction,
-  grantAccess: Joi.boolean(),
-  appliesTo: permissionItemValidationSchemas.appliesTo,
+  action: validationSchemas.crudActionOrList,
+  grantAccess: Joi.alternatives().try(Joi.boolean(), Joi.array().items(Joi.boolean()).max(2)),
+  appliesTo: permissionItemValidationSchemas.appliesToOrList,
 });
 
 export const deletePermissionItemsJoiSchema = Joi.object<DeletePermissionItemsEndpointParams>()
@@ -26,7 +26,7 @@ export const deletePermissionItemsJoiSchema = Joi.object<DeletePermissionItemsEn
     entity: permissionItemValidationSchemas.entity,
     items: Joi.array()
       .items(itemInput)
-      .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
+      .max(permissionItemConstants.maxPermissionItemsPerRequest)
       .required(),
   })
   .required();

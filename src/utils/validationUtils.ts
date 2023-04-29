@@ -53,6 +53,7 @@ const resourceType = Joi.string().valid(...systemAppResourceTypesList);
 const crudAction = Joi.string().valid(...getWorkspaceActionList());
 const crudActionList = Joi.array().items(crudAction).max(getWorkspaceActionList().length);
 const providedResourceId = Joi.string().max(endpointConstants.providedResourceIdMaxLength);
+const crudActionOrList = Joi.alternatives().try(crudAction, crudActionList);
 
 export const validationSchemas = {
   resourceId,
@@ -73,6 +74,7 @@ export const validationSchemas = {
   resourceType,
   crudAction,
   crudActionList,
+  crudActionOrList,
   providedResourceId,
 };
 

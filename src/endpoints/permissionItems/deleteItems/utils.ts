@@ -124,13 +124,12 @@ export const INTERNAL_deletePermissionItems = async (
     return targets;
   };
 
-  // A relatively complex map, mapping entity IDs to targets (target ID and
-  // target type), and targets to the input permission items to be deleted. We
-  // use this to build queries of permission items to be deleted. When target ID
-  // is present in the item, we delete permission items with the combination of
-  // target ID and or target type, and when only target type is present, we
-  // delete permission items with that target type irrespective of the target
-  // ID.
+  // Maps entity IDs to targets (target ID and target type), and targets to the
+  // input permission items to be deleted. We use this to build queries of
+  // permission items to be deleted. When target ID is present in the item, we
+  // delete permission items with the combination of target ID and or target
+  // type, and when only target type is present, we delete permission items with
+  // that target type irrespective of the target ID.
   const entityIdMap: Record<
     /** entity ID */ string,
     {
@@ -195,9 +194,7 @@ export const INTERNAL_deletePermissionItems = async (
       toNonNullableArray(targets).forEach(target => {
         const itemTargetsMap = getTargets(target);
 
-        if (isObjectEmpty(itemTargetsMap)) {
-          // Insert in target's map if target is present. For this item, we'll
-          // only be deleting permission items with these target IDs.
+        if (!isObjectEmpty(itemTargetsMap)) {
           forEach(itemTargetsMap, targetResource => {
             if (item.entity)
               insertIntoContainerTargetsMap(
@@ -208,9 +205,6 @@ export const INTERNAL_deletePermissionItems = async (
               );
           });
         } else if (target.targetType) {
-          // Insert in target type's map because a target(s) is not present, but
-          // a target type is. We'll be deleting permission items that provide
-          // access to target type(s).
           toNonNullableArray(target.targetType).forEach(targetType => {
             if (item.entity)
               insertIntoContainerTargetTypesMap(item.entity.entityId, targetType, item);
@@ -226,12 +220,14 @@ export const INTERNAL_deletePermissionItems = async (
     const targets = Object.values(outerMap.targetsMap);
 
     targets.forEach(targetEntry => {
+      const appliesTo = toNonNullableArray(targetEntry.item.appliesTo ?? []);
+      const grantAccess = toNonNullableArray(targetEntry.item.grantAccess ?? []);
       const query: LiteralDataQuery<PermissionItem> = {
         entityId,
         targetId: targetEntry.resource.resourceId,
         targetType: {$in: toNonNullableArray(targetEntry.targetType) as any},
-        appliesTo: targetEntry.item.appliesTo,
-        grantAccess: targetEntry.item.grantAccess,
+        appliesTo: appliesTo.length ? {$in: appliesTo as any[]} : undefined,
+        grantAccess: grantAccess.length ? {$in: grantAccess as any[]} : undefined,
         action: targetEntry.item.action
           ? {$in: toNonNullableArray(targetEntry.item.action) as any}
           : undefined,
@@ -241,10 +237,13 @@ export const INTERNAL_deletePermissionItems = async (
     });
 
     forEach(outerMap.targetTypesMap, ({item}, targetType) => {
+      const appliesTo = toNonNullableArray(item.appliesTo ?? []);
+      const grantAccess = toNonNullableArray(item.grantAccess ?? []);
       const query: LiteralDataQuery<PermissionItem> = {
         entityId,
         targetType: targetType as AppResourceType,
-        grantAccess: item.grantAccess,
+        appliesTo: appliesTo.length ? {$in: appliesTo as any[]} : undefined,
+        grantAccess: grantAccess.length ? {$in: grantAccess as any[]} : undefined,
         action: item.action ? {$in: toNonNullableArray(item.action) as any} : undefined,
       };
 

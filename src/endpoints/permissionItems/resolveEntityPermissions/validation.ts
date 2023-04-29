@@ -7,13 +7,11 @@ import {ResolveEntityPermissionItemInput, ResolveEntityPermissionsEndpointParams
 const itemInput = Joi.object<ResolveEntityPermissionItemInput>().keys({
   entity: permissionItemValidationSchemas.entity,
   target: permissionItemValidationSchemas.target.required(),
-  action: Joi.alternatives()
-    .try(validationSchemas.crudAction, validationSchemas.crudActionList)
-    .required(),
+  action: validationSchemas.crudActionOrList.required(),
 });
 const itemInputList = Joi.array()
   .items(itemInput)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+  .max(permissionItemConstants.maxPermissionItemsPerRequest);
 
 export const resolveEntityPermissionsJoiSchema =
   Joi.object<ResolveEntityPermissionsEndpointParams>()

@@ -16,6 +16,10 @@ const appliesTo = Joi.string().valid(
   PermissionItemAppliesTo.SelfAndChildrenOfType,
   PermissionItemAppliesTo.ChildrenOfType
 );
+const appliesToList = Joi.array()
+  .items(appliesTo)
+  .max(Object.values(PermissionItemAppliesTo).length);
+const appliesToOrList = Joi.alternatives().try(appliesTo, appliesToList);
 
 // TODO: review max items
 const targetParts = {
@@ -47,18 +51,16 @@ const entity = Joi.object<PermissionItemInputEntity>().keys({
 const itemInput = Joi.object<PermissionItemInput>().keys({
   entity,
   target: target.required(),
-  action: Joi.alternatives()
-    .try(validationSchemas.crudAction, validationSchemas.crudActionList)
-    .required(),
+  action: validationSchemas.crudActionOrList.required(),
   grantAccess: Joi.boolean().required(),
   appliesTo: appliesTo.required(),
 });
 const itemInputList = Joi.array()
   .items(itemInput)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+  .max(permissionItemConstants.maxPermissionItemsPerRequest);
 const itemIds = Joi.array()
   .items(validationSchemas.resourceId.required())
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
+  .max(permissionItemConstants.maxPermissionItemsPerRequest)
   .unique();
 const publicAccessOp = Joi.object().keys({
   action: validationSchemas.crudAction.required(),
@@ -66,7 +68,7 @@ const publicAccessOp = Joi.object().keys({
 });
 const publicAccessOpList = Joi.array()
   .items(publicAccessOp)
-  .max(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+  .max(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const permissionItemValidationSchemas = {
   appliesTo,
@@ -79,6 +81,8 @@ const permissionItemValidationSchemas = {
   publicAccessOpList,
   targetParts,
   entityParts,
+  appliesToList,
+  appliesToOrList,
 };
 
 export default permissionItemValidationSchemas;

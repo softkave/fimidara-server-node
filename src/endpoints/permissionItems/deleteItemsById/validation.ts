@@ -7,7 +7,7 @@ export const deletePermissionItemsByIdJoiSchema = Joi.object()
     workspaceId: validationSchemas.resourceId,
     itemIds: Joi.array()
       .items(validationSchemas.resourceId.required())
-      .max(permissionItemConstants.maxPermissionItemsSavedPerRequest)
+      .max(permissionItemConstants.maxPermissionItemsPerRequest)
       .required(),
   })
   .required();

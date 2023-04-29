@@ -31,6 +31,13 @@ import {
   GetResourcePermissionItemsEndpointParams,
   GetResourcePermissionItemsEndpointResult,
 } from './getResourcePermissionItems/types';
+import {
+  ResolveEntityPermissionItemInput,
+  ResolveEntityPermissionsEndpointParams,
+  ResolveEntityPermissionsEndpointResult,
+  ResolvedEntityPermissionItemResult,
+  ResolvedEntityPermissionItemTarget,
+} from './resolveEntityPermissions/types';
 import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
 
 const targetId = fReusables.workspaceId
@@ -119,7 +126,7 @@ const deletePermissionItemInput = FieldObject.construct<DeletePermissionItemInpu
 
 const deletePermissionItemInputList = FieldArray.construct()
   .setType(deletePermissionItemInput)
-  .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+  .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const newPermissionItemInput = FieldObject.construct<PermissionItemInput>()
   .setName('NewPermissionItemInput')
@@ -131,9 +138,43 @@ const newPermissionItemInput = FieldObject.construct<PermissionItemInput>()
     appliesTo: FieldObject.requiredField(fReusables.appliesTo),
   });
 
+const resolvePermissionsItemInput = FieldObject.construct<ResolveEntityPermissionItemInput>()
+  .setName('ResolveEntityPermissionItemInput')
+  .setFields({
+    target: FieldObject.requiredField(target),
+    entity: FieldObject.optionalField(entity),
+    action: FieldObject.requiredField(fReusables.action),
+  });
+
+const resolvedPermissionTarget = FieldObject.construct<ResolvedEntityPermissionItemTarget>()
+  .setName('NewPermissionItemInputTarget')
+  .setFields({
+    targetType: FieldObject.optionalField(targetType),
+    targetId: FieldObject.optionalField(targetId),
+    filepath: FieldObject.optionalField(fReusables.filepath),
+    folderpath: FieldObject.optionalField(fReusables.folderpath),
+    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+  });
+
+const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionItemResult>()
+  .setName('ResolveEntityPermissionItemInput')
+  .setFields({
+    target: FieldObject.requiredField(resolvedPermissionTarget),
+    entityId: FieldObject.requiredField(entityId),
+    action: FieldObject.requiredField(fReusables.action),
+    hasAccess: FieldObject.requiredField(FieldBoolean.construct()),
+  });
+
 const newPermissionItemInputList = FieldArray.construct<PermissionItemInput>()
   .setType(newPermissionItemInput)
-  .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest);
+  .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
+
+const resolvePermissionsItemInputList = FieldArray.construct<ResolveEntityPermissionItemInput>()
+  .setType(resolvePermissionsItemInput)
+  .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
+
+const resolvedPermissionItemList =
+  FieldArray.construct<ResolvedEntityPermissionItemResult>().setType(resolvedPermissionItem);
 
 const permissionItem = FieldObject.construct<PublicPermissionItem>()
   .setName('PermissionItem')
@@ -192,6 +233,25 @@ const getResourcePermissionItemsResponseBody =
         'Returns all the permission items granting access to a resource or resource type.'
     );
 
+const resolveEntityPermissionsParams =
+  FieldObject.construct<ResolveEntityPermissionsEndpointParams>()
+    .setName('ResolveEntityPermissionsEndpointParams')
+    .setFields({
+      entity: FieldObject.optionalField(entity),
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+      items: FieldObject.requiredField(resolvePermissionsItemInputList),
+    })
+    .setRequired(true)
+    .setDescription('Resolve entity permissions endpoint params.');
+const resolveEntityPermissionsResponseBody =
+  FieldObject.construct<ResolveEntityPermissionsEndpointResult>()
+    .setName('ResolveEntityPermissionsEndpointResult')
+    .setFields({
+      items: FieldObject.requiredField(resolvedPermissionItemList),
+    })
+    .setRequired(true)
+    .setDescription('Resolve entity permissions endpoint result.');
+
 const getEntityPermissionItemsParams =
   FieldObject.construct<GetEntityPermissionItemsEndpointParams>()
     .setName('getEntityPermissionItemsEndpointParams')
@@ -223,7 +283,7 @@ const deletePermissionItemsByIdParams =
       itemIds: FieldObject.requiredField(
         FieldArray.construct<string>()
           .setType(fReusables.permissionItemId)
-          .setMax(permissionItemConstants.maxPermissionItemsSavedPerRequest)
+          .setMax(permissionItemConstants.maxPermissionItemsPerRequest)
       ),
     })
     .setRequired(true)
@@ -309,3 +369,18 @@ export const getResourcePermissionItemsEndpointDefinition = HttpEndpointDefiniti
   .setResponseBody(getResourcePermissionItemsResponseBody)
   .setName('GetResourcePermissionItemsEndpoint')
   .setDescription('Get resource permission items endpoint.');
+
+export const resolveEntityPermissionsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: ResolveEntityPermissionsEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: ResolveEntityPermissionsEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(permissionItemConstants.routes.resolveEntityPermissions)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(resolveEntityPermissionsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(resolveEntityPermissionsResponseBody)
+  .setName('ResolveEntityPermissionsEndpoint')
+  .setDescription('Resolve entity permissions endpoint.');
