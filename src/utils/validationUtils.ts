@@ -51,6 +51,7 @@ const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
 const crudAction = Joi.string().valid(...getWorkspaceActionList());
+const crudActionList = Joi.array().items(crudAction).max(getWorkspaceActionList().length);
 const providedResourceId = Joi.string().max(endpointConstants.providedResourceIdMaxLength);
 
 export const validationSchemas = {
@@ -71,6 +72,7 @@ export const validationSchemas = {
   alphanum,
   resourceType,
   crudAction,
+  crudActionList,
   providedResourceId,
 };
 

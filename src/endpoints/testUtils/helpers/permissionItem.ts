@@ -23,7 +23,7 @@ export async function canEntityPerformActionOnTargetId(
   // Index permission items by action - target ID - entity ID. We're going to
   // use them for quick retrieval when checking.
   const map = indexArray(items, {
-    indexer: item => makeKey([item.action, item.targetId, item.entityId]),
+    indexer: item => makeKey([item.entityId, item.action, item.targetId]),
   });
 
   // Make checks using key structure defined above, expecting to match expected
@@ -31,8 +31,8 @@ export async function canEntityPerformActionOnTargetId(
   toNonNullableArray(targetId).forEach(nextTargetId => {
     toNonNullableArray(entityId).forEach(nextEntityId => {
       toNonNullableArray(action).forEach(nextAction => {
-        const key = makeKey([nextAction, nextTargetId, nextEntityId]);
-        expect(!!map[key]).toBe(result);
+        const key = makeKey([nextEntityId, nextAction, nextTargetId]);
+        expect(map[key].grantAccess).toBe(result);
       });
     });
   });

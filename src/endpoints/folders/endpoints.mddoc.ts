@@ -1,6 +1,6 @@
-import { PublicFile } from '../../definitions/file';
-import { FolderMatcher, PublicFolder } from '../../definitions/folder';
-import { AppResourceType } from '../../definitions/system';
+import {PublicFile} from '../../definitions/file';
+import {FolderMatcher, PublicFolder} from '../../definitions/folder';
+import {AppResourceType} from '../../definitions/system';
 import {
   FieldArray,
   FieldNumber,
@@ -15,20 +15,20 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import { fileEndpointsParts } from '../files/endpoints.mddoc';
-import { LongRunningJobResult } from '../jobs/types';
+import {fileEndpointsParts} from '../files/endpoints.mddoc';
+import {LongRunningJobResult} from '../jobs/types';
 import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
-import { AddFolderEndpointParams, AddFolderEndpointResult, NewFolderInput } from './addFolder/types';
-import { folderConstants } from './constants';
+import {AddFolderEndpointParams, AddFolderEndpointResult, NewFolderInput} from './addFolder/types';
+import {folderConstants} from './constants';
 import {
   CountFolderContentEndpointParams,
   CountFolderContentEndpointResult,
 } from './countFolderContent/types';
-import { DeleteFolderEndpointParams } from './deleteFolder/types';
-import { GetFolderEndpointParams, GetFolderEndpointResult } from './getFolder/types';
+import {DeleteFolderEndpointParams} from './deleteFolder/types';
+import {GetFolderEndpointParams, GetFolderEndpointResult} from './getFolder/types';
 import {
   ListFolderContentEndpointParams,
   ListFolderContentEndpointResult,
@@ -158,7 +158,7 @@ const getFolderParams = FieldObject.construct<GetFolderEndpointParams>()
   .setRequired(true)
   .setDescription('Get folder endpoint params.');
 const getFolderResponseBody = FieldObject.construct<GetFolderEndpointResult>()
-  .setName('GetFolderEndpointResult
+  .setName('GetFolderEndpointResult')
   .setFields({folder: FieldObject.requiredField(folder)})
   .setRequired(true)
   .setDescription('Get folder endpoint success result.');

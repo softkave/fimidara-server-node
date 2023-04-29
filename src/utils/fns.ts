@@ -51,7 +51,11 @@ export function findItemWithField<T>(items: T[], val: any, field: keyof T): T | 
   });
 }
 
-export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
+export function makeKey(
+  fields: Array<string | number | undefined | null | boolean>,
+  separator = '-',
+  omitFalsy = true
+) {
   if (omitFalsy) {
     fields = compact(fields);
   }
@@ -169,4 +173,8 @@ export function pick00<T>(data: T, keys: Array<keyof T>) {
     map[key] = data[key];
     return map;
   }, {} as Partial<T>);
+}
+
+export function multilineTextToParagraph(text: string) {
+  return text.replace(/[\s]+/g, ' ').trim();
 }

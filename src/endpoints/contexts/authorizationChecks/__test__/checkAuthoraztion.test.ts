@@ -203,10 +203,8 @@ describe('checkAuthorization', () => {
   // TODO
   test.skip('auth fails if deny permission outweighs access permission', async () => {});
 
-  test.skip('auth fails if deny permission out-weighs grant permission', async () => {});
-
   // TODO: why skip? Also check for skip in other tests.
-  test.skip('summarizeAgentPermissionItems can action type wildcard action', async () => {
+  test.skip('summarizeAgentPermissionItems with wildcard action', async () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();

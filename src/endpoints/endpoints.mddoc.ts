@@ -18,6 +18,7 @@ import {
   FieldString,
 } from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
+import {multilineTextToParagraph} from '../utils/fns';
 import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
@@ -266,7 +267,11 @@ const resourceType = FieldString.construct()
   .setEnumName('AppResourceType');
 const appliesTo = FieldString.construct()
   .setDescription(
-    'Whether this permission applies to only to the target, or the target and children of same type, or only children of type declared in permission item.'
+    multilineTextToParagraph(
+      `Whether this permission applies to only to the target, or 
+      the target and children of same type, or only children of the target 
+      type declared in permission item.`
+    )
   )
   .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
   .setValid(Object.values(PermissionItemAppliesTo))

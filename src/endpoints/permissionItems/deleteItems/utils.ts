@@ -99,7 +99,7 @@ export const INTERNAL_deletePermissionItems = async (
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
       toNonNullableArray(target.targetId).forEach(targetId => {
-        targets[targetId] = targetsMapById[targetId];
+        if (targetsMapById[targetId]) targets[targetId] = targetsMapById[targetId];
       });
     }
 
@@ -112,8 +112,8 @@ export const INTERNAL_deletePermissionItems = async (
 
     if (target.filepath) {
       toNonNullableArray(target.filepath).forEach(filepath => {
-        const folder = targetsMapByNamepath[filepath];
-        if (folder) targets[folder.resourceId] = folder;
+        const file = targetsMapByNamepath[filepath];
+        if (file) targets[file.resourceId] = file;
       });
     }
 

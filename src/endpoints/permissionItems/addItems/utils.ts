@@ -65,22 +65,23 @@ export const INTERNAL_addPermissionItems = async (
   };
 
   const getEntities = (inputEntity: PermissionItemInputEntity) => {
-    let resourceEntities: Record<string, ResourceWrapper> = {};
+    const resourceEntities: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
     toNonNullableArray(inputEntity.entityId).forEach(entityId => {
-      resourceEntities[entityId] = entitiesMapById[entityId];
+      const entity = entitiesMapById[entityId];
+      if (entity) resourceEntities[entityId] = entitiesMapById[entityId];
     });
     return resourceEntities;
   };
 
   const getTargets = (inputTarget: PermissionItemInputTarget) => {
-    let resourceTargets: Record<string, ResourceWrapper> = {};
+    const resourceTargets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
     if (inputTarget.targetId) {
       toNonNullableArray(inputTarget.targetId).forEach(targetId => {
-        resourceTargets[targetId] = targetsMapById[targetId];
+        if (targetsMapById[targetId]) resourceTargets[targetId] = targetsMapById[targetId];
       });
     }
 
@@ -93,8 +94,8 @@ export const INTERNAL_addPermissionItems = async (
 
     if (inputTarget.filepath) {
       toNonNullableArray(inputTarget.filepath).forEach(filepath => {
-        const folder = targetsMapByNamepath[filepath];
-        if (folder) resourceTargets[folder.resourceId] = folder;
+        const file = targetsMapByNamepath[filepath];
+        if (file) resourceTargets[file.resourceId] = file;
       });
     }
 

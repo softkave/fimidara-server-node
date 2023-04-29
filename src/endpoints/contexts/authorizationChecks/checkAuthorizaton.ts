@@ -31,7 +31,8 @@ export type AuthTarget = {
 
 export interface ICheckAuthorizationParams {
   context: BaseContextType;
-  agent: SessionAgent;
+  agent?: SessionAgent;
+  entity?: string;
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   containerId?: string | string[];
@@ -47,13 +48,15 @@ export interface IAuthAccessCheckers {
     action: AppActionType,
     containerId?: string | string[],
     nothrow?: boolean
-  ) => PermissionItem | false;
+  ) => {hasAccess: boolean; item?: PermissionItem};
   checkForTargetType: (
     type: AppResourceType,
     action: AppActionType,
+
+    /** container ID should contain immediate parent ID */
     containerId: string | string[],
     nothrow?: boolean
-  ) => PermissionItem | false;
+  ) => {hasAccess: boolean; item?: PermissionItem};
   checkUsingCheckAuthParams: (params: ICheckAuthorizationParams) => void;
 }
 
@@ -64,7 +67,7 @@ function newAccessChecker(
   params: ICheckAuthorizationParams | undefined
 ) {
   const handleNoAccess = (item?: PermissionItem, nothrow = false) => {
-    if (nothrow) return item ?? false;
+    if (nothrow) return {item, hasAccess: false};
     throw new PermissionDeniedError();
   };
 
@@ -101,7 +104,7 @@ function newAccessChecker(
     if (accessItem && denyItem)
       reportConflictingAccess(accessItem, denyItem, action, targetType, targetId);
     if (denyItem) return handleNoAccess(denyItem, nothrow);
-    if (accessItem) return accessItem;
+    if (accessItem) return {hasAccess: true, item: accessItem};
 
     return handleNoAccess(undefined, nothrow);
   };
@@ -143,7 +146,14 @@ function newAccessChecker(
     },
     checkUsingCheckAuthParams(params) {
       toNonNullableArray(params.targets).forEach(target => {
-        if (target.targetId) {
+        if (target.targetType) {
+          accessChecker.checkForTargetType(
+            target.targetType,
+            params.action,
+            uniq(toCompactArray(params.workspaceId, params.containerId, target.targetId)),
+            /** nothrow */ false
+          );
+        } else if (target.targetId) {
           accessChecker.checkForTargetId(
             target.targetId,
             params.action,
@@ -152,13 +162,6 @@ function newAccessChecker(
             uniq(
               difference(toCompactArray(params.workspaceId, params.containerId), [target.targetId])
             ),
-            /** nothrow */ false
-          );
-        } else if (target.targetType) {
-          accessChecker.checkForTargetType(
-            target.targetType,
-            params.action,
-            uniq(toCompactArray(params.workspaceId, params.containerId, target.targetId)),
             /** nothrow */ false
           );
         }
@@ -183,11 +186,14 @@ export async function checkAuthorization(params: ICheckAuthorizationParams) {
 export async function fetchAgentPermissionItems(
   params: ICheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
-  const {context, agent, workspaceId, targets} = params;
-  if (agent.user && !agent.user.isEmailVerified && params.action !== AppActionType.Read) {
+  const {context, agent, entity, workspaceId, targets} = params;
+  if (agent && agent.user && !agent.user.isEmailVerified && params.action !== AppActionType.Read) {
     // Only read actions are permitted for user's who aren't email verified.
     throw new EmailAddressNotVerifiedError();
   }
+
+  const agentId = agent?.agentId ?? entity;
+  appAssert(agentId);
 
   const workspace =
     params.workspace ?? (await context.semantic.workspace.getOneById(params.workspaceId));
@@ -201,7 +207,7 @@ export async function fetchAgentPermissionItems(
   const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
     context.semantic.permissions.getEntityInheritanceMap({
       context,
-      entityId: agent.agentId,
+      entityId: agentId,
       fetchDeep: params.fetchEntitiesDeep,
     }),
     context.semantic.permissions.getEntityInheritanceMap({
@@ -212,7 +218,7 @@ export async function fetchAgentPermissionItems(
   ]);
   const {sortedItemsList: entitySortedItemList} = context.logic.permissions.sortInheritanceMap({
     map: entityInheritanceMap,
-    entityId: agent.agentId,
+    entityId: agentId,
   });
   const {sortedItemsList: publicSortedItemList} = context.logic.permissions.sortInheritanceMap({
     map: publicInheritanceMap,

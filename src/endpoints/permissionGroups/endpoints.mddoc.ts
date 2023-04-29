@@ -17,8 +17,8 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import { LongRunningJobResult } from '../jobs/types';
-import { permissionItemMddocParts } from '../permissionItems/endpoints.mddoc';
+import {LongRunningJobResult} from '../jobs/types';
+import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc';
 import {
   CountItemsEndpointResult,
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
@@ -29,10 +29,10 @@ import {
   AddPermissionGroupEndpointResult,
   NewPermissionGroupInput,
 } from './addPermissionGroup/types';
-import { AssignPermissionGroupsEndpointParams } from './assignPermissionGroups/types';
-import { permissionGroupConstants } from './constants';
-import { CountWorkspacePermissionGroupsEndpointParams } from './countWorkspacePermissionGroups/types';
-import { DeletePermissionGroupEndpointParams } from './deletePermissionGroup/types';
+import {AssignPermissionGroupsEndpointParams} from './assignPermissionGroups/types';
+import {permissionGroupConstants} from './constants';
+import {CountWorkspacePermissionGroupsEndpointParams} from './countWorkspacePermissionGroups/types';
+import {DeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
 import {
   GetEntityAssignedPermissionGroupsEndpointParams,
   GetEntityAssignedPermissionGroupsEndpointResult,
@@ -225,7 +225,7 @@ const getPermissionGroupParams = FieldObject.construct<GetPermissionGroupEndpoin
   .setRequired(true)
   .setDescription('Get permission group endpoint params.');
 const getPermissionGroupResponseBody = FieldObject.construct<GetPermissionGroupEndpointResult>()
-  .setName('GetPermissionGroupEndpointResult
+  .setName('GetPermissionGroupEndpointResult')
   .setFields({permissionGroup: FieldObject.requiredField(permissionGroup)})
   .setRequired(true)
   .setDescription('Get permission group endpoint success result.');

@@ -1,11 +1,12 @@
 ## Now
 
-- [ ] resolveEntityPermissions
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Waitlist for fimidara
 - [ ] Frontend for tags for collaborators without permissions
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
+- [ ] Nuke all target type permissions when target ID is not provided when deleting permission items, and only delete the ones with target ID when target ID is porvided.
+- [ ] Target ID should not be required for add permission items but should default to workspace
 - [ ] Support providedResourceId for all resources
 - [ ] In app notification
 - [ ] Handle password change required on the frontend

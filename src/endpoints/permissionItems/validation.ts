@@ -47,7 +47,9 @@ const entity = Joi.object<PermissionItemInputEntity>().keys({
 const itemInput = Joi.object<PermissionItemInput>().keys({
   entity,
   target: target.required(),
-  action: validationSchemas.crudAction.required(),
+  action: Joi.alternatives()
+    .try(validationSchemas.crudAction, validationSchemas.crudActionList)
+    .required(),
   grantAccess: Joi.boolean().required(),
   appliesTo: appliesTo.required(),
 });

@@ -33,7 +33,7 @@ afterAll(async () => {
 });
 
 describe('addItems', () => {
-  test.only('permission items added', async () => {
+  test('permission items added', async () => {
     // TODO: add more tests for target and appliesTo
 
     assertContext(context);

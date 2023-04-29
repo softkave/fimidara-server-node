@@ -1,5 +1,5 @@
-import { PublicPermissionItem } from '../../definitions/permissionItem';
-import { AppResourceType, getWorkspaceResourceTypeList } from '../../definitions/system';
+import {PublicPermissionItem} from '../../definitions/permissionItem';
+import {AppResourceType, getWorkspaceResourceTypeList} from '../../definitions/system';
 import {
   FieldArray,
   FieldBoolean,
@@ -8,20 +8,21 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
+import {multilineTextToParagraph} from '../../utils/fns';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import { LongRunningJobResult } from '../jobs/types';
+import {LongRunningJobResult} from '../jobs/types';
 import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
-import { AddPermissionItemsEndpointParams } from './addItems/types';
-import { permissionItemConstants } from './constants';
-import { DeletePermissionItemInput, DeletePermissionItemsEndpointParams } from './deleteItems/types';
-import { DeletePermissionItemsByIdEndpointParams } from './deleteItemsById/types';
+import {AddPermissionItemsEndpointParams} from './addItems/types';
+import {permissionItemConstants} from './constants';
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './deleteItems/types';
+import {DeletePermissionItemsByIdEndpointParams} from './deleteItemsById/types';
 import {
   GetEntityPermissionItemsEndpointParams,
   GetEntityPermissionItemsEndpointResult,
@@ -30,17 +31,30 @@ import {
   GetResourcePermissionItemsEndpointParams,
   GetResourcePermissionItemsEndpointResult,
 } from './getResourcePermissionItems/types';
-import { PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget } from './types';
+import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
 
 const targetId = fReusables.workspaceId
   .clone()
-  .setDescription('Resource ID of the resource to retrieve permission items for.');
+  .setDescription('Resource ID permission is effected on.');
 const targetType = fReusables.resourceType
   .clone()
   .setDescription(
-    'Resource type to retrieve permission items for. ' +
-      'You can pass only the resource type to retrieve all the permission items ' +
-      'that grant access to a resource type, or also pass a resource ID to restrict it to just that resource.'
+    multilineTextToParagraph(`
+      Resource type permission is effected on. 
+      Target ID or other target identifiers like folderpath 
+      should be provided when using target type to limit from 
+      which target an entity should have or not have access to. 
+      Having a target type means an entity is granted or denied 
+      access to all resources of that type contained within a parent target 
+      like all files in a folder, or all folders in a workspace. 
+      This is why target ID or a specific target should be provided 
+      when adding or removing permissions to avoid granting permissions 
+      to all files in a workspace when you only wanted files in a folder. 
+      Resource type also works with appliesTo to limit the access to only 
+      the target even when target type is set, or to the target and children, 
+      or only to children excluding the target itself. 
+      The last one is especially useful when you want an entity have 
+      access to create or delete folders in a folder but not delete the folder itself.`)
   )
   .setValid(getWorkspaceResourceTypeList())
   .setEnumName('WorkspaceAppResourceType');
@@ -188,7 +202,7 @@ const getEntityPermissionItemsParams =
     .setDescription('Get entity permission items endpoint params.');
 const getEntityPermissionItemsResponseBody =
   FieldObject.construct<GetEntityPermissionItemsEndpointResult>()
-    .setName('getEntityPermissionItemsEndpointResult
+    .setName('getEntityPermissionItemsEndpointResult')
     .setFields({
       items: FieldObject.requiredField(
         FieldArray.construct<PublicPermissionItem>().setType(permissionItem)
