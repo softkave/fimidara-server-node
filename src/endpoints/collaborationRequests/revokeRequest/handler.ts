@@ -18,7 +18,6 @@ import {InvalidRequestError} from '../../errors';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {RevokeCollaborationRequestEndpoint} from './types';
 import {revokeCollaborationRequestJoiSchema} from './validation';
@@ -53,12 +52,8 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
     return {request, workspace};
   });
 
-  [request] = await Promise.all([
-    populateRequestAssignedPermissionGroups(context, request),
-
-    // TODO: fire and forget
-    sendRevokeCollaborationRequestEmail(context, request, workspace.name),
-  ]);
+  // TODO: fire and forget
+  await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
@@ -67,17 +62,20 @@ async function sendRevokeCollaborationRequestEmail(
   request: CollaborationRequest,
   workspaceName: string
 ) {
+  const recipient = await context.semantic.user.getByEmail(request.recipientEmail);
   const signupLink = context.appVariables.clientSignupLink;
   const loginLink = context.appVariables.clientLoginLink;
   const html = collaborationRequestRevokedEmailHTML({
     workspaceName,
     signupLink,
     loginLink,
+    firstName: recipient?.firstName,
   });
   const text = collaborationRequestRevokedEmailText({
     workspaceName,
     signupLink,
     loginLink,
+    firstName: recipient?.firstName,
   });
   await context.email.sendEmail(context, {
     subject: collaborationRequestRevokedEmailTitle(workspaceName),

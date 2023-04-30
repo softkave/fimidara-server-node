@@ -41,6 +41,7 @@ import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/use
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {getTimestamp} from '../../utils/dateFns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
 export interface PromptEmailAnswers {
@@ -204,6 +205,16 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
         data: {password: userPassword.password},
         agent: makeUserSessionAgent(user, forgotToken),
       })
+    );
+  }
+
+  if (user.isOnWaitlist) {
+    await executeWithMutationRunOptions(context, opts =>
+      context.semantic.user.updateOneById(
+        user.resourceId,
+        {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
+        opts
+      )
     );
   }
 

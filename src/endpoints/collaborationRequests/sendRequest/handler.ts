@@ -20,10 +20,7 @@ import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/seman
 import {BaseContextType} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {
-  collaborationRequestForWorkspaceExtractor,
-  populateRequestAssignedPermissionGroups,
-} from '../utils';
+import {collaborationRequestForWorkspaceExtractor} from '../utils';
 import {SendCollaborationRequestEndpoint} from './types';
 import {sendCollaborationRequestJoiSchema} from './validation';
 
@@ -91,10 +88,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     return {request, existingUser};
   });
 
-  [request] = await Promise.all([
-    populateRequestAssignedPermissionGroups(context, request),
-    sendCollaborationRequestEmail(context, request, existingUser),
-  ]);
+  await sendCollaborationRequestEmail(context, request, existingUser);
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
@@ -110,6 +104,7 @@ async function sendCollaborationRequestEmail(
     signupLink: context.appVariables.clientSignupLink,
     expires: request.expiresAt,
     message: request.message,
+    firstName: toUser?.firstName,
   };
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);

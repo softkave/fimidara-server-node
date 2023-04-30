@@ -79,7 +79,8 @@
         "permissionItems",
         [
             "/v1/permissionItems/addItems",
-            "/v1/permissionItems/deleteItems"
+            "/v1/permissionItems/deleteItems",
+            "/v1/permissionItems/resolveEntityPermissions"
         ]
     ],
     [

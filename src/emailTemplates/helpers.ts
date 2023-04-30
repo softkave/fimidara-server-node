@@ -1,9 +1,11 @@
 import {defaultStaticVars} from '../resources/vars';
 import {BaseEmailTemplateProps} from './types';
 
+export const emailHelperChars = {emDash: '—'};
+
 const maxWidth = '700px';
 const classNamePrefix = 'fimidara';
-export const emailTemplateConstants = {
+export const emailStylingHelpers = {
   maxWidth,
   classNamePrefix,
 };
@@ -59,15 +61,15 @@ export function getFooterHTML(withDonotReply = true): string {
 export function getHeaderHTML(title: string) {
   return `
 <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-  <h1>${defaultStaticVars.appName} - <br /> ${title}</h1>
+  <h1>${defaultStaticVars.appName} ${emailHelperChars.emDash} <br /> ${title}</h1>
 </header>
     `;
 }
 
 export function getCenteredContentHTML(content: string) {
   return `
-<div class="${emailTemplateConstants.classNamePrefix}-body">
-  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+<div class="${emailStylingHelpers.classNamePrefix}-body">
+  <div class="${emailStylingHelpers.classNamePrefix}-content-center">
     ${content}
   </div>
 </div>
@@ -80,26 +82,26 @@ export function getDoNotReplyHTML() {
 
 export function getAccountAccessSectionHTML(props: BaseEmailTemplateProps) {
   return `
-<div class="${emailTemplateConstants.classNamePrefix}-body">
-  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
-    <a href="${props.loginLink}">Login to your account here</a> - OR -<br />
-    <a href="${props.signupLink}">Signup here</a>
+<div class="${emailStylingHelpers.classNamePrefix}-body">
+  <div class="${emailStylingHelpers.classNamePrefix}-content-center">
+    <a href="${props.loginLink}">Login to fimidara here</a> - OR -<br />
+    <a href="${props.signupLink}">Signup on fimidara here</a>
   </div>
 </div>
     `;
 }
 
 export function getAccountAccessSectionText(props: BaseEmailTemplateProps) {
-  return `-
-Login to your account here - ${props.loginLink} - OR -
-Signup here - ${props.signupLink}
+  return `${emailHelperChars.emDash}
+Login to fimidara here ${emailHelperChars.emDash} ${props.loginLink} ${emailHelperChars.emDash} OR ${emailHelperChars.emDash}
+Signup on fimidara here ${emailHelperChars.emDash} ${props.signupLink}
 `;
 }
 
 export function getLoginSectionHTML(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
   return `
-<div class="${emailTemplateConstants.classNamePrefix}-body">
-  <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+<div class="${emailStylingHelpers.classNamePrefix}-body">
+  <div class="${emailStylingHelpers.classNamePrefix}-content-center">
     <a href="${props.loginLink}">Login to your account here</a>
   </div>
 </div>
@@ -107,11 +109,19 @@ export function getLoginSectionHTML(props: Pick<BaseEmailTemplateProps, 'loginLi
 }
 
 export function getLoginSectionText(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
-  return `-
-Login to your account here - ${props.loginLink}
+  return `—
+Login to your account here ${emailHelperChars.emDash} ${props.loginLink}\n
 `;
 }
 
 export function getHeaderText(title: string) {
-  return `${defaultStaticVars.appName} - ${title}`;
+  return `${defaultStaticVars.appName} ${emailHelperChars.emDash} ${title}`;
+}
+
+export function getGreetingHTML(props: {firstName?: string}) {
+  return props.firstName ? `<p>Hi ${props.firstName},</p>` : '';
+}
+
+export function getGreetingText(props: {firstName?: string}) {
+  return props.firstName ? `Hi ${props.firstName},` : '';
 }

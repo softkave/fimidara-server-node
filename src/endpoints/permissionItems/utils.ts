@@ -16,7 +16,7 @@ import {reuseableErrors} from '../../utils/reusableErrors';
 import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
-import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
+import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 import {FetchResourceItem} from '../resources/types';
@@ -144,7 +144,7 @@ export async function getPermissionItemEntities(
   resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
     AppResourceType.User,
   ]);
-  checkResourcesBelongToWorkspace(workspaceId, resources);
+  checkResourcesBelongsToWorkspace(workspaceId, resources);
   return resources;
 }
 

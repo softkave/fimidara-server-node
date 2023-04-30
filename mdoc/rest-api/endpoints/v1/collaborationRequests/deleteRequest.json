@@ -142,7 +142,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

@@ -4,7 +4,7 @@ import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
-import {checkResourcesBelongToWorkspace} from '../resources/containerCheckFns';
+import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 
 export default async function checkTagsExist(
@@ -28,6 +28,6 @@ export default async function checkTagsExist(
     checkAuth: true,
     dataFetchRunOptions: opts,
   });
-  checkResourcesBelongToWorkspace(workspace.resourceId, resources);
+  checkResourcesBelongsToWorkspace(workspace.resourceId, resources);
   return {resources};
 }

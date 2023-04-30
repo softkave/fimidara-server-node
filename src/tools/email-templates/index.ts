@@ -1,18 +1,20 @@
-import {getConsoleLogger} from '../../endpoints/globalUtils';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
   renderCollaborationRequestRevokedMedia,
   renderConfirmEmailAddressMedia,
   renderForgotPasswordMedia,
+  renderUpgradedFromWaitlistMedia,
+  renderUsageExceededMedia,
 } from './renderToFile';
 
-const consoleLogger = getConsoleLogger();
-consoleLogger.info('Writing templates');
+console.log('Writing templates');
 renderConfirmEmailAddressMedia();
 renderForgotPasswordMedia();
 renderCollaborationRequestMedia();
 renderCollaborationRequestRevokedMedia();
 renderCollaborationRequestResponseMedia();
-consoleLogger.info('Completed writing templates');
+renderUpgradedFromWaitlistMedia();
+renderUsageExceededMedia();
+console.log('Completed writing templates');
 process.exit(0);

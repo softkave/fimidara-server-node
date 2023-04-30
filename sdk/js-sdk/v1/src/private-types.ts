@@ -17,10 +17,12 @@ export type PublicUser = {
   lastName: string;
   email: string;
   passwordLastChangedAt: number;
+  requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number;
   emailVerificationEmailSentAt?: number;
   workspaces: Array<UserWorkspace>;
+  isOnWaitlist: boolean;
 };
 export type LoginResult = {
   user: PublicUser;
@@ -45,4 +47,17 @@ export type UserExistsEndpointParams = {
 };
 export type UserExistsEndpointResult = {
   exists: boolean;
+};
+export type GetCollaboratorsWithoutPermissionEndpointParams = {
+  workspaceId?: string;
+};
+export type GetCollaboratorsWithoutPermissionEndpointResult = {
+  collaboratorIds: Array<string>;
+};
+export type GetWaitlistedUsersEndpointParams = {};
+export type GetWaitlistedUsersEndpointResult = {
+  users: Array<PublicUser>;
+};
+export type UpgradeWaitlistedUsersEndpointParams = {
+  userIds: Array<string>;
 };

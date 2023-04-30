@@ -30,7 +30,12 @@ export interface SemanticDataAccessBaseProviderType<T extends Resource> {
     id: string,
     update: Partial<T>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void>;
+  ): Promise<T | null>;
+  updateManyByQuery(
+    q: LiteralDataQuery<T>,
+    update: Partial<T>,
+    opts: SemanticDataAccessProviderMutationRunOptions
+  ): Promise<T[]>;
   getAndUpdateOneById(
     id: string,
     update: Partial<T>,
@@ -41,11 +46,11 @@ export interface SemanticDataAccessBaseProviderType<T extends Resource> {
     idList: string[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
-  getOneByLiteralDataQuery(
+  getOneByQuery(
     q: LiteralDataQuery<T>,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<T | null>;
-  getManyByLiteralDataQuery(
+  getManyByQuery(
     q: LiteralDataQuery<T>,
     options?: IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions
   ): Promise<T[]>;

@@ -2,9 +2,9 @@
 
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
-- [ ] Waitlist for fimidara
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Revamp UI
+- [ ] Hide create workspace button on frontend if user is on waitlist
 - [ ] Document all errors to surface in docs
 - [ ] Handle password change required on the frontend
 - [ ] Change password with current password or forgot password on the frontend

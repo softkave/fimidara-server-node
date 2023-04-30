@@ -20,7 +20,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
   ) {}
 
   async insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions) {
-    await this.memstore.createItems(item, opts.transaction);
+    return await this.memstore.createItems(item, opts.transaction);
   }
 
   async insertIfNotExist(
@@ -47,7 +47,15 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
     opts: SemanticDataAccessProviderMutationRunOptions
   ) {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
-    await this.memstore.updateItem(query as LiteralDataQuery<T>, update, opts.transaction);
+    return await this.memstore.updateItem(query as LiteralDataQuery<T>, update, opts.transaction);
+  }
+
+  async updateManyByQuery(
+    query: LiteralDataQuery<T>,
+    update: Partial<T>,
+    opts: SemanticDataAccessProviderMutationRunOptions
+  ) {
+    return await this.memstore.updateManyItems(query, update, opts.transaction);
   }
 
   async getAndUpdateOneById(
@@ -109,7 +117,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
     return await this.memstore.countItems(q, opts?.transaction);
   }
 
-  async getManyByLiteralDataQuery(
+  async getManyByQuery(
     q: LiteralDataQuery<T>,
     options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
   ): Promise<T[]> {
@@ -137,7 +145,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
     return await this.memstore.exists(q, opts?.transaction);
   }
 
-  async getOneByLiteralDataQuery(
+  async getOneByQuery(
     q: LiteralDataQuery<T>,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<T | null> {

@@ -31,7 +31,7 @@ async function sendCollaborationRequestResponseEmail(
   context: BaseContextType,
   request: CollaborationRequest,
   response: CollaborationRequestResponse,
-  toUser: Pick<User, 'email'>
+  toUser: User
 ) {
   const emailProps: CollaborationRequestResponseEmailProps = {
     response,
@@ -39,6 +39,7 @@ async function sendCollaborationRequestResponseEmail(
     loginLink: context.appVariables.clientLoginLink,
     signupLink: context.appVariables.clientSignupLink,
     recipientEmail: request.recipientEmail,
+    firstName: toUser?.firstName,
   };
   const html = collaborationRequestResponseEmailHTML(emailProps);
   const text = collaborationRequestResponseEmailText(emailProps);
@@ -144,8 +145,6 @@ export async function notifyUserOnCollaborationRequestResponse(
       : null;
 
   if (notifyUser && notifyUser.isEmailVerified) {
-    await sendCollaborationRequestResponseEmail(context, request, response, {
-      email: notifyUser.email,
-    });
+    await sendCollaborationRequestResponseEmail(context, request, response, notifyUser);
   }
 }

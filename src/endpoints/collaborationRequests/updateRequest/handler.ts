@@ -8,7 +8,6 @@ import {assertUpdateNotEmpty} from '../../utils';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-  populateRequestAssignedPermissionGroups,
 } from '../utils';
 import {UpdateCollaborationRequestEndpoint} from './types';
 import {updateCollaborationRequestJoiSchema} from './validation';
@@ -47,8 +46,6 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   });
 
   // TODO: send email if request description changed
-
-  request = await populateRequestAssignedPermissionGroups(context, request);
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 

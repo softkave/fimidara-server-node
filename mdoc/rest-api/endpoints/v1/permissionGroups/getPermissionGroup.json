@@ -84,7 +84,7 @@
         "required": true,
         "description": "Get permission group endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetPermissionGroupEndpointSuccessResult",
+        "name": "GetPermissionGroupEndpointResult",
         "fields": {
             "permissionGroup": {
                 "data": {
@@ -268,7 +268,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

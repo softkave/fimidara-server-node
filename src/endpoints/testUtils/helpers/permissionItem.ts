@@ -14,7 +14,7 @@ export async function expectEntityHavePermissionsTargetingId(
   // implementation is not factoring in appliesTo
 
   // fetch permission items
-  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+  const items = await context.semantic.permissionItem.getManyByQuery({
     entityId: {$in: toNonNullableArray(entityId)},
     action: {$in: toNonNullableArray(action) as any[]},
     targetId: {$in: toNonNullableArray(targetId)},
@@ -47,7 +47,7 @@ export async function expectEntityHasPermissionsTargetingType(
   result: boolean
 ) {
   // fetch permission items
-  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+  const items = await context.semantic.permissionItem.getManyByQuery({
     entityId: {$in: toNonNullableArray(entityId)},
     action: {$in: toNonNullableArray(action) as any[]},
     targetType: {$in: toNonNullableArray(targetType) as any[]},

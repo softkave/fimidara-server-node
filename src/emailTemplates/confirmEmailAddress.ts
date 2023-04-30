@@ -1,14 +1,18 @@
 import {
-  emailTemplateConstants,
+  emailHelperChars,
+  emailStylingHelpers,
   emailTemplateStyles,
   getFooterHTML,
+  getGreetingHTML,
+  getGreetingText,
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
+import {BaseEmailTemplateProps} from './types';
 
 export const confirmEmailAddressEmailTitle = 'Confirm your email address';
 
-export interface ConfirmEmailAddressEmailProps {
+export interface ConfirmEmailAddressEmailProps extends BaseEmailTemplateProps {
   firstName: string;
   link: string;
 }
@@ -24,11 +28,11 @@ export function confirmEmailAddressEmailHTML(props: ConfirmEmailAddressEmailProp
 </head>
 <body>
   ${getHeaderHTML(confirmEmailAddressEmailTitle)}
-  <div class="${emailTemplateConstants.classNamePrefix}-body">
-    <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+  <div class="${emailStylingHelpers.classNamePrefix}-body">
+    <div class="${emailStylingHelpers.classNamePrefix}-content-center">
+      ${getGreetingHTML(props)}
       <p>
-        Hi ${props.firstName}, click the link below to verify your email address.
-        <br />
+        Click the link below to verify your email address.<br />
         <a href="${props.link}">${props.link}</a>
       </p>
     </div>
@@ -40,10 +44,10 @@ export function confirmEmailAddressEmailHTML(props: ConfirmEmailAddressEmailProp
 }
 
 export function confirmEmailAddressEmailText(props: ConfirmEmailAddressEmailProps): string {
-  const text = `
-${getHeaderText(confirmEmailAddressEmailTitle)}
--
-Hi ${props.firstName}, visit the link below to verify your email address:
+  const text = `${getHeaderText(confirmEmailAddressEmailTitle)}
+${emailHelperChars.emDash}
+${getGreetingText(props)}
+Visit the link below to verify your email address:
 ${props.link} 
 `;
 

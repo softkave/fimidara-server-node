@@ -60,6 +60,8 @@ test('forgot password with email sent', async () => {
   const forgotPasswordEmailProps: ForgotPasswordEmailProps = {
     link,
     expiration: getForgotPasswordExpiration(),
+    signupLink: context.appVariables.clientSignupLink,
+    loginLink: context.appVariables.clientLoginLink,
   };
   const html = forgotPasswordEmailHTML(forgotPasswordEmailProps);
   const text = forgotPasswordEmailText(forgotPasswordEmailProps);

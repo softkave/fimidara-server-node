@@ -68,7 +68,7 @@ describe('addAssignedItems', () => {
       pgInputKey
     );
 
-    const savedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery({
+    const savedItems = await context.semantic.assignedItem.getManyByQuery({
       assigneeId: {$in: pgList01IdList},
     });
     expectContainsEveryItemInForAnyType(

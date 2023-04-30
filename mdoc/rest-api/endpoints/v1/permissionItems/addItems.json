@@ -46,7 +46,7 @@
                                     "fields": {
                                         "targetType": {
                                             "data": {
-                                                "description": "Resource type to retrieve permission items for. You can pass only the resource type to retrieve all the permission items that grant access to a resource type, or also pass a resource ID to restrict it to just that resource.",
+                                                "description": "Resource type permission is effected on. Target ID or other target identifiers like folderpath should be provided when using target type to limit from which target an entity should have or not have access to. When adding permissions, target type without a target identifier will default to workspace. When deleting, target types without a target identifier will delete all permissions with that target type. Having a target type means an entity is granted or denied access to all resources of that type contained within a parent target like all files in a folder, or all folders in a workspace. This is why target ID or a specific target should be provided when adding or removing permissions to avoid granting permissions to all files in a workspace when you only wanted files in a folder. Resource type also works with appliesTo to limit the access to only the target even when target type is set, or to the target and children, or only to children excluding the target itself. The last one is especially useful when you want an entity have access to create or delete folders in a folder but not delete the folder itself.",
                                                 "__id": "FieldString",
                                                 "example": "file",
                                                 "valid": {
@@ -68,11 +68,11 @@
                                         },
                                         "targetId": {
                                             "data": {
-                                                "description": "Resource ID of the resource to retrieve permission items for.",
+                                                "description": "Resource ID permission is effected on.",
                                                 "__id": "FieldString",
                                                 "example": "wrkspce_000000000000000000000"
                                             },
-                                            "required": true
+                                            "optional": true
                                         },
                                         "filepath": {
                                             "data": {
@@ -145,7 +145,7 @@
                             },
                             "appliesTo": {
                                 "data": {
-                                    "description": "Whether this permission applies to only to the target, or the target and children of same type, or only children of type declared in permission item.",
+                                    "description": "Whether this permission applies to only to the target, or the target and children of same type, or only children of the target type declared in permission item.",
                                     "__id": "FieldString",
                                     "example": "selfAndChildren",
                                     "valid": {
@@ -251,7 +251,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

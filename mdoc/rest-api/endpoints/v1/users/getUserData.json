@@ -113,6 +113,12 @@
                             },
                             "required": true
                         },
+                        "requiresPasswordChange": {
+                            "data": {
+                                "__id": "FieldBoolean"
+                            },
+                            "optional": true
+                        },
                         "isEmailVerified": {
                             "data": {
                                 "__id": "FieldBoolean"
@@ -157,6 +163,12 @@
                                         }
                                     }
                                 }
+                            },
+                            "required": true
+                        },
+                        "isOnWaitlist": {
+                            "data": {
+                                "__id": "FieldBoolean"
                             },
                             "required": true
                         }
@@ -241,7 +253,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

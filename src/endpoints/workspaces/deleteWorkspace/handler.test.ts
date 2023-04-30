@@ -41,7 +41,7 @@ test('workspace deleted', async () => {
   assertEndpointResultOk(result);
   await executeJob(context, result.jobId);
   await waitForJob(context, result.jobId);
-  const savedWorkspace = await context.semantic.workspace.getOneByLiteralDataQuery(
+  const savedWorkspace = await context.semantic.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(workspace.resourceId)
   );
   expect(savedWorkspace).toBeFalsy();

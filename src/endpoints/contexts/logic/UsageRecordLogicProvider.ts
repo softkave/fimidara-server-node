@@ -100,7 +100,7 @@ export class UsageRecordLogicProvider {
     status: UsageRecordFulfillmentStatus
   ) {
     return await executeWithMutationRunOptions(context, async opts => {
-      let usageL2 = await context.semantic.usageRecord.getOneByLiteralDataQuery(
+      let usageL2 = await context.semantic.usageRecord.getOneByQuery(
         {
           category,
           month: record.month,

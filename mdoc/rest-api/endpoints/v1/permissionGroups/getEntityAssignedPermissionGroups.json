@@ -84,7 +84,7 @@
         "required": true,
         "description": "Get entity assigned permission groups endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetEntityAssignedPermissionGroupsEndpointSuccessResult",
+        "name": "GetEntityAssignedPermissionGroupsEndpointResult",
         "fields": {
             "permissionGroups": {
                 "data": {
@@ -335,7 +335,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

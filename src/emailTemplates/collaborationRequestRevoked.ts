@@ -1,9 +1,12 @@
 import {
+  emailHelperChars,
   emailTemplateStyles,
   getAccountAccessSectionHTML,
   getAccountAccessSectionText,
   getCenteredContentHTML,
   getFooterHTML,
+  getGreetingHTML,
+  getGreetingText,
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
@@ -30,11 +33,11 @@ export function collaborationRequestRevokedEmailHTML(props: CollaborationRequest
 <body>
   ${getHeaderHTML(title)}
   ${getCenteredContentHTML(`
-  <p>
-    This is to notify you that the collaboration request sent from <b>
-    ${props.workspaceName}</b> has been revoked.
-  </p>
-  `)}
+  ${getGreetingHTML(props)}
+    <p>
+      This is to notify you that the collaboration request sent from <b>
+      ${props.workspaceName}</b> has been revoked.
+    </p>`)}
   ${getAccountAccessSectionHTML(props)}
   ${getFooterHTML()}
 </body>
@@ -44,9 +47,9 @@ export function collaborationRequestRevokedEmailHTML(props: CollaborationRequest
 
 export function collaborationRequestRevokedEmailText(props: CollaborationRequestRevokedEmailProps) {
   const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
-  const txt = `
-${getHeaderText(title)}
--
+  const txt = `${getHeaderText(title)}
+${emailHelperChars.emDash}
+${getGreetingText(props)}
 This is to notify you that the collaboration request sent from ${
     props.workspaceName
   } has been revoked.

@@ -269,3 +269,5 @@ export const userExistsEndpointDefinition = HttpEndpointDefinition.construct<{
   .setResponseBody(userExistsHttpResponseBody)
   .setName('UserExistsEndpoint')
   .setDescription('User exists endpoint.');
+
+export const userEndpointsMddocParts = {user};

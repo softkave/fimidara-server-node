@@ -108,6 +108,8 @@ async function setup() {
     app.use(handleErrors);
     logger.info(ctx.appVariables.appName);
     logger.info(`server listening on port ${ctx.appVariables.port}`);
+
+    // start job runner
     startJobRunner(ctx).catch(error => consoleLogger.error(error));
   });
 }

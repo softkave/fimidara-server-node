@@ -1,6 +1,9 @@
 import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
+import {AppResourceType} from '../../definitions/system';
+import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
@@ -26,48 +29,59 @@ import {
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
 } from '../../emailTemplates/forgotPassword';
+import {
+  UpgradedFromWaitlistEmailProps,
+  upgradedFromWaitlistEmailHTML,
+  upgradedFromWaitlistEmailText,
+} from '../../emailTemplates/upgradedFromWaitlist';
+import {
+  UsageExceededEmailProps,
+  usageExceededEmailHTML,
+  usageExceededEmailText,
+} from '../../emailTemplates/usageExceeded';
 import {getTimestamp} from '../../utils/dateFns';
 
-// Confirm email address email
-const comfirmEmailAddressHTMLFile =
-  './tools/emailTemplates/templates/confirm-email-address-html.html';
-const confirmEmailAddressTxtFile =
-  './tools/emailTemplates/templates/confirm-email-address-text.txt';
+const basepath = './src/tools/email-templates/templates/';
 
+function writeToFileSync(filename: string, htmlText: string, text: string) {
+  const htmlFilepath = `${basepath}${filename}.html`;
+  const textFilepath = `${basepath}${filename}.txt`;
+  fse.ensureFileSync(htmlFilepath);
+  fse.ensureFileSync(textFilepath);
+  fs.writeFileSync(htmlFilepath, htmlText);
+  fs.writeFileSync(textFilepath, text);
+}
+
+// Confirm email address email
 export function renderConfirmEmailAddressMedia() {
   const props: ConfirmEmailAddressEmailProps = {
     firstName: 'Abayomi',
     link: 'https://fimidara.com/accounts/confirm-email-address?t=jwt-token',
+    loginLink: 'https://fimidara.com/accounts/signup',
+    signupLink: 'https://fimidara.com/accounts/login',
   };
 
   const renderedHTML = confirmEmailAddressEmailHTML(props);
   const renderedText = confirmEmailAddressEmailText(props);
-  fs.writeFileSync(comfirmEmailAddressHTMLFile, renderedHTML);
-  fs.writeFileSync(confirmEmailAddressTxtFile, renderedText);
+  writeToFileSync('confirmEmailAddress', renderedHTML, renderedText);
 }
 
 // Forgot password email
-const forgotPasswordEmailHTMLFile = './tools/emailTemplates/templates/forgot-password-html.html';
-const forgotPasswordEmailTxtFile = './tools/emailTemplates/templates/forgot-password-text.txt';
-
 export function renderForgotPasswordMedia() {
   const props: ForgotPasswordEmailProps = {
     expiration: new Date(),
     link: 'https://fimidara.com/accounts/forgot-password?t=jwt-token',
+    firstName: 'Abayomi',
+    loginLink: 'https://fimidara.com/accounts/signup',
+    signupLink: 'https://fimidara.com/accounts/login',
   };
 
   const renderedHTML = forgotPasswordEmailHTML(props);
   const renderedText = forgotPasswordEmailText(props);
-  fs.writeFileSync(forgotPasswordEmailHTMLFile, renderedHTML);
-  fs.writeFileSync(forgotPasswordEmailTxtFile, renderedText);
+  writeToFileSync('forgotPassword', renderedHTML, renderedText);
 }
 
 // Collaboration request email
-const collaborationRequestEmailHTMLFile =
-  './tools/emailTemplates/templates/collaboration-request-html.html';
-const collaborationRequestEmailTxtFile =
-  './tools/emailTemplates/templates/collaboration-request-text.txt';
-
 export function renderCollaborationRequestMedia() {
   const props: CollaborationRequestEmailProps = {
     workspaceName: 'Fimidara',
@@ -76,39 +90,29 @@ export function renderCollaborationRequestMedia() {
     signupLink: 'https://fimidara.com/accounts/login',
     expires: getTimestamp(),
     message: 'Test collaboration request message. ' + 'Not too long, and not too short.',
+    firstName: 'Abayomi',
   };
 
   const renderedHTML = collaborationRequestEmailHTML(props);
   const renderedText = collaborationRequestEmailText(props);
-  fs.writeFileSync(collaborationRequestEmailHTMLFile, renderedHTML);
-  fs.writeFileSync(collaborationRequestEmailTxtFile, renderedText);
+  writeToFileSync('collaborationRequest', renderedHTML, renderedText);
 }
 
 // Collaboration request revoked email
-const collaborationRequestRevokedEmailHTMLFile =
-  './tools/emailTemplates/templates/collaboration-request-revoked-html.html';
-const collaborationRequestRevokedEmailTxtFile =
-  './tools/emailTemplates/templates/collaboration-request-revoked-text.txt';
-
 export function renderCollaborationRequestRevokedMedia() {
   const props: CollaborationRequestRevokedEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
+    firstName: 'Abayomi',
   };
 
   const renderedHTML = collaborationRequestRevokedEmailHTML(props);
   const renderedText = collaborationRequestRevokedEmailText(props);
-  fs.writeFileSync(collaborationRequestRevokedEmailHTMLFile, renderedHTML);
-  fs.writeFileSync(collaborationRequestRevokedEmailTxtFile, renderedText);
+  writeToFileSync('collaborationRequestRevoked', renderedHTML, renderedText);
 }
 
 // Collaboration request response email
-const collaborationRequestResponseEmailHTMLFile =
-  './tools/emailTemplates/templates/collaboration-request-response-html.html';
-const collaborationRequestResponseEmailTxtFile =
-  './tools/emailTemplates/templates/collaboration-request-response-text.txt';
-
 export function renderCollaborationRequestResponseMedia() {
   const props: CollaborationRequestResponseEmailProps = {
     workspaceName: 'Fimidara',
@@ -116,10 +120,47 @@ export function renderCollaborationRequestResponseMedia() {
     loginLink: 'https://fimidara.com/accounts/login',
     recipientEmail: faker.internet.email(),
     response: CollaborationRequestStatusType.Accepted,
+    firstName: 'Abayomi',
   };
 
   const renderedHTML = collaborationRequestResponseEmailHTML(props);
   const renderedText = collaborationRequestResponseEmailText(props);
-  fs.writeFileSync(collaborationRequestResponseEmailHTMLFile, renderedHTML);
-  fs.writeFileSync(collaborationRequestResponseEmailTxtFile, renderedText);
+  writeToFileSync('collaborationRequestResponse', renderedHTML, renderedText);
+}
+
+// Usage exceeded
+export function renderUsageExceededMedia() {
+  const props: UsageExceededEmailProps = {
+    workspaceName: 'Fimidara',
+    signupLink: 'https://fimidara.com/accounts/signup',
+    loginLink: 'https://fimidara.com/accounts/login',
+    firstName: 'Abayomi',
+    threshold: {
+      budget: 100,
+      category: UsageRecordCategory.Storage,
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: {
+        agentId: '',
+        agentTokenId: '',
+        agentType: AppResourceType.User,
+      },
+    },
+  };
+
+  const renderedHTML = usageExceededEmailHTML(props);
+  const renderedText = usageExceededEmailText(props);
+  writeToFileSync('usageExceeded', renderedHTML, renderedText);
+}
+
+// Upgraded from waitlist
+export function renderUpgradedFromWaitlistMedia() {
+  const props: UpgradedFromWaitlistEmailProps = {
+    signupLink: 'https://fimidara.com/accounts/signup',
+    loginLink: 'https://fimidara.com/accounts/login',
+    firstName: 'Abayomi',
+  };
+
+  const renderedHTML = upgradedFromWaitlistEmailHTML(props);
+  const renderedText = upgradedFromWaitlistEmailText(props);
+  writeToFileSync('upgradedFromWaitlist', renderedHTML, renderedText);
 }

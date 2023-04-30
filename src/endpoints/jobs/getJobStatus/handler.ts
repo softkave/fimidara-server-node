@@ -2,7 +2,7 @@ import {AppResourceType, ResourceWrapper} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {NotFoundError} from '../../errors';
-import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
+import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getJob} from '../runner';
 import {GetJobStatusEndpoint} from './types';
@@ -19,7 +19,7 @@ const getJobStatus: GetJobStatusEndpoint = async (context, instData) => {
     resource: (agent.user || agent.agentToken)!,
     resourceType: agent.user ? AppResourceType.User : AppResourceType.AgentToken,
   };
-  checkResourcesBelongToWorkspace(
+  checkResourcesBelongsToWorkspace(
     workspace.resourceId,
     [resource],
     () => new NotFoundError('Job not found.')

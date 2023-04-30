@@ -88,7 +88,7 @@
         "required": true,
         "description": "Get workspace collaboration requests endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetWorkspaceCollaborationRequestsEndpointSuccessResult",
+        "name": "GetWorkspaceCollaborationRequestsEndpointResult",
         "fields": {
             "requests": {
                 "data": {
@@ -327,7 +327,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

@@ -69,7 +69,7 @@
         "required": true,
         "description": "Get collaboration request endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetCollaborationRequestEndpointSuccessResult",
+        "name": "GetCollaborationRequestEndpointResult",
         "fields": {
             "request": {
                 "data": {
@@ -222,7 +222,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

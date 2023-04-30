@@ -31,6 +31,7 @@ const publicUserFields = getFields<PublicUser>({
 });
 
 export const userExtractor = makeExtract(publicUserFields);
+export const userListExtractor = makeListExtract(publicUserFields);
 
 export function throwUserNotFound() {
   throw reuseableErrors.user.notFound();

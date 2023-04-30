@@ -24,7 +24,7 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Job]: noopAsync,
   [AppResourceType.Tag]: noopAsync,
   [AppResourceType.File]: async (context, args, opts) => {
-    const files = await context.semantic.file.getManyByLiteralDataQuery(
+    const files = await context.semantic.file.getManyByQuery(
       FolderQueries.getByAncestor(args.workspaceId, args.resourceId)
     );
     await Promise.all([

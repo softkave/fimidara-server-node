@@ -84,7 +84,7 @@
         "required": true,
         "description": "Add agent token endpoint success result.",
         "__id": "FieldObject",
-        "name": "AddAgentTokenEndpointSuccessResult",
+        "name": "AddAgentTokenEndpointResult",
         "fields": {
             "token": {
                 "data": {
@@ -282,7 +282,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

@@ -28,10 +28,12 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   const forgotToken = await getForgotPasswordToken(context, user);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
   assert(forgotToken.expires);
-  await sendChangePasswordEmail(context, {
+  await sendChangePasswordEmail(context, user.email, {
     expiration: new Date(forgotToken.expires),
     link,
-    emailAddress: user.email,
+    signupLink: context.appVariables.clientSignupLink,
+    loginLink: context.appVariables.clientLoginLink,
+    firstName: user.firstName,
   });
 };
 

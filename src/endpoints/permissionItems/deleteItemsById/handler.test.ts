@@ -45,7 +45,7 @@ describe('deleteItemsById', () => {
     );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    const permissionGroupItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
+    const permissionGroupItems = await context.semantic.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
     expect(permissionGroupItems.length).toBe(0);

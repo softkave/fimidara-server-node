@@ -12,7 +12,7 @@ import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {
   checkResourcesBelongToContainer,
-  checkResourcesBelongToWorkspace,
+  checkResourcesBelongsToWorkspace,
 } from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
@@ -79,7 +79,7 @@ export async function checkPermissionContainersExist(
     }),
     checkAuth: true,
   });
-  checkResourcesBelongToWorkspace(workspaceId, resources);
+  checkResourcesBelongsToWorkspace(workspaceId, resources);
   return {resources};
 }
 
@@ -116,7 +116,7 @@ export async function checkPermissionTargetsExist(
     AppResourceType.User,
   ]);
 
-  checkResourcesBelongToWorkspace(workspaceId, resources);
+  checkResourcesBelongsToWorkspace(workspaceId, resources);
   if (containerId) {
     checkResourcesBelongToContainer(containerId, resources);
   }

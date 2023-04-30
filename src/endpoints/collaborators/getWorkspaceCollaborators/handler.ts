@@ -16,7 +16,7 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (cont
   const workspace = await checkWorkspaceExists(context, workspaceId);
   const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await context.semantic.assignedItem.getManyByLiteralDataQuery(
+  const assignedItems = await context.semantic.assignedItem.getManyByQuery(
     assignedItemsQuery,
     data
   );

@@ -92,7 +92,7 @@
         "required": true,
         "description": "Update collaboration request endpoint success result.",
         "__id": "FieldObject",
-        "name": "UpdateCollaborationRequestEndpointSuccessResult",
+        "name": "UpdateCollaborationRequestEndpointResult",
         "fields": {
             "request": {
                 "data": {
@@ -319,7 +319,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

@@ -147,8 +147,8 @@ export const prodEnvsSchema: AppEnvSchema = {
 };
 
 export const defaultStaticVars = {
-  appName: 'Fimidara',
-  appDefaultEmailAddressFrom: 'Fimidara@softkave.com',
+  appName: 'fimidara',
+  appDefaultEmailAddressFrom: 'fimidara@softkave.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
   changePasswordPath: '/account/change-password',

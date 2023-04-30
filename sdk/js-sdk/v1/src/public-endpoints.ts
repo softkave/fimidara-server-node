@@ -10,7 +10,7 @@ import {
 } from './utils';
 import {
   AddAgentTokenEndpointParams,
-  AddAgentTokenEndpointSuccessResult,
+  AddAgentTokenEndpointResult,
   DeleteAgentTokenEndpointParams,
   LongRunningJobResult,
   GetAgentTokenEndpointParams,
@@ -20,65 +20,67 @@ import {
   CountWorkspaceAgentTokensEndpointParams,
   CountItemsResult,
   UpdateAgentTokenEndpointParams,
-  UpdateAgentTokenEndpointSuccessResult,
+  UpdateAgentTokenEndpointResult,
   DeleteCollaborationRequestEndpointParams,
   GetCollaborationRequestEndpointParams,
-  GetCollaborationRequestEndpointSuccessResult,
+  GetCollaborationRequestEndpointResult,
   GetUserCollaborationRequestsEndpointParams,
-  GetUserCollaborationRequestsEndpointSuccessResult,
+  GetUserCollaborationRequestsEndpointResult,
   GetWorkspaceCollaborationRequestsEndpointParams,
-  GetWorkspaceCollaborationRequestsEndpointSuccessResult,
+  GetWorkspaceCollaborationRequestsEndpointResult,
   CountWorkspaceCollaborationRequestsEndpointParams,
   RespondToCollaborationRequestEndpointParams,
-  RespondToCollaborationRequestEndpointSuccessResult,
+  RespondToCollaborationRequestEndpointResult,
   RevokeCollaborationRequestEndpointParams,
-  RevokeCollaborationRequestEndpointSuccessResult,
+  RevokeCollaborationRequestEndpointResult,
   SendCollaborationRequestEndpointParams,
-  SendCollaborationRequestEndpointSuccessResult,
+  SendCollaborationRequestEndpointResult,
   UpdateCollaborationRequestEndpointParams,
-  UpdateCollaborationRequestEndpointSuccessResult,
+  UpdateCollaborationRequestEndpointResult,
   GetCollaboratorEndpointParams,
-  GetCollaboratorEndpointSuccessResult,
+  GetCollaboratorEndpointResult,
   GetWorkspaceCollaboratorsEndpointParams,
-  GetWorkspaceCollaboratorsEndpointSuccessResult,
+  GetWorkspaceCollaboratorsEndpointResult,
   CountWorkspaceCollaboratorsEndpointParams,
   RevokeCollaboratorEndpointParams,
   DeleteFileEndpointParams,
   GetFileDetailsEndpointParams,
-  GetFileDetailsEndpointSuccessResult,
+  GetFileDetailsEndpointResult,
   ReadFileEndpointParams,
   UpdateFileDetailsEndpointParams,
-  UpdateFileDetailsEndpointSuccessResult,
+  UpdateFileDetailsEndpointResult,
   UploadFileEndpointParams,
-  UploadFileEndpointSuccessResult,
+  UploadFileEndpointResult,
   AddFolderEndpointParams,
-  AddFolderEndpointSuccessResult,
+  AddFolderEndpointResult,
   DeleteFolderEndpointParams,
   GetFolderEndpointParams,
-  GetFolderEndpointSuccessResult,
+  GetFolderEndpointResult,
   ListFolderContentEndpointParams,
-  ListFolderContentEndpointSuccessResult,
+  ListFolderContentEndpointResult,
   CountFolderContentEndpointParams,
-  CountFolderContentEndpointSuccessResult,
+  CountFolderContentEndpointResult,
   UpdateFolderEndpointParams,
-  UpdateFolderEndpointSuccessResult,
+  UpdateFolderEndpointResult,
   GetJobStatusEndpointParams,
   GetJobStatusEndpointResult,
   AddPermissionGroupEndpointParams,
-  AddPermissionGroupEndpointSuccessResult,
+  AddPermissionGroupEndpointResult,
   AssignPermissionGroupsEndpointParams,
   DeletePermissionGroupEndpointParams,
   GetPermissionGroupEndpointParams,
-  GetPermissionGroupEndpointSuccessResult,
+  GetPermissionGroupEndpointResult,
   GetEntityAssignedPermissionGroupsParams,
-  GetEntityAssignedPermissionGroupsEndpointSuccessResult,
+  GetEntityAssignedPermissionGroupsEndpointResult,
   GetWorkspacePermissionGroupsEndpointParams,
-  GetWorkspacePermissionGroupsEndpointSuccessResult,
+  GetWorkspacePermissionGroupsEndpointResult,
   CountWorkspacePermissionGroupsEndpointParams,
   UpdatePermissionGroupEndpointParams,
-  UpdatePermissionGroupEndpointSuccessResult,
+  UpdatePermissionGroupEndpointResult,
   AddPermissionItemsEndpointParams,
   DeletePermissionItemsEndpointParams,
+  ResolveEntityPermissionsEndpointParams,
+  ResolveEntityPermissionsEndpointResult,
   ResourceWrapper,
   GetResourcesEndpointResult,
   GetUsageCostsEndpointResult,
@@ -89,21 +91,21 @@ import {
   UpdateUserEndpointParams,
   UpdateUserEndpointResult,
   AddWorkspaceEndpointParams,
-  AddWorkspaceEndpointSuccessResult,
+  AddWorkspaceEndpointResult,
   DeleteWorkspaceEndpointParams,
   GetUserWorkspacesEndpointParams,
   GetUserWorkspacesEndpointResult,
   GetWorkspaceEndpointParams,
-  GetWorkspaceEndpointSuccessResult,
+  GetWorkspaceEndpointResult,
   UpdateWorkspaceEndpointParams,
-  UpdateWorkspaceEndpointSuccessResult,
+  UpdateWorkspaceEndpointResult,
 } from './public-types';
 import {Response} from 'cross-fetch';
 
 class AgentTokensEndpoints extends FimidaraEndpointsBase {
   addToken = async (
     props: FimidaraEndpointParamsRequired<AddAgentTokenEndpointParams>
-  ): Promise<FimidaraEndpointResult<AddAgentTokenEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<AddAgentTokenEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -183,7 +185,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
   };
   updateToken = async (
     props: FimidaraEndpointParamsRequired<UpdateAgentTokenEndpointParams>
-  ): Promise<FimidaraEndpointResult<UpdateAgentTokenEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<UpdateAgentTokenEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -217,9 +219,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   };
   getUserRequest = async (
     props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<GetCollaborationRequestEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<GetCollaborationRequestEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -236,7 +236,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   getUserRequests = async (
     props?: FimidaraEndpointParamsOptional<GetUserCollaborationRequestsEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<GetUserCollaborationRequestsEndpointSuccessResult>
+    FimidaraEndpointResult<GetUserCollaborationRequestsEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -269,9 +269,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   };
   getWorkspaceRequest = async (
     props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<GetCollaborationRequestEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<GetCollaborationRequestEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -288,7 +286,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   getWorkspaceRequests = async (
     props?: FimidaraEndpointParamsOptional<GetWorkspaceCollaborationRequestsEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<GetWorkspaceCollaborationRequestsEndpointSuccessResult>
+    FimidaraEndpointResult<GetWorkspaceCollaborationRequestsEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -322,7 +320,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   respondToRequest = async (
     props: FimidaraEndpointParamsRequired<RespondToCollaborationRequestEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<RespondToCollaborationRequestEndpointSuccessResult>
+    FimidaraEndpointResult<RespondToCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -340,7 +338,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   revokeRequest = async (
     props: FimidaraEndpointParamsRequired<RevokeCollaborationRequestEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<RevokeCollaborationRequestEndpointSuccessResult>
+    FimidaraEndpointResult<RevokeCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -358,7 +356,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   sendRequest = async (
     props: FimidaraEndpointParamsRequired<SendCollaborationRequestEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<SendCollaborationRequestEndpointSuccessResult>
+    FimidaraEndpointResult<SendCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -376,7 +374,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   updateRequest = async (
     props: FimidaraEndpointParamsRequired<UpdateCollaborationRequestEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<UpdateCollaborationRequestEndpointSuccessResult>
+    FimidaraEndpointResult<UpdateCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -395,7 +393,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
 class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   getCollaborator = async (
     props: FimidaraEndpointParamsRequired<GetCollaboratorEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetCollaboratorEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<GetCollaboratorEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -412,7 +410,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   getWorkspaceCollaborators = async (
     props?: FimidaraEndpointParamsOptional<GetWorkspaceCollaboratorsEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<GetWorkspaceCollaboratorsEndpointSuccessResult>
+    FimidaraEndpointResult<GetWorkspaceCollaboratorsEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -479,7 +477,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
   };
   getFileDetails = async (
     props?: FimidaraEndpointParamsOptional<GetFileDetailsEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetFileDetailsEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<GetFileDetailsEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -511,9 +509,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
   };
   updateFileDetails = async (
     props: FimidaraEndpointParamsRequired<UpdateFileDetailsEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<UpdateFileDetailsEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<UpdateFileDetailsEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -529,7 +525,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
   };
   uploadFile = async (
     props: FimidaraEndpointParamsRequired<UploadFileEndpointParams>
-  ): Promise<FimidaraEndpointResult<UploadFileEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<UploadFileEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -547,7 +543,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
 class FoldersEndpoints extends FimidaraEndpointsBase {
   addFolder = async (
     props: FimidaraEndpointParamsRequired<AddFolderEndpointParams>
-  ): Promise<FimidaraEndpointResult<AddFolderEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<AddFolderEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -579,7 +575,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
   };
   getFolder = async (
     props?: FimidaraEndpointParamsOptional<GetFolderEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetFolderEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<GetFolderEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -595,9 +591,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
   };
   listFolderContent = async (
     props?: FimidaraEndpointParamsOptional<ListFolderContentEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<ListFolderContentEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<ListFolderContentEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -613,9 +607,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
   };
   countFolderContent = async (
     props?: FimidaraEndpointParamsOptional<CountFolderContentEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<CountFolderContentEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<CountFolderContentEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -631,7 +623,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
   };
   updateFolder = async (
     props: FimidaraEndpointParamsRequired<UpdateFolderEndpointParams>
-  ): Promise<FimidaraEndpointResult<UpdateFolderEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<UpdateFolderEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -667,9 +659,7 @@ class ClientLogsEndpoints extends FimidaraEndpointsBase {
 class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   addPermissionGroup = async (
     props: FimidaraEndpointParamsRequired<AddPermissionGroupEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<AddPermissionGroupEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<AddPermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -717,9 +707,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   };
   getPermissionGroup = async (
     props?: FimidaraEndpointParamsOptional<GetPermissionGroupEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<GetPermissionGroupEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<GetPermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -736,7 +724,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   getEntityAssignedPermissionGroups = async (
     props: FimidaraEndpointParamsRequired<GetEntityAssignedPermissionGroupsParams>
   ): Promise<
-    FimidaraEndpointResult<GetEntityAssignedPermissionGroupsEndpointSuccessResult>
+    FimidaraEndpointResult<GetEntityAssignedPermissionGroupsEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -754,7 +742,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   getWorkspacePermissionGroups = async (
     props?: FimidaraEndpointParamsOptional<GetWorkspacePermissionGroupsEndpointParams>
   ): Promise<
-    FimidaraEndpointResult<GetWorkspacePermissionGroupsEndpointSuccessResult>
+    FimidaraEndpointResult<GetWorkspacePermissionGroupsEndpointResult>
   > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
@@ -787,9 +775,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   };
   updatePermissionGroup = async (
     props: FimidaraEndpointParamsRequired<UpdatePermissionGroupEndpointParams>
-  ): Promise<
-    FimidaraEndpointResult<UpdatePermissionGroupEndpointSuccessResult>
-  > => {
+  ): Promise<FimidaraEndpointResult<UpdatePermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -830,6 +816,24 @@ class PermissionItemsEndpoints extends FimidaraEndpointsBase {
       formdata: undefined,
       path: '/v1/permissionItems/deleteItems',
       method: 'DELETE',
+    });
+    const result = {
+      headers: response.headers as any,
+      body: await response.json(),
+    };
+    return result;
+  };
+  resolveEntityPermissions = async (
+    props: FimidaraEndpointParamsRequired<ResolveEntityPermissionsEndpointParams>
+  ): Promise<
+    FimidaraEndpointResult<ResolveEntityPermissionsEndpointResult>
+  > => {
+    const response = await invokeEndpoint({
+      token: this.getAuthToken(props),
+      data: props?.body,
+      formdata: undefined,
+      path: '/v1/permissionItems/resolveEntityPermissions',
+      method: 'POST',
     });
     const result = {
       headers: response.headers as any,
@@ -943,7 +947,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
 class WorkspacesEndpoints extends FimidaraEndpointsBase {
   addWorkspace = async (
     props: FimidaraEndpointParamsRequired<AddWorkspaceEndpointParams>
-  ): Promise<FimidaraEndpointResult<AddWorkspaceEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<AddWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -1007,7 +1011,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
   };
   getWorkspace = async (
     props?: FimidaraEndpointParamsOptional<GetWorkspaceEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetWorkspaceEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<GetWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -1023,7 +1027,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
   };
   updateWorkspace = async (
     props: FimidaraEndpointParamsRequired<UpdateWorkspaceEndpointParams>
-  ): Promise<FimidaraEndpointResult<UpdateWorkspaceEndpointSuccessResult>> => {
+  ): Promise<FimidaraEndpointResult<UpdateWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,

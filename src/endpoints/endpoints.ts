@@ -17,6 +17,8 @@ import {getFilesPublicHttpEndpoints} from './files/endpoints';
 import {FilesExportedEndpoints} from './files/types';
 import {getFoldersPublicHttpEndpoints} from './folders/endpoints';
 import {FoldersExportedEndpoints} from './folders/types';
+import {getInternalsPrivateHttpEndpoints} from './internal/endpoints';
+import {InternalsPrivateExportedEndpoints} from './internal/types';
 import {getJobsPublicHttpEndpoints} from './jobs/endpoints';
 import {JobsExportedEndpoints} from './jobs/types';
 import {getPermissionGroupsPublicHttpEndpoints} from './permissionGroups/endpoints';
@@ -56,6 +58,7 @@ export type FimidaraPublicExportedHttpEndpoints = {
 export type FimidaraPrivateExportedHttpEndpoints = {
   users: UsersPrivateExportedEndpoints;
   collaborators: CollaboratorsPrivateExportedEndpoints;
+  internal: InternalsPrivateExportedEndpoints;
 };
 
 export function getFimidaraPublicHttpEndpoints() {
@@ -80,6 +83,7 @@ export function getFimidaraPrivateHttpEndpoints() {
   const fimidaraExportedHttpEndpoints: FimidaraPrivateExportedHttpEndpoints = {
     users: getUsersPrivateHttpEndpoints(),
     collaborators: getCollaboratorsPrivateHttpEndpoints(),
+    internal: getInternalsPrivateHttpEndpoints(),
   };
   return fimidaraExportedHttpEndpoints;
 }

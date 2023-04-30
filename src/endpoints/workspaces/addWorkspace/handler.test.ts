@@ -42,7 +42,7 @@ describe('addWorkspace', () => {
     const result = await insertWorkspaceForTest(context, userToken, companyInput);
     expect(result.workspace).toMatchObject(companyInput);
     expect(result.workspace.publicPermissionGroupId).toBeTruthy();
-    const workspace = await context.semantic.workspace.getOneByLiteralDataQuery(
+    const workspace = await context.semantic.workspace.getOneByQuery(
       EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
     );
     assertWorkspace(workspace);

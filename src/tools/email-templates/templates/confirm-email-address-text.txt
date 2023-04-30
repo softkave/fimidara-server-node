@@ -1,5 +1,0 @@
-
-Fimidara - Confirm your email address
--
-Hi Abayomi, visit the link below to verify your email address:
-https://fimidara.com/accounts/confirm-email-address?t=jwt-token 

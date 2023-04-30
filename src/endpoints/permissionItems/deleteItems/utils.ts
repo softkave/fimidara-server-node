@@ -266,7 +266,7 @@ export const INTERNAL_deletePermissionItems = async (
   }
 
   const result = await Promise.all(
-    queries.map(query => context.semantic.permissionItem.getManyByLiteralDataQuery(query))
+    queries.map(query => context.semantic.permissionItem.getManyByQuery(query))
   );
   const permissionItems = flatten(result);
   const permissionItemsIdList = extractResourceIdList(permissionItems);

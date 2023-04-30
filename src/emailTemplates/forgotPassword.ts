@@ -1,15 +1,19 @@
 import {format, formatDistance} from 'date-fns';
 import {
-  emailTemplateConstants,
+  emailHelperChars,
+  emailStylingHelpers,
   emailTemplateStyles,
   getFooterHTML,
+  getGreetingHTML,
+  getGreetingText,
   getHeaderHTML,
   getHeaderText,
 } from './helpers';
+import {BaseEmailTemplateProps} from './types';
 
 export const forgotPasswordEmailTitle = 'Change your password';
 
-export interface ForgotPasswordEmailProps {
+export interface ForgotPasswordEmailProps extends BaseEmailTemplateProps {
   link: string;
   expiration: Date;
 }
@@ -25,8 +29,9 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
 </head>
 <body>
   ${getHeaderHTML(forgotPasswordEmailTitle)}
-  <div class="${emailTemplateConstants.classNamePrefix}-body">
-    <div class="${emailTemplateConstants.classNamePrefix}-content-center">
+  <div class="${emailStylingHelpers.classNamePrefix}-body">
+    <div class="${emailStylingHelpers.classNamePrefix}-content-center">
+      ${getGreetingHTML(props)}
       <p>
         To change your password,
         <a href="${props.link}">click here</a>.
@@ -60,18 +65,20 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
 }
 
 export function forgotPasswordEmailText(props: ForgotPasswordEmailProps): string {
-  const text = `
-${getHeaderText(forgotPasswordEmailTitle)}
--
-To change your password, copy the following link, and visit in your browser:- ${props.link}
--
+  const text = `${getHeaderText(forgotPasswordEmailTitle)}
+${emailHelperChars.emDash}
+${getGreetingText(props)}
+To change your password, copy the following link, and visit in your browser: ${props.link}
+${emailHelperChars.emDash}
 This link expires:
-1. Immediately after you change your password -OR-
+1. Immediately after you change your password ${emailHelperChars.emDash} OR ${
+    emailHelperChars.emDash
+  }
 2. In ${formatDistance(props.expiration, new Date())}, on ${format(
     props.expiration,
     'MM/dd/yyyy hh:mm aaa'
   )}.
--
+${emailHelperChars.emDash}
 If you did not request a change of password, please ignore this mail.
 Do not share this link with anybody, as they will be able to change your password with it.
 `;

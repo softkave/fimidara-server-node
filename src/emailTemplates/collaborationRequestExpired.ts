@@ -1,7 +1,10 @@
 import {
+  emailHelperChars,
   emailTemplateStyles,
   getCenteredContentHTML,
   getFooterHTML,
+  getGreetingHTML,
+  getGreetingText,
   getHeaderHTML,
   getHeaderText,
   getLoginSectionHTML,
@@ -30,9 +33,12 @@ export function collaborationRequestExpiredEmailHTML(props: CollaborationRequest
 <body>
   ${getHeaderHTML(title)}
   ${getCenteredContentHTML(`
-  <p>
-    This is to notify you that the collaboration request sent from ${props.workspaceName} has been expired.
-  </p>`)}
+    ${getGreetingHTML(props)}
+    <p>
+      This is to notify you that the collaboration request sent from ${
+        props.workspaceName
+      } has been expired.
+    </p>`)}
   ${getLoginSectionHTML(props)}
   ${getFooterHTML()}
 </body>
@@ -42,9 +48,9 @@ export function collaborationRequestExpiredEmailHTML(props: CollaborationRequest
 
 export function collaborationRequestExpiredEmailText(props: CollaborationRequestExpiredEmailProps) {
   const title = getTitle(props);
-  const txt = `
-${getHeaderText(title)}
--
+  const txt = `${getHeaderText(title)}
+${emailHelperChars.emDash}
+${getGreetingText(props)}
 This is to notify you that the collaboration request sent from ${
     props.workspaceName
   } has been expired.

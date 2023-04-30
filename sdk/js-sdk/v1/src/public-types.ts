@@ -31,7 +31,7 @@ export type AgentToken = {
   expires?: number;
   providedResourceId?: string;
 };
-export type AddAgentTokenEndpointSuccessResult = {
+export type AddAgentTokenEndpointResult = {
   token: AgentToken;
 };
 export type DeleteAgentTokenEndpointParams = {
@@ -74,7 +74,7 @@ export type UpdateAgentTokenEndpointParams = {
   token: NewAgentTokenInput;
   providedResourceId?: string;
 };
-export type UpdateAgentTokenEndpointSuccessResult = {
+export type UpdateAgentTokenEndpointResult = {
   token: AgentToken;
 };
 export type DeleteCollaborationRequestEndpointParams = {
@@ -100,14 +100,14 @@ export type CollaborationRequestForUser = {
   status: CollaborationRequestStatusType;
   statusDate: number;
 };
-export type GetCollaborationRequestEndpointSuccessResult = {
+export type GetCollaborationRequestEndpointResult = {
   request: CollaborationRequestForUser;
 };
 export type GetUserCollaborationRequestsEndpointParams = {
   page?: number;
   pageSize?: number;
 };
-export type GetUserCollaborationRequestsEndpointSuccessResult = {
+export type GetUserCollaborationRequestsEndpointResult = {
   requests: Array<CollaborationRequestForUser>;
   page: number;
 };
@@ -132,7 +132,7 @@ export type CollaborationRequestForWorkspace = {
   statusDate: number;
   providedResourceId?: string;
 };
-export type GetWorkspaceCollaborationRequestsEndpointSuccessResult = {
+export type GetWorkspaceCollaborationRequestsEndpointResult = {
   requests: Array<CollaborationRequestForWorkspace>;
   page: number;
 };
@@ -144,13 +144,13 @@ export type RespondToCollaborationRequestEndpointParams = {
   requestId: string;
   response: CollaborationRequestResponseType;
 };
-export type RespondToCollaborationRequestEndpointSuccessResult = {
+export type RespondToCollaborationRequestEndpointResult = {
   request: CollaborationRequestForUser;
 };
 export type RevokeCollaborationRequestEndpointParams = {
   requestId: string;
 };
-export type RevokeCollaborationRequestEndpointSuccessResult = {
+export type RevokeCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
 };
 export type NewCollaborationRequestInput = {
@@ -162,7 +162,7 @@ export type SendCollaborationRequestEndpointParams = {
   workspaceId?: string;
   request: NewCollaborationRequestInput;
 };
-export type SendCollaborationRequestEndpointSuccessResult = {
+export type SendCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
 };
 export type UpdateCollaborationRequestInput = {
@@ -173,7 +173,7 @@ export type UpdateCollaborationRequestEndpointParams = {
   requestId: string;
   request: UpdateCollaborationRequestInput;
 };
-export type UpdateCollaborationRequestEndpointSuccessResult = {
+export type UpdateCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
 };
 export type GetCollaboratorEndpointParams = {
@@ -188,7 +188,7 @@ export type Collaborator = {
   workspaceId: string;
   joinedAt: number;
 };
-export type GetCollaboratorEndpointSuccessResult = {
+export type GetCollaboratorEndpointResult = {
   collaborator: Collaborator;
 };
 export type GetWorkspaceCollaboratorsEndpointParams = {
@@ -196,7 +196,7 @@ export type GetWorkspaceCollaboratorsEndpointParams = {
   page?: number;
   pageSize?: number;
 };
-export type GetWorkspaceCollaboratorsEndpointSuccessResult = {
+export type GetWorkspaceCollaboratorsEndpointResult = {
   collaborators: Array<Collaborator>;
   page: number;
 };
@@ -233,7 +233,7 @@ export type File = {
   description?: string;
   providedResourceId?: string;
 };
-export type GetFileDetailsEndpointSuccessResult = {
+export type GetFileDetailsEndpointResult = {
   file: File;
 };
 export type ImageTransformationParams = {
@@ -254,7 +254,7 @@ export type UpdateFileDetailsEndpointParams = {
   filepath?: string;
   fileId?: string;
 };
-export type UpdateFileDetailsEndpointSuccessResult = {
+export type UpdateFileDetailsEndpointResult = {
   file: File;
 };
 export type UploadFileEndpointParams = {
@@ -266,7 +266,7 @@ export type UploadFileEndpointParams = {
   encoding?: string;
   extension?: string;
 };
-export type UploadFileEndpointSuccessResult = {
+export type UploadFileEndpointResult = {
   file: File;
 };
 export type NewFolderInput = {
@@ -290,7 +290,7 @@ export type Folder = {
   parentId: string;
   providedResourceId?: string;
 };
-export type AddFolderEndpointSuccessResult = {
+export type AddFolderEndpointResult = {
   folder: Folder;
 };
 export type DeleteFolderEndpointParams = {
@@ -301,7 +301,7 @@ export type GetFolderEndpointParams = {
   folderpath?: string;
   folderId?: string;
 };
-export type GetFolderEndpointSuccessResult = {
+export type GetFolderEndpointResult = {
   folder: Folder;
 };
 export type ListFolderContentEndpointParams = {
@@ -311,7 +311,7 @@ export type ListFolderContentEndpointParams = {
   page?: number;
   pageSize?: number;
 };
-export type ListFolderContentEndpointSuccessResult = {
+export type ListFolderContentEndpointResult = {
   folders: Array<Folder>;
   files: Array<File>;
   page: number;
@@ -321,7 +321,7 @@ export type CountFolderContentEndpointParams = {
   folderId?: string;
   contentType?: 'file' | 'folder';
 };
-export type CountFolderContentEndpointSuccessResult = {
+export type CountFolderContentEndpointResult = {
   foldersCount: number;
   filesCount: number;
 };
@@ -333,7 +333,7 @@ export type UpdateFolderEndpointParams = {
   folderId?: string;
   folder: UpdateFolderInput;
 };
-export type UpdateFolderEndpointSuccessResult = {
+export type UpdateFolderEndpointResult = {
   folder: Folder;
 };
 export type GetJobStatusEndpointParams = {
@@ -363,7 +363,7 @@ export type PermissionGroup = {
   description?: string;
   providedResourceId?: string;
 };
-export type AddPermissionGroupEndpointSuccessResult = {
+export type AddPermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
 export type AssignPermissionGroupInput = {
@@ -384,7 +384,7 @@ export type GetPermissionGroupEndpointParams = {
   name?: string;
   workspaceId?: string;
 };
-export type GetPermissionGroupEndpointSuccessResult = {
+export type GetPermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
 export type GetEntityAssignedPermissionGroupsParams = {
@@ -392,7 +392,7 @@ export type GetEntityAssignedPermissionGroupsParams = {
   entityId: string;
   includeInheritedPermissionGroups?: boolean;
 };
-export type GetEntityAssignedPermissionGroupsEndpointSuccessResult = {
+export type GetEntityAssignedPermissionGroupsEndpointResult = {
   permissionGroups: Array<PermissionGroup>;
   immediateAssignedPermissionGroupsMeta: Array<PermissionGroup>;
 };
@@ -401,7 +401,7 @@ export type GetWorkspacePermissionGroupsEndpointParams = {
   page?: number;
   pageSize?: number;
 };
-export type GetWorkspacePermissionGroupsEndpointSuccessResult = {
+export type GetWorkspacePermissionGroupsEndpointResult = {
   permissionGroups: Array<PermissionGroup>;
   page: number;
 };
@@ -418,7 +418,7 @@ export type UpdatePermissionGroupEndpointParams = {
   workspaceId?: string;
   data: UpdatePermissionGroupInput;
 };
-export type UpdatePermissionGroupEndpointSuccessResult = {
+export type UpdatePermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
 export type NewPermissionItemInputEntity = {
@@ -438,7 +438,7 @@ export type WorkspaceAppResourceType =
   | 'usageRecord';
 export type NewPermissionItemInputTarget = {
   targetType?: WorkspaceAppResourceType;
-  targetId: string;
+  targetId?: string;
   filepath?: string;
   folderpath?: string;
   workspaceRootname?: string;
@@ -481,6 +481,19 @@ export type DeletePermissionItemsEndpointParams = {
   workspaceId?: string;
   items?: Array<DeletePermissionItemInput>;
   entity?: NewPermissionItemInputEntity;
+};
+export type ResolveEntityPermissionItemInput = {
+  target: NewPermissionItemInputTarget;
+  entity?: NewPermissionItemInputEntity;
+  action: AppActionType;
+};
+export type ResolveEntityPermissionsEndpointParams = {
+  entity?: NewPermissionItemInputEntity;
+  workspaceId?: string;
+  items: Array<ResolveEntityPermissionItemInput>;
+};
+export type ResolveEntityPermissionsEndpointResult = {
+  items: Array<ResolveEntityPermissionItemInput>;
 };
 export type FetchResourceItem = {
   resourceId?: string;
@@ -556,10 +569,12 @@ export type PublicUser = {
   lastName: string;
   email: string;
   passwordLastChangedAt: number;
+  requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number;
   emailVerificationEmailSentAt?: number;
   workspaces: Array<UserWorkspace>;
+  isOnWaitlist: boolean;
 };
 export type LoginResult = {
   user: PublicUser;
@@ -621,7 +636,7 @@ export type Workspace = {
   usageThresholds: WorkspaceUsageThresholds;
   usageThresholdLocks: WorkspaceUsageThresholdLocks;
 };
-export type AddWorkspaceEndpointSuccessResult = {
+export type AddWorkspaceEndpointResult = {
   workspace: Workspace;
 };
 export type DeleteWorkspaceEndpointParams = {
@@ -638,7 +653,7 @@ export type GetUserWorkspacesEndpointResult = {
 export type GetWorkspaceEndpointParams = {
   workspaceId?: string;
 };
-export type GetWorkspaceEndpointSuccessResult = {
+export type GetWorkspaceEndpointResult = {
   workspace: Workspace;
 };
 export type UpdateWorkspaceInput = {
@@ -649,6 +664,6 @@ export type UpdateWorkspaceEndpointParams = {
   workspaceId?: string;
   workspace: UpdateWorkspaceInput;
 };
-export type UpdateWorkspaceEndpointSuccessResult = {
+export type UpdateWorkspaceEndpointResult = {
   workspace: Workspace;
 };

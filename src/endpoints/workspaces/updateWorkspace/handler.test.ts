@@ -50,7 +50,7 @@ describe('updateWorkspce', () => {
     const result = await updateWorkspace(context, instData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
-    const updatedWorkspace = await context.semantic.workspace.getOneByLiteralDataQuery(
+    const updatedWorkspace = await context.semantic.workspace.getOneByQuery(
       EndpointReusableQueries.getByResourceId(workspace.resourceId)
     );
     expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);

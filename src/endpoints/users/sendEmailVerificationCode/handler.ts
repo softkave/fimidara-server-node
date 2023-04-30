@@ -39,6 +39,8 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (cont
       link,
       emailAddress: user.email,
       firstName: user.firstName,
+      signupLink: context.appVariables.clientSignupLink,
+      loginLink: context.appVariables.clientLoginLink,
     }),
     MemStore.withTransaction(context, async txn => {
       await context.semantic.user.updateOneById(

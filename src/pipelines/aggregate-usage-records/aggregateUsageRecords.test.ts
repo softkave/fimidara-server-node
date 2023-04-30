@@ -202,7 +202,7 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.semantic.workspace.getOneByLiteralDataQuery(
+  const w = await context.semantic.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(wId)
   );
   assert(w);

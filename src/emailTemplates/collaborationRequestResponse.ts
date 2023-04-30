@@ -1,8 +1,11 @@
 import {CollaborationRequestResponse} from '../definitions/collaborationRequest';
 import {
+  emailHelperChars,
   emailTemplateStyles,
   getCenteredContentHTML,
   getFooterHTML,
+  getGreetingHTML,
+  getGreetingText,
   getHeaderHTML,
   getHeaderText,
   getLoginSectionHTML,
@@ -19,7 +22,7 @@ export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplat
 export function collaborationRequestResponseEmailTitle(
   props: CollaborationRequestResponseEmailProps
 ) {
-  return `${props.recipientEmail} ${props.response} your collaboration request`;
+  return `Collaboration request ${props.response} on ${props.workspaceName}`;
 }
 
 function getMessage(props: CollaborationRequestResponseEmailProps) {
@@ -41,9 +44,11 @@ export function collaborationRequestResponseEmailHTML(
 <body>
   ${getHeaderHTML(title)}
   ${getCenteredContentHTML(`
-    <p>
-    ${getMessage(props)}
-    </p>`)}
+    ${getGreetingHTML(props)}
+      <p>
+      ${getMessage(props)}
+      </p>
+    `)}
   ${getLoginSectionHTML(props)}
   ${getFooterHTML()}
 </body>
@@ -55,9 +60,9 @@ export function collaborationRequestResponseEmailText(
   props: CollaborationRequestResponseEmailProps
 ) {
   const title = collaborationRequestResponseEmailTitle(props);
-  const txt = `
-${getHeaderText(title)}
--
+  const txt = `${getHeaderText(title)}
+${emailHelperChars.emDash}
+${getGreetingText(props)}
 ${getMessage(props)}
 ${getLoginSectionText(props)}
 `;

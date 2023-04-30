@@ -17,7 +17,7 @@ import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../..
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {getLogger} from '../../globalUtils';
-import {checkResourcesBelongToWorkspace} from '../../resources/containerCheckFns';
+import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {BaseContextType} from '../types';
 
@@ -453,7 +453,7 @@ export function getResourcePermissionContainers(
     return getFilePermissionContainers(workspaceId, resource as Pick<File, 'idPath'>);
   } else if (resource && getResourceTypeFromId(resource.resourceId) === AppResourceType.User) {
     const user = resource as unknown as UserWithWorkspace;
-    checkResourcesBelongToWorkspace(workspaceId, [
+    checkResourcesBelongsToWorkspace(workspaceId, [
       {resourceId: user.resourceId, resourceType: AppResourceType.User, resource: user},
     ]);
   }

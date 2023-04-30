@@ -26,7 +26,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (contex
   );
   await getEntityPermissionItemsQuery(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const items = await context.semantic.permissionItem.getManyByLiteralDataQuery(
+  const items = await context.semantic.permissionItem.getManyByQuery(
     {entityId: data.entityId},
     data
   );

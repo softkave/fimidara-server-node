@@ -85,7 +85,7 @@
         "required": true,
         "description": "Add workspace endpoint success result.",
         "__id": "FieldObject",
-        "name": "AddWorkspaceEndpointSuccessResult",
+        "name": "AddWorkspaceEndpointResult",
         "fields": {
             "workspace": {
                 "data": {
@@ -866,7 +866,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

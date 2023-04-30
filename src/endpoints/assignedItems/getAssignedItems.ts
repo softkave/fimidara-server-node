@@ -150,22 +150,19 @@ export async function populateResourceListWithAssignedTags<
   );
 }
 
-export async function populateUserWorkspaces<T extends User>(
+export async function getUserWorkspaces(
   context: BaseContextType,
-  resource: T,
+  userId: string,
   opts?: SemanticDataAccessProviderRunOptions
-): Promise<T & {workspaces: UserWorkspace[]}> {
+): Promise<UserWorkspace[]> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
     /** workspaceId */ undefined,
-    resource.resourceId,
+    userId,
     undefined,
     opts
   );
   let assignedWorkspaceItems: AssignedItem[] = [];
-  const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
-    workspaces: UserWorkspace[];
-  };
 
   for (const type in sortedItems) {
     switch (type) {
@@ -175,7 +172,18 @@ export async function populateUserWorkspaces<T extends User>(
     }
   }
 
-  updatedResource.workspaces = assignedItemsToAssignedWorkspaceList(assignedWorkspaceItems);
+  return assignedItemsToAssignedWorkspaceList(assignedWorkspaceItems);
+}
+
+export async function populateUserWorkspaces<T extends User>(
+  context: BaseContextType,
+  resource: T,
+  opts?: SemanticDataAccessProviderRunOptions
+): Promise<T & {workspaces: UserWorkspace[]}> {
+  const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
+    workspaces: UserWorkspace[];
+  };
+  updatedResource.workspaces = await getUserWorkspaces(context, resource.resourceId, opts);
   return updatedResource;
 }
 

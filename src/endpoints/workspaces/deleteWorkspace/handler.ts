@@ -31,7 +31,7 @@ export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Folder]: (context, args, opts) =>
     context.semantic.folder.deleteManyByWorkspaceId(args.workspaceId, opts),
   [AppResourceType.File]: async (context, args, opts) => {
-    const files = await context.semantic.file.getManyByLiteralDataQuery(
+    const files = await context.semantic.file.getManyByQuery(
       EndpointReusableQueries.getByWorkspaceId(args.workspaceId)
     );
     await Promise.all([

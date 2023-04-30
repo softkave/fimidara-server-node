@@ -129,7 +129,7 @@
         "required": true,
         "description": "Upload file endpoint success result.",
         "__id": "FieldObject",
-        "name": "UploadFileEndpointSuccessResult",
+        "name": "UploadFileEndpointResult",
         "fields": {
             "file": {
                 "data": {
@@ -374,7 +374,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

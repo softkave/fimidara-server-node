@@ -1,0 +1,9 @@
+fimidara — Storage usage exceeded for workspace Fimidara.
+—
+Hi Abayomi,
+You have reached your storage usage threshold for workspace Fimidara.. Limit was $100. Further requests of this type will not be served. Please login to your workspace to increase your usage thresholds.
+—
+Login to your account here — https://fimidara.com/accounts/login
+
+
+  

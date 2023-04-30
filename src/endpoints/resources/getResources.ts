@@ -22,7 +22,7 @@ import {
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
-import {checkResourcesBelongToWorkspace} from './containerCheckFns';
+import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
 import {FetchResourceItem} from './types';
 
@@ -97,7 +97,7 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
       resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
         AppResourceType.User,
       ]);
-    checkResourcesBelongToWorkspace(workspaceId, resources);
+    checkResourcesBelongsToWorkspace(workspaceId, resources);
   }
 
   if (checkAuth) {

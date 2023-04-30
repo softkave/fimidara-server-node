@@ -16,6 +16,11 @@ import {
   SignupEndpointParams,
   UserExistsEndpointParams,
   UserExistsEndpointResult,
+  GetCollaboratorsWithoutPermissionEndpointParams,
+  GetCollaboratorsWithoutPermissionEndpointResult,
+  GetWaitlistedUsersEndpointParams,
+  GetWaitlistedUsersEndpointResult,
+  UpgradeWaitlistedUsersEndpointParams,
 } from './private-types';
 
 class UsersEndpoints extends FimidaraEndpointsBase {
@@ -148,7 +153,63 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     return result;
   };
 }
+class CollaboratorsEndpoints extends FimidaraEndpointsBase {
+  getCollaboratorsWithoutPermission = async (
+    props?: FimidaraEndpointParamsOptional<GetCollaboratorsWithoutPermissionEndpointParams>
+  ): Promise<
+    FimidaraEndpointResult<GetCollaboratorsWithoutPermissionEndpointResult>
+  > => {
+    const response = await invokeEndpoint({
+      token: this.getAuthToken(props),
+      data: props?.body,
+      formdata: undefined,
+      path: '/v1/collaborators/getCollaboratorsWithoutPermission',
+      method: 'POST',
+    });
+    const result = {
+      headers: response.headers as any,
+      body: await response.json(),
+    };
+    return result;
+  };
+}
+class InternalsEndpoints extends FimidaraEndpointsBase {
+  getWaitlistedUsers = async (
+    props?: FimidaraEndpointParamsOptional<GetWaitlistedUsersEndpointParams>
+  ): Promise<FimidaraEndpointResult<GetWaitlistedUsersEndpointResult>> => {
+    const response = await invokeEndpoint({
+      token: this.getAuthToken(props),
+      data: props?.body,
+      formdata: undefined,
+      path: '/v1/internals/getWaitlistedUsers',
+      method: 'POST',
+    });
+    const result = {
+      headers: response.headers as any,
+      body: await response.json(),
+    };
+    return result;
+  };
+  upgradeWaitlistedUsers = async (
+    props: FimidaraEndpointParamsRequired<UpgradeWaitlistedUsersEndpointParams>
+  ): Promise<FimidaraEndpointResult<undefined>> => {
+    const response = await invokeEndpoint({
+      token: this.getAuthToken(props),
+      data: props?.body,
+      formdata: undefined,
+      path: '/v1/internals/upgradeWaitlistedUsers',
+      method: 'POST',
+    });
+    const result = {
+      headers: response.headers as any,
+      body: await response.json(),
+    };
+    return result;
+  };
+}
 
 export class FimidaraEndpoints extends FimidaraEndpointsBase {
   users = new UsersEndpoints(this.config, this);
+  collaborators = new CollaboratorsEndpoints(this.config, this);
+  internals = new InternalsEndpoints(this.config, this);
 }

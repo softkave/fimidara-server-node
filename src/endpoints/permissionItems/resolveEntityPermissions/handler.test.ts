@@ -170,8 +170,6 @@ describe('resolveEntityPermissions', () => {
     ];
 
     const resolved = result.items.map(indexResolvedPermissions);
-    // expectContainsEveryItemIn(resolved, expected, identity);
-    // expect(resolved).toEqual(expect.arrayContaining(expected));
     expected.forEach(nextExpected => expect(resolved).toContain(nextExpected));
     expect(result.items.length).toBe(expected.length);
   });

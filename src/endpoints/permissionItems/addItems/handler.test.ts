@@ -185,7 +185,7 @@ describe('addItems', () => {
     const result = await addPermissionItems(context, reqData);
     assertEndpointResultOk(result);
 
-    const pgPermissionItems = await context.semantic.permissionItem.getManyByLiteralDataQuery(
+    const pgPermissionItems = await context.semantic.permissionItem.getManyByQuery(
       PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
     );
     expect(pgPermissionItems.length).toBe(itemsUniq.length);

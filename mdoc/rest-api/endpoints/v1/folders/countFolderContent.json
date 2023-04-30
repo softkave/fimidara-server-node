@@ -90,7 +90,7 @@
         "required": true,
         "description": "Count folder content endpoint success result.",
         "__id": "FieldObject",
-        "name": "CountFolderContentEndpointSuccessResult",
+        "name": "CountFolderContentEndpointResult",
         "fields": {
             "foldersCount": {
                 "data": {
@@ -167,7 +167,8 @@
                                     "__id": "FieldString",
                                     "valid": {
                                         "0": "LoginAgain",
-                                        "1": "Logout"
+                                        "1": "Logout",
+                                        "2": "RequestChangePassword"
                                     }
                                 },
                                 "optional": true

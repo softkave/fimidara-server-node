@@ -35,7 +35,7 @@ export async function getPagedCollaboratorsWithoutPermission(
   assignedItemsQuery: LiteralDataQuery<AssignedItem>,
   page?: PaginationQuery
 ) {
-  const assignedItems_collaborators = await context.semantic.assignedItem.getManyByLiteralDataQuery(
+  const assignedItems_collaborators = await context.semantic.assignedItem.getManyByQuery(
     assignedItemsQuery,
     page
   );
@@ -44,14 +44,13 @@ export async function getPagedCollaboratorsWithoutPermission(
 
   // Check that collaborators do not have permission groups assigned
   let collaboratorIdList = assignedItems_collaborators.map(nextItem => nextItem.assigneeId);
-  const assignedItems_permissionGroups =
-    await context.semantic.assignedItem.getManyByLiteralDataQuery(
-      {
-        assigneeId: {$in: collaboratorIdList},
-        assignedItemType: AppResourceType.PermissionGroup,
-      },
-      page
-    );
+  const assignedItems_permissionGroups = await context.semantic.assignedItem.getManyByQuery(
+    {
+      assigneeId: {$in: collaboratorIdList},
+      assignedItemType: AppResourceType.PermissionGroup,
+    },
+    page
+  );
   const assignedItems_permissionGroupsMap = indexArray(assignedItems_permissionGroups, {
     path: 'assigneeId',
   });
@@ -62,7 +61,7 @@ export async function getPagedCollaboratorsWithoutPermission(
   // TODO: that they have permission groups do not mean they have permission
 
   // Check that collaborators do not have permission items assigned
-  const permissionItems = await context.semantic.permissionItem.getManyByLiteralDataQuery({
+  const permissionItems = await context.semantic.permissionItem.getManyByQuery({
     entityId: {$in: collaboratorIdList},
   });
   const permissionItemsMap = indexArray(permissionItems, {path: 'entityId'});

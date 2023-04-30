@@ -77,7 +77,7 @@ function returnNotFoundError(outsideResources: ResourceWrapper[]) {
   throw new NotFoundError(message);
 }
 
-export function checkResourcesBelongToWorkspace(
+export function checkResourcesBelongsToWorkspace(
   workspaceId: string,
   resources: ResourceWrapper[],
   getErrorFn = returnNotFoundError
