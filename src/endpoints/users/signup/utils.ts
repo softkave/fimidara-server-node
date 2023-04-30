@@ -6,18 +6,15 @@ import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
 import {BaseContextType} from '../../contexts/types';
-import {EmailAddressNotAvailableError} from '../errors';
+import {assertEmailAddressAvailable} from '../utils';
 import {SignupEndpointParams} from './types';
 
-export const internalSignupUser = async (
+export const INTERNAL_signupUser = async (
   context: BaseContextType,
   data: SignupEndpointParams,
-  otherParams: Pick<User, 'requiresPasswordChange'> = {}
+  otherParams: Partial<User> = {}
 ) => {
-  const userExists = await context.semantic.user.existsByEmail(data.email);
-  if (userExists) {
-    throw new EmailAddressNotAvailableError();
-  }
+  await assertEmailAddressAvailable(context, data.email);
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
@@ -31,6 +28,7 @@ export const internalSignupUser = async (
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
+    isOnWaitlist: context.appVariables.FLAG_waitlistNewSignups,
     ...otherParams,
   });
 

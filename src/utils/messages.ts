@@ -1,3 +1,5 @@
+import {multilineTextToParagraph} from './fns';
+
 export const appMessages = {
   workspace: {
     notFound(id?: string) {
@@ -18,6 +20,12 @@ export const appMessages = {
     },
     changePassword() {
       return 'Please change your password to continue.';
+    },
+    userIsOnWaitlist() {
+      return multilineTextToParagraph(`
+      Sorry you cannot perform this action because you are on the waitlist.
+      Once you're removed from the waitlist, we'll send you an email confirming you 
+      have full access to fimidara`);
     },
   },
   permissionGroup: {

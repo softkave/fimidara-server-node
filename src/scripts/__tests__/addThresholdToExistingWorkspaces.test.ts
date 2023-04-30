@@ -9,7 +9,7 @@ import {disposeApplicationGlobalUtilities} from '../../endpoints/globalUtils';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {getDefaultThresholds} from '../../endpoints/usageRecords/constants';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {cast} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {script_AddThresholdToExistingWorkspaces} from '../addThresholdToExistingWorkspaces';
@@ -19,7 +19,7 @@ let connection: Connection | null = null;
 let dbName: string | null = null;
 
 beforeAll(async () => {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   dbName = faker.lorem.words(5).replace(/ /g, '_');
   connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
 });

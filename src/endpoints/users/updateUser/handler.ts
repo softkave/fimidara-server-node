@@ -3,7 +3,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {MemStore} from '../../contexts/mem/Mem';
-import {userExtractor} from '../utils';
+import {assertEmailAddressAvailable, userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';
 
@@ -16,6 +16,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
   };
 
   if (data.email && data.email.toLowerCase() !== user.email.toLowerCase()) {
+    await assertEmailAddressAvailable(context, data.email);
     update.isEmailVerified = false;
     update.emailVerifiedAt = null;
     update.emailVerificationEmailSentAt = null;

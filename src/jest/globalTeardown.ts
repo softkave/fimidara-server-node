@@ -7,8 +7,9 @@ import {
 import mongoose from 'mongoose';
 import {disposeApplicationGlobalUtilities} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
-import {AppVariables, ExtractEnvSchema, FileBackendType} from '../resources/types';
-import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
+import {AppEnvSchema, AppVariables, FileBackendType} from '../resources/types';
+import {getAppVariables, prodEnvsSchema} from '../resources/vars';
+import {AnyObject} from '../utils/types';
 import {jestLogger} from './logger';
 import _ = require('lodash');
 
@@ -77,13 +78,13 @@ async function deleteAWSBucketObjects(globals: AppVariables) {
 }
 
 async function jestGlobalTeardown() {
-  const envSchema = Object.keys(extractProdEnvsSchema).reduce((map, key) => {
-    const k = key as keyof ExtractEnvSchema;
-    map[k] = {...extractProdEnvsSchema[k], required: false};
+  const envSchema = Object.keys(prodEnvsSchema).reduce((map, key) => {
+    const k = key as keyof AppEnvSchema;
+    map[k] = {...prodEnvsSchema[k], required: false};
     return map;
-  }, {} as ExtractEnvSchema);
+  }, {} as AnyObject) as AppEnvSchema;
 
-  const vars = extractEnvVariables(envSchema);
+  const vars = getAppVariables(envSchema);
   const dropMongoPromise = dropMongoCollections(vars);
   await waitOnPromises([dropMongoPromise]);
   await jestLogger.close();

@@ -18,11 +18,17 @@ export function assertErrorHasName(error: any, expectedErrorNames: string[]) {
   );
 }
 
-export async function expectErrorThrown(fn: AnyFn, expectedErrorNames?: string[]) {
+export async function expectErrorThrown(
+  fn: AnyFn,
+  expectedErrorNames?: string[],
+  finallyFn?: AnyFn
+) {
   try {
     await fn();
     assert.fail('Error not thrown.');
   } catch (error) {
     if (expectedErrorNames) assertErrorHasName(error, expectedErrorNames);
+  } finally {
+    if (finallyFn) finallyFn();
   }
 }

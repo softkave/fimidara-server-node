@@ -12,6 +12,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
+import {UserOnWaitlistError} from '../../users/errors';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
 import {AddWorkspaceEndpointParams} from './types';
@@ -102,5 +103,25 @@ describe('addWorkspace', () => {
         rootname: result.workspace.rootname,
       });
     }, [WorkspaceRootnameExistsError.name]);
+  });
+
+  test('fails if user is on waitlist', async () => {
+    assertContext(context);
+    context.appVariables.FLAG_waitlistNewSignups = true;
+    const {userToken} = await insertUserForTest(context);
+    await expectErrorThrown(
+      async () => {
+        assertContext(context);
+        await insertWorkspaceForTest(context, userToken);
+      },
+      [UserOnWaitlistError.name],
+      () => {
+        assertContext(context);
+
+        // TODO: if we ever switch to concurrent tests, then create a context
+        // for this test instead
+        context.appVariables.FLAG_waitlistNewSignups = false;
+      }
+    );
   });
 });

@@ -12,6 +12,9 @@ const userSchema = ensureMongoTypeFields<User>({
   isEmailVerified: {type: Boolean},
   emailVerifiedAt: {type: Number},
   emailVerificationEmailSentAt: {type: Number},
+  requiresPasswordChange: {type: Boolean},
+  isOnWaitlist: {type: Boolean},
+  removedFromWaitlistOn: {type: Number},
 });
 
 export type UserDocument = Document<User>;

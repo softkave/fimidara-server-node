@@ -7,7 +7,7 @@ import {Workspace} from '../../definitions/workspace';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
@@ -17,7 +17,7 @@ let connection: Connection | null = null;
 let dbName: string | null = null;
 
 beforeAll(async () => {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   dbName = faker.lorem.words(5).replace(/ /g, '_');
   connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
 });

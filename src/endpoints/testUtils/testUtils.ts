@@ -6,7 +6,7 @@ import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {AppVariables, FileBackendType} from '../../resources/types';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';
@@ -75,7 +75,7 @@ export function getTestFileProvider(appVariables: AppVariables) {
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

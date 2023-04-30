@@ -6,8 +6,7 @@ import {getTimestamp} from '../utils/dateFns';
 // TODO: do deep check to make sure that internal schemas are checked too
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function ensureMongoTypeFields<T extends object>(schema: {
-  // [path in keyof Required<T>]: SchemaTypeOptions<T[path]>;
-  [path in keyof T]?: SchemaDefinitionProperty<T[path]>;
+  [path in keyof Required<T>]: SchemaDefinitionProperty<T[path]>;
 }) {
   return schema;
 }

@@ -10,6 +10,8 @@ const jobSchema = ensureMongoTypeFields<Job>({
   params: {type: SchemaTypes.Map},
   version: {type: Number},
   serverInstanceId: {type: String, index: true},
+  errorTimestamp: {type: Number},
+  workspaceId: {type: String, index: true},
 });
 
 export type JobDocument = Document<Job>;

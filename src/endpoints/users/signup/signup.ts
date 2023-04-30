@@ -6,7 +6,7 @@ import RequestData from '../../RequestData';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
 import {SignupEndpoint} from './types';
-import {internalSignupUser} from './utils';
+import {INTERNAL_signupUser} from './utils';
 import {signupJoiSchema} from './validation';
 
 async function callComfirmEmail(context: BaseContextType, reqData: RequestData) {
@@ -20,7 +20,7 @@ async function callComfirmEmail(context: BaseContextType, reqData: RequestData) 
 
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
-  const user = await internalSignupUser(context, data);
+  const user = await INTERNAL_signupUser(context, data);
   const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
     Promise.all([
       getUserToken(context, user.resourceId, opts),

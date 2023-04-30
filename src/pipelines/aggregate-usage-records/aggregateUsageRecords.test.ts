@@ -46,7 +46,7 @@ import {
   insertStorageUsageRecordInput,
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
@@ -66,7 +66,7 @@ afterAll(async () => {
 });
 
 async function getContextAndConnection() {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
   const connection = await getMongoConnection(

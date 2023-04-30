@@ -22,8 +22,8 @@ import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
 import forgotPassword from '../users/forgotPassword/forgotPassword';
 import {ForgotPasswordEndpointParams} from '../users/forgotPassword/types';
-import {internalSignupUser} from '../users/signup/utils';
-import internalCreateWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
+import {INTERNAL_signupUser} from '../users/signup/utils';
+import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
 export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
@@ -43,7 +43,7 @@ async function setupWorkspace(
   rootname: string,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  return await internalCreateWorkspace(
+  return await INTERNAL_createWorkspace(
     context,
     {
       name,
@@ -62,7 +62,7 @@ async function setupDefaultUser(
   adminPermissionGroupId: string,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const user = await internalSignupUser(
+  const user = await INTERNAL_signupUser(
     context,
     {
       email: context.appVariables.rootUserEmail,
@@ -70,7 +70,7 @@ async function setupDefaultUser(
       lastName: context.appVariables.rootUserLastName,
       password: getNewId(),
     },
-    {requiresPasswordChange: true}
+    {requiresPasswordChange: true, isOnWaitlist: false}
   );
   await addAssignedPermissionGroupList(
     context,

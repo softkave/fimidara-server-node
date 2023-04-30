@@ -15,6 +15,8 @@ export interface User extends Resource {
   isEmailVerified: boolean;
   emailVerifiedAt?: number | null;
   emailVerificationEmailSentAt?: number | null;
+  isOnWaitlist: boolean;
+  removedFromWaitlistOn?: number;
 }
 
 export interface UserWithWorkspace extends User {
@@ -32,6 +34,7 @@ export type PublicUser = PublicResource &
     | 'isEmailVerified'
     | 'emailVerifiedAt'
     | 'emailVerificationEmailSentAt'
+    | 'isOnWaitlist'
   > & {workspaces: UserWorkspace[]};
 
 export type PublicCollaborator = UserWorkspace &

@@ -1,11 +1,12 @@
 import assert = require('assert');
-import {isObject, isUndefined, merge, mergeWith} from 'lodash';
+import {isBoolean, isObject, isString, isUndefined, merge, mergeWith} from 'lodash';
 import {nanoid} from 'nanoid';
 import {cast, getFirstArg} from '../utils/fns';
+import {AnyFn, AnyObject} from '../utils/types';
 import {
+  AppEnvSchema,
   AppEnvVariables,
   AppVariables,
-  ExtractEnvSchema,
   FileBackendType,
   ISuppliedVariables,
 } from './types';
@@ -68,7 +69,7 @@ export const envFns = {
   fromEnv,
 };
 
-export const extractProdEnvsSchema: ExtractEnvSchema = {
+export const prodEnvsSchema: AppEnvSchema = {
   clientDomain: {
     required: false,
     name: AppEnvVariables.CLIENT_DOMAIN,
@@ -136,6 +137,13 @@ export const extractProdEnvsSchema: ExtractEnvSchema = {
     name: AppEnvVariables.FILE_BACKEND,
     defaultValue: FileBackendType.S3,
   },
+  FLAG_waitlistNewSignups: {
+    required: false,
+    name: AppEnvVariables.FLAG_WAITLIST_NEW_SIGNUPS,
+    defaultValue: false,
+    transform: (data => data === 'true') as AnyFn,
+    validator: isBoolean,
+  },
 };
 
 export const defaultStaticVars = {
@@ -153,41 +161,54 @@ let appVariables: AppVariables = cast({
   ...defaultStaticVars,
 });
 
-export function checkRequiredSuppliedVariables(schema: ExtractEnvSchema, base: AppVariables) {
+export function checkRequiredSuppliedVariables(schema: AppEnvSchema, base: AppVariables) {
   // [Env name, key name]
   const missingVariables: Array<[string, string]> = [];
+
+  // [Env name, error message]
+  const validationErrors: Array<[string, string]> = [];
+
   Object.keys(schema).forEach(key => {
     const meta = schema[key as keyof ISuppliedVariables];
-    const value = base[key as keyof ISuppliedVariables];
+    let value = base[key as keyof ISuppliedVariables];
 
-    if (meta.required && !value) {
-      missingVariables.push([meta.name, key]);
+    if (meta.required && !value) missingVariables.push([meta.name, key]);
+    if (value && meta.transform) value = (base as any)[key] = meta.transform(value as string);
+    if (meta.validator) {
+      const validationResult = meta.validator(value);
+      if (isString(validationResult)) validationErrors.push([meta.name, validationResult]);
+      else if (validationResult === false)
+        validationErrors.push([meta.name, `'${value}' is invalid`]);
     }
   });
 
-  if (missingVariables.length > 0) {
-    throw new Error(
-      ['Missing variables:']
-        .concat(missingVariables.map(([name, key]) => `Env name: ${name}, Key: ${key}`))
-        .join('\n')
-    );
+  let errorMessage = '';
+
+  if (missingVariables.length) {
+    errorMessage += ['Missing variables:']
+      .concat(missingVariables.map(([name, key]) => `Env name: ${name}, Key: ${key}`))
+      .join('\n');
   }
+  if (validationErrors.length) {
+    errorMessage += ['Invalid variables:']
+      .concat(validationErrors.map(([name, message]) => `Env name: ${name}, Message: ${message}`))
+      .join('\n');
+  }
+
+  if (errorMessage) throw new Error(errorMessage);
 }
 
-export function extractEnvVariables(
-  schema: ExtractEnvSchema,
-  base: Partial<AppVariables> = {}
-): AppVariables {
-  const envVariables = Object.keys(schema).reduce((accumulator, key) => {
+function extractEnvVariables(schema: AppEnvSchema, base: Partial<AppVariables> = {}): AppVariables {
+  const envVariables = Object.keys(schema).reduce((map, key) => {
     const meta = schema[key as keyof ISuppliedVariables];
     const variable =
       process.env[meta.name] ?? base[key as keyof ISuppliedVariables] ?? meta.defaultValue;
 
     // TODO: validate the type or write/find a library for
     // extracting and validating env variables
-    accumulator[key as keyof ISuppliedVariables] = variable as any;
-    return accumulator;
-  }, {} as ISuppliedVariables);
+    map[key] = variable as any;
+    return map;
+  }, {} as AnyObject) as ISuppliedVariables;
 
   const vars: AppVariables = {
     ...defaultStaticVars,
@@ -220,7 +241,7 @@ export function setAppVariablesIfUndefined(...additionalVars: Array<Partial<AppV
 }
 
 export function getAppVariables(
-  schema: ExtractEnvSchema,
+  schema: AppEnvSchema,
   extractFromEnv = true,
   base?: Partial<AppVariables>,
 

@@ -5,6 +5,7 @@ import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
+import {assertIsNotOnWaitlist} from '../../../utils/sessionUtils';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
@@ -33,13 +34,14 @@ export function transformUsageThresholInput(
   return usageThresholds;
 }
 
-const internalCreateWorkspace = async (
+const INTERNAL_createWorkspace = async (
   context: BaseContextType,
   data: NewWorkspaceInput,
   agent: Agent,
   userId: string | undefined,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
+  assertIsNotOnWaitlist(agent);
   await Promise.all([
     checkWorkspaceNameExists(context, data.name, opts),
     checkWorkspaceRootnameExists(context, data.rootname, opts),
@@ -99,4 +101,4 @@ const internalCreateWorkspace = async (
   return {workspace, adminPermissionGroup, publicPermissionGroup};
 };
 
-export default internalCreateWorkspace;
+export default INTERNAL_createWorkspace;

@@ -17,14 +17,14 @@ import {
 } from '../../endpoints/contexts/utils';
 import {getConsoleLogger} from '../../endpoints/globalUtils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
-import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
+import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
-import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 
 async function setupContext() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
@@ -53,7 +53,7 @@ async function insertWorkspace(
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const companyName = faker.company.name();
-  return await internalCreateWorkspace(
+  return await INTERNAL_createWorkspace(
     context,
     {
       name: companyName,

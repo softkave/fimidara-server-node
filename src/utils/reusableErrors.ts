@@ -1,5 +1,9 @@
 import {NotFoundError, ResourceExistsError} from '../endpoints/errors';
-import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors';
+import {
+  ChangePasswordError,
+  InvalidCredentialsError,
+  UserOnWaitlistError,
+} from '../endpoints/users/errors';
 import {appMessages} from './messages';
 
 export const reuseableErrors = {
@@ -19,6 +23,9 @@ export const reuseableErrors = {
     },
     changePassword() {
       return new ChangePasswordError();
+    },
+    userOnWaitlist() {
+      return new UserOnWaitlistError();
     },
   },
   permissionGroup: {

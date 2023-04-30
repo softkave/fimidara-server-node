@@ -36,10 +36,10 @@ import changePasswordWithToken from '../../endpoints/users/changePasswordWithTok
 import {ChangePasswordWithTokenEndpointParams} from '../../endpoints/users/changePasswordWithToken/types';
 import internalConfirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
 import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgotPassword';
-import {internalSignupUser} from '../../endpoints/users/signup/utils';
+import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
-import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
@@ -64,7 +64,7 @@ export interface ISetupDevUserOptions {
 }
 
 export async function devUserSetupInitContext() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
@@ -182,7 +182,7 @@ async function getUser(context: BaseContext, runtimeOptions: ISetupDevUserOption
     user = await getCompleteUserDataByEmail(context, email);
   } else {
     const userInfo = await runtimeOptions.getUserInfo();
-    user = await internalSignupUser(context, {...userInfo, email});
+    user = await INTERNAL_signupUser(context, {...userInfo, email});
   }
 
   assert.ok(user);

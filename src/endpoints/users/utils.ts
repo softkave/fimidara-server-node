@@ -4,6 +4,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {BaseContextType} from '../contexts/types';
+import {EmailAddressNotAvailableError} from './errors';
 
 const publicUserWorkspaceFields = getFields<UserWorkspace>({
   workspaceId: true,
@@ -26,6 +27,7 @@ const publicUserFields = getFields<PublicUser>({
   passwordLastChangedAt: true,
   requiresPasswordChange: true,
   workspaces: userWorkspaceListExtractor,
+  isOnWaitlist: true,
 });
 
 export const userExtractor = makeExtract(publicUserFields);
@@ -42,14 +44,15 @@ export function assertUser(user?: User | null): asserts user {
   appAssert(user, reuseableErrors.user.notFound());
 }
 
-export async function getUserWithWorkspaceById(context: BaseContextType, userId: string) {
-  const user = await context.semantic.user.getOneById(userId);
-  assertUser(user);
-  return await populateUserWorkspaces(context, user);
-}
-
 export async function getCompleteUserDataByEmail(context: BaseContextType, email: string) {
   const user = await context.semantic.user.getByEmail(email);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
+}
+
+export async function assertEmailAddressAvailable(context: BaseContextType, email: string) {
+  const userExists = await context.semantic.user.existsByEmail(email);
+  if (userExists) {
+    throw new EmailAddressNotAvailableError();
+  }
 }

@@ -9,7 +9,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../definitions/workspace';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
@@ -35,7 +35,7 @@ let connection: Connection | null = null;
 let context: BaseContext | null = null;
 
 beforeAll(async () => {
-  const testVars = extractEnvVariables(extractProdEnvsSchema);
+  const testVars = getAppVariables(prodEnvsSchema);
   const dbName = `test-db-usage-record-${getNewId()}`;
   testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);

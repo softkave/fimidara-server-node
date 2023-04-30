@@ -115,3 +115,15 @@ export type InvertRecord<M> = M extends Record<infer K, infer V>
 export type DefaultTo<T, TDefault, TDefaultFrom = undefined> = T extends TDefaultFrom
   ? TDefault
   : T;
+
+export type ToPrimitiveJsType<T> = T extends string
+  ? 'string'
+  : T extends number
+  ? 'number'
+  : T extends boolean
+  ? 'boolean'
+  : T extends any[]
+  ? 'array'
+  : T extends object
+  ? 'object'
+  : 'any';

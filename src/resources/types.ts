@@ -1,3 +1,6 @@
+import {RequiredKeysOf} from 'type-fest';
+import {AnyFn} from '../utils/types';
+
 export enum AppEnvVariables {
   CLIENT_DOMAIN = 'CLIENT_DOMAIN',
   MONGODB_URI = 'MONGODB_URI',
@@ -15,6 +18,7 @@ export enum AppEnvVariables {
   ROOT_USER_FIRST_NAME = 'ROOT_USER_FIRST_NAME',
   ROOT_USER_LAST_NAME = 'ROOT_USER_LAST_NAME',
   FILE_BACKEND = 'FILE_BACKEND',
+  FLAG_WAITLIST_NEW_SIGNUPS = 'FLAG_WAITLIST_NEW_SIGNUPS',
 }
 
 export enum FileBackendType {
@@ -39,6 +43,10 @@ export interface ISuppliedVariables {
   rootUserFirstName: string;
   rootUserLastName: string;
   fileBackend: FileBackendType;
+
+  /** Users on waitlist cannot create workspaces but can be added to an existing
+   * workspace. */
+  FLAG_waitlistNewSignups: boolean;
 }
 
 interface IStaticVariables {
@@ -62,11 +70,28 @@ export interface AppRuntimeVars {
 
 export interface AppVariables extends ISuppliedVariables, IStaticVariables, AppRuntimeVars {}
 
-export type ExtractEnvSchema = Record<
-  keyof ISuppliedVariables,
-  {
-    required?: boolean;
-    name: AppEnvVariables;
-    defaultValue?: string;
-  }
->;
+type EnvItemTransformFn<T> = T extends string
+  ? {transform?: AnyFn<[string], T>}
+  : {transform: AnyFn<[string], T>};
+type EnvItemBase<T> = {
+  validator?: AnyFn<[any], boolean | string>;
+  name: AppEnvVariables;
+} & EnvItemTransformFn<T>;
+
+export type AppEnvSchema = {
+  [K in keyof ISuppliedVariables]: (K extends RequiredKeysOf<ISuppliedVariables>
+    ?
+        | {
+            required: false;
+            defaultValue: ISuppliedVariables[K];
+          }
+        | {
+            required: true;
+            defaultValue?: ISuppliedVariables[K];
+          }
+    : {
+        required?: false;
+        defaultValue?: ISuppliedVariables[K];
+      }) &
+    EnvItemBase<ISuppliedVariables[K]>;
+};

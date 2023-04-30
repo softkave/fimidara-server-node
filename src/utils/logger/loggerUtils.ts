@@ -2,10 +2,10 @@ import assert from 'assert';
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
 import 'winston-mongodb';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {AnyObject} from '../types';
 
-const vars = extractEnvVariables(extractProdEnvsSchema);
+const vars = getAppVariables(prodEnvsSchema);
 export const consoleTransport = new transports.Console({
   format: format.combine(
     format.colorize(),

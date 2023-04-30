@@ -49,6 +49,7 @@ const user = FieldObject.construct<PublicUser>()
     workspaces: FieldObject.requiredField(
       FieldArray.construct<UserWorkspace>().setType(userWorkspace)
     ),
+    isOnWaitlist: FieldObject.requiredField(FieldBoolean.construct()),
   });
 
 const loginResponseBody = FieldObject.construct<LoginResult>()

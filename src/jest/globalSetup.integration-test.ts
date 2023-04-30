@@ -11,10 +11,10 @@ import {
 } from '../endpoints/contexts/utils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
-import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
+import {getAppVariables, prodEnvsSchema} from '../resources/vars';
 
 async function integrationTestGlobalSetup() {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

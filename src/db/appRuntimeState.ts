@@ -1,9 +1,9 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
 import {AppRuntimeState} from '../definitions/system';
-import {ensureMongoTypeFields} from './utils';
+import {ensureMongoTypeFields, resourceSchema} from './utils';
 
 const appRuntimeStateSchema = ensureMongoTypeFields<AppRuntimeState>({
-  resourceId: {type: String, index: true, unique: true},
+  ...resourceSchema,
   isAppSetup: {type: Boolean, default: false},
   appWorkspaceId: {type: String},
   appWorkspacesImageUploadPermissionGroupId: {type: String},

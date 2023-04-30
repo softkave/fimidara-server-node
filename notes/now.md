@@ -3,13 +3,17 @@
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Waitlist for fimidara
-- [ ] Frontend for tags for collaborators without permissions
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
+- [ ] Revamp UI
+- [ ] Document all errors to surface in docs
+- [ ] Handle password change required on the frontend
+- [ ] Change password with current password or forgot password on the frontend
+- [ ] Frontend for tags for collaborators without permissions
 - [ ] All the many many TODOs littering the project
 - [ ] Support providedResourceId for all resources
 - [ ] In app notification
-- [ ] Handle password change required on the frontend
-- [ ] Change password with current password or forgot password on the frontend
+- [ ] On server start, produce dev env vars when not in production
+- [ ] For tests, have a local cache of mem data that can quickly be loaded instead of fetching from db. Maybe it'll help tests run faster and use less memory. Or use Jest's global to pass same context around.
 - [ ] Predefined resize pipelines
 - [ ] Public access op for files
 - [ ] Get version of readFile, we currently only have Post
@@ -31,7 +35,6 @@
 - [ ] Think up a way to add context information to txns and lock timeout errors
 - [ ] Write tests to confirm that memstore is faster overall than mongodb
 - [ ] A memstore txn lock times out in deleteFolder test
-- [ ] Revamp UI
 - [ ] Refresh jwt tokens and group for collaborators not yet given permission groups
 - [ ] Implement public access actions for resources and check that requesting agent has permission to perform action. Can do similar thing for collaboration request's permission groups assigned on accept.
 - [ ] Ensure that streaming works on clientside when uploading that the formdata is not waiting for all data to be available b4 uploading

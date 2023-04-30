@@ -22,7 +22,7 @@ import {startJobRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
-import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
+import {getAppVariables, prodEnvsSchema} from './resources/vars';
 
 const logger = getLogger();
 const consoleLogger = getConsoleLogger();
@@ -74,7 +74,7 @@ function setupJWT(ctx: BaseContext) {
 }
 
 async function setup() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
+  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName

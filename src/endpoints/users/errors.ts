@@ -93,3 +93,12 @@ export class ChangePasswordError extends OperationError {
     this.message = getErrorMessageFromParams(props, appMessages.user.changePassword());
   }
 }
+
+export class UserOnWaitlistError extends OperationError {
+  name = 'UserOnWaitlistError';
+  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, appMessages.user.userIsOnWaitlist());
+  }
+}
