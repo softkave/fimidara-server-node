@@ -33,7 +33,7 @@ const userWorkspace = FieldObject.construct<UserWorkspace>()
   });
 
 const user = FieldObject.construct<PublicUser>()
-  .setName('PublicUser')
+  .setName('User')
   .setFields({
     resourceId: FieldObject.requiredField(fReusables.id),
     createdAt: FieldObject.requiredField(fReusables.date),
@@ -99,6 +99,12 @@ const changePasswordWithCurrentPasswordParams =
     })
     .setRequired(true)
     .setDescription('Change password with current password endpoint params.');
+
+const changePasswordWithTokenParams = FieldObject.construct<ChangePasswordWithTokenEndpointParams>()
+  .setName('ChangePasswordWithTokenEndpointParams')
+  .setFields({password: FieldObject.requiredField(newPassword)})
+  .setRequired(true)
+  .setDescription('Change password with token endpoint params.');
 
 const updateUserParams = FieldObject.construct<UpdateUserEndpointParams>()
   .setName('UpdateUserEndpointParams')
@@ -171,6 +177,8 @@ export const forgotPasswordEndpointDefinition = HttpEndpointDefinition.construct
   .setName('ForgotPasswordEndpoint')
   .setDescription('Forgot password endpoint.');
 
+// TODO: mddoc doesn't enforce required types, we may have to switch to just
+// types and objects
 export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.construct<{
   requestBody: ChangePasswordWithTokenEndpointParams;
   requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
@@ -180,6 +188,7 @@ export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.
   .setBasePathname(userConstants.routes.changePasswordWithToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestBody(changePasswordWithTokenParams)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
   .setName('ChangePasswordWithTokenEndpoint')

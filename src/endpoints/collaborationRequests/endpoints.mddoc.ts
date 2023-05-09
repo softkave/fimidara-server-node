@@ -224,7 +224,7 @@ const respondToCollaborationRequestResponseBody =
 
 const getCollaborationRequestForUserParams =
   FieldObject.construct<GetUserCollaborationRequestEndpointParams>()
-    .setName('GetCollaborationRequestEndpointParams')
+    .setName('GetUserCollaborationRequestEndpointParams')
     .setFields({
       requestId: FieldObject.requiredField(fReusables.id),
     })
@@ -232,14 +232,14 @@ const getCollaborationRequestForUserParams =
     .setDescription('Get collaboration request endpoint params.');
 const getCollaborationRequestForUserResponseBody =
   FieldObject.construct<GetUserCollaborationRequestEndpointResult>()
-    .setName('GetCollaborationRequestEndpointResult')
+    .setName('GetUserCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForUser)})
     .setRequired(true)
     .setDescription('Get collaboration request endpoint success result.');
 
 const getCollaborationRequestForWorkspaceParams =
   FieldObject.construct<GetWorkspaceCollaborationRequestEndpointParams>()
-    .setName('GetCollaborationRequestEndpointParams')
+    .setName('GetWorkspaceCollaborationRequestEndpointParams')
     .setFields({
       requestId: FieldObject.requiredField(fReusables.id),
       workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
@@ -248,7 +248,7 @@ const getCollaborationRequestForWorkspaceParams =
     .setDescription('Get collaboration request endpoint params.');
 const getCollaborationRequestForWorkspaceResponseBody =
   FieldObject.construct<GetWorkspaceCollaborationRequestEndpointResult>()
-    .setName('GetCollaborationRequestEndpointResult')
+    .setName('GetWorkspaceCollaborationRequestEndpointResult')
     .setFields({request: FieldObject.requiredField(collaborationRequestForWorkspace)})
     .setRequired(true)
     .setDescription('Get collaboration request endpoint success result.');

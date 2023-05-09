@@ -1,10 +1,14 @@
 import {fetch, Headers} from 'cross-fetch';
-import * as FormData from 'isomorphic-form-data';
+import FormData from 'isomorphic-form-data';
 
 type FimidaraEndpointErrorItem = {
   name: string;
   message: string;
   field?: string;
+
+  // TODO: find a way to include in generated doc for when we add new
+  // recommended actions
+  action?: 'logout' | 'loginAgain' | 'requestChangePassword';
 };
 
 export class FimidaraEndpointError extends Error {

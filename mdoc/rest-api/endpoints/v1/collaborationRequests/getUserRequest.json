@@ -5,7 +5,7 @@
         "required": true,
         "description": "Get collaboration request endpoint params.",
         "__id": "FieldObject",
-        "name": "GetCollaborationRequestEndpointParams",
+        "name": "GetUserCollaborationRequestEndpointParams",
         "fields": {
             "requestId": {
                 "data": {
@@ -69,7 +69,7 @@
         "required": true,
         "description": "Get collaboration request endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetCollaborationRequestEndpointResult",
+        "name": "GetUserCollaborationRequestEndpointResult",
         "fields": {
             "request": {
                 "data": {
@@ -221,9 +221,9 @@
                                     "description": "Recommended action.",
                                     "__id": "FieldString",
                                     "valid": {
-                                        "0": "LoginAgain",
-                                        "1": "Logout",
-                                        "2": "RequestChangePassword"
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
                                     }
                                 },
                                 "optional": true

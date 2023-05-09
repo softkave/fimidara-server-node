@@ -11,6 +11,7 @@ import {
 import {
   ChangePasswordWithCurrentPasswordEndpointParams,
   LoginResult,
+  ChangePasswordWithTokenEndpointParams,
   ForgotPasswordEndpointParams,
   LoginParams,
   SignupEndpointParams,
@@ -41,11 +42,11 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     return result;
   };
   changePasswordWithToken = async (
-    props?: FimidaraEndpointParamsOptional<undefined>
+    props: FimidaraEndpointParamsRequired<ChangePasswordWithTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
-      data: undefined,
+      data: props?.body,
       formdata: undefined,
       path: '/v1/users/changePasswordWithToken',
       method: 'POST',

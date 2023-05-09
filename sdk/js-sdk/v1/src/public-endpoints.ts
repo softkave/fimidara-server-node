@@ -22,10 +22,12 @@ import {
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult,
   DeleteCollaborationRequestEndpointParams,
-  GetCollaborationRequestEndpointParams,
-  GetCollaborationRequestEndpointResult,
+  GetUserCollaborationRequestEndpointParams,
+  GetUserCollaborationRequestEndpointResult,
   GetUserCollaborationRequestsEndpointParams,
   GetUserCollaborationRequestsEndpointResult,
+  GetWorkspaceCollaborationRequestEndpointParams,
+  GetWorkspaceCollaborationRequestEndpointResult,
   GetWorkspaceCollaborationRequestsEndpointParams,
   GetWorkspaceCollaborationRequestsEndpointResult,
   CountWorkspaceCollaborationRequestsEndpointParams,
@@ -218,8 +220,10 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     return result;
   };
   getUserRequest = async (
-    props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetCollaborationRequestEndpointResult>> => {
+    props: FimidaraEndpointParamsRequired<GetUserCollaborationRequestEndpointParams>
+  ): Promise<
+    FimidaraEndpointResult<GetUserCollaborationRequestEndpointResult>
+  > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,
@@ -268,8 +272,10 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     return result;
   };
   getWorkspaceRequest = async (
-    props: FimidaraEndpointParamsRequired<GetCollaborationRequestEndpointParams>
-  ): Promise<FimidaraEndpointResult<GetCollaborationRequestEndpointResult>> => {
+    props: FimidaraEndpointParamsRequired<GetWorkspaceCollaborationRequestEndpointParams>
+  ): Promise<
+    FimidaraEndpointResult<GetWorkspaceCollaborationRequestEndpointResult>
+  > => {
     const response = await invokeEndpoint({
       token: this.getAuthToken(props),
       data: props?.body,

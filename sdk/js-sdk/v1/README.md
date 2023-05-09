@@ -41,7 +41,7 @@ fimidara.setConfig({authToken: '<new auth token>'});
 />;
 
 // get upload file URL for form uploads
-const uploadFileURL = fimidara.getReadFileURL({
+const uploadFileURL = fimidara.getUploadFileURL({
   filepath: 'workspace-rootname/folder/path/to/file.png',
 });
 ```

@@ -72,6 +72,7 @@ export interface ISplitFilenameWithDetails {
 }
 
 export function splitFilenameWithDetails(providedName: string): ISplitFilenameWithDetails {
+  providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
   const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
   let nameWithoutExtension = splitStr[0];
   let extension: string | undefined = splitStr.slice(1).join(fileConstants.nameExtensionSeparator);

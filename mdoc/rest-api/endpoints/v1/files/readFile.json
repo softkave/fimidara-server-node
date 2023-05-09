@@ -188,9 +188,9 @@
                                     "description": "Recommended action.",
                                     "__id": "FieldString",
                                     "valid": {
-                                        "0": "LoginAgain",
-                                        "1": "Logout",
-                                        "2": "RequestChangePassword"
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
                                     }
                                 },
                                 "optional": true

@@ -9,7 +9,7 @@ export type UserWorkspace = {
   joinedAt: number;
   workspaceId: string;
 };
-export type PublicUser = {
+export type User = {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
@@ -25,9 +25,12 @@ export type PublicUser = {
   isOnWaitlist: boolean;
 };
 export type LoginResult = {
-  user: PublicUser;
+  user: User;
   token: string;
   clientAssignedToken: string;
+};
+export type ChangePasswordWithTokenEndpointParams = {
+  password: string;
 };
 export type ForgotPasswordEndpointParams = {
   email: string;
@@ -56,7 +59,7 @@ export type GetCollaboratorsWithoutPermissionEndpointResult = {
 };
 export type GetWaitlistedUsersEndpointParams = {};
 export type GetWaitlistedUsersEndpointResult = {
-  users: Array<PublicUser>;
+  users: Array<User>;
 };
 export type UpgradeWaitlistedUsersEndpointParams = {
   userIds: Array<string>;

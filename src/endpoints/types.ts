@@ -35,9 +35,9 @@ export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
   : AnyObject;
 
 export enum ServerRecommendedActions {
-  LoginAgain = 'LoginAgain',
-  Logout = 'Logout',
-  RequestChangePassword = 'RequestChangePassword',
+  LoginAgain = 'loginAgain',
+  Logout = 'logout',
+  RequestChangePassword = 'requestChangePassword',
 }
 
 export interface PaginatedResult {

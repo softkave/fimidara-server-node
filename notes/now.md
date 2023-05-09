@@ -1,10 +1,15 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] data or resource name for endpoints, decide
+- [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
+- [ ] Remove workspaceId from get and update item endpoints
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Revamp UI
+- [ ] Image pipeline should help compress images to web formats, same for other frontend media
 - [ ] Hide create workspace button on frontend if user is on waitlist
+- [ ] Track collaboration requests userr has not seen?
 - [ ] Document all errors to surface in docs
 - [ ] Handle password change required on the frontend
 - [ ] Change password with current password or forgot password on the frontend

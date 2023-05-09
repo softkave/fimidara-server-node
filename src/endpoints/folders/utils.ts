@@ -38,9 +38,10 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
+  path = path.startsWith(folderConstants.nameSeparator) ? path.slice(1) : path;
   const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
   if (p.length > folderConstants.maxFolderDepth) {
-    throw new Error('Path depth exceeds max path depth (10)');
+    throw new Error('Path depth exceeds max path depth (10).');
   }
 
   return p;
@@ -49,7 +50,7 @@ export function splitFolderpath(path: string | string[]) {
 export function assertSplitFolderpath(path: string) {
   const splitPath = splitFolderpath(path);
   if (splitPath.length === 0) {
-    throw new InvalidRequestError('Path is empty');
+    throw new InvalidRequestError('Path is empty.');
   }
 
   return splitPath;

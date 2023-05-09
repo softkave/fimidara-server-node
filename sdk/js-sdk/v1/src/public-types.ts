@@ -80,7 +80,7 @@ export type UpdateAgentTokenEndpointResult = {
 export type DeleteCollaborationRequestEndpointParams = {
   requestId: string;
 };
-export type GetCollaborationRequestEndpointParams = {
+export type GetUserCollaborationRequestEndpointParams = {
   requestId: string;
 };
 export type CollaborationRequestStatusType =
@@ -100,7 +100,7 @@ export type CollaborationRequestForUser = {
   status: CollaborationRequestStatusType;
   statusDate: number;
 };
-export type GetCollaborationRequestEndpointResult = {
+export type GetUserCollaborationRequestEndpointResult = {
   request: CollaborationRequestForUser;
 };
 export type GetUserCollaborationRequestsEndpointParams = {
@@ -111,10 +111,9 @@ export type GetUserCollaborationRequestsEndpointResult = {
   requests: Array<CollaborationRequestForUser>;
   page: number;
 };
-export type GetWorkspaceCollaborationRequestsEndpointParams = {
+export type GetWorkspaceCollaborationRequestEndpointParams = {
+  requestId: string;
   workspaceId?: string;
-  page?: number;
-  pageSize?: number;
 };
 export type CollaborationRequestForWorkspace = {
   recipientEmail: string;
@@ -131,6 +130,14 @@ export type CollaborationRequestForWorkspace = {
   status: CollaborationRequestStatusType;
   statusDate: number;
   providedResourceId?: string;
+};
+export type GetWorkspaceCollaborationRequestEndpointResult = {
+  request: CollaborationRequestForWorkspace;
+};
+export type GetWorkspaceCollaborationRequestsEndpointParams = {
+  workspaceId?: string;
+  page?: number;
+  pageSize?: number;
 };
 export type GetWorkspaceCollaborationRequestsEndpointResult = {
   requests: Array<CollaborationRequestForWorkspace>;
@@ -561,7 +568,7 @@ export type UserWorkspace = {
   joinedAt: number;
   workspaceId: string;
 };
-export type PublicUser = {
+export type User = {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
@@ -577,7 +584,7 @@ export type PublicUser = {
   isOnWaitlist: boolean;
 };
 export type LoginResult = {
-  user: PublicUser;
+  user: User;
   token: string;
   clientAssignedToken: string;
 };
@@ -587,7 +594,7 @@ export type UpdateUserEndpointParams = {
   email?: string;
 };
 export type UpdateUserEndpointResult = {
-  user: PublicUser;
+  user: User;
 };
 export type AddWorkspaceEndpointParams = {
   name: string;
