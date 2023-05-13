@@ -1,12 +1,12 @@
 import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
-import {compact, flatten, forEach, set, uniq, upperFirst} from 'lodash';
+import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash';
 import {
   AppExportedHttpEndpoints,
   getFimidaraPrivateHttpEndpoints,
   getFimidaraPublicHttpEndpoints,
 } from '../endpoints/endpoints';
-import {toArray} from '../utils/fns';
+import {isObjectEmpty} from '../utils/fns';
 import {
   FieldObject,
   MddocTypeFieldArray,
@@ -80,7 +80,8 @@ class Doc {
       classEntry = {name, extendsName, entries: [entry]};
       this.classes[name] = classEntry;
     } else {
-      if (extendsName !== classEntry.extendsName) classEntry.extendsName = extendsName;
+      if (extendsName && extendsName !== classEntry.extendsName)
+        classEntry.extendsName = extendsName;
       classEntry.entries.push(entry);
     }
 
@@ -312,18 +313,83 @@ function documentTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint<any
   generateTypesFromEndpoint(doc, endpoint);
 }
 
-function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpoint<any>>) {
-  const apis: Record<
+function generateEndpointCode(
+  doc: Doc,
+  types: ReturnType<typeof getTypesFromEndpoint>,
+  className: string,
+  fnName: string,
+  endpoint: MddocTypeHttpEndpoint<any>
+) {
+  const {
+    requestBodyObject,
+    successResponseBodyRaw,
+    successResponseBodyObject,
+    requestBodyRaw,
+    requestBodyObjectHasRequiredFields,
+  } = types;
+
+  doc.appendImportFromGenTypes(
+    compact([requestBodyObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
+  );
+
+  let resultTypeName = 'undefined';
+  if (successResponseBodyObject) {
+    doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
+    resultTypeName = successResponseBodyObject.assertGetName();
+  } else if (isMddocFieldBinary(successResponseBodyRaw)) {
+    resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
+  }
+
+  const requestBodyObjectName = requestBodyObject?.assertGetName();
+  const endpointParamsText = requestBodyObject
+    ? requestBodyObjectHasRequiredFields
+      ? `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`
+      : `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`
+    : 'props?: FimidaraEndpointParamsOptional<undefined>';
+  const bodyText = isMddocMultipartFormdata(requestBodyRaw)
+    ? 'formdata: props.body,'
+    : requestBodyObject
+    ? 'data: props?.body,'
+    : '';
+  const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
+    return this.execute${isMddocFieldBinary(successResponseBodyRaw) ? 'Raw' : 'Json'}({
+      ${bodyText}
+      path: "${endpoint.assertGetBasePathname()}",
+      method: "${endpoint.assertGetMethod().toUpperCase()}"
+    }, props);
+  }`;
+
+  doc.appendToClass(text, className, 'FimidaraEndpointsBase');
+}
+
+function generateEveryEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpoint<any>>) {
+  const leafEndpointsMap: Record<
     string,
     Record<
       string,
       {endpoint: MddocTypeHttpEndpoint<any>; types: ReturnType<typeof getTypesFromEndpoint>}
     >
   > = {};
-  endpoints.forEach(next => {
-    const [empty, version, group, fnName] = next.assertGetBasePathname().split('/');
-    set(apis, `${group}.${fnName}`, {endpoint: next, types: getTypesFromEndpoint(next)});
+  const branchMap: Record<
+    string,
+    Record<string, Record<string, /** Record<string, any...> */ any>>
+  > = {};
+
+  endpoints.forEach(e1 => {
+    const [empty, version, ...rest] = e1.assertGetBasePathname().split('/');
+
+    const fnName = last(rest);
+    const groupName = rest.length > 1 ? nth(rest, rest.length - 2) : 'fimidara';
+    const className = `${upperFirst(groupName)}Endpoints`;
+    const types = getTypesFromEndpoint(e1);
+    const key = `${className}.${fnName}`;
+    set(leafEndpointsMap, key, {types, endpoint: e1});
+
+    const branches = rest.slice(0, -1);
+    const branchesKey = branches.join('.');
+    set(branchMap, branchesKey, {});
   });
+
   doc.appendImport(
     [
       'invokeEndpoint',
@@ -335,94 +401,76 @@ function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEnd
     './utils'
   );
 
-  for (const groupName in apis) {
-    const group = apis[groupName];
-    doc.appendType(`class ${upperFirst(groupName)}Endpoints extends FimidaraEndpointsBase {`);
+  for (const groupName in leafEndpointsMap) {
+    const group = leafEndpointsMap[groupName];
 
     for (const fnName in group) {
       const {types, endpoint} = group[fnName];
-      const {
-        requestBodyObject,
-        successResponseBodyRaw,
-        successResponseBodyObject,
-        requestBodyRaw,
-        requestBodyObjectHasRequiredFields,
-      } = types;
-
-      doc.appendImportFromGenTypes(
-        compact([requestBodyObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
-      );
-
-      let resultTypeName = 'undefined';
-      if (successResponseBodyObject) {
-        doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
-        resultTypeName = successResponseBodyObject.assertGetName();
-      } else if (isMddocFieldBinary(successResponseBodyRaw)) {
-        resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
-      }
-
-      const requestBodyObjectName = requestBodyObject?.assertGetName();
-      const endpointParamsText = requestBodyObject
-        ? requestBodyObjectHasRequiredFields
-          ? `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`
-          : `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`
-        : 'props?: FimidaraEndpointParamsOptional<undefined>';
-      const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
-  const response = await invokeEndpoint({
-    serverURL: this.getServerURL(props),
-    token: this.getAuthToken(props),
-    data: ${requestBodyObject ? 'props?.body' : 'undefined'},
-    formdata: ${isMddocMultipartFormdata(requestBodyRaw) ? 'props.body' : 'undefined'},
-    path: "${endpoint.assertGetBasePathname()}",
-    method: "${endpoint.assertGetMethod().toUpperCase()}"
-  });
-  const result = {
-    headers: response.headers as any,
-    body: ${isMddocFieldBinary(successResponseBodyRaw) ? 'response' : 'await response.json()'}
-  };
-  return result;
-}`;
-
-      doc.appendType(text);
+      generateEndpointCode(doc, types, groupName, fnName, endpoint);
     }
-
-    doc.appendType('}');
   }
 
-  for (const groupName in apis) {
+  function docBranch(parentName: string, ownName: string, branch: Record<string, any>) {
+    if (!isObjectEmpty(branch)) {
+      forEach(branch, (b1, bName) => {
+        docBranch(ownName, bName, b1);
+      });
+    }
+
     doc.appendToClass(
-      `${groupName} = new ${upperFirst(groupName)}Endpoints(this.config, this);`,
-      'FimidaraEndpoints',
+      `${ownName} = new ${upperFirst(ownName)}Endpoints(this.config, this);`,
+      `${upperFirst(parentName)}Endpoints`,
       'FimidaraEndpointsBase'
     );
   }
+
+  for (const ownName in branchMap) {
+    docBranch('fimidara', ownName, branchMap[ownName]);
+  }
 }
 
-async function jsSdkCodeGen(endpoints: Partial<AppExportedHttpEndpoints>, filenamePrefix: string) {
+function uniqEnpoints(endpoints: Array<MddocTypeHttpEndpoint<any>>) {
+  const endpointNameMap: Record<string, string> = {};
+
+  endpoints.forEach(e1 => {
+    const names = e1.assertGetBasePathname().split('/');
+    const fnName = last(names);
+    const method = e1.assertGetMethod().toLowerCase();
+    const key = `${fnName}__${method}`;
+    endpointNameMap[key] = key;
+  });
+
+  return endpoints.filter(e1 => {
+    const names = e1.assertGetBasePathname().split('/');
+    const fnName = last(names);
+    const method = e1.assertGetMethod().toLowerCase();
+    const ownKey = `${fnName}__${method}`;
+    const postKey = `${fnName}__post`;
+    const getKey = `${fnName}__get`;
+
+    if (ownKey === getKey && endpointNameMap[postKey]) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix: string) {
   const endpointsDir = './sdk/js-sdk/v1/src';
-  const typesFilename = `${filenamePrefix}-types`;
+  const typesFilename = `${filenamePrefix}Types`;
   const typesFilepath = path.normalize(endpointsDir + '/' + typesFilename + '.ts');
-  const codesFilepath = path.normalize(endpointsDir + `/${filenamePrefix}-endpoints.ts`);
+  const codesFilepath = path.normalize(endpointsDir + `/${filenamePrefix}Endpoints.ts`);
   const typesDoc = new Doc('./' + typesFilename);
   const codesDoc = new Doc('./' + typesFilename);
 
-  forEach(endpoints, groupedEndpoints => {
-    if (groupedEndpoints) {
-      forEach(groupedEndpoints, endpoint => {
-        toArray(endpoint).forEach(nextEndpoint =>
-          documentTypesFromEndpoint(typesDoc, nextEndpoint.mddocHttpDefinition)
-        );
-      });
-      generateGroupedEndpointCode(
-        codesDoc,
-        flatten(
-          Object.values(groupedEndpoints).map(endpoint =>
-            toArray(endpoint).map(nextEndpoint => nextEndpoint.mddocHttpDefinition)
-          )
-        )
-      );
-    }
+  forEach(endpoints, e1 => {
+    if (e1) documentTypesFromEndpoint(typesDoc, e1.mddocHttpDefinition);
   });
+
+  const httpEndpoints = endpoints.map(e1 => e1.mddocHttpDefinition);
+  const uniqHttpEndpoints = uniqEnpoints(httpEndpoints);
+  generateEveryEndpointCode(codesDoc, uniqHttpEndpoints);
 
   fse.ensureFileSync(typesFilepath);
   fse.ensureFileSync(codesFilepath);

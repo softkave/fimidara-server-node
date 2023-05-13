@@ -1,6 +1,6 @@
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../public-endpoints';
-import {GetWorkspaceSummedUsageEndpointParams} from '../public-types';
+import {FimidaraEndpoints} from '../publicEndpoints';
+import {GetWorkspaceSummedUsageEndpointParams} from '../publicTypes';
 import {ITestVars} from './utils';
 import assert = require('assert');
 

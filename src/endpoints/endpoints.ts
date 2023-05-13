@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {forEach, toArray} from 'lodash';
+import {forEach, isArray, isObject} from 'lodash';
 import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints';
 import {AgentTokensExportedEndpoints} from './agentTokens/types';
 import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints';
@@ -27,7 +27,7 @@ import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints
 import {PermissionItemsExportedEndpoints} from './permissionItems/types';
 import {getResourcesPublicHttpEndpoints} from './resources/endpoints';
 import {ResourcesExportedEndpoints} from './resources/types';
-import {ExportedHttpEndpointWithMddocDefinition} from './types';
+import {ExportedHttpEndpointWithMddocDefinition, HttpEndpoint} from './types';
 import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints';
 import {UsageRecordsExportedEndpoints} from './usageRecords/types';
 import {getUsersPrivateHttpEndpoints, getUsersPublicHttpEndpoints} from './users/endpoints';
@@ -36,16 +36,16 @@ import {registerExpressRouteFromEndpoint} from './utils';
 import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints';
 import {WorkspacesExportedEndpoints} from './workspaces/types';
 
-export type AppExportedHttpEndpoints = Record<
+export type AppExportedHttpEndpoints = Array<ExportedHttpEndpointWithMddocDefinition<any>>;
+
+type RecordExportedHttpEndpoints = Record<
   string,
-  Record<
-    string,
-    | ExportedHttpEndpointWithMddocDefinition<any>
-    | Array<ExportedHttpEndpointWithMddocDefinition<any>>
-  >
+  | ExportedHttpEndpointWithMddocDefinition<any>
+  | Array<ExportedHttpEndpointWithMddocDefinition<any>>
+  | /** RecordExportedHttpEndpoints */ Record<string, any>
 >;
 
-export type FimidaraPublicExportedHttpEndpoints = {
+type FimidaraPublicExportedHttpEndpoints = {
   agentTokens: AgentTokensExportedEndpoints;
   collaborationRequests: CollaborationRequestsExportedEndpoints;
   collaborators: CollaboratorsPublicExportedEndpoints;
@@ -59,14 +59,14 @@ export type FimidaraPublicExportedHttpEndpoints = {
   users: UsersPublicExportedEndpoints;
   workspaces: WorkspacesExportedEndpoints;
 };
-export type FimidaraPrivateExportedHttpEndpoints = {
+type FimidaraPrivateExportedHttpEndpoints = {
   users: UsersPrivateExportedEndpoints;
   collaborators: CollaboratorsPrivateExportedEndpoints;
   internal: InternalsPrivateExportedEndpoints;
 };
 
-export function getFimidaraPublicHttpEndpoints() {
-  const fimidaraExportedHttpEndpoints: FimidaraPublicExportedHttpEndpoints = {
+function getFimidaraRawPublicHttpEndpoints() {
+  const endpoints: FimidaraPublicExportedHttpEndpoints = {
     agentTokens: getAgentTokenPublicHttpEndpoints(),
     collaborationRequests: getCollaborationRequestsPublicHttpEndpoints(),
     collaborators: getCollaboratorsPublicHttpEndpoints(),
@@ -80,33 +80,59 @@ export function getFimidaraPublicHttpEndpoints() {
     users: getUsersPublicHttpEndpoints(),
     workspaces: getWorkspacesPublicHttpEndpoints(),
   };
-  return fimidaraExportedHttpEndpoints;
+  return endpoints;
 }
-
-export function getFimidaraPrivateHttpEndpoints() {
-  const fimidaraExportedHttpEndpoints: FimidaraPrivateExportedHttpEndpoints = {
+function getFimidaraRawPrivateHttpEndpoints() {
+  const endpoints: FimidaraPrivateExportedHttpEndpoints = {
     users: getUsersPrivateHttpEndpoints(),
     collaborators: getCollaboratorsPrivateHttpEndpoints(),
     internal: getInternalsPrivateHttpEndpoints(),
   };
-  return fimidaraExportedHttpEndpoints;
+  return endpoints;
+}
+
+function isExportedHttpEndpoint<T extends HttpEndpoint<any> = any>(
+  item: any
+): item is ExportedHttpEndpointWithMddocDefinition<T> {
+  return (
+    item &&
+    (item as ExportedHttpEndpointWithMddocDefinition<any>).fn &&
+    (item as ExportedHttpEndpointWithMddocDefinition<any>).mddocHttpDefinition
+  );
+}
+
+function compileEndpoints(endpointsMap: RecordExportedHttpEndpoints): AppExportedHttpEndpoints {
+  let endpoints: AppExportedHttpEndpoints = [];
+  forEach(endpointsMap, e1 => {
+    if (isExportedHttpEndpoint(e1)) {
+      endpoints.push(e1);
+    } else if (isArray(e1)) {
+      endpoints = endpoints.concat(e1);
+    } else if (isObject(e1)) {
+      endpoints = endpoints.concat(compileEndpoints(e1));
+    }
+  });
+  return endpoints;
+}
+
+export function getFimidaraPublicHttpEndpoints() {
+  return compileEndpoints(getFimidaraRawPublicHttpEndpoints());
+}
+export function getFimidaraPrivateHttpEndpoints() {
+  return compileEndpoints(getFimidaraRawPrivateHttpEndpoints());
 }
 
 function setupAppHttpEndpoints(
   ctx: BaseContextType,
   app: Express,
-  endpointsMap: AppExportedHttpEndpoints
+  endpoints: AppExportedHttpEndpoints
 ) {
-  forEach(endpointsMap, groupEndpoints => {
-    forEach(groupEndpoints, endpoint => {
-      toArray(endpoint).forEach(nextEndpoint =>
-        registerExpressRouteFromEndpoint(ctx, nextEndpoint, app)
-      );
-    });
+  forEach(endpoints, e1 => {
+    registerExpressRouteFromEndpoint(ctx, e1, app);
   });
 }
 
 export function setupFimidaraHttpEndpoints(ctx: BaseContextType, app: Express) {
-  setupAppHttpEndpoints(ctx, app, getFimidaraPublicHttpEndpoints() as any);
-  setupAppHttpEndpoints(ctx, app, getFimidaraPrivateHttpEndpoints() as any);
+  setupAppHttpEndpoints(ctx, app, getFimidaraPublicHttpEndpoints());
+  setupAppHttpEndpoints(ctx, app, getFimidaraPrivateHttpEndpoints());
 }

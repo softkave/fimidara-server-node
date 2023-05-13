@@ -143,6 +143,34 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
   protected getServerURL(params?: {serverURL?: string}) {
     return params?.serverURL || this.config.serverURL;
   }
+
+  protected async executeRaw(
+    p01: Pick<IInvokeEndpointParams, 'data' | 'formdata' | 'path' | 'method'>,
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>
+  ) {
+    const response = await invokeEndpoint({
+      serverURL: this.getServerURL(p02),
+      token: this.getAuthToken(p02),
+      ...p01,
+    });
+    const result = {
+      headers: response.headers as any,
+      body: response,
+    };
+    return result;
+  }
+
+  protected async executeJson(
+    p01: Pick<IInvokeEndpointParams, 'data' | 'formdata' | 'path' | 'method'>,
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>
+  ) {
+    const response = await this.executeRaw(p01, p02);
+    const result = {
+      headers: response.headers,
+      body: (await response.body.json()) as any,
+    };
+    return result;
+  }
 }
 
 export type FimidaraEndpointResult<T> = {

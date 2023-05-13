@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../public-endpoints';
+import {FimidaraEndpoints} from '../publicEndpoints';
 import {
   AddPermissionGroupEndpointParams,
   DeletePermissionGroupEndpointParams,
   GetPermissionGroupEndpointParams,
   GetWorkspacePermissionGroupsEndpointParams,
   UpdatePermissionGroupEndpointParams,
-} from '../public-types';
+} from '../publicTypes';
 import {ITestVars, loopAndCollate} from './utils';
 import assert = require('assert');
 

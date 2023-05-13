@@ -6,7 +6,6 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints/endpoints.mddoc';
-import {ExportedHttpEndpointWithMddocDefinition} from '../endpoints/types';
 import {accessorFieldsToObject} from '../utils/classAccessors';
 import {MddocTypeHttpEndpoint} from './mddoc';
 
@@ -14,16 +13,14 @@ function generateEndpointInfoFromEndpoints() {
   const infoMap = new Map<MddocTypeHttpEndpoint<any>, string>();
   const fimidaraPublicHttpEndpoints = getFimidaraPublicHttpEndpoints();
 
-  forEach(fimidaraPublicHttpEndpoints, (groupedEndpoints, groupName) => {
-    forEach(groupedEndpoints, (endpoint: ExportedHttpEndpointWithMddocDefinition<any>) => {
-      const info = accessorFieldsToObject(
-        endpoint.mddocHttpDefinition
-          .setErrorResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-          .setErrorResponseBody(mddocEndpointHttpResponseItems.errorResponseBody),
-        []
-      );
-      infoMap.set(endpoint.mddocHttpDefinition, JSON.stringify(info, undefined, 4));
-    });
+  forEach(fimidaraPublicHttpEndpoints, e1 => {
+    const info = accessorFieldsToObject(
+      e1.mddocHttpDefinition
+        .setErrorResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+        .setErrorResponseBody(mddocEndpointHttpResponseItems.errorResponseBody),
+      []
+    );
+    infoMap.set(e1.mddocHttpDefinition, JSON.stringify(info, undefined, 4));
   });
 
   return infoMap;
@@ -42,7 +39,10 @@ export async function restApiEndpointsInfoGen() {
   await fse.remove(basepath);
 
   infoMap.forEach((info, endpoint) => {
-    const endpointPath = posix.normalize(basepath + endpoint.assertGetBasePathname() + '.json');
+    const pathname = endpoint.assertGetBasePathname();
+    const method = endpoint.assertGetMethod();
+    const filename = `${pathname}__${method}.json`;
+    const endpointPath = posix.normalize(basepath + filename);
     promises.push(writeEndpointInfoToFile(endpointPath, info));
   });
 

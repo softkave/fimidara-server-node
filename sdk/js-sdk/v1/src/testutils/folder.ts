@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../public-endpoints';
+import {FimidaraEndpoints} from '../publicEndpoints';
 import {
   AddFolderEndpointParams,
   DeleteFolderEndpointParams,
   GetFolderEndpointParams,
   ListFolderContentEndpointParams,
   UpdateFolderEndpointParams,
-} from '../public-types';
+} from '../publicTypes';
 import {uploadFileTest} from './file';
 import {
   ITestVars,

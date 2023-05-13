@@ -1,24 +1,17 @@
 import * as fse from 'fs-extra';
-import {flatten, forEach, map} from 'lodash';
+import {forEach} from 'lodash';
 import path from 'path';
-import {AppExportedHttpEndpoints, getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
-import {toArray} from '../utils/fns';
+import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
 
-export type AppHttpEndpointsTableOfContent = Array<string | [string, string[]]>;
+function generateTableOfContentFromFimidaraPublicEndpoints() {
+  const tableOfContent: Array<[string, string]> = [];
+  const endpoints = getFimidaraPublicHttpEndpoints();
 
-function generateTableOfContentFromEndpoints(): AppHttpEndpointsTableOfContent {
-  const tableOfContent: AppHttpEndpointsTableOfContent = [];
-  const fimidaraPublicHttpEndpoints: AppExportedHttpEndpoints = getFimidaraPublicHttpEndpoints();
-
-  forEach(fimidaraPublicHttpEndpoints, (groupedEndpoints, groupName) => {
-    const groupEndpointNames = flatten(
-      map(groupedEndpoints, endpoint =>
-        toArray(endpoint).map(nextEndpoint =>
-          nextEndpoint.mddocHttpDefinition.assertGetBasePathname()
-        )
-      )
-    );
-    tableOfContent.push([groupName, groupEndpointNames]);
+  forEach(endpoints, e1 => {
+    tableOfContent.push([
+      e1.mddocHttpDefinition.assertGetBasePathname(),
+      e1.mddocHttpDefinition.assertGetMethod(),
+    ]);
   });
 
   return tableOfContent;
@@ -27,12 +20,10 @@ function generateTableOfContentFromEndpoints(): AppHttpEndpointsTableOfContent {
 export async function restApiTableOfContentGen() {
   const basepath = './mdoc/rest-api/toc/v1';
   const tableOfContentFilename = path.normalize(basepath + '/table-of-content.json');
-  const tableOfContent = generateTableOfContentFromEndpoints();
+  const tableOfContent = generateTableOfContentFromFimidaraPublicEndpoints();
 
   fse.ensureFileSync(tableOfContentFilename);
-  return Promise.all([
-    fse.writeFile(tableOfContentFilename, JSON.stringify(tableOfContent, undefined, 4), {
-      encoding: 'utf-8',
-    }),
-  ]);
+  return fse.writeFile(tableOfContentFilename, JSON.stringify(tableOfContent, undefined, 4), {
+    encoding: 'utf-8',
+  });
 }

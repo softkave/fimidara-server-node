@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../public-endpoints';
+import {FimidaraEndpoints} from '../publicEndpoints';
 import {
   GetWorkspaceEndpointParams,
   UpdateWorkspaceEndpointParams,
-} from '../public-types';
+} from '../publicTypes';
 import {ITestVars} from './utils';
 import assert = require('assert');
 

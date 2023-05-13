@@ -1,5 +1,5 @@
-export {FimidaraEndpoints} from './public-endpoints';
-export * from './public-types';
+export {FimidaraEndpoints} from './publicEndpoints';
+export * from './publicTypes';
 export {
   FimidaraEndpointError,
   FimidaraEndpointParamsOptional,

@@ -2,14 +2,14 @@ import {faker} from '@faker-js/faker';
 import {createReadStream} from 'fs';
 import {merge} from 'lodash';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../public-endpoints';
+import {FimidaraEndpoints} from '../publicEndpoints';
 import {
   DeleteFileEndpointParams,
   GetFileDetailsEndpointParams,
   ReadFileEndpointParams,
   UpdateFileDetailsEndpointParams,
   UploadFileEndpointParams,
-} from '../public-types';
+} from '../publicTypes';
 import {
   ITestVars,
   addRootnameToPath,

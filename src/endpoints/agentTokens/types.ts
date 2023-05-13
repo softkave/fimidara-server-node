@@ -83,6 +83,3 @@ export type AgentTokensExportedEndpoints = {
   getToken: ExportedHttpEndpointWithMddocDefinition<GetAgentTokenHttpEndpoint>;
   updateToken: ExportedHttpEndpointWithMddocDefinition<UpdateAgentTokenHttpEndpoint>;
 };
-
-type Bo = AddAgentTokenHttpEndpoint['responseHeaders'];
-type Bo1 = AgentTokensExportedEndpoints['addToken'];

@@ -1,118 +1,59 @@
 [
-    [
-        "agentTokens",
-        [
-            "/v1/agentTokens/addToken",
-            "/v1/agentTokens/deleteToken",
-            "/v1/agentTokens/getToken",
-            "/v1/agentTokens/getWorkspaceTokens",
-            "/v1/agentTokens/countWorkspaceTokens",
-            "/v1/agentTokens/updateToken"
-        ]
-    ],
-    [
-        "collaborationRequests",
-        [
-            "/v1/collaborationRequests/deleteRequest",
-            "/v1/collaborationRequests/getUserRequest",
-            "/v1/collaborationRequests/getUserRequests",
-            "/v1/collaborationRequests/countUserRequests",
-            "/v1/collaborationRequests/getWorkspaceRequest",
-            "/v1/collaborationRequests/getWorkspaceRequests",
-            "/v1/collaborationRequests/countWorkspaceRequests",
-            "/v1/collaborationRequests/respondToRequest",
-            "/v1/collaborationRequests/revokeRequest",
-            "/v1/collaborationRequests/sendRequest",
-            "/v1/collaborationRequests/updateRequest"
-        ]
-    ],
-    [
-        "collaborators",
-        [
-            "/v1/collaborators/getCollaborator",
-            "/v1/collaborators/getWorkspaceCollaborators",
-            "/v1/collaborators/countWorkspaceCollaborators",
-            "/v1/collaborators/removeCollaborator"
-        ]
-    ],
-    [
-        "files",
-        [
-            "/v1/files/deleteFile",
-            "/v1/files/getFileDetails",
-            "/v1/files/readFile",
-            "/v1/files/updateFileDetails",
-            "/v1/files/uploadFile"
-        ]
-    ],
-    [
-        "folders",
-        [
-            "/v1/folders/addFolder",
-            "/v1/folders/deleteFolder",
-            "/v1/folders/getFolder",
-            "/v1/folders/listFolderContent",
-            "/v1/folders/countFolderContent",
-            "/v1/folders/updateFolder"
-        ]
-    ],
-    [
-        "jobs",
-        [
-            "/v1/clientLogs/ingestLogs"
-        ]
-    ],
-    [
-        "permissionGroups",
-        [
-            "/v1/permissionGroups/addPermissionGroup",
-            "/v1/permissionGroups/assignPermissionGroups",
-            "/v1/permissionGroups/deletePermissionGroup",
-            "/v1/permissionGroups/getPermissionGroup",
-            "/v1/permissionGroups/getEntityAssignedPermissionGroups",
-            "/v1/permissionGroups/getWorkspacePermissionGroups",
-            "/v1/permissionGroups/countWorkspacePermissionGroups",
-            "/v1/permissionGroups/updatePermissionGroup"
-        ]
-    ],
-    [
-        "permissionItems",
-        [
-            "/v1/permissionItems/addItems",
-            "/v1/permissionItems/deleteItems",
-            "/v1/permissionItems/resolveEntityPermissions"
-        ]
-    ],
-    [
-        "resources",
-        [
-            "/v1/resources/getResources"
-        ]
-    ],
-    [
-        "usageRecords",
-        [
-            "/v1/usageRecords/getUsageCosts",
-            "/v1/usageRecords/getWorkspaceSummedUsage",
-            "/v1/usageRecords/countWorkspaceSummedUsage"
-        ]
-    ],
-    [
-        "users",
-        [
-            "/v1/users/getUserData",
-            "/v1/users/updateUser"
-        ]
-    ],
-    [
-        "workspaces",
-        [
-            "/v1/workspaces/addWorkspace",
-            "/v1/workspaces/deleteWorkspace",
-            "/v1/workspaces/getUserWorkspaces",
-            "/v1/workspaces/countUserWorkspaces",
-            "/v1/workspaces/getWorkspace",
-            "/v1/workspaces/updateWorkspace"
-        ]
-    ]
+  ["/v1/agentTokens/addToken", "post"],
+  ["/v1/agentTokens/deleteToken", "delete"],
+  ["/v1/agentTokens/getToken", "post"],
+  ["/v1/agentTokens/getWorkspaceTokens", "post"],
+  ["/v1/agentTokens/countWorkspaceTokens", "post"],
+  ["/v1/agentTokens/updateToken", "post"],
+  ["/v1/collaborationRequests/deleteRequest", "delete"],
+  ["/v1/collaborationRequests/getUserRequest", "post"],
+  ["/v1/collaborationRequests/getUserRequests", "post"],
+  ["/v1/collaborationRequests/countUserRequests", "post"],
+  ["/v1/collaborationRequests/getWorkspaceRequest", "post"],
+  ["/v1/collaborationRequests/getWorkspaceRequests", "post"],
+  ["/v1/collaborationRequests/countWorkspaceRequests", "post"],
+  ["/v1/collaborationRequests/respondToRequest", "post"],
+  ["/v1/collaborationRequests/revokeRequest", "post"],
+  ["/v1/collaborationRequests/sendRequest", "post"],
+  ["/v1/collaborationRequests/updateRequest", "post"],
+  ["/v1/collaborators/getCollaborator", "post"],
+  ["/v1/collaborators/getWorkspaceCollaborators", "post"],
+  ["/v1/collaborators/countWorkspaceCollaborators", "post"],
+  ["/v1/collaborators/removeCollaborator", "post"],
+  ["/v1/files/deleteFile", "delete"],
+  ["/v1/files/getFileDetails", "post"],
+  ["/v1/files/readFile", "post"],
+  ["/v1/files/readFile", "get"],
+  ["/v1/files/updateFileDetails", "post"],
+  ["/v1/files/uploadFile", "post"],
+  ["/v1/folders/addFolder", "post"],
+  ["/v1/folders/deleteFolder", "delete"],
+  ["/v1/folders/getFolder", "post"],
+  ["/v1/folders/listFolderContent", "post"],
+  ["/v1/folders/countFolderContent", "post"],
+  ["/v1/folders/updateFolder", "post"],
+  ["/v1/clientLogs/ingestLogs", "post"],
+  ["/v1/permissionGroups/addPermissionGroup", "post"],
+  ["/v1/permissionGroups/assignPermissionGroups", "post"],
+  ["/v1/permissionGroups/deletePermissionGroup", "delete"],
+  ["/v1/permissionGroups/getPermissionGroup", "post"],
+  ["/v1/permissionGroups/getEntityAssignedPermissionGroups", "post"],
+  ["/v1/permissionGroups/getWorkspacePermissionGroups", "post"],
+  ["/v1/permissionGroups/countWorkspacePermissionGroups", "post"],
+  ["/v1/permissionGroups/updatePermissionGroup", "post"],
+  ["/v1/permissionItems/addItems", "post"],
+  ["/v1/permissionItems/deleteItems", "delete"],
+  ["/v1/permissionItems/resolveEntityPermissions", "post"],
+  ["/v1/resources/getResources", "post"],
+  ["/v1/usageRecords/getUsageCosts", "post"],
+  ["/v1/usageRecords/getWorkspaceSummedUsage", "post"],
+  ["/v1/usageRecords/countWorkspaceSummedUsage", "post"],
+  ["/v1/users/getUserData", "post"],
+  ["/v1/users/updateUser", "post"],
+  ["/v1/workspaces/addWorkspace", "post"],
+  ["/v1/workspaces/deleteWorkspace", "delete"],
+  ["/v1/workspaces/getUserWorkspaces", "post"],
+  ["/v1/workspaces/countUserWorkspaces", "post"],
+  ["/v1/workspaces/getWorkspace", "post"],
+  ["/v1/workspaces/updateWorkspace", "post"]
 ]
