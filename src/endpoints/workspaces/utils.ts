@@ -13,7 +13,7 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../../utils/extract';
-import {getWorkspaceIdFromSessionAgent} from '../../utils/sessionUtils';
+import {getWorkspaceIdFromSessionAgent, getWorkspaceIdNoThrow} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
@@ -144,5 +144,16 @@ export async function getWorkspaceFromEndpointInput(
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
+  return {workspace};
+}
+
+export async function tryGetWorkspaceFromEndpointInput(
+  context: BaseContextType,
+  agent: SessionAgent,
+  data: EndpointOptionalWorkspaceIDParam
+) {
+  let workspace: Workspace | undefined = undefined;
+  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
+  if (workspaceId) workspace = await checkWorkspaceExists(context, workspaceId);
   return {workspace};
 }

@@ -56,7 +56,7 @@
 - [ ] Use upload preflight call to get an id attached to upload calls for quick check and
       fail upload early. Don't wait until everything is uploaded. See if multer can do this.
 - [ ] Have a separate upload and download instance
-- [ ] Add description field for client assigned token
+- [ ] Add description field for agent token
 - [ ] Recent directories and files feature and bookmarks
 - [ ] Separate data provider calls to separate functions that you test both mongo and memory
       providers with for pin point testing accuracy

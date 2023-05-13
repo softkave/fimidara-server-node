@@ -10,7 +10,7 @@ JS SDK for [fimidara](https://www.fimidara.com), a file storage service. [Click 
 
 ```typescript
 // import fimidara
-import fimidara from 'fimidara';
+import * as fimidara from 'fimidara';
 
 // setup
 const fimidaraEndpoints = new fimidara.FimidaraEndpoints({

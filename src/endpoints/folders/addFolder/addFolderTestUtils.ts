@@ -8,15 +8,11 @@ import {
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
-import EndpointReusableQueries from '../../queries';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {
-  IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
   assertEndpointResultOk,
   insertFolderForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
 import {folderConstants} from '../constants';
@@ -28,42 +24,7 @@ import listFolderContent from '../listFolderContent/handler';
 import {ListFolderContentEndpointParams} from '../listFolderContent/types';
 import updateFolder from '../updateFolder/handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types';
-import {addRootnameToPath, folderExtractor} from '../utils';
-import {NewFolderInput} from './types';
-
-export const addFolderBaseTest = async (
-  ctx: BaseContextType,
-  input: Partial<NewFolderInput> = {},
-  insertUserResult?: IInsertUserForTestResult,
-  insertWorkspaceResult?: IInsertWorkspaceForTestResult
-) => {
-  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
-  insertWorkspaceResult =
-    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-  const {folder} = await insertFolderForTest(
-    ctx,
-    insertUserResult.userToken,
-    insertWorkspaceResult.workspace,
-    input
-  );
-  const savedFolder = await ctx.semantic.folder.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(folder.resourceId)
-  );
-  expect(folder).toMatchObject(folderExtractor(savedFolder));
-  return {folder, savedFolder, insertUserResult, insertWorkspaceResult};
-};
-
-// export const addFolderWithPublicAccessOpsTest = async (
-//   ctx: BaseContext,
-//   input: Partial<NewFolderInput> = {},
-//   insertWorkspaceResult?: IInsertWorkspaceForTestResult
-// ) => {
-//   const uploadResult = await addFolderBaseTest(ctx, input);
-//   const {savedFolder} = uploadResult;
-//   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-//   await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps ?? []);
-//   return uploadResult;
-// };
+import {addRootnameToPath} from '../utils';
 
 export async function assertCanCreateFolderInPublicFolder(
   ctx: BaseContextType,

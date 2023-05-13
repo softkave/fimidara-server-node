@@ -65,7 +65,7 @@ const folder = FieldObject.construct<PublicFolder>()
     workspaceId: FieldObject.requiredField(fReusables.workspaceId),
     idPath: FieldObject.requiredField(fReusables.idPath),
     namePath: FieldObject.requiredField(fReusables.folderNamePath),
-    parentId: FieldObject.requiredField(fReusables.folderId),
+    parentId: FieldObject.requiredField(fReusables.folderIdOrNull),
     providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
   });
 
@@ -92,11 +92,14 @@ const listFolderContentParams = FieldObject.construct<ListFolderContentEndpointP
   .setFields({
     ...folderMatcherParts,
     contentType: FieldObject.optionalField(
-      FieldString.construct()
-        .setRequired(false)
-        .setDescription('Fetch children files or folders or both.')
-        .setExample(AppResourceType.File)
-        .setValid([AppResourceType.File, AppResourceType.Folder])
+      FieldArray.construct()
+        .setType(
+          FieldString.construct()
+            .setDescription('Fetch children files or folders or both.')
+            .setExample(AppResourceType.File)
+            .setValid([AppResourceType.File, AppResourceType.Folder])
+        )
+        .setMax(2)
     ),
     page: FieldObject.optionalField(fReusables.page),
     pageSize: FieldObject.optionalField(fReusables.pageSize),

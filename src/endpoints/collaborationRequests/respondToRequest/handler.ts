@@ -1,6 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {collaborationRequestForUserExtractor} from '../utils';
 import {RespondToCollaborationRequestEndpoint} from './types';
 import {
@@ -15,8 +15,8 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint = asy
 ) => {
   const data = validate(instData.data, respondToCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
-  const request = await MemStore.withTransaction(context, async transaction => {
-    return await internalRespondToCollaborationRequest(context, agent, data, {transaction});
+  const request = await executeWithMutationRunOptions(context, async opts => {
+    return await internalRespondToCollaborationRequest(context, agent, data, opts);
   });
   await notifyUserOnCollaborationRequestResponse(context, request, data.response);
   return {request: collaborationRequestForUserExtractor(request)};

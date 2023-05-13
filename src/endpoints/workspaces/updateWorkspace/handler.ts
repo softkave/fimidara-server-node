@@ -3,8 +3,7 @@ import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {UpdateWorkspaceEndpoint} from './types';
@@ -20,8 +19,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
     data.workspaceId
   );
 
-  workspace = await MemStore.withTransaction(context, async txn => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+  workspace = await executeWithMutationRunOptions(context, async opts => {
     await Promise.all([
       data.workspace.name && data.workspace.name !== workspace.name
         ? checkWorkspaceNameExists(context, data.workspace.name, opts)

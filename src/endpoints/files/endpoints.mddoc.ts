@@ -16,6 +16,7 @@ import {
 } from '../endpoints.mddoc';
 import {LongRunningJobResult} from '../jobs/types';
 import {
+  HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
@@ -50,7 +51,7 @@ const file = FieldObject.construct<PublicFile>()
     extension: FieldObject.requiredField(extension),
     resourceId: FieldObject.requiredField(fReusables.id),
     workspaceId: FieldObject.requiredField(fReusables.workspaceId),
-    parentId: FieldObject.requiredField(fReusables.folderId),
+    parentId: FieldObject.requiredField(fReusables.folderIdOrNull),
     idPath: FieldObject.requiredField(fReusables.idPath),
     namePath: FieldObject.requiredField(fReusables.folderNamePath),
     mimetype: FieldObject.optionalField(mimetype),
@@ -173,7 +174,7 @@ const uploadFileResponseBody = FieldObject.construct<UploadFileEndpointResult>()
   .setRequired(true)
   .setDescription('Upload file endpoint success result.');
 
-export const readFileEndpointDefinition = HttpEndpointDefinition.construct<{
+export const readFilePOSTEndpointDefinition = HttpEndpointDefinition.construct<{
   pathParameters: FileMatcherPathParameters;
   query: ReadFileEndpointHttpQuery;
   requestBody: ReadFileEndpointParams;
@@ -187,6 +188,23 @@ export const readFileEndpointDefinition = HttpEndpointDefinition.construct<{
   .setQuery(readFileQuery)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_JsonContentType)
   .setRequestBody(readFileParams)
+  .setResponseHeaders(readFileResponseHeaders)
+  .setResponseBody(readFileResponseBody)
+  .setName('ReadFileEndpoint')
+  .setDescription('Read file endpoint.');
+export const readFileGETEndpointDefinition = HttpEndpointDefinition.construct<{
+  pathParameters: FileMatcherPathParameters;
+  query: ReadFileEndpointHttpQuery;
+  requestHeaders: HttpEndpointRequestHeaders_AuthOptional;
+  requestBody: undefined;
+  responseBody: FieldBinary;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(fileConstants.routes.readFile)
+  .setPathParamaters(fileMatcherPathParameters)
+  .setMethod(HttpEndpointMethod.Get)
+  .setQuery(readFileQuery)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional)
   .setResponseHeaders(readFileResponseHeaders)
   .setResponseBody(readFileResponseBody)
   .setName('ReadFileEndpoint')

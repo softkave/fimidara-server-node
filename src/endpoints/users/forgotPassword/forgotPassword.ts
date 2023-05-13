@@ -11,8 +11,8 @@ import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
@@ -24,8 +24,15 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
   const data = validate(instData.data, forgotPasswordJoiSchema);
   const user = await context.semantic.user.getByEmail(data.email);
   assertUser(user);
+  await INTERNAL_forgotPassword(context, user);
+};
 
-  const forgotToken = await getForgotPasswordToken(context, user);
+export async function INTERNAL_forgotPassword(
+  context: BaseContextType,
+  user: User,
+  opts?: SemanticDataAccessProviderMutationRunOptions
+) {
+  const forgotToken = await getForgotPasswordToken(context, user, opts);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
   assert(forgotToken.expires);
   await sendChangePasswordEmail(context, user.email, {
@@ -35,7 +42,7 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
     loginLink: context.appVariables.clientLoginLink,
     firstName: user.firstName,
   });
-};
+}
 
 export function getForgotPasswordExpiration() {
   return add(new Date(), {
@@ -59,7 +66,11 @@ export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotT
 
 export default forgotPassword;
 
-export async function getForgotPasswordToken(context: BaseContextType, user: User) {
+export async function getForgotPasswordToken(
+  context: BaseContextType,
+  user: User,
+  opts?: SemanticDataAccessProviderMutationRunOptions
+) {
   const expiration = getForgotPasswordExpiration();
   const forgotToken = newResource<AgentToken>(AppResourceType.AgentToken, {
     scope: [TokenAccessScope.ChangePassword],
@@ -72,10 +83,13 @@ export async function getForgotPasswordToken(context: BaseContextType, user: Use
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
 
-  await MemStore.withTransaction(context, async txn => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
-    await context.semantic.agentToken.insertItem(forgotToken, opts);
-  });
+  await executeWithMutationRunOptions(
+    context,
+    async opts => {
+      await context.semantic.agentToken.insertItem(forgotToken, opts);
+    },
+    opts
+  );
 
   return forgotToken;
 }

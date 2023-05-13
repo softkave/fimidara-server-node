@@ -6,6 +6,7 @@ import {cast} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {BaseContextType} from '../contexts/types';
+import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 
 const agentTokenFields = getFields<PublicAgentToken>({
@@ -40,7 +41,7 @@ export async function checkAgentTokenAuthorization(
 export async function checkAgentTokenAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
-  workspaceId: string,
+  workspaceId: string | undefined,
   tokenId: string | undefined | null,
   providedResourceId: string | undefined | null,
   action: AppActionType
@@ -50,14 +51,11 @@ export async function checkAgentTokenAuthorization02(
   if (tokenId) {
     token = await context.semantic.agentToken.getOneById(tokenId);
   } else if (providedResourceId) {
+    appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided.'));
     token = await context.semantic.agentToken.getByProvidedId(workspaceId, providedResourceId);
   }
 
   assertAgentToken(token);
-
-  // Prevent agents with access to read agent tokens from reading user tokens
-  // since we use agent tokens for storing user tokens too.
-  appAssert(workspaceId === token?.workspaceId);
   return await checkAgentTokenAuthorization(context, agent, token, action);
 }
 

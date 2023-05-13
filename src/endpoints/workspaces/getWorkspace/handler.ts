@@ -10,7 +10,7 @@ const getWorkspace: GetWorkspaceEndpoint = async (context, instData) => {
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    AppActionType.Delete,
+    AppActionType.Read,
     data.workspaceId
   );
   return {workspace: workspaceExtractor(workspace)};

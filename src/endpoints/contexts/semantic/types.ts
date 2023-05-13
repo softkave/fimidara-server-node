@@ -12,13 +12,11 @@ export interface SemanticDataAccessProviderMutationRunOptions {
 
 export interface SemanticDataAccessBaseProviderType<T extends Resource> {
   insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions): Promise<void>;
-
-  // TODO: add a function to execute if query match exists
-  insertIfNotExist(
-    item: T | T[],
-    q: LiteralDataQuery<T>,
+  insertWithQuery(
+    queryFn: () => LiteralDataQuery<T>,
+    itemsFn: (items: T[]) => T[],
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void>;
+  ): Promise<T[]>;
   getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions): Promise<T | null>;
   getManyByIdList(
     idList: string[],

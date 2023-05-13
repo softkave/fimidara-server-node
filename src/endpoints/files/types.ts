@@ -3,6 +3,7 @@ import {LongRunningJobResult} from '../jobs/types';
 import {
   ExportedHttpEndpointWithMddocDefinition,
   HttpEndpoint,
+  HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
@@ -29,11 +30,20 @@ import {
   UploadFileEndpointResult,
 } from './uploadFile/types';
 
-export type ReadFileHttpEndpoint = HttpEndpoint<
+export type ReadFilePOSTHttpEndpoint = HttpEndpoint<
   ReadFileEndpoint,
   ReadFileEndpointParams,
   FieldBinary,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+  FileMatcherPathParameters,
+  ReadFileEndpointHttpQuery
+>;
+export type ReadFileGETHttpEndpoint = HttpEndpoint<
+  ReadFileEndpoint,
+  undefined,
+  FieldBinary,
+  HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
   FileMatcherPathParameters,
   ReadFileEndpointHttpQuery
@@ -69,7 +79,10 @@ export type UploadFileHttpEndpoint = HttpEndpoint<
 >;
 
 export type FilesExportedEndpoints = {
-  readFile: ExportedHttpEndpointWithMddocDefinition<ReadFileHttpEndpoint>;
+  readFile: [
+    ExportedHttpEndpointWithMddocDefinition<ReadFilePOSTHttpEndpoint>,
+    ExportedHttpEndpointWithMddocDefinition<ReadFileGETHttpEndpoint>
+  ];
   deleteFile: ExportedHttpEndpointWithMddocDefinition<DeleteFileHttpEndpoint>;
   getFileDetails: ExportedHttpEndpointWithMddocDefinition<GetFileDetailsHttpEndpoint>;
   updateFileDetails: ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsHttpEndpoint>;

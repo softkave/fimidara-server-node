@@ -11,8 +11,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {
@@ -28,8 +27,8 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {request, workspace} = await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
+
+  let {request, workspace} = await executeWithMutationRunOptions(context, async opts => {
     let {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,

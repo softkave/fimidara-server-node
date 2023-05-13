@@ -46,7 +46,7 @@ import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/type
 import {PermissionItemInput} from '../permissionItems/types';
 import {setupApp} from '../runtime/initAppSetup';
 import {BaseEndpointResult} from '../types';
-import internalConfirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
+import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
 import signup from '../users/signup/signup';
 import {SignupEndpointParams} from '../users/signup/types';
 import {assertUser} from '../users/utils';
@@ -161,7 +161,7 @@ export async function insertUserForTest(
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
   if (!skipAutoVerifyEmail) {
-    const user = await internalConfirmEmailAddress(context, result.user.resourceId);
+    const user = await INTERNAL_confirmEmailAddress(context, result.user.resourceId, null);
     rawUser = await populateUserWorkspaces(context, user);
   } else {
     const user = await context.semantic.user.getOneById(result.user.resourceId);

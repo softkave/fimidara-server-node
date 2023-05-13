@@ -3,8 +3,7 @@ import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {checkTagAuthorization02, tagExtractor} from '../utils';
 import {UpdateTagEndpoint} from './types';
@@ -17,7 +16,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     context,
     agent,
     data.tagId,
-    AppActionType.Read
+    AppActionType.Update
   );
   const tagUpdate: Partial<Tag> = {
     ...data.tag,
@@ -25,8 +24,7 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     lastUpdatedBy: getActionAgentFromSessionAgent(agent),
   };
 
-  tag = await MemStore.withTransaction(context, async txn => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction: txn};
+  tag = await executeWithMutationRunOptions(context, async opts => {
     if (tagUpdate.name && tagUpdate.name !== tag.name)
       await checkTagNameExists(context, workspace.resourceId, tagUpdate.name, opts);
     return await context.semantic.tag.getAndUpdateOneById(data.tagId, tagUpdate, opts);

@@ -9,7 +9,7 @@ export class PermissionItemExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Permission item exists');
+    this.message = getErrorMessageFromParams(props, 'Permission item exists.');
   }
 }
 
@@ -18,6 +18,6 @@ export class PermissionItemDoesNotExistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Permission item not found');
+    this.message = getErrorMessageFromParams(props, 'Permission item not found.');
   }
 }

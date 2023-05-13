@@ -2,8 +2,7 @@ import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {assertUpdateNotEmpty} from '../../utils';
 import {
   checkCollaborationRequestAuthorization02,
@@ -19,8 +18,8 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   assertUpdateNotEmpty(data.request);
   const agent = await context.session.getAgent(context, instData);
-  let {request} = await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
+
+  let {request} = await executeWithMutationRunOptions(context, async opts => {
     let {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,

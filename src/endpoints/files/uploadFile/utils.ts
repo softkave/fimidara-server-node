@@ -64,7 +64,9 @@ export async function createFileParentFolders(
       agent,
       workspace,
       {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
-      opts
+      opts,
+      /** skip auth check */ false,
+      /** throw on folder exists */ false
     );
   }
 

@@ -14,11 +14,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
-import {
-  addAssignedPermissionGroupList,
-  assignWorkspaceToUser,
-} from '../../assignedItems/addAssignedItems';
-import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
@@ -49,36 +45,6 @@ async function sendCollaborationRequestResponseEmail(
     destination: [toUser.email],
     source: context.appVariables.appDefaultEmailAddressFrom,
   });
-}
-
-async function assignUserRequestPermissionGroups(
-  context: BaseContextType,
-  agent: SessionAgent,
-  workspaceId: string,
-  requestId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
-) {
-  const permissionGroupsOnAccept = await getResourceAssignedItems(
-    context,
-    workspaceId,
-    requestId,
-    undefined,
-    opts
-  );
-
-  if (permissionGroupsOnAccept.length > 0) {
-    await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspaceId,
-      permissionGroupsOnAccept.map(item => ({permissionGroupId: item.assignedItemId})),
-      agent.agentId,
-      /** deleteExisting */ false,
-      /** skipPermissionGroupsExistCheck */ true,
-      /** skip auth check */ false,
-      opts
-    );
-  }
 }
 
 export const internalRespondToCollaborationRequest = async (
@@ -113,14 +79,6 @@ export const internalRespondToCollaborationRequest = async (
     ),
     isAccepted &&
       assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user.resourceId, opts),
-    isAccepted &&
-      assignUserRequestPermissionGroups(
-        context,
-        agent,
-        request.workspaceId,
-        request.resourceId,
-        opts
-      ),
   ]);
 
   return request;

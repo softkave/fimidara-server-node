@@ -93,17 +93,17 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
   const folderIndexOpts: MemStoreIndexOptions<Folder>[] = [
     workspaceIdIndexOpts,
     nameIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
     {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
     {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
   ];
   const fileIndexOpts: MemStoreIndexOptions<File>[] = [
     workspaceIdIndexOpts,
     nameIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
     {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
     {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'extension', type: MemStoreIndexTypes.MapIndex},
+    {field: 'extension', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
   const agentTokenIndexOpts: MemStoreIndexOptions<AgentToken>[] = [
     workspaceIdIndexOpts,

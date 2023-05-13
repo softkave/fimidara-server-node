@@ -3,7 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {MemStore} from '../../contexts/mem/Mem';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
 import {AddAgentTokenEndpoint} from './types';
@@ -22,8 +22,8 @@ const addAgentTokenEndpoint: AddAgentTokenEndpoint = async (context, instData) =
     targets: {targetType: AppResourceType.AgentToken},
     action: AppActionType.Create,
   });
-  const token = await MemStore.withTransaction(context, async transaction => {
-    return await internalCreateAgentToken(context, agent, workspace, data.token, {transaction});
+  const token = await executeWithMutationRunOptions(context, async opts => {
+    return await internalCreateAgentToken(context, agent, workspace, data.token, opts);
   });
   appAssert(token.workspaceId);
   const agentToken = await populateAssignedTags(context, token.workspaceId, token);

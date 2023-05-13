@@ -10,7 +10,7 @@ export class InvalidRequestError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Request is invalid');
+    this.message = getErrorMessageFromParams(props, 'Request is invalid.');
   }
 }
 
@@ -22,7 +22,7 @@ export class RateLimitError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'Rate limit in progress, please try again later'
+      'Rate limit in progress, please try again later.'
     );
   }
 }
@@ -33,7 +33,7 @@ export class ExpiredError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Resource has expired');
+    this.message = getErrorMessageFromParams(props, 'Resource has expired.');
   }
 }
 
@@ -43,7 +43,7 @@ export class NotFoundError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Resource not found');
+    this.message = getErrorMessageFromParams(props, 'Resource not found.');
   }
 }
 
@@ -53,6 +53,6 @@ export class ResourceExistsError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Resource exist');
+    this.message = getErrorMessageFromParams(props, 'Resource exist.');
   }
 }

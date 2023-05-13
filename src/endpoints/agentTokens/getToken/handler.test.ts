@@ -28,7 +28,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-test('referenced program access token returned', async () => {
+test('referenced agent token returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);

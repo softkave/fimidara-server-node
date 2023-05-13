@@ -10,6 +10,6 @@ export async function checkAgentTokenNameExists(
 ) {
   const itemExists = await context.semantic.agentToken.existsByName(workspaceId, name, opts);
   if (itemExists) {
-    throw new ResourceExistsError('Program access token exists.');
+    throw new ResourceExistsError('Agent token exists.');
   }
 }

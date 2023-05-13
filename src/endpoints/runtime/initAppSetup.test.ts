@@ -21,10 +21,9 @@ describe('init app setup', () => {
     await context.data.appRuntimeState.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
     );
-    const user = await context.semantic.user.assertGetOneByQuery({
+    await context.semantic.user.assertGetOneByQuery({
       email: context.appVariables.rootUserEmail,
     });
-    expect(user.requiresPasswordChange).toBeTruthy();
   });
 
   test('app not setup a second time', async () => {

@@ -6,14 +6,6 @@
         "__id": "FieldObject",
         "name": "GetJobStatusEndpointParams",
         "fields": {
-            "workspaceId": {
-                "data": {
-                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
-                    "__id": "FieldString",
-                    "example": "wrkspce_000000000000000000000"
-                },
-                "optional": true
-            },
             "jobId": {
                 "data": {
                     "description": "Long running job ID.",

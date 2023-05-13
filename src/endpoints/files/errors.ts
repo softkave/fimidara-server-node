@@ -9,7 +9,7 @@ export class FileExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'File exists');
+    this.message = getErrorMessageFromParams(props, 'File exists.');
   }
 }
 
@@ -18,6 +18,6 @@ export class FileDoesNotExistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'File not found');
+    this.message = getErrorMessageFromParams(props, 'File not found.');
   }
 }

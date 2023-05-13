@@ -33,7 +33,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-test('program access token updated', async () => {
+test('agent token updated', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);

@@ -21,7 +21,6 @@ const jobStatus = FieldString.construct()
 const getJobStatusParams = FieldObject.construct<GetJobStatusEndpointParams>()
   .setName('GetJobStatusEndpointParams')
   .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
     jobId: FieldObject.requiredField(fReusables.jobId),
   })
   .setRequired(true);

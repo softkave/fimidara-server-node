@@ -1,10 +1,11 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import {noopAsync} from '../../../utils/fns';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
 import {deleteAgentTokenJoiSchema} from './validation';
@@ -44,19 +45,20 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => 
   const data = validate(instData.data, deleteAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await tryGetWorkspaceFromEndpointInput(context, agent, data);
   const {token} = await checkAgentTokenAuthorization02(
     context,
     agent,
-    workspace.resourceId,
+    workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    AppActionType.Read
+    AppActionType.Delete
   );
+  appAssert(token.workspaceId);
   const job = await enqueueDeleteResourceJob(context, {
     type: AppResourceType.AgentToken,
     args: {
-      workspaceId: workspace.resourceId,
+      workspaceId: token.workspaceId,
       resourceId: token.resourceId,
     },
   });

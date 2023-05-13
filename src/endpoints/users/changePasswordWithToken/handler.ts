@@ -1,7 +1,7 @@
 import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import internalConfirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
+import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {assertUser, userExtractor} from '../utils';
 import {ChangePasswordWithTokenEndpoint} from './types';
@@ -26,7 +26,7 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context,
 
   // Verify user email address since the only way to change password
   // with token is to use the link sent to the user email address
-  user = await internalConfirmEmailAddress(context, result.user.resourceId);
+  user = await INTERNAL_confirmEmailAddress(context, result.user.resourceId, null);
   const completeUserData = await populateUserWorkspaces(context, user);
   result.user = userExtractor(completeUserData);
   return result;

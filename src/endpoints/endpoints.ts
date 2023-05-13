@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {forEach} from 'lodash';
+import {forEach, toArray} from 'lodash';
 import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints';
 import {AgentTokensExportedEndpoints} from './agentTokens/types';
 import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints';
@@ -38,7 +38,11 @@ import {WorkspacesExportedEndpoints} from './workspaces/types';
 
 export type AppExportedHttpEndpoints = Record<
   string,
-  Record<string, ExportedHttpEndpointWithMddocDefinition<any>>
+  Record<
+    string,
+    | ExportedHttpEndpointWithMddocDefinition<any>
+    | Array<ExportedHttpEndpointWithMddocDefinition<any>>
+  >
 >;
 
 export type FimidaraPublicExportedHttpEndpoints = {
@@ -95,7 +99,9 @@ function setupAppHttpEndpoints(
 ) {
   forEach(endpointsMap, groupEndpoints => {
     forEach(groupEndpoints, endpoint => {
-      registerExpressRouteFromEndpoint(ctx, endpoint, app);
+      toArray(endpoint).forEach(nextEndpoint =>
+        registerExpressRouteFromEndpoint(ctx, nextEndpoint, app)
+      );
     });
   });
 }

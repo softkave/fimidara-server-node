@@ -178,3 +178,13 @@ export function pick00<T>(data: T, keys: Array<keyof T>) {
 export function multilineTextToParagraph(text: string) {
   return text.replace(/[\s]+/g, ' ').trim();
 }
+
+export function sortStringListLexographically(stringList: string[]) {
+  return stringList.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+export function getFileExtenstion(name = '') {
+  const i = name.indexOf('.');
+  if (i !== -1) return name.slice(i + 1);
+  return undefined;
+}

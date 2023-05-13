@@ -84,7 +84,7 @@ export async function getWorkspaceAndParentFolder(
   appAssert(
     !isUndefined(parentFolder),
     new ServerError(),
-    'Parent folder should be null or folder, not undefined'
+    'Parent folder should be null or folder, not undefined.'
   );
 
   return {workspace, parentFolder};

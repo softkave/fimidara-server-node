@@ -14,7 +14,7 @@ export class MemorySemanticDataAccessFolder
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<Folder | null> {
     return await this.memstore.readItem(
-      {workspaceId, namePath: {$eq: namePath}},
+      {workspaceId, namePath: {$lowercaseEq: namePath}},
       opts?.transaction
     );
   }

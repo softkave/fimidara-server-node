@@ -50,6 +50,7 @@ export enum MemStoreTransactionState {
 }
 
 export interface MemStoreTransactionType {
+  readonly timeout: number;
   addToCache(item: Resource | Resource[], storeRef: MemStoreType<Resource>): void;
   getFromCache<T extends Resource = Resource>(id: string): T | undefined;
   addConsistencyOp(op: MemStoreTransactionConsistencyOp | MemStoreTransactionConsistencyOp[]): void;
@@ -110,11 +111,11 @@ export interface IMemStoreOptions<T> {
 
 export interface MemStoreType<T extends AnyObject> {
   createItems(items: T | T[], transaction: MemStoreTransactionType): Promise<void>;
-  createIfNotExist(
-    items: T | T[],
-    query: LiteralDataQuery<T>,
+  createWithQuery(
+    queryFn: () => LiteralDataQuery<T>,
+    itemsFn: (items: T[]) => T[],
     transaction: MemStoreTransactionType
-  ): Promise<T | T[] | null>;
+  ): Promise<T[]>;
   updateItem(
     query: LiteralDataQuery<T>,
     update: Partial<T>,

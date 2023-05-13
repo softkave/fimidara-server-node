@@ -9,7 +9,7 @@ export class PermissionGroupExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'PermissionGroup permissions groups exists');
+    this.message = getErrorMessageFromParams(props, 'Permission group exists.');
   }
 }
 
@@ -18,6 +18,6 @@ export class PermissionGroupDoesNotExistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'PermissionGroup permissions group not found');
+    this.message = getErrorMessageFromParams(props, 'Permission group not found.');
   }
 }

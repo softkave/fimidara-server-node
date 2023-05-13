@@ -14,8 +14,8 @@ import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {MemStore} from '../../contexts/mem/Mem';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {
   insertBandwidthInUsageRecordInput,
@@ -35,8 +35,8 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  let file = await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
+
+  let file = await executeWithMutationRunOptions(context, async opts => {
     let file = await getFileWithMatcher(context, data, opts);
     const isNewFile = !file;
     const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
@@ -78,18 +78,9 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
 
     if (isNewFile) {
-      file = await INTERNAL_createFile(context, agent, workspace, data, file, opts);
+      file = await INTERNAL_createFile(context, file, opts);
     } else {
-      const pathWithDetails = splitFilepathWithDetails(file.namePath);
-      file = await INTERNAL_updateFile(
-        context,
-        agent,
-        workspace,
-        pathWithDetails,
-        file,
-        data,
-        opts
-      );
+      file = await INTERNAL_updateFile(context, agent, file, data, opts);
     }
 
     await Promise.all([
@@ -113,8 +104,6 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 async function INTERNAL_updateFile(
   context: BaseContextType,
   agent: SessionAgent,
-  workspace: Workspace,
-  pathWithDetails: ISplitfilepathWithDetails,
   existingFile: File,
   data: UploadFileEndpointParams,
   opts: SemanticDataAccessProviderMutationRunOptions
@@ -123,25 +112,13 @@ async function INTERNAL_updateFile(
     existingFile.resourceId,
     {
       ...data,
-      extension: data.extension ?? pathWithDetails.extension ?? existingFile.extension,
+      extension: data.extension ?? existingFile.extension,
       size: data.data.length,
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
       lastUpdatedAt: getTimestamp(),
     },
     opts
   );
-
-  // if (data.publicAccessAction) {
-  //   const items = makeFilePublicAccessOps(file, data.publicAccessAction);
-  //   await updatePublicPermissionGroupAccessOps({
-  //     context,
-  //     agent,
-  //     workspace,
-  //     items,
-  //     opts,
-  //     deleteItems: [{target: {targetId: file.resourceId}}],
-  //   });
-  // }
 
   return file;
 }
@@ -174,15 +151,10 @@ function getNewFile(
 
 async function INTERNAL_createFile(
   context: BaseContextType,
-  agent: SessionAgent,
-  workspace: Workspace,
-  data: UploadFileEndpointParams,
   file: File,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   await context.semantic.file.insertItem(file, opts);
-  // const items = makeFilePublicAccessOps(file, data.publicAccessAction);
-  // await updatePublicPermissionGroupAccessOps({context, agent, workspace, opts, items});
   return file;
 }
 

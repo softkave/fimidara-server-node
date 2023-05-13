@@ -25,14 +25,17 @@
             },
             "contentType": {
                 "data": {
-                    "required": false,
-                    "description": "Fetch children files or folders or both.",
-                    "__id": "FieldString",
-                    "example": "file",
-                    "valid": {
-                        "0": "file",
-                        "1": "folder"
-                    }
+                    "__id": "FieldArray",
+                    "type": {
+                        "description": "Fetch children files or folders or both.",
+                        "__id": "FieldString",
+                        "example": "file",
+                        "valid": {
+                            "0": "file",
+                            "1": "folder"
+                        }
+                    },
+                    "max": 2
                 },
                 "optional": true
             },
@@ -244,9 +247,17 @@
                             },
                             "parentId": {
                                 "data": {
-                                    "description": "Folder ID.",
-                                    "__id": "FieldString",
-                                    "example": "folder0_000000000000000000000"
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "description": "Folder ID.",
+                                            "__id": "FieldString",
+                                            "example": "folder0_000000000000000000000"
+                                        },
+                                        "1": {
+                                            "__id": "FieldNull"
+                                        }
+                                    }
                                 },
                                 "required": true
                             },
@@ -302,9 +313,17 @@
                             },
                             "parentId": {
                                 "data": {
-                                    "description": "Folder ID.",
-                                    "__id": "FieldString",
-                                    "example": "folder0_000000000000000000000"
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "description": "Folder ID.",
+                                            "__id": "FieldString",
+                                            "example": "folder0_000000000000000000000"
+                                        },
+                                        "1": {
+                                            "__id": "FieldNull"
+                                        }
+                                    }
                                 },
                                 "required": true
                             },

@@ -1,6 +1,6 @@
 import {Resource, WorkspaceResource} from '../../../definitions/system';
 import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {MemStore} from '../mem/Mem';
+import {MemStore, MemStoreTransactionOptions} from '../mem/Mem';
 import {MemStoreType} from '../mem/types';
 import {BaseContextType} from '../types';
 import {
@@ -23,12 +23,12 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
     return await this.memstore.createItems(item, opts.transaction);
   }
 
-  async insertIfNotExist(
-    item: T | T[],
-    q: LiteralDataQuery<T>,
+  async insertWithQuery(
+    queryFn: () => LiteralDataQuery<T>,
+    itemsFn: (items: T[]) => T[],
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    await this.memstore.createIfNotExist(item, q, opts.transaction);
+  ) {
+    return await this.memstore.createWithQuery(queryFn, itemsFn, opts.transaction);
   }
 
   async getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions) {
@@ -272,7 +272,17 @@ export class SemanticDataAccessWorkspaceResourceProvider<
 
 export async function executeWithMutationRunOptions<T>(
   context: BaseContextType,
-  fn: (opts: SemanticDataAccessProviderMutationRunOptions) => Promise<T>
+  fn: (opts: SemanticDataAccessProviderMutationRunOptions) => Promise<T>,
+
+  /** Reuse existing txn options when present */
+  opts?: SemanticDataAccessProviderMutationRunOptions,
+  options?: MemStoreTransactionOptions
 ): Promise<T> {
-  return await MemStore.withTransaction(context, async transaction => await fn({transaction}));
+  return opts
+    ? await fn(opts)
+    : await MemStore.withTransaction(
+        context,
+        async transaction => await fn({transaction}),
+        options
+      );
 }

@@ -34,7 +34,7 @@ import {setupApp} from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import changePasswordWithToken from '../../endpoints/users/changePasswordWithToken/handler';
 import {ChangePasswordWithTokenEndpointParams} from '../../endpoints/users/changePasswordWithToken/types';
-import internalConfirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
+import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
 import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgotPassword';
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
@@ -278,7 +278,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
 
     if (!user.isEmailVerified) {
       consoleLogger.info(`Verifying email address for user ${user.email}`);
-      await internalConfirmEmailAddress(context, user.resourceId, user);
+      await INTERNAL_confirmEmailAddress(context, user.resourceId, user);
     }
 
     consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);

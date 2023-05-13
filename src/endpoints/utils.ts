@@ -33,27 +33,32 @@ import {
 } from './types';
 import {PermissionDeniedError} from './users/errors';
 
+type FimidaraExternalError = Pick<OperationError, 'name' | 'message' | 'action' | 'field'>;
+
+export function extractExternalEndpointError(errorItem: OperationError): FimidaraExternalError {
+  return {
+    name: errorItem.name,
+    message: errorItem.message,
+    action: errorItem.action,
+    field: errorItem.field,
+  };
+}
+
 export function getPublicErrors(inputError: any) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
 
   // We are mapping errors cause some values don't show if we don't
   // or was it errors, not sure anymore, this is old code.
   // TODO: Feel free to look into it, cause it could help performance.
-  const preppedErrors: Omit<OperationError, 'isPublicError' | 'statusCode'>[] = [];
+  const preppedErrors: FimidaraExternalError[] = [];
   errors.forEach(
     errorItem =>
-      errorItem?.isPublicError &&
-      preppedErrors.push({
-        name: errorItem.name,
-        message: errorItem.message,
-        action: errorItem.action,
-        field: errorItem.field,
-      })
+      errorItem?.isPublicError && preppedErrors.push(extractExternalEndpointError(errorItem))
   );
 
   if (preppedErrors.length === 0) {
     const serverError = new ServerError();
-    preppedErrors.push({name: serverError.name, message: serverError.message});
+    preppedErrors.push(extractExternalEndpointError(serverError));
   }
 
   return preppedErrors;

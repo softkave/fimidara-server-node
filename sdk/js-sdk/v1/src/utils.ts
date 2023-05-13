@@ -1,6 +1,10 @@
 import {fetch, Headers} from 'cross-fetch';
 import FormData from 'isomorphic-form-data';
 
+const defaultServerURL =
+  (process ? process.env.FIMIDARA_SERVER_URL : undefined) ??
+  'https://api.fimidara.com';
+
 type FimidaraEndpointErrorItem = {
   name: string;
   message: string;
@@ -12,6 +16,8 @@ type FimidaraEndpointErrorItem = {
 };
 
 export class FimidaraEndpointError extends Error {
+  name = 'FimidaraEndpointError';
+
   constructor(
     public errors: Array<FimidaraEndpointErrorItem>,
     public statusCode: number,
@@ -24,6 +30,7 @@ export class FimidaraEndpointError extends Error {
 
 export interface FimidaraJsConfigOptions {
   authToken?: string;
+  serverURL?: string;
 }
 
 export class FimidaraJsConfig {
@@ -58,15 +65,12 @@ export class FimidaraJsConfig {
   }
 }
 
-const serverAddr =
-  (process ? process.env.FIMIDARA_SERVER_ADDR : undefined) ??
-  'https://api.fimidara.com';
-
 const HTTP_HEADER_CONTENT_TYPE = 'Content-Type';
 const HTTP_HEADER_AUTHORIZATION = 'Authorization';
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 
 export interface IInvokeEndpointParams {
+  serverURL?: string;
   token?: string;
   data?: any;
   formdata?: any;
@@ -76,14 +80,15 @@ export interface IInvokeEndpointParams {
 }
 
 export async function invokeEndpoint(props: IInvokeEndpointParams) {
-  const {data, path, headers, method, token, formdata} = props;
+  const {data, path, headers, method, token, formdata, serverURL} = props;
   const incomingHeaders = {...headers};
   let contentBody = undefined;
 
   if (formdata) {
     const contentFormdata = new FormData();
     for (const key in formdata) {
-      contentFormdata.append(key, formdata[key]);
+      if (formdata[key] !== undefined)
+        contentFormdata.append(key, formdata[key]);
     }
     contentBody = contentFormdata;
   } else if (data) {
@@ -95,8 +100,8 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
     incomingHeaders[HTTP_HEADER_AUTHORIZATION] = `Bearer ${token}`;
   }
 
-  const endpointAddr = serverAddr + path;
-  const result = await fetch(endpointAddr, {
+  const endpointURL = (serverURL || defaultServerURL) + path;
+  const result = await fetch(endpointURL, {
     method,
     headers: incomingHeaders,
     body: contentBody as any,
@@ -134,6 +139,10 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
   protected getAuthToken(params?: {authToken?: string}) {
     return params?.authToken || this.config.authToken;
   }
+
+  protected getServerURL(params?: {serverURL?: string}) {
+    return params?.serverURL || this.config.serverURL;
+  }
 }
 
 export type FimidaraEndpointResult<T> = {
@@ -141,10 +150,12 @@ export type FimidaraEndpointResult<T> = {
   headers: typeof Headers;
 };
 export type FimidaraEndpointParamsOptional<T> = {
+  serverURL?: string;
   authToken?: string;
   body?: T;
 };
 export type FimidaraEndpointParamsRequired<T> = {
+  serverURL?: string;
   authToken?: string;
   body: T;
 };
@@ -154,22 +165,29 @@ export function getReadFileURL(props: {
   filepath: string;
   width?: number;
   height?: number;
+  serverURL?: string;
 }) {
   let query = '';
   if (props.width) query += `w=${props.width.toFixed()}`;
-  if (props.height) query += `h=${props.height.toFixed()}`;
+  if (props.height)
+    query += (query.length ? '&' : '') + `h=${props.height.toFixed()}`;
   if (query) query = '?' + query;
 
   return (
-    serverAddr +
-    'v1/files/readFile' +
+    (props.serverURL || defaultServerURL) +
+    '/v1/files/readFile' +
     encodeURIComponent(props.filepath) +
     query
   );
 }
 
-export function getUploadFileURL(props: {filepath: string}) {
+export function getUploadFileURL(props: {
+  filepath: string;
+  serverURL?: string;
+}) {
   return (
-    serverAddr + 'v1/files/uploadFile' + encodeURIComponent(props.filepath)
+    (props.serverURL || defaultServerURL) +
+    '/v1/files/uploadFile' +
+    encodeURIComponent(props.filepath)
   );
 }

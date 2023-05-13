@@ -27,7 +27,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-test('program access token added', async () => {
+test('Agent token added', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);

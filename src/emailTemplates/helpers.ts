@@ -18,8 +18,9 @@ export const emailTemplateFonts = `
 
 export const emailTemplateStyles = `
 <style>
-body {
-  font-family: arial;
+body, div, p, h1, h2, h3, h4, h5, span {
+  font-family: arial, sans-serif;
+  font-size: 14px;
 }
 
 .${classNamePrefix}-header {

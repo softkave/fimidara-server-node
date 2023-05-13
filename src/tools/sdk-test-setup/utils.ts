@@ -77,7 +77,7 @@ async function createAgentToken(
     workspace,
     {
       name: faker.lorem.words(2),
-      description: 'Program access token for SDK tests',
+      description: 'Agent token for SDK tests',
     },
     opts
   );
@@ -108,7 +108,7 @@ export async function setupSDKTestReq() {
   const consoleLogger = getConsoleLogger();
   consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
   consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);
-  consoleLogger.info(`Program access token ID: ${token.resourceId}`);
-  consoleLogger.info(`Program access token token: ${tokenStr}`);
+  consoleLogger.info(`Agent token ID: ${token.resourceId}`);
+  consoleLogger.info(`Agent token token: ${tokenStr}`);
   await context.dispose();
 }

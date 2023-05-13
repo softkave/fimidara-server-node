@@ -15,8 +15,7 @@ import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {ResourceExistsError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -37,8 +36,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (contex
     action: AppActionType.Create,
   });
 
-  let {request, existingUser} = await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
+  let {request, existingUser} = await executeWithMutationRunOptions(context, async opts => {
     const [existingUser, existingRequest] = await Promise.all([
       context.semantic.user.getByEmail(data.request.recipientEmail),
       context.semantic.collaborationRequest.getOneByWorkspaceIdEmail(

@@ -109,6 +109,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AddAgentTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<AddAgentTokenEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -125,6 +126,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeleteAgentTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -141,6 +143,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetAgentTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<GetAgentTokenEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -157,6 +160,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetWorkspaceAgentTokensEndpointParams>
   ): Promise<FimidaraEndpointResult<GetWorkspaceAgentTokensEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -173,6 +177,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountWorkspaceAgentTokensEndpointParams>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -189,6 +194,7 @@ class AgentTokensEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpdateAgentTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdateAgentTokenEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -207,6 +213,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<DeleteCollaborationRequestEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -225,6 +232,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetUserCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -243,6 +251,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetUserCollaborationRequestsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -259,6 +268,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -277,6 +287,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetWorkspaceCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -295,6 +306,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetWorkspaceCollaborationRequestsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -311,6 +323,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountWorkspaceCollaborationRequestsEndpointParams>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -329,6 +342,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<RespondToCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -347,6 +361,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<RevokeCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -365,6 +380,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<SendCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -383,6 +399,7 @@ class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<UpdateCollaborationRequestEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -401,6 +418,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<GetCollaboratorEndpointParams>
   ): Promise<FimidaraEndpointResult<GetCollaboratorEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -419,6 +437,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetWorkspaceCollaboratorsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -435,6 +454,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountWorkspaceCollaboratorsEndpointParams>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -451,6 +471,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<RevokeCollaboratorEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -469,6 +490,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeleteFileEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -485,6 +507,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetFileDetailsEndpointParams>
   ): Promise<FimidaraEndpointResult<GetFileDetailsEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -501,6 +524,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<ReadFileEndpointParams>
   ): Promise<FimidaraEndpointResult<Response>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -517,6 +541,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpdateFileDetailsEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdateFileDetailsEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -533,6 +558,7 @@ class FilesEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UploadFileEndpointParams>
   ): Promise<FimidaraEndpointResult<UploadFileEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: props.body,
@@ -551,6 +577,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AddFolderEndpointParams>
   ): Promise<FimidaraEndpointResult<AddFolderEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -567,6 +594,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeleteFolderEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -583,6 +611,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetFolderEndpointParams>
   ): Promise<FimidaraEndpointResult<GetFolderEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -599,6 +628,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<ListFolderContentEndpointParams>
   ): Promise<FimidaraEndpointResult<ListFolderContentEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -615,6 +645,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountFolderContentEndpointParams>
   ): Promise<FimidaraEndpointResult<CountFolderContentEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -631,6 +662,7 @@ class FoldersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpdateFolderEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdateFolderEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -649,6 +681,7 @@ class ClientLogsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<GetJobStatusEndpointParams>
   ): Promise<FimidaraEndpointResult<GetJobStatusEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -667,6 +700,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AddPermissionGroupEndpointParams>
   ): Promise<FimidaraEndpointResult<AddPermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -683,6 +717,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AssignPermissionGroupsEndpointParams>
   ): Promise<FimidaraEndpointResult<undefined>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -699,6 +734,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeletePermissionGroupEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -715,6 +751,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetPermissionGroupEndpointParams>
   ): Promise<FimidaraEndpointResult<GetPermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -733,6 +770,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetEntityAssignedPermissionGroupsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -751,6 +789,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetWorkspacePermissionGroupsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -767,6 +806,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountWorkspacePermissionGroupsEndpointParams>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -783,6 +823,7 @@ class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpdatePermissionGroupEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdatePermissionGroupEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -801,6 +842,7 @@ class PermissionItemsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AddPermissionItemsEndpointParams>
   ): Promise<FimidaraEndpointResult<undefined>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -817,6 +859,7 @@ class PermissionItemsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeletePermissionItemsEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -835,6 +878,7 @@ class PermissionItemsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<ResolveEntityPermissionsEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -853,6 +897,7 @@ class ResourcesEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<ResourceWrapper>
   ): Promise<FimidaraEndpointResult<GetResourcesEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -871,6 +916,7 @@ class UsageRecordsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<GetUsageCostsEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -887,6 +933,7 @@ class UsageRecordsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetWorkspaceSummedUsageEndpointParams>
   ): Promise<FimidaraEndpointResult<GetWorkspaceSummedUsageEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -903,6 +950,7 @@ class UsageRecordsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<CountWorkspaceSummedUsageEndpointParams>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -921,6 +969,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -937,6 +986,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<UpdateUserEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdateUserEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -955,6 +1005,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<AddWorkspaceEndpointParams>
   ): Promise<FimidaraEndpointResult<AddWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -971,6 +1022,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<DeleteWorkspaceEndpointParams>
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -987,6 +1039,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetUserWorkspacesEndpointParams>
   ): Promise<FimidaraEndpointResult<GetUserWorkspacesEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -1003,6 +1056,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -1019,6 +1073,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetWorkspaceEndpointParams>
   ): Promise<FimidaraEndpointResult<GetWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -1035,6 +1090,7 @@ class WorkspacesEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpdateWorkspaceEndpointParams>
   ): Promise<FimidaraEndpointResult<UpdateWorkspaceEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,

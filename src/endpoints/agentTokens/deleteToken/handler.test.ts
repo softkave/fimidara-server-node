@@ -30,7 +30,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-test('program access token deleted', async () => {
+test('Agent token deleted', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);

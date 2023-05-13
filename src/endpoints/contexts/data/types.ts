@@ -33,7 +33,7 @@ export const EXCLUDE_IN_PROJECTION = 0 as const;
 
 export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
 
-export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
+export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
   $lowercaseEq?: T;
   $in?: T[] | Array<T | null>;
@@ -52,21 +52,23 @@ export interface IComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
 /**
  * Can also be used to query dates in Mongo.
  */
-export interface INumberLiteralFieldQueryOps {
+export interface NumberLiteralFieldQueryOps {
   $gt?: number;
   $gte?: number;
   $lt?: number;
   $lte?: number;
 }
 
-export type ILiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
-  ? (IComparisonLiteralFieldQueryOps<T> & INumberLiteralFieldQueryOps) | T | null
-  : T extends Array<infer V>
-  ? ILiteralFieldQueryOps<V> | Pick<IComparisonLiteralFieldQueryOps<T>, '$eq' | '$ne'>
+export type LiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
+  ? (ComparisonLiteralFieldQueryOps<T> & NumberLiteralFieldQueryOps) | T | null
+  : T extends Array<infer TArrayItem>
+  ?
+      | LiteralFieldQueryOps<TArrayItem>
+      | Pick<ComparisonLiteralFieldQueryOps<T>, '$eq' | '$in' | '$lowercaseIn' | '$lowercaseEq'>
   : never;
 
 export type LiteralDataQuery<T> = {
-  [P in keyof T]?: ILiteralFieldQueryOps<T[P]>;
+  [P in keyof T]?: LiteralFieldQueryOps<T[P]>;
 };
 
 export interface IRecordFieldQueryOps<T extends AnyObject> {
@@ -75,19 +77,19 @@ export interface IRecordFieldQueryOps<T extends AnyObject> {
 }
 
 // TODO: support $objMatch in elemMatch
-type ElemMatchQueryOp<T> = T extends AnyObject ? LiteralDataQuery<T> : ILiteralFieldQueryOps<T>;
+type ElemMatchQueryOp<T> = T extends AnyObject ? LiteralDataQuery<T> : LiteralFieldQueryOps<T>;
 
 export interface IArrayFieldQueryOps<T> {
   $size?: number;
 
   // TODO: support $objMatch and $elemMatch in $all
-  $all?: T extends DataProviderLiteralType ? Array<ILiteralFieldQueryOps<T>> : never;
+  $all?: T extends DataProviderLiteralType ? Array<LiteralFieldQueryOps<T>> : never;
   $elemMatch?: ElemMatchQueryOp<T>;
 }
 
 export type DataQuery<T> = {
   [P in keyof T]?: T[P] extends DataProviderLiteralType | Date
-    ? ILiteralFieldQueryOps<T[P]>
+    ? LiteralFieldQueryOps<T[P]>
     : NonNullable<T[P]> extends Array<infer U>
     ? IArrayFieldQueryOps<U>
     : NonNullable<T[P]> extends AnyObject

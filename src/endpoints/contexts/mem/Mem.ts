@@ -33,10 +33,10 @@ import {AnyFn, PartialRecord} from '../../../utils/types';
 import {
   BulkOpItem,
   BulkOpType,
+  ComparisonLiteralFieldQueryOps,
   DataProviderLiteralType,
-  IComparisonLiteralFieldQueryOps,
-  INumberLiteralFieldQueryOps,
   LiteralDataQuery,
+  NumberLiteralFieldQueryOps,
 } from '../data/types';
 import {BaseContextType} from '../types';
 import {StackedArray} from './memArrayHelpers';
@@ -64,9 +64,13 @@ import {
   WorkspaceMemStoreProviderType,
 } from './types';
 
-type Mem_FieldQueryOps = IComparisonLiteralFieldQueryOps<DataProviderLiteralType> &
-  INumberLiteralFieldQueryOps;
+type Mem_FieldQueryOps = ComparisonLiteralFieldQueryOps<DataProviderLiteralType> &
+  NumberLiteralFieldQueryOps;
 type Mem_FieldQueryOpKeys = keyof Mem_FieldQueryOps;
+
+export type MemStoreTransactionOptions = {
+  timeout?: number;
+};
 
 // TODO: There is an issue with our implementation of transactions and
 // txn-lockable ops. An op is stalled only if there's a lock, so ops that've run
@@ -83,6 +87,7 @@ export class MemStoreTransaction implements MemStoreTransactionType {
     return new MemStoreTransaction();
   }
 
+  public timeout = MemStore.TXN_LOCK_TIMEOUT_MS;
   protected state: MemStoreTransactionState = MemStoreTransactionState.Pending;
   protected cache: Record<
     string,
@@ -93,6 +98,10 @@ export class MemStoreTransaction implements MemStoreTransactionType {
   protected indexViews: Map<MemStoreIndexType<Resource>, unknown> = new Map();
   protected locks = new Map<MemStoreType<Resource>, Record<number, number>>();
   protected error: unknown | undefined = undefined;
+
+  constructor(opts?: MemStoreTransactionOptions) {
+    if (opts?.timeout) this.timeout = opts?.timeout;
+  }
 
   // TODO: how to maintain storeRef without having to store it for each item? I
   // don't think it really matters, but it's a nice to have.
@@ -135,9 +144,6 @@ export class MemStoreTransaction implements MemStoreTransactionType {
 
     try {
       await syncFn(this.consistencyOps, this);
-      // this.indexViews.forEach((view, indexRef) => {
-      //   indexRef.commitView(view);
-      // });
 
       for (const op of this.consistencyOps) {
         if (
@@ -359,17 +365,20 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
     itemList.forEach((item, i) => {
       const existingItem = existingItemList[i];
       const value = item[this.options.field];
+
       if (existingItem) {
         const existingItemValue = existingItem[this.options.field];
+
         if (value !== existingItemValue) {
           this.purge(map, existingItem, /** initialize */ true);
         } else {
-          // short-circuit. Check `index`impl in MapIndex for more information.
+          // short-circuit. Check `index` impl in MapIndex for more information.
           return;
         }
       }
 
       let key = '';
+
       if ((value as unknown[] | undefined)?.length) {
         (value as string[]).forEach(v => {
           key += v;
@@ -395,18 +404,32 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
       this as unknown as MemStoreIndexType<Resource>
     );
     const map = this.map;
-    let item0: Record<string, string> | undefined = undefined;
 
     if (isArray(key)) {
-      const mergedKey = (key as string[]).join('');
-      if (txnMap) item0 = txnMap.fullMap[mergedKey];
-      if (!item0) item0 = map.fullMap[mergedKey];
+      if (isArray(key[0])) {
+        const items: Record<string, string> = {};
+        key.forEach(nextKey => {
+          const mergedKey = this.getIndexValue((nextKey as string[]).join(''));
+          let item0: Record<string, string> | undefined = undefined;
+          if (txnMap) item0 = txnMap.fullMap[mergedKey];
+          if (!item0) item0 = map.fullMap[mergedKey];
+          if (item0) merge(items, item0);
+        });
+        return Object.values(items);
+      } else {
+        let item0: Record<string, string> | undefined = undefined;
+        const mergedKey = this.getIndexValue((key as string[]).join(''));
+        if (txnMap) item0 = txnMap.fullMap[mergedKey];
+        if (!item0) item0 = map.fullMap[mergedKey];
+        return Object.values(item0 ?? {});
+      }
     } else {
+      let item0: Record<string, string> | undefined = undefined;
+      key = this.getIndexValue(key);
       if (txnMap) item0 = txnMap.splitMap[key as string];
       if (!item0) item0 = map.splitMap[key as string];
+      return Object.values(item0 ?? {});
     }
-
-    return item0 ? Object.values(item0) : [];
   }
 
   traverse(fn: (id: string) => boolean, transaction?: MemStoreTransactionType): void {
@@ -422,6 +445,7 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
     itemList.forEach(item => {
       const value = item[this.options.field];
       let key = '';
+
       if ((value as unknown[] | undefined)?.length) {
         (value as string[]).forEach(v => {
           key += v;
@@ -448,12 +472,14 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
   }
 
   protected insertInSplitMap(map: MemStoreArrayMapIndexView, v: string, id: string) {
+    v = this.getIndexValue(v);
     let idMap = map.splitMap[v];
     if (!idMap) map.splitMap[v] = idMap = merge({}, this.map.splitMap[v]);
     idMap[id] = id;
   }
 
   protected insertInFullMap(map: MemStoreArrayMapIndexView, key: string, id: string) {
+    key = this.getIndexValue(key);
     let idMap = map.fullMap[key];
     if (!idMap) map.fullMap[key] = idMap = merge({}, this.map.fullMap[key]);
     idMap[id] = id;
@@ -465,6 +491,7 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
     id: string,
     initialize = false
   ) {
+    v = this.getIndexValue(v);
     let idMap = map.splitMap[v];
     if (!idMap && initialize) map.splitMap[v] = idMap = merge({}, this.map.splitMap[v]);
     if (idMap) delete idMap[id];
@@ -476,9 +503,16 @@ class MemStoreArrayMapIndex<T extends Resource> implements MemStoreIndexType<T> 
     id: string,
     initialize = false
   ) {
+    key = this.getIndexValue(key);
     let idMap = map.fullMap[key];
     if (!idMap && initialize) map.fullMap[key] = idMap = merge({}, this.map.fullMap[key]);
     if (idMap) delete idMap[id];
+  }
+
+  protected getIndexValue(value: unknown) {
+    let v = String(value);
+    if (this.options.caseInsensitive) v = v.toLowerCase();
+    return v;
   }
 }
 
@@ -652,9 +686,10 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
 
   static async withTransaction<Result>(
     ctx: BaseContextType,
-    fn: (transaction: MemStoreTransactionType) => Promise<Result>
+    fn: (transaction: MemStoreTransactionType) => Promise<Result>,
+    options?: MemStoreTransactionOptions
   ): Promise<Result> {
-    const txn = new MemStoreTransaction();
+    const txn = new MemStoreTransaction(options);
     try {
       const result = await fn(txn);
       await txn.commit((ops, committingTxn) => syncTxnOps(ctx, ops, committingTxn));
@@ -718,16 +753,16 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     ]);
   }
 
-  createIfNotExist(
-    items: T | T[],
-    query: LiteralDataQuery<T>,
+  createWithQuery(
+    queryFn: () => LiteralDataQuery<T>,
+    itemsFn: (items: T[]) => T[],
     transaction: MemStoreTransactionType
-  ): Promise<T | T[] | null> {
+  ) {
     return this.executeOp(
-      MemStoreLockableActionTypes.Create,
+      [MemStoreLockableActionTypes.TransactionRead, MemStoreLockableActionTypes.Create],
       transaction,
-      this.__createIfNotExist,
-      [items, query, transaction]
+      this.__createWithQuery,
+      [queryFn, itemsFn, transaction]
     );
   }
 
@@ -903,17 +938,16 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     }
   };
 
-  protected __createIfNotExist = (
-    newItems: T | T[],
-    query: LiteralDataQuery<T>,
+  protected __createWithQuery = (
+    queryFn: () => LiteralDataQuery<T>,
+    itemsFn: (items: T[]) => T[],
     transaction: MemStoreTransactionType
   ) => {
-    // TODO: skip action for these kinds of match checks
-    const items = this.match(query, transaction, MemStoreLockableActionTypes.Create, 1);
-    if (items.length) return null;
-
-    this.__createItems(newItems, transaction);
-    return newItems;
+    const query = queryFn();
+    const matchedItems = this.match(query, transaction, MemStoreLockableActionTypes.Create);
+    const items = itemsFn(matchedItems);
+    this.__createItems(items, transaction);
+    return items;
   };
 
   protected __readItem = (query: LiteralDataQuery<T>, transaction?: MemStoreTransactionType) => {
@@ -1056,7 +1090,7 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
   };
 
   protected executeOp<Fn extends AnyFn>(
-    action: MemStoreLockableActionTypes,
+    action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
     transaction: MemStoreTransactionType | undefined,
     fn: Fn,
     args: Parameters<Fn>
@@ -1106,13 +1140,13 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     lock.txnRefs.delete(txn);
   }
 
-  protected checkLockTimeout(lock: LockInfo | undefined, timestamp: number) {
+  protected checkLockTimeout = (lock: LockInfo | undefined, timestamp: number) => {
     lock?.txnRefs.forEach((lockTimestamp, txn) => {
-      if (timestamp > lockTimestamp + MemStore.TXN_LOCK_TIMEOUT_MS) {
+      if (timestamp > lockTimestamp + txn.timeout) {
         txn.abort(new MemStoreLockTimeoutError());
       }
     });
-  }
+  };
 
   protected releaseTimedoutLocks = () => {
     const timestamp = Date.now();
@@ -1214,9 +1248,14 @@ export class MemStore<T extends Resource> implements MemStoreType<T> {
     });
   }
 
-  protected checkTableLock(action: MemStoreLockableActionTypes, txn: MemStoreTransactionType) {
-    const lock = this.tableLocks[action];
-    if (lock && !lock.txnRefs.has(txn)) throw lock;
+  protected checkTableLock(
+    action: MemStoreLockableActionTypes | MemStoreLockableActionTypes[],
+    txn: MemStoreTransactionType
+  ) {
+    toArray(action).forEach(nextAction => {
+      const lock = this.tableLocks[nextAction];
+      if (lock && !lock.txnRefs.has(txn)) throw lock;
+    });
   }
 
   protected checkRowLock(

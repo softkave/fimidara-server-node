@@ -227,7 +227,7 @@ export type File = {
   extension: string;
   resourceId: string;
   workspaceId: string;
-  parentId: string;
+  parentId: string | null;
   idPath: Array<string>;
   namePath: Array<string>;
   mimetype?: string;
@@ -294,7 +294,7 @@ export type Folder = {
   workspaceId: string;
   idPath: Array<string>;
   namePath: Array<string>;
-  parentId: string;
+  parentId: string | null;
   providedResourceId?: string;
 };
 export type AddFolderEndpointResult = {
@@ -314,7 +314,7 @@ export type GetFolderEndpointResult = {
 export type ListFolderContentEndpointParams = {
   folderpath?: string;
   folderId?: string;
-  contentType?: 'file' | 'folder';
+  contentType?: Array<'file' | 'folder'>;
   page?: number;
   pageSize?: number;
 };
@@ -344,7 +344,6 @@ export type UpdateFolderEndpointResult = {
   folder: Folder;
 };
 export type GetJobStatusEndpointParams = {
-  workspaceId?: string;
   jobId: string;
 };
 export type JobStatus = 'pending' | 'inProgress' | 'completed' | 'failed';

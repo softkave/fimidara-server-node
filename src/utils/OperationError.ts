@@ -15,7 +15,7 @@ export type EndpointExportedError = {
 };
 
 export default class OperationError extends Error {
-  message = 'Error';
+  message = 'An error occurred.';
   field?: string;
 
   // recommended action for the client

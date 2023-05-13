@@ -1,27 +1,32 @@
 import {merge} from 'lodash';
 import {PermissionGroup} from '../../definitions/permissionGroups';
 import {PermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppActionType, AppResourceType, AppRuntimeState} from '../../definitions/system';
+import {
+  AppActionType,
+  AppResourceType,
+  AppRuntimeState,
+  SessionAgent,
+} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {AppRuntimeVars} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {ID_SIZE, getNewId, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
-import RequestData from '../RequestData';
-import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
+import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
+import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import BaseContext from '../contexts/BaseContext';
-import {MemStore} from '../contexts/mem/Mem';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
 import {createFolderList} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
-import forgotPassword from '../users/forgotPassword/forgotPassword';
-import {ForgotPasswordEndpointParams} from '../users/forgotPassword/types';
+import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword';
+import {getUserToken} from '../users/login/utils';
+import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler';
 import {INTERNAL_signupUser} from '../users/signup/utils';
 import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
@@ -39,6 +44,7 @@ const appSetupVars = {
 
 async function setupWorkspace(
   context: BaseContextType,
+  agent: SessionAgent,
   name: string,
   rootname: string,
   opts: SemanticDataAccessProviderMutationRunOptions
@@ -50,43 +56,45 @@ async function setupWorkspace(
       rootname,
       description: "System-generated workspace for Fimidara's own operations",
     },
-    SYSTEM_SESSION_AGENT,
-    undefined,
+    agent,
+    agent.agentId,
     opts
   );
 }
 
-async function setupDefaultUser(
-  context: BaseContext,
-  workspace: Workspace,
-  adminPermissionGroupId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
-) {
-  const user = await INTERNAL_signupUser(
-    context,
-    {
-      email: context.appVariables.rootUserEmail,
-      firstName: context.appVariables.rootUserFirstName,
-      lastName: context.appVariables.rootUserLastName,
-      password: getNewId(),
-    },
-    {requiresPasswordChange: true, isOnWaitlist: false}
-  );
-  await addAssignedPermissionGroupList(
-    context,
-    SYSTEM_SESSION_AGENT,
-    workspace.resourceId,
-    [{permissionGroupId: adminPermissionGroupId}],
-    user.resourceId,
-    /** deleteExisting */ false,
-    /** skipPermissionGroupsExistCheck */ true,
-    /** skip auth check */ true,
-    opts
-  );
-  await forgotPassword(
-    context,
-    new RequestData<ForgotPasswordEndpointParams>({data: {email: user.email}})
-  );
+async function setupDefaultUser(context: BaseContext) {
+  return executeWithMutationRunOptions(context, async opts => {
+    let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
+
+    if (!user) {
+      const isDevEnv =
+        context.appVariables.nodeEnv === 'development' || context.appVariables.nodeEnv === 'test';
+      user = await INTERNAL_signupUser(
+        context,
+        {
+          email: context.appVariables.rootUserEmail,
+          firstName: context.appVariables.rootUserFirstName,
+          lastName: context.appVariables.rootUserLastName,
+          password: context.appVariables.rootUserEmail,
+        },
+        {
+          requiresPasswordChange: isDevEnv ? false : true,
+          isEmailVerified: isDevEnv ? true : false,
+          isOnWaitlist: false,
+        },
+        opts
+      );
+
+      if (!isDevEnv) {
+        await INTERNAL_forgotPassword(context, user, opts);
+        await INTERNAL_sendEmailVerificationCode(context, user, opts);
+      }
+    }
+
+    const [userToken] = await Promise.all([getUserToken(context, user.resourceId, opts)]);
+    const agent = makeUserSessionAgent(user, userToken);
+    return {user, userToken, agent};
+  });
 }
 
 async function setupFolders(
@@ -101,7 +109,8 @@ async function setupFolders(
       workspace,
       {folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname)},
       opts,
-      /** skip auth check */ true
+      /** skip auth check */ true,
+      /** throw on folder exists */ false
     ),
     createFolderList(
       context,
@@ -109,7 +118,8 @@ async function setupFolders(
       workspace,
       {folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname)},
       opts,
-      /** skip auth check */ true
+      /** skip auth check */ true,
+      /** throw on folder exists */ false
     ),
   ]);
 
@@ -159,10 +169,7 @@ async function setupImageUploadPermissionGroup(
   return imageUploadPermissionGroup;
 }
 
-async function isRootWorkspaceSetup(
-  context: BaseContextType,
-  opts?: SemanticDataAccessProviderRunOptions
-) {
+async function isRootWorkspaceSetup(context: BaseContextType) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );
@@ -189,60 +196,74 @@ async function getRootWorkspace(
   return workspace;
 }
 
-export async function setupApp(context: BaseContextType) {
-  return await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
-    const appRuntimeState = await isRootWorkspaceSetup(context, opts);
-    if (appRuntimeState) {
-      return await getRootWorkspace(context, appRuntimeState, opts);
-    }
+async function setupAppWithMutationOptions(
+  context: BaseContextType,
+  agent: SessionAgent,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  const appRuntimeState = await isRootWorkspaceSetup(context);
+  if (appRuntimeState) {
+    return await getRootWorkspace(context, appRuntimeState, opts);
+  }
 
-    const {adminPermissionGroup, workspace} = await setupWorkspace(
-      context,
-      appSetupVars.workspaceName,
-      appSetupVars.rootname,
-      opts
-    );
+  const {workspace} = await setupWorkspace(
+    context,
+    agent,
+    appSetupVars.workspaceName,
+    appSetupVars.rootname,
+    opts
+  );
 
-    const [user, {workspaceImagesFolder, userImagesFolder}] = await Promise.all([
-      setupDefaultUser(context, workspace, adminPermissionGroup.resourceId, opts),
-      setupFolders(context, workspace, opts),
+  const [{workspaceImagesFolder, userImagesFolder}] = await Promise.all([
+    setupFolders(context, workspace, opts),
+  ]);
+
+  const [appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup] =
+    await Promise.all([
+      setupImageUploadPermissionGroup(
+        context,
+        workspace.resourceId,
+        appSetupVars.workspacesImageUploadPermissionGroupName,
+        'Auto-generated permission group for uploading images to the workspace images folder.',
+        workspaceImagesFolder.resourceId,
+        opts
+      ),
+      setupImageUploadPermissionGroup(
+        context,
+        workspace.resourceId,
+        appSetupVars.usersImageUploadPermissionGroupName,
+        'Auto-generated permission group for uploading images to the user images folder.',
+        userImagesFolder.resourceId,
+        opts
+      ),
     ]);
 
-    const [appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup] =
-      await Promise.all([
-        setupImageUploadPermissionGroup(
-          context,
-          workspace.resourceId,
-          appSetupVars.workspacesImageUploadPermissionGroupName,
-          'Auto-generated permission group for uploading images to the workspace images folder',
-          workspaceImagesFolder.resourceId,
-          opts
-        ),
-        setupImageUploadPermissionGroup(
-          context,
-          workspace.resourceId,
-          appSetupVars.usersImageUploadPermissionGroupName,
-          'Auto-generated permission group for uploading images to the user images folder',
-          userImagesFolder.resourceId,
-          opts
-        ),
-      ]);
-
-    const appRuntimeVars: AppRuntimeVars = {
-      appWorkspaceId: workspace.resourceId,
-      appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
-      appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
-    };
-    await context.data.appRuntimeState.insertItem({
-      isAppSetup: true,
-      resourceId: APP_RUNTIME_STATE_DOC_ID,
-      ...appRuntimeVars,
-      createdAt: getTimestamp(),
-      lastUpdatedAt: getTimestamp(),
-    });
-    merge(context.appVariables, appRuntimeVars);
-
-    return workspace;
+  const appRuntimeVars: AppRuntimeVars = {
+    appWorkspaceId: workspace.resourceId,
+    appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
+    appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
+  };
+  await context.data.appRuntimeState.insertItem({
+    isAppSetup: true,
+    resourceId: APP_RUNTIME_STATE_DOC_ID,
+    ...appRuntimeVars,
+    createdAt: getTimestamp(),
+    lastUpdatedAt: getTimestamp(),
   });
+  merge(context.appVariables, appRuntimeVars);
+
+  return workspace;
+}
+
+export async function setupApp(context: BaseContextType) {
+  const {agent} = await setupDefaultUser(context);
+  return await executeWithMutationRunOptions(
+    context,
+    opts => setupAppWithMutationOptions(context, agent, opts),
+    undefined,
+    {
+      /** Involves a lot of processing so setting timout to 10 seconds. */
+      timeout: 10000,
+    }
+  );
 }

@@ -6,34 +6,28 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent, tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {MemStore} from '../../contexts/mem/Mem';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
+import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
-import {assertAgentToken, checkAgentTokenAuthorization, getPublicAgentToken} from '../utils';
+import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
 import {UpdateAgentTokenEndpoint} from './types';
 import {updateAgentTokenJoiSchema} from './validation';
 
 const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await tryGetWorkspaceFromEndpointInput(context, agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
-  const token = await MemStore.withTransaction(context, async transaction => {
-    const opts: SemanticDataAccessProviderMutationRunOptions = {transaction};
-    let token: AgentToken | null = null;
+  let {token} = await checkAgentTokenAuthorization02(
+    context,
+    agent,
+    workspace?.resourceId,
+    tokenId,
+    data.providedResourceId,
+    AppActionType.Update
+  );
 
-    if (tokenId) {
-      token = await context.semantic.agentToken.getOneById(tokenId, opts);
-    } else if (data.providedResourceId) {
-      token = await context.semantic.agentToken.getByProvidedId(
-        workspace.resourceId,
-        data.providedResourceId,
-        opts
-      );
-    }
-
-    assertAgentToken(token);
+  const updatedToken = await executeWithMutationRunOptions(context, async opts => {
     const tokenUpdate: Partial<AgentToken> = {
       ...omit(data.token, 'tags'),
       lastUpdatedAt: getTimestamp(),
@@ -42,10 +36,10 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
     const isNameChanged =
       tokenUpdate.name && tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase();
 
+    appAssert(token.workspaceId);
     await Promise.all([
-      checkAgentTokenAuthorization(context, agent, token, AppActionType.Read),
       isNameChanged &&
-        checkAgentTokenNameExists(context, workspace.resourceId, tokenUpdate.name!, opts),
+        checkAgentTokenNameExists(context, token.workspaceId, tokenUpdate.name!, opts),
     ]);
 
     [token] = await Promise.all([
@@ -55,8 +49,8 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
     return token;
   });
 
-  appAssert(token.workspaceId);
-  const agentToken = await populateAssignedTags(context, token.workspaceId, token);
+  appAssert(updatedToken.workspaceId);
+  const agentToken = await populateAssignedTags(context, updatedToken.workspaceId, updatedToken);
   return {token: getPublicAgentToken(context, agentToken)};
 };
 

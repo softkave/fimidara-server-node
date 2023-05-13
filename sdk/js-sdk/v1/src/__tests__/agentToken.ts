@@ -17,7 +17,7 @@ import {
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({authToken: vars.authToken});
 
-describe('client assigned tokens', () => {
+describe('agent tokens', () => {
   test('add client token', async () => {
     await addAgentTokenTest(fimidara, vars);
   });

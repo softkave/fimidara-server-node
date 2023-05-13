@@ -1,7 +1,11 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] Use standard JWT secret for production
+- [ ] Return progress when uploading file in js sdk
+- [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
+- [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
 - [ ] Remove workspaceId from get and update item endpoints
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField

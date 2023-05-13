@@ -73,13 +73,13 @@ const entityId = fReusables.permissionGroupId
   .setDescription(
     'Permission entity resource ID. ' +
       'Permission entity is a resource granted access. ' +
-      'This can be a user, a permission group, a permission item, or a client assigned token.'
+      'This can be a user, a permission group, a permission item, or a agent token.'
   );
 const entityType = FieldString.construct()
   .setDescription(
     'Permission entity resource type. ' +
       'Permission entity is the resource granted access. ' +
-      'This can be a user, a permission group, a permission item, or a client assigned token.'
+      'This can be a user, a permission group, a permission item, or a agent token.'
   )
   .setValid([AppResourceType.User, AppResourceType.PermissionGroup, AppResourceType.AgentToken])
   .setEnumName('EntityAppResourceType');

@@ -7,13 +7,13 @@ import {
   BaseDataProvider,
   BulkOpItem,
   BulkOpType,
+  ComparisonLiteralFieldQueryOps,
   DataProviderLiteralType,
   DataQuery,
   IArrayFieldQueryOps,
-  IComparisonLiteralFieldQueryOps,
   IDataProvideQueryListParams,
-  INumberLiteralFieldQueryOps,
   IRecordFieldQueryOps,
+  NumberLiteralFieldQueryOps,
 } from './types';
 
 export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>) {
@@ -229,8 +229,8 @@ export abstract class BaseMongoDataProvider<
     Q extends DataQuery<AnyObject>,
     DataType = Q extends DataQuery<infer U> ? U : AnyObject
   >(q: Q) {
-    type T = IComparisonLiteralFieldQueryOps &
-      INumberLiteralFieldQueryOps &
+    type T = ComparisonLiteralFieldQueryOps &
+      NumberLiteralFieldQueryOps &
       IArrayFieldQueryOps<any> &
       IRecordFieldQueryOps<any>;
     const mq: FilterQuery<DataType> = {};

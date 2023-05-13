@@ -3,9 +3,7 @@
 Sets up what's needed to run the SDK tests. For now, they are:
 
 - A workspace
-- An access token which can be one of:
-  - Program access token
-  - Client assigned token
+- Agent token
 - Ensure the token has the right permissions for the test
 
 ## Commands

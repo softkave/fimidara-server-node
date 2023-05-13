@@ -29,6 +29,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<ChangePasswordWithCurrentPasswordEndpointParams>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -45,6 +46,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<ChangePasswordWithTokenEndpointParams>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -61,6 +63,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -77,6 +80,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<ForgotPasswordEndpointParams>
   ): Promise<FimidaraEndpointResult<undefined>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -93,6 +97,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<LoginParams>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -109,6 +114,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<undefined>
   ): Promise<FimidaraEndpointResult<undefined>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: undefined,
       formdata: undefined,
@@ -125,6 +131,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<SignupEndpointParams>
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -141,6 +148,7 @@ class UsersEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UserExistsEndpointParams>
   ): Promise<FimidaraEndpointResult<UserExistsEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -161,6 +169,7 @@ class CollaboratorsEndpoints extends FimidaraEndpointsBase {
     FimidaraEndpointResult<GetCollaboratorsWithoutPermissionEndpointResult>
   > => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -179,6 +188,7 @@ class InternalsEndpoints extends FimidaraEndpointsBase {
     props?: FimidaraEndpointParamsOptional<GetWaitlistedUsersEndpointParams>
   ): Promise<FimidaraEndpointResult<GetWaitlistedUsersEndpointResult>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,
@@ -195,6 +205,7 @@ class InternalsEndpoints extends FimidaraEndpointsBase {
     props: FimidaraEndpointParamsRequired<UpgradeWaitlistedUsersEndpointParams>
   ): Promise<FimidaraEndpointResult<undefined>> => {
     const response = await invokeEndpoint({
+      serverURL: this.getServerURL(props),
       token: this.getAuthToken(props),
       data: props?.body,
       formdata: undefined,

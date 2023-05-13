@@ -9,7 +9,7 @@ export class FolderExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Folder exists');
+    this.message = getErrorMessageFromParams(props, 'Folder exists.');
   }
 }
 
@@ -18,6 +18,6 @@ export class FolderNotFoundError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Folder not found');
+    this.message = getErrorMessageFromParams(props, 'Folder not found.');
   }
 }

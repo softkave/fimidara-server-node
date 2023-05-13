@@ -10,6 +10,6 @@ export class UsageLimitExceededError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Usage limit exceeded');
+    this.message = getErrorMessageFromParams(props, 'Usage limit exceeded.');
   }
 }

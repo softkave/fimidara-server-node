@@ -168,9 +168,17 @@
                         },
                         "parentId": {
                             "data": {
-                                "description": "Folder ID.",
-                                "__id": "FieldString",
-                                "example": "folder0_000000000000000000000"
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "description": "Folder ID.",
+                                        "__id": "FieldString",
+                                        "example": "folder0_000000000000000000000"
+                                    },
+                                    "1": {
+                                        "__id": "FieldNull"
+                                    }
+                                }
                             },
                             "required": true
                         },

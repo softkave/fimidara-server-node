@@ -65,21 +65,24 @@ export async function getUserClientAssignedToken(
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
-    context.semantic.agentToken.insertItem(token, opts);
-    addAssignedPermissionGroupList(
-      context,
-      SYSTEM_SESSION_AGENT,
-      context.appVariables.appWorkspaceId,
-      [
-        {permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId},
-        {permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId},
-      ],
-      token.resourceId,
-      /** deleteExisting */ false,
-      /** skipPermissionGroupsExistCheck */ true,
-      /** skip auth check */ true,
-      opts
-    );
+
+    await Promise.all([
+      context.semantic.agentToken.insertItem(token, opts),
+      addAssignedPermissionGroupList(
+        context,
+        SYSTEM_SESSION_AGENT,
+        context.appVariables.appWorkspaceId,
+        [
+          {permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId},
+          {permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId},
+        ],
+        token.resourceId,
+        /** deleteExisting */ false,
+        /** skipPermissionGroupsExistCheck */ true,
+        /** skip auth check */ true,
+        opts
+      ),
+    ]);
   }
 
   return token;

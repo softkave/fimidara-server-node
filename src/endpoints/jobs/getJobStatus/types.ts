@@ -1,8 +1,8 @@
 import {JobStatus} from '../../../definitions/job';
 import {BaseContextType} from '../../contexts/types';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {Endpoint} from '../../types';
 
-export interface GetJobStatusEndpointParams extends EndpointOptionalWorkspaceIDParam {
+export interface GetJobStatusEndpointParams {
   jobId: string;
 }
 

@@ -37,7 +37,7 @@ export function getWorkspaceIdNoThrow(agent: SessionAgent, providedWorkspaceId?:
 export function getWorkspaceIdFromSessionAgent(agent: SessionAgent, providedWorkspaceId?: string) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
-    throw new InvalidRequestError('Workspace ID not provided');
+    throw new InvalidRequestError('Workspace ID not provided.');
   }
   return workspaceId;
 }
@@ -58,7 +58,7 @@ export function tryGetAgentTokenId(
 export function assertGetWorkspaceIdFromAgent(agent: SessionAgent) {
   const workspaceId = agent.agentToken ? agent.agentToken.workspaceId : null;
   if (!workspaceId) {
-    throw new InvalidRequestError('Workspace ID not provided');
+    throw new InvalidRequestError('Workspace ID not provided.');
   }
 
   return workspaceId;

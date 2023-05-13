@@ -3,6 +3,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {EmailAddressNotAvailableError} from './errors';
 
@@ -45,14 +46,22 @@ export function assertUser(user?: User | null): asserts user {
   appAssert(user, reuseableErrors.user.notFound());
 }
 
-export async function getCompleteUserDataByEmail(context: BaseContextType, email: string) {
-  const user = await context.semantic.user.getByEmail(email);
+export async function getCompleteUserDataByEmail(
+  context: BaseContextType,
+  email: string,
+  opts?: SemanticDataAccessProviderMutationRunOptions
+) {
+  const user = await context.semantic.user.getByEmail(email, opts);
   assertUser(user);
   return await populateUserWorkspaces(context, user);
 }
 
-export async function assertEmailAddressAvailable(context: BaseContextType, email: string) {
-  const userExists = await context.semantic.user.existsByEmail(email);
+export async function assertEmailAddressAvailable(
+  context: BaseContextType,
+  email: string,
+  opts?: SemanticDataAccessProviderMutationRunOptions
+) {
+  const userExists = await context.semantic.user.existsByEmail(email, opts);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
   }

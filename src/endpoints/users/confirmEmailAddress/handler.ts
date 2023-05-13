@@ -2,7 +2,7 @@ import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import internalConfirmEmailAddress from './internalConfirmEmailAddress';
+import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress';
 import {ConfirmEmailAddressEndpoint} from './types';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instData) => {
@@ -12,7 +12,7 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instDat
     AppResourceType.User,
     TokenAccessScope.ConfirmEmailAddress
   );
-  const user = await internalConfirmEmailAddress(context, agent.agentId, agent.user);
+  const user = await INTERNAL_confirmEmailAddress(context, agent.agentId, agent.user ?? null);
   const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
     Promise.all([
       getUserToken(context, agent.agentId, opts),

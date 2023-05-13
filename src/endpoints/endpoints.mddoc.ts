@@ -13,8 +13,10 @@ import {
   FieldArray,
   FieldBoolean,
   FieldDate,
+  FieldNull,
   FieldNumber,
   FieldObject,
+  FieldOrCombination,
   FieldString,
 } from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
@@ -184,6 +186,7 @@ const folderId = FieldString.construct()
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
+const folderIdOrNull = FieldOrCombination.construct().setTypes([folderId, FieldNull.construct()]);
 const fileId = FieldString.construct()
   .setDescription('File ID.')
   .setExample(
@@ -337,6 +340,7 @@ export const fReusables = {
   usageCategory,
   usageFulfillmentStatus,
   password,
+  folderIdOrNull,
 };
 
 const errorObject = FieldObject.construct<EndpointExportedError>()

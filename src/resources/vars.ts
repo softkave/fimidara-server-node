@@ -151,8 +151,8 @@ export const defaultStaticVars = {
   appDefaultEmailAddressFrom: 'fimidara@softkave.com',
   awsEmailEncoding: 'UTF-8',
   dateFormat: 'MMM DD, YYYY',
-  changePasswordPath: '/account/change-password',
-  verifyEmailPath: '/account/verify-email',
+  changePasswordPath: '/change-password',
+  verifyEmailPath: '/verify-email',
 };
 
 // Cast here is safe as long as nobody uses appVariables directly but through
@@ -212,8 +212,8 @@ function extractEnvVariables(schema: AppEnvSchema, base: Partial<AppVariables> =
 
   const vars: AppVariables = {
     ...defaultStaticVars,
-    clientLoginLink: `${envVariables.clientDomain}/account/login`,
-    clientSignupLink: `${envVariables.clientDomain}/account/signup`,
+    clientLoginLink: `${envVariables.clientDomain}/login`,
+    clientSignupLink: `${envVariables.clientDomain}/signup`,
 
     // Added after the app initialization phase
     appWorkspaceId: '',

@@ -1,11 +1,12 @@
 import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
-import {compact, forEach, set, uniq, upperFirst} from 'lodash';
+import {compact, flatten, forEach, set, uniq, upperFirst} from 'lodash';
 import {
   AppExportedHttpEndpoints,
   getFimidaraPrivateHttpEndpoints,
   getFimidaraPublicHttpEndpoints,
 } from '../endpoints/endpoints';
+import {toArray} from '../utils/fns';
 import {
   FieldObject,
   MddocTypeFieldArray,
@@ -368,6 +369,7 @@ function generateGroupedEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEnd
         : 'props?: FimidaraEndpointParamsOptional<undefined>';
       const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
   const response = await invokeEndpoint({
+    serverURL: this.getServerURL(props),
     token: this.getAuthToken(props),
     data: ${requestBodyObject ? 'props?.body' : 'undefined'},
     formdata: ${isMddocMultipartFormdata(requestBodyRaw) ? 'props.body' : 'undefined'},
@@ -407,11 +409,17 @@ async function jsSdkCodeGen(endpoints: Partial<AppExportedHttpEndpoints>, filena
   forEach(endpoints, groupedEndpoints => {
     if (groupedEndpoints) {
       forEach(groupedEndpoints, endpoint => {
-        documentTypesFromEndpoint(typesDoc, endpoint.mddocHttpDefinition);
+        toArray(endpoint).forEach(nextEndpoint =>
+          documentTypesFromEndpoint(typesDoc, nextEndpoint.mddocHttpDefinition)
+        );
       });
       generateGroupedEndpointCode(
         codesDoc,
-        Object.values(groupedEndpoints).map(next => next.mddocHttpDefinition)
+        flatten(
+          Object.values(groupedEndpoints).map(endpoint =>
+            toArray(endpoint).map(nextEndpoint => nextEndpoint.mddocHttpDefinition)
+          )
+        )
       );
     }
   });

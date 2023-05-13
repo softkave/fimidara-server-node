@@ -1,20 +1,22 @@
 import * as fse from 'fs-extra';
-import {forEach, map} from 'lodash';
+import {flatten, forEach, map} from 'lodash';
 import path from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
-import {ExportedHttpEndpointWithMddocDefinition} from '../endpoints/types';
+import {AppExportedHttpEndpoints, getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
+import {toArray} from '../utils/fns';
 
 export type AppHttpEndpointsTableOfContent = Array<string | [string, string[]]>;
 
 function generateTableOfContentFromEndpoints(): AppHttpEndpointsTableOfContent {
   const tableOfContent: AppHttpEndpointsTableOfContent = [];
-  const fimidaraPublicHttpEndpoints = getFimidaraPublicHttpEndpoints();
+  const fimidaraPublicHttpEndpoints: AppExportedHttpEndpoints = getFimidaraPublicHttpEndpoints();
 
   forEach(fimidaraPublicHttpEndpoints, (groupedEndpoints, groupName) => {
-    const groupEndpointNames = map(
-      groupedEndpoints,
-      (endpoint: ExportedHttpEndpointWithMddocDefinition<any>) =>
-        endpoint.mddocHttpDefinition.assertGetBasePathname()
+    const groupEndpointNames = flatten(
+      map(groupedEndpoints, endpoint =>
+        toArray(endpoint).map(nextEndpoint =>
+          nextEndpoint.mddocHttpDefinition.assertGetBasePathname()
+        )
+      )
     );
     tableOfContent.push([groupName, groupEndpointNames]);
   });

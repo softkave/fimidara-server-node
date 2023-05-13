@@ -1,22 +1,11 @@
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {BaseContextType} from '../../contexts/types';
-import RequestData from '../../RequestData';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import sendEmailVerificationCode from '../sendEmailVerificationCode/handler';
+import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler';
 import {SignupEndpoint} from './types';
 import {INTERNAL_signupUser} from './utils';
 import {signupJoiSchema} from './validation';
-
-async function callComfirmEmail(context: BaseContextType, reqData: RequestData) {
-  const sendEmailReqData = RequestData.clone(reqData, reqData.data);
-  const result = await sendEmailVerificationCode(context, sendEmailReqData);
-  return {
-    result,
-    updatedReqData: RequestData.merge(sendEmailReqData, reqData),
-  };
-}
 
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
@@ -28,7 +17,7 @@ const signup: SignupEndpoint = async (context, instData) => {
     ])
   );
   instData.agent = makeUserSessionAgent(user, userToken);
-  await callComfirmEmail(context, instData);
+  await INTERNAL_sendEmailVerificationCode(context, user);
   return toLoginResult(context, user, userToken, clientAssignedToken);
 };
 

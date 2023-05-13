@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import {last, merge} from 'lodash';
+import {getFileExtenstion} from '../../utils/fns';
 import {endpointConstants} from '../constants';
 import {endpointDecodeURIComponent} from '../utils';
 import {fileConstants} from './constants';
@@ -7,7 +8,8 @@ import deleteFile from './deleteFile/handler';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  readFileEndpointDefinition,
+  readFileGETEndpointDefinition,
+  readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
@@ -57,6 +59,7 @@ function extractUploadFilesParamsFromFormData(req: Request): UploadFileEndpointP
     ...req.body,
     data: file?.buffer,
     mimetype: req.body.mimetype ?? file?.mimetype,
+    extension: req.body.extension ?? getFileExtenstion(file?.originalname),
   };
 }
 
@@ -74,12 +77,20 @@ export function getFilesPublicHttpEndpoints() {
       fn: getFileDetails,
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
     },
-    readFile: {
-      fn: readFile,
-      mddocHttpDefinition: readFileEndpointDefinition,
-      handleResponse: handleReadFileResponse,
-      getDataFromReq: extractReadFileParamsFromReq,
-    },
+    readFile: [
+      {
+        fn: readFile,
+        mddocHttpDefinition: readFilePOSTEndpointDefinition,
+        handleResponse: handleReadFileResponse,
+        getDataFromReq: extractReadFileParamsFromReq,
+      },
+      {
+        fn: readFile,
+        mddocHttpDefinition: readFileGETEndpointDefinition,
+        handleResponse: handleReadFileResponse,
+        getDataFromReq: extractReadFileParamsFromReq,
+      },
+    ],
     updateFileDetails: {
       fn: updateFileDetails,
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
