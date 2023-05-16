@@ -7,40 +7,15 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {AppVariables} from '../../resources/types';
-import {endpointConstants} from '../constants';
-
-export interface FilePersistenceUploadFileParams {
-  bucket: string;
-  key: string;
-  body: Buffer;
-  contentType?: string;
-  contentEncoding?: string;
-  contentLength?: number;
-}
-
-export interface FilePersistenceGetFileParams {
-  bucket: string;
-  key: string;
-}
-
-export interface FilePersistenceDeleteFilesParams {
-  bucket: string;
-  keys: string[];
-}
-
-export interface IPersistedFile {
-  body?: Readable;
-  contentLength?: number;
-}
-
-export interface FilePersistenceProviderContext {
-  uploadFile: (params: FilePersistenceUploadFileParams) => Promise<void>;
-  getFile: (params: FilePersistenceGetFileParams) => Promise<IPersistedFile>;
-  deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
-  ensureBucketReady: (name: string, region: string) => Promise<void>;
-  close: () => Promise<void>;
-}
+import {AppVariables} from '../../../resources/types';
+import {endpointConstants} from '../../constants';
+import {
+  FilePersistenceDeleteFilesParams,
+  FilePersistenceGetFileParams,
+  FilePersistenceProviderContext,
+  FilePersistenceUploadFileParams,
+  IPersistedFile,
+} from './types';
 
 export class S3FilePersistenceProviderContext implements FilePersistenceProviderContext {
   protected s3: S3Client;

@@ -1,6 +1,6 @@
 import {AnyFn} from '../../../utils/types';
-import {IEmailProviderContext} from '../../contexts/EmailProviderContext';
-import {FilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
+import {IEmailProviderContext} from '../../contexts/email/types';
+import {FilePersistenceProviderContext} from '../../contexts/file/types';
 import {BaseContextDataProviders, BaseContextType} from '../../contexts/types';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

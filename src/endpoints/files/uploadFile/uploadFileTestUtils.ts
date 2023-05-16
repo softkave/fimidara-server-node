@@ -4,7 +4,7 @@ import {File} from '../../../definitions/file';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
-import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {getBufferFromStream} from '../../contexts/file/S3FilePersistenceProviderContext';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';

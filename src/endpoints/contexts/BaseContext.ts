@@ -1,15 +1,16 @@
 import {forEach} from 'lodash';
 import {Logger} from 'winston';
 import {AppVariables, FileBackendType} from '../../resources/types';
+import {appAssert} from '../../utils/assertion';
 import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
-import {IEmailProviderContext} from './EmailProviderContext';
-import {
-  FilePersistenceProviderContext,
-  S3FilePersistenceProviderContext,
-} from './FilePersistenceProviderContext';
-import MemoryFilePersistenceProviderContext from './MemoryFilePersistenceProviderContext';
 import SessionContext, {SessionContextType} from './SessionContext';
+import {SESEmailProviderContext} from './email/SESEmailProviderContext';
+import {IEmailProviderContext} from './email/types';
+import LocalFsFilePersistenceProviderContext from './file/LocalFsFilePersistenceProviderContext';
+import MemoryFilePersistenceProviderContext from './file/MemoryFilePersistenceProviderContext';
+import {S3FilePersistenceProviderContext} from './file/S3FilePersistenceProviderContext';
+import {FilePersistenceProviderContext} from './file/types';
 import {MemStoreType} from './mem/types';
 import {
   BaseContextDataProviders,
@@ -74,16 +75,23 @@ export default class BaseContext<
     logRejectedPromisesAndThrow(await Promise.allSettled(promises));
     this.clientLogger.close();
 
-    if (this.disposeFn) {
-      await this.disposeFn();
-    }
+    if (this.disposeFn) await this.disposeFn();
   };
 }
 
 export function getFileProvider(appVariables: AppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new S3FilePersistenceProviderContext(appVariables.awsRegion);
-  } else {
+  } else if (appVariables.fileBackend === FileBackendType.Memory) {
     return new MemoryFilePersistenceProviderContext();
+  } else if (appVariables.fileBackend === FileBackendType.LocalFs) {
+    appAssert(appVariables.localFsDir);
+    return new LocalFsFilePersistenceProviderContext(appVariables.localFsDir);
   }
+
+  throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
+}
+
+export function getEmailProvider(appVariables: AppVariables) {
+  return new SESEmailProviderContext(appVariables.awsRegion);
 }

@@ -14,7 +14,6 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
-import BaseContext from '../contexts/BaseContext';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
@@ -62,7 +61,7 @@ async function setupWorkspace(
   );
 }
 
-async function setupDefaultUser(context: BaseContext) {
+async function setupDefaultUser(context: BaseContextType) {
   return executeWithMutationRunOptions(context, async opts => {
     let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
 

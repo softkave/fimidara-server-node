@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] Limit workspaces created by a user to 3 with a way to request for more
 - [ ] Use standard JWT secret for productionany cookie security issues
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
 - [ ] fs file provider

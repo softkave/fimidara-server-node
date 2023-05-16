@@ -16,6 +16,7 @@ import {Workspace} from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
 import BaseContext from '../../endpoints/contexts/BaseContext';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
+import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -25,6 +26,7 @@ import {
   ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
 import {
   generateTestUsageThresholdInputMap,
@@ -34,7 +36,6 @@ import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
 import {
   assertContext,
-  getTestEmailProvider,
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/testUtils/testUtils';
@@ -52,7 +53,7 @@ import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';
 
-const contexts: BaseContext[] = [];
+const contexts: BaseContextType[] = [];
 const connections: Connection[] = [];
 const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent(), undefined);
 const runInfo = pipelineRunInfoFactory({
@@ -77,8 +78,8 @@ async function getContextAndConnection() {
   const mem = getMemstoreDataProviders(models);
   const context = new BaseContext(
     getDataProviders(models),
-    getTestEmailProvider(appVariables),
-    await getTestFileProvider(appVariables),
+    new NoopEmailProviderContext(),
+    getTestFileProvider(appVariables),
     appVariables,
     mem,
     getLogicProviders(),
@@ -92,7 +93,7 @@ async function getContextAndConnection() {
 }
 
 async function insertUsageRecordsForFiles(
-  context: BaseContext,
+  context: BaseContextType,
   workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
@@ -155,7 +156,7 @@ async function insertUsageRecordsForFiles(
 }
 
 async function setupForFile(
-  context: BaseContext,
+  context: BaseContextType,
   exceedLimit = false,
   nothrow = true,
   exceedBy = 0
@@ -190,7 +191,7 @@ async function setupForFile(
  * @param expectedState
  */
 async function checkLocks(
-  context: BaseContext,
+  context: BaseContextType,
   wId: string,
   categories?: Partial<Record<UsageRecordCategory, boolean>> | null,
   expectedState = true
@@ -237,7 +238,7 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: Worksp
 }
 
 async function assertRecordInsertionFails(
-  context: BaseContext,
+  context: BaseContextType,
   connection: Connection,
   w1: Workspace
 ) {

@@ -1,20 +1,6 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
-import {BaseContextType} from './types';
-
-export interface SendEmailParams {
-  destination: string[];
-  source: string;
-  subject: string;
-  body: {
-    html: string;
-    text: string;
-  };
-}
-
-export interface IEmailProviderContext {
-  sendEmail: (context: BaseContextType, params: SendEmailParams) => Promise<void>;
-  close: () => void | Promise<void>;
-}
+import {BaseContextType} from '../types';
+import {IEmailProviderContext, SendEmailParams} from './types';
 
 export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;

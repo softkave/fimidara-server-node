@@ -20,10 +20,10 @@
     "pretest": "npm run compile",
     "test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.ts --detectOpenHandles",
     "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
-    "dev": "tsc && env-cmd -f \".env.local\" npm start",
+    "dev": "tsc && env-cmd -f \".env.dev\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
-    "gen-rest-api": "env-cmd -f \".env.local\" ts-node src/mddoc/restApiGen.ts",
-    "gen-js-sdk": "env-cmd -f \".env.local\" ts-node src/mddoc/jsSdkCodeGen.ts",
+    "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
+    "gen-js-sdk": "env-cmd -f \".env.dev\" ts-node src/mddoc/jsSdkCodeGen.ts",
     "start-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath mongo-rs-data --keep"
   },
   "dependencies": {

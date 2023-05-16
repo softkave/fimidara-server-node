@@ -12,13 +12,16 @@ import {
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
 import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
+import {
+  default as BaseContext,
+  default as BaseContextType,
+  getFileProvider,
+} from '../../endpoints/contexts/BaseContext';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
-import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -70,13 +73,12 @@ export async function devUserSetupInitContext() {
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
   );
-  const emailProvider = new NoopEmailProviderContext();
   const models = getMongoModels(connection);
   const data = getDataProviders(models);
   const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
     data,
-    emailProvider,
+    new NoopEmailProviderContext(),
     getFileProvider(appVariables),
     appVariables,
     mem,
@@ -136,7 +138,7 @@ export async function devUserSetupPromptUserPassword() {
 }
 
 async function isUserAdmin(
-  context: BaseContext,
+  context: BaseContextType,
   userId: string,
   adminPermissionGroupId: string,
   opts?: SemanticDataAccessProviderRunOptions
@@ -152,7 +154,7 @@ async function isUserAdmin(
 }
 
 async function makeUserAdmin(
-  context: BaseContext,
+  context: BaseContextType,
   userId: string,
   workspace: Workspace,
   adminPermissionGroupId: string,
@@ -175,7 +177,7 @@ async function makeUserAdmin(
   }
 }
 
-async function getUser(context: BaseContext, runtimeOptions: ISetupDevUserOptions) {
+async function getUser(context: BaseContextType, runtimeOptions: ISetupDevUserOptions) {
   const {email} = await runtimeOptions.getUserEmail();
   const userExists = await context.semantic.user.existsByEmail(email);
   let user: UserWithWorkspace;

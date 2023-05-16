@@ -1,5 +1,5 @@
 import {noopAsync} from '../../../utils/fns';
-import {FilePersistenceProviderContext} from '../../contexts/FilePersistenceProviderContext';
+import {FilePersistenceProviderContext} from '../../contexts/file/types';
 
 export default class NoopFilePersistenceProviderContext implements FilePersistenceProviderContext {
   uploadFile = noopAsync;

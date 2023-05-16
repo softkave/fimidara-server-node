@@ -1,10 +1,10 @@
-import {S3FilePersistenceProviderContext} from '../../contexts/file/S3FilePersistenceProviderContext';
+import LocalFsFilePersistenceProviderContext from '../../contexts/file/LocalFsFilePersistenceProviderContext';
 import {ITestFilePersistenceProviderContext} from './types';
 
-export default class TestS3FilePersistenceProviderContext
+export default class TestLocalFsFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext
 {
-  private client: S3FilePersistenceProviderContext;
+  private client: LocalFsFilePersistenceProviderContext;
 
   uploadFile: ITestFilePersistenceProviderContext['uploadFile'];
   getFile: ITestFilePersistenceProviderContext['getFile'];
@@ -12,8 +12,8 @@ export default class TestS3FilePersistenceProviderContext
   ensureBucketReady: ITestFilePersistenceProviderContext['ensureBucketReady'];
   close: ITestFilePersistenceProviderContext['close'];
 
-  constructor(region: string) {
-    this.client = new S3FilePersistenceProviderContext(region);
+  constructor(private fileDir: string) {
+    this.client = new LocalFsFilePersistenceProviderContext(this.fileDir);
     this.uploadFile = jest.fn(this.client.uploadFile).mockName('uploadFile');
     this.getFile = jest.fn(this.client.getFile).mockName('getFile');
     this.deleteFiles = jest.fn(this.client.deleteFiles).mockName('deleteFiles');

@@ -5,8 +5,8 @@ import multer = require('multer');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
 import {endpointConstants} from './endpoints/constants';
-import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
-import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
+import BaseContext, {getEmailProvider, getFileProvider} from './endpoints/contexts/BaseContext';
+import {BaseContextType} from './endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -62,7 +62,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
-function setupJWT(ctx: BaseContext) {
+function setupJWT(ctx: BaseContextType) {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({
@@ -85,10 +85,9 @@ async function setup() {
 
   const models = getMongoModels(connection);
   const mem = getMemstoreDataProviders(models);
-  const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
   const ctx = new BaseContext(
     getDataProviders(models),
-    emailProvider,
+    getEmailProvider(appVariables),
     getFileProvider(appVariables),
     appVariables,
     mem,

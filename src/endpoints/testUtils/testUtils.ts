@@ -7,6 +7,7 @@ import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {AppVariables, FileBackendType} from '../../resources/types';
 import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
+import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';
@@ -20,7 +21,7 @@ import {
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import BaseContext from '../contexts/BaseContext';
-import {IServerRequest} from '../contexts/types';
+import {BaseContextType, IServerRequest} from '../contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -54,6 +55,7 @@ import addWorkspace from '../workspaces/addWorkspace/handler';
 import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/MockTestEmailProviderContext';
+import TestLocalFsFilePersistenceProviderContext from './context/TestLocalFsFilePersistenceProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/TestS3FilePersistenceProviderContext';
 import {ITestBaseContext} from './context/types';
@@ -69,9 +71,14 @@ export function getTestEmailProvider(appVariables: AppVariables) {
 export function getTestFileProvider(appVariables: AppVariables) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-  } else {
+  } else if (appVariables.fileBackend === FileBackendType.Memory) {
     return new TestMemoryFilePersistenceProviderContext();
+  } else if (appVariables.fileBackend === FileBackendType.LocalFs) {
+    appAssert(appVariables.localFsDir);
+    return new TestLocalFsFilePersistenceProviderContext(appVariables.localFsDir);
   }
+
+  throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
@@ -98,7 +105,7 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
   return ctx;
 }
 
-export function assertContext(ctx: any): asserts ctx is BaseContext {
+export function assertContext(ctx: any): asserts ctx is BaseContextType {
   assert(ctx, 'Context is not yet initialized.');
 }
 
@@ -145,7 +152,7 @@ export interface IInsertUserForTestResult {
 }
 
 export async function insertUserForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userInput: Partial<SignupEndpointParams> = {},
   skipAutoVerifyEmail = false // Tests that mutate data will fail otherwise
 ): Promise<IInsertUserForTestResult> {
@@ -187,7 +194,7 @@ export interface IInsertWorkspaceForTestResult {
 }
 
 export async function insertWorkspaceForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken,
   workspaceInput: Partial<AddWorkspaceEndpointParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
@@ -211,7 +218,7 @@ export async function insertWorkspaceForTest(
 }
 
 export async function insertPermissionGroupForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   permissionGroupInput: Partial<NewPermissionGroupInput> = {}
@@ -234,7 +241,7 @@ export async function insertPermissionGroupForTest(
 }
 
 export async function insertPermissionItemsForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   input: PermissionItemInput | PermissionItemInput[]
@@ -249,7 +256,7 @@ export async function insertPermissionItemsForTest(
 }
 
 export async function insertRequestForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   requestInput: Partial<CollaborationRequestInput> = {}
@@ -273,7 +280,7 @@ export async function insertRequestForTest(
 }
 
 export async function insertAgentTokenForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   tokenInput: Partial<NewAgentTokenInput> = {}
@@ -297,7 +304,7 @@ export async function insertAgentTokenForTest(
 }
 
 export async function insertFolderForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken | null,
   workspace: PublicWorkspace,
   folderInput: Partial<NewFolderInput> = {}
@@ -345,7 +352,7 @@ export function generateTestTextFile() {
 }
 
 export async function insertFileForTest(
-  context: BaseContext,
+  context: BaseContextType,
   userToken: AgentToken | null, // Pass null for public agent
   workspace: Pick<Workspace, 'rootname'>,
   fileInput: Partial<UploadFileEndpointParams> = {},

@@ -1,9 +1,7 @@
-import {SESEmailProviderContext} from '../../contexts/EmailProviderContext';
+import {SESEmailProviderContext} from '../../contexts/email/SESEmailProviderContext';
 import {ITestEmailProviderContext} from './types';
 
-export default class TestSESEmailProviderContext
-  implements ITestEmailProviderContext
-{
+export default class TestSESEmailProviderContext implements ITestEmailProviderContext {
   private client: SESEmailProviderContext;
 
   sendEmail: ITestEmailProviderContext['sendEmail'];

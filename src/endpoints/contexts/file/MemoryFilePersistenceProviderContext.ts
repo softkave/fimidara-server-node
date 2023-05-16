@@ -1,12 +1,12 @@
 import {Readable} from 'stream';
-import {noopAsync} from '../../utils/fns';
+import {noopAsync} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceGetFileParams,
   FilePersistenceProviderContext,
   FilePersistenceUploadFileParams,
   IPersistedFile,
-} from './FilePersistenceProviderContext';
+} from './types';
 
 export default class MemoryFilePersistenceProviderContext
   implements FilePersistenceProviderContext

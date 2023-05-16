@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {getBufferFromStream} from '../../contexts/FilePersistenceProviderContext';
+import {getBufferFromStream} from '../../contexts/file/S3FilePersistenceProviderContext';
 import {BaseContextType} from '../../contexts/types';
 
 export async function assertFileBodyEqual(

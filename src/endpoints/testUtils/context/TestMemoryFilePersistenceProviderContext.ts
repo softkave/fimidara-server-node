@@ -1,4 +1,4 @@
-import MemoryFilePersistenceProviderContext from '../../contexts/MemoryFilePersistenceProviderContext';
+import MemoryFilePersistenceProviderContext from '../../contexts/file/MemoryFilePersistenceProviderContext';
 import {ITestFilePersistenceProviderContext} from './types';
 
 export default class TestMemoryFilePersistenceProviderContext
@@ -17,9 +17,7 @@ export default class TestMemoryFilePersistenceProviderContext
     this.uploadFile = jest.fn(this.client.uploadFile).mockName('uploadFile');
     this.getFile = jest.fn(this.client.getFile).mockName('getFile');
     this.deleteFiles = jest.fn(this.client.deleteFiles).mockName('deleteFiles');
-    this.ensureBucketReady = jest
-      .fn(this.client.ensureBucketReady)
-      .mockName('ensureBucketReady');
+    this.ensureBucketReady = jest.fn(this.client.ensureBucketReady).mockName('ensureBucketReady');
     this.close = jest.fn(this.client.close).mockName('close');
   }
 }

@@ -19,11 +19,13 @@ export enum AppEnvVariables {
   ROOT_USER_LAST_NAME = 'ROOT_USER_LAST_NAME',
   FILE_BACKEND = 'FILE_BACKEND',
   FLAG_WAITLIST_NEW_SIGNUPS = 'FLAG_WAITLIST_NEW_SIGNUPS',
+  LOCAL_FS_DIR = 'LOCAL_FS_DIR',
 }
 
 export enum FileBackendType {
   S3 = 's3',
   Memory = 'memory',
+  LocalFs = 'fs',
 }
 
 export interface ISuppliedVariables {
@@ -47,6 +49,10 @@ export interface ISuppliedVariables {
   /** Users on waitlist cannot create workspaces but can be added to an existing
    * workspace. */
   FLAG_waitlistNewSignups: boolean;
+
+  /** Where to persist files when `fileBackend` is
+   * {@link FileBackendType.LocalFs} */
+  localFsDir?: string;
 }
 
 interface IStaticVariables {

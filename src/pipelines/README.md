@@ -9,11 +9,11 @@ Current pipelines are:
 
 ## Commands
 
-Assuming you're running from the root of the server project with an environment file ".env.local":
-`npx env-cmd -f ".env.local" npx ts-node src/pipelines/index.ts`
+Assuming you're running from the root of the server project with an environment file ".env.dev":
+`npx env-cmd -f ".env.dev" npx ts-node src/pipelines/index.ts`
 
-Run aggregate-usage-records with an environment file ".env.local":
-`npx env-cmd -f ".env.local" npx ts-node src/pipelines/aggregate-usage-records/index.ts`
+Run aggregate-usage-records with an environment file ".env.dev":
+`npx env-cmd -f ".env.dev" npx ts-node src/pipelines/aggregate-usage-records/index.ts`
 
-Run unlock-usage-threshold-locks with an environment file ".env.local":
-`npx env-cmd -f ".env.local" npx ts-node src/pipelines/unlock-usage-threshold-locks/index.ts`
+Run unlock-usage-threshold-locks with an environment file ".env.dev":
+`npx env-cmd -f ".env.dev" npx ts-node src/pipelines/unlock-usage-threshold-locks/index.ts`

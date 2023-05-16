@@ -1,6 +1,5 @@
 import {getMongoConnection} from '../db/connection';
-import BaseContext from '../endpoints/contexts/BaseContext';
-import {S3FilePersistenceProviderContext} from '../endpoints/contexts/FilePersistenceProviderContext';
+import BaseContext, {getFileProvider} from '../endpoints/contexts/BaseContext';
 import {
   getDataProviders,
   getLogicProviders,
@@ -24,7 +23,7 @@ async function integrationTestGlobalSetup() {
   const ctx = new BaseContext(
     getDataProviders(models),
     new NoopEmailProviderContext(),
-    new S3FilePersistenceProviderContext(appVariables.awsRegion),
+    getFileProvider(appVariables),
     appVariables,
     mem,
     getLogicProviders(),

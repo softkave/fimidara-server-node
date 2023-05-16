@@ -7,6 +7,7 @@ import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addA
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
+import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getDataProviders,
   getLogicProviders,
@@ -29,13 +30,12 @@ async function setupContext() {
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
   );
-  const emailProvider = new NoopEmailProviderContext();
   const models = getMongoModels(connection);
   const data = getDataProviders(models);
   const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
     data,
-    emailProvider,
+    new NoopEmailProviderContext(),
     getFileProvider(appVariables),
     appVariables,
     mem,
@@ -49,7 +49,7 @@ async function setupContext() {
 }
 
 async function insertWorkspace(
-  context: BaseContext,
+  context: BaseContextType,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const companyName = faker.company.name();
@@ -67,7 +67,7 @@ async function insertWorkspace(
 }
 
 async function createAgentToken(
-  context: BaseContext,
+  context: BaseContextType,
   workspace: Workspace,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
