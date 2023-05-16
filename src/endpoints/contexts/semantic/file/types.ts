@@ -1,4 +1,4 @@
-import {File} from '../../../../definitions/file';
+import {File, FilePresignedPath} from '../../../../definitions/file';
 import {IDataProvideQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderRunOptions,
@@ -32,3 +32,6 @@ export interface SemanticDataAccessFileProvider
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
 }
+
+export interface SemanticDataAccessFilePresignedPathProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath> {}

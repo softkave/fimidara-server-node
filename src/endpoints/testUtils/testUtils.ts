@@ -31,7 +31,7 @@ import {
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
-import {splitfilepathWithDetails} from '../files/utils';
+import {splitFilepathWithDetails} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
 import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
@@ -377,7 +377,7 @@ export async function insertFileForTest(
     }
   }
 
-  const pathWithDetails = splitfilepathWithDetails(input.filepath);
+  const pathWithDetails = splitFilepathWithDetails(input.filepath);
   if (!pathWithDetails.extension) {
     input.filepath = input.filepath + '.' + input.extension;
   }

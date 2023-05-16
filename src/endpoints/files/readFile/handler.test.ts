@@ -8,6 +8,7 @@ import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {assertFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
@@ -58,15 +59,7 @@ describe('readFile', () => {
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
-    const savedFile = await context.fileBackend.getFile({
-      bucket: context.appVariables.S3Bucket,
-      key: file.resourceId,
-    });
-    const savedBuffer = savedFile.body && (await getBufferFromStream(savedFile.body));
-    const resultBuffer = await getBufferFromStream(result.stream);
-    assert(savedBuffer);
-    assert(resultBuffer);
-    expect(resultBuffer.equals(savedBuffer)).toBe(true);
+    await assertFileBodyEqual(context, file.resourceId, result.stream);
   });
 
   test('file resized', async () => {

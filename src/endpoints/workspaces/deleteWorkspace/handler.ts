@@ -51,6 +51,8 @@ export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
     context.semantic.assignedItem.deleteManyByWorkspaceId(args.workspaceId, opts),
   [AppResourceType.UsageRecord]: (context, args, opts) =>
     context.semantic.usageRecord.deleteManyByWorkspaceId(args.workspaceId, opts),
+  [AppResourceType.FilePresignedPath]: (context, args, opts) =>
+    context.semantic.filePresignedPath.deleteManyByWorkspaceId(args.workspaceId, opts),
 };
 
 const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {

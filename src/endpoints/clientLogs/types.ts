@@ -13,6 +13,6 @@ export type IngestLogsHttpEndpoint = HttpEndpoint<
   {}
 >;
 
-export type ClientLogsExportedEndpoints = {
+export type ClientLogsExportedPrivateEndpoints = {
   ingestLogs: ExportedHttpEndpointWithMddocDefinition<IngestLogsHttpEndpoint>;
 };

@@ -21,6 +21,7 @@ export const DELETE_TAG_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.UsageRecord]: noopAsync,
   [AppResourceType.EndpointRequest]: noopAsync,
   [AppResourceType.Job]: noopAsync,
+  [AppResourceType.FilePresignedPath]: noopAsync,
   [AppResourceType.PermissionItem]: (context, args, opts) =>
     context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
   [AppResourceType.Tag]: (context, args, opts) =>

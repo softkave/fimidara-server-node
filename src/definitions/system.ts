@@ -64,6 +64,7 @@ export enum AppResourceType {
   AssignedItem = 'assignedItem',
   EndpointRequest = 'endpointRequest',
   Job = 'job',
+  FilePresignedPath = 'filePresignedPath',
 }
 
 export const PERMISSION_AGENT_TYPES = [

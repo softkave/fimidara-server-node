@@ -15,7 +15,7 @@ import {
 import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File} from '../../../definitions/file';
+import {File, FilePresignedPath} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../definitions/permissionItem';
@@ -46,6 +46,7 @@ import {
   AssignedItemMemStoreProviderType,
   CollaborationRequestMemStoreProviderType,
   FileMemStoreProviderType,
+  FilePresignedPathMemStoreProviderType,
   FolderMemStoreProviderType,
   IMemStoreOptions,
   MemStoreIndexOptions,
@@ -1822,3 +1823,6 @@ export class AssignedItemMemStoreProvider
 export class UsageRecordMemStoreProvider
   extends MemStore<UsageRecord>
   implements UsageRecordMemStoreProviderType {}
+export class FilePresignedPathMemStoreProvider
+  extends MemStore<FilePresignedPath>
+  implements FilePresignedPathMemStoreProviderType {}

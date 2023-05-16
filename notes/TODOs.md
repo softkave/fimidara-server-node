@@ -3,6 +3,7 @@
 - [ ] Don't delete program tokens, mark them disabled
 - [ ] Implement provided resource IDs and allow to get permission groups by name
 - [ ] Implement resource-based access control, not just agent-based access control
+- [ ] updateWithQuery similar to insertWithQuery for name check and update
 - [ ] Implement a way to give permission to only delete files that belong to or is created by a token
 - [ ] Resource-bound tokens, for accessing resources
 - [ ] Backups

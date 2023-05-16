@@ -40,6 +40,7 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
     [AppResourceType.Job]: noopAsync,
     [AppResourceType.Tag]: noopAsync,
     [AppResourceType.PermissionGroup]: noopAsync,
+    [AppResourceType.FilePresignedPath]: noopAsync,
     [AppResourceType.PermissionItem]: async (context, args, opts) => {
       await Promise.all([
         context.semantic.permissionItem.deleteManyByIdList(args.permissionItemsIdList, opts),

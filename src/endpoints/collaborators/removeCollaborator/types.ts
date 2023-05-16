@@ -18,4 +18,5 @@ export type RemoveCollaboratorEndpoint = Endpoint<
 
 export type RemoveCollaboratorCascadeFnsArgs = DeleteResourceCascadeFnDefaultArgs & {
   userEmail: string;
+  agentTokenId: string;
 };

@@ -22,6 +22,7 @@ export const DELETE_PERMISSION_GROUP_CASCADE_FNS: DeleteResourceCascadeFnsMap = 
   [AppResourceType.EndpointRequest]: noopAsync,
   [AppResourceType.Job]: noopAsync,
   [AppResourceType.Tag]: noopAsync,
+  [AppResourceType.FilePresignedPath]: noopAsync,
   [AppResourceType.PermissionGroup]: (context, args, opts) =>
     context.semantic.permissionGroup.deleteOneById(args.resourceId, opts),
   [AppResourceType.PermissionItem]: async (context, args, opts) => {

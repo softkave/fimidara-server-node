@@ -39,6 +39,8 @@ export const DELETE_AGENT_TOKEN_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
       undefined,
       opts
     ),
+  [AppResourceType.FilePresignedPath]: (context, args, opts) =>
+    context.semantic.filePresignedPath.deleteManyByQuery({agentTokenId: args.resourceId}, opts),
 };
 
 const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => {

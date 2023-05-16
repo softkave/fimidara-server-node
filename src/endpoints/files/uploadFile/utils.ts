@@ -11,7 +11,7 @@ import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/seman
 import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
-import {ISplitfilepathWithDetails} from '../utils';
+import {ISplitFilepathWithDetails} from '../utils';
 
 export async function checkUploadFileAuth(
   context: BaseContextType,
@@ -55,7 +55,7 @@ export async function createFileParentFolders(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  pathWithDetails: ISplitfilepathWithDetails,
+  pathWithDetails: ISplitFilepathWithDetails,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {

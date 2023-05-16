@@ -1,9 +1,9 @@
 import {ingestLogsEndpointDefinition} from './endpoints.mddoc';
 import ingestLogs from './ingestLogs/handler';
-import {ClientLogsExportedEndpoints} from './types';
+import {ClientLogsExportedPrivateEndpoints} from './types';
 
-export function getClientLogsPublicHttpEndpoints() {
-  const clientLogsExportedEndpoints: ClientLogsExportedEndpoints = {
+export function getClientLogsPrivateHttpEndpoints() {
+  const clientLogsExportedEndpoints: ClientLogsExportedPrivateEndpoints = {
     ingestLogs: {
       fn: ingestLogs,
       mddocHttpDefinition: ingestLogsEndpointDefinition,

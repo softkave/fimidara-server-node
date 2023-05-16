@@ -3,6 +3,7 @@ import {BaseContextType} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -12,6 +13,8 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
+import {PermissionDeniedError} from '../../users/errors';
+import getWorkspace from '../../workspaces/getWorkspace/handler';
 import getCollaborator from '../getCollaborator/handler';
 import removeCollaborator from './handler';
 import {RemoveCollaboratorEndpointParams} from './types';
@@ -19,6 +22,7 @@ import {RemoveCollaboratorEndpointParams} from './types';
 /**
  * TODO:
  * - Check that artifacts are removed
+ * -  Test that user agent token
  */
 
 let context: BaseContextType | null = null;
@@ -31,30 +35,40 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-test('collaborator removed', async () => {
-  assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
-  );
+describe('removeCollaborator', () => {
+  test('collaborator removed', async () => {
+    assertContext(context);
+    const {userToken, user} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const instData = RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
+    );
 
-  const result = await removeCollaborator(context, instData);
-  assertEndpointResultOk(result);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
+    const result = await removeCollaborator(context, instData);
+    assertEndpointResultOk(result);
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
 
-  const assignedItems = await getResourceAssignedItems(
-    context,
-    workspace.resourceId,
-    user.resourceId
-  );
-  expect(assignedItems.findIndex(item => item.assigneeId === workspace.resourceId)).toBe(-1);
+    const assignedItems = await getResourceAssignedItems(
+      context,
+      workspace.resourceId,
+      user.resourceId
+    );
+    expect(assignedItems.findIndex(item => item.assigneeId === workspace.resourceId)).toBe(-1);
 
-  try {
-    await getCollaborator(context, instData);
-  } catch (error: any) {
-    expect(error instanceof NotFoundError).toBeTruthy();
-  }
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await getCollaborator(context, instData);
+    }, [NotFoundError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await getWorkspace(
+        context,
+        RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
+          workspaceId: workspace.resourceId,
+        })
+      );
+    }, [PermissionDeniedError.name]);
+  });
 });

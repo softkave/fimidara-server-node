@@ -99,6 +99,7 @@ const cascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any
   [AppResourceType.EndpointRequest]: undefined,
   [AppResourceType.AssignedItem]: undefined,
   [AppResourceType.Job]: undefined,
+  [AppResourceType.FilePresignedPath]: undefined,
   [AppResourceType.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
   [AppResourceType.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
   [AppResourceType.AgentToken]: DELETE_AGENT_TOKEN_CASCADE_FNS,

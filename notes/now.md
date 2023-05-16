@@ -1,10 +1,17 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
-- [ ] Use standard JWT secret for production
+- [ ] Use standard JWT secret for productionany cookie security issues
+- [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
+- [ ] fs file provider
+- [ ] move email providers to own folder
+- [ ] Endpoint for deleting presigned urls
+- [ ] Test files like .env work on upload and read file
+- [ ] Support jwt in cookies, and look into
 - [ ] Return progress when uploading file in js sdk
 - [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
+- [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
 - [ ] Remove workspaceId from get and update item endpoints
@@ -13,6 +20,7 @@
 - [ ] Revamp UI
 - [ ] Image pipeline should help compress images to web formats, same for other frontend media
 - [ ] Hide create workspace button on frontend if user is on waitlist
+- [ ] Learn more about csrf and ssrf
 - [ ] Track collaboration requests userr has not seen?
 - [ ] Document all errors to surface in docs
 - [ ] Handle password change required on the frontend
@@ -63,6 +71,7 @@
 - [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
 - [ ] Switch assert to appAssert
 - [ ] Include count in paged endpoints
+- [ ] Test that all delete artifacts are removed for all resources
 
 ## Later
 

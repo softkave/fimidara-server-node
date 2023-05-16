@@ -42,6 +42,8 @@ export const REMOVE_COLLABORATOR_CASCADE_FNS: DeleteResourceCascadeFnsMap<Remove
         undefined,
         opts
       ),
+    [AppResourceType.FilePresignedPath]: (context, args, opts) =>
+      context.semantic.filePresignedPath.deleteManyByQuery({agentTokenId: args.agentTokenId}, opts),
   };
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData) => {
@@ -61,6 +63,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData)
       workspaceId,
       resourceId: collaborator.resourceId,
       userEmail: collaborator.email,
+      agentTokenId: agent.agentTokenId,
     },
     isRemoveCollaborator: true,
   });

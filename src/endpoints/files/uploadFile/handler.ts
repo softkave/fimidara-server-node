@@ -23,10 +23,10 @@ import {
 } from '../../usageRecords/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
-  ISplitfilepathWithDetails,
+  ISplitFilepathWithDetails,
   fileExtractor,
   getWorkspaceFromFileOrFilepath,
-  splitfilepathWithDetails as splitFilepathWithDetails,
+  splitFilepathWithDetails,
 } from '../utils';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types';
 import {checkUploadFileAuth, createFileParentFolders} from './utils';
@@ -126,7 +126,7 @@ async function INTERNAL_updateFile(
 function getNewFile(
   agent: SessionAgent,
   workspace: Workspace,
-  pathWithDetails: ISplitfilepathWithDetails,
+  pathWithDetails: ISplitFilepathWithDetails,
   data: UploadFileEndpointParams,
   parentFolder: Folder | null
 ) {

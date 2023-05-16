@@ -40,6 +40,8 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
         undefined,
         opts
       ),
+    [AppResourceType.FilePresignedPath]: (context, args, opts) =>
+      context.semantic.filePresignedPath.deleteManyByQuery({fileId: {$in: args.fileIdList}}, opts),
   };
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {

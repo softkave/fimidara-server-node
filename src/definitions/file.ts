@@ -1,4 +1,4 @@
-import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {AppActionType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
 export interface File extends WorkspaceResource {
   parentId: string | null;
@@ -18,3 +18,15 @@ export type FileMatcher = {
   filepath?: string;
   fileId?: string;
 };
+
+export interface FilePresignedPath extends WorkspaceResource {
+  fileId: string;
+  agentTokenId: string;
+  usageCount?: number;
+  spentUsageCount: number;
+  expiresAt?: number;
+  action: AppActionType[];
+
+  // TODO: should we add description?
+  // description?: string
+}

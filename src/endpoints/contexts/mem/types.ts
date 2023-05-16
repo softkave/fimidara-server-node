@@ -1,7 +1,7 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File} from '../../../definitions/file';
+import {File, FilePresignedPath} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../definitions/permissionItem';
@@ -160,3 +160,4 @@ export type AppRuntimeStateMemStoreProviderType = MemStoreType<AppRuntimeState>;
 export type TagMemStoreProviderType = MemStoreType<Tag>;
 export type AssignedItemMemStoreProviderType = MemStoreType<AssignedItem>;
 export type UsageRecordMemStoreProviderType = MemStoreType<UsageRecord>;
+export type FilePresignedPathMemStoreProviderType = MemStoreType<FilePresignedPath>;

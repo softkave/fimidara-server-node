@@ -6,7 +6,7 @@ import {AppMongoModels} from '../../db/types';
 import {AgentToken} from '../../definitions/agentToken';
 import {AssignedItem} from '../../definitions/assignedItem';
 import {CollaborationRequest} from '../../definitions/collaborationRequest';
-import {File} from '../../definitions/file';
+import {File, FilePresignedPath} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
 import {PermissionItem} from '../../definitions/permissionItem';
@@ -40,6 +40,7 @@ import {
   AssignedItemMemStoreProvider,
   CollaborationRequestMemStoreProvider,
   FileMemStoreProvider,
+  FilePresignedPathMemStoreProvider,
   FolderMemStoreProvider,
   PermissionGroupMemStoreProvider,
   PermissionItemMemStoreProvider,
@@ -53,6 +54,7 @@ import {MemorySemanticDataAccessAgentToken} from './semantic/agentToken/MemorySe
 import {MemorySemanticDataAccessAssignedItem} from './semantic/assignedItem/MemorySemanticDataAccessAssignedItem';
 import {MemorySemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/MemorySemanticDataAccessCollaborationRequest';
 import {MemorySemanticDataAccessFile} from './semantic/file/MemorySemanticDataAccessFile';
+import {MemorySemanticDataAccessFilePresignedPathProvider} from './semantic/file/MemorySemanticDataAccessFilePresignedPath';
 import {MemorySemanticDataAccessFolder} from './semantic/folder/MemorySemanticDataAccessFolder';
 import {MemorySemanticDataAccessPermission} from './semantic/permission/MemorySemanticDataAccessPermission';
 import {MemorySemanticDataAccessPermissionGroup} from './semantic/permissionGroup/MemorySemanticDataAccessPermissionGroup';
@@ -151,6 +153,12 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
     {field: 'month', type: MemStoreIndexTypes.MapIndex},
     {field: 'year', type: MemStoreIndexTypes.MapIndex},
   ];
+  const filePresignedPathIndexOpts: MemStoreIndexOptions<FilePresignedPath>[] = [
+    workspaceIdIndexOpts,
+    {field: 'action', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'agentTokenId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'fileId', type: MemStoreIndexTypes.MapIndex},
+  ];
 
   return {
     folder: new FolderMemStoreProvider([], folderIndexOpts),
@@ -170,6 +178,7 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
       commitItemsFilter: items =>
         toNonNullableArray(items).filter(item => item.summationType === UsageSummationType.Two),
     }),
+    filePresignedPath: new FilePresignedPathMemStoreProvider([], filePresignedPathIndexOpts),
   };
 }
 
@@ -198,6 +207,10 @@ export function getSemanticDataProviders(
     tag: new MemorySemanticDataAccessTag(memstores.tag, assertTag),
     assignedItem: new MemorySemanticDataAccessAssignedItem(memstores.assignedItem, assertNotFound),
     usageRecord: new MemorySemanticDataAccessUsageRecord(memstores.usageRecord, assertUsageRecord),
+    filePresignedPath: new MemorySemanticDataAccessFilePresignedPathProvider(
+      memstores.filePresignedPath,
+      assertFile
+    ),
   };
 }
 
@@ -243,6 +256,7 @@ export async function ingestDataIntoMemStore(context: BaseContextType) {
     [AppResourceType.Tag]: [],
     [AppResourceType.PermissionGroup]: [],
     [AppResourceType.PermissionItem]: [],
+    [AppResourceType.FilePresignedPath]: [],
   };
   data.forEach(item => {
     dataByType[item.resourceType].push(item.resource);
@@ -272,5 +286,8 @@ export async function ingestDataIntoMemStore(context: BaseContextType) {
   );
   context.memstore.usageRecord.UNSAFE_ingestItems(
     dataByType[AppResourceType.UsageRecord] as UsageRecord[]
+  );
+  context.memstore.filePresignedPath.UNSAFE_ingestItems(
+    dataByType[AppResourceType.FilePresignedPath] as FilePresignedPath[]
   );
 }

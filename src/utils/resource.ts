@@ -47,6 +47,7 @@ export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
   [AppResourceType.UsageRecord]: padShortName('urecord'),
   [AppResourceType.EndpointRequest]: padShortName('endrqst'),
   [AppResourceType.Job]: padShortName('job'),
+  [AppResourceType.FilePresignedPath]: padShortName('filepsp'),
 };
 
 export const SHORT_NAME_TO_RESOURCE_TYPE = invert(RESOURCE_TYPE_SHORT_NAMES) as InvertRecord<

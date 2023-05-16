@@ -5,12 +5,12 @@ import {
   HttpEndpointDefinition,
   HttpEndpointMethod,
 } from '../../mddoc/mddoc';
-import clientLogsConstants from '../clientLogs/constants';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
+import {jobConstants} from './constants';
 import {GetJobStatusEndpointParams, GetJobStatusEndpointResult} from './getJobStatus/types';
 
 const jobStatus = FieldString.construct()
@@ -39,7 +39,7 @@ export const getJobStatusEndpointDefinition = HttpEndpointDefinition.construct<{
   responseBody: GetJobStatusEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
-  .setBasePathname(clientLogsConstants.routes.ingestLogs)
+  .setBasePathname(jobConstants.routes.getJobStatus)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getJobStatusParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
