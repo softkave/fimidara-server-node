@@ -150,7 +150,8 @@
                                         "12": "usageRecord",
                                         "13": "assignedItem",
                                         "14": "endpointRequest",
-                                        "15": "job"
+                                        "15": "job",
+                                        "16": "filePresignedPath"
                                     },
                                     "enumName": "AppResourceType"
                                 },

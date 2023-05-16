@@ -8,12 +8,14 @@ import deleteFile from './deleteFile/handler';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
+  issueFilePresignedPathEndpointDefinition,
   readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
 import getFileDetails from './getFileDetails/handler';
+import issueFilePresignedPath from './issueFilePresignedPath/handler';
 import {multerUploadFileExpressMiddleware} from './multer';
 import readFile from './readFile/handler';
 import {ReadFileEndpoint, ReadFileEndpointParams} from './readFile/types';
@@ -94,6 +96,10 @@ export function getFilesPublicHttpEndpoints() {
     updateFileDetails: {
       fn: updateFileDetails,
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
+    },
+    issueFilePresignedPath: {
+      fn: issueFilePresignedPath,
+      mddocHttpDefinition: issueFilePresignedPathEndpointDefinition,
     },
     uploadFile: {
       fn: uploadFile,

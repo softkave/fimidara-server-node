@@ -264,6 +264,16 @@ export type UpdateFileDetailsEndpointParams = {
 export type UpdateFileDetailsEndpointResult = {
   file: File;
 };
+export type IssueFilePresignedPathEndpointParams = {
+  filepath?: string;
+  fileId?: string;
+  duration?: number;
+  expires?: number;
+  usageCount?: number;
+};
+export type IssueFilePresignedPathEndpointResult = {
+  path: string;
+};
 export type UploadFileEndpointParams = {
   filepath?: string;
   fileId?: string;

@@ -51,6 +51,8 @@ import {
   ReadFileEndpointParams,
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult,
+  IssueFilePresignedPathEndpointParams,
+  IssueFilePresignedPathEndpointResult,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
   AddFolderEndpointParams,
@@ -428,6 +430,18 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       props
     );
   };
+  issueFilePresignedPath = async (
+    props?: FimidaraEndpointParamsOptional<IssueFilePresignedPathEndpointParams>
+  ): Promise<FimidaraEndpointResult<IssueFilePresignedPathEndpointResult>> => {
+    return this.executeJson(
+      {
+        data: props?.body,
+        path: '/v1/files/issueFilePresignedPath',
+        method: 'POST',
+      },
+      props
+    );
+  };
   uploadFile = async (
     props: FimidaraEndpointParamsRequired<UploadFileEndpointParams>
   ): Promise<FimidaraEndpointResult<UploadFileEndpointResult>> => {
@@ -515,14 +529,14 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
     );
   };
 }
-export class ClientLogsEndpoints extends FimidaraEndpointsBase {
-  ingestLogs = async (
+export class JobsEndpoints extends FimidaraEndpointsBase {
+  getJobStatus = async (
     props: FimidaraEndpointParamsRequired<GetJobStatusEndpointParams>
   ): Promise<FimidaraEndpointResult<GetJobStatusEndpointResult>> => {
     return this.executeJson(
       {
         data: props?.body,
-        path: '/v1/clientLogs/ingestLogs',
+        path: '/v1/jobs/getJobStatus',
         method: 'POST',
       },
       props
@@ -826,7 +840,7 @@ export class FimidaraEndpoints extends FimidaraEndpointsBase {
   collaborators = new CollaboratorsEndpoints(this.config, this);
   files = new FilesEndpoints(this.config, this);
   folders = new FoldersEndpoints(this.config, this);
-  clientLogs = new ClientLogsEndpoints(this.config, this);
+  jobs = new JobsEndpoints(this.config, this);
   permissionGroups = new PermissionGroupsEndpoints(this.config, this);
   permissionItems = new PermissionItemsEndpoints(this.config, this);
   resources = new ResourcesEndpoints(this.config, this);

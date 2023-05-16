@@ -14,6 +14,7 @@
 - [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
+- [ ] Job to delete expired or spent file presigned paths
 - [ ] Remove workspaceId from get and update item endpoints
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram

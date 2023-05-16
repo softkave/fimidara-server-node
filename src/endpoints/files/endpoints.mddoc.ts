@@ -25,6 +25,10 @@ import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
 import {
+  IssueFilePresignedPathEndpointParams,
+  IssueFilePresignedPathEndpointResult,
+} from './issueFilePresignedPath/types';
+import {
   ImageTransformationParams,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
@@ -94,6 +98,31 @@ const updateFileDetailsResponseBody = FieldObject.construct<UpdateFileDetailsEnd
   .setFields({file: FieldObject.requiredField(file)})
   .setRequired(true)
   .setDescription('Update file details endpoint success result.');
+
+const issueFilePresignedPathParams = FieldObject.construct<IssueFilePresignedPathEndpointParams>()
+  .setName('IssueFilePresignedPathEndpointParams')
+  .setFields({
+    ...fileMatcherParts,
+    duration: FieldObject.optionalField(fReusables.duration),
+    expires: FieldObject.optionalField(fReusables.expires),
+    usageCount: FieldObject.optionalField(
+      FieldNumber.construct().setDescription('How many uses the generated path is valid for.')
+    ),
+  })
+  .setRequired(true)
+  .setDescription('Issue file presigned path endpoint params.');
+const issueFilePresignedPathResponseBody =
+  FieldObject.construct<IssueFilePresignedPathEndpointResult>()
+    .setName('IssueFilePresignedPathEndpointResult')
+    .setFields({
+      path: FieldObject.requiredField(
+        FieldString.construct().setDescription(
+          'String path that only works with readFile endpoint. Can be used in place of filepath.'
+        )
+      ),
+    })
+    .setRequired(true)
+    .setDescription('Issue file presigned path endpoint success result.');
 
 const getFileDetailsParams = FieldObject.construct<GetFileDetailsEndpointParams>()
   .setName('GetFileDetailsEndpointParams')
@@ -271,5 +300,22 @@ export const deleteFileEndpointDefinition = HttpEndpointDefinition.construct<{
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint')
   .setDescription('Delete file endpoint.');
+
+export const issueFilePresignedPathEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: IssueFilePresignedPathEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: IssueFilePresignedPathEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(fileConstants.routes.issueFilePresignedPath)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(issueFilePresignedPathParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(issueFilePresignedPathResponseBody)
+  .setName('IssueFilePresignedPathEndpoint')
+  .setDescription(
+    'Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
+  );
 
 export const fileEndpointsParts = {file};

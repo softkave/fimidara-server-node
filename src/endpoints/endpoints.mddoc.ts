@@ -212,6 +212,9 @@ const idPath = FieldArray.construct<string>()
 const name = FieldString.construct().setDescription('Name');
 const description = FieldString.construct().setDescription('Description');
 const expires = FieldDate.construct().setDescription('Expiration date.');
+const duration = FieldNumber.construct().setDescription(
+  'Time duration in milliseconds, for example, 1000 for 1 second.'
+);
 const tokenString = FieldString.construct().setDescription('JWT token string.');
 const assignPermissionGroup = FieldObject.construct<AssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
@@ -308,6 +311,7 @@ export const fReusables = {
   name,
   description,
   expires,
+  duration,
   assignPermissionGroup,
   assignPermissionGroupList,
   workspaceId,
