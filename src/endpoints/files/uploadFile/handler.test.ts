@@ -12,7 +12,7 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
-import {getFilePathWithoutRootname} from '../utils';
+import {stringifyNamePath} from '../utils';
 import {UploadFileEndpointParams} from './types';
 import {assertFileUpdated, uploadFileBaseTest} from './uploadFileTestUtils';
 
@@ -43,7 +43,7 @@ describe('uploadFile', () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
     const update: Partial<UploadFileEndpointParams> = {
       filepath: addRootnameToPath(
-        getFilePathWithoutRootname(savedFile),
+        stringifyNamePath(savedFile),
         insertWorkspaceResult.workspace.rootname
       ),
     };

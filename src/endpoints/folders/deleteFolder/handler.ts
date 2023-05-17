@@ -36,10 +36,16 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
       executeCascadeDelete(context, DELETE_FILE_CASCADE_FNS, {
         workspaceId: args.workspaceId,
         fileIdList: extractResourceIdList(files),
+        files: files.map(f => ({
+          namePath: f.namePath,
+          extension: f.extension,
+          resourceId: f.resourceId,
+        })),
       }),
     ]);
   },
   [AppResourceType.Folder]: async (context, args, opts) => {
+    // TODO: cascade delete folders instead
     await context.semantic.folder.deleteManyByQuery(
       FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
       opts

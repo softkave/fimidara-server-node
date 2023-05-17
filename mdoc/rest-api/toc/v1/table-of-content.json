@@ -108,6 +108,10 @@
         "post"
     ],
     [
+        "/v1/files/getFilePresignedPaths",
+        "post"
+    ],
+    [
         "/v1/files/uploadFile",
         "post"
     ],

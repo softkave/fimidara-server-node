@@ -293,7 +293,7 @@
                                     "description": "File extension",
                                     "__id": "FieldString"
                                 },
-                                "required": true
+                                "optional": true
                             },
                             "resourceId": {
                                 "data": {

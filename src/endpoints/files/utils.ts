@@ -1,7 +1,6 @@
 import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
 import {AppActionType, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
-import {ValidationError} from '../../utils/errors';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
@@ -102,23 +101,13 @@ export interface FilenameInfo {
 
 export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
-  const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
-  let nameWithoutExtension = splitStr[0];
-  let extension: string | undefined = splitStr.slice(1).join(fileConstants.nameExtensionSeparator);
-
-  // TODO: this'll prevent files like .env from working
-  if (extension && !nameWithoutExtension) {
-    nameWithoutExtension = extension;
-    extension = undefined;
-  }
+  const [nameWithoutExtension, ...extensionList] = providedName.split(
+    fileConstants.nameExtensionSeparator
+  );
+  let extension: string | undefined = extensionList.join(fileConstants.nameExtensionSeparator);
 
   if (extension === '' && !providedName.endsWith(fileConstants.nameExtensionSeparator)) {
     extension = undefined;
-  }
-
-  // TODO: this'll prevent files like .env from working
-  if (!nameWithoutExtension) {
-    throw new ValidationError('File name is empty.');
   }
 
   return {
@@ -148,12 +137,6 @@ export function throwFileNotFound() {
   throw new NotFoundError('File not found.');
 }
 
-export function getFilePathWithoutRootname(file: File) {
-  return `${file.namePath.join(folderConstants.nameSeparator)}${
-    fileConstants.nameExtensionSeparator
-  }${file.extension}`;
-}
-
 export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
   const pathWithDetails = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
@@ -179,4 +162,10 @@ export async function getWorkspaceFromFileOrFilepath(
 
 export function assertFile(file: File | FilePresignedPath | null | undefined): asserts file {
   if (!file) throwFileNotFound();
+}
+
+export function stringifyNamePath(file: File) {
+  return file.namePath.join(folderConstants.nameSeparator) + file.extension
+    ? `.${file.extension}`
+    : '';
 }

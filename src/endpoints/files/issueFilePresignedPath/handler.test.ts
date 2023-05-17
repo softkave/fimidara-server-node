@@ -4,6 +4,7 @@ import {waitTimeout} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
+import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {assertFileBodyEqual} from '../../testUtils/helpers/file';
@@ -22,7 +23,6 @@ import {
 } from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../users/errors';
 import {fileConstants} from '../constants';
-import {FileDoesNotExistError} from '../errors';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
 import issueFilePresignedPath from './handler';
@@ -53,6 +53,23 @@ describe('issueFilePresignedPath', () => {
           workspace.rootname
         ),
       }
+    );
+    const result = await issueFilePresignedPath(context, instData);
+    assertEndpointResultOk(result);
+
+    const readFileResult = await tryReadFile(result.path);
+    await assertFileBodyEqual(context, file.resourceId, readFileResult.stream);
+  });
+
+  test('issued with fileId', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {file} = await insertFileForTest(context, userToken, workspace);
+
+    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {fileId: file.resourceId}
     );
     const result = await issueFilePresignedPath(context, instData);
     assertEndpointResultOk(result);
@@ -202,7 +219,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     // Read should fail seeing file does not exist
-    await expectReadFileFails(result.path, FileDoesNotExistError.name);
+    await expectReadFileFails(result.path, NotFoundError.name);
 
     // Insert file, so read should pass now
     await insertFileForTest(context, userToken, workspace, {filepath});
@@ -220,7 +237,7 @@ describe('issueFilePresignedPath', () => {
         {fileId: getNewIdForResource(AppResourceType.File)}
       );
       await issueFilePresignedPath(context, instData);
-    }, [FileDoesNotExistError.name]);
+    }, [NotFoundError.name]);
   });
 });
 

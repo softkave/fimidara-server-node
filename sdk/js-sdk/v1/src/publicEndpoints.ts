@@ -53,6 +53,8 @@ import {
   UpdateFileDetailsEndpointResult,
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult,
+  GetFilePresignedPathsEndpointParams,
+  GetFilePresignedPathsEndpointResult,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
   AddFolderEndpointParams,
@@ -437,6 +439,18 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       {
         data: props?.body,
         path: '/v1/files/issueFilePresignedPath',
+        method: 'POST',
+      },
+      props
+    );
+  };
+  getFilePresignedPaths = async (
+    props?: FimidaraEndpointParamsOptional<GetFilePresignedPathsEndpointParams>
+  ): Promise<FimidaraEndpointResult<GetFilePresignedPathsEndpointResult>> => {
+    return this.executeJson(
+      {
+        data: props?.body,
+        path: '/v1/files/getFilePresignedPaths',
         method: 'POST',
       },
       props

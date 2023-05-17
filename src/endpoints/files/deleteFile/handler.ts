@@ -40,8 +40,20 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
         undefined,
         opts
       ),
-    [AppResourceType.FilePresignedPath]: (context, args, opts) =>
-      context.semantic.filePresignedPath.deleteManyByQuery({fileId: {$in: args.fileIdList}}, opts),
+    [AppResourceType.FilePresignedPath]: async (context, args, opts) => {
+      await Promise.all(
+        args.files.map(f =>
+          context.semantic.filePresignedPath.deleteManyByQuery(
+            {
+              fileNamePath: {$eq: f.namePath},
+              fileExtension: f.extension,
+              workspaceId: args.workspaceId,
+            },
+            opts
+          )
+        )
+      );
+    },
   };
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
@@ -50,7 +62,11 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const {file} = await checkFileAuthorization02(context, agent, data, AppActionType.Delete);
   const job = await enqueueDeleteResourceJob(context, {
     type: AppResourceType.File,
-    args: {workspaceId: file.workspaceId, fileIdList: [file.resourceId]},
+    args: {
+      workspaceId: file.workspaceId,
+      fileIdList: [file.resourceId],
+      files: [{resourceId: file.resourceId, namePath: file.namePath, extension: file.extension}],
+    },
   });
   return {jobId: job.resourceId};
 };

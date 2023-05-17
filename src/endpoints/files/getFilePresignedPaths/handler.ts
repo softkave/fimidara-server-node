@@ -54,7 +54,7 @@ const getFilePresignedPaths: GetFilePresignedPathsEndpoint = async (context, ins
   activePaths.forEach(p => {
     if (!p) return;
 
-    const workspace = workspacesMap[p.resourceId];
+    const workspace = workspacesMap[p.workspaceId];
     const filepath = addRootnameToPath(
       p.fileNamePath.join(folderConstants.nameSeparator),
       workspace.rootname

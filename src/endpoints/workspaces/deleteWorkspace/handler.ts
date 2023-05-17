@@ -1,11 +1,9 @@
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {extractResourceIdList, noopAsync} from '../../../utils/fns';
+import {noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {DELETE_FILE_CASCADE_FNS} from '../../files/deleteFile/handler';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {executeCascadeDelete} from '../../utils';
 import {checkWorkspaceAuthorization02} from '../utils';
 import {DeleteWorkspaceEndpoint} from './types';
 import {deleteWorkspaceJoiSchema} from './validation';
@@ -31,19 +29,10 @@ export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Folder]: (context, args, opts) =>
     context.semantic.folder.deleteManyByWorkspaceId(args.workspaceId, opts),
   [AppResourceType.File]: async (context, args, opts) => {
-    const files = await context.semantic.file.getManyByQuery(
-      EndpointReusableQueries.getByWorkspaceId(args.workspaceId)
+    await context.semantic.file.deleteManyByQuery(
+      EndpointReusableQueries.getByWorkspaceId(args.workspaceId),
+      opts
     );
-    await Promise.all([
-      context.semantic.file.deleteManyByQuery(
-        EndpointReusableQueries.getByWorkspaceId(args.workspaceId),
-        opts
-      ),
-      executeCascadeDelete(context, DELETE_FILE_CASCADE_FNS, {
-        workspaceId: args.workspaceId,
-        fileIdList: extractResourceIdList(files),
-      }),
-    ]);
   },
   [AppResourceType.Tag]: (context, args, opts) =>
     context.semantic.tag.deleteManyByWorkspaceId(args.workspaceId, opts),

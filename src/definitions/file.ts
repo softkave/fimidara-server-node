@@ -8,7 +8,7 @@ export interface File extends WorkspaceResource {
   encoding?: string;
   size: number;
   name: string;
-  extension: string;
+  extension?: string;
   description?: string;
 }
 

@@ -6,6 +6,7 @@
 - [ ] Support issueing mutliple file presigned paths at a time
   - [ ] Issue paths at once in getFilePresignedPaths test
 - [ ] Use standard JWT secret for production
+- [ ] Delete presigned paths endpoint
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
 - [ ] Move db to another thread
 - [ ] Endpoint for deleting presigned urls
@@ -15,6 +16,7 @@
 - [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
 - [ ] Look into sending and accepting cookies for auth and look into any cookie security issues
+- [ ] Cascade delete folder children not all at once
 - [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item

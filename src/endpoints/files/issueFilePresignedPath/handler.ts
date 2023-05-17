@@ -10,7 +10,7 @@ import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {InvalidRequestError} from '../../errors';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
-import {getFileWithFilepath} from '../getFilesWithMatcher';
+import {getFileWithFilepath, getFileWithId} from '../getFilesWithMatcher';
 import {checkFileAuthorization, getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
 import {issueFilePresignedPathJoiSchema} from './validation';
@@ -27,7 +27,13 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
   if (data.filepath) {
     ({file, workspace} = await getFileWithFilepath(context, data.filepath));
   } else if (data.fileId) {
-    ({file} = await getFileWithFilepath(context, data.fileId));
+    ({file} = await getFileWithId(context, data.fileId));
+
+    if (file) {
+      workspace = await context.semantic.workspace.assertGetOneByQuery({
+        resourceId: file?.workspaceId,
+      });
+    }
   } else {
     throw new InvalidRequestError('File ID or filepath not provided.');
   }

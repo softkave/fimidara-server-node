@@ -7,6 +7,7 @@ import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -167,7 +168,7 @@ describe('getFilePresignedPaths', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(paths));
   });
 
-  test('filters out expired and spent', async () => {
+  test('filters out expired and spent paths', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace: w1} = await insertWorkspaceForTest(context, userToken);
@@ -193,9 +194,11 @@ describe('getFilePresignedPaths', () => {
       ),
     ]);
 
-    const spentPath = first(paths03);
-    assert(spentPath);
-    await tryReadFile(spentPath);
+    await expectErrorThrown(async () => {
+      const spentPath = first(paths03);
+      assert(spentPath);
+      await tryReadFile(spentPath);
+    });
 
     // Wait 1ms for path with duration 1ms
     await waitTimeout(1);

@@ -12,12 +12,3 @@ export class FileExistsError extends OperationError {
     this.message = getErrorMessageFromParams(props, 'File exists.');
   }
 }
-
-export class FileDoesNotExistError extends OperationError {
-  name = 'FileDoesNotExistError';
-  statusCode = endpointConstants.httpStatusCode.notFound;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(props, 'File not found.');
-  }
-}

@@ -8,6 +8,7 @@ import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
+import {getFilenameInfo} from '../../files/utils';
 import {generateTestFolderName} from './folder';
 
 function removeExtension(name: string) {
@@ -35,6 +36,7 @@ export function generateTestFile(
 ) {
   const id = getNewIdForResource(AppResourceType.File);
   const name = generateTestFileName();
+  const nameinfo = getFilenameInfo(name);
   const createdAt = getTimestamp();
   const file: File = {
     name,
@@ -45,11 +47,11 @@ export function generateTestFile(
     lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
     idPath: [id],
-    namePath: [name],
+    namePath: [nameinfo.nameWithoutExtension],
     resourceId: id,
     size: faker.datatype.number({min: 1}),
     workspaceId: getNewIdForResource(AppResourceType.Workspace),
-    extension: faker.system.fileExt(),
+    extension: nameinfo.extension,
     ...extra,
   };
 

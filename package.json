@@ -24,7 +24,8 @@
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
     "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
     "gen-js-sdk": "env-cmd -f \".env.dev\" ts-node src/mddoc/jsSdkCodeGen.ts",
-    "start-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath mongo-rs-data --keep"
+    "start-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath mongo-rs-data --keep",
+    "test-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath test-rs-data"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",

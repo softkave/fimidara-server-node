@@ -1,5 +1,6 @@
 import {FileMatcher, PublicFile} from '../../definitions/file';
 import {
+  FieldArray,
   FieldBinary,
   FieldNumber,
   FieldObject,
@@ -9,6 +10,7 @@ import {
   HttpEndpointMethod,
   HttpEndpointMultipartFormdata,
 } from '../../mddoc/mddoc';
+import {endpointConstants} from '../constants';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
@@ -24,6 +26,11 @@ import {
 import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
+import {
+  GetFilePresignedPathsEndpointParams,
+  GetFilePresignedPathsEndpointResult,
+  GetFilePresignedPathsItem,
+} from './getFilePresignedPaths/types';
 import {
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult,
@@ -52,7 +59,7 @@ const file = FieldObject.construct<PublicFile>()
   .setName('File')
   .setFields({
     size: FieldObject.requiredField(size),
-    extension: FieldObject.requiredField(extension),
+    extension: FieldObject.optionalField(extension),
     resourceId: FieldObject.requiredField(fReusables.id),
     workspaceId: FieldObject.requiredField(fReusables.workspaceId),
     parentId: FieldObject.requiredField(fReusables.folderIdOrNull),
@@ -85,6 +92,16 @@ const fileMatcherPathParameters = FieldObject.construct<FileMatcherPathParameter
   filepath: FieldObject.optionalField(fReusables.filepath),
 });
 
+const fileMatcher = FieldObject.construct<FileMatcher>()
+  .setName('FileMatcher')
+  .setFields({
+    ...fileMatcherParts,
+  });
+
+const filePresignedPath = FieldString.construct().setDescription(
+  'String path that only works with readFile endpoint. Can be used in place of filepath.'
+);
+
 const updateFileDetailsParams = FieldObject.construct<UpdateFileDetailsEndpointParams>()
   .setName('UpdateFileDetailsEndpointParams')
   .setFields({
@@ -115,14 +132,38 @@ const issueFilePresignedPathResponseBody =
   FieldObject.construct<IssueFilePresignedPathEndpointResult>()
     .setName('IssueFilePresignedPathEndpointResult')
     .setFields({
-      path: FieldObject.requiredField(
-        FieldString.construct().setDescription(
-          'String path that only works with readFile endpoint. Can be used in place of filepath.'
+      path: FieldObject.requiredField(filePresignedPath),
+    })
+    .setRequired(true)
+    .setDescription('Issue file presigned path endpoint success result.');
+
+const getFilePresignedPathsParams = FieldObject.construct<GetFilePresignedPathsEndpointParams>()
+  .setName('GetFilePresignedPathsEndpointParams')
+  .setFields({
+    files: FieldObject.optionalField(
+      FieldArray.construct().setType(fileMatcher).setMax(endpointConstants.inputListMax)
+    ),
+    workspaceId: FieldObject.optionalField(fReusables.workspaceId),
+  })
+  .setRequired(true)
+  .setDescription('Get file presigned paths endpoint params.');
+const getFilePresignedPathsResponseBody =
+  FieldObject.construct<GetFilePresignedPathsEndpointResult>()
+    .setName('GetFilePresignedPathsEndpointResult')
+    .setFields({
+      paths: FieldObject.requiredField(
+        FieldArray.construct<GetFilePresignedPathsItem>().setType(
+          FieldObject.construct<GetFilePresignedPathsItem>()
+            .setName('GetFilePresignedPathsItem')
+            .setFields({
+              path: FieldObject.requiredField(filePresignedPath),
+              filepath: FieldObject.requiredField(fReusables.filepath),
+            })
         )
       ),
     })
     .setRequired(true)
-    .setDescription('Issue file presigned path endpoint success result.');
+    .setDescription('Get file presigned paths endpoint success result.');
 
 const getFileDetailsParams = FieldObject.construct<GetFileDetailsEndpointParams>()
   .setName('GetFileDetailsEndpointParams')
@@ -316,6 +357,23 @@ export const issueFilePresignedPathEndpointDefinition = HttpEndpointDefinition.c
   .setName('IssueFilePresignedPathEndpoint')
   .setDescription(
     'Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
+  );
+
+export const getFilePresignedPathsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetFilePresignedPathsEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetFilePresignedPathsEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(fileConstants.routes.getFilePresignedPaths)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getFilePresignedPathsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getFilePresignedPathsResponseBody)
+  .setName('GetFilePresignedPathsEndpoint')
+  .setDescription(
+    'Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
   );
 
 export const fileEndpointsParts = {file};

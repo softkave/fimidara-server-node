@@ -224,7 +224,7 @@ export type GetFileDetailsEndpointParams = {
 };
 export type File = {
   size: number;
-  extension: string;
+  extension?: string;
   resourceId: string;
   workspaceId: string;
   parentId: string | null;
@@ -273,6 +273,21 @@ export type IssueFilePresignedPathEndpointParams = {
 };
 export type IssueFilePresignedPathEndpointResult = {
   path: string;
+};
+export type FileMatcher = {
+  filepath?: string;
+  fileId?: string;
+};
+export type GetFilePresignedPathsEndpointParams = {
+  files?: Array<FileMatcher>;
+  workspaceId?: string;
+};
+export type GetFilePresignedPathsItem = {
+  path: string;
+  filepath: string;
+};
+export type GetFilePresignedPathsEndpointResult = {
+  paths: Array<GetFilePresignedPathsItem>;
 };
 export type UploadFileEndpointParams = {
   filepath?: string;

@@ -15,6 +15,11 @@ import {
   GetFileDetailsEndpointResult,
 } from './getFileDetails/types';
 import {
+  GetFilePresignedPathsEndpoint,
+  GetFilePresignedPathsEndpointParams,
+  GetFilePresignedPathsEndpointResult,
+} from './getFilePresignedPaths/types';
+import {
   IssueFilePresignedPathEndpoint,
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult,
@@ -89,6 +94,13 @@ export type IssueFilePresignedPathHttpEndpoint = HttpEndpoint<
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength
 >;
+export type GetFilePresignedPathsHttpEndpoint = HttpEndpoint<
+  GetFilePresignedPathsEndpoint,
+  GetFilePresignedPathsEndpointParams,
+  GetFilePresignedPathsEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength
+>;
 
 export type FilesExportedEndpoints = {
   readFile: [
@@ -99,6 +111,7 @@ export type FilesExportedEndpoints = {
   getFileDetails: ExportedHttpEndpointWithMddocDefinition<GetFileDetailsHttpEndpoint>;
   updateFileDetails: ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsHttpEndpoint>;
   issueFilePresignedPath: ExportedHttpEndpointWithMddocDefinition<IssueFilePresignedPathHttpEndpoint>;
+  getFilePresignedPaths: ExportedHttpEndpointWithMddocDefinition<GetFilePresignedPathsHttpEndpoint>;
   uploadFile: ExportedHttpEndpointWithMddocDefinition<UploadFileHttpEndpoint>;
 };
 
