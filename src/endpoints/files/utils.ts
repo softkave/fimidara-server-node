@@ -11,7 +11,7 @@ import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {FolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
+import {FolderpathInfo, getFolderpathInfo} from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
@@ -57,6 +57,18 @@ export async function checkFileAuthorization(
   return {agent, file, workspace};
 }
 
+export async function checkFileAuthorization02(
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FileMatcher,
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const file = await assertGetFileWithMatcher(context, matcher, opts);
+  await checkFileAuthorization(context, agent, file, action);
+  return {file};
+}
+
 export async function checkFileAuthorization03(
   context: BaseContextType,
   agent: SessionAgent,
@@ -71,7 +83,10 @@ export async function checkFileAuthorization03(
       AppActionType.Read
     );
 
-    if (presignedPathResult) return {file: presignedPathResult.file};
+    if (presignedPathResult) {
+      const {file, presignedPath} = presignedPathResult;
+      return {file, presignedPath};
+    }
   }
 
   const file = await assertGetFileWithMatcher(context, matcher, opts);
@@ -79,13 +94,13 @@ export async function checkFileAuthorization03(
   return {file};
 }
 
-export interface ISplitFilenameWithDetails {
+export interface FilenameInfo {
   nameWithoutExtension: string;
   extension?: string;
   providedName: string;
 }
 
-export function splitFilenameWithDetails(providedName: string): ISplitFilenameWithDetails {
+export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
   const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
   let nameWithoutExtension = splitStr[0];
@@ -113,22 +128,19 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
   };
 }
 
-export interface ISplitFilepathWithDetails
-  extends ISplitFilenameWithDetails,
-    FolderpathWithDetails {
+export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
   splitPathWithoutExtension: string[];
 }
 
-export function splitFilepathWithDetails(path: string | string[]): ISplitFilepathWithDetails {
-  const pathWithDetails = splitPathWithDetails(path);
-  const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
-  const splitPathWithoutExtension = [...pathWithDetails.itemSplitPath];
-  splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
-    fileNameWithDetails.nameWithoutExtension;
+export function getFilepathInfo(path: string | string[]): FilepathInfo {
+  const folderpathInfo = getFolderpathInfo(path);
+  const filenameInfo = getFilenameInfo(folderpathInfo.name);
+  const pathWithoutExtension = [...folderpathInfo.itemSplitPath];
+  pathWithoutExtension[pathWithoutExtension.length - 1] = filenameInfo.nameWithoutExtension;
   return {
-    ...pathWithDetails,
-    ...fileNameWithDetails,
-    splitPathWithoutExtension,
+    ...folderpathInfo,
+    ...filenameInfo,
+    splitPathWithoutExtension: pathWithoutExtension,
   };
 }
 
@@ -143,7 +155,7 @@ export function getFilePathWithoutRootname(file: File) {
 }
 
 export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
-  const pathWithDetails = splitFilepathWithDetails(filepath);
+  const pathWithDetails = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
     pathWithDetails.workspaceRootname
   );
@@ -157,11 +169,9 @@ export async function getWorkspaceFromFileOrFilepath(
   filepath?: string
 ) {
   let workspace: Workspace | null = null;
-  if (file) {
-    workspace = await context.semantic.workspace.getOneById(file.workspaceId);
-  } else if (filepath) {
-    workspace = await getWorkspaceFromFilepath(context, filepath);
-  }
+
+  if (file) workspace = await context.semantic.workspace.getOneById(file.workspaceId);
+  else if (filepath) workspace = await getWorkspaceFromFilepath(context, filepath);
 
   assertWorkspace(workspace);
   return workspace;

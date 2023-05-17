@@ -22,7 +22,7 @@ import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
 import {FolderExistsError} from '../errors';
-import {folderExtractor, splitPathWithDetails} from '../utils';
+import {folderExtractor, getFolderpathInfo} from '../utils';
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
@@ -35,7 +35,7 @@ export async function createFolderList(
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true
 ) {
-  const pathWithDetails = splitPathWithDetails(input.folderpath);
+  const pathWithDetails = getFolderpathInfo(input.folderpath);
   let closestExistingFolder: Folder | null = null;
   let previousFolder: Folder | null = null;
 
@@ -51,7 +51,9 @@ export async function createFolderList(
     },
 
     existingFolders => {
-      existingFolders = compact(existingFolders);
+      existingFolders = compact(existingFolders).sort(
+        (f1, f2) => f1.namePath.length - f2.namePath.length
+      );
 
       if (existingFolders.length >= pathWithDetails.itemSplitPath.length && throwOnFolderExists) {
         throw new FolderExistsError();
@@ -120,7 +122,7 @@ export async function createFolderList(
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const pathWithDetails = splitPathWithDetails(data.folder.folderpath);
+  const pathWithDetails = getFolderpathInfo(data.folder.folderpath);
   const workspace = await context.semantic.workspace.getByRootname(
     pathWithDetails.workspaceRootname
   );

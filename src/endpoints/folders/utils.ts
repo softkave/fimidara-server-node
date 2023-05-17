@@ -56,7 +56,7 @@ export function assertSplitFolderpath(path: string) {
   return splitPath;
 }
 
-export interface FolderpathWithDetails {
+export interface FolderpathInfo {
   providedPath: string | string[];
   name: string;
 
@@ -71,7 +71,7 @@ export interface FolderpathWithDetails {
   workspaceRootname: string;
 }
 
-export function splitPathWithDetails(providedPath: string | string[]): FolderpathWithDetails {
+export function getFolderpathInfo(providedPath: string | string[]): FolderpathInfo {
   const splitPath = splitFolderpath(providedPath);
   const workspaceRootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');

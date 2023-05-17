@@ -2,28 +2,29 @@
 
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
-- [ ] Use standard JWT secret for productionany cookie security issues
+- [ ] Include user agent and origin in presigned path as extra security checks
+- [ ] Support issueing mutliple file presigned paths at a time
+  - [ ] Issue paths at once in getFilePresignedPaths test
+- [ ] Use standard JWT secret for production
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
-- [ ] fs file provider
-- [ ] move email providers to own folder
+- [ ] Move db to another thread
 - [ ] Endpoint for deleting presigned urls
+- [ ] Custom HTML tag for fetching images and video
 - [ ] Test files like .env work on upload and read file
-- [ ] Support jwt in cookies, and look into
 - [ ] Return progress when uploading file in js sdk
 - [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
+- [ ] Look into sending and accepting cookies for auth and look into any cookie security issues
 - [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
 - [ ] Job to delete expired or spent file presigned paths
-- [ ] Remove workspaceId from get and update item endpoints
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
 - [ ] Revamp UI
 - [ ] Image pipeline should help compress images to web formats, same for other frontend media
-- [ ] Hide create workspace button on frontend if user is on waitlist
 - [ ] Learn more about csrf and ssrf
-- [ ] Track collaboration requests userr has not seen?
+- [ ] Track collaboration requests user has not seen?
 - [ ] Document all errors to surface in docs
 - [ ] Handle password change required on the frontend
 - [ ] Change password with current password or forgot password on the frontend
@@ -35,7 +36,6 @@
 - [ ] For tests, have a local cache of mem data that can quickly be loaded instead of fetching from db. Maybe it'll help tests run faster and use less memory. Or use Jest's global to pass same context around.
 - [ ] Predefined resize pipelines
 - [ ] Public access op for files
-- [ ] Get version of readFile, we currently only have Post
 - [ ] Mem, shard by workspace and other fields
 - [ ] Accepted collaboration requests should be put in their own space
 - [ ] Limit assigned permissions depth to 10
@@ -74,6 +74,8 @@
 - [ ] Switch assert to appAssert
 - [ ] Include count in paged endpoints
 - [ ] Test that all delete artifacts are removed for all resources
+- [ ] Should we paginate get file presigned paths endpoint?
+- [ ] Open up getting another agent token's presigned paths with permission
 
 ## Later
 

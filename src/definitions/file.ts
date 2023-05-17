@@ -20,7 +20,10 @@ export type FileMatcher = {
 };
 
 export interface FilePresignedPath extends WorkspaceResource {
-  fileId: string;
+  /** File name path instead of ID because at the time of creation, the file may
+   * not exist yet. */
+  fileNamePath: string[];
+  fileExtension?: string;
   agentTokenId: string;
   usageCount?: number;
   spentUsageCount: number;

@@ -23,10 +23,10 @@ import {
 } from '../../usageRecords/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
-  ISplitFilepathWithDetails,
+  FilepathInfo,
   fileExtractor,
+  getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
-  splitFilepathWithDetails,
 } from '../utils';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types';
 import {checkUploadFileAuth, createFileParentFolders} from './utils';
@@ -37,13 +37,13 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
 
   let file = await executeWithMutationRunOptions(context, async opts => {
-    let file = await getFileWithMatcher(context, data, opts);
+    let {file} = await getFileWithMatcher(context, data, opts);
     const isNewFile = !file;
     const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
 
     if (!file) {
       appAssert(data.filepath, new ValidationError('File path not provided.'));
-      const pathWithDetails = splitFilepathWithDetails(data.filepath);
+      const pathWithDetails = getFilepathInfo(data.filepath);
       const parentFolder = await createFileParentFolders(
         context,
         agent,
@@ -126,7 +126,7 @@ async function INTERNAL_updateFile(
 function getNewFile(
   agent: SessionAgent,
   workspace: Workspace,
-  pathWithDetails: ISplitFilepathWithDetails,
+  pathWithDetails: FilepathInfo,
   data: UploadFileEndpointParams,
   parentFolder: Folder | null
 ) {

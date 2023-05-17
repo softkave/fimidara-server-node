@@ -155,9 +155,10 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
   ];
   const filePresignedPathIndexOpts: MemStoreIndexOptions<FilePresignedPath>[] = [
     workspaceIdIndexOpts,
-    {field: 'action', type: MemStoreIndexTypes.ArrayMapIndex},
+    {field: 'action', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
     {field: 'agentTokenId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'fileId', type: MemStoreIndexTypes.MapIndex},
+    {field: 'fileNamePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
+    {field: 'fileExtension', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
   ];
 
   return {

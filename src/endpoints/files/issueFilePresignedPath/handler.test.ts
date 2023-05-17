@@ -1,4 +1,7 @@
+import {faker} from '@faker-js/faker';
+import {AppResourceType} from '../../../definitions/system';
 import {waitTimeout} from '../../../utils/fns';
+import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
@@ -11,6 +14,7 @@ import {
   initTestBaseContext,
   insertAgentTokenForTest,
   insertFileForTest,
+  insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
@@ -18,6 +22,7 @@ import {
 } from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../users/errors';
 import {fileConstants} from '../constants';
+import {FileDoesNotExistError} from '../errors';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
 import issueFilePresignedPath from './handler';
@@ -77,7 +82,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
-    await expectReadFileFails(result.path);
+    await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
   test('file presigned path issued with expiration timestamp', async () => {
@@ -102,7 +107,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
-    await expectReadFileFails(result.path);
+    await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
   test('file presigned path issued with usage count', async () => {
@@ -130,7 +135,7 @@ describe('issueFilePresignedPath', () => {
     await tryReadFile(result.path);
 
     // 3rd read should fail
-    await expectReadFileFails(result.path);
+    await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
   test('fails if agent does not have permission', async () => {
@@ -156,6 +161,67 @@ describe('issueFilePresignedPath', () => {
       await issueFilePresignedPath(context, instData);
     }, [PermissionDeniedError.name]);
   });
+
+  test('fails if agent does not have permission and file does not exist', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {folder} = await insertFolderForTest(context, userToken, workspace);
+    const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
+
+    const filepath = addRootnameToPath(
+      folder.namePath.join('/') + `/${faker.lorem.word()}`,
+      workspace.rootname
+    );
+
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(token),
+        {filepath}
+      );
+      await issueFilePresignedPath(context, instData);
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('passes if file does not exist yet', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {folder} = await insertFolderForTest(context, userToken, workspace);
+
+    const filepath = addRootnameToPath(
+      folder.namePath.join('/') + `/${faker.lorem.word()}`,
+      workspace.rootname
+    );
+    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {filepath}
+    );
+    const result = await issueFilePresignedPath(context, instData);
+    assertEndpointResultOk(result);
+
+    // Read should fail seeing file does not exist
+    await expectReadFileFails(result.path, FileDoesNotExistError.name);
+
+    // Insert file, so read should pass now
+    await insertFileForTest(context, userToken, workspace, {filepath});
+    await tryReadFile(result.path);
+  });
+
+  test('fails if file does not exist and filepath not provided', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {fileId: getNewIdForResource(AppResourceType.File)}
+      );
+      await issueFilePresignedPath(context, instData);
+    }, [FileDoesNotExistError.name]);
+  });
 });
 
 async function tryReadFile(presignedPath: string) {
@@ -167,7 +233,7 @@ async function tryReadFile(presignedPath: string) {
   return await readFile(context, instData);
 }
 
-async function expectReadFileFails(presignedPath: string) {
+async function expectReadFileFails(presignedPath: string, errorName: string) {
   await expectErrorThrown(async () => {
     assertContext(context);
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
@@ -175,5 +241,5 @@ async function expectReadFileFails(presignedPath: string) {
       {filepath: presignedPath}
     );
     await readFile(context, instData);
-  }, [PermissionDeniedError.name]);
+  }, [errorName]);
 }

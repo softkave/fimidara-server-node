@@ -187,6 +187,7 @@ export async function fetchAgentPermissionItems(
   params: ICheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
   const {context, agent, entity, workspaceId, targets} = params;
+
   if (agent && agent.user && !agent.user.isEmailVerified && params.action !== AppActionType.Read) {
     // Only read actions are permitted for user's who aren't email verified.
     throw new EmailAddressNotVerifiedError();

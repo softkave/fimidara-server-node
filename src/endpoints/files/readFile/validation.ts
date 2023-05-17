@@ -1,8 +1,9 @@
 import * as Joi from 'joi';
 import {fileConstants} from '../constants';
 import fileValidationSchemas from '../validation';
+import {ReadFileEndpointParams} from './types';
 
-export const readFileJoiSchema = Joi.object()
+export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
   .keys({
     ...fileValidationSchemas.fileMatcherParts,
     imageTranformation: Joi.object()

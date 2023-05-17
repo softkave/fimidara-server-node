@@ -11,7 +11,7 @@ import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/seman
 import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
-import {ISplitFilepathWithDetails} from '../utils';
+import {FilepathInfo} from '../utils';
 
 export async function checkUploadFileAuth(
   context: BaseContextType,
@@ -33,12 +33,7 @@ export async function checkUploadFileAuth(
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    targets: [
-      {
-        targetType: AppResourceType.File,
-        targetId: file?.resourceId,
-      },
-    ],
+    targets: [{targetType: AppResourceType.File, targetId: file?.resourceId}],
     containerId: file
       ? getFilePermissionContainers(workspace.resourceId, file)
       : closestExistingFolder
@@ -55,7 +50,7 @@ export async function createFileParentFolders(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  pathWithDetails: ISplitFilepathWithDetails,
+  pathWithDetails: FilepathInfo,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {

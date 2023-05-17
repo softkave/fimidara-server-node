@@ -1,5 +1,6 @@
 import {File, FileMatcher} from '../../definitions/file';
 import {AppActionType, AppResourceType} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
@@ -11,9 +12,9 @@ import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
 import {PermissionDeniedError} from '../users/errors';
 import {assertWorkspace} from '../workspaces/utils';
-import {assertFile, checkFileAuthorization, splitFilepathWithDetails} from './utils';
+import {assertFile, checkFileAuthorization, getFilepathInfo} from './utils';
 
-export async function getCheckAndIncrementFilePresignedPathUsageCount(
+async function getCheckAndIncrementFilePresignedPathUsageCount(
   context: BaseContextType,
   resourceId: string,
   opts?: SemanticDataAccessProviderMutationRunOptions
@@ -30,8 +31,8 @@ export async function getCheckAndIncrementFilePresignedPathUsageCount(
         // TODO: should we use a different error type?
         throw new PermissionDeniedError();
 
-      // TODO: possible race condition here, seeing the check above is not using
-      // data fetched with the update txn
+      // TODO: possible race condition here, read and update should occur in the
+      // same op
       const updatedResource = await context.semantic.filePresignedPath.updateOneById(
         presignedPath.resourceId,
         {spentUsageCount: presignedPath.spentUsageCount + 1},
@@ -60,7 +61,12 @@ export async function getFileByPresignedPath(
   }
 
   appAssert(presignedPath.action.includes(action), new PermissionDeniedError());
-  const file = await context.semantic.file.assertGetOneByQuery({resourceId: presignedPath.fileId});
+  const file = await context.semantic.file.getOneByNamePath(
+    presignedPath.workspaceId,
+    presignedPath.fileNamePath,
+    presignedPath.fileExtension
+  );
+  assertFile(file);
 
   // Check agent token exists, and that agent still has access to file. This is
   // critical and allows us to have a one-size-fits-all solution for the many
@@ -89,32 +95,47 @@ export async function getFileByPresignedPath(
   return {presignedPath, file};
 }
 
+export async function getFileWithId(
+  context: BaseContextType,
+  fileId: string,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const file = await context.semantic.file.getOneById(fileId, opts);
+  return {file};
+}
+
+export async function getFileWithFilepath(
+  context: BaseContextType,
+  filepath: string,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const pathWithDetails = getFilepathInfo(filepath);
+  const workspace = await context.semantic.workspace.getByRootname(
+    pathWithDetails.workspaceRootname
+  );
+  assertWorkspace(workspace);
+  const file = await context.semantic.file.getOneByNamePath(
+    workspace.resourceId,
+    pathWithDetails.splitPathWithoutExtension,
+    pathWithDetails.extension,
+    opts
+  );
+
+  return {file, workspace};
+}
+
 export async function getFileWithMatcher(
   context: BaseContextType,
   matcher: FileMatcher,
   opts?: SemanticDataAccessProviderRunOptions
-) {
+): Promise<{file?: File | null; workspace?: Workspace}> {
   if (matcher.fileId) {
-    const file = await context.semantic.file.getOneById(matcher.fileId, opts);
-    assertFile(file);
-    return file;
+    return await getFileWithId(context, matcher.fileId, opts);
   } else if (matcher.filepath) {
-    const pathWithDetails = splitFilepathWithDetails(matcher.filepath);
-    const workspace = await context.semantic.workspace.getByRootname(
-      pathWithDetails.workspaceRootname
-    );
-    assertWorkspace(workspace);
-    const file = await context.semantic.file.getOneByNamePath(
-      workspace.resourceId,
-      pathWithDetails.splitPathWithoutExtension,
-      pathWithDetails.extension,
-      opts
-    );
-
-    return file;
+    return await getFileWithFilepath(context, matcher.filepath, opts);
   }
 
-  return null;
+  return {};
 }
 
 export async function assertGetSingleFileWithMatcher(
@@ -122,7 +143,7 @@ export async function assertGetSingleFileWithMatcher(
   matcher: FileMatcher,
   opts?: SemanticDataAccessProviderRunOptions
 ): Promise<File> {
-  const file = await getFileWithMatcher(context, matcher, opts);
+  const {file} = await getFileWithMatcher(context, matcher, opts);
   assertFile(file);
   return file;
 }

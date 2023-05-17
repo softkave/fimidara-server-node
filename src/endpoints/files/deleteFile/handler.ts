@@ -3,7 +3,7 @@ import {noopAsync} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {DeleteResourceCascadeFnsMap} from '../../types';
-import {checkFileAuthorization03} from '../utils';
+import {checkFileAuthorization02} from '../utils';
 import {DeleteFileCascadeDeleteFnsArgs, DeleteFileEndpoint} from './types';
 import {deleteFileJoiSchema} from './validation';
 
@@ -47,7 +47,7 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {file} = await checkFileAuthorization03(context, agent, data, AppActionType.Delete);
+  const {file} = await checkFileAuthorization02(context, agent, data, AppActionType.Delete);
   const job = await enqueueDeleteResourceJob(context, {
     type: AppResourceType.File,
     args: {workspaceId: file.workspaceId, fileIdList: [file.resourceId]},
