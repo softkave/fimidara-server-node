@@ -1,5 +1,6 @@
 # Example env file
 
+# Make sure the port is same as the ones declared in package.json
 CLIENT_DOMAIN = "mongodb://localhost:27000,localhost:27001,localhost:27002?replicaSet=rs&serverSelectionTimeoutMS=50000"
 MONGODB_DATABASE_NAME = "fimidara-dev"
 MONGODB_URI = ""
@@ -15,5 +16,6 @@ AWS_REGION = ""
 ROOT_USER_EMAIL = ""
 ROOT_USER_FIRST_NAME = ""
 ROOT_USER_LAST_NAME = ""
-FILE_BACKEND = "memory"
+FILE_BACKEND = "fs"
+LOCAL_FS_DIR = "./dev-local-fs"
 FLAG_WAITLIST_NEW_SIGNUPS = true

@@ -1,11 +1,11 @@
 {
-    "basePathname": "/v1/permissionGroups/assignPermissionGroups",
+    "basePathname": "/v1/permissionGroups/unassignPermissionGroups",
     "method": "post",
     "requestBody": {
         "required": true,
-        "description": "Assign permission groups endpoint params.",
+        "description": "Unassign permission groups endpoint params.",
         "__id": "FieldObject",
-        "name": "AssignPermissionGroupsEndpointParams",
+        "name": "UnassignPermissionGroupsEndpointParams",
         "fields": {
             "workspaceId": {
                 "data": {
@@ -29,20 +29,12 @@
             },
             "permissionGroups": {
                 "data": {
+                    "description": "List of permission group IDs.",
                     "__id": "FieldArray",
                     "type": {
-                        "__id": "FieldObject",
-                        "name": "AssignPermissionGroupInput",
-                        "fields": {
-                            "permissionGroupId": {
-                                "data": {
-                                    "description": "Permission group ID.",
-                                    "__id": "FieldString",
-                                    "example": "pmgroup_000000000000000000000"
-                                },
-                                "required": true
-                            }
-                        }
+                        "description": "Resource ID.",
+                        "__id": "FieldString",
+                        "example": "wrkspce_000000000000000000000"
                     }
                 },
                 "required": true
@@ -74,8 +66,8 @@
             }
         }
     },
-    "name": "AssignPermissionGroupsEndpoint",
-    "description": "Assign permission groups endpoint.",
+    "name": "UnassignPermissionGroupsEndpoint",
+    "description": "Unassigns permission groups.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

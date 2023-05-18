@@ -50,6 +50,7 @@ import {
   UpdatePermissionGroupEndpointResult,
   UpdatePermissionGroupInput,
 } from './udpatePermissionGroup/types';
+import {UnassignPermissionGroupsEndpointParams} from './unassignPermissionGroups/types';
 
 const newPermissionGroupInput = FieldObject.construct<NewPermissionGroupInput>()
   .setName('NewPermissionGroupInput')
@@ -73,7 +74,7 @@ const permissionGroup = FieldObject.construct<PublicPermissionGroup>()
   });
 
 const assignedPermissionGroupMeta = FieldObject.construct<PublicAssignedPermissionGroupMeta>()
-  .setName('PermissionGroup')
+  .setName('PublicAssignedPermissionGroupMeta')
   .setFields({
     permissionGroupId: FieldObject.requiredField(fReusables.permissionGroupId),
     assignedBy: FieldObject.requiredField(fReusables.agent),
@@ -205,7 +206,7 @@ const assignPermissionGroupsParams = FieldObject.construct<AssignPermissionGroup
   .setName('AssignPermissionGroupsEndpointParams')
   .setFields({
     workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    entityId: FieldObject.requiredField(permissionItemMddocParts.entityId),
+    entityId: FieldObject.requiredField(permissionItemMddocParts.entityIdList),
     permissionGroups: FieldObject.requiredField(
       FieldArray.construct<AssignPermissionGroupInput>().setType(
         FieldObject.construct<AssignPermissionGroupInput>()
@@ -218,6 +219,19 @@ const assignPermissionGroupsParams = FieldObject.construct<AssignPermissionGroup
   })
   .setRequired(true)
   .setDescription('Assign permission groups endpoint params.');
+
+const unassignPermissionGroupsParams =
+  FieldObject.construct<UnassignPermissionGroupsEndpointParams>()
+    .setName('UnassignPermissionGroupsEndpointParams')
+    .setFields({
+      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
+      entityId: FieldObject.requiredField(permissionItemMddocParts.entityIdList),
+      permissionGroups: FieldObject.requiredField(
+        fReusables.idList.clone().setDescription('List of permission group IDs.')
+      ),
+    })
+    .setRequired(true)
+    .setDescription('Unassign permission groups endpoint params.');
 
 const getPermissionGroupParams = FieldObject.construct<GetPermissionGroupEndpointParams>()
   .setName('GetPermissionGroupEndpointParams')
@@ -336,6 +350,17 @@ export const assignPermissionGroupsEndpointDefinition = HttpEndpointDefinition.c
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setName('AssignPermissionGroupsEndpoint')
   .setDescription('Assign permission groups endpoint.');
+
+export const unassignPermissionGroupsEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: UnassignPermissionGroupsEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+}>()
+  .setBasePathname(permissionGroupConstants.routes.unassignPermissionGroups)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(unassignPermissionGroupsParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setName('UnassignPermissionGroupsEndpoint')
+  .setDescription('Unassigns permission groups.');
 
 export const getEntityAssignedPermissionGroupsEndpointDefinition =
   HttpEndpointDefinition.construct<{

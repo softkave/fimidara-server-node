@@ -123,11 +123,14 @@ const countFolderContentParams = FieldObject.construct<CountFolderContentEndpoin
   .setFields({
     ...folderMatcherParts,
     contentType: FieldObject.optionalField(
-      FieldString.construct()
-        .setRequired(false)
-        .setDescription('Count children files or folders or both.')
-        .setExample(AppResourceType.File)
-        .setValid([AppResourceType.File, AppResourceType.Folder])
+      FieldArray.construct()
+        .setType(
+          FieldString.construct()
+            .setDescription('Count children files or folders or both.')
+            .setExample(AppResourceType.File)
+            .setValid([AppResourceType.File, AppResourceType.Folder])
+        )
+        .setMax(2)
     ),
   })
   .setRequired(true)

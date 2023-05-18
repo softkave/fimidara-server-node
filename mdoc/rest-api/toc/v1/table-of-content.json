@@ -152,6 +152,10 @@
         "post"
     ],
     [
+        "/v1/permissionGroups/unassignPermissionGroups",
+        "post"
+    ],
+    [
         "/v1/permissionGroups/deletePermissionGroup",
         "delete"
     ],

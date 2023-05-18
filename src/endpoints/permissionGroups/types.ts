@@ -43,6 +43,10 @@ import {
   UpdatePermissionGroupEndpointParams,
   UpdatePermissionGroupEndpointResult,
 } from './udpatePermissionGroup/types';
+import {
+  UnassignPermissionGroupsEndpoint,
+  UnassignPermissionGroupsEndpointParams,
+} from './unassignPermissionGroups/types';
 
 export type AddPermissionGroupHttpEndpoint = HttpEndpoint<
   AddPermissionGroupEndpoint,
@@ -93,6 +97,13 @@ export type AssignPermissionGroupsHttpEndpoint = HttpEndpoint<
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   {}
 >;
+export type UnassignPermissionGroupsHttpEndpoint = HttpEndpoint<
+  UnassignPermissionGroupsEndpoint,
+  UnassignPermissionGroupsEndpointParams,
+  {},
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  {}
+>;
 export type GetEntityAssignedPermissionGroupsHttpEndpoint = HttpEndpoint<
   GetEntityAssignedPermissionGroupsEndpoint,
   GetEntityAssignedPermissionGroupsEndpointParams,
@@ -109,5 +120,6 @@ export type PermissionGroupsExportedEndpoints = {
   updatePermissionGroup: ExportedHttpEndpointWithMddocDefinition<UpdatePermissionGroupHttpEndpoint>;
   countWorkspacePermissionGroups: ExportedHttpEndpointWithMddocDefinition<CountWorkspacePermissionGroupsHttpEndpoint>;
   assignPermissionGroups: ExportedHttpEndpointWithMddocDefinition<AssignPermissionGroupsHttpEndpoint>;
+  unassignPermissionGroups: ExportedHttpEndpointWithMddocDefinition<UnassignPermissionGroupsHttpEndpoint>;
   getEntityAssignedPermissionGroups: ExportedHttpEndpointWithMddocDefinition<GetEntityAssignedPermissionGroupsHttpEndpoint>;
 };

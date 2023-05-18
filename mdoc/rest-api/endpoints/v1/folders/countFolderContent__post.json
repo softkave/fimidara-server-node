@@ -25,14 +25,17 @@
             },
             "contentType": {
                 "data": {
-                    "required": false,
-                    "description": "Count children files or folders or both.",
-                    "__id": "FieldString",
-                    "example": "file",
-                    "valid": {
-                        "0": "file",
-                        "1": "folder"
-                    }
+                    "__id": "FieldArray",
+                    "type": {
+                        "description": "Count children files or folders or both.",
+                        "__id": "FieldString",
+                        "example": "file",
+                        "valid": {
+                            "0": "file",
+                            "1": "folder"
+                        }
+                    },
+                    "max": 2
                 },
                 "optional": true
             }

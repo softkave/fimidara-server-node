@@ -14,9 +14,9 @@
                     "fields": {
                         "entityId": {
                             "data": {
-                                "description": "Permission entity resource ID. Permission entity is a resource granted access. This can be a user, a permission group, a permission item, or a agent token.",
+                                "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
                                 "__id": "FieldString",
-                                "example": "pmgroup_000000000000000000000"
+                                "example": "wrkspce_000000000000000000000"
                             },
                             "required": true
                         }
@@ -116,9 +116,9 @@
                                     "fields": {
                                         "entityId": {
                                             "data": {
-                                                "description": "Permission entity resource ID. Permission entity is a resource granted access. This can be a user, a permission group, a permission item, or a agent token.",
+                                                "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
                                                 "__id": "FieldString",
-                                                "example": "pmgroup_000000000000000000000"
+                                                "example": "wrkspce_000000000000000000000"
                                             },
                                             "required": true
                                         }

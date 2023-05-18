@@ -163,6 +163,7 @@ const id = FieldString.construct()
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
+const idList = FieldArray.construct<string>().setType(id).setDescription('List of resource IDs.');
 const jobId = FieldString.construct()
   .setDescription('Long running job ID.')
   .setExample(
@@ -308,6 +309,7 @@ export const fReusables = {
   agent,
   date,
   id,
+  idList,
   name,
   description,
   expires,

@@ -4,6 +4,7 @@ import {
   FieldArray,
   FieldBoolean,
   FieldObject,
+  FieldOrCombination,
   FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
@@ -68,18 +69,32 @@ const targetType = fReusables.resourceType
   )
   .setValid(getWorkspaceResourceTypeList())
   .setEnumName('WorkspaceAppResourceType');
-const entityId = fReusables.permissionGroupId
+const entityId = fReusables.id
   .clone()
   .setDescription(
     'Permission entity resource ID. ' +
-      'Permission entity is a resource granted access. ' +
-      'This can be a user, a permission group, a permission item, or a agent token.'
+      'A permission entity is a resource granted or deny access. ' +
+      'This can be a user, a permission group, or an agent token.'
+  );
+const entityIdList = FieldArray.construct<string>()
+  .setType(entityId)
+  .setDescription(
+    'Permission entity resource ID list. ' +
+      'A permission entity is a resource granted or deny access. ' +
+      'This can be a user, a permission group, or an agent token.'
+  );
+const entityIdOrList = FieldOrCombination.construct()
+  .setTypes([entityId, FieldArray.construct<string>().setType(entityId)])
+  .setDescription(
+    'Permission entity resource ID list. ' +
+      'A permission entity is a resource granted or deny access. ' +
+      'This can be a user, a permission group, or an agent token.'
   );
 const entityType = FieldString.construct()
   .setDescription(
     'Permission entity resource type. ' +
-      'Permission entity is the resource granted access. ' +
-      'This can be a user, a permission group, a permission item, or a agent token.'
+      'A permission entity is the resource granted access. ' +
+      'This can be a user, a permission group, or an agent token.'
   )
   .setValid([AppResourceType.User, AppResourceType.PermissionGroup, AppResourceType.AgentToken])
   .setEnumName('EntityAppResourceType');
@@ -194,8 +209,6 @@ const permissionItem = FieldObject.construct<PublicPermissionItem>()
     providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
     appliesTo: FieldObject.requiredField(fReusables.appliesTo),
   });
-
-export const permissionItemMddocParts = {entityId};
 
 const addPermissionItemsParams = FieldObject.construct<AddPermissionItemsEndpointParams>()
   .setName('AddPermissionItemsEndpointParams')
@@ -384,3 +397,5 @@ export const resolveEntityPermissionsEndpointDefinition = HttpEndpointDefinition
   .setResponseBody(resolveEntityPermissionsResponseBody)
   .setName('ResolveEntityPermissionsEndpoint')
   .setDescription('Resolve entity permissions endpoint.');
+
+export const permissionItemMddocParts = {entityId, entityIdOrList, entityIdList};

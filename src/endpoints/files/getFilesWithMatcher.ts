@@ -10,6 +10,7 @@ import {
 } from '../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
+import {folderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFile, checkFileAuthorization, getFilepathInfo} from './utils';
@@ -47,10 +48,17 @@ async function getCheckAndIncrementFilePresignedPathUsageCount(
 
 export async function getFileByPresignedPath(
   context: BaseContextType,
-  resourceId: string,
+  filepath: string,
   action: AppActionType
 ) {
-  if (tryGetResourceTypeFromId(resourceId) !== AppResourceType.FilePresignedPath) return null;
+  const resourceId = filepath.startsWith(folderConstants.nameSeparator)
+    ? filepath.slice(1)
+    : filepath;
+  const type = tryGetResourceTypeFromId(resourceId);
+
+  if (type !== AppResourceType.FilePresignedPath) {
+    return null;
+  }
 
   const presignedPath = await getCheckAndIncrementFilePresignedPathUsageCount(context, resourceId);
   const now = Date.now();

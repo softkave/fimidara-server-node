@@ -66,8 +66,8 @@ export function folderpathListToString(filepath: string[]) {
   return filepath.join('/');
 }
 
-export function filepathListToString(filepath: string[], extension: string) {
-  return filepath.join('/') + '.' + extension;
+export function filepathListToString(filepath: string[], extension?: string) {
+  return filepath.join('/') + extension ? `.${extension}` : '';
 }
 
 function defaultIndexer(data: any, path: any) {

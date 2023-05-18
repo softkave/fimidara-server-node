@@ -351,7 +351,7 @@ export type ListFolderContentEndpointResult = {
 export type CountFolderContentEndpointParams = {
   folderpath?: string;
   folderId?: string;
-  contentType?: 'file' | 'folder';
+  contentType?: Array<'file' | 'folder'>;
 };
 export type CountFolderContentEndpointResult = {
   foldersCount: number;
@@ -402,8 +402,13 @@ export type AssignPermissionGroupInput = {
 };
 export type AssignPermissionGroupsEndpointParams = {
   workspaceId?: string;
-  entityId: string;
+  entityId: Array<string>;
   permissionGroups: Array<AssignPermissionGroupInput>;
+};
+export type UnassignPermissionGroupsEndpointParams = {
+  workspaceId?: string;
+  entityId: Array<string>;
+  permissionGroups: Array<string>;
 };
 export type DeletePermissionGroupEndpointParams = {
   permissionGroupId?: string;
@@ -423,9 +428,15 @@ export type GetEntityAssignedPermissionGroupsParams = {
   entityId: string;
   includeInheritedPermissionGroups?: boolean;
 };
+export type PublicAssignedPermissionGroupMeta = {
+  permissionGroupId: string;
+  assignedBy: Agent;
+  assignedAt: number;
+  assigneeEntityId: string;
+};
 export type GetEntityAssignedPermissionGroupsEndpointResult = {
   permissionGroups: Array<PermissionGroup>;
-  immediateAssignedPermissionGroupsMeta: Array<PermissionGroup>;
+  immediateAssignedPermissionGroupsMeta: Array<PublicAssignedPermissionGroupMeta>;
 };
 export type GetWorkspacePermissionGroupsEndpointParams = {
   workspaceId?: string;

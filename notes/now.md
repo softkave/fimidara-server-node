@@ -9,6 +9,7 @@
 - [ ] Delete presigned paths endpoint
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
 - [ ] Move db to another thread
+- [ ] Assigned permission group weight
 - [ ] Endpoint for deleting presigned urls
 - [ ] Custom HTML tag for fetching images and video
 - [ ] Test files like .env work on upload and read file
@@ -16,7 +17,10 @@
 - [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
 - [ ] Look into sending and accepting cookies for auth and look into any cookie security issues
+- [ ] Research other resize options and allow users pass in resize options
 - [ ] Cascade delete folder children not all at once
+- [ ] Auth using cookies for presigned paths, delegated auth tokens, etc. The client calls us with browser, we set cookie that the browser sends per request for auth, particularly for images.
+- [ ] React and html custom tags to auto issue presigned paths for images
 - [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item

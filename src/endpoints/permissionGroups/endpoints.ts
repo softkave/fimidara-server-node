@@ -10,6 +10,7 @@ import {
   getEntityAssignedPermissionGroupsEndpointDefinition,
   getPermissionGroupEndpointDefinition,
   getWorkspacePermissionGroupsEndpointDefinition,
+  unassignPermissionGroupsEndpointDefinition,
   updatePermissionGroupEndpointDefinition,
 } from './endpoints.mddoc';
 import getEntityAssignedPermissionGroups from './getEntityAssignedPermissionGroups/handler';
@@ -17,6 +18,7 @@ import getPermissionGroup from './getPermissionGroup/handler';
 import getWorkspacePermissionGroups from './getWorkspacePermissionGroups/handler';
 import {PermissionGroupsExportedEndpoints} from './types';
 import updatePermissionGroup from './udpatePermissionGroup/handler';
+import unassignPermissionGroups from './unassignPermissionGroups/handler';
 
 export function getPermissionGroupsPublicHttpEndpoints() {
   const permissionGroupsExportedEndpoints: PermissionGroupsExportedEndpoints = {
@@ -27,6 +29,10 @@ export function getPermissionGroupsPublicHttpEndpoints() {
     assignPermissionGroups: {
       fn: assignPermissionGroups,
       mddocHttpDefinition: assignPermissionGroupsEndpointDefinition,
+    },
+    unassignPermissionGroups: {
+      fn: unassignPermissionGroups,
+      mddocHttpDefinition: unassignPermissionGroupsEndpointDefinition,
     },
     deletePermissionGroup: {
       fn: deletePermissionGroup,

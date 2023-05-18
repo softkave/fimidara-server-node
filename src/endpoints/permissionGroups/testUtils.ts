@@ -28,16 +28,16 @@ export async function assignPgListToIdList(
   context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
-  idList: string[],
-  pgListAssignedTo01Input: AssignPermissionGroupInput[]
+  entityIdList: string[],
+  pgInputList: AssignPermissionGroupInput[]
 ) {
   await executeWithMutationRunOptions(context, async opts =>
     addAssignedPermissionGroupList(
       context,
       agent,
       workspaceId,
-      pgListAssignedTo01Input,
-      idList,
+      pgInputList,
+      entityIdList,
       /** delete existing */ false,
       /** skip permission groups check */ true,
       /** skip auth check */ true,

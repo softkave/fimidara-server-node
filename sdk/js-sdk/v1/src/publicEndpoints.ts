@@ -73,6 +73,7 @@ import {
   AddPermissionGroupEndpointParams,
   AddPermissionGroupEndpointResult,
   AssignPermissionGroupsEndpointParams,
+  UnassignPermissionGroupsEndpointParams,
   DeletePermissionGroupEndpointParams,
   GetPermissionGroupEndpointParams,
   GetPermissionGroupEndpointResult,
@@ -577,6 +578,18 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
       {
         data: props?.body,
         path: '/v1/permissionGroups/assignPermissionGroups',
+        method: 'POST',
+      },
+      props
+    );
+  };
+  unassignPermissionGroups = async (
+    props: FimidaraEndpointParamsRequired<UnassignPermissionGroupsEndpointParams>
+  ): Promise<FimidaraEndpointResult<undefined>> => {
+    return this.executeJson(
+      {
+        data: props?.body,
+        path: '/v1/permissionGroups/unassignPermissionGroups',
         method: 'POST',
       },
       props

@@ -8,6 +8,7 @@ export const permissionGroupConstants = {
     getWorkspacePermissionGroups: `${endpointConstants.apiv1}/permissionGroups/getWorkspacePermissionGroups`,
     countWorkspacePermissionGroups: `${endpointConstants.apiv1}/permissionGroups/countWorkspacePermissionGroups`,
     assignPermissionGroups: `${endpointConstants.apiv1}/permissionGroups/assignPermissionGroups`,
+    unassignPermissionGroups: `${endpointConstants.apiv1}/permissionGroups/unassignPermissionGroups`,
     getEntityAssignedPermissionGroups: `${endpointConstants.apiv1}/permissionGroups/getEntityAssignedPermissionGroups`,
     getPermissionGroup: `${endpointConstants.apiv1}/permissionGroups/getPermissionGroup`,
     updatePermissionGroup: `${endpointConstants.apiv1}/permissionGroups/updatePermissionGroup`,
