@@ -6,7 +6,6 @@ import {
   AppResourceType,
   PublicAgent,
   VALID_AGENT_TYPES,
-  getNonWorkspaceActionList,
 } from '../definitions/system';
 import {UsageRecordCategory, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
 import {
@@ -251,9 +250,11 @@ const filename = FieldString.construct().setDescription('File name.').setExample
 const folderpath = FieldString.construct()
   .setDescription('Folder path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
+const folderpathList = FieldArray.construct<string>().setType(folderpath);
 const filepath = FieldString.construct()
   .setDescription('File path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
+const filepathList = FieldArray.construct<string>().setType(filepath);
 const folderNamePath = FieldArray.construct<string>()
   .setType(foldername)
   .setDescription('List of parent folder names.');
@@ -262,11 +263,7 @@ const action = FieldString.construct()
   .setExample(AppActionType.Create)
   .setValid(Object.values(AppActionType))
   .setEnumName('AppActionType');
-const nonWorkspaceAction = FieldString.construct()
-  .setDescription('Action')
-  .setExample(AppActionType.Create)
-  .setValid(getNonWorkspaceActionList())
-  .setEnumName('NonWorkspaceAppActionType');
+const actionList = FieldArray.construct<string>().setType(action);
 const resourceType = FieldString.construct()
   .setDescription('Resource type.')
   .setExample(AppResourceType.File)
@@ -283,6 +280,9 @@ const appliesTo = FieldString.construct()
   .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
   .setValid(Object.values(PermissionItemAppliesTo))
   .setEnumName('PermissionItemAppliesTo');
+const appliesToList = FieldArray.construct<string>()
+  .setType(appliesTo)
+  .setMax(Object.values(PermissionItemAppliesTo).length);
 const usageCategory = FieldString.construct()
   .setDescription('Usage record category.')
   .setExample(UsageRecordCategory.Storage)
@@ -334,7 +334,7 @@ export const fReusables = {
   filepath,
   fileId,
   action,
-  nonWorkspaceAction,
+  actionList,
   resourceType,
   permissionGroupId,
   permissionItemId,
@@ -347,6 +347,9 @@ export const fReusables = {
   usageFulfillmentStatus,
   password,
   folderIdOrNull,
+  filepathList,
+  folderpathList,
+  appliesToList,
 };
 
 const errorObject = FieldObject.construct<EndpointExportedError>()

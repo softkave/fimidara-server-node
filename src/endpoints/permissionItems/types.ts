@@ -35,9 +35,7 @@ export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
   action: AppActionType | AppActionType[];
   grantAccess: boolean;
-
-  // TODO: support array
-  appliesTo: PermissionItemAppliesTo;
+  appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   entity?: PermissionItemInputEntity;
 }
 

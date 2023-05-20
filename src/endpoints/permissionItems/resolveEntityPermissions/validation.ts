@@ -1,13 +1,27 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
+import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
 import permissionItemValidationSchemas from '../validation';
-import {ResolveEntityPermissionItemInput, ResolveEntityPermissionsEndpointParams} from './types';
+import {
+  ResolveEntityPermissionItemInput,
+  ResolveEntityPermissionItemInputTarget,
+  ResolveEntityPermissionsEndpointParams,
+} from './types';
 
+const target = Joi.object<ResolveEntityPermissionItemInputTarget>().keys({
+  targetId: permissionItemValidationSchemas.targetParts.targetId,
+  targetType: permissionItemValidationSchemas.targetParts.targetType,
+  folderpath: permissionItemValidationSchemas.targetParts.folderpath,
+  filepath: permissionItemValidationSchemas.targetParts.filepath,
+  workspaceRootname: workspaceValidationSchemas.rootname,
+});
 const itemInput = Joi.object<ResolveEntityPermissionItemInput>().keys({
   entity: permissionItemValidationSchemas.entity,
-  target: permissionItemValidationSchemas.target.required(),
+  target: target.required(),
   action: validationSchemas.crudActionOrList.required(),
+  containerAppliesTo: permissionItemValidationSchemas.appliesToOrList,
+  targetAppliesTo: permissionItemValidationSchemas.appliesToOrList,
 });
 const itemInputList = Joi.array()
   .items(itemInput)

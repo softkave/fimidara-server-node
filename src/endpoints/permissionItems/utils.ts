@@ -10,7 +10,7 @@ import {
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {makeKey, toArray, toNonNullableArray} from '../../utils/fns';
+import {makeKey, toArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
@@ -133,9 +133,7 @@ export async function getPermissionItemEntities(
     ],
     workspaceId,
     inputResources: flatten(
-      entities.map(entity =>
-        toNonNullableArray(entity.entityId).map(entityId => ({resourceId: entityId}))
-      )
+      entities.map(entity => toArray(entity.entityId).map(entityId => ({resourceId: entityId})))
     ),
     checkAuth: true,
     checkBelongsToWorkspace: true,

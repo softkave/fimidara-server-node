@@ -9,7 +9,12 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {extractResourceIdList, isObjectEmpty, toNonNullableArray} from '../../../utils/fns';
+import {
+  extractResourceIdList,
+  isObjectEmpty,
+  toArray,
+  toNonNullableArray,
+} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {
@@ -135,22 +140,40 @@ export const INTERNAL_addPermissionItems = async (
           }
 
           forEach(nextTargetsMap, nextTargetFromMap => {
-            if (targetTypes.length === 0) {
-              // Default target type to resource type if there's isn't one
-              // provided
-              targetTypes = toNonNullableArray(getResourceTypeFromId(nextTargetFromMap.resourceId));
-            }
-
-            toNonNullableArray(targetTypes).forEach(nextTargetType => {
+            if (targetTypes.length) {
+              toNonNullableArray(targetTypes).forEach(nextTargetType => {
+                if (item.appliesTo) {
+                  toArray(item.appliesTo).forEach(appliesTo => {
+                    processedItems.push({
+                      entity,
+                      action,
+                      appliesTo,
+                      target: nextTargetFromMap,
+                      grantAccess: item.grantAccess,
+                      targetType: nextTargetType,
+                    });
+                  });
+                } else {
+                  processedItems.push({
+                    entity,
+                    action,
+                    target: nextTargetFromMap,
+                    grantAccess: item.grantAccess,
+                    targetType: nextTargetType,
+                    appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+                  });
+                }
+              });
+            } else {
               processedItems.push({
                 entity,
                 action,
                 target: nextTargetFromMap,
                 grantAccess: item.grantAccess,
-                targetType: nextTargetType,
-                appliesTo: item.appliesTo,
+                targetType: getResourceTypeFromId(nextTargetFromMap.resourceId),
+                appliesTo: PermissionItemAppliesTo.Self,
               });
-            });
+            }
           });
         });
       });

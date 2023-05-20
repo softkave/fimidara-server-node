@@ -21,9 +21,11 @@ import {PermissionItemInput} from '../types';
 import resolveEntityPermissions from './handler';
 import {
   ResolveEntityPermissionsEndpointParams,
-  ResolvedEntityPermissionItemResult,
+  ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
 } from './types';
+
+// TODO: test container and target appliesTo
 
 let context: BaseContextType | null = null;
 
@@ -175,7 +177,7 @@ describe('resolveEntityPermissions', () => {
   });
 });
 
-function indexResolvedPermissions(item: ResolvedEntityPermissionItemResult) {
+function indexResolvedPermissions(item: ResolvedEntityPermissionItem) {
   return makeKey([
     item.entityId,
     indexResolvedPermissionItemTarget(item.target),

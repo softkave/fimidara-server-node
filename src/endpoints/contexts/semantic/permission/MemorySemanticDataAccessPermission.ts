@@ -7,14 +7,29 @@ import {
 import {PermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
-import {toNonNullableArray} from '../../../../utils/fns';
+import {toArray, toNonNullableArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
 import {LiteralDataQuery} from '../../data/types';
 import {BaseContextType} from '../../types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessPermissionProviderType} from './types';
+import {
+  SemanticDataAccessPermissionProviderType,
+  SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
+  SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
+} from './types';
+
+const containerSpecificAppliesToList: PermissionItemAppliesTo[] = [
+  PermissionItemAppliesTo.SelfAndChildrenOfType,
+  PermissionItemAppliesTo.ChildrenOfType,
+];
+const targetSpecificAppliesToList: PermissionItemAppliesTo[] = [
+  PermissionItemAppliesTo.Self,
+  PermissionItemAppliesTo.SelfAndChildrenOfType,
+];
+const containerSpecificAppliesToMap = indexArray(containerSpecificAppliesToList);
+const targetSpecificAppliesToMap = indexArray(targetSpecificAppliesToList);
 
 export class MemorySemanticDataAccessPermission
   implements SemanticDataAccessPermissionProviderType
@@ -87,16 +102,7 @@ export class MemorySemanticDataAccessPermission
   }
 
   async getPermissionItems(
-    props: {
-      context: BaseContextType;
-      entityId?: string | string[];
-      action?: AppActionType | AppActionType[];
-      targetId?: string | string[];
-      targetType?: AppResourceType | AppResourceType[];
-      containerId?: string | string[];
-      sortByDate?: boolean;
-      sortByContainer?: boolean;
-    },
+    props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
@@ -144,14 +150,7 @@ export class MemorySemanticDataAccessPermission
   }
 
   async countPermissionItems(
-    props: {
-      context: BaseContextType;
-      entityId?: string | string[];
-      action?: AppActionType | AppActionType[];
-      targetId?: string | string[];
-      targetType?: AppResourceType | AppResourceType[];
-      containerId?: string | string[];
-    },
+    props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
     const {q01, q02} = this.getPermissionItemsQuery(props);
@@ -189,6 +188,8 @@ export class MemorySemanticDataAccessPermission
     targetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
     containerId?: string | string[];
+    containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+    targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   }) {
     const inputContainerIdList = props.containerId ? toNonNullableArray(props.containerId) : [];
     const inputTargetIdList = props.targetId ? toNonNullableArray(props.targetId) : [];
@@ -200,28 +201,41 @@ export class MemorySemanticDataAccessPermission
       containerIdList.length && inputTargetIdList.length
         ? difference(inputTargetIdList, containerIdList)
         : inputTargetIdList;
+
+    // Permission items query using container ID
     const q01: LiteralDataQuery<PermissionItem> = {
       entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
       action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
       targetId: containerIdList.length ? {$in: toNonNullableArray(containerIdList)} : undefined,
       targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
-      appliesTo: {
-        $in: [
-          PermissionItemAppliesTo.SelfAndChildrenOfType,
-          PermissionItemAppliesTo.ChildrenOfType,
-        ] as any,
-      },
+      appliesTo: {$in: this.getContainerAppliesTo(props.containerAppliesTo) as any},
     };
+
+    // Permission items query using target ID
     const q02: LiteralDataQuery<PermissionItem> = {
       entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
       action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
       targetId: targetIdList.length ? {$in: toNonNullableArray(targetIdList)} : undefined,
       targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
-      appliesTo: {
-        $in: [PermissionItemAppliesTo.Self, PermissionItemAppliesTo.SelfAndChildrenOfType] as any,
-      },
+      appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
     };
 
     return {q01, q02};
+  }
+
+  protected getContainerAppliesTo(appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[]) {
+    if (appliesTo) {
+      return toArray(appliesTo).filter(next => containerSpecificAppliesToMap[next]);
+    } else {
+      return containerSpecificAppliesToList;
+    }
+  }
+
+  protected getTargetAppliesTo(appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[]) {
+    if (appliesTo) {
+      return toArray(appliesTo).filter(next => targetSpecificAppliesToMap[next]);
+    } else {
+      return targetSpecificAppliesToList;
+    }
   }
 }

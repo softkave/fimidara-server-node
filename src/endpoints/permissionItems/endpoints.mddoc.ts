@@ -22,7 +22,11 @@ import {
 } from '../types';
 import {AddPermissionItemsEndpointParams} from './addItems/types';
 import {permissionItemConstants} from './constants';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './deleteItems/types';
+import {
+  DeletePermissionItemInput,
+  DeletePermissionItemInputTarget,
+  DeletePermissionItemsEndpointParams,
+} from './deleteItems/types';
 import {DeletePermissionItemsByIdEndpointParams} from './deleteItemsById/types';
 import {
   GetEntityPermissionItemsEndpointParams,
@@ -34,41 +38,28 @@ import {
 } from './getResourcePermissionItems/types';
 import {
   ResolveEntityPermissionItemInput,
+  ResolveEntityPermissionItemInputTarget,
   ResolveEntityPermissionsEndpointParams,
   ResolveEntityPermissionsEndpointResult,
-  ResolvedEntityPermissionItemResult,
+  ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
 } from './resolveEntityPermissions/types';
 import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
 
-const targetId = fReusables.workspaceId
-  .clone()
-  .setDescription('Resource ID permission is effected on.');
+const targetId = fReusables.id.clone().setDescription('Resource ID permission is effected on.');
+const targetIdList = FieldArray.construct<string>().setType(targetId);
 const targetType = fReusables.resourceType
   .clone()
   .setDescription(
     multilineTextToParagraph(`
       Resource type permission is effected on. 
-      Target ID or other target identifiers like folderpath 
-      should be provided when using target type to limit from 
-      which target an entity should have or not have access to. 
-      When adding permissions, target type without a target identifier will 
-      default to workspace. When deleting, target types without a target 
-      identifier will delete all permissions with that target type. 
-      Having a target type means an entity is granted or denied 
-      access to all resources of that type contained within a parent target 
-      like all files in a folder, or all folders in a workspace. 
-      This is why target ID or a specific target should be provided 
-      when adding or removing permissions to avoid granting permissions 
-      to all files in a workspace when you only wanted files in a folder. 
-      Resource type also works with appliesTo to limit the access to only 
-      the target even when target type is set, or to the target and children, 
-      or only to children excluding the target itself. 
-      The last one is especially useful when you want an entity have 
-      access to create or delete folders in a folder but not delete the folder itself.`)
+      Do not pass when checking, adding or deleting permission for a single resource,
+      targetId is sufficient for those. Pass targetType to check, add, or delete
+      permissions for all resources of type that are children of targetId.`)
   )
   .setValid(getWorkspaceResourceTypeList())
   .setEnumName('WorkspaceAppResourceType');
+const targetTypeList = FieldArray.construct<string>().setType(targetType);
 const entityId = fReusables.id
   .clone()
   .setDescription(
@@ -101,42 +92,58 @@ const entityType = FieldString.construct()
 const grantAccess = FieldBoolean.construct().setDescription(
   'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
 );
+const grantAccessList = FieldArray.construct<boolean>().setType(grantAccess);
 const entity = FieldObject.construct<PermissionItemInputEntity>()
-  .setName('NewPermissionItemInputEntity')
+  .setName('PermissionItemInputEntity')
   .setFields({
-    entityId: FieldObject.requiredField(entityId),
+    entityId: FieldObject.requiredField(entityIdList),
   });
 
 // TODO: add or array to target, container, and entity, and confirm mddoc md
 // renderer renders it well.
 const target = FieldObject.construct<PermissionItemInputTarget>()
-  .setName('NewPermissionItemInputTarget')
+  .setName('PermissionItemInputTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetType),
-    targetId: FieldObject.optionalField(targetId),
-    filepath: FieldObject.optionalField(fReusables.filepath),
-    folderpath: FieldObject.optionalField(fReusables.folderpath),
+    targetType: FieldObject.optionalField(targetTypeList),
+    targetId: FieldObject.optionalField(targetIdList),
+    filepath: FieldObject.optionalField(fReusables.filepathList),
+    folderpath: FieldObject.optionalField(fReusables.folderpathList),
     workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
   });
+const targetList = FieldArray.construct<PermissionItemInputTarget>().setType(target);
 
-const deletePermissionItemTarget = FieldObject.construct<Partial<PermissionItemInputTarget>>()
-  .setName('DeletePermissionItemInputTarget')
+const resolvePermissionsTarget = FieldObject.construct<ResolveEntityPermissionItemInputTarget>()
+  .setName('ResolveEntityPermissionItemInputTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetType),
-    targetId: FieldObject.optionalField(targetId),
-    filepath: FieldObject.optionalField(fReusables.filepath),
-    folderpath: FieldObject.optionalField(fReusables.folderpath),
+    targetType: FieldObject.optionalField(targetTypeList),
+    targetId: FieldObject.optionalField(targetIdList),
+    filepath: FieldObject.optionalField(fReusables.filepathList),
+    folderpath: FieldObject.optionalField(fReusables.folderpathList),
     workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
   });
+const resolvePermissionsTargetList =
+  FieldArray.construct<ResolveEntityPermissionItemInputTarget>().setType(resolvePermissionsTarget);
+
+const deletePermissionItemTarget = FieldObject.construct<DeletePermissionItemInputTarget>()
+  .setName('DeleteDeletePermissionItemInputTarget')
+  .setFields({
+    targetType: FieldObject.optionalField(targetTypeList),
+    targetId: FieldObject.optionalField(targetIdList),
+    filepath: FieldObject.optionalField(fReusables.filepathList),
+    folderpath: FieldObject.optionalField(fReusables.folderpathList),
+    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+  });
+const deletePermissionItemTargetList =
+  FieldArray.construct<DeletePermissionItemInputTarget>().setType(deletePermissionItemTarget);
 
 const deletePermissionItemInput = FieldObject.construct<DeletePermissionItemInput>()
   .setName('DeletePermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(deletePermissionItemTarget),
-    action: FieldObject.optionalField(fReusables.action),
-    grantAccess: FieldObject.optionalField(grantAccess),
+    target: FieldObject.requiredField(deletePermissionItemTargetList),
+    action: FieldObject.optionalField(fReusables.actionList),
+    grantAccess: FieldObject.optionalField(grantAccessList),
     entity: FieldObject.optionalField(entity),
-    appliesTo: FieldObject.optionalField(fReusables.appliesTo),
+    appliesTo: FieldObject.optionalField(fReusables.appliesToList),
   });
 
 const deletePermissionItemInputList = FieldArray.construct()
@@ -144,25 +151,39 @@ const deletePermissionItemInputList = FieldArray.construct()
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const newPermissionItemInput = FieldObject.construct<PermissionItemInput>()
-  .setName('NewPermissionItemInput')
+  .setName('PermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(target),
+    target: FieldObject.requiredField(targetList),
     grantAccess: FieldObject.requiredField(grantAccess),
     entity: FieldObject.optionalField(entity),
-    action: FieldObject.requiredField(fReusables.action),
-    appliesTo: FieldObject.requiredField(fReusables.appliesTo),
+    action: FieldObject.requiredField(fReusables.actionList),
+    appliesTo: FieldObject.optionalField(fReusables.appliesToList),
   });
 
 const resolvePermissionsItemInput = FieldObject.construct<ResolveEntityPermissionItemInput>()
   .setName('ResolveEntityPermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(target),
+    target: FieldObject.requiredField(resolvePermissionsTargetList),
     entity: FieldObject.optionalField(entity),
-    action: FieldObject.requiredField(fReusables.action),
+    action: FieldObject.requiredField(fReusables.actionList),
+    containerAppliesTo: FieldObject.optionalField(
+      fReusables.appliesToList
+        .clone()
+        .setDescription(
+          'Applicable for folders only, for finer control over the appliesTo criteria used to query permission items from parent folders.'
+        )
+    ),
+    targetAppliesTo: FieldObject.optionalField(
+      fReusables.appliesToList
+        .clone()
+        .setDescription(
+          'Applicable for folders only, for finer control over the appliesTo criteria used to query permission items belonging to folder.'
+        )
+    ),
   });
 
 const resolvedPermissionTarget = FieldObject.construct<ResolvedEntityPermissionItemTarget>()
-  .setName('NewPermissionItemInputTarget')
+  .setName('ResolvedEntityPermissionItemTarget')
   .setFields({
     targetType: FieldObject.optionalField(targetType),
     targetId: FieldObject.optionalField(targetId),
@@ -171,13 +192,25 @@ const resolvedPermissionTarget = FieldObject.construct<ResolvedEntityPermissionI
     workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
   });
 
-const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionItemResult>()
-  .setName('ResolveEntityPermissionItemInput')
+const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionItem>()
+  .setName('ResolvedEntityPermissionItem')
   .setFields({
     target: FieldObject.requiredField(resolvedPermissionTarget),
     entityId: FieldObject.requiredField(entityId),
     action: FieldObject.requiredField(fReusables.action),
     hasAccess: FieldObject.requiredField(FieldBoolean.construct()),
+    targetAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
+    containerAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
+    accessEntityId: FieldObject.optionalField(
+      fReusables.id.clone().setDescription(
+        multilineTextToParagraph(`
+        ID of the permission entity that directly owns/is assigned the permission item producing this result.
+        That is, the permission item used to resolve whether the requested entity has access or does not,
+        the entity directly owning that item, is surfaced here as accessEntityId.
+        This can be the requested entity itself, or a permission group assigned to the requested entity.
+      `)
+      )
+    ),
   });
 
 const newPermissionItemInputList = FieldArray.construct<PermissionItemInput>()
@@ -189,7 +222,7 @@ const resolvePermissionsItemInputList = FieldArray.construct<ResolveEntityPermis
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const resolvedPermissionItemList =
-  FieldArray.construct<ResolvedEntityPermissionItemResult>().setType(resolvedPermissionItem);
+  FieldArray.construct<ResolvedEntityPermissionItem>().setType(resolvedPermissionItem);
 
 const permissionItem = FieldObject.construct<PublicPermissionItem>()
   .setName('PermissionItem')

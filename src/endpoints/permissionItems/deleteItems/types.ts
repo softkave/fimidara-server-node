@@ -5,8 +5,9 @@ import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
 
+export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
 export type DeletePermissionItemInput = {
-  target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[];
+  target: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
   action?: AppActionType | AppActionType[];
   grantAccess?: boolean | boolean[];
   appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];

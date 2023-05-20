@@ -9,6 +9,7 @@ import {
 import {Workspace} from '../../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
 import {appAssert} from '../../../../utils/assertion';
+import {makeWorkspaceAgentTokenAgent} from '../../../../utils/sessionUtils';
 import RequestData from '../../../RequestData';
 import {
   addAssignedPermissionGroupList,
@@ -18,7 +19,11 @@ import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGr
 import addPermissionItems from '../../../permissionItems/addItems/handler';
 import {AddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
 import {PermissionItemInput} from '../../../permissionItems/types';
+import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generateData/agentToken';
+import {generateAndInsertTestFolders} from '../../../testUtils/generateData/folder';
+import {generateAndInsertPermissionItemListForTest} from '../../../testUtils/generateData/permissionItem';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
+import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
   assertContext,
@@ -104,7 +109,8 @@ describe('checkAuthorization', () => {
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
     );
 
-    try {
+    await expectErrorThrown(async () => {
+      assertContext(context);
       await checkAuthorization({
         context,
         workspace,
@@ -114,9 +120,7 @@ describe('checkAuthorization', () => {
         action: AppActionType.Read,
         containerId: getFilePermissionContainers(workspace.resourceId, file),
       });
-    } catch (error: any) {
-      expect(error instanceof PermissionDeniedError).toBeTruthy();
-    }
+    }, [PermissionDeniedError.name]);
   });
 
   test('auth passes if action is read and user is not email verified', async () => {
@@ -182,7 +186,8 @@ describe('checkAuthorization', () => {
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
     );
 
-    try {
+    await expectErrorThrown(async () => {
+      assertContext(context);
       await checkAuthorization({
         context,
         workspace,
@@ -192,9 +197,130 @@ describe('checkAuthorization', () => {
         action: AppActionType.Update,
         containerId: getFilePermissionContainers(workspace.resourceId, file),
       });
-    } catch (error: any) {
-      expect(error instanceof EmailAddressNotVerifiedError).toBeTruthy();
-    }
+    }, [EmailAddressNotVerifiedError.name]);
+  });
+
+  test('auth with appliesTo', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
+    const tokenList = await generateAndInsertAgentTokenListForTest(context, 1, {
+      workspaceId: workspace.resourceId,
+    });
+    const [t01] = tokenList;
+
+    const outerFolders = await generateAndInsertTestFolders(context, 4, {
+      workspaceId: workspace.resourceId,
+      parentId: null,
+    });
+    const [of01, of02, of03, of04] = outerFolders;
+    const [[if01], [if02]] = await Promise.all([
+      generateAndInsertTestFolders(context, 1, {
+        workspaceId: workspace.resourceId,
+        parentId: of03.resourceId,
+      }),
+      generateAndInsertTestFolders(context, 1, {
+        workspaceId: workspace.resourceId,
+        parentId: of04.resourceId,
+      }),
+    ]);
+
+    await Promise.all([
+      generateAndInsertPermissionItemListForTest(context, 1, {
+        workspaceId: workspace.resourceId,
+        entityId: t01.resourceId,
+        targetId: of01.resourceId,
+        action: AppActionType.Read,
+        grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.Self,
+      }),
+      generateAndInsertPermissionItemListForTest(context, 1, {
+        workspaceId: workspace.resourceId,
+        entityId: t01.resourceId,
+        targetId: of02.resourceId,
+        action: AppActionType.Read,
+        grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+      }),
+      generateAndInsertPermissionItemListForTest(context, 1, {
+        workspaceId: workspace.resourceId,
+        entityId: t01.resourceId,
+        targetId: of03.resourceId,
+        action: AppActionType.Read,
+        grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+      }),
+      generateAndInsertPermissionItemListForTest(context, 1, {
+        workspaceId: workspace.resourceId,
+        entityId: t01.resourceId,
+        targetId: of04.resourceId,
+        action: AppActionType.Read,
+        grantAccess: true,
+        appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+      }),
+    ]);
+
+    const tAgent = makeWorkspaceAgentTokenAgent(t01);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorization({
+        context,
+        workspace,
+        workspaceId: workspace.resourceId,
+        agent: tAgent,
+        targets: {
+          targetId: of01.resourceId,
+          targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        },
+        action: AppActionType.Read,
+        containerId: getFilePermissionContainers(workspace.resourceId, of01),
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorization({
+        context,
+        workspace,
+        workspaceId: workspace.resourceId,
+        agent: tAgent,
+        targets: {
+          targetId: of02.resourceId,
+          targetAppliesTo: PermissionItemAppliesTo.Self,
+        },
+        action: AppActionType.Read,
+        containerId: getFilePermissionContainers(workspace.resourceId, of02),
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorization({
+        context,
+        workspace,
+        workspaceId: workspace.resourceId,
+        agent: tAgent,
+        targets: {
+          targetId: if01.resourceId,
+          targetAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
+        },
+        action: AppActionType.Read,
+        containerId: getFilePermissionContainers(workspace.resourceId, if01),
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorization({
+        context,
+        workspace,
+        workspaceId: workspace.resourceId,
+        agent: tAgent,
+        targets: {
+          targetId: if02.resourceId,
+          targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        },
+        action: AppActionType.Read,
+        containerId: getFilePermissionContainers(workspace.resourceId, if02),
+      });
+    }, [PermissionDeniedError.name]);
   });
 
   // TODO

@@ -2,10 +2,38 @@ import {
   PermissionEntityInheritanceMap,
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {PermissionItem} from '../../../../definitions/permissionItem';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
 import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
 import {BaseContextType} from '../../types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
+
+export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
+  context: BaseContextType;
+  entityId?: string | string[];
+  action?: AppActionType | AppActionType[];
+  targetId?: string | string[];
+  targetType?: AppResourceType | AppResourceType[];
+  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  containerId?: string | string[];
+
+  /** Sort the permission items by last updated date. */
+  sortByDate?: boolean;
+
+  /** Sort the permission items by container, i.e following the order of
+   * containers passed. */
+  sortByContainer?: boolean;
+};
+export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps = {
+  context: BaseContextType;
+  entityId?: string | string[];
+  action?: AppActionType | AppActionType[];
+  targetId?: string | string[];
+  targetType?: AppResourceType | AppResourceType[];
+  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  containerId?: string | string[];
+};
 
 export interface SemanticDataAccessPermissionProviderType {
   getEntityAssignedPermissionGroups(
@@ -32,32 +60,11 @@ export interface SemanticDataAccessPermissionProviderType {
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<Resource | null>;
   getPermissionItems(
-    props: {
-      context: BaseContextType;
-      entityId?: string | string[];
-      action?: AppActionType | AppActionType[];
-      targetId?: string | string[];
-      targetType?: AppResourceType | AppResourceType[];
-      containerId?: string | string[];
-
-      /** Sort the permission items by last updated date. */
-      sortByDate?: boolean;
-
-      /** Sort the permission items by container, i.e following the order of
-       * containers passed. */
-      sortByContainer?: boolean;
-    },
+    props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions
   ): Promise<PermissionItem[]>;
   countPermissionItems(
-    props: {
-      context: BaseContextType;
-      entityId?: string | string[];
-      action?: AppActionType | AppActionType[];
-      targetId?: string | string[];
-      targetType?: AppResourceType | AppResourceType[];
-      containerId?: string | string[];
-    },
+    props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
 }

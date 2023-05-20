@@ -1,20 +1,29 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
+import {endpointConstants} from '../../constants';
 import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
-import {PermissionItemInputTarget} from '../types';
 import permissionItemValidationSchemas from '../validation';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
+import {
+  DeletePermissionItemInput,
+  DeletePermissionItemInputTarget,
+  DeletePermissionItemsEndpointParams,
+} from './types';
+
+const target = Joi.object<DeletePermissionItemInputTarget>().keys({
+  targetId: permissionItemValidationSchemas.targetParts.targetId,
+  targetType: permissionItemValidationSchemas.targetParts.targetType,
+  folderpath: permissionItemValidationSchemas.targetParts.folderpath,
+  filepath: permissionItemValidationSchemas.targetParts.filepath,
+  workspaceRootname: workspaceValidationSchemas.rootname,
+});
 
 const itemInput = Joi.object<DeletePermissionItemInput>().keys({
   entity: permissionItemValidationSchemas.entity,
-  target: Joi.object<Partial<PermissionItemInputTarget>>().keys({
-    targetId: permissionItemValidationSchemas.targetParts.targetId,
-    targetType: permissionItemValidationSchemas.targetParts.targetType,
-    folderpath: permissionItemValidationSchemas.targetParts.folderpath,
-    filepath: permissionItemValidationSchemas.targetParts.filepath,
-    workspaceRootname: workspaceValidationSchemas.rootname,
-  }),
+  target: Joi.alternatives().try(
+    target,
+    Joi.array().items(target).max(endpointConstants.inputListMax)
+  ),
   action: validationSchemas.crudActionOrList,
   grantAccess: Joi.alternatives().try(Joi.boolean(), Joi.array().items(Joi.boolean()).max(2)),
   appliesTo: permissionItemValidationSchemas.appliesToOrList,

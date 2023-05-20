@@ -1,4 +1,4 @@
-import {compact, difference, isEmpty, isUndefined, uniq} from 'lodash';
+import {difference, flatten, isEmpty, isUndefined, uniq} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
@@ -13,12 +13,19 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {defaultArrayTo, makeKey, toCompactArray, toNonNullableArray} from '../../../utils/fns';
+import {
+  defaultArrayTo,
+  makeKey,
+  toArray,
+  toCompactArray,
+  toNonNullableArray,
+} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {getLogger} from '../../globalUtils';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
+import {SemanticDataAccessPermissionProviderType_GetPermissionItemsProps} from '../semantic/permission/types';
 import {BaseContextType} from '../types';
 
 export type AuthTarget = {
@@ -27,6 +34,8 @@ export type AuthTarget = {
 
   /** Pass target ID with target type when checking access to a type. */
   targetType?: AppResourceType;
+  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
 };
 
 export interface ICheckAuthorizationParams {
@@ -229,28 +238,36 @@ export async function fetchAgentPermissionItems(
   const sortedItemsList = entitySortedItemList.concat(publicSortedItemList),
     entityIdList = sortedItemsList.map(item => item.id),
     action = toNonNullableArray(params.action).concat(AppActionType.All),
-    targetsList = toNonNullableArray(targets),
-    targetId = compact(targetsList.map(item => item.targetId)),
     containerId = defaultArrayTo(toCompactArray(params.containerId), workspaceId);
 
-  let targetType = compact(targetsList.map(item => item.targetType));
-  if (!targetType.length && targetId.length) {
-    targetType = targetId.map(getResourceTypeFromId);
-  }
-  targetType.push(AppResourceType.All);
-  targetType = uniq(targetType);
+  const qList = toArray(targets).map(t => {
+    const targetType: AppResourceType[] = toCompactArray(t.targetType);
 
-  const permissionItems = await context.semantic.permissions.getPermissionItems({
-    context,
-    containerId,
-    targetId,
-    targetType,
-    action,
-    entityId: entityIdList,
-    sortByContainer: true,
-    sortByDate: true,
+    if (t.targetId && targetType.length === 0) {
+      targetType.push(getResourceTypeFromId(t.targetId));
+    }
+
+    targetType.push(AppResourceType.All);
+    const q: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
+      context,
+      containerId,
+      action,
+      targetType,
+      entityId: entityIdList,
+      sortByContainer: true,
+      sortByDate: true,
+      targetId: t.targetId,
+      targetAppliesTo: t.targetAppliesTo,
+      containerAppliesTo: t.containerAppliesTo,
+    };
+    return q;
   });
-  return permissionItems;
+
+  const pItemsList = await Promise.all(
+    qList.map(q => context.semantic.permissions.getPermissionItems(q))
+  );
+  const pItems = flatten(pItemsList);
+  return pItems;
 }
 
 export async function fetchAndSortAgentPermissionItems(params: ICheckAuthorizationParams) {

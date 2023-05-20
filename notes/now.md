@@ -1,6 +1,9 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] Make js sdk tree-shakeable
+- [ ] Mddoc special enum type with item description
+- [ ] Introduce permissions check for viewing usage records?
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
 - [ ] Include user agent and origin in presigned path as extra security checks
 - [ ] Support issueing mutliple file presigned paths at a time
@@ -82,6 +85,8 @@
 - [ ] Test that all delete artifacts are removed for all resources
 - [ ] Should we paginate get file presigned paths endpoint?
 - [ ] Open up getting another agent token's presigned paths with permission
+- [ ] Include action in PermissionItemInputTarget in resolveEntityPermissions endpoint
+- [ ] Uniq input lists, and ensure all Joi and mddoc lists have max
 
 ## Later
 

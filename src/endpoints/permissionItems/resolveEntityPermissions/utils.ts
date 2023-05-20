@@ -1,14 +1,16 @@
 import {first, forEach, isString, merge, uniq} from 'lodash';
 import {File} from '../../../definitions/file';
+import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
   AppActionType,
   AppResourceType,
+  Resource,
   ResourceWrapper,
   SessionAgent,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {toNonNullableArray} from '../../../utils/fns';
+import {toArray, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {
   checkAuthorization,
@@ -21,33 +23,59 @@ import {folderConstants} from '../../folders/constants';
 import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
 import {getPermissionItemEntities, getPermissionItemTargets} from '../utils';
 import {
+  ResolveEntityPermissionItemInput,
+  ResolveEntityPermissionItemInputTarget,
   ResolveEntityPermissionsEndpointParams,
-  ResolvedEntityPermissionItemResult,
+  ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
 } from './types';
 
-export const INTERNAL_resolveEntityPermissions = async (
+type ResolvedTargetItem = {
+  resource: ResourceWrapper;
+  resolvedTarget: ResolvedEntityPermissionItemTarget;
+};
+type ResolvedTargetsMap = Record<string, ResolvedTargetItem>;
+type FlattenedPermissionRequestItem = {
+  entity: ResourceWrapper;
+  action: AppActionType;
+  target: ResourceWrapper;
+  targetType?: AppResourceType;
+  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+  resolvedTarget: ResolvedEntityPermissionItemTarget;
+};
+
+/** Fetch artifacts and ensure they belong to workspace. */
+async function getArtifacts(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams
-) => {
+) {
   let inputEntities: PermissionItemInputEntity[] = [];
   let inputTargets: PermissionItemInputTarget[] = [];
 
-  if (data.entity) inputEntities = toNonNullableArray(data.entity);
+  if (data.entity) inputEntities = toArray(data.entity);
   data.items.forEach(item => {
-    if (item.entity) inputEntities = inputEntities.concat(toNonNullableArray(item.entity));
-    if (item.target) inputTargets = inputTargets.concat(toNonNullableArray(item.target));
+    if (item.entity) inputEntities = inputEntities.concat(toArray(item.entity));
+    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
   });
 
   appAssert(inputEntities.length, new InvalidRequestError('No permission entity provided.'));
-
   const [entities, targets] = await Promise.all([
     getPermissionItemEntities(context, agent, workspace.resourceId, inputEntities),
     getPermissionItemTargets(context, agent, workspace, inputTargets),
   ]);
 
+  return {entities, targets};
+}
+
+/** Index artifacts for quick retrieval. */
+function indexArtifacts(
+  workspace: Workspace,
+  entities: ResourceWrapper<Resource>[],
+  targets: ResourceWrapper<Resource>[]
+) {
   const indexByNamePath = (item: ResourceWrapper) => {
     if (item.resourceType === AppResourceType.File || item.resourceType === AppResourceType.Folder)
       return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
@@ -57,6 +85,9 @@ export const INTERNAL_resolveEntityPermissions = async (
   };
 
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
+
+  // TODO: merge into one loop or update indexArray to produce more than one
+  // index
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
   const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
   const workspaceWrapper: ResourceWrapper = {
@@ -66,26 +97,23 @@ export const INTERNAL_resolveEntityPermissions = async (
   };
 
   const getEntities = (inputEntity: PermissionItemInputEntity) => {
-    let resourceEntities: Record<string, ResourceWrapper> = {};
+    let eMap: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
     toNonNullableArray(inputEntity.entityId).forEach(entityId => {
-      if (entitiesMapById[entityId]) resourceEntities[entityId] = entitiesMapById[entityId];
+      if (entitiesMapById[entityId]) eMap[entityId] = entitiesMapById[entityId];
     });
-    return resourceEntities;
+    return eMap;
   };
 
   const getTargets = (inputTarget: PermissionItemInputTarget) => {
-    let resourceTargets: Record<
-      string,
-      {resource: ResourceWrapper; resolvedTarget: ResolvedEntityPermissionItemTarget}
-    > = {};
+    let tMap: ResolvedTargetsMap = {};
 
     // TODO: should we throw error when some targets are not found?
     if (inputTarget.targetId) {
       toNonNullableArray(inputTarget.targetId).forEach(targetId => {
         if (targetsMapById[targetId]) {
-          resourceTargets[targetId] = {
+          tMap[targetId] = {
             resource: targetsMapById[targetId],
             resolvedTarget: {targetId},
           };
@@ -96,76 +124,106 @@ export const INTERNAL_resolveEntityPermissions = async (
     if (inputTarget.folderpath) {
       toNonNullableArray(inputTarget.folderpath).forEach(folderpath => {
         const folder = targetsMapByNamepath[folderpath];
-        if (folder)
-          resourceTargets[folder.resourceId] = {resource: folder, resolvedTarget: {folderpath}};
+        if (folder) tMap[folder.resourceId] = {resource: folder, resolvedTarget: {folderpath}};
       });
     }
 
     if (inputTarget.filepath) {
       toNonNullableArray(inputTarget.filepath).forEach(filepath => {
         const file = targetsMapByNamepath[filepath];
-        if (file) resourceTargets[file.resourceId] = {resource: file, resolvedTarget: {filepath}};
+        if (file) tMap[file.resourceId] = {resource: file, resolvedTarget: {filepath}};
       });
     }
 
     if (inputTarget.workspaceRootname) {
-      resourceTargets[workspace.resourceId] = {
+      tMap[workspace.resourceId] = {
         resource: workspaceWrapper,
         resolvedTarget: {workspaceRootname: inputTarget.workspaceRootname},
       };
     }
 
-    return resourceTargets;
+    return tMap;
   };
 
-  type PermissionRequestItemToResolve = {
-    entity: ResourceWrapper;
-    action: AppActionType;
-    target: ResourceWrapper;
-    targetType?: AppResourceType;
-    resolvedTarget: ResolvedEntityPermissionItemTarget;
-  };
+  return {getTargets, getEntities};
+}
 
-  const globalEntities = data.entity ? getEntities(data.entity) : {};
-  const itemsToResolve: PermissionRequestItemToResolve[] = [];
+export const INTERNAL_resolveEntityPermissions = async (
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: ResolveEntityPermissionsEndpointParams
+) => {
+  const {entities, targets} = await getArtifacts(context, agent, workspace, data);
+  const {getEntities, getTargets} = indexArtifacts(workspace, entities, targets);
 
-  data.items.forEach(item => {
-    const itemEntitiesMap = item.entity
-      ? merge(getEntities(item.entity), globalEntities)
-      : globalEntities;
+  // Top-level entity added to all items
+  const gEntity = data.entity ? getEntities(data.entity) : {};
 
-    forEach(itemEntitiesMap, entity => {
-      toNonNullableArray(item.action).forEach(action => {
-        toNonNullableArray(item.target).forEach(nextTargets => {
-          const nextTargetsMap = getTargets(nextTargets);
+  // Requested permissions flattened to individual items, for example, list of
+  // entity IDs, target IDs, target type, appliesTo, etc. flattened into
+  // singular items. There's also a bit of mix-matching, matching the different
+  // items to each other like target ID matched to each item in provided target
+  // type, etc.
+  const itemsToResolve: FlattenedPermissionRequestItem[] = [];
 
-          forEach(nextTargetsMap, nextTargetFromMap => {
-            if (nextTargets.targetType) {
-              toNonNullableArray(nextTargets.targetType).forEach(nextTargetType => {
-                itemsToResolve.push({
-                  entity,
-                  action,
-                  target: nextTargetFromMap.resource,
-                  targetType: nextTargetType,
-                  resolvedTarget: {
-                    targetId: nextTargetFromMap.resource.resourceId,
-                    targetType: nextTargetType,
-                  },
-                });
-              });
-            } else {
-              itemsToResolve.push({
-                entity,
-                action,
-                target: nextTargetFromMap.resource,
-                resolvedTarget: nextTargetFromMap.resolvedTarget,
-              });
-            }
+  function fResolvedTargetItems(
+    entity: ResourceWrapper<Resource>,
+    action: AppActionType,
+    tMap: ResolvedTargetsMap,
+    t: ResolveEntityPermissionItemInputTarget,
+    item: ResolveEntityPermissionItemInput
+  ) {
+    forEach(tMap, tFromMap => {
+      if (t.targetType) {
+        toArray(t.targetType).forEach(tType => {
+          itemsToResolve.push({
+            entity,
+            action,
+            target: tFromMap.resource,
+            targetType: tType,
+            resolvedTarget: {
+              targetId: tFromMap.resource.resourceId,
+              targetType: tType,
+            },
+            containerAppliesTo: item.containerAppliesTo,
+            targetAppliesTo: item.targetAppliesTo,
           });
         });
-      });
+      } else {
+        itemsToResolve.push({
+          entity,
+          action,
+          target: tFromMap.resource,
+          resolvedTarget: tFromMap.resolvedTarget,
+        });
+      }
     });
-  });
+  }
+  function fTarget(
+    entity: ResourceWrapper<Resource>,
+    action: AppActionType,
+    item: ResolveEntityPermissionItemInput
+  ) {
+    toArray(item.target).forEach(t => {
+      const tMap = getTargets(t);
+      fResolvedTargetItems(entity, action, tMap, t, item);
+    });
+  }
+  function fActions(entity: ResourceWrapper<Resource>, item: ResolveEntityPermissionItemInput) {
+    toArray(item.action).forEach(action => {
+      fTarget(entity, action, item);
+    });
+  }
+  function fEntities(item: ResolveEntityPermissionItemInput) {
+    const itemEntitiesMap = item.entity ? merge(getEntities(item.entity), gEntity) : gEntity;
+
+    forEach(itemEntitiesMap, entity => {
+      fActions(entity, item);
+    });
+  }
+
+  data.items.forEach(fEntities);
 
   // TODO: Better access check function
   const checkers = await Promise.all(
@@ -176,7 +234,12 @@ export const INTERNAL_resolveEntityPermissions = async (
         workspaceId: workspace.resourceId,
         entity: nextItem.entity.resourceId,
         action: nextItem.action,
-        targets: {targetId: nextItem.target.resourceId, targetType: nextItem.targetType},
+        targets: {
+          targetId: nextItem.target.resourceId,
+          targetType: nextItem.targetType,
+          containerAppliesTo: nextItem.containerAppliesTo,
+          targetAppliesTo: nextItem.targetAppliesTo,
+        },
         containerId: getResourcePermissionContainers(
           workspace.resourceId,
           nextItem.target.resource
@@ -185,36 +248,43 @@ export const INTERNAL_resolveEntityPermissions = async (
     )
   );
 
-  const result: ResolvedEntityPermissionItemResult[] = itemsToResolve.map((nextItem, index) => {
-    const checker = checkers[index];
-    let hasAccess = false;
-    if (nextItem.targetType) {
-      ({hasAccess} = checker.checkForTargetType(
-        nextItem.targetType,
-        nextItem.action,
-        uniq(
-          getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource).concat(
-            nextItem.target.resourceId
-          )
-        ),
-        /** nothrow */ true
-      ));
-    } else {
-      ({hasAccess} = checker.checkForTargetId(
-        nextItem.target.resourceId,
-        nextItem.action,
-        getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource),
-        /** nothrow */ true
-      ));
-    }
+  const result: ResolvedEntityPermissionItem[] = itemsToResolve.map(
+    (nextItem, index): ResolvedEntityPermissionItem => {
+      const checker = checkers[index];
+      let hasAccess = false;
+      let item: PermissionItem | undefined = undefined;
 
-    return {
-      hasAccess,
-      action: nextItem.action,
-      entityId: nextItem.entity.resourceId,
-      target: nextItem.resolvedTarget,
-    };
-  });
+      if (nextItem.targetType) {
+        ({hasAccess, item} = checker.checkForTargetType(
+          nextItem.targetType,
+          nextItem.action,
+          uniq(
+            getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource).concat(
+              nextItem.target.resourceId
+            )
+          ),
+          /** nothrow */ true
+        ));
+      } else {
+        ({hasAccess, item} = checker.checkForTargetId(
+          nextItem.target.resourceId,
+          nextItem.action,
+          getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource),
+          /** nothrow */ true
+        ));
+      }
+
+      return {
+        hasAccess,
+        action: nextItem.action,
+        entityId: nextItem.entity.resourceId,
+        target: nextItem.resolvedTarget,
+        containerAppliesTo: nextItem.containerAppliesTo,
+        targetAppliesTo: nextItem.targetAppliesTo,
+        accessEntityId: item?.entityId,
+      };
+    }
+  );
 
   return result;
 };
@@ -225,6 +295,8 @@ export async function checkResolveEntityPermissionsAuth(
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams
 ) {
+  // Check is agent is resolving own permissions. If so, we don't need to do
+  // auth check.
   const isResolvingOwnPermissions = isAgentResolvingOwnPermissions(agent, data);
 
   if (!isResolvingOwnPermissions) {

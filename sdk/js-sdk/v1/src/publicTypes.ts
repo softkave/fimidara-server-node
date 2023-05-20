@@ -463,8 +463,8 @@ export type UpdatePermissionGroupEndpointParams = {
 export type UpdatePermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
-export type NewPermissionItemInputEntity = {
-  entityId: string;
+export type PermissionItemInputEntity = {
+  entityId: Array<string>;
 };
 export type WorkspaceAppResourceType =
   | '*'
@@ -478,11 +478,11 @@ export type WorkspaceAppResourceType =
   | 'user'
   | 'tag'
   | 'usageRecord';
-export type NewPermissionItemInputTarget = {
-  targetType?: WorkspaceAppResourceType;
-  targetId?: string;
-  filepath?: string;
-  folderpath?: string;
+export type PermissionItemInputTarget = {
+  targetType?: Array<WorkspaceAppResourceType>;
+  targetId?: Array<string>;
+  filepath?: Array<string>;
+  folderpath?: Array<string>;
   workspaceRootname?: string;
 };
 export type AppActionType =
@@ -493,49 +493,74 @@ export type AppActionType =
   | 'delete'
   | 'grantPermission';
 export type PermissionItemAppliesTo = 'self' | 'selfAndChildren' | 'children';
-export type NewPermissionItemInput = {
-  target: NewPermissionItemInputTarget;
+export type PermissionItemInput = {
+  target: Array<PermissionItemInputTarget>;
   grantAccess: boolean;
-  entity?: NewPermissionItemInputEntity;
-  action: AppActionType;
-  appliesTo: PermissionItemAppliesTo;
+  entity?: PermissionItemInputEntity;
+  action: Array<AppActionType>;
+  appliesTo?: Array<PermissionItemAppliesTo>;
 };
 export type AddPermissionItemsEndpointParams = {
-  entity?: NewPermissionItemInputEntity;
+  entity?: PermissionItemInputEntity;
   workspaceId?: string;
-  items: Array<NewPermissionItemInput>;
+  items: Array<PermissionItemInput>;
 };
-export type DeletePermissionItemInputTarget = {
+export type DeleteDeletePermissionItemInputTarget = {
+  targetType?: Array<WorkspaceAppResourceType>;
+  targetId?: Array<string>;
+  filepath?: Array<string>;
+  folderpath?: Array<string>;
+  workspaceRootname?: string;
+};
+export type DeletePermissionItemInput = {
+  target: Array<DeleteDeletePermissionItemInputTarget>;
+  action?: Array<AppActionType>;
+  grantAccess?: Array<boolean>;
+  entity?: PermissionItemInputEntity;
+  appliesTo?: Array<PermissionItemAppliesTo>;
+};
+export type DeletePermissionItemsEndpointParams = {
+  workspaceId?: string;
+  items?: Array<DeletePermissionItemInput>;
+  entity?: PermissionItemInputEntity;
+};
+export type ResolveEntityPermissionItemInputTarget = {
+  targetType?: Array<WorkspaceAppResourceType>;
+  targetId?: Array<string>;
+  filepath?: Array<string>;
+  folderpath?: Array<string>;
+  workspaceRootname?: string;
+};
+export type ResolveEntityPermissionItemInput = {
+  target: Array<ResolveEntityPermissionItemInputTarget>;
+  entity?: PermissionItemInputEntity;
+  action: Array<AppActionType>;
+  containerAppliesTo?: Array<PermissionItemAppliesTo>;
+  targetAppliesTo?: Array<PermissionItemAppliesTo>;
+};
+export type ResolveEntityPermissionsEndpointParams = {
+  entity?: PermissionItemInputEntity;
+  workspaceId?: string;
+  items: Array<ResolveEntityPermissionItemInput>;
+};
+export type ResolvedEntityPermissionItemTarget = {
   targetType?: WorkspaceAppResourceType;
   targetId?: string;
   filepath?: string;
   folderpath?: string;
   workspaceRootname?: string;
 };
-export type DeletePermissionItemInput = {
-  target: DeletePermissionItemInputTarget;
-  action?: AppActionType;
-  grantAccess?: boolean;
-  entity?: NewPermissionItemInputEntity;
-  appliesTo?: PermissionItemAppliesTo;
-};
-export type DeletePermissionItemsEndpointParams = {
-  workspaceId?: string;
-  items?: Array<DeletePermissionItemInput>;
-  entity?: NewPermissionItemInputEntity;
-};
-export type ResolveEntityPermissionItemInput = {
-  target: NewPermissionItemInputTarget;
-  entity?: NewPermissionItemInputEntity;
+export type ResolvedEntityPermissionItem = {
+  target: ResolvedEntityPermissionItemTarget;
+  entityId: string;
   action: AppActionType;
-};
-export type ResolveEntityPermissionsEndpointParams = {
-  entity?: NewPermissionItemInputEntity;
-  workspaceId?: string;
-  items: Array<ResolveEntityPermissionItemInput>;
+  hasAccess: boolean;
+  targetAppliesTo?: Array<PermissionItemAppliesTo>;
+  containerAppliesTo?: Array<PermissionItemAppliesTo>;
+  accessEntityId?: string;
 };
 export type ResolveEntityPermissionsEndpointResult = {
-  items: Array<ResolveEntityPermissionItemInput>;
+  items: Array<ResolvedEntityPermissionItem>;
 };
 export type FetchResourceItem = {
   resourceId?: string;
