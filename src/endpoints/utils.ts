@@ -15,17 +15,19 @@ import {
 } from '../utils/extract';
 import {isObjectEmpty} from '../utils/fns';
 import {reuseableErrors} from '../utils/reusableErrors';
-import {AnyObject} from '../utils/types';
+import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
+import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {executeWithMutationRunOptions} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {getLogger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import {
+  DeleteResourceCascadeFnHelperFns,
   DeleteResourceCascadeFnsMap,
   Endpoint,
   ExportedHttpEndpointWithMddocDefinition,
@@ -230,11 +232,13 @@ export async function executeCascadeDelete<Args>(
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
-  await Promise.all(
-    Object.values(cascadeDef).map(fn =>
-      executeWithMutationRunOptions(context, opts => fn(context, args, opts))
-    )
-  );
+  const helperFns: DeleteResourceCascadeFnHelperFns = {
+    async withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>) {
+      await executeWithMutationRunOptions(context, opts => fn(opts));
+    },
+  };
+
+  await Promise.all(Object.values(cascadeDef).map(fn => fn(context, args, helperFns)));
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {

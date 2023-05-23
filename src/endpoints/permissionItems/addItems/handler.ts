@@ -4,7 +4,6 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import {PermissionItemUtils} from '../utils';
 import {AddPermissionItemsEndpoint} from './types';
 import {INTERNAL_addPermissionItems} from './utils';
 import {addPermissionItemsJoiSchema} from './validation';
@@ -22,13 +21,10 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
     action: AppActionType.Create,
     targets: {targetType: AppResourceType.PermissionItem},
   });
-  const permissionItems = await executeWithMutationRunOptions(
+  await executeWithMutationRunOptions(
     context,
     async opts => await INTERNAL_addPermissionItems(context, agent, workspace, data, opts)
   );
-  return {
-    items: PermissionItemUtils.extractPublicPermissionItemList(permissionItems),
-  };
 };
 
 export default addPermissionItems;

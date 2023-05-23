@@ -97,14 +97,20 @@ export async function createFolderList(
     opts
   );
 
-  if (!UNSAFE_skipAuthCheck && closestExistingFolder && newFolders.length) {
+  if (!UNSAFE_skipAuthCheck && newFolders.length) {
+    const cExistingFolder = closestExistingFolder as Folder | null;
+
+    // It's okay to check permission after, cause if it fails, it fails the
+    // transaction, which reverts the changes.
     await checkAuthorization({
       context,
       agent,
       workspace,
       workspaceId: workspace.resourceId,
-      containerId: closestExistingFolder
-        ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+      containerId: cExistingFolder
+        ? getFilePermissionContainers(workspace.resourceId, cExistingFolder).concat(
+            cExistingFolder.resourceId
+          )
         : getWorkspacePermissionContainers(workspace.resourceId),
       targets: {targetType: AppResourceType.Folder},
       action: AppActionType.Create,

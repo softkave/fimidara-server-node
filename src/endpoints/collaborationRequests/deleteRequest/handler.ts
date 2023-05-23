@@ -23,14 +23,18 @@ export const DELETE_COLLABORATION_REQUEST_CASCADE_FNS: DeleteResourceCascadeFnsM
   [AppResourceType.AgentToken]: noopAsync,
   [AppResourceType.PermissionItem]: noopAsync,
   [AppResourceType.FilePresignedPath]: noopAsync,
-  [AppResourceType.CollaborationRequest]: (context, args, opts) =>
-    context.semantic.collaborationRequest.deleteOneById(args.resourceId, opts),
-  [AppResourceType.AssignedItem]: async (context, args, opts) =>
-    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-      args.workspaceId,
-      args.resourceId,
-      undefined,
-      opts
+  [AppResourceType.CollaborationRequest]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.collaborationRequest.deleteOneById(args.resourceId, opts)
+    ),
+  [AppResourceType.AssignedItem]: async (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+        args.workspaceId,
+        args.resourceId,
+        undefined,
+        opts
+      )
     ),
 };
 

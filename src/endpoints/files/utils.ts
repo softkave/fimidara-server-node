@@ -10,7 +10,7 @@ import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {FolderpathInfo, getFolderpathInfo} from '../folders/utils';
+import {FolderpathInfo, addRootnameToPath, getFolderpathInfo} from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
@@ -164,8 +164,8 @@ export function assertFile(file: File | FilePresignedPath | null | undefined): a
   if (!file) throwFileNotFound();
 }
 
-export function stringifyNamePath(file: File) {
-  return file.namePath.join(folderConstants.nameSeparator) + file.extension
-    ? `.${file.extension}`
-    : '';
+export function stringifyFileNamePath(file: File, rootname?: string) {
+  const nm =
+    file.namePath.join(folderConstants.nameSeparator) + file.extension ? `.${file.extension}` : '';
+  return rootname ? addRootnameToPath(nm, rootname) : nm;
 }

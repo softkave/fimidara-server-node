@@ -1,4 +1,4 @@
-import {difference, flatten, isEmpty, isUndefined, uniq} from 'lodash';
+import {difference, flatten, isEmpty, isObject, isUndefined, uniq} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
@@ -70,8 +70,7 @@ export interface IAuthAccessCheckers {
 }
 
 function newAccessChecker(
-  itemsAllowingAccess: AccessMap,
-  itemsDenyingAccess: AccessMap,
+  itemsAccess: AccessMap,
   keyFn: GetItemAccessKeysFn,
   params: ICheckAuthorizationParams | undefined
 ) {
@@ -100,20 +99,12 @@ function newAccessChecker(
     );
   };
 
-  const produceCheckResult = (
-    keys: string[],
-    action: AppActionType,
-    targetType: AppResourceType,
-    targetId?: string,
-    nothrow = false
-  ) => {
-    const accessItem = findItem(keys, itemsAllowingAccess);
-    const denyItem = findItem(keys, itemsDenyingAccess);
+  const produceCheckResult = (keys: string[], nothrow = false) => {
+    const item = findItem(keys, itemsAccess);
 
-    if (accessItem && denyItem)
-      reportConflictingAccess(accessItem, denyItem, action, targetType, targetId);
-    if (denyItem) return handleNoAccess(denyItem, nothrow);
-    if (accessItem) return {hasAccess: true, item: accessItem};
+    if (isObject(item) && item.grantAccess) {
+      return {item, hasAccess: true};
+    }
 
     return handleNoAccess(undefined, nothrow);
   };
@@ -138,7 +129,7 @@ function newAccessChecker(
         ],
       });
 
-      return produceCheckResult(targetKeys.concat(containerKeys), action, type, targetId, nothrow);
+      return produceCheckResult(targetKeys.concat(containerKeys), nothrow);
     },
     checkForTargetType(type, action, containerId, nothrow) {
       const containerKeys = keyFn({
@@ -151,7 +142,7 @@ function newAccessChecker(
         ],
       });
 
-      return produceCheckResult(containerKeys, action, type, undefined, nothrow);
+      return produceCheckResult(containerKeys, nothrow);
     },
     checkUsingCheckAuthParams(params) {
       toNonNullableArray(params.targets).forEach(target => {
@@ -182,9 +173,8 @@ function newAccessChecker(
 }
 
 export async function getAuthorizationAccessChecker(params: ICheckAuthorizationParams) {
-  const {itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys} =
-    await fetchAndSortAgentPermissionItems(params);
-  return newAccessChecker(itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys, params);
+  const {itemsAccess, getItemAccessKeys} = await fetchAndSortAgentPermissionItems(params);
+  return newAccessChecker(itemsAccess, getItemAccessKeys, params);
 }
 
 export async function checkAuthorization(params: ICheckAuthorizationParams) {
@@ -242,23 +232,36 @@ export async function fetchAgentPermissionItems(
 
   const qList = toArray(targets).map(t => {
     const targetType: AppResourceType[] = toCompactArray(t.targetType);
+    let qTargetId: string | undefined = t.targetId;
+    let qContainerId: string[] = containerId;
 
-    if (t.targetId && targetType.length === 0) {
-      targetType.push(getResourceTypeFromId(t.targetId));
+    if (qTargetId && targetType.length === 0) {
+      // If target type is not provided, then we're checking permission for just
+      // a single resource identified by targetID. Nonetheless, we need to
+      // default target type for containerID queries to avoid a free-for-all
+      // scenario.
+      targetType.push(getResourceTypeFromId(qTargetId));
+    } else if (qTargetId && targetType.length !== 0) {
+      // If target type is provided, then we're checking for all the resource
+      // under targetID of provided type. So, we can safely add the target ID to
+      // the containers, seeing this is a container-only check.
+      // TODO: should we uniq targetId and target type?
+      qContainerId = qContainerId.concat(qTargetId);
+      qTargetId = undefined;
     }
 
     targetType.push(AppResourceType.All);
     const q: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
       context,
-      containerId,
       action,
       targetType,
+      containerId: qContainerId,
+      targetId: qTargetId,
       entityId: entityIdList,
-      sortByContainer: true,
-      sortByDate: true,
-      targetId: t.targetId,
       targetAppliesTo: t.targetAppliesTo,
       containerAppliesTo: t.containerAppliesTo,
+      sortByContainer: true,
+      sortByDate: true,
     };
     return q;
   });
@@ -302,7 +305,9 @@ export function uniquePermissionItems(
     const keys: string[] = [];
     actions.forEach(action => {
       resourceTypes.forEach(type =>
-        keys.push(makeKey([type, action, item.targetId, item.grantAccess, item.entityId]))
+        keys.push(
+          makeKey([type, action, item.targetId, item.grantAccess, item.entityId, item.appliesTo])
+        )
       );
     });
     return keys;
@@ -311,6 +316,7 @@ export function uniquePermissionItems(
   const processItem = (item: PermissionItem) => {
     const itemKeys = getItemAccessKeys(item);
     const exists = itemKeys.some(key => map[key]);
+
     if (exists) {
       return false;
     }
@@ -335,33 +341,47 @@ type GetItemAccessKeysFn = (item: {
 }) => string[];
 
 export type SortOutPermissionItemsSelectionFn = (p: {
-  isAccessAllowed: boolean;
-  isAccessDenied: boolean;
+  addedKeys: string[];
   item: PermissionItem;
 }) => boolean;
 
-const defaultSelectionFn: SortOutPermissionItemsSelectionFn = p => {
-  return !(p.isAccessAllowed || p.isAccessDenied);
+export const sortOutPermissionItemsDefaultSelectionFn: SortOutPermissionItemsSelectionFn = p => {
+  return p.addedKeys.length > 0;
 };
+const workspaceActionList = getWorkspaceActionList();
+const workspaceResourceTypeList = getWorkspaceResourceTypeList();
 
 export function sortOutPermissionItems(
   items: PermissionItem[],
-  selectionFn: SortOutPermissionItemsSelectionFn = defaultSelectionFn
+  selectionFn: SortOutPermissionItemsSelectionFn = sortOutPermissionItemsDefaultSelectionFn,
+  spreadWildcard = true,
+  spreadAppliesTo = true
 ) {
-  const itemsAllowingAccess: AccessMap = {},
-    itemsDenyingAccess: AccessMap = {};
+  const itemsAccess: AccessMap = {};
 
   const getItemAccessKeys: GetItemAccessKeysFn = item => {
-    const actions = item.action === AppActionType.All ? getWorkspaceActionList() : [item.action];
+    const actions =
+      spreadWildcard && item.action === AppActionType.All ? workspaceActionList : [item.action];
     const resourceTypes =
-      item.targetType === AppResourceType.All ? getWorkspaceResourceTypeList() : [item.targetType];
+      spreadWildcard && item.targetType === AppResourceType.All
+        ? workspaceResourceTypeList
+        : [item.targetType];
     const keys: string[] = [];
+
+    // TODO: possibly cache these spreading outs
     actions.forEach(action => {
       resourceTypes.forEach(type =>
         toNonNullableArray(item.targetId).forEach(targetId =>
-          toNonNullableArray(item.appliesTo).forEach(appliesTo =>
-            keys.push(makeKey([targetId, type, action, appliesTo]))
-          )
+          toNonNullableArray(item.appliesTo).forEach(appliesTo => {
+            if (spreadAppliesTo && appliesTo === PermissionItemAppliesTo.SelfAndChildrenOfType) {
+              return keys.push(
+                makeKey([targetId, type, action, PermissionItemAppliesTo.Self]),
+                makeKey([targetId, type, action, PermissionItemAppliesTo.ChildrenOfType])
+              );
+            } else {
+              return keys.push(makeKey([targetId, type, action, appliesTo]));
+            }
+          })
         )
       );
     });
@@ -370,31 +390,23 @@ export function sortOutPermissionItems(
 
   const processItem = (item: PermissionItem) => {
     const itemKeys = getItemAccessKeys(item);
-    const isAccessAllowed = itemKeys.some(key => itemsAllowingAccess[key]);
-    const isAccessDenied = itemKeys.some(key => itemsDenyingAccess[key]);
-    const retain = selectionFn({isAccessAllowed, isAccessDenied, item});
-
-    if (retain) {
-      if (item.grantAccess) {
-        itemKeys.forEach(key => {
-          itemsAllowingAccess[key] = item;
-        });
-      } else {
-        itemKeys.forEach(key => {
-          itemsDenyingAccess[key] = item;
-        });
+    const addedKeys = itemKeys.filter(key => {
+      if (!itemsAccess[key]) {
+        itemsAccess[key] = item;
+        return true;
       }
 
-      return true;
-    } else {
       return false;
-    }
+    });
+
+    const retain = selectionFn({addedKeys, item});
+    return retain;
   };
 
   items = items.filter(item => {
     return processItem(item);
   });
-  return {items, itemsAllowingAccess, itemsDenyingAccess, getItemAccessKeys, processItem};
+  return {items, itemsAccess, getItemAccessKeys, processItem};
 }
 
 export async function summarizeAgentPermissionItems(params: ICheckAuthorizationParams) {
@@ -459,16 +471,27 @@ export function getWorkspacePermissionContainers(workspaceId: string): string[] 
   return [workspaceId];
 }
 
-export function getFilePermissionContainers(workspaceId: string, resource: {idPath: string[]}) {
-  return getWorkspacePermissionContainers(workspaceId).concat(resource.idPath);
+export function getFilePermissionContainers(
+  workspaceId: string,
+  resource: {idPath: string[]},
+  includeResourceId = false
+) {
+  return getWorkspacePermissionContainers(workspaceId).concat(
+    resource.idPath.slice(0, includeResourceId ? undefined : -1)
+  );
 }
 
 export function getResourcePermissionContainers(
   workspaceId: string,
-  resource?: Resource | (Resource & Pick<File, 'idPath'>) | null
+  resource?: Resource | (Resource & Pick<File, 'idPath'>) | null,
+  includeResourceId = false
 ) {
   if (resource && (resource as Pick<File, 'idPath'>).idPath) {
-    return getFilePermissionContainers(workspaceId, resource as Pick<File, 'idPath'>);
+    return getFilePermissionContainers(
+      workspaceId,
+      resource as Pick<File, 'idPath'>,
+      includeResourceId
+    );
   } else if (resource && getResourceTypeFromId(resource.resourceId) === AppResourceType.User) {
     const user = resource as unknown as UserWithWorkspace;
     checkResourcesBelongsToWorkspace(workspaceId, [

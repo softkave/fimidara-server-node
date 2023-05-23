@@ -108,21 +108,28 @@ export async function checkFolderAuthorization(
   agent: SessionAgent,
   folder: Folder,
   action: AppActionType,
-  workspace?: Workspace
+  workspace?: Workspace,
+  UNSAFE_skipAuthCheck = false
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(context, folder.workspaceId);
   }
 
-  await checkAuthorization({
-    context,
-    agent,
-    action,
-    workspace,
-    workspaceId: workspace.resourceId,
-    containerId: getFilePermissionContainers(workspace.resourceId, folder),
-    targets: {targetId: folder.resourceId},
-  });
+  if (!UNSAFE_skipAuthCheck) {
+    // Primarily for listFolderContent, where we want to fetch the folder but
+    // the calling agent doesn't need permission to read the folder, just it's
+    // content.
+    // TODO: Let me (@abayomi) know if there's an issue with this.
+    await checkAuthorization({
+      context,
+      agent,
+      action,
+      workspace,
+      workspaceId: workspace.resourceId,
+      containerId: getFilePermissionContainers(workspace.resourceId, folder),
+      targets: {targetId: folder.resourceId},
+    });
+  }
 
   return {agent, workspace, folder};
 }
@@ -133,10 +140,11 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: AppActionType,
   workspace?: Workspace,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticDataAccessProviderRunOptions,
+  UNSAFE_skipAuthCheck = false
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher, opts);
-  return checkFolderAuthorization(context, agent, folder, action, workspace);
+  return checkFolderAuthorization(context, agent, folder, action, workspace, UNSAFE_skipAuthCheck);
 }
 
 export function getFolderName(folder: Folder) {
@@ -173,4 +181,9 @@ export function assertFolder(folder: Folder | null | undefined): asserts folder 
   if (!folder) {
     throwFolderNotFound();
   }
+}
+
+export function stringifyFolderNamePath(file: Folder, rootname?: string) {
+  const nm = file.namePath.join(folderConstants.nameSeparator);
+  return rootname ? addRootnameToPath(nm, rootname) : nm;
 }

@@ -117,6 +117,7 @@ export function getMemstoreDataProviders(models: AppMongoModels): BaseContextTyp
     workspaceIdIndexOpts,
     {field: 'entityId', type: MemStoreIndexTypes.MapIndex},
     {field: 'entityType', type: MemStoreIndexTypes.MapIndex},
+    {field: 'targetParentId', type: MemStoreIndexTypes.MapIndex},
     {field: 'targetId', type: MemStoreIndexTypes.MapIndex},
     {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
     {field: 'action', type: MemStoreIndexTypes.MapIndex},

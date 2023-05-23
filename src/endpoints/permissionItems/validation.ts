@@ -69,7 +69,7 @@ const itemInput = Joi.object<PermissionItemInput>().keys({
   target: targetOrList.required(),
   action: validationSchemas.crudActionOrList.required(),
   grantAccess: Joi.boolean().required(),
-  appliesTo: appliesToOrList.required(),
+  appliesTo: appliesToOrList,
 });
 const itemInputList = Joi.array()
   .items(itemInput)

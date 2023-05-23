@@ -1,4 +1,4 @@
-import {forEach, merge} from 'lodash';
+import {forEach, last, merge} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
@@ -18,7 +18,9 @@ import {
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {
+  getResourcePermissionContainers,
   sortOutPermissionItems,
+  sortOutPermissionItemsDefaultSelectionFn,
   uniquePermissionItems,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
@@ -182,8 +184,30 @@ export const INTERNAL_addPermissionItems = async (
 
   let inputItems: PermissionItem[] = processedItems.map(item => {
     const targetType = getTargetType(item);
+    let targetParentId: string;
+    let targetParentType: AppResourceType;
+
+    if (
+      item.target.resourceType === AppResourceType.File ||
+      item.target.resourceType === AppResourceType.Folder
+    ) {
+      const containerIds = getResourcePermissionContainers(
+        workspace.resourceId,
+        item.target.resource
+      );
+      const containerId = last(containerIds);
+      appAssert(containerId);
+      targetParentId = containerId;
+      targetParentType = getResourceTypeFromId(containerId);
+    } else {
+      targetParentId = workspace.resourceId;
+      targetParentType = AppResourceType.Workspace;
+    }
+
     return newWorkspaceResource(agent, AppResourceType.PermissionItem, workspace.resourceId, {
       targetType,
+      targetParentId,
+      targetParentType,
       targetId: item.target.resourceId,
       action: item.action,
       entityId: item.entity.resourceId,
@@ -207,24 +231,12 @@ export const INTERNAL_addPermissionItems = async (
   // for example is folded into wildcard `*`, leaving a new permission item
   // granting `read` access being added again though one already exists that
   // grants that access.
-  ({items: existingPermissionItems} = sortOutPermissionItems(existingPermissionItems, p => {
-    // If access is allowed (meaining a previous item already grants access)
-    // and item grants access, keep item, don't fold. Will overwrite previous
-    // item that granted access in map, but will keep both in filtered
-    // permission items.
-    if (p.isAccessAllowed && p.item.grantAccess) return true;
-
-    // If access is denied (meaning a previous item already denies access) and
-    // item does not grant access, kepp item, same as above.
-    if (p.isAccessDenied && !p.item.grantAccess) return true;
-
-    // If access is not granted nor denied (meaning no previous item grants or
-    // deny access), keep item.
-    if (!p.isAccessAllowed && !p.isAccessDenied) return true;
-
-    // Filter out item.
-    return false;
-  }));
+  ({items: existingPermissionItems} = sortOutPermissionItems(
+    existingPermissionItems,
+    sortOutPermissionItemsDefaultSelectionFn,
+    /** spread wildcard action and resource */ false,
+    /** spread selfAndChildren appliesTo */ false
+  ));
   const {items: uniquePermissions} = uniquePermissionItems(
     existingPermissionItems.concat(inputItems)
   );

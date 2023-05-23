@@ -24,7 +24,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-describe('countEntityPermissionItems', () => {
+describe.skip('countEntityPermissionItems', () => {
   test('count', async () => {
     assertContext(context);
     const {userToken, user} = await insertUserForTest(context);

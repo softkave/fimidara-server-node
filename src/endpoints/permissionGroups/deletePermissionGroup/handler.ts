@@ -23,29 +23,31 @@ export const DELETE_PERMISSION_GROUP_CASCADE_FNS: DeleteResourceCascadeFnsMap = 
   [AppResourceType.Job]: noopAsync,
   [AppResourceType.Tag]: noopAsync,
   [AppResourceType.FilePresignedPath]: noopAsync,
-  [AppResourceType.PermissionGroup]: (context, args, opts) =>
-    context.semantic.permissionGroup.deleteOneById(args.resourceId, opts),
-  [AppResourceType.PermissionItem]: async (context, args, opts) => {
-    await Promise.all([
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-      context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
-    ]);
-  },
-  [AppResourceType.AssignedItem]: async (context, args, opts) => {
-    await Promise.all([
-      context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
-        args.workspaceId,
-        args.resourceId,
-        opts
-      ),
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.resourceId,
-        undefined,
-        opts
-      ),
-    ]);
-  },
+  [AppResourceType.PermissionGroup]: (context, args, helpers) =>
+    helpers.withTxn(opts => context.semantic.permissionGroup.deleteOneById(args.resourceId, opts)),
+  [AppResourceType.PermissionItem]: async (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      Promise.all([
+        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
+        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+      ])
+    ),
+  [AppResourceType.AssignedItem]: async (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      Promise.all([
+        context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
+          args.workspaceId,
+          args.resourceId,
+          opts
+        ),
+        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.resourceId,
+          undefined,
+          opts
+        ),
+      ])
+    ),
 };
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async (context, instData) => {

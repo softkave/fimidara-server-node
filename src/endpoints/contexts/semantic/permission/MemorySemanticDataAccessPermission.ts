@@ -1,4 +1,4 @@
-import {difference} from 'lodash';
+import {last} from 'lodash';
 import {
   AssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
@@ -105,47 +105,32 @@ export class MemorySemanticDataAccessPermission
     props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
-    const {q01, q02} = this.getPermissionItemsQuery(props);
+    const {containeritemsquery, targetitemsquery} = this.getPermissionItemsQuery(props);
 
     // TODO: use $or query when implemented
-    const [items01, items02] = await Promise.all([
-      props.context.memstore.permissionItem.readManyItems(q01, options?.transaction),
-      props.context.memstore.permissionItem.readManyItems(q02, options?.transaction),
+    const [itemsFromContainer, itemsFromTarget] = await Promise.all([
+      containeritemsquery
+        ? props.context.memstore.permissionItem.readManyItems(
+            containeritemsquery,
+            options?.transaction
+          )
+        : ([] as PermissionItem[]),
+      targetitemsquery
+        ? props.context.memstore.permissionItem.readManyItems(
+            targetitemsquery,
+            options?.transaction
+          )
+        : ([] as PermissionItem[]),
     ]);
 
-    if (props.sortByDate || props.sortByContainer) {
-      const containerIdMap =
-        props.containerId && props.sortByContainer
-          ? indexArray(toNonNullableArray(props.containerId), {reducer: (item, arr, i) => i})
-          : undefined;
-
-      items01.sort((item01, item02) => {
-        if (props.sortByDate) {
-          return item01.lastUpdatedAt - item02.lastUpdatedAt;
-        }
-
-        // Maintain current order.
-        return -1;
-      });
-
-      items02.sort((item01, item02) => {
-        if (item01.targetId !== item01.targetId) {
-          if (containerIdMap) {
-            return (
-              (containerIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
-              (containerIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
-            );
-          }
-        } else if (props.sortByDate) {
-          return item01.lastUpdatedAt - item02.lastUpdatedAt;
-        }
-
-        // Maintain current order.
-        return -1;
-      });
+    if (props.sortByContainer && props.containerId) {
+      this.sortByContainer(props.containerId, itemsFromContainer, props.sortByDate);
+    }
+    if (props.sortByDate) {
+      this.sortByDate(itemsFromTarget);
     }
 
-    const items = items01.concat(items02);
+    const items = itemsFromTarget.concat(itemsFromContainer);
     return items;
   }
 
@@ -153,12 +138,19 @@ export class MemorySemanticDataAccessPermission
     props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
-    const {q01, q02} = this.getPermissionItemsQuery(props);
+    const {containeritemsquery, targetitemsquery} = this.getPermissionItemsQuery(props);
 
     // TODO: use $or query when implemented
     const [count01, count02] = await Promise.all([
-      props.context.memstore.permissionItem.countItems(q01, options?.transaction),
-      props.context.memstore.permissionItem.countItems(q02, options?.transaction),
+      containeritemsquery
+        ? props.context.memstore.permissionItem.countItems(
+            containeritemsquery,
+            options?.transaction
+          )
+        : 0,
+      targetitemsquery
+        ? props.context.memstore.permissionItem.countItems(targetitemsquery, options?.transaction)
+        : 0,
     ]);
 
     return count01 + count02;
@@ -182,6 +174,37 @@ export class MemorySemanticDataAccessPermission
     return null;
   }
 
+  sortByDate(items: PermissionItem[]): PermissionItem[] {
+    return items.sort((item01, item02) => {
+      return item02.lastUpdatedAt - item01.lastUpdatedAt;
+    });
+  }
+
+  sortByContainer(
+    containerId: string | string[],
+    items: PermissionItem[],
+    sortByDate?: boolean
+  ): PermissionItem[] {
+    const containerIdMap = indexArray(toNonNullableArray(containerId), {
+      reducer: (item, arr, i) => i,
+    });
+    return items.sort((item01, item02) => {
+      if (item01.targetId !== item01.targetId) {
+        if (containerIdMap) {
+          return (
+            (containerIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
+            (containerIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
+          );
+        }
+      } else if (sortByDate) {
+        return item01.lastUpdatedAt - item02.lastUpdatedAt;
+      }
+
+      // Maintain current order.
+      return -1;
+    });
+  }
+
   protected getPermissionItemsQuery(props: {
     entityId?: string | string[];
     action?: AppActionType | AppActionType[];
@@ -191,36 +214,57 @@ export class MemorySemanticDataAccessPermission
     containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
     targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   }) {
-    const inputContainerIdList = props.containerId ? toNonNullableArray(props.containerId) : [];
-    const inputTargetIdList = props.targetId ? toNonNullableArray(props.targetId) : [];
-    const containerIdList =
-      inputContainerIdList.length && inputTargetIdList.length
-        ? difference(inputContainerIdList, inputTargetIdList)
-        : inputContainerIdList;
-    const targetIdList =
-      containerIdList.length && inputTargetIdList.length
-        ? difference(inputTargetIdList, containerIdList)
-        : inputTargetIdList;
+    let containeritemsquery: LiteralDataQuery<PermissionItem> | undefined = undefined;
+    let targetitemsquery: LiteralDataQuery<PermissionItem> | undefined = undefined;
 
-    // Permission items query using container ID
-    const q01: LiteralDataQuery<PermissionItem> = {
-      entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
-      action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
-      targetId: containerIdList.length ? {$in: toNonNullableArray(containerIdList)} : undefined,
-      targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
-      appliesTo: {$in: this.getContainerAppliesTo(props.containerAppliesTo) as any},
-    };
+    if (props.containerId) {
+      const containerIdList = props.containerId ? toArray(props.containerId) : [];
+      containeritemsquery = {
+        entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+        action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+        targetId: {$in: containerIdList},
+        targetType: props.targetType
+          ? {$in: toNonNullableArray(props.targetType) as any}
+          : undefined,
+        appliesTo: {$in: this.getContainerAppliesTo(props.containerAppliesTo) as any},
+      };
+    }
 
-    // Permission items query using target ID
-    const q02: LiteralDataQuery<PermissionItem> = {
-      entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
-      action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
-      targetId: targetIdList.length ? {$in: toNonNullableArray(targetIdList)} : undefined,
-      targetType: props.targetType ? {$in: toNonNullableArray(props.targetType) as any} : undefined,
-      appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
-    };
+    if (props.targetId) {
+      const targetIdList = props.targetId ? toArray(props.targetId) : [];
+      targetitemsquery = {
+        entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+        action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+        targetId: {$in: targetIdList},
+        targetType: props.targetType
+          ? {$in: toNonNullableArray(props.targetType) as any}
+          : undefined,
+        appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
+      };
+    } else if (props.containerId && props.targetType) {
+      const targetParentId = props.containerId ? last(toArray(props.containerId)) : undefined;
+      targetitemsquery = {
+        targetParentId,
+        entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+        action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+        targetType: {$in: toNonNullableArray(props.targetType) as any},
+        appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
+      };
+    }
 
-    return {q01, q02};
+    // For when we want to fetch an entity's permissions regardless of container
+    // or target
+    if (!containeritemsquery && !targetitemsquery && props.entityId) {
+      containeritemsquery = {
+        entityId: props.entityId ? {$in: toNonNullableArray(props.entityId)} : undefined,
+        action: props.action ? {$in: toNonNullableArray(props.action) as any} : undefined,
+        targetType: props.targetType
+          ? {$in: toNonNullableArray(props.targetType) as any}
+          : undefined,
+      };
+    }
+
+    return {containeritemsquery, targetitemsquery};
   }
 
   protected getContainerAppliesTo(appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[]) {

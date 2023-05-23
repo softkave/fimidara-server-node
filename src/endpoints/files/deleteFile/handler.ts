@@ -22,38 +22,44 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
     [AppResourceType.EndpointRequest]: noopAsync,
     [AppResourceType.Job]: noopAsync,
     [AppResourceType.Tag]: noopAsync,
-    [AppResourceType.File]: async (context, args, opts) => {
-      await Promise.all([
-        context.semantic.file.deleteManyByIdList(args.fileIdList, opts),
-        context.fileBackend.deleteFiles({
-          bucket: context.appVariables.S3Bucket,
-          keys: args.fileIdList,
-        }),
-      ]);
-    },
-    [AppResourceType.PermissionItem]: (context, args, opts) =>
-      context.semantic.permissionItem.deleteManyByTargetId(args.fileIdList, opts),
-    [AppResourceType.AssignedItem]: (context, args, opts) =>
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.fileIdList,
-        undefined,
-        opts
+    [AppResourceType.File]: async (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        Promise.all([
+          context.semantic.file.deleteManyByIdList(args.fileIdList, opts),
+          context.fileBackend.deleteFiles({
+            bucket: context.appVariables.S3Bucket,
+            keys: args.fileIdList,
+          }),
+        ])
       ),
-    [AppResourceType.FilePresignedPath]: async (context, args, opts) => {
-      await Promise.all(
-        args.files.map(f =>
-          context.semantic.filePresignedPath.deleteManyByQuery(
-            {
-              fileNamePath: {$eq: f.namePath},
-              fileExtension: f.extension,
-              workspaceId: args.workspaceId,
-            },
-            opts
+    [AppResourceType.PermissionItem]: (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.permissionItem.deleteManyByTargetId(args.fileIdList, opts)
+      ),
+    [AppResourceType.AssignedItem]: (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.fileIdList,
+          undefined,
+          opts
+        )
+      ),
+    [AppResourceType.FilePresignedPath]: async (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        Promise.all(
+          args.files.map(f =>
+            context.semantic.filePresignedPath.deleteManyByQuery(
+              {
+                fileNamePath: {$eq: f.namePath},
+                fileExtension: f.extension,
+                workspaceId: args.workspaceId,
+              },
+              opts
+            )
           )
         )
-      );
-    },
+      ),
   };
 
 const deleteFile: DeleteFileEndpoint = async (context, instData) => {

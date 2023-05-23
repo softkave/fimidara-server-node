@@ -87,6 +87,9 @@
 - [ ] Open up getting another agent token's presigned paths with permission
 - [ ] Include action in PermissionItemInputTarget in resolveEntityPermissions endpoint
 - [ ] Uniq input lists, and ensure all Joi and mddoc lists have max
+- [ ] In the future, look into deleting permission items sitting at the bottom not contributing to perm checks
+- [ ] How to speed up server start time when loading data from db
+  - [ ] One way, separate out any data not mem into own model and leave only mem data in model for read all
 
 ## Later
 

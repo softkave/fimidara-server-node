@@ -406,6 +406,36 @@
                                     "example": "wrkspce_000000000000000000000"
                                 },
                                 "optional": true
+                            },
+                            "accessTargetId": {
+                                "data": {
+                                    "description": "ID of the permission target that directly owns/is assigned the permission item producing this result. That is, the permission item used to resolve whether the requested entity has access or does not, the target directly owning that item, is surfaced here as accessTargetId. This can be the requested target itself, or a parent folder if the requested resource is a folder of file, etc.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "optional": true
+                            },
+                            "accessTargetType": {
+                                "data": {
+                                    "description": "Resource type specified in the permission item producing this result. This can be the the type of the target or a children type if the target ID is a container resource like workspace or folder.",
+                                    "__id": "FieldString",
+                                    "example": "file",
+                                    "valid": {
+                                        "0": "*",
+                                        "1": "workspace",
+                                        "2": "collaborationRequest",
+                                        "3": "agentToken",
+                                        "4": "permissionGroup",
+                                        "5": "permissionItem",
+                                        "6": "folder",
+                                        "7": "file",
+                                        "8": "user",
+                                        "9": "tag",
+                                        "10": "usageRecord"
+                                    },
+                                    "enumName": "WorkspaceAppResourceType"
+                                },
+                                "optional": true
                             }
                         }
                     }

@@ -17,7 +17,7 @@ import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {stringifyNamePath} from '../files/utils';
+import {stringifyFileNamePath} from '../files/utils';
 import RequestData from '../RequestData';
 import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
@@ -49,7 +49,7 @@ export async function insertStorageUsageRecordInput(
 ) {
   const artifactMeta: FileUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyNamePath(file),
+    filepath: stringifyFileNamePath(file),
     requestId: reqData.requestId,
     ...artifactMetaInput,
   };
@@ -80,7 +80,7 @@ export async function insertBandwidthInUsageRecordInput(
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyNamePath(file),
+    filepath: stringifyFileNamePath(file),
     requestId: reqData.requestId,
   };
 
@@ -110,7 +110,7 @@ export async function insertBandwidthOutUsageRecordInput(
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyNamePath(file),
+    filepath: stringifyFileNamePath(file),
     requestId: reqData.requestId,
   };
 

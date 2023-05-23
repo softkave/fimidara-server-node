@@ -12,11 +12,13 @@ import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
+  insertFolderForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
+import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../workspaces/addWorkspace/utils';
 import {PermissionItemInput} from '../types';
 import resolveEntityPermissions from './handler';
 import {
@@ -174,6 +176,45 @@ describe('resolveEntityPermissions', () => {
     const resolved = result.items.map(indexResolvedPermissions);
     expected.forEach(nextExpected => expect(resolved).toContain(nextExpected));
     expect(result.items.length).toBe(expected.length);
+  });
+
+  test.only('combination of wildcard and appliesTo', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {folder} = await insertFolderForTest(context, userToken, workspace);
+    const adminPg = await context.semantic.permissionGroup.assertGetOneByQuery({
+      name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+      workspaceId: workspace.resourceId,
+    });
+
+    const reqData = RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+        entity: {entityId: [adminPg.resourceId]},
+        items: [
+          {
+            action: AppActionType.Read,
+            target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
+            containerAppliesTo: [PermissionItemAppliesTo.SelfAndChildrenOfType],
+          },
+        ],
+      }
+    );
+    const result = await resolveEntityPermissions(context, reqData);
+    assertEndpointResultOk(result);
+
+    const expected = [
+      indexResolvedPermissions({
+        entityId: adminPg.resourceId,
+        action: AppActionType.Read,
+        hasAccess: true,
+        target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
+      }),
+    ];
+    const resolved = result.items.map(indexResolvedPermissions);
+    expected.forEach(nextExpected => expect(resolved).toContain(nextExpected));
   });
 });
 

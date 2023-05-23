@@ -28,6 +28,8 @@ function generateAdminPermissions(
         action,
         entityId: adminPermissionGroup.resourceId,
         entityType: AppResourceType.PermissionGroup,
+        targetParentId: workspace.resourceId,
+        targetParentType: AppResourceType.Workspace,
         targetId: workspace.resourceId,
         targetType: AppResourceType.All,
         grantAccess: true,
@@ -60,6 +62,8 @@ function generateCollaboratorPermissions(
           action,
           targetId,
           appliesTo,
+          targetParentId: workspace.resourceId,
+          targetParentType: AppResourceType.Workspace,
           targetType: targetType,
           entityId: permissiongroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
@@ -70,47 +74,35 @@ function generateCollaboratorPermissions(
     });
   }
 
-  let permissionItems: PermissionItem[] = [];
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [AppActionType.Read],
-      AppResourceType.Workspace,
-      workspace.resourceId,
-      PermissionItemAppliesTo.Self
-    )
+  let permissionItems: PermissionItem[] = makePermission(
+    [AppActionType.Read],
+    AppResourceType.Workspace,
+    workspace.resourceId,
+    PermissionItemAppliesTo.Self
   );
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [AppActionType.Read],
-      AppResourceType.AgentToken,
-      workspace.resourceId,
-      PermissionItemAppliesTo.ChildrenOfType
-    )
-  );
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [AppActionType.Create, AppActionType.Update, AppActionType.Read],
-      AppResourceType.Folder,
-      workspace.resourceId,
-      PermissionItemAppliesTo.ChildrenOfType
-    )
-  );
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [AppActionType.Create, AppActionType.Update, AppActionType.Read],
-      AppResourceType.File,
-      workspace.resourceId,
-      PermissionItemAppliesTo.ChildrenOfType
-    )
-  );
-  permissionItems = permissionItems.concat(
-    makePermission(
-      [AppActionType.Read],
-      AppResourceType.User,
-      workspace.resourceId,
-      PermissionItemAppliesTo.ChildrenOfType
-    )
-  );
+
+  const readResourceTypes: AppResourceType[] = [AppResourceType.AgentToken, AppResourceType.User];
+  const createReadUpdateResourceTypes: AppResourceType[] = [
+    AppResourceType.File,
+    AppResourceType.Folder,
+    AppResourceType.Tag,
+  ];
+
+  readResourceTypes.forEach(type => {
+    permissionItems = permissionItems.concat(
+      makePermission(
+        [AppActionType.Create, AppActionType.Update, AppActionType.Read],
+        type,
+        workspace.resourceId,
+        PermissionItemAppliesTo.ChildrenOfType
+      )
+    );
+  });
+  createReadUpdateResourceTypes.forEach(type => {
+    permissionItems = permissionItems.concat(
+      makePermission([AppActionType.Read], type, workspace.resourceId, PermissionItemAppliesTo.Self)
+    );
+  });
 
   return permissionItems;
 }

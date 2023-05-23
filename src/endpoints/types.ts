@@ -2,7 +2,7 @@ import {Request, RequestHandler, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
 import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
 import OperationError from '../utils/OperationError';
-import {AnyObject} from '../utils/types';
+import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {IDataProvideQueryListParams} from './contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
@@ -63,11 +63,13 @@ export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
 >;
 
 export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
-
+export type DeleteResourceCascadeFnHelperFns = {
+  withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>): Promise<void>;
+};
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
   context: BaseContextType,
   args: Args,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  helpers: DeleteResourceCascadeFnHelperFns
 ) => Promise<void>;
 
 export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> = Record<

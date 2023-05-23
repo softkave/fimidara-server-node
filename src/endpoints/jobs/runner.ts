@@ -11,6 +11,7 @@ import {getTimestamp} from '../../utils/dateFns';
 import {newResource} from '../../utils/resource';
 import {DELETE_AGENT_TOKEN_CASCADE_FNS} from '../agentTokens/deleteToken/handler';
 import {DELETE_COLLABORATION_REQUEST_CASCADE_FNS} from '../collaborationRequests/deleteRequest/handler';
+import {REMOVE_COLLABORATOR_CASCADE_FNS} from '../collaborators/removeCollaborator/handler';
 import {BaseContextType} from '../contexts/types';
 import {DELETE_FILE_CASCADE_FNS} from '../files/deleteFile/handler';
 import {DELETE_FOLDER_CASCADE_FNS} from '../folders/deleteFolder/handler';
@@ -90,16 +91,18 @@ async function jobRunner(context: BaseContextType, job: Job) {
   }
 }
 
-const cascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any> | undefined> = {
+const kCascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any> | undefined> = {
   [AppResourceType.All]: undefined,
   [AppResourceType.System]: undefined,
   [AppResourceType.Public]: undefined,
-  [AppResourceType.User]: undefined,
   [AppResourceType.UsageRecord]: undefined,
   [AppResourceType.EndpointRequest]: undefined,
   [AppResourceType.AssignedItem]: undefined,
   [AppResourceType.Job]: undefined,
   [AppResourceType.FilePresignedPath]: undefined,
+
+  // TODO: will need update when we implement deleting users
+  [AppResourceType.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
   [AppResourceType.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
   [AppResourceType.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
   [AppResourceType.AgentToken]: DELETE_AGENT_TOKEN_CASCADE_FNS,
@@ -112,7 +115,7 @@ const cascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any
 
 async function executeDeleteResourceJob(context: BaseContextType, job: Job) {
   const params = job.params as DeleteResourceJobParams;
-  const cascadeDef = cascadeDeleteDefs[params.type];
+  const cascadeDef = kCascadeDeleteDefs[params.type];
   if (cascadeDef) await executeCascadeDelete(context, cascadeDef, params.args);
 }
 

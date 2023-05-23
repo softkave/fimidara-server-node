@@ -1,6 +1,7 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
+import addPermissionItems from '../../permissionItems/addItems/handler';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles, generateTestFileName} from '../../testUtils/generateData/file';
 import {
@@ -13,6 +14,7 @@ import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
+  insertAgentTokenForTest,
   insertFileForTest,
   insertFolderForTest,
   insertUserForTest,
@@ -20,7 +22,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {folderConstants} from '../constants';
-import {addRootnameToPath} from '../utils';
+import {addRootnameToPath, stringifyFolderNamePath} from '../utils';
 import listFolderContent from './handler';
 import {ListFolderContentEndpointParams} from './types';
 
@@ -115,7 +117,7 @@ describe('listFolderContent', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-        contentType: [AppResourceType.File],
+        contentType: AppResourceType.File,
       }
     );
     const fetchFilesResult = await listFolderContent(context, fetchFilesReqData);
@@ -126,7 +128,7 @@ describe('listFolderContent', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-        contentType: [AppResourceType.Folder],
+        contentType: AppResourceType.Folder,
       }
     );
     const fetchFoldersResult = await listFolderContent(context, fetchFoldersReqData);
@@ -135,10 +137,7 @@ describe('listFolderContent', () => {
 
     const reqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-        contentType: [AppResourceType.Folder, AppResourceType.File],
-      }
+      {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
     );
     const result = await listFolderContent(context, reqData);
     assertEndpointResultOk(result);
@@ -150,16 +149,30 @@ describe('listFolderContent', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const [foldersPage01, foldersPage02, filesPage01, filesPage02] = await Promise.all([
+    // const [foldersPage01, foldersPage02, filesPage01, filesPage02] = await Promise.all([
+    //   generateAndInsertTestFolders(context, 10, {
+    //     workspaceId: workspace.resourceId,
+    //     parentId: null,
+    //   }),
+    //   generateAndInsertTestFolders(context, 5, {
+    //     workspaceId: workspace.resourceId,
+    //     parentId: null,
+    //   }),
+    //   generateAndInsertTestFiles(context, 10, {workspaceId: workspace.resourceId, parentId: null}),
+    //   generateAndInsertTestFiles(context, 5, {workspaceId: workspace.resourceId, parentId: null}),
+    // ]);
+    const [foldersPage01, filesPage01] = await Promise.all([
       generateAndInsertTestFolders(context, 10, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
+      generateAndInsertTestFiles(context, 10, {workspaceId: workspace.resourceId, parentId: null}),
+    ]);
+    const [foldersPage02, filesPage02] = await Promise.all([
       generateAndInsertTestFolders(context, 5, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 10, {workspaceId: workspace.resourceId, parentId: null}),
       generateAndInsertTestFiles(context, 5, {workspaceId: workspace.resourceId, parentId: null}),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
@@ -186,6 +199,8 @@ describe('listFolderContent', () => {
     expect(result01.page).toBe(page);
     expect(result01.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
     expect(result01.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
+    // const resultFolders01Ids = extractResourceIdList(result01.folders);
+    // const resultFiles01Ids = extractResourceIdList(result01.files);
     expectContainsExactly(result01.folders, foldersPage01, getResourceId);
     expectContainsExactly(result01.files, filesPage01, getResourceId);
 
@@ -199,7 +214,60 @@ describe('listFolderContent', () => {
     expect(result02.page).toBe(page);
     expect(result02.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
     expect(result02.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
+    // const resultFolders02Ids = extractResourceIdList(result01.folders);
+    // const resultFiles02Ids = extractResourceIdList(result01.files);
     expectContainsExactly(result02.folders, foldersPage02, getResourceId);
     expectContainsExactly(result02.files, filesPage02, getResourceId);
+  });
+
+  test('permitted to read selected resources', async () => {
+    assertContext(context);
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const [[folder01], {token: agToken}] = await Promise.all([
+      generateAndInsertTestFolders(context, 1, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
+      insertAgentTokenForTest(context, userToken, workspace.resourceId),
+    ]);
+    const [[folder02], [file01]] = await Promise.all([
+      generateAndInsertTestFolders(context, 1, {
+        workspaceId: workspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: workspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+    ]);
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
+        workspaceId: workspace.resourceId,
+        entity: {entityId: [agToken.resourceId]},
+        items: [
+          {
+            target: {targetId: folder02.resourceId},
+            action: AppActionType.Read,
+            grantAccess: true,
+          },
+          {
+            target: {targetId: file01.resourceId},
+            action: AppActionType.Read,
+            grantAccess: true,
+          },
+        ],
+      })
+    );
+
+    const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
+      mockExpressRequestWithAgentToken(agToken),
+      {folderpath: stringifyFolderNamePath(folder01, workspace.rootname)}
+    );
+    const result01 = await listFolderContent(context, instData);
+    assertEndpointResultOk(result01);
+    expectContainsExactly(result01.folders, [folder02], getResourceId);
+    expectContainsExactly(result01.files, [file01], getResourceId);
   });
 });

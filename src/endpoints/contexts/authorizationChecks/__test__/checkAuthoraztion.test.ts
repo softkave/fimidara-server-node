@@ -207,60 +207,79 @@ describe('checkAuthorization', () => {
     const tokenList = await generateAndInsertAgentTokenListForTest(context, 1, {
       workspaceId: workspace.resourceId,
     });
-    const [t01] = tokenList;
+    const [token01] = tokenList;
 
     const outerFolders = await generateAndInsertTestFolders(context, 4, {
       workspaceId: workspace.resourceId,
       parentId: null,
     });
-    const [of01, of02, of03, of04] = outerFolders;
-    const [[if01], [if02]] = await Promise.all([
+    const [outerFolder01, outerFolder02, outerFolder03, outerFolder04] = outerFolders;
+    const [[innerFolder01], [innerFolder02]] = await Promise.all([
       generateAndInsertTestFolders(context, 1, {
         workspaceId: workspace.resourceId,
-        parentId: of03.resourceId,
+        parentId: outerFolder03.resourceId,
       }),
       generateAndInsertTestFolders(context, 1, {
         workspaceId: workspace.resourceId,
-        parentId: of04.resourceId,
+        parentId: outerFolder04.resourceId,
       }),
+    ]);
+
+    await Promise.all([
+      addPermissionItems(
+        context,
+        RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
+          workspaceId: workspace.resourceId,
+          entity: {entityId: token01.resourceId},
+          items: [],
+        })
+      ),
     ]);
 
     await Promise.all([
       generateAndInsertPermissionItemListForTest(context, 1, {
         workspaceId: workspace.resourceId,
-        entityId: t01.resourceId,
-        targetId: of01.resourceId,
+        entityId: token01.resourceId,
+        targetId: outerFolder01.resourceId,
         action: AppActionType.Read,
         grantAccess: true,
         appliesTo: PermissionItemAppliesTo.Self,
+        targetParentId: workspace.resourceId,
+        targetParentType: AppResourceType.Workspace,
       }),
       generateAndInsertPermissionItemListForTest(context, 1, {
         workspaceId: workspace.resourceId,
-        entityId: t01.resourceId,
-        targetId: of02.resourceId,
+        entityId: token01.resourceId,
+        targetId: outerFolder02.resourceId,
         action: AppActionType.Read,
         grantAccess: true,
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        targetParentId: workspace.resourceId,
+        targetParentType: AppResourceType.Workspace,
       }),
       generateAndInsertPermissionItemListForTest(context, 1, {
         workspaceId: workspace.resourceId,
-        entityId: t01.resourceId,
-        targetId: of03.resourceId,
+        entityId: token01.resourceId,
+        targetId: outerFolder03.resourceId,
         action: AppActionType.Read,
         grantAccess: true,
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+        targetParentId: workspace.resourceId,
+        targetParentType: AppResourceType.Workspace,
       }),
       generateAndInsertPermissionItemListForTest(context, 1, {
         workspaceId: workspace.resourceId,
-        entityId: t01.resourceId,
-        targetId: of04.resourceId,
+        entityId: token01.resourceId,
+        targetId: outerFolder04.resourceId,
         action: AppActionType.Read,
         grantAccess: true,
         appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+        targetParentId: workspace.resourceId,
+        targetParentType: AppResourceType.Workspace,
       }),
     ]);
 
-    const tAgent = makeWorkspaceAgentTokenAgent(t01);
+    const tAgent = makeWorkspaceAgentTokenAgent(token01);
     await expectErrorThrown(async () => {
       assertContext(context);
       await checkAuthorization({
@@ -269,11 +288,11 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: tAgent,
         targets: {
-          targetId: of01.resourceId,
+          targetId: outerFolder01.resourceId,
           targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, of01),
+        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder01),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -284,11 +303,11 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: tAgent,
         targets: {
-          targetId: of02.resourceId,
+          targetId: outerFolder02.resourceId,
           targetAppliesTo: PermissionItemAppliesTo.Self,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, of02),
+        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder02),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -299,11 +318,11 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: tAgent,
         targets: {
-          targetId: if01.resourceId,
-          targetAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
+          targetId: innerFolder01.resourceId,
+          containerAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, if01),
+        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder01),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -314,11 +333,11 @@ describe('checkAuthorization', () => {
         workspaceId: workspace.resourceId,
         agent: tAgent,
         targets: {
-          targetId: if02.resourceId,
-          targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+          targetId: innerFolder02.resourceId,
+          containerAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, if02),
+        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder02),
       });
     }, [PermissionDeniedError.name]);
   });
@@ -393,10 +412,11 @@ describe('checkAuthorization', () => {
     expect(deniedResourceIdList).toHaveLength(0);
   });
 
-  test('summarizeAgentPermissionItems with wildcard resource type', async () => {
+  test('summarizeAgentPermissionItems with wildcard resource type overrides others', async () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
+
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
@@ -413,30 +433,30 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg02.resourceId},
-          }
-        )
-      ),
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg03.resourceId},
-          }
-        )
-      ),
-    ]);
+
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg03Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg03.resourceId},
+        }
+      )
+    );
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg02Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg02.resourceId},
+        }
+      )
+    );
+
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
@@ -457,6 +477,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
+
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
@@ -473,30 +494,30 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg02.resourceId},
-          }
-        )
-      ),
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg03.resourceId},
-          }
-        )
-      ),
-    ]);
+
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg03Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg03.resourceId},
+        }
+      )
+    );
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg02Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg02.resourceId},
+        }
+      )
+    );
+
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,
@@ -517,6 +538,7 @@ describe('checkAuthorization', () => {
     assertContext(context);
     const {userToken, workspace, pg02, pg03, clientTokenAgent} =
       await setupForSummarizeAgentPermissionItemsTest();
+
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
@@ -533,30 +555,30 @@ describe('checkAuthorization', () => {
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
     ];
-    await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg02.resourceId},
-          }
-        )
-      ),
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg03.resourceId},
-          }
-        )
-      ),
-    ]);
+
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg03Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg03.resourceId},
+        }
+      )
+    );
+    await addPermissionItems(
+      context,
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: pg02Items,
+          workspaceId: workspace.resourceId,
+          entity: {entityId: pg02.resourceId},
+        }
+      )
+    );
+
     const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
       await summarizeAgentPermissionItems({
         context,

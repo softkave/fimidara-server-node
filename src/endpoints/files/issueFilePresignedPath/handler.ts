@@ -5,7 +5,10 @@ import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  checkAuthorization,
+  getResourcePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {InvalidRequestError} from '../../errors';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
@@ -76,7 +79,11 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
       workspace,
       workspaceId: workspace.resourceId,
       targets: [{targetType: AppResourceType.File}],
-      containerId: closestFolder?.resourceId ?? workspace.resourceId,
+      containerId: getResourcePermissionContainers(
+        workspace.resourceId,
+        closestFolder,
+        /** include resource ID */ true
+      ),
       action: AppActionType.Read,
     });
   }

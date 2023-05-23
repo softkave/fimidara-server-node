@@ -558,6 +558,8 @@ export type ResolvedEntityPermissionItem = {
   targetAppliesTo?: Array<PermissionItemAppliesTo>;
   containerAppliesTo?: Array<PermissionItemAppliesTo>;
   accessEntityId?: string;
+  accessTargetId?: string;
+  accessTargetType?: WorkspaceAppResourceType;
 };
 export type ResolveEntityPermissionsEndpointResult = {
   items: Array<ResolvedEntityPermissionItem>;

@@ -174,12 +174,12 @@ function groupByContainerId(
     /** container ID or key */ string,
     Record</** action */ string, ResourceWrapper[]>
   > = {};
-  const JOINED_CONTAINERS_SEPARATOR = ';';
+  const CONTAINERS_SEPARATOR = ';';
 
   const getContainerKey = (resource: ResourceWrapper) => {
     let filepath: string | undefined = undefined;
     const containerIds = getResourcePermissionContainers(workspaceId, resource.resource);
-    const containerKey = makeKey(containerIds, JOINED_CONTAINERS_SEPARATOR);
+    const containerKey = makeKey(containerIds, CONTAINERS_SEPARATOR);
 
     if (
       resource.resourceType === AppResourceType.Folder ||
@@ -193,7 +193,7 @@ function groupByContainerId(
     return {containerKey, filepath};
   };
 
-  const getContainersFromKey = (key: string) => key.split(JOINED_CONTAINERS_SEPARATOR);
+  const getContainersFromKey = (key: string) => key.split(CONTAINERS_SEPARATOR);
 
   resources.forEach(resource => {
     const {containerKey, filepath} = getContainerKey(resource);
@@ -213,7 +213,12 @@ function groupByContainerId(
     resourceList.push(resource);
   });
 
-  return {map, getContainerKey, getContainersFromKey, JOINED_CONTAINERS_SEPARATOR};
+  return {
+    map,
+    getContainerKey,
+    getContainersFromKey,
+    JOINED_CONTAINERS_SEPARATOR: CONTAINERS_SEPARATOR,
+  };
 }
 
 async function fetchResourcesById(
@@ -399,11 +404,7 @@ async function authCheckResources(
   nothrowOnCheckError?: boolean
 ) {
   const authCheckPromises: IPromiseWithId<IAuthAccessCheckers>[] = [];
-  const {
-    getContainerKey,
-    getContainersFromKey,
-    map: groupedByContainer,
-  } = groupByContainerId(
+  const {getContainersFromKey, map: groupedByContainer} = groupByContainerId(
     workspaceId,
     resources,
     inputsWithIdByType,

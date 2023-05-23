@@ -24,14 +24,16 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.Job]: noopAsync,
   [AppResourceType.Tag]: noopAsync,
   [AppResourceType.FilePresignedPath]: noopAsync,
-  [AppResourceType.File]: async (context, args, opts) => {
+  [AppResourceType.File]: async (context, args, helpers) => {
     const files = await context.semantic.file.getManyByQuery(
       FolderQueries.getByAncestor(args.workspaceId, args.resourceId)
     );
     await Promise.all([
-      context.semantic.file.deleteManyByQuery(
-        FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
-        opts
+      helpers.withTxn(opts =>
+        context.semantic.file.deleteManyByQuery(
+          FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
+          opts
+        )
       ),
       executeCascadeDelete(context, DELETE_FILE_CASCADE_FNS, {
         workspaceId: args.workspaceId,
@@ -44,21 +46,27 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
       }),
     ]);
   },
-  [AppResourceType.Folder]: async (context, args, opts) => {
+  [AppResourceType.Folder]: async (context, args, helpers) => {
     // TODO: cascade delete folders instead
-    await context.semantic.folder.deleteManyByQuery(
-      FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
-      opts
+    await helpers.withTxn(opts =>
+      context.semantic.folder.deleteManyByQuery(
+        FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
+        opts
+      )
     );
   },
-  [AppResourceType.PermissionItem]: (context, args, opts) =>
-    context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-  [AppResourceType.AssignedItem]: (context, args, opts) =>
-    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-      args.workspaceId,
-      args.resourceId,
-      undefined,
-      opts
+  [AppResourceType.PermissionItem]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+    ),
+  [AppResourceType.AssignedItem]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+        args.workspaceId,
+        args.resourceId,
+        undefined,
+        opts
+      )
     ),
 };
 

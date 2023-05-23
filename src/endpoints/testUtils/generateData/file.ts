@@ -46,8 +46,10 @@ export function generateTestFile(
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
-    idPath: [id],
-    namePath: [nameinfo.nameWithoutExtension],
+    idPath: extra.idPath ? extra.idPath.concat(id) : extra.parentId ? [extra.parentId, id] : [id],
+    namePath: extra.namePath
+      ? extra.namePath.concat(nameinfo.nameWithoutExtension)
+      : [nameinfo.nameWithoutExtension],
     resourceId: id,
     size: faker.datatype.number({min: 1}),
     workspaceId: getNewIdForResource(AppResourceType.Workspace),

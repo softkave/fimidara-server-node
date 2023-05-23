@@ -41,20 +41,22 @@ export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<De
     [AppResourceType.Tag]: noopAsync,
     [AppResourceType.PermissionGroup]: noopAsync,
     [AppResourceType.FilePresignedPath]: noopAsync,
-    [AppResourceType.PermissionItem]: async (context, args, opts) => {
-      await Promise.all([
-        context.semantic.permissionItem.deleteManyByIdList(args.permissionItemsIdList, opts),
-        context.semantic.permissionItem.deleteManyByTargetId(args.permissionItemsIdList, opts),
-      ]);
-    },
-    [AppResourceType.AssignedItem]: async (context, args, opts) => {
-      await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.permissionItemsIdList,
-        undefined,
-        opts
-      );
-    },
+    [AppResourceType.PermissionItem]: async (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        Promise.all([
+          context.semantic.permissionItem.deleteManyByIdList(args.permissionItemsIdList, opts),
+          context.semantic.permissionItem.deleteManyByTargetId(args.permissionItemsIdList, opts),
+        ])
+      ),
+    [AppResourceType.AssignedItem]: async (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.permissionItemsIdList,
+          undefined,
+          opts
+        )
+      ),
   };
 
 export const INTERNAL_deletePermissionItems = async (

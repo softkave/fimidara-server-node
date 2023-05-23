@@ -5,7 +5,7 @@ import {BaseContextType} from '../../contexts/types';
 import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
 
 export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
-  contentType?: Array<AppResourceType.File | AppResourceType.Folder>;
+  contentType?: AppResourceType;
 }
 
 export interface ListFolderContentEndpointParams

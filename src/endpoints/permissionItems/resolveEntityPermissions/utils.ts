@@ -282,6 +282,8 @@ export const INTERNAL_resolveEntityPermissions = async (
         containerAppliesTo: nextItem.containerAppliesTo,
         targetAppliesTo: nextItem.targetAppliesTo,
         accessEntityId: item?.entityId,
+        // accessTargetId: item?.targetId,
+        // accessTargetType: item?.targetType,
       };
     }
   );

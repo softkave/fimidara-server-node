@@ -24,23 +24,29 @@ export const DELETE_AGENT_TOKEN_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceType.EndpointRequest]: noopAsync,
   [AppResourceType.Job]: noopAsync,
   [AppResourceType.Tag]: noopAsync,
-  [AppResourceType.AgentToken]: (context, args, opts) =>
-    context.semantic.agentToken.deleteOneById(args.resourceId, opts),
-  [AppResourceType.PermissionItem]: async (context, args, opts) => {
-    await Promise.all([
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-      context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
-    ]);
+  [AppResourceType.AgentToken]: (context, args, helpers) =>
+    helpers.withTxn(opts => context.semantic.agentToken.deleteOneById(args.resourceId, opts)),
+  [AppResourceType.PermissionItem]: async (context, args, helpers) => {
+    helpers.withTxn(opts =>
+      Promise.all([
+        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
+        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+      ])
+    );
   },
-  [AppResourceType.AssignedItem]: async (context, args, opts) =>
-    context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-      args.workspaceId,
-      args.resourceId,
-      undefined,
-      opts
+  [AppResourceType.AssignedItem]: async (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+        args.workspaceId,
+        args.resourceId,
+        undefined,
+        opts
+      )
     ),
-  [AppResourceType.FilePresignedPath]: (context, args, opts) =>
-    context.semantic.filePresignedPath.deleteManyByQuery({agentTokenId: args.resourceId}, opts),
+  [AppResourceType.FilePresignedPath]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.filePresignedPath.deleteManyByQuery({agentTokenId: args.resourceId}, opts)
+    ),
 };
 
 const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => {

@@ -55,7 +55,7 @@ describe('removeCollaborator', () => {
       workspace.resourceId,
       user.resourceId
     );
-    expect(assignedItems.findIndex(item => item.assigneeId === workspace.resourceId)).toBe(-1);
+    expect(assignedItems.findIndex(item => item.assigneeId === user.resourceId)).toBe(-1);
 
     await expectErrorThrown(async () => {
       assertContext(context);

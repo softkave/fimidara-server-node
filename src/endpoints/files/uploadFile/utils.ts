@@ -20,14 +20,12 @@ export async function checkUploadFileAuth(
   file: File | null,
   closestExistingFolder: Folder | null
 ) {
-  // TODO: also have an update check if file exists
-  // The issue with implementing it now is that it doesn't
-  // work with a scenario where we want a user to be able to
-  // only update a file (or image) they created and not others.
-  // Simply giving them the permission to update will allow them
-  // to update someone else's file (or image) too.
-  // We need fine-grained permissions like only allow an operation
-  // if the user/token created the file or owns the file.
+  // TODO: also have an update check if file exists The issue with implementing
+  // it now is that it doesn't work with a scenario where we want a user to be
+  // able to only update a file (or image) they created and not others. Simply
+  // giving them the permission to update will allow them to update someone
+  // else's file (or image) too. We need fine-grained permissions like only
+  // allow an operation if the user/token created the file or owns the file.
   await checkAuthorization({
     context,
     agent,
@@ -37,11 +35,13 @@ export async function checkUploadFileAuth(
     containerId: file
       ? getFilePermissionContainers(workspace.resourceId, file)
       : closestExistingFolder
-      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder)
+      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder).concat(
+          closestExistingFolder.resourceId
+        )
       : getWorkspacePermissionContainers(workspace.resourceId),
 
-    // TODO: should it be create and or update, rather than
-    // just create, in case of existing files
+    // TODO: should it be create and or update, rather than just create, in case
+    // of existing files
     action: AppActionType.Create,
   });
 }

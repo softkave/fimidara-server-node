@@ -43,6 +43,8 @@ export interface ResolvedEntityPermissionItem {
   containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
   accessEntityId?: string;
+  // accessTargetId?: string;
+  // accessTargetType?: AppResourceType;
 }
 
 export interface ResolveEntityPermissionsEndpointParams extends EndpointOptionalWorkspaceIDParam {

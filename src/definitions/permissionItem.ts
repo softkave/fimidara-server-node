@@ -18,6 +18,8 @@ export interface PermissionItem extends WorkspaceResource {
    */
   entityId: string;
   entityType: AppResourceType;
+  targetParentId: string;
+  targetParentType: AppResourceType;
   targetId: string;
   targetType: AppResourceType;
   appliesTo: PermissionItemAppliesTo;

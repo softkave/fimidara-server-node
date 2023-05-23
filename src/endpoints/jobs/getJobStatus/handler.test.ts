@@ -48,7 +48,6 @@ test('getOpStatus', async () => {
     context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       jobId,
-      workspaceId: workspace.resourceId,
     })
   );
   assertEndpointResultOk(result);

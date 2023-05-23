@@ -15,7 +15,18 @@ import {listFolderContentJoiSchema} from './validation';
 const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
+    context,
+    agent,
+    data,
+
+    //  Skip auth check seeing the calling agent doesn't need to have read
+    //  permission to the folder, just to it's content, the same way public
+    //  agents don't need the workspace to be public but just a file to be
+    //  public.
+    // TODO: Let me (@abayomi) know if there's an issue with this.
+    /** skip auth check */ true
+  );
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
   let [fetchedFolders, fetchedFiles] = await Promise.all([
@@ -26,16 +37,11 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
       ? fetchFiles(context, agent, workspace, parentFolder, data)
       : [],
   ]);
-  fetchedFolders = await populateResourceListWithAssignedTags(
-    context,
-    workspace.resourceId,
-    fetchedFolders
-  );
-  fetchedFiles = await populateResourceListWithAssignedTags(
-    context,
-    workspace.resourceId,
-    fetchedFiles
-  );
+
+  [fetchedFolders, fetchedFiles] = await Promise.all([
+    populateResourceListWithAssignedTags(context, workspace.resourceId, fetchedFolders),
+    populateResourceListWithAssignedTags(context, workspace.resourceId, fetchedFiles),
+  ]);
 
   return {
     folders: folderListExtractor(fetchedFolders),

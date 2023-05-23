@@ -30,6 +30,8 @@ const permissionItemFields = getFields<PublicPermissionItem>({
   ...workspaceResourceFields,
   entityId: true,
   entityType: true,
+  targetParentId: true,
+  targetParentType: true,
   targetId: true,
   targetType: true,
   action: true,

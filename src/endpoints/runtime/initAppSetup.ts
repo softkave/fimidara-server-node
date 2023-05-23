@@ -1,4 +1,5 @@
-import {merge} from 'lodash';
+import {last, merge} from 'lodash';
+import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
 import {PermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {
@@ -12,7 +13,12 @@ import {AppRuntimeVars} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
+import {
+  ID_SIZE,
+  getNewIdForResource,
+  getResourceTypeFromId,
+  newWorkspaceResource,
+} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import {
   SemanticDataAccessProviderMutationRunOptions,
@@ -37,8 +43,8 @@ const appSetupVars = {
   rootname: 'fimidara',
   workspaceImagesfolderpath: imagesPath + '/workspaces',
   userImagesfolderpath: imagesPath + '/users',
-  workspacesImageUploadPermissionGroupName: 'Fimidara-workspaces-image-upload',
-  usersImageUploadPermissionGroupName: 'Fimidara-users-image-upload',
+  workspacesImageUploadPermissionGroupName: 'Fimidara workspaces image upload',
+  usersImageUploadPermissionGroupName: 'Fimidara users image upload',
 };
 
 async function setupWorkspace(
@@ -131,7 +137,7 @@ async function setupImageUploadPermissionGroup(
   workspaceId: string,
   name: string,
   description: string,
-  folderId: string,
+  folder: Folder,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
@@ -142,15 +148,21 @@ async function setupImageUploadPermissionGroup(
   );
   const permissionItems: PermissionItem[] = [AppActionType.Create, AppActionType.Read].map(
     action => {
+      const containerIds = folder.idPath.slice(0, -1);
+      const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
+      appAssert(targetParentId);
+      const targetParentType = getResourceTypeFromId(targetParentId);
       const item: PermissionItem = newWorkspaceResource<PermissionItem>(
         SYSTEM_SESSION_AGENT,
         AppResourceType.PermissionItem,
         workspaceId,
         {
           action,
+          targetParentId,
+          targetParentType,
           entityId: imageUploadPermissionGroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
-          targetId: folderId,
+          targetId: folder.resourceId,
           targetType: AppResourceType.File,
           grantAccess: true,
           appliesTo: PermissionItemAppliesTo.ChildrenOfType,
@@ -224,7 +236,7 @@ async function setupAppWithMutationOptions(
         workspace.resourceId,
         appSetupVars.workspacesImageUploadPermissionGroupName,
         'Auto-generated permission group for uploading images to the workspace images folder.',
-        workspaceImagesFolder.resourceId,
+        workspaceImagesFolder,
         opts
       ),
       setupImageUploadPermissionGroup(
@@ -232,7 +244,7 @@ async function setupAppWithMutationOptions(
         workspace.resourceId,
         appSetupVars.usersImageUploadPermissionGroupName,
         'Auto-generated permission group for uploading images to the user images folder.',
-        userImagesFolder.resourceId,
+        userImagesFolder,
         opts
       ),
     ]);

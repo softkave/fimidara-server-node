@@ -22,6 +22,8 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     workspaceId,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
+    targetParentId: workspaceId,
+    targetParentType: AppResourceType.Workspace,
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
     entityId: createdBy.agentId,
     entityType: seed.entityId ? getResourceTypeFromId(seed.entityId) : AppResourceType.User,

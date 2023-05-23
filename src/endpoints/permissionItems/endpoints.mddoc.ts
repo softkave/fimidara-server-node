@@ -202,7 +202,7 @@ const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionIte
     targetAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
     containerAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
     accessEntityId: FieldObject.optionalField(
-      fReusables.id.clone().setDescription(
+      entityId.clone().setDescription(
         multilineTextToParagraph(`
         ID of the permission entity that directly owns/is assigned the permission item producing this result.
         That is, the permission item used to resolve whether the requested entity has access or does not,
@@ -211,6 +211,25 @@ const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionIte
       `)
       )
     ),
+    // accessTargetId: FieldObject.optionalField(
+    //   targetId.clone().setDescription(
+    //     multilineTextToParagraph(`
+    //     ID of the permission target that directly owns/is assigned the permission item producing this result.
+    //     That is, the permission item used to resolve whether the requested entity has access or does not,
+    //     the target directly owning that item, is surfaced here as accessTargetId.
+    //     This can be the requested target itself, or a parent folder if the requested resource is a folder of file, etc.
+    //   `)
+    //   )
+    // ),
+    // accessTargetType: FieldObject.optionalField(
+    //   targetType.clone().setDescription(
+    //     multilineTextToParagraph(`
+    //     Resource type specified in the permission item producing this result.
+    //     This can be the the type of the target or a children type if the target ID
+    //     is a container resource like workspace or folder.
+    //   `)
+    //   )
+    // ),
   });
 
 const newPermissionItemInputList = FieldArray.construct<PermissionItemInput>()
@@ -229,12 +248,30 @@ const permissionItem = FieldObject.construct<PublicPermissionItem>()
   .setFields({
     entityId: FieldObject.requiredField(entityId),
     entityType: FieldObject.requiredField(entityType),
+    targetParentId: FieldObject.requiredField(
+      targetId.clone().setDescription(
+        multilineTextToParagraph(
+          `ID of the closest parent of target. For files and folders, 
+          this could be another folder, or the workspace. For other resources, 
+          this will be the workspace.`
+        )
+      )
+    ),
+    targetParentType: FieldObject.requiredField(
+      targetType.clone().setDescription(
+        multilineTextToParagraph(
+          `Resource type of the closest parent of target. For files and folders, 
+          this could be another folder, or the workspace. For other resources, 
+          this will be the workspace.`
+        )
+      )
+    ),
+    targetId: FieldObject.requiredField(targetId),
     targetType: FieldObject.requiredField(targetType),
     resourceId: FieldObject.requiredField(FieldString.construct()),
     createdBy: FieldObject.requiredField(fReusables.agent),
     createdAt: FieldObject.requiredField(fReusables.date),
     workspaceId: FieldObject.requiredField(fReusables.workspaceId),
-    targetId: FieldObject.requiredField(targetId),
     action: FieldObject.requiredField(fReusables.action),
     grantAccess: FieldObject.requiredField(FieldBoolean.construct()),
     lastUpdatedAt: FieldObject.requiredField(fReusables.date),

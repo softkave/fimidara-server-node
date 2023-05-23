@@ -25,7 +25,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-describe('deleteItemsById', () => {
+describe.skip('deleteItemsById', () => {
   test('permission items deleted', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);

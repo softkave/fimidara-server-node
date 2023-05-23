@@ -24,26 +24,36 @@ export const REMOVE_COLLABORATOR_CASCADE_FNS: DeleteResourceCascadeFnsMap<Remove
     [AppResourceType.EndpointRequest]: noopAsync,
     [AppResourceType.Job]: noopAsync,
     [AppResourceType.Tag]: noopAsync,
-    [AppResourceType.CollaborationRequest]: (context, args, opts) =>
-      context.semantic.collaborationRequest.deleteManyByQuery(
-        {workspaceId: args.workspaceId, recipientEmail: args.userEmail},
-        opts
+    [AppResourceType.CollaborationRequest]: (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.collaborationRequest.deleteManyByQuery(
+          {workspaceId: args.workspaceId, recipientEmail: args.userEmail},
+          opts
+        )
       ),
-    [AppResourceType.PermissionItem]: async (context, args, opts) => {
-      await Promise.all([
-        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
-      ]);
-    },
-    [AppResourceType.AssignedItem]: (context, args, opts) =>
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.resourceId,
-        undefined,
-        opts
+    [AppResourceType.PermissionItem]: async (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        Promise.all([
+          context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
+          context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+        ])
       ),
-    [AppResourceType.FilePresignedPath]: (context, args, opts) =>
-      context.semantic.filePresignedPath.deleteManyByQuery({agentTokenId: args.agentTokenId}, opts),
+    [AppResourceType.AssignedItem]: (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.resourceId,
+          undefined,
+          opts
+        )
+      ),
+    [AppResourceType.FilePresignedPath]: (context, args, helpers) =>
+      helpers.withTxn(opts =>
+        context.semantic.filePresignedPath.deleteManyByQuery(
+          {agentTokenId: args.agentTokenId},
+          opts
+        )
+      ),
   };
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData) => {

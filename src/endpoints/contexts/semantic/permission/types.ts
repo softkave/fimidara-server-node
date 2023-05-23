@@ -67,4 +67,10 @@ export interface SemanticDataAccessPermissionProviderType {
     props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
+  sortByDate(items: PermissionItem[]): PermissionItem[];
+  sortByContainer(
+    containerId: string | string[],
+    items: PermissionItem[],
+    sortByDate?: boolean
+  ): PermissionItem[];
 }

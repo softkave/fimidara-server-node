@@ -107,6 +107,7 @@ export class UsageRecordLogicProvider {
           year: record.year,
           summationType: UsageSummationType.Two,
           fulfillmentStatus: status,
+          workspaceId: record.workspaceId,
         },
         opts
       );
@@ -227,18 +228,6 @@ export class UsageRecordLogicProvider {
 
       const totalMonthUsageThreshold = workspace.usageThresholds[UsageRecordCategory.Total];
       const categoryMonthUsageThreshold = workspace.usageThresholds[record.category];
-
-      if (usageDroppedL2.usage !== 0) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.UsageExceeded,
-          usageDroppedL2,
-          opts
-        );
-        return true;
-      }
 
       const projectedUsage = usageFulfilledL2.usage + record.usage;
       const projectedUsageCost = getCostForUsage(record.category, projectedUsage);

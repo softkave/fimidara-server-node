@@ -26,7 +26,7 @@ export async function listFolderContentQuery(
     workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Read,
-    targets: {targetType: contentType},
+    targets: {targetType: contentType, targetId: parentFolder?.resourceId},
     containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
   });
 
@@ -53,12 +53,14 @@ export async function listFolderContentQuery(
 export async function getWorkspaceAndParentFolder(
   context: BaseContextType,
   agent: SessionAgent,
-  matcher: FolderMatcher
+  matcher: FolderMatcher,
+  UNSAFE_skipAuthCheck = false
 ) {
   let workspace: Workspace | null | undefined = null,
     parentFolder: Folder | null | undefined = undefined;
 
-  // Check if folderpath is rootname only and fetch root-level folders and files
+  // Check if folderpath contains only the workspace rootname and fetch
+  // root-level folders and files
   if (matcher.folderpath) {
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
@@ -68,14 +70,17 @@ export async function getWorkspaceAndParentFolder(
     }
   }
 
-  // Fetch using folder matcher if folderpath is not rootname only
+  // Fetch using folder matcher if folderpath doesn't contain only the workspace
+  // rootname
   if (isUndefined(parentFolder)) {
     const checkResult = await checkFolderAuthorization02(
       context,
       agent,
       matcher,
       AppActionType.Read,
-      workspace ?? undefined
+      workspace ?? undefined,
+      /** db run options */ undefined,
+      UNSAFE_skipAuthCheck
     );
     ({workspace, folder: parentFolder} = checkResult);
   }
