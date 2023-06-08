@@ -1,10 +1,6 @@
 import winston = require('winston');
-import {getDateString} from '../utils/dateFns';
-import {
-  decideTransport,
-  FimidaraLoggerServiceNames,
-  loggerFactory,
-} from '../utils/logger/loggerUtils';
+import {getTimestamp} from '../utils/dateFns';
+import {serverLogger} from '../utils/logger/loggerUtils';
 
 export enum FimidaraScriptNames {
   AddThresholdToExistingWorkspaces = 'script_AddThresholdToExistingWorkspaces',
@@ -12,7 +8,7 @@ export enum FimidaraScriptNames {
 
 export interface IFimidaraScriptRunInfo {
   job: FimidaraScriptNames;
-  runId: string;
+  runId: string | number;
   logger: winston.Logger;
 }
 
@@ -21,21 +17,12 @@ export function scriptRunInfoFactory(
 ): IFimidaraScriptRunInfo {
   return {
     job: opts.job,
-    runId: getDateString(),
-    logger: loggerFactory({
-      transports: decideTransport(),
-      meta: {
-        service: FimidaraLoggerServiceNames.Pipeline,
-        job: opts.job,
-      },
-    }),
+    runId: getTimestamp(),
+    logger: serverLogger,
   };
 }
 
-export function logScriptMessage(
-  runInfo: IFimidaraScriptRunInfo,
-  message: string
-) {
+export function logScriptMessage(runInfo: IFimidaraScriptRunInfo, message: string) {
   runInfo.logger.info(`script ${runInfo.job}: ${message}`);
 }
 
@@ -47,10 +34,7 @@ export function logScriptSuccessful(runInfo: IFimidaraScriptRunInfo) {
   logScriptMessage(runInfo, 'succeeded');
 }
 
-export function logScriptFailed(
-  runInfo: IFimidaraScriptRunInfo,
-  error?: Error
-) {
+export function logScriptFailed(runInfo: IFimidaraScriptRunInfo, error?: Error) {
   logScriptMessage(runInfo, 'failed');
   if (error) {
     runInfo.logger.error(error);

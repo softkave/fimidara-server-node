@@ -3,7 +3,11 @@ import {merge} from 'lodash';
 import {JoiSchemaParts} from '../utils/types';
 import {validationSchemas} from '../utils/validationUtils';
 import {endpointConstants} from './constants';
-import {IEndpointOptionalWorkspaceIDParam, IPaginationQuery} from './types';
+import {
+  EndpointOptionalWorkspaceIDParam,
+  EndpointWorkspaceResourceParam,
+  PaginationQuery,
+} from './types';
 
 const comparisonOps = (schema: Joi.Schema) => ({
   $eq: schema,
@@ -61,10 +65,14 @@ const op = (schema: Joi.Schema) =>
 
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
-const optionalWorkspaceIdParts: JoiSchemaParts<IEndpointOptionalWorkspaceIDParam> = {
+const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> = {
   workspaceId: validationSchemas.resourceId,
 };
-const paginationParts: JoiSchemaParts<IPaginationQuery> = {
+const workspaceResourceParts: JoiSchemaParts<EndpointWorkspaceResourceParam> = {
+  workspaceId: validationSchemas.resourceId,
+  providedResourceId: validationSchemas.resourceId,
+};
+const paginationParts: JoiSchemaParts<PaginationQuery> = {
   page,
   pageSize,
 };
@@ -74,6 +82,7 @@ export const endpointValidationSchemas = {
   pageSize,
   optionalWorkspaceIdParts,
   paginationParts,
+  workspaceResourceParts,
   op,
   comparisonOps,
   numberLiteralOps,

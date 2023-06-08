@@ -1,27 +1,28 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertTagListForTest} from '../../test-utils/generate-data/tag';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspaceTags from './handler';
-import {IGetWorkspaceTagsEndpointParams} from './types';
+import {GetWorkspaceTagsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getWorkspaceTags', () => {
@@ -31,8 +32,8 @@ describe('getWorkspaceTags', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag: tag01} = await insertTagForTest(context, userToken, workspace.resourceId);
     const {tag: tag02} = await insertTagForTest(context, userToken, workspace.resourceId);
-    const instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    const instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await getWorkspaceTags(context, instData);
@@ -46,11 +47,11 @@ describe('getWorkspaceTags', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertTagListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.data.tag.countByQuery({workspaceId: workspace.resourceId});
+    const count = await context.semantic.tag.countByQuery({workspaceId: workspace.resourceId});
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    let instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     let result = await getWorkspaceTags(context, instData);
@@ -59,8 +60,8 @@ describe('getWorkspaceTags', () => {
     expect(result.tags).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    instData = RequestData.fromExpressRequest<GetWorkspaceTagsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     result = await getWorkspaceTags(context, instData);

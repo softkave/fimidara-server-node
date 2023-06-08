@@ -1,45 +1,27 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {ICollaborationRequest} from '../definitions/collaborationRequest';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {CollaborationRequest} from '../definitions/collaborationRequest';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const collaborationRequestStatusHistorySchema = {
-  status: {type: String},
-  date: {type: Date},
-};
-
-const collaborationRequestSchema = ensureTypeFields<ICollaborationRequest>({
-  resourceId: {type: String, unique: true, index: true},
+const collaborationRequestSchema = ensureMongoTypeFields<CollaborationRequest>({
+  ...workspaceResourceSchema,
   recipientEmail: {type: String, index: true},
-  workspaceId: {type: String, index: true},
   workspaceName: {type: String},
   message: {type: String},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: () => getDate()},
-  expiresAt: {type: Date},
-  readAt: {type: Date},
-  statusHistory: {
-    type: [collaborationRequestStatusHistorySchema],
-    default: [],
-  },
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
+  expiresAt: {type: Number},
+  readAt: {type: Number},
+  status: {type: String},
+  statusDate: {type: Number},
 });
 
-export type ICollaborationRequestDocument = Document<ICollaborationRequest>;
+export type CollaborationRequestDocument = Document<CollaborationRequest>;
 
-const schema = new Schema<ICollaborationRequest>(collaborationRequestSchema);
+const schema = new Schema<CollaborationRequest>(collaborationRequestSchema);
 const modelName = 'collaboration-request';
 const collectionName = 'collaboration-requests';
 
 export function getCollaborationRequestModel(connection: Connection) {
-  const model = connection.model<ICollaborationRequest>(
-    modelName,
-    schema,
-    collectionName
-  );
-
+  const model = connection.model<CollaborationRequest>(modelName, schema, collectionName);
   return model;
 }
 
-export type ICollaborationRequestModel = Model<ICollaborationRequest>;
+export type CollaborationRequestModel = Model<CollaborationRequest>;

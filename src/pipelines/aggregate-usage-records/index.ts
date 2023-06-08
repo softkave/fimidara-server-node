@@ -1,5 +1,5 @@
 import {getMongoConnection} from '../../db/connection';
-import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
+import {fimidaraConfig} from '../../resources/vars';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords} from './aggregateUsageRecords';
 
@@ -10,8 +10,10 @@ async function aggregateRecordsMain() {
 
   try {
     runInfo.logger.info('Aggregate usage records job started');
-    const appVariables = getAppVariables(extractProdEnvsSchema);
-    const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+    const connection = await getMongoConnection(
+      fimidaraConfig.mongoDbURI,
+      fimidaraConfig.mongoDbDatabaseName
+    );
     await aggregateRecords(connection, runInfo);
     await connection.close();
     runInfo.logger.info('Aggregate usage records job completed');

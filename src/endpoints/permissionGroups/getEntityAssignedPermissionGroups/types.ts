@@ -1,25 +1,26 @@
-import {IPublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
 import {
-  Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
-} from '../../types';
+  PublicAssignedPermissionGroupMeta,
+  PublicPermissionGroup,
+} from '../../../definitions/permissionGroups';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface IGetEntityAssignedPermissionGroupsEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {}
+export interface GetEntityAssignedPermissionGroupsEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {
+  entityId: string;
+  includeInheritedPermissionGroups?: boolean;
+}
 
-export interface IGetEntityAssignedPermissionGroupsEndpointParams
-  extends IGetEntityAssignedPermissionGroupsEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetEntityAssignedPermissionGroupsEndpointParams
+  extends GetEntityAssignedPermissionGroupsEndpointParamsBase {}
 
-export interface IGetEntityAssignedPermissionGroupsEndpointResult extends IPaginatedResult {
-  permissionGroups: IPublicPermissionGroup[];
+export interface GetEntityAssignedPermissionGroupsEndpointResult {
+  permissionGroups: PublicPermissionGroup[];
+  immediateAssignedPermissionGroupsMeta: PublicAssignedPermissionGroupMeta[];
 }
 
 export type GetEntityAssignedPermissionGroupsEndpoint = Endpoint<
-  IBaseContext,
-  IGetEntityAssignedPermissionGroupsEndpointParams,
-  IGetEntityAssignedPermissionGroupsEndpointResult
+  BaseContextType,
+  GetEntityAssignedPermissionGroupsEndpointParams,
+  GetEntityAssignedPermissionGroupsEndpointResult
 >;

@@ -20,9 +20,12 @@
     "pretest": "npm run compile",
     "test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.ts --detectOpenHandles",
     "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
-    "dev": "tsc && env-cmd -f \".env.local\" npm start",
+    "dev": "tsc && env-cmd -f \".env.dev\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
-    "mddoc": "ts-node src/mddoc/mddoc.fimidara.ts"
+    "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
+    "gen-js-sdk": "env-cmd -f \".env.dev\" ts-node src/mddoc/jsSdkCodeGen.ts",
+    "dev-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath dev-mongo-rs-data --keep",
+    "test-mongo-rs": "npx run-rs --portStart 27000 --host localhost --dbpath test-mongo-rs-data"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",
@@ -35,7 +38,7 @@
     "express": "^4.17.3",
     "express-jwt": "^8.3.0",
     "fs-extra": "^11.1.0",
-    "joi": "^17.3.0",
+    "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.20",
     "mongoose": "^6.8.3",
@@ -46,7 +49,7 @@
     "stripe": "^8.222.0",
     "validator": "^13.5.2",
     "winston": "^3.8.2",
-    "winston-mongodb": "^5.1.0"
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.1.0",
@@ -66,8 +69,10 @@
     "gts": "^3.1.0",
     "inquirer": "^8.0.0",
     "jest": "^28.1.3",
+    "run-rs": "^0.7.7",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.5"
+    "type-fest": "^3.8.0",
+    "typescript": "^5.0.2"
   }
 }

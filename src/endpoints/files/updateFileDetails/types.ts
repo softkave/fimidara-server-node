@@ -1,26 +1,22 @@
-import {IFileMatcher, IPublicFile} from '../../../definitions/file';
-import {IAssignedTagInput} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
+import {FileMatcher, PublicFile} from '../../../definitions/file';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {UploadFilePublicAccessActions} from '../uploadFile/types';
 
-export interface IUpdateFileDetailsInput {
+export interface UpdateFileDetailsInput {
   description?: string;
   mimetype?: string;
-  publicAccessAction?: UploadFilePublicAccessActions;
-  tags?: IAssignedTagInput[];
 }
 
-export interface IUpdateFileDetailsEndpointParams extends IFileMatcher {
-  file: IUpdateFileDetailsInput;
+export interface UpdateFileDetailsEndpointParams extends FileMatcher {
+  file: UpdateFileDetailsInput;
 }
 
-export interface IUpdateFileDetailsEndpointResult {
-  file: IPublicFile;
+export interface UpdateFileDetailsEndpointResult {
+  file: PublicFile;
 }
 
 export type UpdateFileDetailsEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateFileDetailsEndpointParams,
-  IUpdateFileDetailsEndpointResult
+  BaseContextType,
+  UpdateFileDetailsEndpointParams,
+  UpdateFileDetailsEndpointResult
 >;

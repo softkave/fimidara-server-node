@@ -1,38 +1,36 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspace from './handler';
-import {IGetWorkspaceEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('workspace returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IGetWorkspaceEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
-    {
+  const result = await getWorkspace(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
-    }
+    })
   );
-
-  const result = await getWorkspace(context, instData);
   assertEndpointResultOk(result);
   expect(result.workspace).toMatchObject(workspace);
 });

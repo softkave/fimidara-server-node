@@ -1,7 +1,7 @@
 import {SchemaMap} from 'joi';
 
 /* eslint-disable @typescript-eslint/ban-types */
-export interface IUpdateItemById<T> {
+export interface UpdateItemById<T> {
   id: string;
   data: Partial<T>;
 }
@@ -21,7 +21,7 @@ export type ConvertTypeOneToTypeTwo<T extends object, One, Two> = {
 };
 
 export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<T, Date, string>;
-export type AnyFn = (...args: any) => any;
+export type AnyFn<Args extends any[] = any[], Result = any> = (...args: Args) => Result;
 
 type Join<K, P> = K extends string | number
   ? P extends string | number
@@ -101,3 +101,29 @@ export type RouteParameters<Route extends string> = string extends Route
   : {};
 
 export type JoiSchemaParts<T> = Required<SchemaMap<T>>;
+export type PartialRecord<K extends string | number | symbol, T> = {
+  [P in K]?: T;
+};
+
+export type GetTypeFromTypeOrArray<T> = T extends Array<infer T1> ? T1 : T;
+export type InvertRecord<M> = M extends Record<infer K, infer V>
+  ? V extends string | number | symbol
+    ? Record<V, K>
+    : Record<string, K>
+  : never;
+
+export type DefaultTo<T, TDefault, TDefaultFrom = undefined> = T extends TDefaultFrom
+  ? TDefault
+  : T;
+
+export type ToPrimitiveJsType<T> = T extends string
+  ? 'string'
+  : T extends number
+  ? 'number'
+  : T extends boolean
+  ? 'boolean'
+  : T extends any[]
+  ? 'array'
+  : T extends object
+  ? 'object'
+  : 'any';

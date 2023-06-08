@@ -1,44 +1,37 @@
-import {IAgent} from './system';
-import {IAssignedTag} from './tag';
+import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
-export interface IPermissionGroup {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
+export interface PermissionGroup extends WorkspaceResource {
   name: string;
   description?: string;
 }
 
-export interface IAssignedPermissionGroup {
+export interface AssignedPermissionGroupMeta {
   permissionGroupId: string;
-  assignedAt: Date | string;
-  assignedBy: IAgent;
-  order: number;
+  assigneeEntityId: string;
+  assignedAt: number;
+  assignedBy: Agent;
 }
 
-export interface IPermissionGroupMatcher {
+export type PermissionEntityInheritanceMapItem = {
+  id: string;
+  items: AssignedPermissionGroupMeta[];
+
+  // Order resolved in context of an inheritance map
+  resolvedOrder?: number;
+};
+
+export type PermissionEntityInheritanceMap = Record<string, PermissionEntityInheritanceMapItem>;
+
+export interface PermissionGroupMatcher {
   permissionGroupId?: string;
   name?: string;
   workspaceId?: string;
 }
 
-export interface IPublicPermissionGroup {
-  resourceId: string;
-  workspaceId: string;
-  createdAt: string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: string;
-  name: string;
-  description?: string;
-  permissionGroups: IAssignedPermissionGroup[];
-  tags: IAssignedTag[];
+export interface AssignPermissionGroupInput {
+  permissionGroupId: string;
 }
 
-export interface IAssignPermissionGroupInput {
-  permissionGroupId: string;
-  order?: number;
-}
+export type PublicPermissionGroup = ConvertAgentToPublicAgent<PermissionGroup>;
+export type PublicAssignedPermissionGroupMeta =
+  ConvertAgentToPublicAgent<AssignedPermissionGroupMeta>;

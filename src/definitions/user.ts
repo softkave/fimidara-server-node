@@ -1,48 +1,41 @@
-import {IAssignedPermissionGroup} from './permissionGroups';
+import {PublicResource, Resource} from './system';
 
-export interface IUserWorkspace {
+export interface UserWorkspace {
   workspaceId: string;
-  joinedAt: Date | string;
-  permissionGroups: IAssignedPermissionGroup[];
+  joinedAt: number;
 }
 
-export interface IUser {
-  resourceId: string;
+export interface User extends Resource {
   firstName: string;
   lastName: string;
   email: string;
   hash: string;
-  createdAt: Date | string;
-  lastUpdatedAt: Date | string;
-  passwordLastChangedAt: Date | string;
-
-  // email verification
+  passwordLastChangedAt: number;
+  requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
-  emailVerifiedAt?: Date | string | null;
-  emailVerificationEmailSentAt?: Date | string | null;
+  emailVerifiedAt?: number | null;
+  emailVerificationEmailSentAt?: number | null;
+  isOnWaitlist: boolean;
+  removedFromWaitlistOn?: number;
 }
 
-export interface IUserWithWorkspace extends IUser {
-  workspaces: IUserWorkspace[];
+export interface UserWithWorkspace extends User {
+  workspaces: UserWorkspace[];
 }
 
-export interface IPublicUserData {
-  resourceId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  createdAt: string;
-  lastUpdatedAt: string;
-  passwordLastChangedAt: string;
-  isEmailVerified: boolean;
-  emailVerifiedAt?: string | null;
-  emailVerificationEmailSentAt?: string | null;
-  workspaces: IUserWorkspace[];
-}
+export type PublicUser = PublicResource &
+  Pick<
+    User,
+    | 'email'
+    | 'firstName'
+    | 'lastName'
+    | 'passwordLastChangedAt'
+    | 'requiresPasswordChange'
+    | 'isEmailVerified'
+    | 'emailVerifiedAt'
+    | 'emailVerificationEmailSentAt'
+    | 'isOnWaitlist'
+  > & {workspaces: UserWorkspace[]};
 
-export interface IPublicCollaborator extends IUserWorkspace {
-  resourceId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+export type PublicCollaborator = UserWorkspace &
+  Pick<User, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

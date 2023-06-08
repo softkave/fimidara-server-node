@@ -1,34 +1,33 @@
 import {uniqBy} from 'lodash';
-import {AppResourceType, ISessionAgent} from '../../definitions/system';
-import {IAssignedTagInput} from '../../definitions/tag';
-import {IWorkspace} from '../../definitions/workspace';
-import {IBaseContext} from '../contexts/types';
-import {getResources} from '../resources/getResources';
-import {checkResourcesBelongToWorkspace} from '../resources/isPartOfOrganization';
+import {AppActionType, AppResourceType, SessionAgent} from '../../definitions/system';
+import {AssignedTagInput} from '../../definitions/tag';
+import {Workspace} from '../../definitions/workspace';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
+import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
+import {INTERNAL_getResources} from '../resources/getResources';
 
 export default async function checkTagsExist(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  items: Array<IAssignedTagInput>
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  items: Array<AssignedTagInput>,
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const resources = await getResources({
+  const resources = await INTERNAL_getResources({
     context,
     agent,
-    workspace,
+    action,
+    allowedTypes: [AppResourceType.Tag],
+    workspaceId: workspace.resourceId,
     inputResources: uniqBy(items, 'tagId').map(({tagId}) => ({
       resourceId: tagId,
       resourceType: AppResourceType.Tag,
     })),
     checkAuth: true,
+    dataFetchRunOptions: opts,
   });
-
-  checkResourcesBelongToWorkspace(
-    workspace.resourceId,
-    resources,
-    // Set to true, since we're only dealing with tags
-    true
-  );
-
+  checkResourcesBelongsToWorkspace(workspace.resourceId, resources);
   return {resources};
 }

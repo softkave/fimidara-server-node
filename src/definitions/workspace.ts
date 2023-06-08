@@ -1,16 +1,16 @@
-import {IAgent} from './system';
+import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 import {UsageRecordCategory} from './usageRecord';
 
-export interface IUsageThreshold {
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
+export interface UsageThreshold {
+  lastUpdatedBy: Agent;
+  lastUpdatedAt: number;
   category: UsageRecordCategory;
   budget: number; // price in USD
 }
 
-export interface IUsageThresholdLock {
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
+export interface UsageThresholdLock {
+  lastUpdatedBy: Agent;
+  lastUpdatedAt: number;
   category: UsageRecordCategory;
   locked: boolean;
 }
@@ -21,24 +21,24 @@ export enum WorkspaceBillStatus {
   BillOverdue = 'billOverdue',
 }
 
-export interface IWorkspace {
-  resourceId: string;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-
-  // Human readable name of the workspace
+export interface Workspace extends WorkspaceResource {
+  /**
+   * Human readable name of the workspace.
+   */
   name: string;
 
-  // URL compatible name of the workspace
+  /**
+   * URL compatible name of the workspace.
+   */
   rootname: string;
   description?: string;
-  publicPermissionGroupId?: string;
-  billStatusAssignedAt?: Date | string;
-  billStatus?: WorkspaceBillStatus;
-  usageThresholds?: Partial<Record<UsageRecordCategory, IUsageThreshold>>;
-  usageThresholdLocks?: Partial<Record<UsageRecordCategory, IUsageThresholdLock>>;
+  publicPermissionGroupId: string;
+  billStatusAssignedAt: number;
+  billStatus: WorkspaceBillStatus;
+  usageThresholds: Partial<Record<UsageRecordCategory, UsageThreshold>>;
+  usageThresholdLocks: Partial<Record<UsageRecordCategory, UsageThresholdLock>>;
 }
 
-export type IPublicWorkspace = IWorkspace;
+export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;
+export type PublicUsageThreshold = ConvertAgentToPublicAgent<UsageThreshold>;
+export type PublicUsageThresholdLock = ConvertAgentToPublicAgent<UsageThresholdLock>;

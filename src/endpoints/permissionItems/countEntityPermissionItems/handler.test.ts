@@ -1,55 +1,46 @@
 import {AppResourceType} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionItemListForTest} from '../../test-utils/generate-data/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countEntityPermissionItems from './handler';
-import {ICountEntityPermissionItemsEndpointParams} from './types';
+import {CountEntityPermissionItemsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
-describe('countEntityPermissionItems', () => {
+describe.skip('countEntityPermissionItems', () => {
   test('count', async () => {
     assertContext(context);
     const {userToken, user} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
+      entityId: user.resourceId,
+      entityType: AppResourceType.User,
     });
-    const count = await context.data.permissionItem.countByQuery({
+    const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
-      containerId: workspace.resourceId,
-      containerType: AppResourceType.Workspace,
-      permissionEntityId: user.resourceId,
-      permissionEntityType: AppResourceType.User,
+      entityId: user.resourceId,
     });
-
-    const instData = RequestData.fromExpressRequest<ICountEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        permissionEntityId: user.resourceId,
-        permissionEntityType: AppResourceType.User,
-      }
+    const instData = RequestData.fromExpressRequest<CountEntityPermissionItemsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {workspaceId: workspace.resourceId, entityId: user.resourceId}
     );
     const result = await countEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);

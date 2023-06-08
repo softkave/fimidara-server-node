@@ -1,49 +1,41 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
-import {IPublicCollaborator, IUserWithWorkspace} from '../../definitions/user';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import EndpointReusableQueries from '../queries';
+import {assertUser} from '../users/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-export const collaboratorExtractor = (item: IUserWithWorkspace, workspaceId: string) => {
+export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
-
   if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
 
-  const collaborator: IPublicCollaborator = {
+  const collaborator: PublicCollaborator = {
     resourceId: item.resourceId,
     firstName: item.firstName,
     lastName: item.lastName,
     email: item.email,
     joinedAt: userWorkspace.joinedAt,
     workspaceId: userWorkspace.workspaceId,
-    permissionGroups: userWorkspace.permissionGroups,
   };
-
   return collaborator;
 };
 
-export const collaboratorListExtractor = (items: IUserWithWorkspace[], workspaceId: string) => {
+export const collaboratorListExtractor = (items: UserWithWorkspace[], workspaceId: string) => {
   return items.map(item => collaboratorExtractor(item, workspaceId));
 };
 
 export async function checkCollaboratorAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   workspaceId: string,
-  collaborator: IUserWithWorkspace,
-  action: BasicCRUDActions,
-  nothrow = false
+  collaborator: UserWithWorkspace,
+  action: AppActionType
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
-
   if (!userWorkspace) {
     throwCollaboratorNotFound();
   }
@@ -52,47 +44,39 @@ export async function checkCollaboratorAuthorization(
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: collaborator,
-    type: AppResourceType.User,
-    permissionContainers: makeWorkspacePermissionContainerList(workspaceId),
+    workspaceId: workspace.resourceId,
+    workspace: workspace,
+    targets: {targetId: collaborator.resourceId},
   });
-
   return {agent, collaborator, workspace};
 }
 
 export async function checkCollaboratorAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType
 ) {
-  const collaborator = await populateUserWorkspaces(
-    context,
-    await context.data.user.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(collaboratorId)
-    )
-  );
-
-  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action, nothrow);
+  const user = await context.semantic.user.getOneById(collaboratorId);
+  assertUser(user);
+  const collaborator = await populateUserWorkspaces(context, user);
+  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action);
 }
 
 export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
 }
 
-export function getCollaboratorWorkspace(user: IUserWithWorkspace, workspaceId: string) {
+export function getCollaboratorWorkspace(user: UserWithWorkspace, workspaceId: string) {
   return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
 export function removeOtherUserWorkspaces(
-  collaborator: IUserWithWorkspace,
+  collaborator: UserWithWorkspace,
   workspaceId: string
-): IUserWithWorkspace {
+): UserWithWorkspace {
   return {
     ...collaborator,
     workspaces: collaborator.workspaces.filter(item => item.workspaceId === workspaceId),

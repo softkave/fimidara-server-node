@@ -1,0 +1,160 @@
+{
+    "basePathname": "/v1/permissionGroups/assignPermissionGroups",
+    "method": "post",
+    "requestBody": {
+        "required": true,
+        "description": "Assign permission groups endpoint params.",
+        "__id": "FieldObject",
+        "name": "AssignPermissionGroupsEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "entityId": {
+                "data": {
+                    "description": "Permission entity resource ID list. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
+                        "__id": "FieldString",
+                        "example": "wrkspce_000000000000000000000"
+                    }
+                },
+                "required": true
+            },
+            "permissionGroups": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "AssignPermissionGroupInput",
+                        "fields": {
+                            "permissionGroupId": {
+                                "data": {
+                                    "description": "Permission group ID.",
+                                    "__id": "FieldString",
+                                    "example": "pmgroup_000000000000000000000"
+                                },
+                                "required": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "AssignPermissionGroupsEndpoint",
+    "description": "Assign permission groups endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

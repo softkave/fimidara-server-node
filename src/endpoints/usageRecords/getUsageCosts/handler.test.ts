@@ -1,32 +1,32 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';
-import {IGetUsageCostsEndpointParams} from './types';
+import {GetUsageCostsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getUsageCosts', () => {
   test('should return usage costs', async () => {
     // setup
-    const instData =
-      RequestData.fromExpressRequest<IGetUsageCostsEndpointParams>(
-        mockExpressRequestForPublicAgent(),
-        {}
-      );
+    const instData = RequestData.fromExpressRequest<GetUsageCostsEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {}
+    );
 
     assertContext(context);
 

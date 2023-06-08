@@ -1,7 +1,9 @@
-import {calculatePageSize, containsEveryItemIn} from '../../../utils/fns';
-import {IBaseContext} from '../../contexts/types';
+import {calculatePageSize} from '../../../utils/fns';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -9,24 +11,24 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import getWorkspaceCollaborationRequests from './handler';
-import {IGetWorkspaceCollaborationRequestsEndpointParams} from './types';
+import {GetWorkspaceCollaborationRequestsEndpointParams} from './types';
 
 /**
  * TODO:
  * - Confirm that all the requests returned belong to the workspace
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('getWorkspaceRequests', () => {
@@ -45,14 +47,14 @@ describe('getWorkspaceRequests', () => {
       workspace.resourceId
     );
     const instData =
-      RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+      RequestData.fromExpressRequest<GetWorkspaceCollaborationRequestsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
     const result = await getWorkspaceCollaborationRequests(context, instData);
     assertEndpointResultOk(result);
     expect(result.requests.length).toEqual(2);
-    containsEveryItemIn(result.requests, [request01, request02], item => item.resourceId);
+    expectContainsEveryItemIn(result.requests, [request01, request02], item => item.resourceId);
   });
 
   test('pagination', async () => {
@@ -62,13 +64,13 @@ describe('getWorkspaceRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(context, 15, () => ({
       workspaceId: workspace.resourceId,
     }));
-    const count = await context.data.collaborationRequest.countByQuery({
+    const count = await context.semantic.collaborationRequest.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    let instData = RequestData.fromExpressRequest<GetWorkspaceCollaborationRequestsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     let result = await getWorkspaceCollaborationRequests(context, instData);
@@ -77,8 +79,8 @@ describe('getWorkspaceRequests', () => {
     expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<IGetWorkspaceCollaborationRequestsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    instData = RequestData.fromExpressRequest<GetWorkspaceCollaborationRequestsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
     result = await getWorkspaceCollaborationRequests(context, instData);

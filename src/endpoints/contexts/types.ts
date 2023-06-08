@@ -1,62 +1,106 @@
 import {Request} from 'express';
-import {Logger} from 'winston';
-import {IBaseTokenData} from '../../definitions/system';
-import {IAppVariables} from '../../resources/vars';
-import {IAppRuntimeStateDataProvider} from './data/appruntimestate/type';
-import {IAssignedItemDataProvider} from './data/assigneditem/type';
-import {IClientAssignedTokenDataProvider} from './data/clientassignedtoken/type';
-import {ICollaborationRequestDataProvider} from './data/collaborationrequest/type';
-import {IFileDataProvider} from './data/file/type';
-import {IFolderDataProvider} from './data/folder/type';
-import {IPermissionGroupDataProvider} from './data/permissiongroup/type';
-import {IPermissionItemDataProvider} from './data/permissionitem/type';
-import {IProgramAccessTokenDataProvider} from './data/programaccesstoken/type';
-import {ITagDataProvider} from './data/tag/type';
-import {IUsageRecordDataProvider} from './data/usagerecord/type';
-import {IUserDataProvider} from './data/user/type';
-import {IUserTokenDataProvider} from './data/usertoken/type';
-import {IWorkspaceDataProvider} from './data/workspace/type';
-import {IEmailProviderContext} from './EmailProviderContext';
-import {IFilePersistenceProviderContext} from './FilePersistenceProviderContext';
-import {ISessionContext} from './SessionContext';
-import {UsageRecordLogicProvider} from './UsageRecordLogicProvider';
+import {BaseTokenData} from '../../definitions/system';
+import {FimidaraConfig} from '../../resources/types';
+import {SessionContextType} from './SessionContext';
+import {AppRuntimeStateDataProvider, JobDataProvider, ResourceDataProvider} from './data/types';
+import {IEmailProviderContext} from './email/types';
+import {FilePersistenceProviderContext} from './file/types';
+import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
+import {FilePresignedPathMemStoreProvider} from './mem/Mem';
+import {
+  AgentTokenMemStoreProviderType,
+  AssignedItemMemStoreProviderType,
+  CollaborationRequestMemStoreProviderType,
+  FileMemStoreProviderType,
+  FolderMemStoreProviderType,
+  PermissionGroupMemStoreProviderType,
+  PermissionItemMemStoreProviderType,
+  TagMemStoreProviderType,
+  UsageRecordMemStoreProviderType,
+  UserMemStoreProviderType,
+  WorkspaceMemStoreProviderType,
+} from './mem/types';
+import {SemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
+import {SemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
+import {SemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
+import {
+  SemanticDataAccessFilePresignedPathProvider,
+  SemanticDataAccessFileProvider,
+} from './semantic/file/types';
+import {SemanticDataAccessFolderProvider} from './semantic/folder/types';
+import {SemanticDataAccessPermissionProviderType} from './semantic/permission/types';
+import {SemanticDataAccessPermissionGroupProviderType} from './semantic/permissionGroup/types';
+import {SemanticDataAccessPermissionItemProviderType} from './semantic/permissionItem/types';
+import {SemanticDataAccessTagProviderType} from './semantic/tag/types';
+import {SemanticDataAccessUsageRecordProviderType} from './semantic/usageRecord/types';
+import {SemanticDataAccessUserProviderType} from './semantic/user/types';
+import {SemanticDataAccessWorkspaceProviderType} from './semantic/workspace/types';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
-  auth?: IBaseTokenData;
+  auth?: BaseTokenData;
 }
 
-export interface IBaseContextDataProviders {
-  folder: IFolderDataProvider;
-  file: IFileDataProvider;
-  clientAssignedToken: IClientAssignedTokenDataProvider;
-  programAccessToken: IProgramAccessTokenDataProvider;
-  permissionItem: IPermissionItemDataProvider;
-  permissiongroup: IPermissionGroupDataProvider;
-  workspace: IWorkspaceDataProvider;
-  collaborationRequest: ICollaborationRequestDataProvider;
-  user: IUserDataProvider;
-  userToken: IUserTokenDataProvider;
-  appRuntimeState: IAppRuntimeStateDataProvider;
-  tag: ITagDataProvider;
-  assignedItem: IAssignedItemDataProvider;
-  usageRecord: IUsageRecordDataProvider;
+export interface BaseContextDataProviders {
+  resource: ResourceDataProvider;
+  job: JobDataProvider;
+  appRuntimeState: AppRuntimeStateDataProvider;
 }
 
-export interface IBaseContext<
-  T extends IBaseContextDataProviders = IBaseContextDataProviders,
-  E extends IEmailProviderContext = IEmailProviderContext,
-  F extends IFilePersistenceProviderContext = IFilePersistenceProviderContext,
-  V extends IAppVariables = IAppVariables
-> {
-  appVariables: V;
-  session: ISessionContext;
-  data: T;
-  email: E;
-  fileBackend: F;
-  logger: Logger;
-  clientLogger: Logger;
+export interface BaseContextMemStoreProviders {
+  folder: FolderMemStoreProviderType;
+  file: FileMemStoreProviderType;
+  agentToken: AgentTokenMemStoreProviderType;
+  permissionItem: PermissionItemMemStoreProviderType;
+  permissionGroup: PermissionGroupMemStoreProviderType;
+  workspace: WorkspaceMemStoreProviderType;
+  collaborationRequest: CollaborationRequestMemStoreProviderType;
+  user: UserMemStoreProviderType;
+  tag: TagMemStoreProviderType;
+  assignedItem: AssignedItemMemStoreProviderType;
+  usageRecord: UsageRecordMemStoreProviderType;
+  filePresignedPath: FilePresignedPathMemStoreProvider;
+}
+
+export interface BaseContextLogicProviders {
   usageRecord: UsageRecordLogicProvider;
+  permissions: PermissionsLogicProvider;
+}
+
+export interface BaseContextSemanticDataProviders {
+  permissions: SemanticDataAccessPermissionProviderType;
+  workspace: SemanticDataAccessWorkspaceProviderType;
+  permissionGroup: SemanticDataAccessPermissionGroupProviderType;
+  permissionItem: SemanticDataAccessPermissionItemProviderType;
+  assignedItem: SemanticDataAccessAssignedItemProvider;
+  agentToken: SemanticDataAccessAgentTokenProvider;
+  collaborationRequest: SemanticDataAccessCollaborationRequestProvider;
+  folder: SemanticDataAccessFolderProvider;
+  file: SemanticDataAccessFileProvider;
+  tag: SemanticDataAccessTagProviderType;
+  usageRecord: SemanticDataAccessUsageRecordProviderType;
+  user: SemanticDataAccessUserProviderType;
+  filePresignedPath: SemanticDataAccessFilePresignedPathProvider;
+}
+
+export interface BaseContextType<
+  Data extends BaseContextDataProviders = BaseContextDataProviders,
+  Email extends IEmailProviderContext = IEmailProviderContext,
+  FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
+  AppVars extends FimidaraConfig = FimidaraConfig,
+  MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
+> {
+  appVariables: AppVars;
+  session: SessionContextType;
+  data: Data;
+  semantic: SemanticData;
+  memstore: MemStore;
+  logic: Logic;
+  email: Email;
+  fileBackend: FileBackend;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

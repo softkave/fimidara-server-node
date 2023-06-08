@@ -1,26 +1,23 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface ICollaborationRequestInput {
+export interface CollaborationRequestInput {
   recipientEmail: string;
   message: string;
-  expires?: string;
-  permissionGroupsOnAccept?: IAssignPermissionGroupInput[];
+  expires?: number;
 }
 
-export interface ISendCollaborationRequestEndpointParams {
-  workspaceId?: string;
-  request: ICollaborationRequestInput;
+export interface SendCollaborationRequestEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  request: CollaborationRequestInput;
 }
 
-export interface ISendCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+export interface SendCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForWorkspace;
 }
 
 export type SendCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  ISendCollaborationRequestEndpointParams,
-  ISendCollaborationRequestEndpointResult
+  BaseContextType,
+  SendCollaborationRequestEndpointParams,
+  SendCollaborationRequestEndpointResult
 >;

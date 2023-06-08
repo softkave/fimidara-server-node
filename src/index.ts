@@ -1,49 +1,30 @@
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
-import multer = require('multer');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
-import setupClientAssignedTokensRESTEndpoints from './endpoints/clientAssignedTokens/setupRESTEndpoints';
-import setupCollaborationRequestsRESTEndpoints from './endpoints/collaborationRequests/setupRESTEndpoints';
-import setupCollaboratorsRESTEndpoints from './endpoints/collaborators/setupRESTEndpoints';
 import {endpointConstants} from './endpoints/constants';
-import BaseContext, {getFileProvider} from './endpoints/contexts/BaseContext';
-import {SESEmailProviderContext} from './endpoints/contexts/EmailProviderContext';
-import {IBaseContext} from './endpoints/contexts/types';
-import {getDataProviders} from './endpoints/contexts/utils';
-import {fileConstants} from './endpoints/files/constants';
-import setupFilesRESTEndpoints from './endpoints/files/setupRESTEndpoints';
-import setupFoldersRESTEndpoints from './endpoints/folders/setupRESTEndpoints';
-import setupPermissionGroupsRESTEndpoints from './endpoints/permissionGroups/setupRESTEndpoints';
-import setupPermissionItemsRESTEndpoints from './endpoints/permissionItems/setupRESTEndpoints';
-import setupProgramAccessTokensRESTEndpoints from './endpoints/programAccessTokens/setupRESTEndpoints';
-import setupResourcesRESTEndpoints from './endpoints/resources/setupRESTEndpoints';
+import BaseContext, {getEmailProvider, getFileProvider} from './endpoints/contexts/BaseContext';
+import {BaseContextType} from './endpoints/contexts/types';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+  ingestDataIntoMemStore,
+} from './endpoints/contexts/utils';
+import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
+import {startJobRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
-import setupTagsRESTEndpoints from './endpoints/tags/setupRESTEndpoints';
-import setupUsageRecordsRESTEndpoints from './endpoints/usageRecords/setupRESTEndpoints';
-import setupAccountRESTEndpoints from './endpoints/user/setupRESTEndpoints';
-import setupWorkspacesRESTEndpoints from './endpoints/workspaces/setupRESTEndpoints';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
-import {extractProdEnvsSchema, getAppVariables} from './resources/vars';
-import {consoleLogger, logger} from './utils/logger/logger';
+import {fimidaraConfig} from './resources/vars';
+import {serverLogger} from './utils/logger/loggerUtils';
 
-logger.info('server initialization');
+serverLogger.info('server initialization');
 
 const app = express();
-const upload = multer({
-  limits: {
-    fieldNameSize: 100,
-    fieldSize: 1 * 1024 * 1204,
-    fields: 1024,
-    fileSize: fileConstants.maxFileSizeInBytes,
-    files: 1,
-    parts: 10000,
-    headerPairs: 2000,
-  },
-});
-
 const httpServer = http.createServer(app);
 
 // Match all origins
@@ -65,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
-function setupJWT(ctx: IBaseContext) {
+function setupJWT(ctx: BaseContextType) {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({
@@ -77,48 +58,41 @@ function setupJWT(ctx: IBaseContext) {
 }
 
 async function setup() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
-  const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
-
-  // Run scripts here
-  // await script_AddThresholdToExistingWorkspaces(connection);
-  // End of scripts
-
-  // Jobs
-  // startJobs();
-  // End of jobs
-
-  const emailProvider = new SESEmailProviderContext(appVariables.awsRegion);
-  const ctx = new BaseContext(
-    getDataProviders(connection),
-    emailProvider,
-    getFileProvider(appVariables),
-    appVariables,
-    () => connection.close()
+  const connection = await getMongoConnection(
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
 
+  // Run scripts here
+  // End of scripts
+
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
+  const ctx = new BaseContext(
+    getDataProviders(models),
+    getEmailProvider(fimidaraConfig),
+    getFileProvider(fimidaraConfig),
+    fimidaraConfig,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
+    () => connection.close()
+  );
+  await ingestDataIntoMemStore(ctx);
+
   const defaultWorkspace = await setupApp(ctx);
-  ctx.logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
-  setupClientAssignedTokensRESTEndpoints(ctx, app);
-  setupCollaborationRequestsRESTEndpoints(ctx, app);
-  setupCollaboratorsRESTEndpoints(ctx, app);
-  setupFilesRESTEndpoints(ctx, app, upload);
-  setupFoldersRESTEndpoints(ctx, app);
-  setupWorkspacesRESTEndpoints(ctx, app);
-  setupPermissionItemsRESTEndpoints(ctx, app);
-  setupPermissionGroupsRESTEndpoints(ctx, app);
-  setupProgramAccessTokensRESTEndpoints(ctx, app);
-  setupAccountRESTEndpoints(ctx, app);
-  setupResourcesRESTEndpoints(ctx, app);
-  setupTagsRESTEndpoints(ctx, app);
-  setupUsageRecordsRESTEndpoints(ctx, app);
+  setupFimidaraHttpEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
-    logger.info(ctx.appVariables.appName);
-    logger.info(`server listening on port ${ctx.appVariables.port}`);
+    serverLogger.info(ctx.appVariables.appName);
+    serverLogger.info(`server listening on port ${ctx.appVariables.port}`);
+
+    // start job runner
+    startJobRunner(ctx).catch(error => serverLogger.error(error));
   });
 }
 
@@ -126,13 +100,13 @@ setup();
 
 // TODO: move these error logs to mongo
 process.on('uncaughtException', (exp: any, origin: any) => {
-  consoleLogger.info('uncaughtException');
-  consoleLogger.error(exp);
-  consoleLogger.info(origin);
+  serverLogger.info('uncaughtException');
+  serverLogger.error(exp);
+  serverLogger.info(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  consoleLogger.info('unhandledRejection');
-  consoleLogger.info(promise);
-  consoleLogger.info(reason);
+  serverLogger.info('unhandledRejection');
+  serverLogger.info(promise);
+  serverLogger.info(reason);
 });

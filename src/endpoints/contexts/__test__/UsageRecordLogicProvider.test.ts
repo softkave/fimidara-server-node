@@ -1,47 +1,64 @@
 import {faker} from '@faker-js/faker';
+import {merge} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {AppResourceType, systemAgent} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {
+  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../definitions/workspace';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../../resources/vars';
+import {fimidaraConfig} from '../../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resourceId';
+import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateWorkspaceWithCategoryUsageExceeded} from '../../test-utils/generate-data/usageRecord';
-import {generateTestWorkspace} from '../../test-utils/generate-data/workspace';
-import {dropMongoConnection} from '../../test-utils/helpers/mongo';
+import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';
+import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
+import {dropMongoConnection} from '../../testUtils/helpers/mongo';
+import {completeTest} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
-import {IBaseContext} from '../types';
-import {IUsageRecordInput} from '../UsageRecordLogicProvider';
-import {getDataProviders} from '../utils';
+import {UsageRecordInput} from '../logic/UsageRecordLogicProvider';
+import {executeWithMutationRunOptions} from '../semantic/utils';
+import {BaseContextType} from '../types';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+  ingestDataIntoMemStore,
+} from '../utils';
 import assert = require('assert');
 
 let connection: Connection | null = null;
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
-  const testVars = extractEnvVariables(extractProdEnvsSchema);
+  const testVars = merge({}, fimidaraConfig);
   const dbName = `test-db-usage-record-${getNewId()}`;
   testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
   const emptyObject = cast<any>({close() {}, dispose() {}});
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
   context = new BaseContext(
-    getDataProviders(connection),
+    getDataProviders(models),
     /** emailProvider  */ emptyObject,
     /** fileBackend    */ emptyObject,
     /** appVariables   */ emptyObject,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
     () => dropMongoConnection(connection)
   );
+  await ingestDataIntoMemStore(context);
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 function assertDeps() {
@@ -50,27 +67,28 @@ function assertDeps() {
   return {connection, context};
 }
 
-async function getSumRecords(ctx: IBaseContext, recordId: string) {
-  const record = await ctx.data.usageRecord.assertGetOneByQuery(
+async function getSumRecords(ctx: BaseContextType, recordId: string) {
+  const record = await ctx.data.resource.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
-  return {record};
+  return {record: record.resource as UsageRecord};
 }
 
 describe('UsageRecordLogicProvider', () => {
   test('record is fulfilled', async () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, systemAgent, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(true);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -82,16 +100,17 @@ describe('UsageRecordLogicProvider', () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatus.BillOverdue;
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, systemAgent, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -102,16 +121,17 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause total threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Total]);
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, systemAgent, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -122,16 +142,17 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause category threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Storage]);
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context!.semantic.workspace.insertItem(workspace, opts)
+    );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
-    const reqData = new RequestData();
-    const input: IUsageRecordInput = {
+    const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.usageRecord.insert(context, reqData, systemAgent, input);
+    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);

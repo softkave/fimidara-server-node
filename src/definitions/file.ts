@@ -1,33 +1,35 @@
-import {IAgent} from './system';
+import {AppActionType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
-export interface IFile {
-  resourceId: string;
-  workspaceId: string;
-  folderId?: string;
+export interface File extends WorkspaceResource {
+  parentId: string | null;
   idPath: string[];
   namePath: string[];
   mimetype?: string;
   encoding?: string;
   size: number;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
   name: string;
-  extension: string;
+  extension?: string;
   description?: string;
-
-  // environmentId: string;
-  // bucketId: string;
-  // meta?: Record<string, string | number | boolean | null>;
 }
 
-export type IPublicFile = IFile & {
-  // tags: IAssignedTag[]
-};
-
-export type IFileMatcher = {
+export type PublicFile = ConvertAgentToPublicAgent<File>;
+export type FileMatcher = {
   // file path with workspace root name
   filepath?: string;
   fileId?: string;
 };
+
+export interface FilePresignedPath extends WorkspaceResource {
+  /** File name path instead of ID because at the time of creation, the file may
+   * not exist yet. */
+  fileNamePath: string[];
+  fileExtension?: string;
+  agentTokenId: string;
+  usageCount?: number;
+  spentUsageCount: number;
+  expiresAt?: number;
+  action: AppActionType[];
+
+  // TODO: should we add description?
+  // description?: string
+}

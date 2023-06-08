@@ -1,90 +1,161 @@
-import {IFile} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
-  publicPermissibleEndpointAgents,
+  PERMISSION_AGENT_TYPES,
+  SessionAgent,
 } from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
+import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
-import {} from '../../../utils/fns';
+import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {populateAssignedPermissionGroupsAndTags} from '../../assignedItems/getAssignedItems';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
+import {BaseContextType} from '../../contexts/types';
 import {
   insertBandwidthInUsageRecordInput,
   insertStorageUsageRecordInput,
 } from '../../usageRecords/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
+  FilepathInfo,
   fileExtractor,
+  getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
-  splitfilepathWithDetails as splitFilepathWithDetails,
 } from '../utils';
-import {getNewFile, internalCreateFile} from './internalCreateFile';
-import {internalUpdateFile} from './internalUpdateFile';
-import {UploadFileEndpoint} from './types';
+import {UploadFileEndpoint, UploadFileEndpointParams} from './types';
 import {checkUploadFileAuth, createFileParentFolders} from './utils';
 import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, publicPermissibleEndpointAgents);
+  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
 
-  let file = await getFileWithMatcher(context, data);
-  const isNewFile = !file;
-  const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
+  let file = await executeWithMutationRunOptions(context, async opts => {
+    let {file} = await getFileWithMatcher(context, data, opts);
+    const isNewFile = !file;
+    const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
 
-  if (!file) {
-    appAssert(data.filepath, new ValidationError('File path missing'));
-    const pathWithDetails = splitFilepathWithDetails(data.filepath);
-    const parentFolder = await createFileParentFolders(context, agent, workspace, pathWithDetails);
+    if (!file) {
+      appAssert(data.filepath, new ValidationError('File path not provided.'));
+      const pathWithDetails = getFilepathInfo(data.filepath);
+      const parentFolder = await createFileParentFolders(
+        context,
+        agent,
+        workspace,
+        pathWithDetails,
+        opts
+      );
+      await checkUploadFileAuth(context, agent, workspace, /** file */ null, parentFolder);
+      file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
+    } else {
+      await checkUploadFileAuth(
+        context,
+        agent,
+        workspace,
+        file,
+        /** parent folder not needed for an existing file */ null
+      );
+    }
 
-    await checkUploadFileAuth(context, agent, workspace, null, parentFolder);
-    file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
-  } else {
-    await checkUploadFileAuth(context, agent, workspace, file, null);
-  }
+    await insertStorageUsageRecordInput(
+      context,
+      instData,
+      file,
+      isNewFile ? AppActionType.Create : AppActionType.Update,
+      isNewFile ? undefined : {oldFileSize: file.size}
+    );
+    await insertBandwidthInUsageRecordInput(
+      context,
+      instData,
+      file,
+      isNewFile ? AppActionType.Create : AppActionType.Update
+    );
 
-  await insertStorageUsageRecordInput(
-    context,
-    instData,
-    file,
-    isNewFile ? BasicCRUDActions.Create : BasicCRUDActions.Update,
-    isNewFile ? undefined : {oldFileSize: file.size}
-  );
+    if (isNewFile) {
+      file = await INTERNAL_createFile(context, file, opts);
+    } else {
+      file = await INTERNAL_updateFile(context, agent, file, data, opts);
+    }
 
-  await insertBandwidthInUsageRecordInput(
-    context,
-    instData,
-    file,
-    isNewFile ? BasicCRUDActions.Create : BasicCRUDActions.Update
-  );
+    await Promise.all([
+      context.fileBackend.uploadFile({
+        bucket: context.appVariables.S3Bucket,
+        key: file.resourceId,
+        body: data.data,
+        contentType: data.mimetype,
+        contentEncoding: data.encoding,
+        contentLength: data.data.byteLength,
+      }),
+    ]);
 
-  if (isNewFile) {
-    file = await internalCreateFile(context, agent, workspace, data, file);
-  } else {
-    const pathWithDetails = splitFilepathWithDetails(file.namePath);
-    file = await internalUpdateFile(context, agent, workspace, pathWithDetails, file, data);
-  }
-
-  await context.fileBackend.uploadFile({
-    bucket: context.appVariables.S3Bucket,
-    key: file.resourceId,
-    body: data.data,
-    contentType: data.mimetype,
-    contentEncoding: data.encoding,
-    contentLength: data.data.byteLength,
+    return file;
   });
 
-  file = await populateAssignedPermissionGroupsAndTags<IFile>(
-    context,
-    file.workspaceId,
-    file,
-    AppResourceType.File
+  file = await populateAssignedTags<File>(context, file.workspaceId, file);
+  return {file: fileExtractor(file)};
+};
+
+async function INTERNAL_updateFile(
+  context: BaseContextType,
+  agent: SessionAgent,
+  existingFile: File,
+  data: UploadFileEndpointParams,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  const file = await context.semantic.file.getAndUpdateOneById(
+    existingFile.resourceId,
+    {
+      ...data,
+      extension: data.extension ?? existingFile.extension,
+      size: data.data.length,
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+      lastUpdatedAt: getTimestamp(),
+    },
+    opts
   );
 
-  return {
-    file: fileExtractor(file),
-  };
-};
+  return file;
+}
+
+function getNewFile(
+  agent: SessionAgent,
+  workspace: Workspace,
+  pathWithDetails: FilepathInfo,
+  data: UploadFileEndpointParams,
+  parentFolder: Folder | null
+) {
+  const fileId = getNewIdForResource(AppResourceType.File);
+  const file = newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
+    workspaceId: workspace.resourceId,
+    resourceId: fileId,
+    extension: data.extension ?? pathWithDetails.extension ?? '',
+    name: pathWithDetails.nameWithoutExtension,
+    idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+    namePath: parentFolder
+      ? parentFolder.namePath.concat(pathWithDetails.nameWithoutExtension)
+      : [pathWithDetails.nameWithoutExtension],
+    parentId: parentFolder?.resourceId ?? null,
+    mimetype: data.mimetype,
+    size: data.data.length,
+    description: data.description,
+    encoding: data.encoding,
+  });
+  return file;
+}
+
+async function INTERNAL_createFile(
+  context: BaseContextType,
+  file: File,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  await context.semantic.file.insertItem(file, opts);
+  return file;
+}
 
 export default uploadFile;

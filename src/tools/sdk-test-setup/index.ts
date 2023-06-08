@@ -1,3 +1,3 @@
 import {setupSDKTestReq} from './utils';
 
-setupSDKTestReq();
+setupSDKTestReq().then(() => process.exit());

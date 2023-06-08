@@ -4,16 +4,18 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceType, systemAgent} from '../../definitions/system';
+import {AppResourceType} from '../../definitions/system';
 import {
-  IUsageRecord,
+  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../definitions/usageRecord';
-import {IUsageThresholdLock, IWorkspace} from '../../definitions/workspace';
+import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {getNewIdForResource} from '../../utils/resourceId';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {getTimestamp} from '../../utils/dateFns';
+import {getNewIdForResource} from '../../utils/resource';
 import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**
@@ -81,8 +83,8 @@ function getEndOfMonth() {
   return d;
 }
 
-async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsageRecord) {
-  let fromDate = recordLevel2.lastUpdatedAt || getStartOfMonth();
+async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: UsageRecord) {
+  let fromDate = recordLevel2.lastUpdatedAt ?? getStartOfMonth();
   const endDate = getEndOfMonth();
   let totalCount = 0;
   let lastCount = 0;
@@ -116,7 +118,7 @@ async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: IUsag
         seconds: 1,
       });
 
-      fromDate = lastDate;
+      fromDate = getTimestamp(lastDate);
     }
   } while (lastCount > 0);
 
@@ -131,7 +133,7 @@ async function getUsageRecordsLevel2(
   const model = makeUsageRecordModel(connection);
   const month = getRecordingMonth();
   const year = getRecordingYear();
-  const records: IUsageRecord[] = await model
+  const records: UsageRecord[] = await model
     .find({
       workspaceId,
       month,
@@ -151,8 +153,10 @@ async function getUsageRecordsLevel2(
         year,
         fulfillmentStatus,
         resourceId: getNewIdForResource(AppResourceType.UsageRecord),
-        createdAt: new Date(),
-        createdBy: systemAgent,
+        createdAt: getTimestamp(),
+        createdBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         category: k,
         summationType: UsageSummationType.Two,
         usage: 0,
@@ -165,12 +169,12 @@ async function getUsageRecordsLevel2(
   return records;
 }
 
-async function incrementRecordLevel2(connection: Connection, recordLevel2: IUsageRecord) {
+async function incrementRecordLevel2(connection: Connection, recordLevel2: UsageRecord) {
   const {sumUsage, sumCost} = await sumUsageRecordsLevel1(connection, recordLevel2);
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
-  recordLevel2.lastUpdatedAt = new Date();
-  recordLevel2.lastUpdatedBy = systemAgent;
+  recordLevel2.lastUpdatedAt = getTimestamp();
+  recordLevel2.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   return recordLevel2;
 }
 
@@ -207,8 +211,8 @@ async function aggregateRecordsLevel2(
     }
   });
 
-  totalRecord.lastUpdatedAt = new Date();
-  totalRecord.lastUpdatedBy = systemAgent;
+  totalRecord.lastUpdatedAt = getTimestamp();
+  totalRecord.lastUpdatedBy = SYSTEM_SESSION_AGENT;
   const model = makeUsageRecordModel(connection);
   await model.bulkWrite(
     records.map(r => ({
@@ -225,7 +229,7 @@ async function aggregateRecordsLevel2(
 
 async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
   connection: Connection,
-  workspace: IWorkspace
+  workspace: Workspace
 ) {
   const records = await aggregateRecordsLevel2(
     connection,
@@ -233,16 +237,16 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
     UsageRecordFulfillmentStatus.Fulfilled
   );
 
-  const thresholds = workspace.usageThresholds || {};
-  const locks = workspace.usageThresholdLocks || {};
+  const thresholds = workspace.usageThresholds ?? {};
+  const locks = workspace.usageThresholdLocks ?? {};
   records.forEach(r => {
     const threshold = thresholds[r.category];
     if (threshold && r.usageCost >= threshold.budget) {
-      const usageLock: IUsageThresholdLock = {
+      const usageLock: UsageThresholdLock = {
         ...defaultTo(locks[r.category], {}),
         category: r.category,
-        lastUpdatedAt: new Date(),
-        lastUpdatedBy: systemAgent,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: SYSTEM_SESSION_AGENT,
         locked: true,
       };
 
@@ -254,7 +258,7 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
   await model.updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: locks}).exec();
 }
 
-async function aggregateDroppedRecordsInWorkspace(connection: Connection, workspace: IWorkspace) {
+async function aggregateDroppedRecordsInWorkspace(connection: Connection, workspace: Workspace) {
   await aggregateRecordsLevel2(
     connection,
     workspace.resourceId,
@@ -264,7 +268,7 @@ async function aggregateDroppedRecordsInWorkspace(connection: Connection, worksp
 
 async function tryAggregateRecordsInWorkspace(
   connection: Connection,
-  workspace: IWorkspace,
+  workspace: Workspace,
   runInfo: IFimidaraPipelineRunInfo
 ) {
   try {

@@ -1,26 +1,26 @@
-import {DeleteObjectsCommand, ListObjectsV2Command, ObjectIdentifier, S3Client} from '@aws-sdk/client-s3';
-import mongoose from 'mongoose';
-import {dropMongoConnection} from '../endpoints/test-utils/helpers/mongo';
 import {
-  ExtractEnvSchema,
-  extractEnvVariables,
-  extractProdEnvsSchema,
-  FileBackendType,
-  IAppVariables,
-} from '../resources/vars';
-import {jestLogger} from './logger';
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  ObjectIdentifier,
+  S3Client,
+} from '@aws-sdk/client-s3';
+import mongoose from 'mongoose';
+import {globalDispose} from '../endpoints/globalUtils';
+import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
+import {FileBackendType, FimidaraConfig} from '../resources/types';
+import {fimidaraConfig} from '../resources/vars';
+import {testLogger} from '../utils/logger/loggerUtils';
 import _ = require('lodash');
 
 async function waitOnPromises(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
-    result => result.status === 'rejected' && jestLogger.error(result.reason)
+    result => result.status === 'rejected' && testLogger.error(result.reason)
   );
 }
 
-async function dropMongoCollections(globals: IAppVariables) {
+async function dropMongoCollections(globals: FimidaraConfig) {
   const mongoURI = globals.mongoDbURI;
   const appDbName = globals.mongoDbDatabaseName;
-  const logsDbName = globals.logsDbName;
   if (!mongoURI) {
     return;
   }
@@ -30,25 +30,25 @@ async function dropMongoCollections(globals: IAppVariables) {
       return;
     }
 
-    jestLogger.info(`Dropping db - ${name}`);
+    testLogger.info(`Dropping db - ${name}`);
     const connection = await mongoose.createConnection(mongoURI, {dbName: name}).asPromise();
     await dropMongoConnection(connection);
   }
 
-  await waitOnPromises([dropFn(appDbName), dropFn(logsDbName)]);
+  await waitOnPromises([dropFn(appDbName)]);
 }
 
-async function deleteAWSBucketObjects(globals: IAppVariables) {
+async function deleteAWSBucketObjects(globals: FimidaraConfig) {
   const accessKeyId = globals.awsAccessKeyId;
   const secretAccessKey = globals.awsSecretAccessKey;
   const region = globals.awsRegion;
   const bucketName = globals.S3Bucket;
   const useS3FileProvider = globals.fileBackend === FileBackendType.S3;
-  if (!accessKeyId || !secretAccessKey || !region || !bucketName || !useS3FileProvider) {
+  if (!accessKeyId ?? !secretAccessKey ?? !region ?? !bucketName ?? !useS3FileProvider) {
     return;
   }
 
-  jestLogger.info(`-- AWS - deleting bucket ${bucketName} objects --`);
+  testLogger.info(`-- AWS - deleting bucket ${bucketName} objects --`);
   const s3 = new S3Client({region: globals.awsRegion});
   let continuationToken: string | undefined;
   do {
@@ -76,16 +76,10 @@ async function deleteAWSBucketObjects(globals: IAppVariables) {
 }
 
 async function jestGlobalTeardown() {
-  const envSchema = Object.keys(extractProdEnvsSchema).reduce((map, key) => {
-    const k = key as keyof ExtractEnvSchema;
-    map[k] = {...extractProdEnvsSchema[k], required: false};
-    return map;
-  }, {} as ExtractEnvSchema);
-
-  const vars = extractEnvVariables(envSchema);
-  const dropMongoPromise = dropMongoCollections(vars);
+  const dropMongoPromise = dropMongoCollections(fimidaraConfig);
   await waitOnPromises([dropMongoPromise]);
-  await jestLogger.close();
+  await testLogger.close();
+  globalDispose();
 }
 
 module.exports = jestGlobalTeardown;

@@ -1,22 +1,22 @@
 import {
+  CollaborationRequest,
   CollaborationRequestStatusType,
-  ICollaborationRequest,
 } from '../../../definitions/collaborationRequest';
-import {BasicCRUDActions} from '../../../definitions/system';
+import {AppActionType} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   collaborationRequestRevokedEmailTitle,
-} from '../../../email-templates/collaborationRequestRevoked';
-import {getDateString} from '../../../utils/dateFns';
+} from '../../../emailTemplates/collaborationRequestRevoked';
+import {appAssert} from '../../../utils/assertion';
+import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
-import {assertWorkspace} from '../../workspaces/utils';
+import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
+import {BaseContextType} from '../../contexts/types';
+import {InvalidRequestError} from '../../errors';
 import {
   checkCollaborationRequestAuthorization02,
-  collaborationRequestExtractor,
-  populateRequestPermissionGroups,
+  collaborationRequestForWorkspaceExtractor,
 } from '../utils';
 import {RevokeCollaborationRequestEndpoint} from './types';
 import {revokeCollaborationRequestJoiSchema} from './validation';
@@ -27,61 +27,55 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {request} = await checkCollaborationRequestAuthorization02(
-    context,
-    agent,
-    data.requestId,
-    BasicCRUDActions.Update
-  );
 
-  const status = request.statusHistory[request.statusHistory.length - 1];
-  const isRevoked = status.status === CollaborationRequestStatusType.Revoked;
-
-  if (!isRevoked) {
-    request = await context.data.collaborationRequest.assertGetAndUpdateOneByQuery(
-      EndpointReusableQueries.getByResourceId(data.requestId),
-      {
-        statusHistory: request.statusHistory.concat({
-          date: getDateString(),
-          status: CollaborationRequestStatusType.Revoked,
-        }),
-      }
+  let {request, workspace} = await executeWithMutationRunOptions(context, async opts => {
+    let {request, workspace} = await checkCollaborationRequestAuthorization02(
+      context,
+      agent,
+      data.requestId,
+      AppActionType.Update,
+      opts
     );
 
-    const workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(request.workspaceId)
+    const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
+    appAssert(
+      isRevoked === false,
+      new InvalidRequestError('Collaboration request already revoked.')
     );
-    assertWorkspace(workspace);
-    if (workspace) {
-      await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
-    }
-  }
+    request = await context.semantic.collaborationRequest.getAndUpdateOneById(
+      data.requestId,
+      {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
+      opts
+    );
 
-  request = await populateRequestPermissionGroups(context, request);
-  return {
-    request: collaborationRequestExtractor(request),
-  };
+    return {request, workspace};
+  });
+
+  // TODO: fire and forget
+  await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
+  return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 async function sendRevokeCollaborationRequestEmail(
-  context: IBaseContext,
-  request: ICollaborationRequest,
+  context: BaseContextType,
+  request: CollaborationRequest,
   workspaceName: string
 ) {
+  const recipient = await context.semantic.user.getByEmail(request.recipientEmail);
   const signupLink = context.appVariables.clientSignupLink;
   const loginLink = context.appVariables.clientLoginLink;
   const html = collaborationRequestRevokedEmailHTML({
     workspaceName,
     signupLink,
     loginLink,
+    firstName: recipient?.firstName,
   });
-
   const text = collaborationRequestRevokedEmailText({
     workspaceName,
     signupLink,
     loginLink,
+    firstName: recipient?.firstName,
   });
-
   await context.email.sendEmail(context, {
     subject: collaborationRequestRevokedEmailTitle(workspaceName),
     body: {html, text},

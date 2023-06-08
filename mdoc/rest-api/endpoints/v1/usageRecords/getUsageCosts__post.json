@@ -1,0 +1,180 @@
+{
+    "basePathname": "/v1/usageRecords/getUsageCosts",
+    "method": "post",
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Get usage costs endpoint success result.",
+        "__id": "FieldObject",
+        "name": "GetUsageCostsEndpointResult",
+        "fields": {
+            "costs": {
+                "data": {
+                    "__id": "FieldObject",
+                    "name": "UsageCosts",
+                    "fields": {
+                        "storage": {
+                            "data": {
+                                "description": "Usage cost in USD.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "bin": {
+                            "data": {
+                                "description": "Usage cost in USD.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "bout": {
+                            "data": {
+                                "description": "Usage cost in USD.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "total": {
+                            "data": {
+                                "description": "Usage cost in USD.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "GetUsageCostsEndpoint",
+    "description": "Get usage costs endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

@@ -1,28 +1,23 @@
 import {defaultTo, first, isArray, last} from 'lodash';
-import {IFolder, IFolderMatcher, IPublicFolder} from '../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
+import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
-const folderFields = getFields<IPublicFolder>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
-  workspaceId: true,
+const folderFields = getFields<PublicFolder>({
+  ...workspaceResourceFields,
   parentId: true,
   name: true,
   description: true,
@@ -43,9 +38,10 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
+  path = path.startsWith(folderConstants.nameSeparator) ? path.slice(1) : path;
   const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
   if (p.length > folderConstants.maxFolderDepth) {
-    throw new Error('Path depth exceeds max path depth (10)');
+    throw new Error('Path depth exceeds max path depth (10).');
   }
 
   return p;
@@ -54,13 +50,13 @@ export function splitFolderpath(path: string | string[]) {
 export function assertSplitFolderpath(path: string) {
   const splitPath = splitFolderpath(path);
   if (splitPath.length === 0) {
-    throw new InvalidRequestError('Path is empty');
+    throw new InvalidRequestError('Path is empty.');
   }
 
   return splitPath;
 }
 
-export interface IFolderpathWithDetails {
+export interface FolderpathInfo {
   providedPath: string | string[];
   name: string;
 
@@ -75,7 +71,7 @@ export interface IFolderpathWithDetails {
   workspaceRootname: string;
 }
 
-export function splitPathWithDetails(providedPath: string | string[]): IFolderpathWithDetails {
+export function getFolderpathInfo(providedPath: string | string[]): FolderpathInfo {
   const splitPath = splitFolderpath(providedPath);
   const workspaceRootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');
@@ -108,48 +104,50 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  folder: IFolder,
-  action: BasicCRUDActions,
-  nothrow = false,
-  workspace?: IWorkspace
+  context: BaseContextType,
+  agent: SessionAgent,
+  folder: Folder,
+  action: AppActionType,
+  workspace?: Workspace,
+  UNSAFE_skipAuthCheck = false
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(context, folder.workspaceId);
   }
 
-  await checkAuthorization({
-    context,
-    agent,
-    workspace,
-    action,
-    nothrow,
-    resource: folder,
-    type: AppResourceType.Folder,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      folder,
-      AppResourceType.Folder
-    ),
-  });
+  if (!UNSAFE_skipAuthCheck) {
+    // Primarily for listFolderContent, where we want to fetch the folder but
+    // the calling agent doesn't need permission to read the folder, just it's
+    // content.
+    // TODO: Let me (@abayomi) know if there's an issue with this.
+    await checkAuthorization({
+      context,
+      agent,
+      action,
+      workspace,
+      workspaceId: workspace.resourceId,
+      containerId: getFilePermissionContainers(workspace.resourceId, folder),
+      targets: {targetId: folder.resourceId},
+    });
+  }
 
   return {agent, workspace, folder};
 }
 
 export async function checkFolderAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFolderMatcher,
-  action: BasicCRUDActions,
-  nothrow = false,
-  workspace?: IWorkspace
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FolderMatcher,
+  action: AppActionType,
+  workspace?: Workspace,
+  opts?: SemanticDataAccessProviderRunOptions,
+  UNSAFE_skipAuthCheck = false
 ) {
-  const folder = await assertGetFolderWithMatcher(context, matcher);
-  return checkFolderAuthorization(context, agent, folder, action, nothrow, workspace);
+  const folder = await assertGetFolderWithMatcher(context, matcher, opts);
+  return checkFolderAuthorization(context, agent, folder, action, workspace, UNSAFE_skipAuthCheck);
 }
 
-export function getFolderName(folder: IFolder) {
+export function getFolderName(folder: Folder) {
   return folder.namePath.join(folderConstants.nameSeparator);
 }
 
@@ -179,8 +177,13 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   return <T>`${rootname}${folderConstants.nameSeparator}${path}`;
 }
 
-export function assertFolder(folder: IFolder | null | undefined): asserts folder {
+export function assertFolder(folder: Folder | null | undefined): asserts folder {
   if (!folder) {
     throwFolderNotFound();
   }
+}
+
+export function stringifyFolderNamePath(file: Folder, rootname?: string) {
+  const nm = file.namePath.join(folderConstants.nameSeparator);
+  return rootname ? addRootnameToPath(nm, rootname) : nm;
 }

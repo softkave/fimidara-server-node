@@ -1,0 +1,410 @@
+{
+    "basePathname": "/v1/usageRecords/getWorkspaceSummedUsage",
+    "method": "post",
+    "requestBody": {
+        "required": true,
+        "description": "Get workspace summed usage records endpoint params.",
+        "__id": "FieldObject",
+        "name": "GetWorkspaceSummedUsageEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "page": {
+                "data": {
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
+                    "__id": "FieldNumber",
+                    "example": 0,
+                    "min": 0
+                },
+                "optional": true
+            },
+            "pageSize": {
+                "data": {
+                    "description": "Paginated list page size.",
+                    "__id": "FieldNumber",
+                    "example": 10,
+                    "min": 1,
+                    "max": 1000
+                },
+                "optional": true
+            },
+            "query": {
+                "data": {
+                    "__id": "FieldObject",
+                    "name": "SummedUsageQuery",
+                    "fields": {
+                        "category": {
+                            "data": {
+                                "__id": "FieldArray",
+                                "type": {
+                                    "description": "Usage record category.",
+                                    "__id": "FieldString",
+                                    "example": "storage",
+                                    "valid": {
+                                        "0": "storage",
+                                        "1": "bin",
+                                        "2": "bout",
+                                        "3": "total"
+                                    },
+                                    "enumName": "UsageRecordCategory"
+                                }
+                            },
+                            "optional": true
+                        },
+                        "fromDate": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "optional": true
+                        },
+                        "toDate": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "optional": true
+                        },
+                        "fulfillmentStatus": {
+                            "data": {
+                                "__id": "FieldArray",
+                                "type": {
+                                    "description": "Usage record fulfillment status.",
+                                    "__id": "FieldString",
+                                    "example": "fulfilled",
+                                    "valid": {
+                                        "0": "undecided",
+                                        "1": "fulfilled",
+                                        "2": "dropped"
+                                    },
+                                    "enumName": "UsageRecordFulfillmentStatus"
+                                }
+                            },
+                            "optional": true
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Get workspace summed usage records endpoint success result.",
+        "__id": "FieldObject",
+        "name": "GetWorkspaceSummedUsageEndpointResult",
+        "fields": {
+            "records": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "UsageRecord",
+                        "fields": {
+                            "resourceId": {
+                                "data": {
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "createdBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "createdAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "category": {
+                                "data": {
+                                    "description": "Usage record category.",
+                                    "__id": "FieldString",
+                                    "example": "storage",
+                                    "valid": {
+                                        "0": "storage",
+                                        "1": "bin",
+                                        "2": "bout",
+                                        "3": "total"
+                                    },
+                                    "enumName": "UsageRecordCategory"
+                                },
+                                "required": true
+                            },
+                            "usage": {
+                                "data": {
+                                    "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "usageCost": {
+                                "data": {
+                                    "description": "Usage cost in USD.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "fulfillmentStatus": {
+                                "data": {
+                                    "description": "Usage record fulfillment status.",
+                                    "__id": "FieldString",
+                                    "example": "fulfilled",
+                                    "valid": {
+                                        "0": "undecided",
+                                        "1": "fulfilled",
+                                        "2": "dropped"
+                                    },
+                                    "enumName": "UsageRecordFulfillmentStatus"
+                                },
+                                "required": true
+                            },
+                            "month": {
+                                "data": {
+                                    "description": "Usage recording month from 0-11, January-Decemeber.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "year": {
+                                "data": {
+                                    "description": "Usage recording year.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "providedResourceId": {
+                                "data": {
+                                    "description": "Resource ID provided by you.",
+                                    "__id": "FieldString",
+                                    "max": 50
+                                },
+                                "optional": true
+                            },
+                            "lastUpdatedBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "workspaceId": {
+                                "data": {
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "page": {
+                "data": {
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
+                    "__id": "FieldNumber",
+                    "example": 0,
+                    "min": 0
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "GetWorkspaceSummedUsageEndpoint",
+    "description": "Get workspace summed usage records endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

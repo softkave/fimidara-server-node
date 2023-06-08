@@ -1,30 +1,20 @@
-import {IAgent} from './system';
+import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
-export interface ITag {
-  resourceId: string;
+export interface Tag extends WorkspaceResource {
   name: string;
   description?: string;
-  createdAt: Date | string;
-  createdBy: IAgent;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  workspaceId: string;
 }
 
-export interface IAssignedTagInput {
+// TODO: Not the right tag input. Tags should be assigned by name.
+export interface AssignedTagInput {
   tagId: string;
 }
 
-export interface IAssignedTag {
+export interface AssignedTag {
   tagId: string;
-  assignedAt: Date | string;
-  assignedBy: IAgent;
+  assignedAt: number;
+  assignedBy: Agent;
 }
 
-export type IPublicTag = ITag;
-
-/**
- * We aren't launching tags yet, so we want to exclude it for now from endpoint
- * documentations.
- */
-export type ExcludeTags<T> = {[K in Exclude<keyof T, 'tags'>]: T[K]};
+export type PublicTag = ConvertAgentToPublicAgent<Tag>;
+export type PublicAssignedTag = ConvertAgentToPublicAgent<AssignedTag>;

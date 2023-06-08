@@ -1,26 +1,28 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteTag from './handler';
-import {IDeleteTagEndpointParams} from './types';
+import {DeleteTagEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('deleteTag', () => {
@@ -30,17 +32,18 @@ describe('deleteTag', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {tag} = await insertTagForTest(context, userToken, workspace.resourceId);
 
-    const instData = RequestData.fromExpressRequest<IDeleteTagEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    const instData = RequestData.fromExpressRequest<DeleteTagEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {tagId: tag.resourceId}
     );
-
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
-    const deletedTagExists = await context.data.tag.existsByQuery(
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+
+    const deletedTagExists = await context.semantic.tag.existsByQuery(
       EndpointReusableQueries.getByResourceId(tag.resourceId)
     );
-
     expect(deletedTagExists).toBeFalsy();
   });
 });

@@ -1,28 +1,29 @@
 import {faker} from '@faker-js/faker';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
+import {BaseContextType} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
+import {WorkspaceExistsError} from '../errors';
 import updateWorkspace from './handler';
-import {IUpdateWorkspaceEndpointParams, IUpdateWorkspaceInput} from './types';
+import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('updateWorkspce', () => {
@@ -31,15 +32,15 @@ describe('updateWorkspce', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const companyName = faker.company.name();
-    const workspaceUpdateInput: Partial<IUpdateWorkspaceInput> = {
+    const workspaceUpdateInput: Partial<UpdateWorkspaceInput> = {
       name: companyName,
       // rootname: makeRootnameFromName(companyName),
       description: faker.company.catchPhraseDescriptor(),
       // usageThresholds: generateTestUsageThresholdInputMap(500),
     };
 
-    const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId: workspace.resourceId,
         workspace: workspaceUpdateInput,
@@ -49,7 +50,7 @@ describe('updateWorkspce', () => {
     const result = await updateWorkspace(context, instData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
-    const updatedWorkspace = await context.data.workspace.getOneByQuery(
+    const updatedWorkspace = await context.semantic.workspace.getOneByQuery(
       EndpointReusableQueries.getByResourceId(workspace.resourceId)
     );
     expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);
@@ -59,35 +60,15 @@ describe('updateWorkspce', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {workspace: w02} = await insertWorkspaceForTest(context, userToken);
     await expectErrorThrown(async () => {
       assertContext(context);
-      const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          workspace: {name: workspace.name},
-        }
+      const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
       );
 
       await updateWorkspace(context, instData);
     }, [WorkspaceExistsError.name]);
-  });
-
-  test('fails if workspace root name exists', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      const instData = RequestData.fromExpressRequest<IUpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          workspace: {name: workspace.name},
-        }
-      );
-
-      await updateWorkspace(context, instData);
-    }, [WorkspaceRootnameExistsError.name]);
   });
 });

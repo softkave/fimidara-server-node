@@ -1,16 +1,30 @@
-import {AppResourceType, IResourceBase} from '../../definitions/system';
+import {
+  ExportedHttpEndpointWithMddocDefinition,
+  HttpEndpoint,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
+} from '../types';
+import {
+  GetResourcesEndpoint,
+  GetResourcesEndpointParams,
+  GetResourcesEndpointResult,
+} from './getResources/types';
 
-export interface IResource<T extends IResourceBase = IResourceBase> {
-  resourceId: string;
-  resourceType: AppResourceType;
-  resource: T;
+export interface FetchResourceItem {
+  resourceId?: string | string[];
+  filepath?: string | string[];
+  folderpath?: string | string[];
+  workspaceRootname?: string;
 }
 
-export interface IWorkspaceResource extends IResourceBase {
-  workspaceId: string;
-}
+export type GetResourcesHttpEndpoint = HttpEndpoint<
+  GetResourcesEndpoint,
+  GetResourcesEndpointParams,
+  GetResourcesEndpointResult,
+  HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  HttpEndpointResponseHeaders_ContentType_ContentLength
+>;
 
-export interface IFetchResourceItem {
-  resourceId: string;
-  resourceType: AppResourceType;
-}
+export type ResourcesExportedEndpoints = {
+  getResources: ExportedHttpEndpointWithMddocDefinition<GetResourcesHttpEndpoint>;
+};

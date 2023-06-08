@@ -1,25 +1,24 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IAppRuntimeState} from '../definitions/system';
-import {ensureTypeFields} from './utils';
+import {AppRuntimeState} from '../definitions/system';
+import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const appRuntimeStateSchema = ensureTypeFields<IAppRuntimeState>({
-  resourceId: {type: String, unique: true, index: true},
+const appRuntimeStateSchema = ensureMongoTypeFields<AppRuntimeState>({
+  ...resourceSchema,
   isAppSetup: {type: Boolean, default: false},
   appWorkspaceId: {type: String},
   appWorkspacesImageUploadPermissionGroupId: {type: String},
   appUsersImageUploadPermissionGroupId: {type: String},
 });
 
-export type IAppRuntimeStateDocument = Document<IAppRuntimeState>;
+export type AppRuntimeStateDocument = Document<AppRuntimeState>;
 
-const schema = new Schema<IAppRuntimeState>(appRuntimeStateSchema);
+const schema = new Schema<AppRuntimeState>(appRuntimeStateSchema);
 const modelName = 'app-runtime-state';
 const collectionName = 'app-runtime-state';
 
 export function getAppRuntimeStateModel(connection: Connection) {
-  const model = connection.model<IAppRuntimeState>(modelName, schema, collectionName);
-
+  const model = connection.model<AppRuntimeState>(modelName, schema, collectionName);
   return model;
 }
 
-export type IAppRuntimeStateModel = Model<IAppRuntimeState>;
+export type AppRuntimeStateModel = Model<AppRuntimeState>;

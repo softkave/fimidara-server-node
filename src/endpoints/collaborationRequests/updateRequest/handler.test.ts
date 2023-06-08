@@ -1,31 +1,29 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import {AppResourceType} from '../../../definitions/system';
-import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {BaseContextType} from '../../contexts/types';
+import EndpointReusableQueries from '../../queries';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
-  insertPermissionGroupForTest,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import updateCollaborationRequest from './handler';
-import {IUpdateCollaborationRequestEndpointParams, IUpdateCollaborationRequestInput} from './types';
+import {UpdateCollaborationRequestEndpointParams, UpdateCollaborationRequestInput} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('updateCollaborationRequest', () => {
@@ -33,54 +31,23 @@ describe('updateCollaborationRequest', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-    const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
     const {request: request01} = await insertRequestForTest(
       context,
       userToken,
-      workspace.resourceId,
-      {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
-        ],
-      }
+      workspace.resourceId
     );
-
-    const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
+    const updateCollaborationRequestInput: UpdateCollaborationRequestInput = {
       message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsOnAccept: [
-        {
-          permissionGroupId: permissionGroup02.resourceId,
-          order: 0,
-        },
-      ],
+      expires: add(Date.now(), {days: 1}).valueOf(),
     };
 
-    const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        requestId: request01.resourceId,
-        request: updateCollaborationRequestInput,
-      }
+    const instData = RequestData.fromExpressRequest<UpdateCollaborationRequestEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {requestId: request01.resourceId, request: updateCollaborationRequestInput}
     );
-
     const result = await updateCollaborationRequest(context, instData);
     assertEndpointResultOk(result);
-    const updatedRequest = await context.data.collaborationRequest.assertGetOneByQuery(
+    const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
 
@@ -89,121 +56,5 @@ describe('updateCollaborationRequest', () => {
     expect(result.request.expiresAt).not.toBe(request01.expiresAt);
     expect(updatedRequest.message).toBe(updateCollaborationRequestInput.message);
     expect(updatedRequest.expiresAt).not.toBe(request01.expiresAt);
-    const assignedItems = await getResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      updatedRequest.resourceId,
-      AppResourceType.CollaborationRequest,
-      [AppResourceType.PermissionGroup]
-    );
-
-    expect(assignedItems.length).toBe(1);
-    const assignedItem01 = assignedItems[0];
-    expect(assignedItem01).toBeDefined();
-    expect(assignedItem01.assignedItemId).toBe(permissionGroup02.resourceId);
-  });
-
-  test('permission groups removed', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-    const {request: request01} = await insertRequestForTest(
-      context,
-      userToken,
-      workspace.resourceId,
-      {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
-        ],
-      }
-    );
-
-    const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
-      message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-      permissionGroupsOnAccept: [],
-    };
-
-    const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        requestId: request01.resourceId,
-        request: updateCollaborationRequestInput,
-      }
-    );
-
-    const result = await updateCollaborationRequest(context, instData);
-    assertEndpointResultOk(result);
-    const assignedItems = await getResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      result.request.resourceId,
-      AppResourceType.CollaborationRequest,
-      [AppResourceType.PermissionGroup]
-    );
-
-    expect(assignedItems.length).toBe(0);
-  });
-
-  test('permission groups not updated', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
-
-    const {request: request01} = await insertRequestForTest(
-      context,
-      userToken,
-      workspace.resourceId,
-      {
-        permissionGroupsOnAccept: [
-          {
-            permissionGroupId: permissionGroup01.resourceId,
-            order: 0,
-          },
-        ],
-      }
-    );
-
-    const updateCollaborationRequestInput: IUpdateCollaborationRequestInput = {
-      message: faker.lorem.paragraph(),
-      expires: add(Date.now(), {days: 1}).toISOString(),
-    };
-
-    const instData = RequestData.fromExpressRequest<IUpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
-      {
-        requestId: request01.resourceId,
-        request: updateCollaborationRequestInput,
-      }
-    );
-
-    const result = await updateCollaborationRequest(context, instData);
-    assertEndpointResultOk(result);
-    const assignedItems = await getResourceAssignedItems(
-      context,
-      workspace.resourceId,
-      result.request.resourceId,
-      AppResourceType.CollaborationRequest,
-      [AppResourceType.PermissionGroup]
-    );
-
-    expect(assignedItems.length).toBe(1);
-    const assignedItem01 = assignedItems[0];
-    expect(assignedItem01).toBeDefined();
-    expect(assignedItem01.assignedItemId).toBe(permissionGroup01.resourceId);
   });
 });

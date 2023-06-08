@@ -1,29 +1,22 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {ITag} from '../definitions/tag';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {Tag} from '../definitions/tag';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const tagSchema = ensureTypeFields<ITag>({
-  resourceId: {type: String, unique: true, index: true},
-  workspaceId: {type: String, index: true},
+const tagSchema = ensureMongoTypeFields<Tag>({
+  ...workspaceResourceSchema,
   name: {type: String, index: true},
-  createdAt: {type: Date, default: getDate},
-  createdBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
-  lastUpdatedBy: {type: agentSchema},
   description: {type: String},
 });
 
-export type ITagDocument = Document<ITag>;
+export type TagDocument = Document<Tag>;
 
-const schema = new Schema<ITag>(tagSchema);
+const schema = new Schema<Tag>(tagSchema);
 const modelName = 'tag';
 const collectionName = 'tags';
 
 export function getTagModel(connection: Connection) {
-  const model = connection.model<ITag>(modelName, schema, collectionName);
-
+  const model = connection.model<Tag>(modelName, schema, collectionName);
   return model;
 }
 
-export type ITagModel = Model<ITag>;
+export type TagModel = Model<Tag>;

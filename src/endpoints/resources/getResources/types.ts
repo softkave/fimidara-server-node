@@ -1,14 +1,19 @@
-import {IBaseContext} from '../../contexts/types';
+import {ResourceWrapper} from '../../../definitions/system';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
-import {IFetchResourceItem, IResource} from '../types';
+import {FetchResourceItem} from '../types';
 
-export interface IGetResourcesEndpointParams {
+export interface GetResourcesEndpointParams {
   workspaceId?: string;
-  resources: IFetchResourceItem[];
+  resources: FetchResourceItem[];
 }
 
-export interface IGetResourcesEndpointResult {
-  resources: IResource[];
+export interface GetResourcesEndpointResult {
+  resources: ResourceWrapper[];
 }
 
-export type GetResourcesEndpoint = Endpoint<IBaseContext, IGetResourcesEndpointParams, IGetResourcesEndpointResult>;
+export type GetResourcesEndpoint = Endpoint<
+  BaseContextType,
+  GetResourcesEndpointParams,
+  GetResourcesEndpointResult
+>;

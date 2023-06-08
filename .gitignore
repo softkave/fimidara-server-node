@@ -112,4 +112,12 @@ aws-config.json
 # Jest output
 jest-output/
 
-mdoc/
+# DB path for mongo replicas run using `run-rs`, check script in `package.json`
+dev-mongo-rs-data/
+test-mongo-rs-data/
+
+# Local file persistence backend save dir
+dev-local-fs/
+
+# Runtime logs
+runtime-logs/

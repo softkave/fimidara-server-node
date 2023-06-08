@@ -1,5 +1,4 @@
 import {validate} from '../../../utils/validate';
-import EndpointReusableQueries from '../../queries';
 import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
 import {workspaceListExtractor} from '../utils';
 import {GetUserWorkspacesEndpoint} from './types';
@@ -9,12 +8,12 @@ const getUserWorkspaces: GetUserWorkspacesEndpoint = async (context, d) => {
   const data = validate(d.data, getUserWorkspacesJoiSchema);
   const user = await context.session.getUser(context, d);
   applyDefaultEndpointPaginationOptions(data);
-  const workspaces = await context.data.workspace.getManyByQuery(
-    EndpointReusableQueries.getByResourceIdList(
-      user.workspaces.map(workspace => workspace.workspaceId)
-    ),
+  const assignedItems = await context.semantic.assignedItem.getUserWorkspaces(
+    user.resourceId,
     data
   );
+  const workspaceIdList = assignedItems.map(item => item.assignedItemId);
+  const workspaces = await context.semantic.workspace.getManyByIdList(workspaceIdList);
   return {page: getEndpointPageFromInput(data), workspaces: workspaceListExtractor(workspaces)};
 };
 

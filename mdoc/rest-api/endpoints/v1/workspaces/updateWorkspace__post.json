@@ -1,0 +1,900 @@
+{
+    "basePathname": "/v1/workspaces/updateWorkspace",
+    "method": "post",
+    "requestBody": {
+        "required": true,
+        "description": "Update workspace endpoint params.",
+        "__id": "FieldObject",
+        "name": "UpdateWorkspaceEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "workspace": {
+                "data": {
+                    "__id": "FieldObject",
+                    "name": "UpdateWorkspaceInput",
+                    "fields": {
+                        "name": {
+                            "data": {
+                                "description": "Workspace name.",
+                                "__id": "FieldString",
+                                "example": "fimidara"
+                            },
+                            "optional": true
+                        },
+                        "description": {
+                            "data": {
+                                "description": "Workspace description.",
+                                "__id": "FieldString",
+                                "example": "fimidara, a super awesome company that offers file management with access control for devs."
+                            },
+                            "optional": true
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Update workspace endpoint success result.",
+        "__id": "FieldObject",
+        "name": "UpdateWorkspaceEndpointResult",
+        "fields": {
+            "workspace": {
+                "data": {
+                    "__id": "FieldObject",
+                    "name": "Workspace",
+                    "fields": {
+                        "resourceId": {
+                            "data": {
+                                "description": "Resource ID.",
+                                "__id": "FieldString",
+                                "example": "wrkspce_000000000000000000000"
+                            },
+                            "required": true
+                        },
+                        "workspaceId": {
+                            "data": {
+                                "description": "Resource ID.",
+                                "__id": "FieldString",
+                                "example": "wrkspce_000000000000000000000"
+                            },
+                            "required": true
+                        },
+                        "providedResourceId": {
+                            "data": {
+                                "description": "Resource ID provided by you.",
+                                "__id": "FieldString",
+                                "max": 50
+                            },
+                            "optional": true
+                        },
+                        "createdBy": {
+                            "data": {
+                                "__id": "FieldObject",
+                                "name": "Agent",
+                                "fields": {
+                                    "agentId": {
+                                        "data": {
+                                            "description": "Agent ID. Possible agents are users and agent tokens.",
+                                            "__id": "FieldString"
+                                        },
+                                        "required": true
+                                    },
+                                    "agentType": {
+                                        "data": {
+                                            "description": "Agent type.",
+                                            "__id": "FieldString",
+                                            "example": "agentToken",
+                                            "valid": {
+                                                "0": "user",
+                                                "1": "agentToken"
+                                            },
+                                            "enumName": "AgentType"
+                                        },
+                                        "required": true
+                                    }
+                                }
+                            },
+                            "required": true
+                        },
+                        "createdAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "lastUpdatedBy": {
+                            "data": {
+                                "__id": "FieldObject",
+                                "name": "Agent",
+                                "fields": {
+                                    "agentId": {
+                                        "data": {
+                                            "description": "Agent ID. Possible agents are users and agent tokens.",
+                                            "__id": "FieldString"
+                                        },
+                                        "required": true
+                                    },
+                                    "agentType": {
+                                        "data": {
+                                            "description": "Agent type.",
+                                            "__id": "FieldString",
+                                            "example": "agentToken",
+                                            "valid": {
+                                                "0": "user",
+                                                "1": "agentToken"
+                                            },
+                                            "enumName": "AgentType"
+                                        },
+                                        "required": true
+                                    }
+                                }
+                            },
+                            "required": true
+                        },
+                        "lastUpdatedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "name": {
+                            "data": {
+                                "description": "Workspace name.",
+                                "__id": "FieldString",
+                                "example": "fimidara"
+                            },
+                            "required": true
+                        },
+                        "rootname": {
+                            "data": {
+                                "description": "Workspace root name, must be a URL compatible name.",
+                                "__id": "FieldString",
+                                "example": "fimidara-rootname"
+                            },
+                            "required": true
+                        },
+                        "description": {
+                            "data": {
+                                "description": "Workspace description.",
+                                "__id": "FieldString",
+                                "example": "fimidara, a super awesome company that offers file management with access control for devs."
+                            },
+                            "optional": true
+                        },
+                        "publicPermissionGroupId": {
+                            "data": {
+                                "description": "Resource ID.",
+                                "__id": "FieldString",
+                                "example": "wrkspce_000000000000000000000"
+                            },
+                            "required": true
+                        },
+                        "billStatusAssignedAt": {
+                            "data": {
+                                "description": "UTC timestamp in milliseconds.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "billStatus": {
+                            "data": {
+                                "description": "Workspace bill status",
+                                "__id": "FieldString",
+                                "example": "ok",
+                                "valid": {
+                                    "0": "ok",
+                                    "1": "gracePeriod",
+                                    "2": "billOverdue"
+                                },
+                                "enumName": "WorkspaceBillStatus"
+                            },
+                            "required": true
+                        },
+                        "usageThresholds": {
+                            "data": {
+                                "__id": "FieldObject",
+                                "name": "WorkspaceUsageThresholds",
+                                "fields": {
+                                    "storage": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThreshold",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "budget": {
+                                                    "data": {
+                                                        "description": "Price in USD.",
+                                                        "__id": "FieldNumber",
+                                                        "example": 5
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "bin": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThreshold",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "budget": {
+                                                    "data": {
+                                                        "description": "Price in USD.",
+                                                        "__id": "FieldNumber",
+                                                        "example": 5
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "bout": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThreshold",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "budget": {
+                                                    "data": {
+                                                        "description": "Price in USD.",
+                                                        "__id": "FieldNumber",
+                                                        "example": 5
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "total": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThreshold",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "budget": {
+                                                    "data": {
+                                                        "description": "Price in USD.",
+                                                        "__id": "FieldNumber",
+                                                        "example": 5
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    }
+                                }
+                            },
+                            "required": true
+                        },
+                        "usageThresholdLocks": {
+                            "data": {
+                                "__id": "FieldObject",
+                                "name": "WorkspaceUsageThresholdLocks",
+                                "fields": {
+                                    "storage": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThresholdLock",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "locked": {
+                                                    "data": {
+                                                        "description": "Flag for whether a certain usage category is locked or not.",
+                                                        "__id": "FieldBoolean"
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "bin": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThresholdLock",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "locked": {
+                                                    "data": {
+                                                        "description": "Flag for whether a certain usage category is locked or not.",
+                                                        "__id": "FieldBoolean"
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "bout": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThresholdLock",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "locked": {
+                                                    "data": {
+                                                        "description": "Flag for whether a certain usage category is locked or not.",
+                                                        "__id": "FieldBoolean"
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    },
+                                    "total": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThresholdLock",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                                    "__id": "FieldString"
+                                                                },
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "description": "Agent type.",
+                                                                    "__id": "FieldString",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "description": "UTC timestamp in milliseconds.",
+                                                        "__id": "FieldNumber"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "description": "Usage record category.",
+                                                        "__id": "FieldString",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "storage",
+                                                            "1": "bin",
+                                                            "2": "bout",
+                                                            "3": "total"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "required": true
+                                                },
+                                                "locked": {
+                                                    "data": {
+                                                        "description": "Flag for whether a certain usage category is locked or not.",
+                                                        "__id": "FieldBoolean"
+                                                    },
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "optional": true
+                                    }
+                                }
+                            },
+                            "required": true
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "UpdateWorkspaceEndpoint",
+    "description": "Update workspace endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

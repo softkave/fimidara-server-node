@@ -1,26 +1,22 @@
-import {IAssignPermissionGroupInput, IPublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {IAssignedTagInput} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {PublicPermissionGroup} from '../../../definitions/permissionGroups';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface INewPermissionGroupInput {
+export interface NewPermissionGroupInput {
   name: string;
   description?: string;
-  permissionGroups?: IAssignPermissionGroupInput[];
-  tags?: IAssignedTagInput[];
 }
 
-export interface IAddPermissionGroupEndpointParams {
-  workspaceId?: string;
-  permissionGroup: INewPermissionGroupInput;
+export interface AddPermissionGroupEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  permissionGroup: NewPermissionGroupInput;
 }
 
-export interface IAddPermissionGroupEndpointResult {
-  permissionGroup: IPublicPermissionGroup;
+export interface AddPermissionGroupEndpointResult {
+  permissionGroup: PublicPermissionGroup;
 }
 
 export type AddPermissionGroupEndpoint = Endpoint<
-  IBaseContext,
-  IAddPermissionGroupEndpointParams,
-  IAddPermissionGroupEndpointResult
+  BaseContextType,
+  AddPermissionGroupEndpointParams,
+  AddPermissionGroupEndpointResult
 >;

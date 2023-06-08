@@ -1,7 +1,6 @@
-import {compact} from 'lodash';
-import {IResourceBase} from '../definitions/system';
-import {indexArray} from './indexArray';
-import {AnyObject} from './types';
+import {compact, flatten} from 'lodash';
+import {Resource} from '../definitions/system';
+import {AnyFn, AnyObject} from './types';
 
 export function cast<ToType>(resource: any): ToType {
   return resource as unknown as ToType;
@@ -52,7 +51,11 @@ export function findItemWithField<T>(items: T[], val: any, field: keyof T): T | 
   });
 }
 
-export function makeKey(fields: any[], separator = '-', omitFalsy = true) {
+export function makeKey(
+  fields: Array<string | number | undefined | null | boolean>,
+  separator = '-',
+  omitFalsy = true
+) {
   if (omitFalsy) {
     fields = compact(fields);
   }
@@ -73,59 +76,6 @@ export function reverseMap<K extends string, V extends string>(m: Record<K, V>):
     r[m[k]] = k;
   }
   return r;
-}
-
-/**
- * Checks that `list1` contains every item in `list2` using the `indexer`
- * provided. The `indexer` should return a unique string for each unique item in
- * the list. Also, the same unique string should be returned for the same item
- * no matter how many times `indexer` is called.
- */
-export function containsEveryItemIn<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  const list1Map = indexArray(list1, {indexer});
-  list2.forEach(item1 => {
-    const k = indexer(item1);
-    const item2 = list1Map[k];
-    expect(item2).toBeTruthy();
-  });
-}
-
-/**
- * Checks that `list1` contains none of the items in `list2` using the `indexer`
- * provided. The `indexer` should return a unique string for each unique item in
- * the list. Also, the same unique string should be returned for the same item
- * no matter how many times `indexer` is called.
- */
-export function containsNoneIn<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  const list1Map = indexArray(list1, {indexer});
-  list2.forEach(item1 => {
-    const k = indexer(item1);
-    const item2 = list1Map[k];
-    expect(item2).toBeFalsy();
-  });
-}
-
-/**
- * Checks that `list1` and `list2` should contain the same items using the
- * `indexer` provided. The `indexer` should return a unique string for each
- * unique item in the list. Also, the same unique string should be returned for
- * the same item no matter how many times `indexer` is called.
- */
-export function containsExactly<T2, T1 extends T2>(
-  list1: T1[],
-  list2: T2[],
-  indexer: (item: T2) => string
-) {
-  expect(list1.length).toEqual(list2.length);
-  containsEveryItemIn(list1, list2, indexer);
 }
 
 export function getRandomArbitrary(min: number, max: number) {
@@ -156,16 +106,85 @@ export function uncapitalizeFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
-export function calculatePageSize(count: number, pageSize: number, page: number) {
+export function calculatePageSize(
+  count: number,
+  pageSize: number,
+  /** zero-index based page */ page: number
+) {
   count = Math.max(count, 0);
   pageSize = Math.max(pageSize, 0);
   page = Math.max(page, 0);
-  if (count === 0 || pageSize === 0) return 0;
+  if (count === 0 ?? pageSize === 0) return 0;
   const maxFullPages = Math.floor(count / pageSize);
   const pageCount = page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
   return pageCount;
 }
 
-export function getResourceId(resource: IResourceBase) {
+export function getResourceId(resource: Pick<Resource, 'resourceId'>) {
   return resource.resourceId;
+}
+
+export function extractResourceIdList(resources: Pick<Resource, 'resourceId'>[]) {
+  return resources.map(getResourceId);
+}
+
+export function toArray<T>(...args: Array<T | T[]>) {
+  const arrays = args.map(item => {
+    if (Array.isArray(item)) {
+      return item;
+    } else {
+      return [item];
+    }
+  });
+  return flatten(arrays);
+}
+
+export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
+  return toArray(...args);
+}
+
+export function toCompactArray<T>(...args: Array<T | T[]>) {
+  const array = toArray(...args);
+  return compact(array as Array<NonNullable<T> | undefined>);
+}
+
+export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
+  return array.length ? array : toCompactArray(data);
+}
+
+export function loop(count = 1, fn: AnyFn) {
+  while (count > 0) {
+    fn();
+    count -= 1;
+  }
+}
+
+export function loopAndCollate<Fn extends AnyFn>(count = 1, fn: Fn): Array<ReturnType<Fn>> {
+  const result: Array<ReturnType<Fn>> = [];
+  while (count > 0) {
+    result.push(fn());
+    count -= 1;
+  }
+  return result;
+}
+
+export function pick00<T>(data: T, keys: Array<keyof T>) {
+  return keys.reduce((map, key) => {
+    map[key] = data[key];
+    return map;
+  }, {} as Partial<T>);
+}
+
+export function multilineTextToParagraph(text: string) {
+  return text.replace(/[\s]+/g, ' ').trim();
+}
+
+export function sortStringListLexographically(stringList: string[]) {
+  return stringList.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+export function getFileExtenstion(name = '') {
+  const i = name.indexOf('.');
+  if (i !== -1) return name.slice(i + 1);
+  return undefined;
 }

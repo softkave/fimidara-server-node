@@ -1,59 +1,57 @@
 import assert = require('assert');
-import {AppResourceType, IAgent} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {IUser} from '../../../definitions/user';
-import {IWorkspace, WorkspaceBillStatus} from '../../../definitions/workspace';
-import {getDate, getDateString} from '../../../utils/dateFns';
+import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resourceId';
-import {IBaseContext} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
-import {getDefaultThresholds} from '../../usageRecords/constants';
-import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceNameExists';
-import {assertWorkspace} from '../utils';
-import {INewWorkspaceInput} from './types';
+import {getNewIdForResource} from '../../../utils/resource';
+import {assertIsNotOnWaitlist} from '../../../utils/sessionUtils';
 import {
-  addWorkspaceToUserAndAssignAdminPermissionGroup,
-  setupDefaultWorkspacePermissionGroups,
-} from './utils';
+  addAssignedPermissionGroupList,
+  assignWorkspaceToUser,
+} from '../../assignedItems/addAssignedItems';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {BaseContextType} from '../../contexts/types';
+import {getDefaultThresholds} from '../../usageRecords/constants';
+import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceExists';
+import {NewWorkspaceInput} from './types';
+import {generateDefaultWorkspacePermissionGroups} from './utils';
 
 export function transformUsageThresholInput(
-  agent: IAgent,
-  input: Required<INewWorkspaceInput>['usageThresholds']
+  agent: Agent,
+  input: Required<NewWorkspaceInput>['usageThresholds']
 ) {
-  const usageThresholds: IWorkspace['usageThresholds'] = {};
+  const usageThresholds: Workspace['usageThresholds'] = {};
   cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
     assert(usageThreshold);
     usageThresholds[category] = {
       ...usageThreshold,
       lastUpdatedBy: agent,
-      lastUpdatedAt: getDate(),
+      lastUpdatedAt: getTimestamp(),
     };
   });
   return usageThresholds;
 }
 
-const internalCreateWorkspace = async (
-  context: IBaseContext,
-  data: INewWorkspaceInput,
-  agent: IAgent,
-  user?: IUser
+const INTERNAL_createWorkspace = async (
+  context: BaseContextType,
+  data: NewWorkspaceInput,
+  agent: Agent,
+  userId: string | undefined,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
+  assertIsNotOnWaitlist(agent);
   await Promise.all([
-    checkWorkspaceNameExists(context, data.name),
-    checkWorkspaceRootnameExists(context, data.rootname),
+    checkWorkspaceNameExists(context, data.name, opts),
+    checkWorkspaceRootnameExists(context, data.rootname, opts),
   ]);
-
-  const createdAt = getDateString();
-  // const usageThresholds = transformUsageThresholInput(
-  //   agent,
-  //   data.usageThresholds || {}
-  // );
 
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
-  let workspace: IWorkspace | null = await context.data.workspace.insertItem({
+  const createdAt = getTimestamp();
+  const id = getNewIdForResource(AppResourceType.Workspace);
+  const workspace: Workspace | null = {
     createdAt,
     usageThresholds,
     createdBy: agent,
@@ -61,35 +59,46 @@ const internalCreateWorkspace = async (
     lastUpdatedBy: agent,
     name: data.name,
     rootname: data.rootname,
-    resourceId: getNewIdForResource(AppResourceType.Workspace),
+    resourceId: id,
+    workspaceId: id,
     description: data.description,
     billStatus: WorkspaceBillStatus.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
-  });
+    publicPermissionGroupId: '', // placeholder
+  };
 
-  const {adminPermissionGroup, publicPermissionGroup} = await setupDefaultWorkspacePermissionGroups(
-    context,
-    agent,
-    workspace
-  );
+  const {
+    adminPermissionGroup,
+    publicPermissionGroup,
+    collaboratorPermissionGroup,
+    permissionItems,
+  } = generateDefaultWorkspacePermissionGroups(agent, workspace);
+  workspace.publicPermissionGroupId = publicPermissionGroup.resourceId;
 
-  workspace = await context.data.workspace.getAndUpdateOneByQuery(
-    EndpointReusableQueries.getByResourceId(workspace.resourceId),
-    {publicPermissionGroupId: publicPermissionGroup.resourceId}
-  );
-
-  assertWorkspace(workspace);
-  if (user) {
-    await addWorkspaceToUserAndAssignAdminPermissionGroup(
-      context,
-      user,
-      workspace,
-      adminPermissionGroup
-    );
-  }
+  await Promise.all([
+    context.semantic.workspace.insertItem(workspace, opts),
+    context.semantic.permissionGroup.insertItem(
+      [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
+      opts
+    ),
+    context.semantic.permissionItem.insertItem(permissionItems, opts),
+    userId && assignWorkspaceToUser(context, agent, workspace.resourceId, userId, opts),
+    userId &&
+      addAssignedPermissionGroupList(
+        context,
+        agent,
+        workspace.resourceId,
+        [{permissionGroupId: adminPermissionGroup.resourceId}],
+        userId,
+        /** deleteExisting */ false,
+        /** skipPermissionGroupsExistCheck */ true,
+        /** skip auth check */ true,
+        opts
+      ),
+  ]);
 
   return {workspace, adminPermissionGroup, publicPermissionGroup};
 };
 
-export default internalCreateWorkspace;
+export default INTERNAL_createWorkspace;

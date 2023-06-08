@@ -1,11 +1,121 @@
+## Now
+
+- [ ] Move logs to it's own service and not write directly to DB
+- [ ] file transformation options
+  - [ ] do not transform on read
+  - [ ] set options
+    - [ ] job, in separate thread
+  - [ ] match closest pre-transformed
+  - [ ] get path, get presigned path
+- [ ] Limit workspaces created by a user to 3 with a way to request for more
+- [ ] Use standard JWT secret for production
+- [ ] Move db to another thread
+- [ ] Test files like .env work on upload and read file
+- [ ] Make js sdk tree-shakeable
+- [ ] Delete presigned paths endpoint
+- [ ] Research other resize options and allow users pass in resize options
+- [ ] Send email to root user on user signup
+- [ ] Mddoc special enum type with item description
+- [ ] Send emails to workspace owner of users without permissions
+- [ ] Introduce permissions check for viewing usage records?
+- [ ] Include user agent and origin in presigned path as extra security checks
+- [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
+- [ ] Support issueing mutliple file presigned paths at a time
+  - [ ] Issue paths at once in getFilePresignedPaths test
+- [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
+- [ ] Job to delete expired or spent file presigned paths
+- [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
+- [ ] mddoc endpoint description and support markdown
+- [ ] Image pipeline should help compress images to web formats, same for other frontend media
+- [ ] Frontend for tags for collaborators without permissions
+- [ ] Track collaboration requests user has not seen?
+- [ ] All the many many TODOs littering the project
+- [ ] Support providedResourceId for all resources
+- [ ] In app notification
+- [ ] Audit logs
+- [ ] get permission group assignees
+- [ ] Predefined resize pipelines
+- [ ] Assigned permission group weight
+- [ ] Custom HTML tag for fetching images and video
+- [ ] Return progress when uploading file in js sdk
+- [ ] resources fetched are currently not sorted by last updated
+- [ ] data or resource name for endpoints, decide
+- [ ] Look into sending and accepting cookies for auth and look into any cookie security issues
+- [ ] Cascade delete folder children not all at once
+- [ ] Auth using cookies for presigned paths, delegated auth tokens, etc. The client calls us with browser, we set cookie that the browser sends per request for auth, particularly for images.
+- [ ] React and html custom tags to auto issue presigned paths for images
+- [ ] Include request in assertions and logs for better debugging
+- [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
+- [ ] Learn more about csrf and ssrf
+- [ ] Document all errors to surface in docs
+- [ ] On server start, produce dev env vars when not in production
+- [ ] For tests, have a local cache of mem data that can quickly be loaded instead of fetching from db. Maybe it'll help tests run faster and use less memory. Or use Jest's global to pass same context around.
+- [ ] Public access op for files
+- [ ] Mem, shard by workspace and other fields
+- [ ] Accepted collaboration requests should be put in their own space
+- [ ] Limit assigned permissions depth to 10
+- [ ] File and folder exists endpoints
+- [ ] Mem, test delete one and delete many items
+- [ ] Grant permission should work on the resource level, like allowing access to grant permission for folder and children
+- [ ] Mem, sync persisted and current in-memory DBs
+- [ ] Add types to force you to write and update Joi schemas
+- [ ] Add description/comments to mddoc endpoints and types
+- [ ] Filter out agent token ID if the agent type is user
+- [ ] Make sure fields we use for matching are indexed
+- [ ] Capture stack trace for log functions like appAssert
+- [ ] Check if we have a wrapper error and confirm that it's wrapped content is logged when logging it
+- [ ] Get tags by name
+- [ ] Confirm that queries that should have index hits do
+- [ ] Think up a way to add context information to txns and lock timeout errors
+- [ ] Write tests to confirm that memstore is faster overall than mongodb
+- [ ] A memstore txn lock times out in deleteFolder test
+- [ ] Refresh jwt tokens and group for collaborators not yet given permission groups
+- [ ] Implement public access actions for resources and check that requesting agent has permission to perform action. Can do similar thing for collaboration request's permission groups assigned on accept.
+- [ ] Ensure that streaming works on clientside when uploading that the formdata is not waiting for all data to be available b4 uploading
+- [ ] Add array or singular item type to permission item mddoc definitions
+- [ ] Make sure min and max is set for mddoc fields
+- [ ] CORS and origin restrict non-public endpoints to just fimidara frontend
+- [ ] either return shortened enums to descriptive text or find a way to add comments to them in api and sdk.
+- [ ] clarify in docs, endpoints that have required body but same fields can be passed in path or query
+- [ ] type and field comments from mddoc
+- [ ] gen validation schemas from mddoc
+- [ ] gen tests from mddoc
+- [ ] Include folders, files, names and IDs in error messages?
+- [ ] Memstore txn ops shouldn't wait if query or data to insert/update is empty
+- [ ] Memstore should run query for multiple queries at once instead of one query per loop. This can also be used to support $or and $and
+- [ ] Frontend endpoint doc should be generated for each route to reduce compute and cost. Currently, the file is loaded then rendered.
+- [ ] Seek file included in readFile
+- [ ] Support Blob, UIntArray in js sdk, and ensure that string support works
+- [ ] Switch assert to appAssert
+- [ ] Include count in paged endpoints
+- [ ] Test that all delete artifacts are removed for all resources
+- [ ] Should we paginate get file presigned paths endpoint?
+- [ ] Open up getting another agent token's presigned paths with permission
+- [ ] Include action in PermissionItemInputTarget in resolveEntityPermissions endpoint
+- [ ] Uniq input lists, and ensure all Joi and mddoc lists have max
+- [ ] In the future, look into deleting permission items sitting at the bottom not contributing to perm checks
+- [ ] How to speed up server start time when loading data from db
+  - [ ] One way, separate out any data not mem into own model and leave only mem data in model for read all
+
+## Later
+
+- [ ] Mem, use traversal indexes for gt, gte, lt, lte
+- [ ] Use token version when querying tokens
+- [ ] Change events and audit logs
+- [ ] Email and names should be shorter for regex and escape regex special chars
+- [ ] Check file and folder and similar unique resources do not exist b4 creating them. Files are folders are case insensitive
+- [ ] Allow provided ID for all workspace resource, and check that it doesn't exist
+- [ ] Support $or and $and for queries
+- [ ] Check that all tags are saved
+- [ ] Ensure that all check auth calls use right actions
+- [ ] In the future, implement mark deleted, shallow delete, complete delete, per resource, and allow users to select fields to mask on shallow delete
+- [ ] Public deny all to remove implicit auth and external entity permissions for collaboration requests
+- [ ] Monorepo using turbo repo
 - [ ] Logs and retries
 - [ ] when retrieving cached tokens from the session agent, check that the token contains the input JWTEndpoints
 - [ ] copy and centralize all your todos in one place
 - [ ] drop max file size for now and reimplement
-- [ ] permission group weight, not order
-- [ ] unit tests
 - [ ] free flow tags and meta
-- [ ] add provided resource ID to all the resources
 - [ ] Add to public permission group description what it's for and that it cannot be deleted. Add similar information to admin permission group and that deleting it may lock the admin out of the app
 - [ ] Consistent '.' at the end of descriptions and messages
 - [ ] delete permission items when entity, container, or resource is deleted
@@ -17,7 +127,6 @@
 - [ ] should we gate who can see who's permissions
 - [ ] swagger API documentation
 - [ ] use tags and update the names when workspace names or user names changes
-- [ ] free flowing tags
 - [ ] sort data by date by default
 - [ ] Use extension when file matching so that users can upload files with the same name but with different extensions and test that it works
 - [ ] Job to send reminder of collaboration requests to users who haven't accepted or rejected them in a while and when they expire

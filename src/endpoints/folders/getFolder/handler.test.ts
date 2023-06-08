@@ -1,5 +1,6 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -7,34 +8,30 @@ import {
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {addRootnameToPath} from '../utils';
 import getFolder from './handler';
-import {IGetFolderEndpointParams} from './types';
+import {GetFolderEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('folder returned', async () => {
   assertContext(context);
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {folder: folder01} = await insertFolderForTest(
-    context,
-    userToken,
-    workspace
-  );
+  const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+  const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
     {
       folderpath: addRootnameToPath(folder01.name, workspace.rootname),
     }

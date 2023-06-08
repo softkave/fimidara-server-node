@@ -1,256 +1,465 @@
-import {defaultTo, mapKeys} from 'lodash';
+import {compact, forEach, get, map, mapKeys} from 'lodash';
+import {File} from '../../definitions/file';
 import {
+  AppActionType,
   AppResourceType,
-  BasicCRUDActions,
-  IResourceBase,
-  ISessionAgent,
+  Resource,
+  ResourceWrapper,
+  SessionAgent,
 } from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
-import {makeKey} from '../../utils/fns';
+import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
+import {isObjectEmpty, makeKey, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
+import {getResourceTypeFromId} from '../../utils/resource';
+import {PartialRecord} from '../../utils/types';
+import {IPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
 import {
-  IPromiseWithId,
-  ISettledPromiseWithId,
-  waitOnPromisesWithId,
-} from '../../utils/waitOnPromises';
-import {
-  checkAuthorization,
-  makeResourcePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
-import EndpointReusableQueries from '../queries';
-import {IFetchResourceItem, IResource} from './types';
+  IAuthAccessCheckers,
+  getAuthorizationAccessChecker,
+  getResourcePermissionContainers,
+} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
+import {folderConstants} from '../folders/constants';
+import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
+import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
+import {FetchResourceItem} from './types';
 
-export type IFetchResourceItemWithAction = IFetchResourceItem & {
-  action?: BasicCRUDActions;
+export type FetchResourceItemWithAction = FetchResourceItem & {
+  action?: AppActionType;
 };
 
-export interface IGetResourcesOptions {
-  context: IBaseContext;
-  inputResources: Array<IFetchResourceItemWithAction>;
-  allowedTypes?: AppResourceType[];
-  throwOnFetchError?: boolean;
-  checkAuth?: boolean;
-  agent?: ISessionAgent | null;
-  workspace?: IWorkspace | null;
-  action?: BasicCRUDActions | null;
-  nothrowOnCheckError?: boolean;
+interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
+  resourceType: AppResourceType;
 }
 
-export async function getResources(options: IGetResourcesOptions) {
+type InputsWithIdGroupedByType = PartialRecord<
+  AppResourceType,
+  Record</** resource ID */ string, AppActionType | undefined>
+>;
+
+type FilePathsMap = PartialRecord</** filepath or folderpath */ string, AppActionType | undefined>;
+
+export interface GetResourcesOptions {
+  context: BaseContextType;
+  inputResources: Array<FetchResourceItemWithAction>;
+  allowedTypes: AppResourceType[];
+  checkAuth?: boolean;
+  agent: SessionAgent;
+  workspaceId: string;
+  action: AppActionType;
+  nothrowOnCheckError?: boolean;
+  dataFetchRunOptions?: SemanticDataAccessProviderRunOptions;
+
+  /** User workspaces are automatically filled-in if `checkAuth` is true. */
+  fillAssignedItems?: boolean;
+
+  /** Will fill-in user workspaces if is `true` even if `fillAssignedItems` is
+   * false. */
+  checkBelongsToWorkspace?: boolean;
+}
+
+export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
     context,
     inputResources,
     agent,
-    workspace,
+    workspaceId,
     nothrowOnCheckError,
-    allowedTypes = [AppResourceType.All],
-    action = BasicCRUDActions.Read,
-    throwOnFetchError = true,
+    action,
+    allowedTypes,
+    dataFetchRunOptions,
+    fillAssignedItems,
+    checkBelongsToWorkspace,
     checkAuth = true,
   } = options;
 
-  const idsGroupedByType: Record<string, string[]> = {};
+  const {filepathsMap, folderpathsMap, inputsWithIdByType, workspaceRootname} = groupItemsToFetch(
+    inputResources,
+    allowedTypes
+  );
+
+  let [resources, files, folders, workspaceResource] = await Promise.all([
+    fetchResourcesById(context, inputsWithIdByType, dataFetchRunOptions),
+    fetchFiles(context, workspaceId, filepathsMap),
+    fetchFolders(context, workspaceId, folderpathsMap),
+    fetchWorkspace(context, workspaceRootname),
+  ]);
+
+  resources = resources.concat(files, folders, workspaceResource);
+
+  if (fillAssignedItems)
+    resources = await resourceListWithAssignedItems(context, workspaceId, resources);
+
+  if (checkBelongsToWorkspace) {
+    if (!fillAssignedItems)
+      resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+        AppResourceType.User,
+      ]);
+    checkResourcesBelongsToWorkspace(workspaceId, resources);
+  }
+
+  if (checkAuth) {
+    resources = await authCheckResources(
+      context,
+      agent,
+      workspaceId,
+      resources,
+      inputsWithIdByType,
+      filepathsMap,
+      folderpathsMap,
+      action,
+      nothrowOnCheckError
+    );
+  }
+
+  return resources;
+}
+
+function groupItemsToFetch(
+  inputResources: Array<FetchResourceItemWithAction>,
+  allowedTypes: AppResourceType[]
+) {
+  const inputsWithIdByType: InputsWithIdGroupedByType = {};
+  const filepathsMap: FilePathsMap = {};
+  const folderpathsMap: FilePathsMap = {};
   const allowedTypesMap = indexArray(allowedTypes);
-  const checkedInputResourcesMap = inputResources.reduce((map, item) => {
-    if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[item.resourceType]) {
-      const ids = defaultTo(idsGroupedByType[item.resourceType], []);
-      ids.push(item.resourceId);
-      idsGroupedByType[item.resourceType] = ids;
-      map[makeKey([item.resourceId, item.resourceType])] = item;
+  let workspaceRootname: string | undefined = undefined;
+
+  inputResources.forEach(item => {
+    if (item.resourceId) {
+      const idList = toArray(item.resourceId);
+      idList.forEach(resourceId => {
+        const type = getResourceTypeFromId(resourceId);
+
+        if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[type]) {
+          let inputByIdMap = inputsWithIdByType[type];
+          if (!inputByIdMap) inputsWithIdByType[type] = inputByIdMap = {};
+
+          inputByIdMap[resourceId] = item.action;
+        }
+      });
+    } else if (item.filepath) {
+      toArray(item.filepath).forEach(filepath => {
+        filepathsMap[filepath] = item.action;
+      });
+    } else if (item.folderpath) {
+      toArray(item.folderpath).forEach(folderpath => {
+        folderpathsMap[folderpath] = item.action;
+      });
+    } else if (item.workspaceRootname) {
+      workspaceRootname = item.workspaceRootname;
+    }
+  });
+
+  return {
+    inputsWithIdByType,
+    allowedTypesMap,
+    filepathsMap,
+    folderpathsMap,
+    workspaceRootname,
+  };
+}
+
+function groupByContainerId(
+  workspaceId: string,
+  resources: Array<ResourceWrapper>,
+  inputsWithIdByType: InputsWithIdGroupedByType,
+  filepathsMap: FilePathsMap,
+  folderpathsMap: FilePathsMap,
+  action?: AppActionType
+) {
+  const map: Record<
+    /** container ID or key */ string,
+    Record</** action */ string, ResourceWrapper[]>
+  > = {};
+  const CONTAINERS_SEPARATOR = ';';
+
+  const getContainerKey = (resource: ResourceWrapper) => {
+    let filepath: string | undefined = undefined;
+    const containerIds = getResourcePermissionContainers(workspaceId, resource.resource);
+    const containerKey = makeKey(containerIds, CONTAINERS_SEPARATOR);
+
+    if (
+      resource.resourceType === AppResourceType.Folder ||
+      resource.resourceType === AppResourceType.File
+    ) {
+      filepath = (resource.resource as unknown as Pick<File, 'namePath'>).namePath.join(
+        folderConstants.nameSeparator
+      );
     }
 
-    return map;
-  }, {} as Record<string, IFetchResourceItemWithAction>);
+    return {containerKey, filepath};
+  };
 
-  const checkedInputResources = Object.values(checkedInputResourcesMap);
+  const getContainersFromKey = (key: string) => key.split(CONTAINERS_SEPARATOR);
 
-  interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
-    resourceType: AppResourceType;
-  }
+  resources.forEach(resource => {
+    const {containerKey, filepath} = getContainerKey(resource);
 
-  interface IExtendedSettledPromiseWithId<T> extends ISettledPromiseWithId<T> {
-    resourceType: AppResourceType;
-  }
+    let actionsMap = map[containerKey];
+    if (!actionsMap) map[containerKey] = actionsMap = {};
 
-  const promises: Array<IExtendedPromiseWithId<IResourceBase[]>> = [];
-  mapKeys(idsGroupedByType, (ids, type) => {
-    const query = EndpointReusableQueries.getByResourceIdList(ids);
+    let resourceAction = get(inputsWithIdByType[resource.resourceType] ?? {}, resource.resourceId);
+    if (!resourceAction && resource.resourceType === AppResourceType.File && filepath)
+      resourceAction = filepathsMap[filepath];
+    if (!resourceAction && resource.resourceType === AppResourceType.Folder && filepath)
+      resourceAction = folderpathsMap[filepath];
+    if (!resourceAction) resourceAction = action ?? AppActionType.Read;
+
+    let resourceList = actionsMap[resourceAction];
+    if (!resourceList) actionsMap[resourceAction] = resourceList = [];
+    resourceList.push(resource);
+  });
+
+  return {
+    map,
+    getContainerKey,
+    getContainersFromKey,
+    JOINED_CONTAINERS_SEPARATOR: CONTAINERS_SEPARATOR,
+  };
+}
+
+async function fetchResourcesById(
+  context: BaseContextType,
+  idsGroupedByType: InputsWithIdGroupedByType,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  if (isObjectEmpty(idsGroupedByType)) return [];
+
+  const promises: Array<IExtendedPromiseWithId<Resource[]>> = [];
+  mapKeys(idsGroupedByType, (typeMap, type) => {
+    appAssert(typeMap);
     switch (type) {
-      case AppResourceType.Workspace:
+      case AppResourceType.Workspace: {
         promises.push({
           id: AppResourceType.Workspace,
-          promise: context.data.workspace.getManyByQuery(
-            EndpointReusableQueries.getByResourceIdList(ids)
+          promise: context.semantic.workspace.getManyByIdList(Object.keys(typeMap), opts),
+          resourceType: type,
+        });
+        break;
+      }
+      case AppResourceType.CollaborationRequest: {
+        promises.push({
+          id: AppResourceType.CollaborationRequest,
+          promise: context.semantic.collaborationRequest.getManyByIdList(
+            Object.keys(typeMap),
+            opts
           ),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.CollaborationRequest:
+      }
+      case AppResourceType.AgentToken: {
         promises.push({
-          id: AppResourceType.CollaborationRequest,
-          promise: context.data.collaborationRequest.getManyByQuery(query),
+          id: AppResourceType.AgentToken,
+          promise: context.semantic.agentToken.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.ProgramAccessToken:
-        promises.push({
-          id: AppResourceType.ProgramAccessToken,
-          promise: context.data.programAccessToken.getManyByQuery(query),
-          resourceType: type,
-        });
-        break;
-
-      case AppResourceType.ClientAssignedToken:
-        promises.push({
-          id: AppResourceType.ClientAssignedToken,
-          promise: context.data.clientAssignedToken.getManyByQuery(query),
-          resourceType: type,
-        });
-        break;
-
-      case AppResourceType.UserToken:
-        promises.push({
-          id: AppResourceType.UserToken,
-          promise: context.data.userToken.getManyByQuery(query),
-          resourceType: type,
-        });
-        break;
-
-      case AppResourceType.PermissionGroup:
+      }
+      case AppResourceType.PermissionGroup: {
         promises.push({
           id: AppResourceType.PermissionGroup,
-          promise: context.data.permissiongroup.getManyByQuery(query),
+          promise: context.semantic.permissionGroup.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.PermissionItem:
+      }
+      case AppResourceType.PermissionItem: {
         promises.push({
           id: AppResourceType.PermissionItem,
-          promise: context.data.permissionItem.getManyByQuery(query),
+          promise: context.semantic.permissionItem.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.Folder:
+      }
+      case AppResourceType.Folder: {
         promises.push({
           id: AppResourceType.Folder,
-          promise: context.data.folder.getManyByQuery(query),
+          promise: context.semantic.folder.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.File:
+      }
+      case AppResourceType.File: {
         promises.push({
           id: AppResourceType.File,
-          promise: context.data.file.getManyByQuery(query),
+          promise: context.semantic.file.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
-
-      case AppResourceType.User:
+      }
+      case AppResourceType.User: {
         promises.push({
           id: AppResourceType.User,
-          promise: context.data.user.getManyByQuery(query),
+          promise: context.semantic.user.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
+      }
+      default:
+        appAssert(false, new ServerError(), `Unsupported resource type ${type}`);
     }
   });
 
-  const settledPromises = (await waitOnPromisesWithId(promises)) as Array<
-    IExtendedSettledPromiseWithId<IResourceBase[]>
-  >;
+  const resources: Array<ResourceWrapper> = [];
+  const settledPromises = await waitOnPromisesWithId(promises);
 
-  const resources: Array<IResource> = [];
-  if (!checkAuth || !agent || !workspace) {
-    settledPromises.forEach(item => {
-      if (item.resolved) {
-        item.value?.forEach(resource => {
-          resources.push({
-            resource,
-            resourceId: resource.resourceId,
-            resourceType: item.resourceType,
-          });
+  settledPromises.forEach(item => {
+    if (item.resolved) {
+      item.value?.forEach(resource => {
+        resources.push({
+          resource,
+          resourceId: resource.resourceId,
+          resourceType: getResourceTypeFromId(resource.resourceId),
         });
-      } else if (throwOnFetchError) {
-        throw item.reason;
-      }
-    });
-  } else {
-    const authCheckPromises: IExtendedPromiseWithId<boolean>[] = [];
-    const resourceIndexer = (resourceId: string, resourceType: AppResourceType) =>
-      `${resourceId}-${resourceType}`;
-    const inputMap = indexArray(checkedInputResources, {
-      indexer: item => resourceIndexer(item.resourceId, item.resourceType),
-    });
-
-    settledPromises.forEach(item => {
-      if (item.resolved) {
-        // TODO: can we do this together, so that we don't waste compute
-        item.value?.forEach(resource => {
-          const key = resourceIndexer(resource.resourceId, item.resourceType);
-          const resourceAction = inputMap[key]?.action || action || BasicCRUDActions.Read;
-          const checkPromise = checkAuthorization({
-            context,
-            agent,
-            workspace,
-            resource: resource,
-            type: item.resourceType,
-            permissionContainers: makeResourcePermissionContainerList(
-              workspace.resourceId,
-              item.resourceType,
-              resource
-            ),
-            action: resourceAction,
-            nothrow: nothrowOnCheckError,
-          });
-
-          authCheckPromises.push({
-            id: resource.resourceId,
-            promise: checkPromise,
-            resourceType: item.resourceType,
-          });
-        });
-      } else if (throwOnFetchError) {
-        throw item.reason;
-      }
-    });
-
-    const settledAuthCheckPromises = (await waitOnPromisesWithId(
-      authCheckPromises
-    )) as IExtendedSettledPromiseWithId<boolean>[];
-
-    const settledAuthCheckMap: Record<string, boolean> = {};
-    settledAuthCheckPromises.forEach(item => {
-      if (item.resolved) {
-        const key = resourceIndexer(item.id as string, item.resourceType);
-        settledAuthCheckMap[key] = item.value || false;
-      } else if (item.reason) {
-        // Only set when nothrow is false and auth check fails
-        throw item.reason;
-      }
-    });
-
-    settledPromises.forEach(item => {
-      if (item.resolved && item.value) {
-        item.value.forEach(resource => {
-          const key = resourceIndexer(resource.resourceId, item.resourceType);
-          const permitted = settledAuthCheckMap[key];
-          if (permitted) {
-            resources.push({
-              resource,
-              resourceId: resource.resourceId,
-              resourceType: item.resourceType,
-            });
-          }
-        });
-      }
-    });
-  }
+      });
+    } else {
+      throw item.reason ?? new ServerError();
+    }
+  });
 
   return resources;
+}
+
+const fetchFiles = async (
+  context: BaseContextType,
+  workspaceId: string,
+  filepathsMap: FilePathsMap
+) => {
+  if (isObjectEmpty(filepathsMap)) return [];
+
+  const result = await Promise.all(
+    // TODO: can we have $or or implement $in for array of arrays?
+    map(filepathsMap, (action, filepath) =>
+      context.semantic.file.getOneByNamePath(
+        workspaceId,
+        filepath.split(folderConstants.nameSeparator)
+      )
+    )
+  );
+
+  return compact(result).map(
+    (item): ResourceWrapper => ({
+      resourceId: item.resourceId,
+      resourceType: AppResourceType.File,
+      resource: item,
+    })
+  );
+};
+
+const fetchFolders = async (
+  context: BaseContextType,
+  workspaceId: string,
+  folderpathsMap: FilePathsMap
+) => {
+  if (isObjectEmpty(folderpathsMap)) return [];
+
+  const result = await Promise.all(
+    // TODO: can we have $or or implement $in for array of arrays?
+    map(folderpathsMap, (action, folderpath) =>
+      context.semantic.folder.getOneByNamePath(
+        workspaceId,
+        folderpath.split(folderConstants.nameSeparator)
+      )
+    )
+  );
+
+  return compact(result).map(
+    (item): ResourceWrapper => ({
+      resourceId: item.resourceId,
+      resourceType: AppResourceType.Folder,
+      resource: item,
+    })
+  );
+};
+
+const fetchWorkspace = async (context: BaseContextType, workspaceRootname?: string) => {
+  if (!workspaceRootname) return [];
+
+  const result = await context.semantic.workspace.getByRootname(workspaceRootname);
+  const resources: ResourceWrapper[] = result
+    ? [
+        {
+          resourceId: result.resourceId,
+          resourceType: AppResourceType.Workspace,
+          resource: result,
+        },
+      ]
+    : [];
+  return resources;
+};
+
+async function authCheckResources(
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspaceId: string,
+  resources: Array<ResourceWrapper>,
+  inputsWithIdByType: InputsWithIdGroupedByType,
+  filepathsMap: FilePathsMap,
+  folderpathsMap: FilePathsMap,
+  action?: AppActionType,
+  nothrowOnCheckError?: boolean
+) {
+  const authCheckPromises: IPromiseWithId<IAuthAccessCheckers>[] = [];
+  const {getContainersFromKey, map: groupedByContainer} = groupByContainerId(
+    workspaceId,
+    resources,
+    inputsWithIdByType,
+    filepathsMap,
+    folderpathsMap,
+    action
+  );
+
+  forEach(groupedByContainer, (actionsMap, containerKey) => {
+    forEach(actionsMap, (resourceList, nextAction) => {
+      const containerIds = getContainersFromKey(containerKey);
+      const accessChecker = getAuthorizationAccessChecker({
+        context,
+        agent,
+        workspaceId,
+        containerId: containerIds,
+        action: nextAction as AppActionType,
+        targets: resourceList.map(nextResource => ({targetId: nextResource.resourceId})),
+      });
+
+      const key = makeKey([containerKey, nextAction]);
+      authCheckPromises.push({id: key, promise: accessChecker});
+    });
+  });
+
+  const resolvedAuthCheckPromises = await waitOnPromisesWithId(authCheckPromises);
+  const resolvedAuthCheckMap: PartialRecord<string, IAuthAccessCheckers> = {};
+  resolvedAuthCheckPromises.forEach(next => {
+    if (next.resolved) {
+      resolvedAuthCheckMap[next.id] = next.value;
+    } else if (!nothrowOnCheckError) {
+      throw next.reason ?? new ServerError();
+    }
+  });
+
+  let authCheckedResources: Array<ResourceWrapper> = [];
+
+  forEach(groupedByContainer, (actionsMap, containerKey) => {
+    forEach(actionsMap, (resourceList, nextAction) => {
+      const key = makeKey([containerKey, nextAction]);
+      const accessChecker = resolvedAuthCheckMap[key];
+      if (!accessChecker) return;
+
+      const containerIds = getContainersFromKey(containerKey);
+      resourceList.forEach(resource =>
+        accessChecker.checkForTargetId(
+          resource.resourceId,
+          nextAction as AppActionType,
+          containerIds
+        )
+      );
+
+      authCheckedResources = authCheckedResources.concat(resourceList);
+    });
+  });
+
+  return authCheckedResources;
 }

@@ -1,20 +1,21 @@
-import {IBaseContext} from '../../contexts/types';
-import {insertTagForTest} from '../../test-utils/helpers/tag';
+import {BaseContextType} from '../../contexts/types';
+import {insertTagForTest} from '../../testUtils/helpers/tag';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('addTag', () => {

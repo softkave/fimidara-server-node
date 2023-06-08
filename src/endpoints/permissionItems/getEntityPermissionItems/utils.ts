@@ -1,26 +1,23 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/types';
-import PermissionItemQueries from '../queries';
-import {IGetEntityPermissionItemsEndpointParams} from './types';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {BaseContextType} from '../../contexts/types';
+import {GetEntityPermissionItemsEndpointParams} from './types';
 
 export async function getEntityPermissionItemsQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
-  data: Pick<IGetEntityPermissionItemsEndpointParams, 'permissionEntityId' | 'permissionEntityType'>
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  data: Pick<GetEntityPermissionItemsEndpointParams, 'entityId'>
 ) {
-  await checkAuthorization({
-    context,
-    agent,
-    workspace,
-    action: BasicCRUDActions.Read,
-    type: AppResourceType.PermissionItem,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-  });
-  return PermissionItemQueries.getByPermissionEntity(data.permissionEntityId);
+  if (agent.agentId !== data.entityId) {
+    await checkAuthorization({
+      context,
+      agent,
+      workspace,
+      workspaceId: workspace.resourceId,
+      action: AppActionType.Read,
+      targets: {targetType: AppResourceType.PermissionItem},
+    });
+  }
 }

@@ -1,35 +1,36 @@
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
-import {IGetCollaboratorEndpointParams} from './types';
+import {GetCollaboratorEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('collaborator returned', async () => {
   assertContext(context);
   const {userToken, user} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const instData = RequestData.fromExpressRequest<IGetCollaboratorEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+  const instData = RequestData.fromExpressRequest<GetCollaboratorEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
       collaboratorId: user.resourceId,
@@ -42,7 +43,9 @@ test('collaborator returned', async () => {
     collaboratorExtractor(
       await populateUserWorkspaces(
         context,
-        await context.data.user.assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
+        await context.semantic.user.assertGetOneByQuery(
+          EndpointReusableQueries.getByResourceId(user.resourceId)
+        )
       ),
       workspace.resourceId
     )

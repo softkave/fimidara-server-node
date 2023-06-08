@@ -1,15 +1,15 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
 
-export interface IGetUserCollaborationRequestsEndpointParams extends IPaginationQuery {}
+export interface GetUserCollaborationRequestsEndpointParams extends PaginationQuery {}
 
-export interface IGetUserCollaborationRequestsEndpointResult extends IPaginatedResult {
-  requests: IPublicCollaborationRequest[];
+export interface GetUserCollaborationRequestsEndpointResult extends PaginatedResult {
+  requests: PublicCollaborationRequestForUser[];
 }
 
 export type GetUserCollaborationRequestsEndpoint = Endpoint<
-  IBaseContext,
-  IGetUserCollaborationRequestsEndpointParams,
-  IGetUserCollaborationRequestsEndpointResult
+  BaseContextType,
+  GetUserCollaborationRequestsEndpointParams,
+  GetUserCollaborationRequestsEndpointResult
 >;

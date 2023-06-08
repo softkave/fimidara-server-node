@@ -1,25 +1,24 @@
-import {IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IAssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateCollaborationRequestInput {
+export interface UpdateCollaborationRequestInput {
   message?: string;
-  expires?: string;
-  permissionGroupsOnAccept?: IAssignPermissionGroupInput[];
+  expires?: number;
+  // permissionGroupsAssignedOnAcceptingRequest?: AssignPermissionGroupInput[];
 }
 
-export interface IUpdateCollaborationRequestEndpointParams {
+export interface UpdateCollaborationRequestEndpointParams {
   requestId: string;
-  request: IUpdateCollaborationRequestInput;
+  request: UpdateCollaborationRequestInput;
 }
 
-export interface IUpdateCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+export interface UpdateCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForWorkspace;
 }
 
 export type UpdateCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateCollaborationRequestEndpointParams,
-  IUpdateCollaborationRequestEndpointResult
+  BaseContextType,
+  UpdateCollaborationRequestEndpointParams,
+  UpdateCollaborationRequestEndpointResult
 >;

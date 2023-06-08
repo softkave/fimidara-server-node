@@ -1,23 +1,18 @@
-import {IPublicTag} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {PublicTag} from '../../../definitions/tag';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface INewTagInput {
+export interface NewTagInput {
   name: string;
   description?: string;
 }
 
-export interface IAddTagEndpointParams {
-  workspaceId?: string;
-  tag: INewTagInput;
+export interface AddTagEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  tag: NewTagInput;
 }
 
-export interface IAddTagEndpointResult {
-  tag: IPublicTag;
+export interface AddTagEndpointResult {
+  tag: PublicTag;
 }
 
-export type AddTagEndpoint = Endpoint<
-  IBaseContext,
-  IAddTagEndpointParams,
-  IAddTagEndpointResult
->;
+export type AddTagEndpoint = Endpoint<BaseContextType, AddTagEndpointParams, AddTagEndpointResult>;

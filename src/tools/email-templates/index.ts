@@ -1,17 +1,20 @@
-import {consoleLogger} from '../../utils/logger/logger';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
   renderCollaborationRequestRevokedMedia,
   renderConfirmEmailAddressMedia,
   renderForgotPasswordMedia,
+  renderUpgradedFromWaitlistMedia,
+  renderUsageExceededMedia,
 } from './renderToFile';
 
-consoleLogger.info('Writing templates');
+console.log('Writing templates');
 renderConfirmEmailAddressMedia();
 renderForgotPasswordMedia();
 renderCollaborationRequestMedia();
 renderCollaborationRequestRevokedMedia();
 renderCollaborationRequestResponseMedia();
-consoleLogger.info('Completed writing templates');
+renderUpgradedFromWaitlistMedia();
+renderUsageExceededMedia();
+console.log('Completed writing templates');
 process.exit(0);

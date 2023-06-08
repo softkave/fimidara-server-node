@@ -1,24 +1,21 @@
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
-import {
-  makeWorkspacePermissionContainerList,
-  summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/types';
-import {getWorkspaceResourceListQuery} from '../../utils';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
+import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {BaseContextType} from '../../contexts/types';
+import {getWorkspaceResourceListQuery00} from '../../utils';
 
 export async function getWorkspacePermissionGroupsQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace
 ) {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
     workspace,
-    type: AppResourceType.PermissionGroup,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
-    action: BasicCRUDActions.Read,
+    workspaceId: workspace.resourceId,
+    targets: {targetType: AppResourceType.PermissionGroup},
+    action: AppActionType.Read,
   });
-  return getWorkspaceResourceListQuery(workspace, permissionsSummaryReport);
+  return getWorkspaceResourceListQuery00(workspace, permissionsSummaryReport);
 }

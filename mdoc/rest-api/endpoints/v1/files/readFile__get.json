@@ -1,0 +1,240 @@
+{
+    "basePathname": "/v1/files/readFile",
+    "method": "get",
+    "pathParamaters": {
+        "__id": "FieldObject",
+        "fields": {
+            "filepath": {
+                "data": {
+                    "description": "File path with workspace rootname.",
+                    "__id": "FieldString",
+                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                },
+                "optional": true
+            }
+        }
+    },
+    "query": {
+        "__id": "FieldObject",
+        "fields": {
+            "w": {
+                "data": {
+                    "description": "Resize to width if file is an image.",
+                    "__id": "FieldString"
+                },
+                "optional": true
+            },
+            "h": {
+                "data": {
+                    "description": "Resize to height if file is an image.",
+                    "__id": "FieldString"
+                },
+                "optional": true
+            },
+            "pos": {
+                "data": {
+                    "description": "Position, gravity, or strategy to use when fit is cover or contain.",
+                    "__id": "FieldOrCombination",
+                    "types": {
+                        "0": {
+                            "description": "Gravity or strategy to use when fit is cover or contain.",
+                            "__id": "FieldString",
+                            "valid": {
+                                "0": "top",
+                                "1": "right top",
+                                "2": "right",
+                                "3": "right bottom",
+                                "4": "bottom",
+                                "5": "left bottom",
+                                "6": "left",
+                                "7": "left top",
+                                "8": "north",
+                                "9": "northeast",
+                                "10": "east",
+                                "11": "southeast",
+                                "12": "south",
+                                "13": "southwest",
+                                "14": "west",
+                                "15": "northwest",
+                                "16": "centre",
+                                "17": "entropy",
+                                "18": "attention"
+                            },
+                            "enumName": "ImageResizePositionEnum"
+                        },
+                        "1": {
+                            "description": "Position to use when fit is cover or contain.",
+                            "__id": "FieldNumber"
+                        }
+                    }
+                },
+                "optional": true
+            },
+            "fit": {
+                "data": {
+                    "description": "How the image should be resized to fit provided dimensions.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "contain",
+                        "1": "cover",
+                        "2": "fill",
+                        "3": "inside",
+                        "4": "outside"
+                    },
+                    "enumName": "ImageResizeFitEnum"
+                },
+                "optional": true
+            },
+            "bg": {
+                "data": {
+                    "description": "Hex background color to use when fit is contain.",
+                    "__id": "FieldString",
+                    "example": "#FFFFFF"
+                },
+                "optional": true
+            },
+            "wEnlargement": {
+                "data": {
+                    "description": "Do not enlarge if the width or height are already less than provided dimensions.",
+                    "__id": "FieldBoolean"
+                },
+                "optional": true
+            },
+            "format": {
+                "data": {
+                    "description": "Format to transform image to if file is an image.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "jpeg",
+                        "1": "png",
+                        "2": "webp",
+                        "3": "tiff",
+                        "4": "raw"
+                    },
+                    "enumName": "ImageFormatEnum"
+                },
+                "optional": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthOptional",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "optional": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "required": true,
+                    "description": "Get file endpoint result content type. If request is successful, it will be the file's content type if it is known or application/octet-stream otherwise, and application/json containing errors if request fails.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "__id": "FieldBinary"
+    },
+    "name": "ReadFileEndpoint",
+    "description": "Read file endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

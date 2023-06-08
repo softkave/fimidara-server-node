@@ -1,140 +1,123 @@
 import {
-  ICollaborationRequest,
-  ICollaborationRequestStatus,
-  IPublicCollaborationRequest,
+  CollaborationRequest,
+  PublicCollaborationRequestForUser,
+  PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
-import {getDateString, getDateStringIfPresent} from '../../utils/dateFns';
+import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {
-  populateAssignedPermissionGroupsAndTags,
-  populateResourceListWithAssignedPermissionGroupsAndTags,
-} from '../assignedItems/getAssignedItems';
-import {
-  checkAuthorization,
-  makeWorkspacePermissionContainerList,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+import {reuseableErrors} from '../../utils/reusableErrors';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {assignedPermissionGroupsListExtractor} from '../permissionGroups/utils';
-import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
+import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-const userCollaborationRequestFields = getFields<IPublicCollaborationRequest>(
-  {
-    resourceId: true,
+const userCollaborationRequestForUserFields = getFields<PublicCollaborationRequestForUser>({
+  resourceId: true,
+  recipientEmail: true,
+  message: true,
+  createdAt: true,
+  expiresAt: true,
+  workspaceName: true,
+  lastUpdatedAt: true,
+  readAt: true,
+  status: true,
+  statusDate: true,
+});
+
+const userCollaborationRequestForWorkspaceFields =
+  getFields<PublicCollaborationRequestForWorkspace>({
+    ...workspaceResourceFields,
     recipientEmail: true,
     message: true,
-    createdBy: agentExtractor,
-    createdAt: getDateString,
-    expiresAt: getDateStringIfPresent,
+    expiresAt: true,
     workspaceId: true,
     workspaceName: true,
-    lastUpdatedAt: getDateString,
-    lastUpdatedBy: agentExtractor,
-    readAt: getDateStringIfPresent,
-    statusHistory: makeListExtract(
-      getFields<ICollaborationRequestStatus>({
-        status: true,
-        date: getDateString,
-      })
-    ),
-    permissionGroupsOnAccept: data => (data ? assignedPermissionGroupsListExtractor(data) : []),
-  },
-  req => {
-    if (!req.permissionGroupsOnAccept) {
-      req.permissionGroupsOnAccept = [];
-    }
-
-    return req;
-  }
-);
+    readAt: true,
+    status: true,
+    statusDate: true,
+    // permissionGroupsAssignedOnAcceptingRequest: data =>
+    //   data ? assignedPermissionGroupsListExtractor(data) : [],
+  });
 
 export async function checkCollaborationRequestAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  request: ICollaborationRequest,
-  action: BasicCRUDActions,
-  nothrow = false
+  context: BaseContextType,
+  agent: SessionAgent,
+  request: CollaborationRequest,
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: request,
-    type: AppResourceType.CollaborationRequest,
-    permissionContainers: makeWorkspacePermissionContainerList(workspace.resourceId),
+    workspaceId: workspace.resourceId,
+    workspace: workspace,
+    targets: {targetId: request.resourceId},
   });
-
   return {agent, request, workspace};
 }
 
 export async function checkCollaborationRequestAuthorization02(
-  context: IBaseContext,
-  agent: ISessionAgent,
+  context: BaseContextType,
+  agent: SessionAgent,
   requestId: string,
-  action: BasicCRUDActions,
-  nothrow = false
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const request = await context.data.collaborationRequest.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(requestId)
-  );
-
-  return checkCollaborationRequestAuthorization(context, agent, request, action, nothrow);
+  const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
+  assertCollaborationRequest(request);
+  return checkCollaborationRequestAuthorization(context, agent, request, action);
 }
 
-export const collaborationRequestExtractor = makeExtract(userCollaborationRequestFields);
-
-export const collaborationRequestListExtractor = makeListExtract(userCollaborationRequestFields);
+export const collaborationRequestForUserExtractor = makeExtract(
+  userCollaborationRequestForUserFields
+);
+export const collaborationRequestForUserListExtractor = makeListExtract(
+  userCollaborationRequestForUserFields
+);
+export const collaborationRequestForWorkspaceExtractor = makeExtract(
+  userCollaborationRequestForWorkspaceFields
+);
+export const collaborationRequestForWorkspaceListExtractor = makeListExtract(
+  userCollaborationRequestForWorkspaceFields
+);
 
 export function throwCollaborationRequestNotFound() {
   throw new NotFoundError('Collaboration request not found');
 }
 
-export async function populateRequestPermissionGroups(
-  context: IBaseContext,
-  request: ICollaborationRequest
-) {
-  return await populateAssignedPermissionGroupsAndTags<
-    ICollaborationRequest,
-    IPublicCollaborationRequest
-  >(
+export async function populateRequestAssignedPermissionGroups(
+  context: BaseContextType,
+  request: CollaborationRequest
+): Promise<
+  CollaborationRequest & {
+    permissionGroupsAssignedOnAcceptingRequest: AssignedPermissionGroupMeta[];
+  }
+> {
+  const inheritanceMap = await context.semantic.permissions.getEntityInheritanceMap({
     context,
-    request.workspaceId,
-    request,
-    AppResourceType.CollaborationRequest,
-    {
-      [AppResourceType.PermissionGroup]: 'permissionGroupsOnAccept',
-    },
-    /** includePermissionGroups */ true,
-    /** includeTags */ false
-  );
+    entityId: request.resourceId,
+    fetchDeep: false,
+  });
+  return {
+    ...request,
+    permissionGroupsAssignedOnAcceptingRequest: inheritanceMap[request.resourceId].items,
+  };
 }
 
 export async function populateRequestListPermissionGroups(
-  context: IBaseContext,
-  requests: ICollaborationRequest[]
+  context: BaseContextType,
+  requests: CollaborationRequest[]
 ) {
-  if (requests.length === 0) {
-    return [];
-  }
-
-  return await populateResourceListWithAssignedPermissionGroupsAndTags<
-    ICollaborationRequest,
-    IPublicCollaborationRequest
-  >(
-    context,
-    requests[0].workspaceId,
-    requests,
-    AppResourceType.CollaborationRequest,
-    {
-      [AppResourceType.PermissionGroup]: 'permissionGroupsOnAccept',
-    },
-    /** includePermissionGroups */ true,
-    /** includeTags */ false
+  return await Promise.all(
+    requests.map(request => populateRequestAssignedPermissionGroups(context, request))
   );
+}
+
+export function assertCollaborationRequest(request?: CollaborationRequest | null): asserts request {
+  appAssert(request, reuseableErrors.collaborationRequest.notFound());
 }

@@ -1,54 +1,48 @@
 import {first, isUndefined} from 'lodash';
-import {IFolder, IFolderMatcher} from '../../../definitions/folder';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
+import {Folder, FolderMatcher} from '../../../definitions/folder';
+import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {
-  makeResourcePermissionContainerList,
+  getResourcePermissionContainers,
   summarizeAgentPermissionItems,
-} from '../../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../../contexts/types';
-import {PermissionDeniedError} from '../../user/errors';
-import WorkspaceQueries from '../../workspaces/queries';
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {BaseContextType} from '../../contexts/types';
+import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
-import FolderQueries from '../queries';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
   contentType: AppResourceType.File | AppResourceType.Folder,
-  parentFolder?: IFolder | null
+  parentFolder?: Folder | null
 ) {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
     workspace,
-    action: BasicCRUDActions.Read,
-    type: contentType,
-    permissionContainers: makeResourcePermissionContainerList(
-      workspace.resourceId,
-      AppResourceType.Folder,
-      parentFolder
-    ),
+    workspaceId: workspace.resourceId,
+    action: AppActionType.Read,
+    targets: {targetType: contentType, targetId: parentFolder?.resourceId},
+    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
   });
 
   const parentId = parentFolder?.resourceId ?? null;
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      undefined,
-      permissionsSummaryReport.deniedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+    };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return FolderQueries.getByParentId(
-      workspace.resourceId,
+    return {
       parentId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
+      workspaceId: workspace.resourceId,
+      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+    };
   } else if (permissionsSummaryReport.noAccess) {
     throw new PermissionDeniedError();
   }
@@ -57,34 +51,36 @@ export async function listFolderContentQuery(
 }
 
 export async function getWorkspaceAndParentFolder(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFolderMatcher
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FolderMatcher,
+  UNSAFE_skipAuthCheck = false
 ) {
-  let workspace: IWorkspace | null | undefined = null,
-    parentFolder: IFolder | null | undefined = undefined;
+  let workspace: Workspace | null | undefined = null,
+    parentFolder: Folder | null | undefined = undefined;
 
-  // Check if folderpath is rootname only and fetch root-level folders and files
+  // Check if folderpath contains only the workspace rootname and fetch
+  // root-level folders and files
   if (matcher.folderpath) {
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
     if (containsRootnameOnly) {
-      workspace = await context.data.workspace.getOneByQuery(
-        WorkspaceQueries.getByRootname(rootname)
-      );
+      workspace = await context.semantic.workspace.getByRootname(rootname);
       parentFolder = null;
     }
   }
 
-  // Fetch using folder matcher if folderpath is not rootname only
+  // Fetch using folder matcher if folderpath doesn't contain only the workspace
+  // rootname
   if (isUndefined(parentFolder)) {
     const checkResult = await checkFolderAuthorization02(
       context,
       agent,
       matcher,
-      BasicCRUDActions.Read,
-      /** nothrow */ false,
-      workspace ?? undefined
+      AppActionType.Read,
+      workspace ?? undefined,
+      /** db run options */ undefined,
+      UNSAFE_skipAuthCheck
     );
     ({workspace, folder: parentFolder} = checkResult);
   }
@@ -93,7 +89,7 @@ export async function getWorkspaceAndParentFolder(
   appAssert(
     !isUndefined(parentFolder),
     new ServerError(),
-    'Parent folder should be null or folder, not undefined'
+    'Parent folder should be null or folder, not undefined.'
   );
 
   return {workspace, parentFolder};

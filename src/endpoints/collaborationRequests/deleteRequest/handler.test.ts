@@ -1,6 +1,8 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
@@ -8,19 +10,19 @@ import {
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import deleteCollaborationRequest from './handler';
-import {IDeleteCollaborationRequestEndpointParams} from './types';
+import {DeleteCollaborationRequestEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 test('collaboration request deleted', async () => {
@@ -28,14 +30,16 @@ test('collaboration request deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
-  const instData = RequestData.fromExpressRequest<IDeleteCollaborationRequestEndpointParams>(
-    mockExpressRequestWithUserToken(userToken),
+  const instData = RequestData.fromExpressRequest<DeleteCollaborationRequestEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
     {requestId: request.resourceId}
   );
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  const deletedRequestExists = await context.data.collaborationRequest.existsByQuery(
+  await executeJob(context, result.jobId);
+  await waitForJob(context, result.jobId);
+  const deletedRequestExists = await context.semantic.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );
 

@@ -1,25 +1,26 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertTagListForTest} from '../../test-utils/generate-data/tag';
+import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspaceTags from './handler';
-import {ICountWorkspaceTagsEndpointParams} from './types';
+import {CountWorkspaceTagsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countWorkspaceTags', () => {
@@ -28,9 +29,9 @@ describe('countWorkspaceTags', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertTagListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.data.tag.countByQuery({workspaceId: workspace.resourceId});
-    const instData = RequestData.fromExpressRequest<ICountWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    const count = await context.semantic.tag.countByQuery({workspaceId: workspace.resourceId});
+    const instData = RequestData.fromExpressRequest<CountWorkspaceTagsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
     const result = await countWorkspaceTags(context, instData);

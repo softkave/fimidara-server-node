@@ -1,25 +1,26 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../test-utils/generate-data/collaborationRequest';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countWorkspaceCollaborationRequests from './handler';
-import {ICountWorkspaceCollaborationRequestsEndpointParams} from './types';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countWorkspaceRequests', () => {
@@ -30,12 +31,12 @@ describe('countWorkspaceRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(context, 15, () => ({
       workspaceId: workspace.resourceId,
     }));
-    const count = await context.data.collaborationRequest.countByQuery({
+    const count = await context.semantic.collaborationRequest.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const instData =
-      RequestData.fromExpressRequest<ICountWorkspaceCollaborationRequestsEndpointParams>(
-        mockExpressRequestWithUserToken(userToken),
+      RequestData.fromExpressRequest<CountWorkspaceCollaborationRequestsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
     const result = await countWorkspaceCollaborationRequests(context, instData);

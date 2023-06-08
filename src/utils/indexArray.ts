@@ -1,4 +1,5 @@
 import {get} from 'lodash';
+import {toNonNullableArray} from './fns';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {
@@ -22,19 +23,23 @@ export interface IIndexArrayOptions<T, R> {
   reducer?: (current: T, arr: T[], index: number) => R;
 }
 
-export function indexArray<T, R = T>(arr: T[] = [], opts: IIndexArrayOptions<T, R> = {}): {[key: string]: R} {
-  const indexer = opts.indexer || defaultIndexer;
+export function indexArray<T, R = T>(
+  arr: T | T[] = [],
+  opts: IIndexArrayOptions<T, R> = {}
+): {[key: string]: R} {
+  const array = toNonNullableArray(arr ?? []);
+  const indexer = opts.indexer ?? defaultIndexer;
   const path = opts.path;
-  const reducer = opts.reducer || defaultReducer;
+  const reducer = opts.reducer ?? defaultReducer;
   if (typeof indexer !== 'function') {
     if (typeof path !== 'string') {
       throw new Error('Path must be provided if an indexer is not provided');
     }
   }
 
-  const result = arr.reduce((accumulator, current, index) => {
-    const key = indexer(current, path as any, arr, index);
-    accumulator[key] = reducer(current, arr, index);
+  const result = array.reduce((accumulator, current, index) => {
+    const key = indexer(current, path as any, array, index);
+    accumulator[key] = reducer(current, array, index);
     return accumulator;
   }, {} as {[key: string]: R});
 

@@ -1,159 +1,235 @@
-import {compact} from 'lodash';
-import {
-  IAssignedItem,
-  IAssignedItemMainFieldsMatcher,
-  IAssignedPermissionGroupMeta,
-} from '../../definitions/assignedItem';
-import {IAssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {AppResourceType, IAgent} from '../../definitions/system';
-import {IAssignedTagInput} from '../../definitions/tag';
-import {IUser} from '../../definitions/user';
-import {IWorkspace} from '../../definitions/workspace';
+import {isArray} from 'lodash';
+import {AssignedItem} from '../../definitions/assignedItem';
+import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
+import {Agent, AppActionType, AppResourceType} from '../../definitions/system';
+import {AssignedTagInput} from '../../definitions/tag';
+import {Workspace} from '../../definitions/workspace';
+import {makeKey} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {getNewIdForResource} from '../../utils/resourceId';
-import {IBaseContext} from '../contexts/types';
+import {
+  getNewIdForResource,
+  getResourceTypeFromId,
+  newWorkspaceResource,
+} from '../../utils/resource';
+import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
-import {IResourceWithoutAssignedAgent, withAssignedAgent} from '../utils';
+import {withAssignedAgent} from '../utils';
 import {deleteResourceAssignedItems} from './deleteAssignedItems';
-import AssignedItemQueries from './queries';
-import {assignedItemIndexer} from './utils';
 
-async function getNonExistingAssignedItems<T extends IAssignedItemMainFieldsMatcher>(
-  context: IBaseContext,
-  items: T[]
-): Promise<T[]> {
-  const fetchedItems = await Promise.all(
-    items.map(item =>
-      context.data.assignedItem.getOneByQuery(AssignedItemQueries.getByMainFields(item))
-    )
+/**
+ * @param context
+ * @param workspaceId
+ * @param items
+ * @param comparatorFn - Return `true` to delete existing item and include new
+ * item, and `false` to not include item.
+ */
+async function filterExistingItems<T extends AssignedItem>(
+  context: BaseContextType,
+  workspaceId: string,
+  items: T[],
+  comparatorFn?: (item01: T, item02: AssignedItem) => boolean
+) {
+  const assigneeIdList: string[] = [];
+  const assignedItemIdList: string[] = [];
+  items.forEach(item => {
+    assigneeIdList.push(item.assigneeId);
+    assignedItemIdList.push(item.assignedItemId);
+  });
+  const existingItems = await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
+    workspaceId,
+    assignedItemIdList,
+    assigneeIdList
   );
+  const indexer = (item: Pick<AssignedItem, 'assignedItemId' | 'assigneeId'>) =>
+    makeKey([item.assignedItemId, item.assigneeId]);
+  const existingItemsMap = indexArray(existingItems, {indexer});
+  const itemIdListToDelete: string[] = [];
+  const resolvedItems: T[] = [];
 
-  const itemsMap = indexArray(compact(fetchedItems), {
-    indexer: assignedItemIndexer,
+  items.forEach(item => {
+    const existingItem = existingItemsMap[indexer(item)];
+    if (existingItem) {
+      if (comparatorFn && comparatorFn(item, existingItem)) {
+        itemIdListToDelete.push(existingItem.resourceId);
+        resolvedItems.push(item);
+      }
+    } else {
+      resolvedItems.push(item);
+    }
   });
 
-  return items.filter(item => !itemsMap[assignedItemIndexer(item)]);
+  return {itemIdListToDelete, resolvedItems};
 }
 
-export async function addAssignedItemList(context: IBaseContext, items: IAssignedItem[]) {
-  const nonExistingItems = await getNonExistingAssignedItems(context, items);
-  await context.data.assignedItem.insertList(nonExistingItems);
-  return items;
+/**
+ *
+ * @param context
+ * @param workspaceId
+ * @param items
+ * @param deletedExistingItems - No need to delete existing items
+ * @param comparatorFn
+ * @param opts
+ * @returns
+ */
+export async function addAssignedItems<T extends AssignedItem>(
+  context: BaseContextType,
+  workspaceId: string,
+  items: T[],
+  deletedExistingItems: boolean,
+  comparatorFn: ((item01: T, item02: AssignedItem) => boolean) | undefined,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  if (deletedExistingItems) {
+    await context.semantic.assignedItem.insertItem(items, opts);
+    return items;
+  } else {
+    const {itemIdListToDelete, resolvedItems} = await filterExistingItems(
+      context,
+      workspaceId,
+      items,
+      comparatorFn
+    );
+    await Promise.all([
+      context.semantic.assignedItem.insertItem(resolvedItems, opts),
+      itemIdListToDelete &&
+        context.semantic.assignedItem.deleteManyByIdList(itemIdListToDelete, opts),
+    ]);
+    return resolvedItems;
+  }
 }
 
 export async function addAssignedPermissionGroupList(
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace,
-  permissionGroups: IAssignPermissionGroupInput[],
-  assignedToItemId: string,
-  assignedToItemType: AppResourceType,
+  context: BaseContextType,
+  agent: Agent,
+  workspaceId: string,
+  permissionGroupsInput: AssignPermissionGroupInput[],
+  assigneeId: string | string[],
   deleteExisting: boolean,
-  skipPermissionGroupsCheck = false
+  skipPermissionGroupsExistCheck = false,
+  skipAuthCheck = false,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
       context,
-      workspace.resourceId,
-      assignedToItemId,
-      assignedToItemType,
-      [AppResourceType.PermissionGroup]
+      workspaceId,
+      assigneeId,
+      [AppResourceType.PermissionGroup],
+      opts
     );
   }
 
-  if (!skipPermissionGroupsCheck) {
-    await checkPermissionGroupsExist(context, agent, workspace, permissionGroups);
+  if (!skipPermissionGroupsExistCheck) {
+    await checkPermissionGroupsExist(context, workspaceId, permissionGroupsInput, opts);
   }
 
-  const items = permissionGroups.map(permissionGroup => {
-    const meta: IAssignedPermissionGroupMeta = {
-      order: permissionGroup.order || Number.MAX_SAFE_INTEGER,
-    };
+  if (!skipAuthCheck) {
+    await checkAuthorization({
+      context,
+      agent,
+      workspaceId: workspaceId,
+      action: AppActionType.GrantPermission,
+      targets: {targetType: AppResourceType.PermissionGroup},
+    });
+  }
 
-    const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
-      assignedToItemId,
-      assignedToItemType,
-      meta,
-      resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-      assignedItemId: permissionGroup.permissionGroupId,
-      assignedItemType: AppResourceType.PermissionGroup,
-      workspaceId: workspace.resourceId,
-    };
+  const idList = isArray(assigneeId) ? assigneeId : [assigneeId];
+  const items: Array<AssignedItem> = [];
 
-    return withAssignedAgent(agent, baseItem);
-  });
+  for (const input of permissionGroupsInput) {
+    for (const id of idList) {
+      const item = withAssignedAgent(
+        agent,
+        newWorkspaceResource<AssignedItem>(agent, AppResourceType.AssignedItem, workspaceId, {
+          meta: {},
+          assigneeId: id,
+          assigneeType: getResourceTypeFromId(id),
+          resourceId: getNewIdForResource(AppResourceType.AssignedItem),
+          assignedItemId: input.permissionGroupId,
+          assignedItemType: AppResourceType.PermissionGroup,
+        })
+      );
+      items.push(item);
+    }
+  }
 
-  return await addAssignedItemList(context, items);
+  const comparatorFn = (item01: AssignedItem, item02: AssignedItem) => {
+    // Delete existing assigned permission groups and re-assign it if the order
+    // is changed.
+    return item01.meta.order !== (item02 as AssignedItem).meta.order;
+  };
+
+  return await addAssignedItems(context, workspaceId, items, deleteExisting, comparatorFn, opts);
 }
 
 export async function addAssignedTagList(
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace,
-  tags: IAssignedTagInput[],
-  assignedToItemId: string,
-  assignedToItemType: AppResourceType,
-  deleteExisting: boolean
+  context: BaseContextType,
+  agent: Agent,
+  workspace: Workspace,
+  tags: AssignedTagInput[],
+  assigneeId: string,
+  deleteExisting: boolean,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
       context,
       workspace.resourceId,
-      assignedToItemId,
-      assignedToItemType,
-      [AppResourceType.Tag]
+      assigneeId,
+      [AppResourceType.Tag],
+      opts
     );
   }
 
-  await checkTagsExist(context, agent, workspace, tags);
+  // TODO: This logic is wrong, try creating tags that don't exist, then assign
+  // them if not yet assigned.
   const items = tags.map(tag => {
-    const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
-      assignedToItemId,
-      assignedToItemType,
-      meta: {},
-      resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-      assignedItemId: tag.tagId,
-      assignedItemType: AppResourceType.PermissionGroup,
-      workspaceId: workspace.resourceId,
-    };
-
-    return withAssignedAgent(agent, baseItem);
+    return withAssignedAgent(
+      agent,
+      newWorkspaceResource<AssignedItem>(
+        agent,
+        AppResourceType.AssignedItem,
+        workspace.resourceId,
+        {
+          assigneeId,
+          assigneeType: getResourceTypeFromId(assigneeId),
+          meta: {},
+          resourceId: getNewIdForResource(AppResourceType.AssignedItem),
+          assignedItemId: tag.tagId,
+          assignedItemType: AppResourceType.PermissionGroup,
+        }
+      )
+    );
   });
+  await Promise.all([
+    checkTagsExist(context, agent, workspace, tags, AppActionType.Read),
+    addAssignedItems(context, workspace.resourceId, items, deleteExisting, undefined, opts),
+  ]);
 
-  return await addAssignedItemList(context, items);
+  return items;
 }
 
 export interface ISaveResourceAssignedItemsOptions {
-  skipPermissionGroupsCheck?: boolean;
+  skipPermissionGroupsExistCheck?: boolean;
 }
 
 export async function saveResourceAssignedItems(
-  context: IBaseContext,
-  agent: IAgent,
-  workspace: IWorkspace,
-  resourceId: string,
-  resourceType: AppResourceType,
-  data: {
-    tags?: IAssignedTagInput[];
-    permissionGroups?: IAssignPermissionGroupInput[];
-  },
-  deleteExisting = true,
-  options: ISaveResourceAssignedItemsOptions = {}
-) {
-  if (data.permissionGroups) {
-    await addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspace,
-      data.permissionGroups,
-      resourceId,
-      resourceType,
-      deleteExisting,
-      options.skipPermissionGroupsCheck
-    );
-  }
+  context: BaseContextType,
+  agent: Agent,
+  workspace: Workspace,
 
+  // TODO: support ID list
+  resourceId: string,
+  data: {tags?: AssignedTagInput[]},
+
+  // TODO: deleteExisting should be false by default and add checks to avoid
+  // duplication
+  deleteExisting = true,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
   if (data.tags) {
     await addAssignedTagList(
       context,
@@ -161,28 +237,31 @@ export async function saveResourceAssignedItems(
       workspace,
       data.tags,
       resourceId,
-      resourceType,
-      deleteExisting
+      deleteExisting,
+      opts
     );
   }
 }
 
 export async function assignWorkspaceToUser(
-  context: IBaseContext,
-  agent: IAgent,
+  context: BaseContextType,
+  agent: Agent,
   workspaceId: string,
-  user: IUser
+  userId: string,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const baseItem: IResourceWithoutAssignedAgent<IAssignedItem> = {
-    workspaceId,
-    assignedToItemId: user.resourceId,
-    assignedToItemType: AppResourceType.User,
-    meta: {},
-    resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-    assignedItemId: workspaceId,
-    assignedItemType: AppResourceType.Workspace,
-  };
-
-  const items: IAssignedItem[] = [withAssignedAgent(agent, baseItem)];
-  return await addAssignedItemList(context, items);
+  const items: AssignedItem[] = [
+    withAssignedAgent(
+      agent,
+      newWorkspaceResource(agent, AppResourceType.AssignedItem, workspaceId, {
+        assigneeId: userId,
+        assigneeType: AppResourceType.User,
+        meta: {},
+        resourceId: getNewIdForResource(AppResourceType.AssignedItem),
+        assignedItemId: workspaceId,
+        assignedItemType: AppResourceType.Workspace,
+      })
+    ),
+  ];
+  return await context.semantic.assignedItem.insertItem(items, opts);
 }

@@ -1,6 +1,7 @@
 import {Connection} from 'mongoose';
 import {getWorkspaceModel} from '../../db/workspace';
-import {systemAgent} from '../../definitions/system';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {getTimestamp} from '../../utils/dateFns';
 
 /**
  * For all workspaces,
@@ -17,14 +18,14 @@ export async function unlockUsageThresholdLocks(connection: Connection) {
   const workspaces = await model.find({}).lean().exec();
   const promises = [];
   for (const workspace of workspaces) {
-    const usageThresholdLocks = workspace.usageThresholdLocks || {};
+    const usageThresholdLocks = workspace.usageThresholdLocks ?? {};
     const locks = Object.values(usageThresholdLocks);
     let anyLocked = false;
     for (const lock of locks) {
       if (lock.locked) {
         lock.locked = false;
-        lock.lastUpdatedAt = new Date();
-        lock.lastUpdatedBy = systemAgent;
+        lock.lastUpdatedAt = getTimestamp();
+        lock.lastUpdatedBy = SYSTEM_SESSION_AGENT;
         anyLocked = true;
       }
     }

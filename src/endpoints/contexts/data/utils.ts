@@ -4,14 +4,16 @@ import {cast} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {
+  BaseDataProvider,
+  BulkOpItem,
+  BulkOpType,
+  ComparisonLiteralFieldQueryOps,
   DataProviderLiteralType,
   DataQuery,
   IArrayFieldQueryOps,
-  IBaseDataProvider,
-  IComparisonLiteralFieldQueryOps,
   IDataProvideQueryListParams,
-  INumberLiteralFieldQueryOps,
   IRecordFieldQueryOps,
+  NumberLiteralFieldQueryOps,
 } from './types';
 
 export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>) {
@@ -58,7 +60,7 @@ export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>
 export abstract class BaseMongoDataProvider<
   T extends AnyObject,
   Q extends DataQuery<AnyObject> = DataQuery<T>
-> implements IBaseDataProvider<T, Q>
+> implements BaseDataProvider<T, Q>
 {
   abstract throwNotFound: () => void;
   model: Model<T>;
@@ -166,12 +168,69 @@ export abstract class BaseMongoDataProvider<
     await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
   };
 
+  async TRANSACTION_bulkWrite(ops: BulkOpItem<T>[]): Promise<void> {
+    type Model02 = Model<T>;
+    type MongoBulkOpsType = Parameters<Model02['bulkWrite']>[0];
+    const mongoOps: MongoBulkOpsType = [];
+
+    ops.forEach(op => {
+      let mongoOp: MongoBulkOpsType[number] | null = null;
+
+      switch (op.type) {
+        case BulkOpType.InsertOne: {
+          mongoOp = {insertOne: {document: op.item as any}};
+          break;
+        }
+        case BulkOpType.UpdateOne: {
+          mongoOp = {
+            updateOne: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+              upsert: op.upsert,
+            },
+          };
+          break;
+        }
+        case BulkOpType.UpdateMany: {
+          mongoOp = {
+            updateMany: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+            },
+          };
+          break;
+        }
+        case BulkOpType.DeleteOne: {
+          mongoOp = {
+            deleteOne: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
+          };
+          break;
+        }
+        case BulkOpType.DeleteMany: {
+          mongoOp = {
+            deleteMany: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
+          };
+          break;
+        }
+        default: // do nothing
+      }
+
+      if (mongoOp) {
+        mongoOps.push(mongoOp);
+      }
+    });
+
+    await this.model.db.transaction(async session => {
+      await this.model.bulkWrite(mongoOps, {session});
+    });
+  }
+
   static getMongoQuery<
     Q extends DataQuery<AnyObject>,
     DataType = Q extends DataQuery<infer U> ? U : AnyObject
   >(q: Q) {
-    type T = IComparisonLiteralFieldQueryOps &
-      INumberLiteralFieldQueryOps &
+    type T = ComparisonLiteralFieldQueryOps &
+      NumberLiteralFieldQueryOps &
       IArrayFieldQueryOps<any> &
       IRecordFieldQueryOps<any>;
     const mq: FilterQuery<DataType> = {};

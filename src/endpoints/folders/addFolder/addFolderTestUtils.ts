@@ -1,80 +1,34 @@
 import {faker} from '@faker-js/faker';
-import {IFolder} from '../../../definitions/folder';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {
-  AppResourceType,
-  getNonWorkspaceActionList,
-  IPublicAccessOpInput,
-} from '../../../definitions/system';
-import {IWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/types';
+import {Folder} from '../../../definitions/folder';
+import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
+import RequestData from '../../RequestData';
+import {BaseContextType} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
-  assertPublicAccessOps,
 } from '../../files/uploadFile/uploadFileTestUtils';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
+import {generateTestFileName} from '../../testUtils/generateData/file';
 import {
-  assertEndpointResultOk,
-  IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  assertEndpointResultOk,
   insertFolderForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-} from '../../test-utils/test-utils';
+} from '../../testUtils/testUtils';
 import {folderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
-import {IDeleteFolderEndpointParams} from '../deleteFolder/types';
+import {DeleteFolderEndpointParams} from '../deleteFolder/types';
 import getFolder from '../getFolder/handler';
-import {IGetFolderEndpointParams} from '../getFolder/types';
+import {GetFolderEndpointParams} from '../getFolder/types';
 import listFolderContent from '../listFolderContent/handler';
-import {IListFolderContentEndpointParams} from '../listFolderContent/types';
+import {ListFolderContentEndpointParams} from '../listFolderContent/types';
 import updateFolder from '../updateFolder/handler';
-import {IUpdateFolderEndpointParams, IUpdateFolderInput} from '../updateFolder/types';
-import {addRootnameToPath, folderExtractor} from '../utils';
-import {INewFolderInput} from './types';
-
-export const addFolderBaseTest = async (
-  ctx: IBaseContext,
-  input: Partial<INewFolderInput> = {},
-  insertUserResult?: IInsertUserForTestResult,
-  insertWorkspaceResult?: IInsertWorkspaceForTestResult
-) => {
-  insertUserResult = insertUserResult || (await insertUserForTest(ctx));
-  insertWorkspaceResult =
-    insertWorkspaceResult || (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-  const {folder} = await insertFolderForTest(
-    ctx,
-    insertUserResult.userToken,
-    insertWorkspaceResult.workspace,
-    input
-  );
-  const savedFolder = await ctx.data.folder.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(folder.resourceId)
-  );
-  expect(folder).toMatchObject(folderExtractor(savedFolder));
-  return {folder, savedFolder, insertUserResult, insertWorkspaceResult};
-};
-
-export const addFolderWithPublicAccessOpsTest = async (
-  ctx: IBaseContext,
-  input: Partial<INewFolderInput> = {},
-  insertWorkspaceResult?: IInsertWorkspaceForTestResult
-) => {
-  const uploadResult = await addFolderBaseTest(ctx, input);
-  const {savedFolder} = uploadResult;
-  insertWorkspaceResult = uploadResult.insertWorkspaceResult;
-  await assertPublicAccessOps(ctx, savedFolder, insertWorkspaceResult, input.publicAccessOps || []);
-  return uploadResult;
-};
+import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types';
+import {addRootnameToPath} from '../utils';
 
 export async function assertCanCreateFolderInPublicFolder(
-  ctx: IBaseContext,
-  workspace: IWorkspace,
+  ctx: BaseContextType,
+  workspace: PublicWorkspace,
   folderpath: string
 ) {
   return await insertFolderForTest(ctx, null, workspace, {
@@ -83,11 +37,11 @@ export async function assertCanCreateFolderInPublicFolder(
 }
 
 export async function assertCanReadPublicFolder(
-  ctx: IBaseContext,
-  workspace: IWorkspace,
+  ctx: BaseContextType,
+  workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IGetFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
       folderpath: addRootnameToPath(folderpath, workspace.rootname),
@@ -100,15 +54,15 @@ export async function assertCanReadPublicFolder(
 }
 
 export async function assertCanUpdatePublicFolder(
-  ctx: IBaseContext,
-  workspace: IWorkspace,
+  ctx: BaseContextType,
+  workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const updateInput: IUpdateFolderInput = {
+  const updateInput: UpdateFolderInput = {
     description: faker.lorem.words(20),
   };
 
-  const instData = RequestData.fromExpressRequest<IUpdateFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
       folderpath: addRootnameToPath(folderpath, workspace.rootname),
@@ -121,11 +75,11 @@ export async function assertCanUpdatePublicFolder(
 }
 
 export async function assertCanListContentOfPublicFolder(
-  ctx: IBaseContext,
-  workspace: IWorkspace,
+  ctx: BaseContextType,
+  workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IListFolderContentEndpointParams>(
+  const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
@@ -135,15 +89,13 @@ export async function assertCanListContentOfPublicFolder(
 }
 
 export async function assertCanDeletePublicFolder(
-  ctx: IBaseContext,
-  workspace: IWorkspace,
+  ctx: BaseContextType,
+  workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<IDeleteFolderEndpointParams>(
+  const instData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
-    {
-      folderpath: addRootnameToPath(folderpath, workspace.rootname),
-    }
+    {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
   const result = await deleteFolder(ctx, instData);
@@ -151,8 +103,8 @@ export async function assertCanDeletePublicFolder(
 }
 
 export async function assertFolderPublicOps(
-  ctx: IBaseContext,
-  folder: IFolder,
+  ctx: BaseContextType,
+  folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
   const folderpath = folder.namePath.join(folderConstants.nameSeparator);
@@ -166,7 +118,7 @@ export async function assertFolderPublicOps(
   const {file} = await assertCanUploadToPublicFile(
     ctx,
     insertWorkspaceResult.workspace,
-    folder02Path + folderConstants.nameSeparator + generateTestFolderName()
+    folder02Path + folderConstants.nameSeparator + generateTestFileName()
   );
 
   await assertCanListContentOfPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
@@ -180,18 +132,17 @@ export async function assertFolderPublicOps(
   await assertCanDeletePublicFolder(ctx, insertWorkspaceResult.workspace, folderpath);
 }
 
-export function makeEveryFolderPublicAccessOp() {
-  const actions = getNonWorkspaceActionList();
-  const types = [AppResourceType.File, AppResourceType.Folder];
-  const ops: IPublicAccessOpInput[] = [];
-  actions.forEach(action => {
-    types.forEach(type => {
-      ops.push({
-        action,
-        resourceType: type,
-        appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-      });
-    });
-  });
-  return ops;
-}
+// export function makeEveryFolderPublicAccessOp() {
+//   const actions = getNonWorkspaceActionList();
+//   const types = [AppResourceType.File, AppResourceType.Folder];
+//   const ops: PublicAccessOpInput[] = [];
+//   actions.forEach(action => {
+//     types.forEach(type => {
+//       ops.push({
+//         action,
+//         resourceType: type,
+//       });
+//     });
+//   });
+//   return ops;
+// }

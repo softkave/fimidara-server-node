@@ -1,31 +1,31 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {IUser} from '../definitions/user';
-import {getDate} from '../utils/dateFns';
-import {ensureTypeFields} from './utils';
+import {User} from '../definitions/user';
+import {ensureMongoTypeFields, resourceSchema} from './utils';
 
-const userSchema = ensureTypeFields<IUser>({
-  resourceId: {type: String, unique: true, index: true},
+const userSchema = ensureMongoTypeFields<User>({
+  ...resourceSchema,
   email: {type: String, unique: true, index: true, lowercase: true},
   firstName: {type: String, index: true},
   lastName: {type: String, index: true},
   hash: {type: String},
-  createdAt: {type: Date, default: getDate},
-  lastUpdatedAt: {type: Date},
-  passwordLastChangedAt: {type: Date},
+  passwordLastChangedAt: {type: Number},
   isEmailVerified: {type: Boolean},
-  emailVerifiedAt: {type: Date},
-  emailVerificationEmailSentAt: {type: Date},
+  emailVerifiedAt: {type: Number},
+  emailVerificationEmailSentAt: {type: Number},
+  requiresPasswordChange: {type: Boolean},
+  isOnWaitlist: {type: Boolean},
+  removedFromWaitlistOn: {type: Number},
 });
 
-export type IUserDocument = Document<IUser>;
+export type UserDocument = Document<User>;
 
-const schema = new Schema<IUser>(userSchema);
+const schema = new Schema<User>(userSchema);
 const modelName = 'user';
 const collectionName = 'users';
 
 export function getUserModel(connection: Connection) {
-  const model = connection.model<IUser>(modelName, schema, collectionName);
+  const model = connection.model<User>(modelName, schema, collectionName);
   return model;
 }
 
-export type IUserModel = Model<IUser>;
+export type UserModel = Model<User>;

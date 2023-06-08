@@ -1,10 +1,7 @@
 import * as Joi from 'joi';
 import {endpointValidationSchemas} from '../../validation';
-import {IGetUserWorkspacesEndpointParams} from './types';
+import {GetUserWorkspacesEndpointParams} from './types';
 
-export const getUserWorkspacesJoiSchema = Joi.object<IGetUserWorkspacesEndpointParams>()
-  .keys({
-    page: endpointValidationSchemas.page,
-    pageSize: endpointValidationSchemas.pageSize,
-  })
+export const getUserWorkspacesJoiSchema = Joi.object<GetUserWorkspacesEndpointParams>()
+  .keys(endpointValidationSchemas.paginationParts)
   .required();

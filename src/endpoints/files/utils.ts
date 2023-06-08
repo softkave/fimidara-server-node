@@ -1,35 +1,30 @@
-import {IFile, IFileMatcher, IPublicFile} from '../../definitions/file';
-import {AppResourceType, BasicCRUDActions, ISessionAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
-import {getDateString} from '../../utils/dateFns';
-import {ValidationError} from '../../utils/errors';
+import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
+import {AppActionType, SessionAgent} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-} from '../contexts/authorization-checks/checkAuthorizaton';
-import {IBaseContext} from '../contexts/types';
+} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {folderConstants} from '../folders/constants';
-import {IFolderpathWithDetails, splitPathWithDetails} from '../folders/utils';
-import EndpointReusableQueries from '../queries';
-import {agentExtractor} from '../utils';
-import WorkspaceQueries from '../workspaces/queries';
+import {FolderpathInfo, addRootnameToPath, getFolderpathInfo} from '../folders/utils';
+import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
-import {assertGetSingleFileWithMatcher as assertGetFileWithMatcher} from './getFilesWithMatcher';
+import {
+  assertGetSingleFileWithMatcher as assertGetFileWithMatcher,
+  getFileByPresignedPath,
+} from './getFilesWithMatcher';
 
-const fileFields = getFields<IPublicFile>({
-  resourceId: true,
-  createdBy: agentExtractor,
-  createdAt: getDateString,
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: getDateString,
+const fileFields = getFields<PublicFile>({
+  ...workspaceResourceFields,
   name: true,
   description: true,
-  folderId: true,
+  parentId: true,
   mimetype: true,
-  workspaceId: true,
   size: true,
   encoding: true,
   extension: true,
@@ -42,60 +37,77 @@ export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  file: IFile,
-  action: BasicCRUDActions,
-  nothrow = false
+  context: BaseContextType,
+  agent: SessionAgent,
+  file: File,
+  action: AppActionType
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId);
   await checkAuthorization({
     context,
     agent,
-    workspace,
     action,
-    nothrow,
-    resource: file,
-    type: AppResourceType.File,
-    permissionContainers: getFilePermissionContainers(
-      workspace.resourceId,
-      file,
-      AppResourceType.File
-    ),
+    workspace,
+    workspaceId: workspace.resourceId,
+    containerId: getFilePermissionContainers(workspace.resourceId, file),
+    targets: {targetId: file.resourceId},
   });
 
   return {agent, file, workspace};
 }
 
-export async function checkFileAuthorization03(
-  context: IBaseContext,
-  agent: ISessionAgent,
-  matcher: IFileMatcher,
-  action: BasicCRUDActions,
-  nothrow = false
+export async function checkFileAuthorization02(
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FileMatcher,
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const file = await assertGetFileWithMatcher(context, matcher);
-  return checkFileAuthorization(context, agent, file, action, nothrow);
+  const file = await assertGetFileWithMatcher(context, matcher, opts);
+  await checkFileAuthorization(context, agent, file, action);
+  return {file};
 }
 
-export interface ISplitFilenameWithDetails {
+export async function checkFileAuthorization03(
+  context: BaseContextType,
+  agent: SessionAgent,
+  matcher: FileMatcher,
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  if (matcher.filepath) {
+    const presignedPathResult = await getFileByPresignedPath(
+      context,
+      matcher.filepath,
+      AppActionType.Read
+    );
+
+    if (presignedPathResult) {
+      const {file, presignedPath} = presignedPathResult;
+      return {file, presignedPath};
+    }
+  }
+
+  const file = await assertGetFileWithMatcher(context, matcher, opts);
+  await checkFileAuthorization(context, agent, file, action);
+  return {file};
+}
+
+export interface FilenameInfo {
   nameWithoutExtension: string;
   extension?: string;
   providedName: string;
 }
 
-export function splitFilenameWithDetails(providedName: string): ISplitFilenameWithDetails {
-  const splitStr = providedName.split(fileConstants.nameExtensionSeparator);
-  let nameWithoutExtension = splitStr[0];
-  let extension: string | undefined = splitStr.slice(1).join(fileConstants.nameExtensionSeparator);
+export function getFilenameInfo(providedName: string): FilenameInfo {
+  providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
+  const [nameWithoutExtension, ...extensionList] = providedName.split(
+    fileConstants.nameExtensionSeparator
+  );
+  let extension: string | undefined = extensionList.join(fileConstants.nameExtensionSeparator);
 
-  if (extension && !nameWithoutExtension) {
-    nameWithoutExtension = extension;
+  if (extension === '' && !providedName.endsWith(fileConstants.nameExtensionSeparator)) {
     extension = undefined;
-  }
-
-  if (!nameWithoutExtension) {
-    throw new ValidationError('File name is empty');
   }
 
   return {
@@ -105,64 +117,55 @@ export function splitFilenameWithDetails(providedName: string): ISplitFilenameWi
   };
 }
 
-export interface ISplitfilepathWithDetails
-  extends ISplitFilenameWithDetails,
-    IFolderpathWithDetails {
+export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
   splitPathWithoutExtension: string[];
 }
 
-export function splitfilepathWithDetails(path: string | string[]): ISplitfilepathWithDetails {
-  const pathWithDetails = splitPathWithDetails(path);
-  const fileNameWithDetails = splitFilenameWithDetails(pathWithDetails.name);
-  const splitPathWithoutExtension = [...pathWithDetails.itemSplitPath];
-  splitPathWithoutExtension[splitPathWithoutExtension.length - 1] =
-    fileNameWithDetails.nameWithoutExtension;
+export function getFilepathInfo(path: string | string[]): FilepathInfo {
+  const folderpathInfo = getFolderpathInfo(path);
+  const filenameInfo = getFilenameInfo(folderpathInfo.name);
+  const pathWithoutExtension = [...folderpathInfo.itemSplitPath];
+  pathWithoutExtension[pathWithoutExtension.length - 1] = filenameInfo.nameWithoutExtension;
   return {
-    ...pathWithDetails,
-    ...fileNameWithDetails,
-    splitPathWithoutExtension,
+    ...folderpathInfo,
+    ...filenameInfo,
+    splitPathWithoutExtension: pathWithoutExtension,
   };
 }
 
 export function throwFileNotFound() {
-  throw new NotFoundError('File not found');
+  throw new NotFoundError('File not found.');
 }
 
-export function getFilePathWithoutRootname(file: IFile) {
-  return `${file.namePath.join(folderConstants.nameSeparator)}${
-    fileConstants.nameExtensionSeparator
-  }${file.extension}`;
-}
-
-export async function getWorkspaceFromFilepath(context: IBaseContext, filepath: string) {
-  const pathWithDetails = splitfilepathWithDetails(filepath);
-  const workspace = await context.data.workspace.getOneByQuery(
-    WorkspaceQueries.getByRootname(pathWithDetails.workspaceRootname)
+export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
+  const pathWithDetails = getFilepathInfo(filepath);
+  const workspace = await context.semantic.workspace.getByRootname(
+    pathWithDetails.workspaceRootname
   );
   assertWorkspace(workspace);
   return workspace;
 }
 
 export async function getWorkspaceFromFileOrFilepath(
-  context: IBaseContext,
-  file?: IFile | null,
+  context: BaseContextType,
+  file?: File | null,
   filepath?: string
 ) {
-  let workspace: IWorkspace | null = null;
-  if (file) {
-    workspace = await context.data.workspace.getOneByQuery(
-      EndpointReusableQueries.getByResourceId(file.workspaceId)
-    );
-  } else if (filepath) {
-    workspace = await getWorkspaceFromFilepath(context, filepath);
-  }
+  let workspace: Workspace | null = null;
+
+  if (file) workspace = await context.semantic.workspace.getOneById(file.workspaceId);
+  else if (filepath) workspace = await getWorkspaceFromFilepath(context, filepath);
 
   assertWorkspace(workspace);
   return workspace;
 }
 
-export function assertFile(file: IFile | null | undefined): asserts file {
-  if (!file) {
-    throwFileNotFound();
-  }
+export function assertFile(file: File | FilePresignedPath | null | undefined): asserts file {
+  if (!file) throwFileNotFound();
+}
+
+export function stringifyFileNamePath(file: File, rootname?: string) {
+  const nm =
+    file.namePath.join(folderConstants.nameSeparator) + file.extension ? `.${file.extension}` : '';
+  return rootname ? addRootnameToPath(nm, rootname) : nm;
 }

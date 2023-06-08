@@ -1,14 +1,21 @@
 import {isObject, isString} from 'lodash';
 
-export interface IOperationErrorParameters {
+export interface OperationErrorParameters {
   message?: string;
   field?: string;
   action?: string;
   value?: any;
 }
 
+export type EndpointExportedError = {
+  name: string;
+  message: string;
+  field?: string;
+  action?: string;
+};
+
 export default class OperationError extends Error {
-  message = 'Error';
+  message = 'An error occurred.';
   field?: string;
 
   // recommended action for the client
@@ -17,20 +24,15 @@ export default class OperationError extends Error {
   statusCode?: number;
   isPublicError = true;
 
-  constructor(props?: IOperationErrorParameters | string) {
+  constructor(props?: OperationErrorParameters | string) {
     super();
 
     if (isObject(props)) {
       this.field = props.field;
       this.action = props.action;
 
-      if (props.value) {
-        this.value = JSON.stringify(props.value);
-      }
-
-      if (props.message) {
-        this.message = props.message;
-      }
+      if (props.value) this.value = JSON.stringify(props.value);
+      if (props.message) this.message = props.message;
     } else if (props) {
       this.message = props;
     }
@@ -38,7 +40,7 @@ export default class OperationError extends Error {
 }
 
 export function getErrorMessageFromParams(
-  props?: IOperationErrorParameters | string,
+  props?: OperationErrorParameters | string,
   defaultMessage = ''
 ) {
   if (isString(props)) {

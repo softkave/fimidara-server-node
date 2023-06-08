@@ -1,25 +1,25 @@
-import {IPublicCollaborator} from '../../../definitions/user';
-import {IBaseContext} from '../../contexts/types';
+import {PublicCollaborator} from '../../../definitions/user';
+import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
-  IEndpointOptionalWorkspaceIDParam,
-  IPaginatedResult,
-  IPaginationQuery,
+  EndpointOptionalWorkspaceIDParam,
+  PaginatedResult,
+  PaginationQuery,
 } from '../../types';
 
-export interface IGetWorkspaceCollaboratorsEndpointParamsBase
-  extends IEndpointOptionalWorkspaceIDParam {}
+export interface GetWorkspaceCollaboratorsEndpointParamsBase
+  extends EndpointOptionalWorkspaceIDParam {}
 
-export interface IGetWorkspaceCollaboratorsEndpointParams
-  extends IGetWorkspaceCollaboratorsEndpointParamsBase,
-    IPaginationQuery {}
+export interface GetWorkspaceCollaboratorsEndpointParams
+  extends GetWorkspaceCollaboratorsEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IGetWorkspaceCollaboratorsEndpointResult extends IPaginatedResult {
-  collaborators: IPublicCollaborator[];
+export interface GetWorkspaceCollaboratorsEndpointResult extends PaginatedResult {
+  collaborators: PublicCollaborator[];
 }
 
 export type GetWorkspaceCollaboratorsEndpoint = Endpoint<
-  IBaseContext,
-  IGetWorkspaceCollaboratorsEndpointParams,
-  IGetWorkspaceCollaboratorsEndpointResult
+  BaseContextType,
+  GetWorkspaceCollaboratorsEndpointParams,
+  GetWorkspaceCollaboratorsEndpointResult
 >;

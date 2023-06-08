@@ -1,6 +1,6 @@
 import {CronJob} from 'cron';
 import {getMongoConnection} from '../db/connection';
-import {extractEnvVariables, extractProdEnvsSchema} from '../resources/vars';
+import {fimidaraConfig} from '../resources/vars';
 import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
 import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
@@ -17,8 +17,10 @@ const aggregateUsageRecordsJob = new CronJob(
 
     try {
       runInfo.logger.info('Aggregate usage records job started');
-      const appVariables = extractEnvVariables(extractProdEnvsSchema);
-      const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+      const connection = await getMongoConnection(
+        fimidaraConfig.mongoDbURI,
+        fimidaraConfig.mongoDbDatabaseName
+      );
       await aggregateRecords(connection, runInfo);
     } catch (err: any) {
       runInfo.logger.info('Error in aggregate usage records job: ');
@@ -45,8 +47,10 @@ const unlockWorkspaceLocksJob = new CronJob(
 
     try {
       runInfo.logger.info('Unlocking workspace locks job started');
-      const appVariables = extractEnvVariables(extractProdEnvsSchema);
-      const connection = await getMongoConnection(appVariables.mongoDbURI, appVariables.mongoDbDatabaseName);
+      const connection = await getMongoConnection(
+        fimidaraConfig.mongoDbURI,
+        fimidaraConfig.mongoDbDatabaseName
+      );
 
       await unlockUsageThresholdLocks(connection);
     } catch (error: any) {

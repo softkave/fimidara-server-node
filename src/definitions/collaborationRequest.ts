@@ -1,5 +1,4 @@
-import {IAssignedPermissionGroup} from './permissionGroups';
-import {IAgent} from './system';
+import {ConvertAgentToPublicAgent, PublicResource, WorkspaceResource} from './system';
 
 export enum CollaborationRequestStatusType {
   Accepted = 'accepted',
@@ -12,37 +11,27 @@ export type CollaborationRequestResponse =
   | CollaborationRequestStatusType.Accepted
   | CollaborationRequestStatusType.Declined;
 
-export interface ICollaborationRequestStatus {
-  status: CollaborationRequestStatusType;
-  date: Date | string;
-}
-
-export enum CollaborationRequestEmailReason {
-  RequestNotification = 'request-notification',
-  RequestRevoked = 'request-revoked',
-  RequestUpdated = 'request-updated',
-}
-
-export interface ICollaborationRequestSentEmailHistoryItem {
-  date: Date | string;
-  reason: CollaborationRequestEmailReason;
-}
-
-export interface ICollaborationRequest {
-  resourceId: string;
+export interface CollaborationRequest extends WorkspaceResource {
   recipientEmail: string;
   message: string;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  expiresAt?: string;
+  expiresAt?: number;
   workspaceName: string;
-  workspaceId: string;
-  lastUpdatedBy: IAgent;
-  lastUpdatedAt: Date | string;
-  readAt?: Date | string;
-  statusHistory: ICollaborationRequestStatus[];
+  readAt?: number;
+  status: CollaborationRequestStatusType;
+  statusDate: number;
 }
 
-export interface IPublicCollaborationRequest extends ICollaborationRequest {
-  permissionGroupsOnAccept: IAssignedPermissionGroup[];
-}
+export type PublicCollaborationRequestForUser = PublicResource &
+  Pick<
+    CollaborationRequest,
+    | 'message'
+    | 'expiresAt'
+    | 'readAt'
+    | 'recipientEmail'
+    | 'status'
+    | 'statusDate'
+    | 'workspaceName'
+  >;
+
+export type PublicCollaborationRequestForWorkspace =
+  ConvertAgentToPublicAgent<CollaborationRequest>;

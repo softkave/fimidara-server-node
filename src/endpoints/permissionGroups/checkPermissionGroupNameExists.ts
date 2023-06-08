@@ -1,12 +1,14 @@
-import {IBaseContext} from '../contexts/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {BaseContextType} from '../contexts/types';
 import {ResourceExistsError} from '../errors';
-import PermissionGroupQueries from './queries';
 
-export async function checkPermissionGroupNameExists(context: IBaseContext, workspaceId: string, name: string) {
-  const itemExists = await context.data.permissiongroup.existsByQuery(
-    PermissionGroupQueries.getByWorkspaceAndName(workspaceId, name)
-  );
-
+export async function checkPermissionGroupNameExists(
+  context: BaseContextType,
+  workspaceId: string,
+  name: string,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const itemExists = await context.semantic.permissionGroup.existsByName(workspaceId, name, opts);
   if (itemExists) {
     throw new ResourceExistsError('Permission group exists');
   }

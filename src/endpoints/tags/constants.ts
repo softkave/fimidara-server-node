@@ -6,6 +6,7 @@ export const tagConstants = {
     addTag: `${endpointConstants.apiv1}/tags/addTag`,
     deleteTag: `${endpointConstants.apiv1}/tags/deleteTag`,
     getWorkspaceTags: `${endpointConstants.apiv1}/tags/getWorkspaceTags`,
+    countWorkspaceTags: `${endpointConstants.apiv1}/tags/countWorkspaceTags`,
     getTag: `${endpointConstants.apiv1}/tags/getTag`,
     updateTag: `${endpointConstants.apiv1}/tags/updateTag`,
   },

@@ -1,5 +1,5 @@
-import {DataProviderFilterValueOperator} from './contexts/DataProvider';
-import DataProviderFilterBuilder from './contexts/DataProviderFilterBuilder';
+import {DataProviderFilterValueOperator} from './contexts/data/DataProvider';
+import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()
@@ -7,13 +7,16 @@ function getByWorkspaceId(id: string) {
     .build();
 }
 
-function getByWorkspaceIdAndExcludeResourceIdList(workspaceId: string, idList: string[]) {
+function getByWorkspaceIdAndExcludeResourceIdList(
+  workspaceId: string,
+  idList: string[] | undefined
+) {
   const f = new DataProviderFilterBuilder<{workspaceId: string; resourceId: string}>().addItem(
     'workspaceId',
     workspaceId,
     DataProviderFilterValueOperator.Equal
   );
-  if (idList.length > 0) {
+  if (idList?.length) {
     f.addItem('resourceId', idList, DataProviderFilterValueOperator.NotIn);
   }
 

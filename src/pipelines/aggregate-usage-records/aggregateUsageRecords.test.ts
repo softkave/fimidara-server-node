@@ -1,35 +1,44 @@
 import assert = require('assert');
-import {first, random} from 'lodash';
+import {first, merge, random} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
-import {IFile} from '../../definitions/file';
-import {BasicCRUDActions, publicAgent} from '../../definitions/system';
+import {File} from '../../definitions/file';
+import {AppActionType} from '../../definitions/system';
 import {
-  IFileUsageRecordArtifact,
+  FileUsageRecordArtifact,
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
 } from '../../definitions/usageRecord';
-import {IWorkspace} from '../../definitions/workspace';
-import BaseContext from '../../endpoints/contexts/BaseContext';
-import {IBaseContext} from '../../endpoints/contexts/types';
-import {getDataProviders} from '../../endpoints/contexts/utils';
-import EndpointReusableQueries from '../../endpoints/queries';
+import {Workspace} from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
-import {generateTestFile, generateTestFiles} from '../../endpoints/test-utils/generate-data/file';
+import BaseContext from '../../endpoints/contexts/BaseContext';
+import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
+import {BaseContextType} from '../../endpoints/contexts/types';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
+} from '../../endpoints/contexts/utils';
+import EndpointReusableQueries from '../../endpoints/queries';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
 import {
   generateTestUsageThresholdInputMap,
   generateTestWorkspace,
-} from '../../endpoints/test-utils/generate-data/workspace';
-import {dropMongoConnection, genDbName} from '../../endpoints/test-utils/helpers/mongo';
+} from '../../endpoints/testUtils/generateData/workspace';
+import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/mongo';
+import {completeTest} from '../../endpoints/testUtils/helpers/test';
 import {
   assertContext,
-  getTestEmailProvider,
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
-} from '../../endpoints/test-utils/test-utils';
+} from '../../endpoints/testUtils/testUtils';
 import {getCostForUsage, getUsageForCost} from '../../endpoints/usageRecords/constants';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors';
 import {
@@ -38,12 +47,13 @@ import {
   insertStorageUsageRecordInput,
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import {extractEnvVariables, extractProdEnvsSchema} from '../../resources/vars';
+import {fimidaraConfig} from '../../resources/vars';
+import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';
 
-const contexts: IBaseContext[] = [];
+const contexts: BaseContextType[] = [];
 const connections: Connection[] = [];
 const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent(), undefined);
 const runInfo = pipelineRunInfoFactory({
@@ -51,34 +61,40 @@ const runInfo = pipelineRunInfoFactory({
 });
 
 afterAll(async () => {
-  await Promise.all(contexts.map(c => c.dispose()));
+  await completeTest({context: contexts});
   await Promise.all(connections.map(c => dropMongoConnection(c)));
   await runInfo.logger.close();
 });
 
 async function getContextAndConnection() {
-  const appVariables = extractEnvVariables(extractProdEnvsSchema);
+  const appVariables = merge({}, fimidaraConfig);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
   const connection = await getMongoConnection(
     appVariables.mongoDbURI,
     appVariables.mongoDbDatabaseName
   );
+  const models = getMongoModels(connection);
+  const mem = getMemstoreDataProviders(models);
   const context = new BaseContext(
-    getDataProviders(connection),
-    getTestEmailProvider(appVariables),
-    await getTestFileProvider(appVariables),
-    appVariables
+    getDataProviders(models),
+    new NoopEmailProviderContext(),
+    getTestFileProvider(appVariables),
+    appVariables,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem)
   );
 
+  await ingestOnlyAppWorkspaceDataIntoMemstore(context);
   contexts.push(context);
   connections.push(connection);
   return {context, connection};
 }
 
 async function insertUsageRecordsForFiles(
-  context: IBaseContext,
-  workspace: IWorkspace,
+  context: BaseContextType,
+  workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
     UsageRecordCategory.Storage | UsageRecordCategory.BandwidthIn | UsageRecordCategory.BandwidthOut
@@ -89,12 +105,12 @@ async function insertUsageRecordsForFiles(
   exceedBy = 0
 ) {
   if (exceedLimit) {
-    limit += exceedBy || random(1, limit);
+    limit += exceedBy ?? random(1, limit);
   }
 
   limit = Math.floor(limit);
   let count = 0;
-  const files = generateTestFiles(10, {workspaceId: workspace.resourceId});
+  const files = generateTestFiles(10, {workspaceId: workspace.resourceId, parentId: null});
   const promises = [];
   let usage = random(1, limit - 1, true);
   let totalUsage = usage;
@@ -107,14 +123,14 @@ async function insertUsageRecordsForFiles(
         context,
         reqData,
         f,
-        BasicCRUDActions.Create,
+        AppActionType.Create,
         /** artifactMetaInput */ {},
         nothrow
       );
     } else if (category === UsageRecordCategory.BandwidthIn) {
-      p = insertBandwidthInUsageRecordInput(context, reqData, f, BasicCRUDActions.Create, nothrow);
+      p = insertBandwidthInUsageRecordInput(context, reqData, f, AppActionType.Create, nothrow);
     } else if (category === UsageRecordCategory.BandwidthOut) {
-      p = insertBandwidthOutUsageRecordInput(context, reqData, f, BasicCRUDActions.Create, nothrow);
+      p = insertBandwidthOutUsageRecordInput(context, reqData, f, AppActionType.Create, nothrow);
     }
 
     promises.push(p);
@@ -140,17 +156,19 @@ async function insertUsageRecordsForFiles(
 }
 
 async function setupForFile(
-  context: IBaseContext,
+  context: BaseContextType,
   exceedLimit = false,
   nothrow = true,
   exceedBy = 0
 ) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
-    publicAgent,
+    PUBLIC_SESSION_AGENT,
     generateTestUsageThresholdInputMap()
   );
-  await context.data.workspace.insertItem(workspace);
+  await executeWithMutationRunOptions(context, opts =>
+    context.semantic.workspace.insertItem(workspace, opts)
+  );
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
   assert(ut);
   const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -173,7 +191,7 @@ async function setupForFile(
  * @param expectedState
  */
 async function checkLocks(
-  context: IBaseContext,
+  context: BaseContextType,
   wId: string,
   categories?: Partial<Record<UsageRecordCategory, boolean>> | null,
   expectedState = true
@@ -185,11 +203,11 @@ async function checkLocks(
     }, {} as Record<UsageRecordCategory, boolean>);
   }
 
-  const w = await context.data.workspace.getOneByQuery(
+  const w = await context.semantic.workspace.getOneByQuery(
     EndpointReusableQueries.getByResourceId(wId)
   );
   assert(w);
-  const locks = w.usageThresholdLocks || {};
+  const locks = w.usageThresholdLocks ?? {};
   for (const category in categories) {
     const expected = categories[category as UsageRecordCategory];
     const lock = locks[category as UsageRecordCategory];
@@ -199,7 +217,7 @@ async function checkLocks(
   }
 }
 
-async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorkspace, f1: IFile) {
+async function checkFailedRecordExistsForFile(connection: Connection, w1: Workspace, f1: File) {
   const model = getUsageRecordModel(connection);
   const failedRecord = await model
     .findOne({
@@ -213,18 +231,18 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: IWorks
     .exec();
 
   expect(failedRecord).toBeDefined();
-  const a = cast<IFileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
+  const a = cast<FileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
   expect(a).toBeDefined();
   expect(a?.fileId).toBe(f1.resourceId);
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
 async function assertRecordInsertionFails(
-  context: IBaseContext,
+  context: BaseContextType,
   connection: Connection,
-  w1: IWorkspace
+  w1: Workspace
 ) {
-  const f1 = generateTestFile({workspaceId: w1.resourceId});
+  const f1 = generateTestFile({workspaceId: w1.resourceId, parentId: null});
   await expect(async () => {
     assertContext(context);
     await insertStorageUsageRecordInput(context, reqData, f1);
@@ -237,7 +255,7 @@ async function assertRecordInsertionFails(
 
 async function assertRecordLevel2Exists(
   connection: Connection,
-  w: IWorkspace,
+  w: Workspace,
   category: UsageRecordCategory,
   usageCost: number,
   fulfillmentStatus: UsageRecordFulfillmentStatus
@@ -338,14 +356,16 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategory.Total]: {
         budget: 1000,
         category: UsageRecordCategory.Total,
       },
     });
 
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context.semantic.workspace.insertItem(workspace, opts)
+    );
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     const {totalUsage, count} = await insertUsageRecordsForFiles(
@@ -381,14 +401,16 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(publicAgent, {
+    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategory.Total]: {
         budget: 1000,
         category: UsageRecordCategory.Total,
       },
     });
 
-    await context.data.workspace.insertItem(workspace);
+    await executeWithMutationRunOptions(context, opts =>
+      context.semantic.workspace.insertItem(workspace, opts)
+    );
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
     assert(ut);
     await insertUsageRecordsForFiles(

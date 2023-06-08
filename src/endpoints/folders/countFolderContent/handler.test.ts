@@ -1,26 +1,27 @@
-import {IBaseContext} from '../../contexts/types';
+import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
-import {generateAndInsertTestFiles} from '../../test-utils/generate-data/file';
-import {generateAndInsertTestFolders} from '../../test-utils/generate-data/folder';
+import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
+import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
   assertEndpointResultOk,
   initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithUserToken,
-} from '../../test-utils/test-utils';
+  mockExpressRequestWithAgentToken,
+} from '../../testUtils/testUtils';
 import countFolderContent from './handler';
-import {ICountFolderContentEndpointParams} from './types';
+import {CountFolderContentEndpointParams} from './types';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('countFolderContent', () => {
@@ -29,21 +30,24 @@ describe('countFolderContent', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await Promise.all([
-      generateAndInsertTestFolders(context, 15, {workspaceId: workspace.resourceId}),
-      generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId}),
+      generateAndInsertTestFolders(context, 15, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId, parentId: null}),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
-      context.data.folder.countByQuery({
+      context.semantic.folder.countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      context.data.file.countByQuery({
+      context.semantic.file.countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
     ]);
-    const instData = RequestData.fromExpressRequest<ICountFolderContentEndpointParams>(
-      mockExpressRequestWithUserToken(userToken),
+    const instData = RequestData.fromExpressRequest<CountFolderContentEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
       {folderpath: workspace.rootname}
     );
     const result = await countFolderContent(context, instData);

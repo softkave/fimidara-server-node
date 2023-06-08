@@ -1,25 +1,13 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppResourceType, BasicCRUDActions} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
+import {sortStringListLexographically} from '../../../utils/fns';
+import {BaseContextType} from '../../contexts/types';
+import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertCanDeletePublicFile,
-  assertCanReadPublicFile,
-  assertCanUploadToPublicFile,
-} from '../../files/uploadFile/uploadFileTestUtils';
-import {generateTestFolderName} from '../../test-utils/generate-data/folder';
-import {expectErrorThrown} from '../../test-utils/helpers/error';
-import {assertContext, initTestBaseContext} from '../../test-utils/test-utils';
-import {PermissionDeniedError} from '../../user/errors';
-import {folderConstants} from '../constants';
-import {
-  addFolderBaseTest,
-  addFolderWithPublicAccessOpsTest,
-  assertCanCreateFolderInPublicFolder,
-  assertCanDeletePublicFolder,
-  assertCanListContentOfPublicFolder,
-  assertFolderPublicOps,
-  makeEveryFolderPublicAccessOp,
-} from './addFolderTestUtils';
+  assertContext,
+  initTestBaseContext,
+  insertFolderForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../testUtils/testUtils';
 
 /**
  * TODO:
@@ -27,96 +15,50 @@ import {
  * - Test on root
  */
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('addFolder', () => {
   test('folder created', async () => {
     assertContext(context);
-    await addFolderBaseTest(context);
-  });
+    const {userToken} = await insertUserForTest(context);
+    const {workspace} = await insertWorkspaceForTest(context, userToken);
 
-  test('folder created with public access ops', async () => {
-    assertContext(context);
-    const {folder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
-      publicAccessOps: [
-        {
-          action: BasicCRUDActions.Create,
-          resourceType: AppResourceType.File,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-        },
-        {
-          action: BasicCRUDActions.Read,
-          resourceType: AppResourceType.File,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-        },
-        {
-          action: BasicCRUDActions.Create,
-          resourceType: AppResourceType.Folder,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-        },
-        {
-          action: BasicCRUDActions.Read,
-          resourceType: AppResourceType.Folder,
-          appliesTo: PermissionItemAppliesTo.ContainerAndChildren,
-        },
-      ],
+    const folderpath01 = '/' + workspace.rootname + '/folders/images/first';
+    const folderpath02 = '/' + workspace.rootname + '/folders/images/second';
+    const folderpath03 = '/' + workspace.rootname + '/folders/images/third';
+    await insertFolderForTest(context, userToken, workspace, {
+      folderpath: folderpath03,
     });
+    await Promise.all([
+      insertFolderForTest(context, userToken, workspace, {
+        folderpath: folderpath01,
+      }),
+      insertFolderForTest(context, userToken, workspace, {
+        folderpath: folderpath02,
+      }),
+    ]);
 
-    const folderpath = folder.namePath.join(folderConstants.nameSeparator);
-    const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
-      context,
-      insertWorkspaceResult.workspace,
-      folderpath
-    );
-
-    const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
-    const {file} = await assertCanUploadToPublicFile(
-      context,
-      insertWorkspaceResult.workspace,
-      folder02Path + folderConstants.nameSeparator + generateTestFolderName()
-    );
-
-    await assertCanListContentOfPublicFolder(
-      context,
-      insertWorkspaceResult.workspace,
-      folder02Path
-    );
-    const filepath = file.namePath.join(folderConstants.nameSeparator);
-    await assertCanReadPublicFile(context, insertWorkspaceResult.workspace, filepath);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await assertCanDeletePublicFolder(context, insertWorkspaceResult.workspace, folderpath);
-    }, [PermissionDeniedError.name]);
-
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await assertCanDeletePublicFile(context, insertWorkspaceResult.workspace, filepath);
-    }, [PermissionDeniedError.name]);
-  });
-
-  test('folder created with all public access ops', async () => {
-    assertContext(context);
-    const {savedFolder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
-      publicAccessOps: makeEveryFolderPublicAccessOp(),
+    const inputNames = sortStringListLexographically([
+      'folders',
+      'images',
+      'first',
+      'second',
+      'third',
+    ]);
+    const savedFolders = await context.semantic.folder.getManyByQuery({
+      workspaceId: workspace.resourceId,
+      name: {$in: inputNames},
     });
-
-    await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
-  });
-
-  test('folder created with all public access ops', async () => {
-    assertContext(context);
-    const {savedFolder, insertWorkspaceResult} = await addFolderWithPublicAccessOpsTest(context, {
-      publicAccessOps: makeEveryFolderPublicAccessOp(),
-    });
-
-    await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
+    const savedFolderNames = sortStringListLexographically(savedFolders.map(f => f.name));
+    expect(savedFolderNames).toEqual(expect.arrayContaining(inputNames));
+    expect(savedFolderNames).toHaveLength(inputNames.length);
   });
 });

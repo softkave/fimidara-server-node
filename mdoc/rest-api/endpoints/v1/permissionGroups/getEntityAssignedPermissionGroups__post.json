@@ -1,0 +1,360 @@
+{
+    "basePathname": "/v1/permissionGroups/getEntityAssignedPermissionGroups",
+    "method": "post",
+    "requestBody": {
+        "required": true,
+        "description": "Get entity assigned permission groups endpoint params.",
+        "__id": "FieldObject",
+        "name": "GetEntityAssignedPermissionGroupsParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                    "__id": "FieldString",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "optional": true
+            },
+            "entityId": {
+                "data": {
+                    "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
+                    "__id": "FieldString",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "required": true
+            },
+            "includeInheritedPermissionGroups": {
+                "data": {
+                    "description": "Whether to include permission groups not directly assigned but inherited through permission groups assigned to entity.",
+                    "__id": "FieldBoolean"
+                },
+                "optional": true
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "description": "Access token.",
+                    "__id": "FieldString",
+                    "example": "Bearer <token>"
+                },
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON request content type.",
+                    "__id": "FieldString",
+                    "example": "application/json",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "responseBody": {
+        "required": true,
+        "description": "Get entity assigned permission groups endpoint success result.",
+        "__id": "FieldObject",
+        "name": "GetEntityAssignedPermissionGroupsEndpointResult",
+        "fields": {
+            "permissionGroups": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "PermissionGroup",
+                        "fields": {
+                            "resourceId": {
+                                "data": {
+                                    "description": "Resource ID.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "createdBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "createdAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "lastUpdatedAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "workspaceId": {
+                                "data": {
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "name": {
+                                "data": {
+                                    "description": "Name",
+                                    "__id": "FieldString"
+                                },
+                                "required": true
+                            },
+                            "description": {
+                                "data": {
+                                    "description": "Description",
+                                    "__id": "FieldString"
+                                },
+                                "optional": true
+                            },
+                            "providedResourceId": {
+                                "data": {
+                                    "description": "Resource ID provided by you.",
+                                    "__id": "FieldString",
+                                    "max": 50
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "immediateAssignedPermissionGroupsMeta": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "PublicAssignedPermissionGroupMeta",
+                        "fields": {
+                            "permissionGroupId": {
+                                "data": {
+                                    "description": "Permission group ID.",
+                                    "__id": "FieldString",
+                                    "example": "pmgroup_000000000000000000000"
+                                },
+                                "required": true
+                            },
+                            "assignedBy": {
+                                "data": {
+                                    "__id": "FieldObject",
+                                    "name": "Agent",
+                                    "fields": {
+                                        "agentId": {
+                                            "data": {
+                                                "description": "Agent ID. Possible agents are users and agent tokens.",
+                                                "__id": "FieldString"
+                                            },
+                                            "required": true
+                                        },
+                                        "agentType": {
+                                            "data": {
+                                                "description": "Agent type.",
+                                                "__id": "FieldString",
+                                                "example": "agentToken",
+                                                "valid": {
+                                                    "0": "user",
+                                                    "1": "agentToken"
+                                                },
+                                                "enumName": "AgentType"
+                                            },
+                                            "required": true
+                                        }
+                                    }
+                                },
+                                "required": true
+                            },
+                            "assignedAt": {
+                                "data": {
+                                    "description": "UTC timestamp in milliseconds.",
+                                    "__id": "FieldNumber"
+                                },
+                                "required": true
+                            },
+                            "assigneeEntityId": {
+                                "data": {
+                                    "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token.",
+                                    "__id": "FieldString",
+                                    "example": "wrkspce_000000000000000000000"
+                                },
+                                "required": true
+                            }
+                        }
+                    }
+                },
+                "required": true
+            }
+        }
+    },
+    "name": "GetEntityAssignedPermissionGroupsEndpoint",
+    "description": "Get entity assigned permission groups endpoint.",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
+    "errorResponseBody": {
+        "required": true,
+        "description": "Endpoint error result.",
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "description": "Endpoint call response errors.",
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "description": "Error name.",
+                                    "__id": "FieldString",
+                                    "example": "ValidationError"
+                                },
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "description": "Error message.",
+                                    "__id": "FieldString",
+                                    "example": "Workspace name is invalid."
+                                },
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "description": "Recommended action.",
+                                    "__id": "FieldString",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "optional": true
+                            },
+                            "field": {
+                                "data": {
+                                    "description": "Invalid field failing validation when error is ValidationError.",
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField"
+                                },
+                                "optional": true
+                            }
+                        }
+                    }
+                },
+                "optional": true
+            }
+        }
+    },
+    "__id": "HttpEndpointDefinition"
+}

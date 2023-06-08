@@ -1,23 +1,20 @@
-import {IPublicWorkspace} from '../../../definitions/workspace';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint} from '../../types';
-import {INewWorkspaceInput} from '../addWorkspace/types';
+import {PublicWorkspace} from '../../../definitions/workspace';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {NewWorkspaceInput} from '../addWorkspace/types';
 
-export type IUpdateWorkspaceInput = Partial<
-  Omit<INewWorkspaceInput, 'rootname' | 'usageThresholds'>
->;
+export type UpdateWorkspaceInput = Partial<Omit<NewWorkspaceInput, 'rootname' | 'usageThresholds'>>;
 
-export interface IUpdateWorkspaceEndpointParams {
-  workspaceId?: string;
-  workspace: IUpdateWorkspaceInput;
+export interface UpdateWorkspaceEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  workspace: UpdateWorkspaceInput;
 }
 
-export interface IUpdateWorkspaceEndpointResult {
-  workspace: IPublicWorkspace;
+export interface UpdateWorkspaceEndpointResult {
+  workspace: PublicWorkspace;
 }
 
 export type UpdateWorkspaceEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateWorkspaceEndpointParams,
-  IUpdateWorkspaceEndpointResult
+  BaseContextType,
+  UpdateWorkspaceEndpointParams,
+  UpdateWorkspaceEndpointResult
 >;

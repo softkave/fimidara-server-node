@@ -1,26 +1,21 @@
-import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
-import {IPublicAccessOpInput} from '../../../definitions/system';
-import {IAssignedTagInput} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
+import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IUpdateFolderInput {
+export interface UpdateFolderInput {
   description?: string;
-  publicAccessOps?: IPublicAccessOpInput[];
-  removePublicAccessOps?: boolean;
-  tags?: IAssignedTagInput[];
 }
 
-export interface IUpdateFolderEndpointParams extends IFolderMatcher {
-  folder: IUpdateFolderInput;
+export interface UpdateFolderEndpointParams extends FolderMatcher {
+  folder: UpdateFolderInput;
 }
 
-export interface IUpdateFolderEndpointResult {
-  folder: IPublicFolder;
+export interface UpdateFolderEndpointResult {
+  folder: PublicFolder;
 }
 
 export type UpdateFolderEndpoint = Endpoint<
-  IBaseContext,
-  IUpdateFolderEndpointParams,
-  IUpdateFolderEndpointResult
+  BaseContextType,
+  UpdateFolderEndpointParams,
+  UpdateFolderEndpointResult
 >;

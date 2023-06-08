@@ -1,18 +1,21 @@
-import {CollaborationRequestResponse, IPublicCollaborationRequest} from '../../../definitions/collaborationRequest';
-import {IBaseContext} from '../../contexts/types';
+import {
+  CollaborationRequestResponse,
+  PublicCollaborationRequestForUser,
+} from '../../../definitions/collaborationRequest';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IRespondToCollaborationRequestEndpointParams {
+export interface RespondToCollaborationRequestEndpointParams {
   requestId: string;
   response: CollaborationRequestResponse;
 }
 
-export interface IRespondToCollaborationRequestEndpointResult {
-  request: IPublicCollaborationRequest;
+export interface RespondToCollaborationRequestEndpointResult {
+  request: PublicCollaborationRequestForUser;
 }
 
 export type RespondToCollaborationRequestEndpoint = Endpoint<
-  IBaseContext,
-  IRespondToCollaborationRequestEndpointParams,
-  IRespondToCollaborationRequestEndpointResult
+  BaseContextType,
+  RespondToCollaborationRequestEndpointParams,
+  RespondToCollaborationRequestEndpointResult
 >;

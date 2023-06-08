@@ -1,90 +1,115 @@
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
-import {systemAgent} from '../../definitions/system';
-import {IWorkspace} from '../../definitions/workspace';
+import {Workspace} from '../../definitions/workspace';
+import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
+import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
+import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
-import {IBaseContext} from '../../endpoints/contexts/types';
-import {getDataProviders} from '../../endpoints/contexts/utils';
-import {internalCreateProgramAccessToken} from '../../endpoints/programAccessTokens/addToken/utils';
-import {getPublicProgramToken} from '../../endpoints/programAccessTokens/utils';
-import NoopEmailProviderContext from '../../endpoints/test-utils/context/NoopEmailProviderContext';
-import internalCreateWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
+import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
+import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
+import {BaseContextType} from '../../endpoints/contexts/types';
+import {
+  getDataProviders,
+  getLogicProviders,
+  getMemstoreDataProviders,
+  getMongoModels,
+  getSemanticDataProviders,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
+} from '../../endpoints/contexts/utils';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
-import {extractProdEnvsSchema, getAppVariables} from '../../resources/vars';
-import {consoleLogger} from '../../utils/logger/logger';
+import {fimidaraConfig} from '../../resources/vars';
+import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {appAssert} from '../../utils/assertion';
+import {serverLogger} from '../../utils/logger/loggerUtils';
 
 async function setupContext() {
-  const appVariables = getAppVariables(extractProdEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
-  const emailProvider = new NoopEmailProviderContext();
+  const models = getMongoModels(connection);
+  const data = getDataProviders(models);
+  const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(connection),
-    emailProvider,
-    getFileProvider(appVariables),
-    appVariables,
+    data,
+    new NoopEmailProviderContext(),
+    getFileProvider(fimidaraConfig),
+    fimidaraConfig,
+    mem,
+    getLogicProviders(),
+    getSemanticDataProviders(mem),
     () => connection.close()
   );
 
+  // TODO: the issue with this is there may be a conflict seeing we're not only
+  // dealing with app workspace. We're creating a workspace using user-supplied
+  // info which may conflict with an existing workspace.
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   return ctx;
 }
 
-async function insertWorkspace(context: IBaseContext) {
+async function insertWorkspace(
+  context: BaseContextType,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
   const companyName = faker.company.name();
-  return await internalCreateWorkspace(
+  return await INTERNAL_createWorkspace(
     context,
     {
       name: companyName,
       rootname: makeRootnameFromName(companyName),
       description: 'For SDK tests',
     },
-    systemAgent
+    SYSTEM_SESSION_AGENT,
+    undefined,
+    opts
   );
 }
 
-async function createProgramAccessToken(
-  context: IBaseContext,
-  workspace: IWorkspace,
-  adminPermissionGroupId: string
+async function createAgentToken(
+  context: BaseContextType,
+  workspace: Workspace,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const token = await internalCreateProgramAccessToken(
+  const token = await internalCreateAgentToken(
     context,
-    systemAgent,
+    SYSTEM_SESSION_AGENT,
     workspace,
     {
       name: faker.lorem.words(2),
-      description: 'Program access token for SDK tests',
-      permissionGroups: [
-        {
-          permissionGroupId: adminPermissionGroupId,
-          order: 1,
-        },
-      ],
+      description: 'Agent token for SDK tests',
     },
-    {
-      skipPermissionGroupsCheck: true,
-    }
+    opts
   );
-
-  const tokenStr = getPublicProgramToken(context, token).tokenStr;
-  return {token, tokenStr};
+  appAssert(token.workspaceId);
+  const tokenStr = getPublicAgentToken(context, token).tokenStr;
+  return {tokenStr, token};
 }
 
 export async function setupSDKTestReq() {
   const context = await setupContext();
-  const {workspace, adminPermissionGroup} = await insertWorkspace(context);
-  const {token, tokenStr} = await createProgramAccessToken(
-    context,
-    workspace,
-    adminPermissionGroup.resourceId
-  );
+  const {workspace, token, tokenStr} = await executeWithMutationRunOptions(context, async opts => {
+    const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
+    const {token, tokenStr} = await createAgentToken(context, workspace, opts);
+    await addAssignedPermissionGroupList(
+      context,
+      SYSTEM_SESSION_AGENT,
+      workspace.resourceId,
+      [{permissionGroupId: adminPermissionGroup.resourceId}],
+      token.resourceId,
+      false, // don't delete existing assigned permission groups
+      true, // skip permission groups check
+      /** skip auth check */ true,
+      opts
+    );
+    return {workspace, token, tokenStr};
+  });
 
-  consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
-  consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);
-  consoleLogger.info(`Program access token ID: ${token.resourceId}`);
-  consoleLogger.info(`Program access token token: ${tokenStr}`);
+  serverLogger.info(`Workspace ID: ${workspace.resourceId}`);
+  serverLogger.info(`Workspace rootname: ${workspace.rootname}`);
+  serverLogger.info(`Agent token ID: ${token.resourceId}`);
+  serverLogger.info(`Agent token token: ${tokenStr}`);
   await context.dispose();
-  return {workspace, token, tokenStr};
 }

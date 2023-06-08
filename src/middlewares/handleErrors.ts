@@ -1,18 +1,11 @@
 import {Response} from 'express';
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from 'jsonwebtoken';
+import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
-import {
-  CredentialsExpiredError,
-  InvalidCredentialsError,
-} from '../endpoints/user/errors';
+import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
-import {logger} from '../utils/logger/logger';
+import {serverLogger} from '../utils/logger/loggerUtils';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {
@@ -58,7 +51,7 @@ function handleErrors(...args: any[]) {
     return;
   }
 
-  logger.error(err);
+  serverLogger.error(err);
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(endpointConstants.httpStatusCode.unauthorized).json({

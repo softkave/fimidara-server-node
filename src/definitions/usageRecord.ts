@@ -1,24 +1,30 @@
-import {AppResourceType, BasicCRUDActions, IAgent} from './system';
+import {
+  AppActionType,
+  AppResourceType,
+  ConvertAgentToPublicAgent,
+  PublicWorkspaceResource,
+  WorkspaceResource,
+} from './system';
 
 export enum UsageRecordCategory {
   Storage = 'storage',
-  BandwidthIn = 'bandwidth-in',
-  BandwidthOut = 'bandwidth-out',
+  BandwidthIn = 'bin',
+  BandwidthOut = 'bout',
   // Request = 'request',
-  // DatabaseObject = 'db-object',
+  // DatabaseObject = 'dbObject',
   Total = 'total',
 }
 
 export enum UsageRecordArtifactType {
   File = 'file',
-  // DatabaseObject = 'db-object',
+  // DatabaseObject = 'dbObject',
 }
 
-export interface IUsageRecordArtifact {
+export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
-  action?: BasicCRUDActions;
-  artifact: IFileUsageRecordArtifact | IBandwidthUsageRecordArtifact;
+  action?: AppActionType;
+  artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
 export enum UsageRecordFulfillmentStatus {
@@ -41,67 +47,66 @@ export enum UsageSummationType {
   Two = 2,
 }
 
-export interface IUsageRecord {
-  resourceId: string;
-  workspaceId: string;
+export interface UsageRecord extends WorkspaceResource {
   category: UsageRecordCategory;
-  createdBy: IAgent;
-  createdAt: Date | string;
-  lastUpdatedBy?: IAgent;
-  lastUpdatedAt?: Date | string;
 
-  // usage is count for requests and db objects
-  // usage is bytes for storage, bandwidth in, and bandwidth out
+  /**
+   * Usage is count for requests and db objects usage is bytes for storage,
+   * bandwidth in, and bandwidth out.
+   */
   usage: number;
   usageCost: number;
   fulfillmentStatus: UsageRecordFulfillmentStatus;
   summationType: UsageSummationType;
 
-  // summation level 1
-  artifacts: IUsageRecordArtifact[];
+  /** Summation level 1 only. */
+  artifacts: UsageRecordArtifact[];
   dropReason?: UsageRecordDropReason;
   dropMessage?: string;
 
-  // summation level 2
+  /** Summation level 2 only. */
   month: number;
   year: number;
 }
 
-export type IPublicUsageRecord = IUsageRecord;
+export type PublicUsageRecord = PublicWorkspaceResource &
+  ConvertAgentToPublicAgent<
+    Pick<UsageRecord, 'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'>
+  >;
 
-export interface IFileUsageRecordArtifact {
+export interface FileUsageRecordArtifact {
   fileId: string;
   filepath: string;
   oldFileSize?: number;
   requestId: string;
 }
 
-export interface IBandwidthUsageRecordArtifact {
+export interface BandwidthUsageRecordArtifact {
   fileId: string;
   filepath: string;
   requestId: string;
 }
 
-export interface IDatabaseObjectUsageRecordArtifact {
+export interface DatabaseObjectUsageRecordArtifact {
   resourceId: string;
   requestId: string;
 }
 
-// export interface IUsageRecordReportingPeriod {
+// export interface UsageRecordReportingPeriod {
 //   resourceId: string;
-//   startDate: Date | string;
-//   endDate: Date | string;
+//   startDate: number;
+//   endDate: number;
 //   month: number;
 //   year: number;
-//   createdAt: Date | string;
-//   createdBy: IAgent;
+//   createdAt: number;
+//   createdBystring
 // }
 
-// export interface IUsageRecordCost {
+// export interface UsageRecordCost {
 //   resourceId: string;
 //   costPerUnit: number;
-//   createdAt: Date | string;
-//   createdBy: IAgent;
+//   createdAt: number;
+//   createdBystring
 //   category: UsageRecordCategory;
-//   effectiveDate: Date | string;
+//   effectiveDate: number;
 // }

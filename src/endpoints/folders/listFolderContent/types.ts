@@ -1,24 +1,24 @@
-import {IPublicFile} from '../../../definitions/file';
-import {IFolderMatcher, IPublicFolder} from '../../../definitions/folder';
+import {PublicFile} from '../../../definitions/file';
+import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
 import {AppResourceType} from '../../../definitions/system';
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, IPaginatedResult, IPaginationQuery} from '../../types';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
 
-export interface IListFolderContentEndpointParamsBase extends IFolderMatcher {
-  contentType?: Array<AppResourceType.File | AppResourceType.Folder>;
+export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
+  contentType?: AppResourceType;
 }
 
-export interface IListFolderContentEndpointParams
-  extends IListFolderContentEndpointParamsBase,
-    IPaginationQuery {}
+export interface ListFolderContentEndpointParams
+  extends ListFolderContentEndpointParamsBase,
+    PaginationQuery {}
 
-export interface IListFolderContentEndpointResult extends IPaginatedResult {
-  folders: IPublicFolder[];
-  files: IPublicFile[];
+export interface ListFolderContentEndpointResult extends PaginatedResult {
+  folders: PublicFolder[];
+  files: PublicFile[];
 }
 
 export type ListFolderContentEndpoint = Endpoint<
-  IBaseContext,
-  IListFolderContentEndpointParams,
-  IListFolderContentEndpointResult
+  BaseContextType,
+  ListFolderContentEndpointParams,
+  ListFolderContentEndpointResult
 >;

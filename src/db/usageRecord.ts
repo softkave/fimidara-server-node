@@ -1,22 +1,20 @@
 import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
-import {IUsageRecord, IUsageRecordArtifact, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
-import {getDate} from '../utils/dateFns';
-import {agentSchema, ensureTypeFields} from './utils';
+import {
+  UsageRecord,
+  UsageRecordArtifact,
+  UsageRecordFulfillmentStatus,
+} from '../definitions/usageRecord';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
-const artifactSchema = ensureTypeFields<IUsageRecordArtifact>({
+const artifactSchema = ensureMongoTypeFields<UsageRecordArtifact>({
   type: {type: String},
   resourceType: {type: String},
   action: {type: String},
-  artifact: SchemaTypes.Mixed,
+  artifact: SchemaTypes.Map,
 });
 
-const usageRecordSchema = ensureTypeFields<IUsageRecord>({
-  resourceId: {type: String, unique: true, index: true},
-  createdBy: {type: agentSchema},
-  createdAt: {type: Date, default: getDate, index: true},
-  lastUpdatedBy: {type: agentSchema},
-  lastUpdatedAt: {type: Date},
-  workspaceId: {type: String, index: true},
+const usageRecordSchema = ensureMongoTypeFields<UsageRecord>({
+  ...workspaceResourceSchema,
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},
@@ -33,13 +31,13 @@ const usageRecordSchema = ensureTypeFields<IUsageRecord>({
   year: {type: Number, index: true},
 });
 
-const schema = new Schema<IUsageRecord>(usageRecordSchema);
+const schema = new Schema<UsageRecord>(usageRecordSchema);
 const modelName = 'usage-record';
 const collectionName = 'usage-records';
 
 export function getUsageRecordModel(connection: Connection) {
-  const model = connection.model<IUsageRecord>(modelName, schema, collectionName);
+  const model = connection.model<UsageRecord>(modelName, schema, collectionName);
   return model;
 }
 
-export type IUsageRecordModel = Model<IUsageRecord>;
+export type UsageRecordModel = Model<UsageRecord>;

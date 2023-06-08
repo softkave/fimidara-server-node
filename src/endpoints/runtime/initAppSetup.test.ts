@@ -1,17 +1,17 @@
-import {APP_RUNTIME_STATE_DOC_ID} from '../../definitions/system';
-import {IBaseContext} from '../contexts/types';
+import {BaseContextType} from '../contexts/types';
 import EndpointReusableQueries from '../queries';
-import {assertContext, initTestBaseContext} from '../test-utils/test-utils';
-import {setupApp} from './initAppSetup';
+import {completeTest} from '../testUtils/helpers/test';
+import {assertContext, initTestBaseContext} from '../testUtils/testUtils';
+import {APP_RUNTIME_STATE_DOC_ID, setupApp} from './initAppSetup';
 
-let context: IBaseContext | null = null;
+let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
 });
 
 afterAll(async () => {
-  await context?.dispose();
+  await completeTest({context});
 });
 
 describe('init app setup', () => {
@@ -21,6 +21,9 @@ describe('init app setup', () => {
     await context.data.appRuntimeState.assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
     );
+    await context.semantic.user.assertGetOneByQuery({
+      email: context.appVariables.rootUserEmail,
+    });
   });
 
   test('app not setup a second time', async () => {

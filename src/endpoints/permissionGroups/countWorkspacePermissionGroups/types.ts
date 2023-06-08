@@ -1,12 +1,12 @@
-import {IBaseContext} from '../../contexts/types';
-import {Endpoint, ICountItemsEndpointResult} from '../../types';
-import {IGetWorkspacePermissionGroupsEndpointParamsBase} from '../getWorkspacePermissionGroups/types';
+import {BaseContextType} from '../../contexts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {GetWorkspacePermissionGroupsEndpointParamsBase} from '../getWorkspacePermissionGroups/types';
 
-export type ICountWorkspacePermissionGroupsEndpointParams =
-  IGetWorkspacePermissionGroupsEndpointParamsBase;
+export type CountWorkspacePermissionGroupsEndpointParams =
+  GetWorkspacePermissionGroupsEndpointParamsBase;
 
 export type CountWorkspacePermissionGroupsEndpoint = Endpoint<
-  IBaseContext,
-  ICountWorkspacePermissionGroupsEndpointParams,
-  ICountItemsEndpointResult
+  BaseContextType,
+  CountWorkspacePermissionGroupsEndpointParams,
+  CountItemsEndpointResult
 >;

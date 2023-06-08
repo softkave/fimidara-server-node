@@ -1,9 +1,17 @@
-import {IFileMatcher} from '../../../definitions/file';
-import {IBaseContext} from '../../contexts/types';
+import {File, FileMatcher} from '../../../definitions/file';
+import {BaseContextType} from '../../contexts/types';
+import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 
-export type IDeleteFileEndpointParams = IFileMatcher;
+export type DeleteFileEndpointParams = FileMatcher;
 export type DeleteFileEndpoint = Endpoint<
-  IBaseContext,
-  IDeleteFileEndpointParams
+  BaseContextType,
+  DeleteFileEndpointParams,
+  LongRunningJobResult
 >;
+
+export type DeleteFileCascadeDeleteFnsArgs = {
+  workspaceId: string;
+  fileIdList: string[];
+  files: Array<Pick<File, 'resourceId' | 'namePath' | 'extension'>>;
+};

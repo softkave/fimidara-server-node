@@ -1,17 +1,13 @@
-import {IPublicTag} from '../../../definitions/tag';
-import {IBaseContext} from '../../contexts/types';
+import {PublicTag} from '../../../definitions/tag';
+import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export interface IGetTagEndpointParams {
+export interface GetTagEndpointParams {
   tagId: string;
 }
 
-export interface IGetTagEndpointResult {
-  tag: IPublicTag;
+export interface GetTagEndpointResult {
+  tag: PublicTag;
 }
 
-export type GetTagEndpoint = Endpoint<
-  IBaseContext,
-  IGetTagEndpointParams,
-  IGetTagEndpointResult
->;
+export type GetTagEndpoint = Endpoint<BaseContextType, GetTagEndpointParams, GetTagEndpointResult>;
