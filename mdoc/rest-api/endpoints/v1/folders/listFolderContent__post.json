@@ -25,17 +25,13 @@
             },
             "contentType": {
                 "data": {
-                    "__id": "FieldArray",
-                    "type": {
-                        "description": "Fetch children files or folders or both.",
-                        "__id": "FieldString",
-                        "example": "file",
-                        "valid": {
-                            "0": "file",
-                            "1": "folder"
-                        }
-                    },
-                    "max": 2
+                    "description": "Fetch children files or folders. To fetch both, pass nothing.",
+                    "__id": "FieldString",
+                    "example": "file",
+                    "valid": {
+                        "0": "file",
+                        "1": "folder"
+                    }
                 },
                 "optional": true
             },

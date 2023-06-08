@@ -1,4 +1,3 @@
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
 import * as multer from 'multer';
@@ -6,6 +5,7 @@ import {endpointConstants} from '../endpoints/constants';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
+import {serverLogger} from '../utils/logger/loggerUtils';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {

@@ -243,14 +243,46 @@ export type File = {
 export type GetFileDetailsEndpointResult = {
   file: File;
 };
-export type ImageTransformationParams = {
+export type ImageResizePositionEnum =
+  | 'top'
+  | 'right top'
+  | 'right'
+  | 'right bottom'
+  | 'bottom'
+  | 'left bottom'
+  | 'left'
+  | 'left top'
+  | 'north'
+  | 'northeast'
+  | 'east'
+  | 'southeast'
+  | 'south'
+  | 'southwest'
+  | 'west'
+  | 'northwest'
+  | 'centre'
+  | 'entropy'
+  | 'attention';
+export type ImageResizeFitEnum =
+  | 'contain'
+  | 'cover'
+  | 'fill'
+  | 'inside'
+  | 'outside';
+export type ImageResizeParams = {
   width?: string;
   height?: string;
+  position?: ImageResizePositionEnum | number;
+  fit?: ImageResizeFitEnum;
+  background?: string;
+  withoutEnlargement?: boolean;
 };
+export type ImageFormatEnum = 'jpeg' | 'png' | 'webp' | 'tiff' | 'raw';
 export type ReadFileEndpointParams = {
   filepath?: string;
   fileId?: string;
-  imageTranformation?: ImageTransformationParams;
+  imageResize?: ImageResizeParams;
+  imageFormat?: ImageFormatEnum;
 };
 export type UpdateFileDetailsInput = {
   description?: string;
@@ -339,7 +371,7 @@ export type GetFolderEndpointResult = {
 export type ListFolderContentEndpointParams = {
   folderpath?: string;
   folderId?: string;
-  contentType?: Array<'file' | 'folder'>;
+  contentType?: 'file' | 'folder';
   page?: number;
   pageSize?: number;
 };
@@ -558,8 +590,6 @@ export type ResolvedEntityPermissionItem = {
   targetAppliesTo?: Array<PermissionItemAppliesTo>;
   containerAppliesTo?: Array<PermissionItemAppliesTo>;
   accessEntityId?: string;
-  accessTargetId?: string;
-  accessTargetType?: WorkspaceAppResourceType;
 };
 export type ResolveEntityPermissionsEndpointResult = {
   items: Array<ResolvedEntityPermissionItem>;

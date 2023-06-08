@@ -1,7 +1,7 @@
-import {FileMatcher} from '@/definitions/file';
-import {BaseContextType} from '@/endpoints/contexts/types';
-import {Endpoint} from '@/endpoints/types';
-import {ObjectValues} from '@/utils/types';
+import {FileMatcher} from '../../../definitions/file';
+import {ObjectValues} from '../../../utils/types';
+import {BaseContextType} from '../../contexts/types';
+import {Endpoint} from '../../types';
 
 export const ImageResizeFitEnumMap = {
   contain: 'contain',
@@ -10,8 +10,6 @@ export const ImageResizeFitEnumMap = {
   inside: 'inside',
   outside: 'outside',
 };
-export type ImageResizeFitEnum = ObjectValues<typeof ImageResizeFitEnumMap>;
-
 export const ImageResizePositionEnumMap = {
   top: 'top',
   rightTop: 'right top',
@@ -38,6 +36,7 @@ export const ImageResizePositionEnumMap = {
    * saturation and presence of skin tones. */
   attention: 'attention',
 };
+export type ImageResizeFitEnum = ObjectValues<typeof ImageResizeFitEnumMap>;
 export type ImageResizePositionEnum = ObjectValues<typeof ImageResizePositionEnumMap>;
 
 export type ImageResizeParams = {

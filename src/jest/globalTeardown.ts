@@ -1,5 +1,3 @@
-import {fimidaraConfig} from '@/resources/vars';
-import {testLogger} from '@/utils/logger/loggerUtils';
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,
@@ -10,6 +8,8 @@ import mongoose from 'mongoose';
 import {globalDispose} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {FileBackendType, FimidaraConfig} from '../resources/types';
+import {fimidaraConfig} from '../resources/vars';
+import {testLogger} from '../utils/logger/loggerUtils';
 import _ = require('lodash');
 
 async function waitOnPromises(promises: Promise<any>[]) {

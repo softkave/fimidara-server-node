@@ -67,7 +67,10 @@ export default class BaseContext<
 
     const promises = [this.fileBackend.close(), this.email.close()];
     logRejectedPromisesAndThrow(await Promise.allSettled(promises));
-    if (this.disposeFn) await this.disposeFn();
+
+    if (this.disposeFn) {
+      await this.disposeFn();
+    }
   };
 }
 

@@ -1,4 +1,4 @@
-import {webLogger} from '@/utils/logger/loggerUtils';
+import {webLogger} from '../../../utils/logger/loggerUtils';
 import {validate} from '../../../utils/validate';
 import {IngestLogsEndpoint} from './types';
 import {ingestLogsJoiSchema} from './validation';

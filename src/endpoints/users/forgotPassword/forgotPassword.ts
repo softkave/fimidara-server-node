@@ -56,15 +56,11 @@ export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotT
     forgotToken.resourceId,
     forgotToken.expires
   );
-  const link = `${context.appVariables.clientDomain}${
-    context.appVariables.changePasswordLink
-  }?${stringify({
+  const link = `${context.appVariables.changePasswordLink}?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
   return link;
 }
-
-export default forgotPassword;
 
 export async function getForgotPasswordToken(
   context: BaseContextType,
@@ -93,3 +89,5 @@ export async function getForgotPasswordToken(
 
   return forgotToken;
 }
+
+export default forgotPassword;

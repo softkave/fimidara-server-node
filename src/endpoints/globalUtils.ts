@@ -1,5 +1,5 @@
-import {FimidaraLoggerServiceNames, createAppLogger} from '@/utils/logger/loggerUtils';
 import {Logger} from 'winston';
+import {FimidaraLoggerServiceNames, createAppLogger} from '../utils/logger/loggerUtils';
 
 export async function globalDispose() {
   await Promise.all(

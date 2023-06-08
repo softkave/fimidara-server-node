@@ -1,4 +1,4 @@
-import {fimidaraConfig} from '@/resources/vars';
+import {fimidaraConfig} from '../resources/vars';
 import {
   emailHelperChars,
   emailStylingHelpers,

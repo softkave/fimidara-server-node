@@ -1,5 +1,3 @@
-import {fimidaraConfig} from '@/resources/vars';
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
@@ -16,13 +14,15 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
+import {fimidaraConfig} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
+import {serverLogger} from '../../utils/logger/loggerUtils';
 
 async function setupContext() {
   const connection = await getMongoConnection(
@@ -43,7 +43,10 @@ async function setupContext() {
     () => connection.close()
   );
 
-  await ingestDataIntoMemStore(ctx);
+  // TODO: the issue with this is there may be a conflict seeing we're not only
+  // dealing with app workspace. We're creating a workspace using user-supplied
+  // info which may conflict with an existing workspace.
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   return ctx;
 }
 

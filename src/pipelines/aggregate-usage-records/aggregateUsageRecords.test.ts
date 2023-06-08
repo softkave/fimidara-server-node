@@ -23,7 +23,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
@@ -86,7 +86,7 @@ async function getContextAndConnection() {
     getSemanticDataProviders(mem)
   );
 
-  await ingestDataIntoMemStore(context);
+  await ingestOnlyAppWorkspaceDataIntoMemstore(context);
   contexts.push(context);
   connections.push(connection);
   return {context, connection};

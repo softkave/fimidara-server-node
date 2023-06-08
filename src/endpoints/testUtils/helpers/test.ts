@@ -1,4 +1,4 @@
-import {toNonNullableArray} from '../../../utils/fns';
+import {toCompactArray} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
@@ -37,14 +37,13 @@ export async function completeTest(
   } = {}
 ) {
   const {context} = props;
+
   if (context) {
     await Promise.all(
-      toNonNullableArray(context).map(async context => {
-        if (context) {
-          await executeServerInstanceJobs(context, context.appVariables.serverInstanceId);
-          await waitForServerInstanceJobs(context, context.appVariables.serverInstanceId);
-          await context.dispose();
-        }
+      toCompactArray(context).map(async context => {
+        await executeServerInstanceJobs(context, context.appVariables.serverInstanceId);
+        await waitForServerInstanceJobs(context, context.appVariables.serverInstanceId);
+        await context.dispose();
       })
     );
   }

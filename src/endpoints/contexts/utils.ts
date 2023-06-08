@@ -1,3 +1,4 @@
+import {merge} from 'lodash';
 import {Connection} from 'mongoose';
 import {getAppRuntimeStateModel} from '../../db/appRuntimeState';
 import {getJobModel} from '../../db/job';
@@ -10,19 +11,26 @@ import {File, FilePresignedPath} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
 import {PermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, Resource, ResourceWrapper} from '../../definitions/system';
+import {
+  AppResourceType,
+  Resource,
+  ResourceWrapper,
+  WorkspaceResource,
+} from '../../definitions/system';
 import {Tag} from '../../definitions/tag';
 import {UsageRecord, UsageSummationType} from '../../definitions/usageRecord';
 import {User} from '../../definitions/user';
 import {Workspace} from '../../definitions/workspace';
 import {assertNotFound} from '../../utils/assertion';
 import {toNonNullableArray} from '../../utils/fns';
+import {AnyFn} from '../../utils/types';
 import {assertAgentToken} from '../agentTokens/utils';
 import {assertCollaborationRequest} from '../collaborationRequests/utils';
 import {assertFile} from '../files/utils';
 import {assertFolder} from '../folders/utils';
 import {assertPermissionGroup} from '../permissionGroups/utils';
 import {assertPermissionItem} from '../permissionItems/utils';
+import {isRootWorkspaceSetup} from '../runtime/initAppSetup';
 import {assertTag} from '../tags/utils';
 import {assertUsageRecord} from '../usageRecords/utils';
 import {assertUser} from '../users/utils';
@@ -223,19 +231,29 @@ export function getLogicProviders(): BaseContextType['logic'] {
   };
 }
 
-export async function ingestDataIntoMemStore(context: BaseContextType) {
+export async function ingestDataIntoMemStore(
+  context: BaseContextType,
+  modifyQueryFn?: AnyFn<
+    ['*' | 'usage-records', DataQuery<ResourceWrapper>],
+    DataQuery<ResourceWrapper>
+  >
+) {
   // TODO: we only want to fetch L2 usage records
-  const q1: DataQuery<ResourceWrapper> = {
+  let q1: DataQuery<ResourceWrapper> = {
     resourceType: {$ne: AppResourceType.UsageRecord},
   };
-  const q2: DataQuery<ResourceWrapper<UsageRecord>> = {
+  let q2: DataQuery<ResourceWrapper<UsageRecord>> = {
     resourceType: {$eq: AppResourceType.UsageRecord},
     resource: {
-      $objMatch: {
-        summationType: UsageSummationType.Two,
-      },
+      $objMatch: {summationType: UsageSummationType.Two},
     },
   };
+
+  if (modifyQueryFn) {
+    q1 = modifyQueryFn('*', q1);
+    q2 = modifyQueryFn('usage-records', q2);
+  }
+
   const [data, usageRecordsL2] = await Promise.all([
     context.data.resource.getManyByQuery(q1),
     context.data.resource.getManyByQuery(q2),
@@ -292,4 +310,19 @@ export async function ingestDataIntoMemStore(context: BaseContextType) {
   context.memstore.filePresignedPath.UNSAFE_ingestItems(
     dataByType[AppResourceType.FilePresignedPath] as FilePresignedPath[]
   );
+}
+
+export async function ingestOnlyAppWorkspaceDataIntoMemstore(ctx: BaseContextType) {
+  const appRuntimeState = await isRootWorkspaceSetup(ctx);
+  if (!appRuntimeState) return;
+
+  // Ingest only app workspace resources
+  await ingestDataIntoMemStore(ctx, (args_0, query) => {
+    const workspaceResourceQuery: DataQuery<ResourceWrapper<WorkspaceResource>> = {
+      resource: {
+        $objMatch: {workspaceId: appRuntimeState.appWorkspaceId},
+      },
+    };
+    return merge(query, workspaceResourceQuery);
+  });
 }

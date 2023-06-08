@@ -20,7 +20,7 @@ const configItemValidationSchema = Joi.alternatives().try(
     envName: Joi.string().max(300).required(),
   }),
   Joi.object<InputFimidaraConfigItem>().keys({
-    value: Joi.any().invalid(undefined).required(),
+    value: Joi.any().required(),
   })
 );
 const configValidationSchema = Joi.object<InputFimidaraConfig>()
@@ -95,7 +95,7 @@ function getRequired<T extends any = any>(
   processFn: EnvProcessFn<T> = getFirstArg
 ): ReturnType<typeof processFn> {
   const value = fromEnv(envName);
-  assert(isUndefined(value), `${envName} is required.`);
+  assert(!isUndefined(value), `${envName} is required.`);
   return processFn(value, envName);
 }
 

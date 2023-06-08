@@ -1,4 +1,3 @@
-import {fimidaraConfig} from '@/resources/vars';
 import {getMongoConnection} from '../db/connection';
 import BaseContext, {getFileProvider} from '../endpoints/contexts/BaseContext';
 import {
@@ -7,10 +6,11 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../endpoints/contexts/utils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
+import {fimidaraConfig} from '../resources/vars';
 
 async function integrationTestGlobalSetup() {
   const connection = await getMongoConnection(
@@ -30,7 +30,7 @@ async function integrationTestGlobalSetup() {
     () => connection.close()
   );
 
-  await ingestDataIntoMemStore(ctx);
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   await setupApp(ctx);
   await ctx.dispose();
 }

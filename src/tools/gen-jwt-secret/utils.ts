@@ -1,5 +1,5 @@
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import * as crypto from 'crypto';
+import {serverLogger} from '../../utils/logger/loggerUtils';
 
 export async function genJWTSecret() {
   const secret = crypto.randomBytes(128).toString('hex');

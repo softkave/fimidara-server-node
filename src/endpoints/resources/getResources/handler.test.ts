@@ -85,7 +85,7 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resource.resource).toMatchObject(resourcesMap[resource.resourceId]);
+      expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
     });
   });
 });

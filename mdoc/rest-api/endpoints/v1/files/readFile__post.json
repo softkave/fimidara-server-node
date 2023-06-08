@@ -30,6 +30,90 @@
                     "__id": "FieldString"
                 },
                 "optional": true
+            },
+            "pos": {
+                "data": {
+                    "description": "Position, gravity, or strategy to use when fit is cover or contain.",
+                    "__id": "FieldOrCombination",
+                    "types": {
+                        "0": {
+                            "description": "Gravity or strategy to use when fit is cover or contain.",
+                            "__id": "FieldString",
+                            "valid": {
+                                "0": "top",
+                                "1": "right top",
+                                "2": "right",
+                                "3": "right bottom",
+                                "4": "bottom",
+                                "5": "left bottom",
+                                "6": "left",
+                                "7": "left top",
+                                "8": "north",
+                                "9": "northeast",
+                                "10": "east",
+                                "11": "southeast",
+                                "12": "south",
+                                "13": "southwest",
+                                "14": "west",
+                                "15": "northwest",
+                                "16": "centre",
+                                "17": "entropy",
+                                "18": "attention"
+                            },
+                            "enumName": "ImageResizePositionEnum"
+                        },
+                        "1": {
+                            "description": "Position to use when fit is cover or contain.",
+                            "__id": "FieldNumber"
+                        }
+                    }
+                },
+                "optional": true
+            },
+            "fit": {
+                "data": {
+                    "description": "How the image should be resized to fit provided dimensions.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "contain",
+                        "1": "cover",
+                        "2": "fill",
+                        "3": "inside",
+                        "4": "outside"
+                    },
+                    "enumName": "ImageResizeFitEnum"
+                },
+                "optional": true
+            },
+            "bg": {
+                "data": {
+                    "description": "Hex background color to use when fit is contain.",
+                    "__id": "FieldString",
+                    "example": "#FFFFFF"
+                },
+                "optional": true
+            },
+            "wEnlargement": {
+                "data": {
+                    "description": "Do not enlarge if the width or height are already less than provided dimensions.",
+                    "__id": "FieldBoolean"
+                },
+                "optional": true
+            },
+            "format": {
+                "data": {
+                    "description": "Format to transform image to if file is an image.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "jpeg",
+                        "1": "png",
+                        "2": "webp",
+                        "3": "tiff",
+                        "4": "raw"
+                    },
+                    "enumName": "ImageFormatEnum"
+                },
+                "optional": true
             }
         }
     },
@@ -55,10 +139,10 @@
                 },
                 "optional": true
             },
-            "imageTranformation": {
+            "imageResize": {
                 "data": {
                     "__id": "FieldObject",
-                    "name": "ImageTransformationParams",
+                    "name": "ImageResizeParams",
                     "fields": {
                         "width": {
                             "data": {
@@ -73,8 +157,92 @@
                                 "__id": "FieldString"
                             },
                             "optional": true
+                        },
+                        "position": {
+                            "data": {
+                                "description": "Position, gravity, or strategy to use when fit is cover or contain.",
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "description": "Gravity or strategy to use when fit is cover or contain.",
+                                        "__id": "FieldString",
+                                        "valid": {
+                                            "0": "top",
+                                            "1": "right top",
+                                            "2": "right",
+                                            "3": "right bottom",
+                                            "4": "bottom",
+                                            "5": "left bottom",
+                                            "6": "left",
+                                            "7": "left top",
+                                            "8": "north",
+                                            "9": "northeast",
+                                            "10": "east",
+                                            "11": "southeast",
+                                            "12": "south",
+                                            "13": "southwest",
+                                            "14": "west",
+                                            "15": "northwest",
+                                            "16": "centre",
+                                            "17": "entropy",
+                                            "18": "attention"
+                                        },
+                                        "enumName": "ImageResizePositionEnum"
+                                    },
+                                    "1": {
+                                        "description": "Position to use when fit is cover or contain.",
+                                        "__id": "FieldNumber"
+                                    }
+                                }
+                            },
+                            "optional": true
+                        },
+                        "fit": {
+                            "data": {
+                                "description": "How the image should be resized to fit provided dimensions.",
+                                "__id": "FieldString",
+                                "valid": {
+                                    "0": "contain",
+                                    "1": "cover",
+                                    "2": "fill",
+                                    "3": "inside",
+                                    "4": "outside"
+                                },
+                                "enumName": "ImageResizeFitEnum"
+                            },
+                            "optional": true
+                        },
+                        "background": {
+                            "data": {
+                                "description": "Hex background color to use when fit is contain.",
+                                "__id": "FieldString",
+                                "example": "#FFFFFF"
+                            },
+                            "optional": true
+                        },
+                        "withoutEnlargement": {
+                            "data": {
+                                "description": "Do not enlarge if the width or height are already less than provided dimensions.",
+                                "__id": "FieldBoolean"
+                            },
+                            "optional": true
                         }
                     }
+                },
+                "optional": true
+            },
+            "imageFormat": {
+                "data": {
+                    "description": "Format to transform image to if file is an image.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "jpeg",
+                        "1": "png",
+                        "2": "webp",
+                        "3": "tiff",
+                        "4": "raw"
+                    },
+                    "enumName": "ImageFormatEnum"
                 },
                 "optional": true
             }

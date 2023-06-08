@@ -6,7 +6,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../endpoints/contexts/utils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
@@ -31,7 +31,7 @@ async function testGlobalSetup() {
     () => connection.close()
   );
 
-  await ingestDataIntoMemStore(ctx);
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   await setupApp(ctx);
   await ctx.dispose();
 }

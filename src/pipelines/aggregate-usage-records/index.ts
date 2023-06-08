@@ -1,5 +1,5 @@
-import {fimidaraConfig} from '@/resources/vars';
 import {getMongoConnection} from '../../db/connection';
+import {fimidaraConfig} from '../../resources/vars';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {aggregateRecords} from './aggregateUsageRecords';
 

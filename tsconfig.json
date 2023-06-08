@@ -4,21 +4,7 @@
     "rootDir": ".",
     "outDir": "build",
     "lib": ["es2018", "dom"],
-    "esModuleInterop": true,
-    "paths": {
-      "@/db/*": ["./src/db/*"],
-      "@/definitions/*": ["./src/definitions/*"],
-      "@/emailTemplates/*": ["./src/emailTemplates/*"],
-      "@/endpoints/*": ["./src/endpoints/*"],
-      "@/jest/*": ["./src/jest/*"],
-      "@/mddoc/*": ["./src/mddoc/*"],
-      "@/middlewares/*": ["./src/middlewares/*"],
-      "@/pipelines/*": ["./src/pipelines/*"],
-      "@/resources/*": ["./src/resources/*"],
-      "@/scripts/*": ["./src/scripts/*"],
-      "@/tools/*": ["./src/tools/*"],
-      "@/utils/*": ["./src/utils/*"]
-    }
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

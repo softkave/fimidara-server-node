@@ -1,4 +1,3 @@
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import {Express, Request, Response} from 'express';
 import {compact, defaultTo, isString} from 'lodash';
 import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
@@ -15,6 +14,7 @@ import {
   makeListExtract,
 } from '../utils/extract';
 import {isObjectEmpty} from '../utils/fns';
+import {serverLogger} from '../utils/logger/loggerUtils';
 import {reuseableErrors} from '../utils/reusableErrors';
 import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';

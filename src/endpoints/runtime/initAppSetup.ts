@@ -180,7 +180,7 @@ async function setupImageUploadPermissionGroup(
   return imageUploadPermissionGroup;
 }
 
-async function isRootWorkspaceSetup(context: BaseContextType) {
+export async function isRootWorkspaceSetup(context: BaseContextType) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
   );

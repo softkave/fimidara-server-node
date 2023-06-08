@@ -1,6 +1,6 @@
-import {fimidaraConfig} from '@/resources/vars';
 import {CronJob} from 'cron';
 import {getMongoConnection} from '../db/connection';
+import {fimidaraConfig} from '../resources/vars';
 import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
 import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';

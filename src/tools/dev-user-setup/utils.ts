@@ -1,5 +1,3 @@
-import {fimidaraConfig} from '@/resources/vars';
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
@@ -30,7 +28,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
@@ -43,8 +41,10 @@ import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgo
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
+import {fimidaraConfig} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
+import {serverLogger} from '../../utils/logger/loggerUtils';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
 export interface PromptEmailAnswers {
@@ -86,7 +86,7 @@ export async function devUserSetupInitContext() {
     () => connection.close()
   );
 
-  await ingestDataIntoMemStore(ctx);
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   return ctx;
 }
 

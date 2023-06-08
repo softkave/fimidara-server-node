@@ -1,4 +1,3 @@
-import {fimidaraConfig} from '@/resources/vars';
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {getMongoConnection} from '../../db/connection';
@@ -7,6 +6,7 @@ import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {FileBackendType, FimidaraConfig} from '../../resources/types';
+import {fimidaraConfig} from '../../resources/vars';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
@@ -28,7 +28,7 @@ import {
   getMemstoreDataProviders,
   getMongoModels,
   getSemanticDataProviders,
-  ingestDataIntoMemStore,
+  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
@@ -96,10 +96,12 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
-    () => connection.close()
+    async () => {
+      await connection.close();
+    }
   );
 
-  await ingestDataIntoMemStore(ctx);
+  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   await setupApp(ctx);
   return ctx;
 }

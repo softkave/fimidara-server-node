@@ -1,5 +1,5 @@
-import {fimidaraConfig} from '@/resources/vars';
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
@@ -8,10 +8,10 @@ import {Workspace} from '../../definitions/workspace';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
+import {fimidaraConfig} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
-import assert = require('assert');
 
 let connection: Connection | null = null;
 let dbName: string | null = null;

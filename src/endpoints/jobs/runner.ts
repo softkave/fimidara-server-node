@@ -1,4 +1,3 @@
-import {serverLogger} from '@/utils/logger/loggerUtils';
 import {
   DeleteResourceJobParams,
   Job,
@@ -9,6 +8,7 @@ import {
 import {AppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
+import {serverLogger} from '../../utils/logger/loggerUtils';
 import {newResource} from '../../utils/resource';
 import {DELETE_AGENT_TOKEN_CASCADE_FNS} from '../agentTokens/deleteToken/handler';
 import {DELETE_COLLABORATION_REQUEST_CASCADE_FNS} from '../collaborationRequests/deleteRequest/handler';

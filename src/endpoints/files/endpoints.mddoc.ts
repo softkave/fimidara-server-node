@@ -2,9 +2,11 @@ import {FileMatcher, PublicFile} from '../../definitions/file';
 import {
   FieldArray,
   FieldBinary,
+  FieldBoolean,
   FieldNumber,
   FieldObject,
   FieldObjectFields,
+  FieldOrCombination,
   FieldString,
   HttpEndpointDefinition,
   HttpEndpointMethod,
@@ -36,7 +38,10 @@ import {
   IssueFilePresignedPathEndpointResult,
 } from './issueFilePresignedPath/types';
 import {
-  ImageTransformationParams,
+  ImageFormatEnumMap,
+  ImageResizeFitEnumMap,
+  ImageResizeParams,
+  ImageResizePositionEnumMap,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types';
@@ -54,6 +59,30 @@ const size = FieldNumber.construct().setDescription('File size in bytes');
 const extension = FieldString.construct().setDescription('File extension');
 const height = FieldString.construct().setDescription('Resize to height if file is an image.');
 const width = FieldString.construct().setDescription('Resize to width if file is an image.');
+const fit = FieldString.construct()
+  .setDescription('How the image should be resized to fit provided dimensions.')
+  .setEnumName('ImageResizeFitEnum')
+  .setValid(Object.values(ImageResizeFitEnumMap));
+const positionEnum = FieldString.construct()
+  .setDescription('Gravity or strategy to use when fit is cover or contain.')
+  .setEnumName('ImageResizePositionEnum')
+  .setValid(Object.values(ImageResizePositionEnumMap));
+const positionNum = FieldNumber.construct().setDescription(
+  'Position to use when fit is cover or contain.'
+);
+const position = FieldOrCombination.construct()
+  .setTypes([positionEnum, positionNum])
+  .setDescription('Position, gravity, or strategy to use when fit is cover or contain.');
+const background = FieldString.construct()
+  .setDescription('Hex background color to use when fit is contain.')
+  .setExample('#FFFFFF');
+const withoutEnlargement = FieldBoolean.construct().setDescription(
+  'Do not enlarge if the width or height are already less than provided dimensions.'
+);
+const format = FieldString.construct()
+  .setDescription('Format to transform image to if file is an image.')
+  .setEnumName('ImageFormatEnum')
+  .setValid(Object.values(ImageFormatEnumMap));
 
 const file = FieldObject.construct<PublicFile>()
   .setName('File')
@@ -187,19 +216,29 @@ const readFileParams = FieldObject.construct<ReadFileEndpointParams>()
   .setFields({
     ...fileMatcherParts,
     imageResize: FieldObject.optionalField(
-      FieldObject.construct<ImageTransformationParams>()
+      FieldObject.construct<ImageResizeParams>()
         .setFields({
           width: FieldObject.optionalField(width),
           height: FieldObject.optionalField(height),
+          position: FieldObject.optionalField(position),
+          fit: FieldObject.optionalField(fit),
+          background: FieldObject.optionalField(background),
+          withoutEnlargement: FieldObject.optionalField(withoutEnlargement),
         })
-        .setName('ImageTransformationParams')
+        .setName('ImageResizeParams')
     ),
+    imageFormat: FieldObject.optionalField(format),
   })
   .setRequired(true)
   .setDescription('Get file endpoint params.');
 const readFileQuery = FieldObject.construct<ReadFileEndpointHttpQuery>().setFields({
   w: FieldObject.optionalField(width),
   h: FieldObject.optionalField(height),
+  pos: FieldObject.optionalField(position),
+  fit: FieldObject.optionalField(fit),
+  bg: FieldObject.optionalField(background),
+  wEnlargement: FieldObject.optionalField(withoutEnlargement),
+  format: FieldObject.optionalField(format),
 });
 const readFileResponseHeaders =
   FieldObject.construct<HttpEndpointResponseHeaders_ContentType_ContentLength>().setFields({

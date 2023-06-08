@@ -20,7 +20,11 @@ import getFilePresignedPaths from './getFilePresignedPaths/handler';
 import issueFilePresignedPath from './issueFilePresignedPath/handler';
 import {multerUploadFileExpressMiddleware} from './multer';
 import readFile from './readFile/handler';
-import {ReadFileEndpoint, ReadFileEndpointParams} from './readFile/types';
+import {
+  ReadFileEndpoint,
+  ReadFileEndpointHttpQuery,
+  ReadFileEndpointParams,
+} from './readFile/types';
 import {FilesExportedEndpoints} from './types';
 import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
@@ -42,11 +46,18 @@ function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFi
 function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   const p = req.path;
   const filepath = endpointDecodeURIComponent(last(p.split(readFilePath)));
-  const width = endpointDecodeURIComponent(req.query.w);
-  const height = endpointDecodeURIComponent(req.query.h);
+  const query = req.query as Partial<ReadFileEndpointHttpQuery>;
   return {
     filepath,
-    imageResize: {width, height},
+    imageResize: {
+      width: endpointDecodeURIComponent(query.w),
+      height: endpointDecodeURIComponent(query.h),
+      background: endpointDecodeURIComponent(query.bg),
+      fit: endpointDecodeURIComponent(query.fit),
+      position: endpointDecodeURIComponent(query.pos),
+      withoutEnlargement: endpointDecodeURIComponent(query.wEnlargement),
+    },
+    imageFormat: endpointDecodeURIComponent(query.format),
     ...req.body,
   };
 }
