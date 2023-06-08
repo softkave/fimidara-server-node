@@ -118,3 +118,6 @@ test-mongo-rs-data/
 
 # Local file persistence backend save dir
 dev-local-fs/
+
+# Runtime logs
+runtime-logs/

@@ -6,7 +6,7 @@ import {ReadFileEndpointParams} from './types';
 export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
   .keys({
     ...fileValidationSchemas.fileMatcherParts,
-    imageTranformation: Joi.object()
+    imageResize: Joi.object()
       .keys({
         width: Joi.number().max(fileConstants.maxFileWidth).allow(null),
         height: Joi.number().max(fileConstants.maxFileHeight).allow(null),

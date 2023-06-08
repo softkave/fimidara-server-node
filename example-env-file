@@ -1,15 +1,14 @@
-# Example env file
+# Example env file 
+# Make sure the Mongo URI ports are same as the ones declared in package.json if
+# using mongo-rs
 
-# Make sure the port is same as the ones declared in package.json
-CLIENT_DOMAIN = "mongodb://localhost:27000,localhost:27001,localhost:27002?replicaSet=rs&serverSelectionTimeoutMS=50000"
+CLIENT_DOMAIN = "http://localhost:3000"
+MONGODB_URI = "mongodb://localhost:27000,localhost:27001,localhost:27002?replicaSet=rs&serverSelectionTimeoutMS=50000"
 MONGODB_DATABASE_NAME = "fimidara-dev"
-MONGODB_URI = ""
-LOGS_DB_NAME = "ixtb-dev"
-LOGS_COLLECTION_NAME = "logs"
-JWT_SECRET = "jwt-secret"
+JWT_SECRET = "JWT_SECRET"
 NODE_ENV = "development"
 PORT = 5000
-S3_BUCKET = "fimidara-dev-bucket"
+S3_BUCKET = "S3_BUCKET"
 AWS_ACCESS_KEY_ID = ""
 AWS_SECRET_ACCESS_KEY = ""
 AWS_REGION = ""
@@ -19,3 +18,8 @@ ROOT_USER_LAST_NAME = ""
 FILE_BACKEND = "fs"
 LOCAL_FS_DIR = "./dev-local-fs"
 FLAG_WAITLIST_NEW_SIGNUPS = true
+CLIENT_LOGIN_LINK = "http://localhost:3000/login"
+CLIENT_SIGNUP_LINK = "http://localhost:3000/signup"
+CHANGE_PASSWORD_LINK = "http://localhost:3000/change-password"
+VERIFY_EMAIL_LINK = "http://localhost:3000/verify-email"
+DEFAULT_EMAIL_ADDRESS_FROM = ""

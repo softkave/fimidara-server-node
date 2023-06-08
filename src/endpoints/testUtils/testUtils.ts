@@ -1,3 +1,4 @@
+import {fimidaraConfig} from '@/resources/vars';
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {getMongoConnection} from '../../db/connection';
@@ -5,8 +6,7 @@ import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {AppVariables, FileBackendType} from '../../resources/types';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
+import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
@@ -64,11 +64,11 @@ import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
 
-export function getTestEmailProvider(appVariables: AppVariables) {
+export function getTestEmailProvider(appVariables: FimidaraConfig) {
   return new MockTestEmailProviderContext();
 }
 
-export function getTestFileProvider(appVariables: AppVariables) {
+export function getTestFileProvider(appVariables: FimidaraConfig) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
   } else if (appVariables.fileBackend === FileBackendType.Memory) {
@@ -82,18 +82,17 @@ export function getTestFileProvider(appVariables: AppVariables) {
 }
 
 export async function initTestBaseContext(): Promise<ITestBaseContext> {
-  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
   const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
     getDataProviders(models),
-    getTestEmailProvider(appVariables),
-    getTestFileProvider(appVariables),
-    appVariables,
+    getTestEmailProvider(fimidaraConfig),
+    getTestFileProvider(fimidaraConfig),
+    fimidaraConfig,
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),

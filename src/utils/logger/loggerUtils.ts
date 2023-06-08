@@ -1,89 +1,93 @@
-import assert from 'assert';
+import {memoize} from 'lodash';
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
-import 'winston-mongodb';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import {AnyObject} from '../types';
 
-const vars = getAppVariables(prodEnvsSchema);
-export const consoleTransport = new transports.Console({
-  format: format.combine(
-    format.colorize(),
-    format.printf(info => {
-      const {message, metadata, level} = info;
-      const {timestamp, service, ...rest} = metadata;
-      const stringifiedRest = jsonStringify(rest, null, 2);
-      if (stringifiedRest !== '{}') {
-        return `${timestamp} [${service}]: ${level}: ${message} \n${stringifiedRest}`;
-      } else {
-        return `${timestamp} [${service}]: ${level}: ${message}`;
-      }
-    })
-  ),
+const consoleTransport = new transports.Console({
+  format: format.printf(info => {
+    const {message, metadata, level} = info;
+    const {timestamp, service, ...rest} = metadata;
+
+    // TODO: json stringify can be a perf bottleneck
+    const stringifiedRest = jsonStringify(rest, null, 2);
+    if (stringifiedRest !== '{}') {
+      return `${timestamp} [${service}] ${level}: ${message} \n${stringifiedRest}`;
+    } else {
+      return `${timestamp} [${service}] ${level}: ${message}`;
+    }
+  }),
 });
 
-export interface ICreateLoggerOptions {
-  transports: Array<'console' | 'mongodb'>;
-  meta: {
-    service: string;
-  } & AnyObject;
+export interface ICreateAppLoggerOptions {
+  transports: Array<'console' | 'file'>;
+  meta: {service: string} & AnyObject;
 }
 
-export function loggerFactory(opts: ICreateLoggerOptions) {
-  const logger = createLogger({
-    level: 'info',
-    format: format.combine(
-      format.timestamp({
-        format: 'YYYY-MM-DDTHH:mm:ssZ',
-      }),
-      format.errors({stack: true}),
-      format.metadata(),
-      format.json()
-    ),
-    defaultMeta: opts.meta,
-    transports: [],
-  });
+export const createAppLogger = memoize(
+  (opts: ICreateAppLoggerOptions) => {
+    const logger = createLogger({
+      level: 'info',
+      format: format.combine(
+        format.timestamp({
+          format: 'YYYY-MM-DDTHH:mm:ssZ',
+        }),
+        format.errors({stack: true}),
+        format.metadata(),
+        format.json()
+      ),
+      defaultMeta: opts.meta,
+      transports: [],
+    });
 
-  opts.transports.forEach(tr => {
-    switch (tr) {
-      case 'console':
-        logger.add(consoleTransport);
-        break;
-      case 'mongodb':
-        {
-          const dbTransport = new transports.MongoDB({
-            db: vars.mongoDbURI,
-            dbName: vars.logsDbName,
-            collection: vars.logsCollectionName,
-            storeHost: true,
-            options: {useUnifiedTopology: true},
+    opts.transports.forEach(transport => {
+      switch (transport) {
+        case 'console':
+          logger.add(consoleTransport);
+          break;
+        case 'file': {
+          const infoFileTransport: DailyRotateFile = new DailyRotateFile({
+            // TODO: read from config
+            dirname: './runtime-logs',
+            filename: `${opts.meta.service}.winston.log.%DATE%`,
           });
-          logger.add(dbTransport);
+          const errorFileTransport: DailyRotateFile = new DailyRotateFile({
+            // TODO: read from config
+            filename: `${opts.meta.service}.winston.error.%DATE%`,
+            dirname: './runtime-logs',
+            level: 'error',
+          });
+          logger.add(infoFileTransport).add(errorFileTransport);
+          break;
         }
-        break;
-    }
-  });
+      }
+    });
 
-  return logger;
-}
-
-export function decideTransport(): ICreateLoggerOptions['transports'] {
-  if (vars.nodeEnv === 'production') {
-    assert(vars.mongoDbURI);
-    return ['mongodb'];
-  } else {
-    if (vars.mongoDbURI) {
-      return ['console', 'mongodb'];
-    } else {
-      return ['console'];
-    }
-  }
-}
+    return logger;
+  },
+  opts => opts.meta.service
+);
 
 export enum FimidaraLoggerServiceNames {
   Server = 'fimidara-server',
-  Script = 'fimidara-script',
   Pipeline = 'fimidara-pipeline',
-  WebClient = 'fimidara-web',
+  Web = 'fimidara-web',
   Test = 'fimidara-test',
 }
+
+export const serverLogger = createAppLogger({
+  meta: {service: FimidaraLoggerServiceNames.Server},
+  transports: ['console', 'file'],
+});
+export const pipelineLogger = createAppLogger({
+  meta: {service: FimidaraLoggerServiceNames.Pipeline},
+  transports: ['console', 'file'],
+});
+export const webLogger = createAppLogger({
+  meta: {service: FimidaraLoggerServiceNames.Web},
+  transports: ['console', 'file'],
+});
+export const testLogger = createAppLogger({
+  meta: {service: FimidaraLoggerServiceNames.Test},
+  transports: ['console', 'file'],
+});

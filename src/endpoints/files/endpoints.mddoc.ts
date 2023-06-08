@@ -186,7 +186,7 @@ const readFileParams = FieldObject.construct<ReadFileEndpointParams>()
   .setName('ReadFileEndpointParams')
   .setFields({
     ...fileMatcherParts,
-    imageTranformation: FieldObject.optionalField(
+    imageResize: FieldObject.optionalField(
       FieldObject.construct<ImageTransformationParams>()
         .setFields({
           width: FieldObject.optionalField(width),

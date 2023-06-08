@@ -14,7 +14,7 @@ const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint = async (
   const request = await context.semantic.collaborationRequest.getOneById(data.requestId);
   assertCollaborationRequest(request);
   appAssert(
-    request.recipientEmail !== agent.user?.email,
+    request.recipientEmail === agent.user?.email,
     reuseableErrors.collaborationRequest.notFound()
   );
   return {request: collaborationRequestForUserExtractor(request)};

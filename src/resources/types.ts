@@ -1,25 +1,8 @@
 import {RequiredKeysOf} from 'type-fest';
-import {AnyFn} from '../utils/types';
+import {AnyFn, AnyObject} from '../utils/types';
 
 export enum AppEnvVariables {
-  CLIENT_DOMAIN = 'CLIENT_DOMAIN',
-  MONGODB_URI = 'MONGODB_URI',
-  MONGODB_DATABASE_NAME = 'MONGODB_DATABASE_NAME',
-  LOGS_DB_NAME = 'LOGS_DB_NAME',
-  LOGS_COLLECTION_NAME = 'LOGS_COLLECTION_NAME',
-  JWT_SECRET = 'JWT_SECRET',
-  NODE_ENV = 'NODE_ENV',
-  PORT = 'PORT',
-  S3_BUCKET = 'S3_BUCKET',
-  AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
-  AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
-  AWS_REGION = 'AWS_REGION',
-  ROOT_USER_EMAIL = 'ROOT_USER_EMAIL',
-  ROOT_USER_FIRST_NAME = 'ROOT_USER_FIRST_NAME',
-  ROOT_USER_LAST_NAME = 'ROOT_USER_LAST_NAME',
-  FILE_BACKEND = 'FILE_BACKEND',
-  FLAG_WAITLIST_NEW_SIGNUPS = 'FLAG_WAITLIST_NEW_SIGNUPS',
-  LOCAL_FS_DIR = 'LOCAL_FS_DIR',
+  CONFIG_FILE_PATH = 'CONFIG_FILE_PATH',
 }
 
 export enum FileBackendType {
@@ -28,12 +11,19 @@ export enum FileBackendType {
   LocalFs = 'fs',
 }
 
-export interface ISuppliedVariables {
+// Added after the app initialization phase.
+export interface FimidaraRuntimeConfig {
+  serverInstanceId: string;
+  appWorkspaceId: string;
+  appWorkspacesImageUploadPermissionGroupId: string;
+  appUsersImageUploadPermissionGroupId: string;
+  // configFilepath: string;
+}
+
+export interface FimidaraSuppliedConfig {
   clientDomain: string;
   mongoDbURI: string;
   mongoDbDatabaseName: string;
-  logsDbName: string;
-  logsCollectionName: string;
   jwtSecret: string;
   nodeEnv: string;
   port: string;
@@ -53,51 +43,36 @@ export interface ISuppliedVariables {
   /** Where to persist files when `fileBackend` is
    * {@link FileBackendType.LocalFs} */
   localFsDir?: string;
-}
-
-interface IStaticVariables {
-  serverInstanceId: string;
   appName: string;
   appDefaultEmailAddressFrom: string;
   awsEmailEncoding: string;
   dateFormat: string;
   clientLoginLink: string;
   clientSignupLink: string;
-  changePasswordPath: string;
-  verifyEmailPath: string;
+  changePasswordLink: string;
+  verifyEmailLink: string;
 }
 
-// Added after the app initialization phase.
-export interface AppRuntimeVars {
-  appWorkspaceId: string;
-  appWorkspacesImageUploadPermissionGroupId: string;
-  appUsersImageUploadPermissionGroupId: string;
-}
+export type InputFimidaraConfigItem<T = any> = {value: T} | {envName: string};
 
-export interface AppVariables extends ISuppliedVariables, IStaticVariables, AppRuntimeVars {}
+type ToInputConfigItem<T extends AnyObject> = {
+  [K in keyof T]: InputFimidaraConfigItem<T[K]>;
+};
 
-type EnvItemTransformFn<T> = T extends string
+export type InputFimidaraConfig = ToInputConfigItem<FimidaraSuppliedConfig>;
+export interface FimidaraConfig extends FimidaraSuppliedConfig, FimidaraRuntimeConfig {}
+
+type ConfigItemTransformFn<T> = T extends string
   ? {transform?: AnyFn<[string], T>}
   : {transform: AnyFn<[string], T>};
-type EnvItemBase<T> = {
+type ConfigItemBase<T> = {
   validator?: AnyFn<[any], boolean | string>;
-  name: AppEnvVariables;
-} & EnvItemTransformFn<T>;
-
-export type AppEnvSchema = {
-  [K in keyof ISuppliedVariables]: (K extends RequiredKeysOf<ISuppliedVariables>
-    ?
-        | {
-            required: false;
-            defaultValue: ISuppliedVariables[K];
-          }
-        | {
-            required: true;
-            defaultValue?: ISuppliedVariables[K];
-          }
-    : {
-        required?: false;
-        defaultValue?: ISuppliedVariables[K];
-      }) &
-    EnvItemBase<ISuppliedVariables[K]>;
+} & ConfigItemTransformFn<T>;
+type ToConfigSchema<T extends AnyObject> = {
+  [K in keyof T]: (K extends RequiredKeysOf<T>
+    ? {required: false; defaultValue: T[K]} | {required: true; defaultValue?: T[K]}
+    : {required?: false; defaultValue?: T[K]}) &
+    ConfigItemBase<T[K]>;
 };
+
+export type FimidaraConfigSchema = ToConfigSchema<FimidaraSuppliedConfig>;

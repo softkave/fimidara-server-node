@@ -4,7 +4,21 @@
     "rootDir": ".",
     "outDir": "build",
     "lib": ["es2018", "dom"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@/db/*": ["./src/db/*"],
+      "@/definitions/*": ["./src/definitions/*"],
+      "@/emailTemplates/*": ["./src/emailTemplates/*"],
+      "@/endpoints/*": ["./src/endpoints/*"],
+      "@/jest/*": ["./src/jest/*"],
+      "@/mddoc/*": ["./src/mddoc/*"],
+      "@/middlewares/*": ["./src/middlewares/*"],
+      "@/pipelines/*": ["./src/pipelines/*"],
+      "@/resources/*": ["./src/resources/*"],
+      "@/scripts/*": ["./src/scripts/*"],
+      "@/tools/*": ["./src/tools/*"],
+      "@/utils/*": ["./src/utils/*"]
+    }
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

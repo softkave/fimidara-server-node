@@ -1,10 +1,9 @@
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import * as crypto from 'crypto';
-import {getConsoleLogger} from '../../endpoints/globalUtils';
 
-const consoleLogger = getConsoleLogger();
 export async function genJWTSecret() {
   const secret = crypto.randomBytes(128).toString('hex');
-  consoleLogger.info('secret:');
-  consoleLogger.info(secret);
+  serverLogger.info('secret:');
+  serverLogger.info(secret);
   return secret;
 }

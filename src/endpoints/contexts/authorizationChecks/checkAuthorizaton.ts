@@ -22,7 +22,6 @@ import {
 } from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
-import {getLogger} from '../../globalUtils';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {SemanticDataAccessPermissionProviderType_GetPermissionItemsProps} from '../semantic/permission/types';
@@ -85,18 +84,6 @@ function newAccessChecker(
       if (item) return item;
     }
     return false;
-  };
-
-  const reportConflictingAccess = (
-    accessItem: PermissionItem,
-    denyItem: PermissionItem,
-    action: AppActionType,
-    targetType: AppResourceType,
-    targetId?: string
-  ) => {
-    getLogger().error(
-      `Conflicting permission items ${accessItem.resourceId} and ${denyItem.resourceId} when resolving action ${action} for target type ${targetType} and target ID ${targetId}.`
-    );
   };
 
   const produceCheckResult = (keys: string[], nothrow = false) => {

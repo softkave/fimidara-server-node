@@ -29,13 +29,16 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     throw new NotFoundError('File not found');
   }
 
-  if (data.imageTranformation?.width || data.imageTranformation?.height) {
+  if (data.imageResize?.width || data.imageResize?.height) {
     const outputStream = new stream.PassThrough();
     const transformer = sharp()
       .resize({
-        width: data.imageTranformation.width,
-        height: data.imageTranformation.height,
-        fit: 'inside',
+        width: data.imageResize.width,
+        height: data.imageResize.height,
+        fit: data.imageResize.fit as any,
+        position: data.imageResize.position,
+        background: data.imageResize.background,
+        withoutEnlargement: data.imageResize.withoutEnlargement,
       })
       .png();
 

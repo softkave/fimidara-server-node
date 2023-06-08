@@ -1,4 +1,4 @@
-import {defaultStaticVars} from '../resources/vars';
+import {fimidaraConfig} from '@/resources/vars';
 import {BaseEmailTemplateProps} from './types';
 
 export const emailHelperChars = {emDash: '—'};
@@ -54,7 +54,7 @@ export function getFooterHTML(withDonotReply = true): string {
   return `
 <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
   ${withDonotReply ? 'Auto-generated email, do not reply. <br />' : ''}
-  &copy; - ${defaultStaticVars.appName} - ${new Date().getFullYear()}
+  &copy; - ${fimidaraConfig.appName} - ${new Date().getFullYear()}
 </footer>
     `;
 }
@@ -62,7 +62,7 @@ export function getFooterHTML(withDonotReply = true): string {
 export function getHeaderHTML(title: string) {
   return `
 <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-  <h1>${defaultStaticVars.appName} ${emailHelperChars.emDash} <br /> ${title}</h1>
+  <h1>${fimidaraConfig.appName} ${emailHelperChars.emDash} <br /> ${title}</h1>
 </header>
     `;
 }
@@ -116,7 +116,7 @@ Login to your account here ${emailHelperChars.emDash} ${props.loginLink}\n
 }
 
 export function getHeaderText(title: string) {
-  return `${defaultStaticVars.appName} ${emailHelperChars.emDash} ${title}`;
+  return `${fimidaraConfig.appName} ${emailHelperChars.emDash} ${title}`;
 }
 
 export function getGreetingHTML(props: {firstName?: string}) {

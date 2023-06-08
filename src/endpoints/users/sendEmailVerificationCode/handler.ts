@@ -73,7 +73,7 @@ export async function getConfirmEmailLink(
   return await withConfirmEmailAddressToken(
     context,
     user,
-    `${context.appVariables.clientDomain}${context.appVariables.verifyEmailPath}`,
+    `${context.appVariables.clientDomain}${context.appVariables.verifyEmailLink}`,
     opts
   );
 }

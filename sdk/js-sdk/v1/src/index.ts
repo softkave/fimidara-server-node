@@ -7,6 +7,6 @@ export {
   FimidaraEndpointResult,
   FimidaraJsConfig,
   FimidaraJsConfigOptions,
-  getReadFileURL,
-  getUploadFileURL,
+  getFimidaraReadFileURL as getReadFileURL,
+  getFimidaraUploadFileURL as getUploadFileURL,
 } from './utils';

@@ -91,7 +91,7 @@ function generateCollaboratorPermissions(
   readResourceTypes.forEach(type => {
     permissionItems = permissionItems.concat(
       makePermission(
-        [AppActionType.Create, AppActionType.Update, AppActionType.Read],
+        [AppActionType.Read],
         type,
         workspace.resourceId,
         PermissionItemAppliesTo.ChildrenOfType
@@ -100,7 +100,12 @@ function generateCollaboratorPermissions(
   });
   createReadUpdateResourceTypes.forEach(type => {
     permissionItems = permissionItems.concat(
-      makePermission([AppActionType.Read], type, workspace.resourceId, PermissionItemAppliesTo.Self)
+      makePermission(
+        [AppActionType.Create, AppActionType.Update, AppActionType.Read],
+        type,
+        workspace.resourceId,
+        PermissionItemAppliesTo.ChildrenOfType
+      )
     );
   });
 

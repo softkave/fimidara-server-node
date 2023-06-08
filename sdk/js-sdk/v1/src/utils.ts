@@ -1,5 +1,7 @@
 import {fetch, Headers} from 'cross-fetch';
 import FormData from 'isomorphic-form-data';
+import {isArray, last} from 'lodash';
+import path from 'path';
 
 const defaultServerURL =
   (process ? process.env.FIMIDARA_SERVER_URL : undefined) ??
@@ -188,36 +190,84 @@ export type FimidaraEndpointParamsRequired<T> = {
   body: T;
 };
 
-export function getReadFileURL(props: {
+export function fimidaraAddRootnameToPath<
+  T extends string | string[] = string | string[]
+>(fPath: T, workspaceRootname: string | string[]): T {
+  const rootname = isArray(workspaceRootname)
+    ? last(workspaceRootname)
+    : workspaceRootname;
+
+  if (isArray(fPath)) {
+    return <T>[rootname, ...fPath];
+  }
+
+  return <T>path.posix.normalize(`${rootname}/${fPath}`);
+}
+
+const kImageResizeWidthParam = 'w';
+const kImageResizeHeightParam = 'h';
+
+function getFilepath(props: {
   /** Filepath including workspace rootname. */
-  filepath: string;
+  filepath?: string;
+  workspaceRootname?: string;
+  filepathWithoutRootname?: string;
+}) {
+  let query = '';
+  const filepath = props.filepath
+    ? props.filepath
+    : props.filepathWithoutRootname && props.workspaceRootname
+    ? fimidaraAddRootnameToPath(
+        props.filepathWithoutRootname,
+        props.workspaceRootname
+      )
+    : undefined;
+
+  if (!filepath) throw new Error('Filepath not provided.');
+  return filepath;
+}
+
+export function getFimidaraReadFileURL(props: {
+  /** Filepath including workspace rootname. */
+  filepath?: string;
+  workspaceRootname?: string;
+  filepathWithoutRootname?: string;
   width?: number;
   height?: number;
   serverURL?: string;
 }) {
   let query = '';
-  if (props.width) query += `w=${props.width.toFixed()}`;
+  const filepath = getFilepath(props);
+
+  if (props.width)
+    query += `${kImageResizeWidthParam}=${props.width.toFixed()}`;
   if (props.height)
-    query += (query.length ? '&' : '') + `h=${props.height.toFixed()}`;
+    query +=
+      (query.length ? '&' : '') +
+      `${kImageResizeHeightParam}=${props.height.toFixed()}`;
   if (query) query = '?' + query;
 
   return (
     (props.serverURL || defaultServerURL) +
     '/v1/files/readFile' +
-    (props.filepath.startsWith('/') ? '' : '/') +
-    encodeURIComponent(props.filepath) +
+    (filepath.startsWith('/') ? '' : '/') +
+    encodeURIComponent(filepath) +
     query
   );
 }
 
-export function getUploadFileURL(props: {
-  filepath: string;
+export function getFimidaraUploadFileURL(props: {
+  /** Filepath including workspace rootname. */
+  filepath?: string;
+  workspaceRootname?: string;
+  filepathWithoutRootname?: string;
   serverURL?: string;
 }) {
+  const filepath = getFilepath(props);
   return (
     (props.serverURL || defaultServerURL) +
     '/v1/files/uploadFile' +
-    (props.filepath.startsWith('/') ? '' : '/') +
-    encodeURIComponent(props.filepath)
+    (filepath.startsWith('/') ? '' : '/') +
+    encodeURIComponent(filepath)
   );
 }

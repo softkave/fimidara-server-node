@@ -1,7 +1,6 @@
 import {Request} from 'express';
-import {Logger} from 'winston';
 import {BaseTokenData} from '../../definitions/system';
-import {AppVariables} from '../../resources/types';
+import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
 import {AppRuntimeStateDataProvider, JobDataProvider, ResourceDataProvider} from './data/types';
 import {IEmailProviderContext} from './email/types';
@@ -89,7 +88,7 @@ export interface BaseContextType<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
-  AppVars extends AppVariables = AppVariables,
+  AppVars extends FimidaraConfig = FimidaraConfig,
   MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
@@ -102,7 +101,6 @@ export interface BaseContextType<
   logic: Logic;
   email: Email;
   fileBackend: FileBackend;
-  clientLogger: Logger;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

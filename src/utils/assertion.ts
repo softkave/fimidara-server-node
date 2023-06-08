@@ -1,7 +1,7 @@
 import {isString} from 'lodash';
-import {getLogger} from '../endpoints/globalUtils';
 import OperationError from './OperationError';
 import {ServerError} from './errors';
+import {serverLogger} from './logger/loggerUtils';
 import {reuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
 
@@ -12,7 +12,7 @@ export function appAssert(
 ): asserts value {
   if (!value) {
     if (logMessage) {
-      getLogger().error(logMessage);
+      serverLogger.error(logMessage);
     }
 
     if (isString(response)) {

@@ -1,3 +1,5 @@
+import {fimidaraConfig} from '@/resources/vars';
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import {faker} from '@faker-js/faker';
 import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
@@ -16,19 +18,16 @@ import {
   getSemanticDataProviders,
   ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
-import {getConsoleLogger} from '../../endpoints/globalUtils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 
 async function setupContext() {
-  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
   const data = getDataProviders(models);
@@ -36,8 +35,8 @@ async function setupContext() {
   const ctx = new BaseContext(
     data,
     new NoopEmailProviderContext(),
-    getFileProvider(appVariables),
-    appVariables,
+    getFileProvider(fimidaraConfig),
+    fimidaraConfig,
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
@@ -105,10 +104,9 @@ export async function setupSDKTestReq() {
     return {workspace, token, tokenStr};
   });
 
-  const consoleLogger = getConsoleLogger();
-  consoleLogger.info(`Workspace ID: ${workspace.resourceId}`);
-  consoleLogger.info(`Workspace rootname: ${workspace.rootname}`);
-  consoleLogger.info(`Agent token ID: ${token.resourceId}`);
-  consoleLogger.info(`Agent token token: ${tokenStr}`);
+  serverLogger.info(`Workspace ID: ${workspace.resourceId}`);
+  serverLogger.info(`Workspace rootname: ${workspace.rootname}`);
+  serverLogger.info(`Agent token ID: ${token.resourceId}`);
+  serverLogger.info(`Agent token token: ${tokenStr}`);
   await context.dispose();
 }

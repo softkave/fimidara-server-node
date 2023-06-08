@@ -1,7 +1,6 @@
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
-import multer = require('multer');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
 import {endpointConstants} from './endpoints/constants';
@@ -16,31 +15,16 @@ import {
   ingestDataIntoMemStore,
 } from './endpoints/contexts/utils';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
-import {fileConstants} from './endpoints/files/constants';
-import {getConsoleLogger, getLogger} from './endpoints/globalUtils';
 import {startJobRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
-import {getAppVariables, prodEnvsSchema} from './resources/vars';
+import {fimidaraConfig} from './resources/vars';
+import {serverLogger} from './utils/logger/loggerUtils';
 
-const logger = getLogger();
-const consoleLogger = getConsoleLogger();
-logger.info('server initialization');
+serverLogger.info('server initialization');
 
 const app = express();
-const upload = multer({
-  limits: {
-    fieldNameSize: 100,
-    fieldSize: 1 * 1024 * 1204,
-    fields: 1024,
-    fileSize: fileConstants.maxFileSizeInBytes,
-    files: 1,
-    parts: 10000,
-    headerPairs: 2000,
-  },
-});
-
 const httpServer = http.createServer(app);
 
 // Match all origins
@@ -74,10 +58,9 @@ function setupJWT(ctx: BaseContextType) {
 }
 
 async function setup() {
-  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
 
   // Run scripts here
@@ -87,9 +70,9 @@ async function setup() {
   const mem = getMemstoreDataProviders(models);
   const ctx = new BaseContext(
     getDataProviders(models),
-    getEmailProvider(appVariables),
-    getFileProvider(appVariables),
-    appVariables,
+    getEmailProvider(fimidaraConfig),
+    getFileProvider(fimidaraConfig),
+    fimidaraConfig,
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
@@ -98,18 +81,18 @@ async function setup() {
   await ingestDataIntoMemStore(ctx);
 
   const defaultWorkspace = await setupApp(ctx);
-  logger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT(ctx);
   setupFimidaraHttpEndpoints(ctx, app);
 
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
-    logger.info(ctx.appVariables.appName);
-    logger.info(`server listening on port ${ctx.appVariables.port}`);
+    serverLogger.info(ctx.appVariables.appName);
+    serverLogger.info(`server listening on port ${ctx.appVariables.port}`);
 
     // start job runner
-    startJobRunner(ctx).catch(error => consoleLogger.error(error));
+    startJobRunner(ctx).catch(error => serverLogger.error(error));
   });
 }
 
@@ -117,13 +100,13 @@ setup();
 
 // TODO: move these error logs to mongo
 process.on('uncaughtException', (exp: any, origin: any) => {
-  consoleLogger.info('uncaughtException');
-  consoleLogger.error(exp);
-  consoleLogger.info(origin);
+  serverLogger.info('uncaughtException');
+  serverLogger.error(exp);
+  serverLogger.info(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  consoleLogger.info('unhandledRejection');
-  consoleLogger.info(promise);
-  consoleLogger.info(reason);
+  serverLogger.info('unhandledRejection');
+  serverLogger.info(promise);
+  serverLogger.info(reason);
 });

@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {merge} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {AppResourceType} from '../../../definitions/system';
@@ -9,7 +10,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {WorkspaceBillStatus} from '../../../definitions/workspace';
-import {getAppVariables, prodEnvsSchema} from '../../../resources/vars';
+import {fimidaraConfig} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
@@ -36,7 +37,7 @@ let connection: Connection | null = null;
 let context: BaseContextType | null = null;
 
 beforeAll(async () => {
-  const testVars = getAppVariables(prodEnvsSchema);
+  const testVars = merge({}, fimidaraConfig);
   const dbName = `test-db-usage-record-${getNewId()}`;
   testVars.mongoDbDatabaseName = dbName;
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);

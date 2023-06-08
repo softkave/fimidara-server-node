@@ -57,7 +57,7 @@ export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotT
     forgotToken.expires
   );
   const link = `${context.appVariables.clientDomain}${
-    context.appVariables.changePasswordPath
+    context.appVariables.changePasswordLink
   }?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;

@@ -13,7 +13,7 @@ import {
 } from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
 import {PartialRecord} from '../../../../utils/types';
-import {disposeApplicationGlobalUtilities} from '../../../globalUtils';
+import {globalDispose} from '../../../globalUtils';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {LiteralDataQuery} from '../../data/types';
@@ -34,7 +34,7 @@ const mem01 = new MemStore(seedResources, [
 
 afterAll(async () => {
   mem01.dispose();
-  await disposeApplicationGlobalUtilities();
+  await globalDispose();
 });
 
 describe('MemStore', () => {

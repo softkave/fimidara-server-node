@@ -1,8 +1,8 @@
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
 import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
-import {getLogger} from '../endpoints/globalUtils';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
@@ -51,7 +51,7 @@ function handleErrors(...args: any[]) {
     return;
   }
 
-  getLogger().error(err);
+  serverLogger.error(err);
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(endpointConstants.httpStatusCode.unauthorized).json({

@@ -1,5 +1,5 @@
+import {fimidaraConfig} from '@/resources/vars';
 import {getMongoConnection} from '../../db/connection';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 
@@ -10,10 +10,9 @@ async function unlockUsageThresholdLocksMain() {
 
   try {
     runInfo.logger.info('Unlocking workspace locks job started');
-    const appVariables = getAppVariables(prodEnvsSchema);
     const connection = await getMongoConnection(
-      appVariables.mongoDbURI,
-      appVariables.mongoDbDatabaseName
+      fimidaraConfig.mongoDbURI,
+      fimidaraConfig.mongoDbDatabaseName
     );
     await unlockUsageThresholdLocks(connection);
     await connection.close();

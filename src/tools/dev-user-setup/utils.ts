@@ -1,3 +1,5 @@
+import {fimidaraConfig} from '@/resources/vars';
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
@@ -30,7 +32,6 @@ import {
   getSemanticDataProviders,
   ingestDataIntoMemStore,
 } from '../../endpoints/contexts/utils';
-import {getConsoleLogger} from '../../endpoints/globalUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
@@ -42,7 +43,6 @@ import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgo
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
@@ -68,10 +68,9 @@ export interface ISetupDevUserOptions {
 }
 
 export async function devUserSetupInitContext() {
-  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
   const data = getDataProviders(models);
@@ -79,8 +78,8 @@ export async function devUserSetupInitContext() {
   const ctx = new BaseContext(
     data,
     new NoopEmailProviderContext(),
-    getFileProvider(appVariables),
-    appVariables,
+    getFileProvider(fimidaraConfig),
+    fimidaraConfig,
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
@@ -162,7 +161,7 @@ async function makeUserAdmin(
 ) {
   const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
   if (!isAdmin) {
-    getConsoleLogger().info('Making user admin');
+    serverLogger.info('Making user admin');
     await addAssignedPermissionGroupList(
       context,
       SYSTEM_SESSION_AGENT,
@@ -193,7 +192,7 @@ async function getUser(context: BaseContextType, runtimeOptions: ISetupDevUserOp
 }
 
 export async function setupDevUser(context: BaseContextType, appOptions: ISetupDevUserOptions) {
-  const consoleLogger = getConsoleLogger();
+  const consoleLogger = serverLogger;
   const workspace = await setupApp(context);
   const user = await getUser(context, appOptions);
   const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);

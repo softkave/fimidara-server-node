@@ -7,7 +7,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {AppVariables} from '../../../resources/types';
+import {FimidaraConfig} from '../../../resources/types';
 import {endpointConstants} from '../../constants';
 import {
   FilePersistenceDeleteFilesParams,
@@ -82,7 +82,7 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
 
 export async function ensureAppBucketsReady(
   fileProvider: FilePersistenceProviderContext,
-  appVariables: AppVariables
+  appVariables: FimidaraConfig
 ) {
   return Promise.all([
     fileProvider.ensureBucketReady(appVariables.S3Bucket, appVariables.awsRegion),

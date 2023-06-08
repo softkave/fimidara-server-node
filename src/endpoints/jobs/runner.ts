@@ -1,3 +1,4 @@
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import {
   DeleteResourceJobParams,
   Job,
@@ -15,7 +16,6 @@ import {REMOVE_COLLABORATOR_CASCADE_FNS} from '../collaborators/removeCollaborat
 import {BaseContextType} from '../contexts/types';
 import {DELETE_FILE_CASCADE_FNS} from '../files/deleteFile/handler';
 import {DELETE_FOLDER_CASCADE_FNS} from '../folders/deleteFolder/handler';
-import {getLogger} from '../globalUtils';
 import {DELETE_PERMISSION_GROUP_CASCADE_FNS} from '../permissionGroups/deletePermissionGroup/handler';
 import {DELETE_PERMISSION_ITEMS_CASCADE_FNS} from '../permissionItems/deleteItems/utils';
 import {DELETE_TAG_CASCADE_FNS} from '../tags/deleteTag/handler';
@@ -52,7 +52,7 @@ export async function startJobRunner(context: BaseContextType) {
       if (index !== -1) pendingJobsIdList.splice(index, 1);
       if (nextJob.createdAt > lastTimestamp) lastTimestamp = nextJob.createdAt;
     } catch (error: unknown) {
-      getLogger().error(error);
+      serverLogger.error(error);
     }
   }
 }
@@ -83,7 +83,7 @@ async function jobRunner(context: BaseContextType, job: Job) {
     );
   } catch (error: unknown) {
     // TODO: different parts of the app should have their own tagged loggers
-    getLogger().error(error);
+    serverLogger.error(error);
     await context.data.job.updateOneByQuery(
       {resourceId: job.resourceId},
       {status: JobStatus.Failed, errorTimestamp: getTimestamp()}

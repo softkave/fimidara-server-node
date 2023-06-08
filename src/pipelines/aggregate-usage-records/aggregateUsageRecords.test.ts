@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {first, random} from 'lodash';
+import {first, merge, random} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
@@ -47,7 +47,7 @@ import {
   insertStorageUsageRecordInput,
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
+import {fimidaraConfig} from '../../resources/vars';
 import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
@@ -67,7 +67,7 @@ afterAll(async () => {
 });
 
 async function getContextAndConnection() {
-  const appVariables = getAppVariables(prodEnvsSchema);
+  const appVariables = merge({}, fimidaraConfig);
   const dbName = genDbName();
   appVariables.mongoDbDatabaseName = dbName;
   const connection = await getMongoConnection(

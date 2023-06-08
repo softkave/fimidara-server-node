@@ -46,7 +46,7 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   const height = endpointDecodeURIComponent(req.query.h);
   return {
     filepath,
-    imageTranformation: {width, height},
+    imageResize: {width, height},
     ...req.body,
   };
 }

@@ -1,3 +1,4 @@
+import {fimidaraConfig} from '@/resources/vars';
 import {faker} from '@faker-js/faker';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
@@ -7,7 +8,6 @@ import {Workspace} from '../../definitions/workspace';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
-import {getAppVariables, prodEnvsSchema} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
@@ -17,9 +17,8 @@ let connection: Connection | null = null;
 let dbName: string | null = null;
 
 beforeAll(async () => {
-  const appVariables = getAppVariables(prodEnvsSchema);
   dbName = faker.lorem.words(5).replace(/ /g, '_');
-  connection = await getMongoConnection(appVariables.mongoDbURI, dbName);
+  connection = await getMongoConnection(fimidaraConfig.mongoDbURI, dbName);
 });
 
 afterAll(async () => {

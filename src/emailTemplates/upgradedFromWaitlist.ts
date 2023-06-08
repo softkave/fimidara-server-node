@@ -1,4 +1,4 @@
-import {defaultStaticVars} from '../resources/vars';
+import {fimidaraConfig} from '@/resources/vars';
 import {
   emailHelperChars,
   emailStylingHelpers,
@@ -14,7 +14,7 @@ import {
 import {BaseEmailTemplateProps} from './types';
 
 export const upgradedFromWaitlistEmailTitle = `You've been upgraded from the waitlist`;
-const message = `You've been upgraded from the waitlist, now you have full access to ${defaultStaticVars.appName}.`;
+const message = `You've been upgraded from the waitlist, now you have full access to ${fimidaraConfig.appName}.`;
 
 export interface UpgradedFromWaitlistEmailProps extends BaseEmailTemplateProps {
   firstName: string;

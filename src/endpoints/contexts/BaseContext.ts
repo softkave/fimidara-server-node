@@ -1,8 +1,6 @@
 import {forEach} from 'lodash';
-import {Logger} from 'winston';
-import {AppVariables, FileBackendType} from '../../resources/types';
+import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
-import {FimidaraLoggerServiceNames, loggerFactory} from '../../utils/logger/loggerUtils';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import SessionContext, {SessionContextType} from './SessionContext';
 import {SESEmailProviderContext} from './email/SESEmailProviderContext';
@@ -24,7 +22,7 @@ export default class BaseContext<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
-  AppVars extends AppVariables = AppVariables,
+  AppVars extends FimidaraConfig = FimidaraConfig,
   MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
@@ -38,10 +36,6 @@ export default class BaseContext<
   logic: Logic;
   semantic: SemanticData;
   session: SessionContextType = new SessionContext();
-  clientLogger: Logger = loggerFactory({
-    transports: ['mongodb'],
-    meta: {service: FimidaraLoggerServiceNames.WebClient},
-  });
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -73,13 +67,11 @@ export default class BaseContext<
 
     const promises = [this.fileBackend.close(), this.email.close()];
     logRejectedPromisesAndThrow(await Promise.allSettled(promises));
-    this.clientLogger.close();
-
     if (this.disposeFn) await this.disposeFn();
   };
 }
 
-export function getFileProvider(appVariables: AppVariables) {
+export function getFileProvider(appVariables: FimidaraConfig) {
   if (appVariables.fileBackend === FileBackendType.S3) {
     return new S3FilePersistenceProviderContext(appVariables.awsRegion);
   } else if (appVariables.fileBackend === FileBackendType.Memory) {
@@ -89,9 +81,9 @@ export function getFileProvider(appVariables: AppVariables) {
     return new LocalFsFilePersistenceProviderContext(appVariables.localFsDir);
   }
 
-  throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
+  throw new Error(`Invalid file backend type ${appVariables.fileBackend}.`);
 }
 
-export function getEmailProvider(appVariables: AppVariables) {
+export function getEmailProvider(appVariables: FimidaraConfig) {
   return new SESEmailProviderContext(appVariables.awsRegion);
 }

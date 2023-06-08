@@ -11,13 +11,12 @@ import {
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
 import NoopFilePersistenceProviderContext from '../endpoints/testUtils/context/NoopFilePersistenceProviderContext';
-import {getAppVariables, prodEnvsSchema} from '../resources/vars';
+import {fimidaraConfig} from '../resources/vars';
 
 async function testGlobalSetup() {
-  const appVariables = getAppVariables(prodEnvsSchema);
   const connection = await getMongoConnection(
-    appVariables.mongoDbURI,
-    appVariables.mongoDbDatabaseName
+    fimidaraConfig.mongoDbURI,
+    fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
   const mem = getMemstoreDataProviders(models);
@@ -25,7 +24,7 @@ async function testGlobalSetup() {
     getDataProviders(models),
     new NoopEmailProviderContext(),
     new NoopFilePersistenceProviderContext(),
-    appVariables,
+    fimidaraConfig,
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),

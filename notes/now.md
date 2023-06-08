@@ -1,49 +1,55 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
-- [ ] Make js sdk tree-shakeable
-- [ ] Mddoc special enum type with item description
-- [ ] Introduce permissions check for viewing usage records?
+- [ ] file transformation options
+  - [ ] do not transform on read
+  - [ ] set options
+    - [ ] job, in separate thread
+  - [ ] match closest pre-transformed
+  - [ ] get path, get presigned path
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
+- [ ] Use standard JWT secret for production
+- [ ] Move db to another thread
+- [ ] Test files like .env work on upload and read file
+- [ ] Make js sdk tree-shakeable
+- [ ] Delete presigned paths endpoint
+- [ ] Research other resize options and allow users pass in resize options
+- [ ] Send email to root user on user signup
+- [ ] Mddoc special enum type with item description
+- [ ] Send emails to workspace owner of users without permissions
+- [ ] Introduce permissions check for viewing usage records?
 - [ ] Include user agent and origin in presigned path as extra security checks
+- [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
 - [ ] Support issueing mutliple file presigned paths at a time
   - [ ] Issue paths at once in getFilePresignedPaths test
-- [ ] Use standard JWT secret for production
-- [ ] Delete presigned paths endpoint
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
-- [ ] Move db to another thread
+- [ ] Job to delete expired or spent file presigned paths
+- [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
+- [ ] mddoc endpoint description and support markdown
+- [ ] Image pipeline should help compress images to web formats, same for other frontend media
+- [ ] Frontend for tags for collaborators without permissions
+- [ ] Track collaboration requests user has not seen?
+- [ ] All the many many TODOs littering the project
+- [ ] Support providedResourceId for all resources
+- [ ] In app notification
+- [ ] Audit logs
+- [ ] get permission group assignees
+- [ ] Predefined resize pipelines
 - [ ] Assigned permission group weight
-- [ ] Endpoint for deleting presigned urls
 - [ ] Custom HTML tag for fetching images and video
-- [ ] Test files like .env work on upload and read file
 - [ ] Return progress when uploading file in js sdk
 - [ ] resources fetched are currently not sorted by last updated
 - [ ] data or resource name for endpoints, decide
 - [ ] Look into sending and accepting cookies for auth and look into any cookie security issues
-- [ ] Research other resize options and allow users pass in resize options
 - [ ] Cascade delete folder children not all at once
 - [ ] Auth using cookies for presigned paths, delegated auth tokens, etc. The client calls us with browser, we set cookie that the browser sends per request for auth, particularly for images.
 - [ ] React and html custom tags to auto issue presigned paths for images
-- [ ] mddoc endpoint description and support markdown
 - [ ] Include request in assertions and logs for better debugging
-- [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
-- [ ] Job to delete expired or spent file presigned paths
 - [ ] remove setRequired from mddoc fieldobject fields, and use requiredField and optionalField
-- [ ] Stream and start processing uploaded files immediately to avoid files using too much ram
-- [ ] Revamp UI
-- [ ] Image pipeline should help compress images to web formats, same for other frontend media
 - [ ] Learn more about csrf and ssrf
-- [ ] Track collaboration requests user has not seen?
 - [ ] Document all errors to surface in docs
-- [ ] Handle password change required on the frontend
-- [ ] Change password with current password or forgot password on the frontend
-- [ ] Frontend for tags for collaborators without permissions
-- [ ] All the many many TODOs littering the project
-- [ ] Support providedResourceId for all resources
-- [ ] In app notification
 - [ ] On server start, produce dev env vars when not in production
 - [ ] For tests, have a local cache of mem data that can quickly be loaded instead of fetching from db. Maybe it'll help tests run faster and use less memory. Or use Jest's global to pass same context around.
-- [ ] Predefined resize pipelines
 - [ ] Public access op for files
 - [ ] Mem, shard by workspace and other fields
 - [ ] Accepted collaboration requests should be put in their own space

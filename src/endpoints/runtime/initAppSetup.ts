@@ -9,7 +9,7 @@ import {
   SessionAgent,
 } from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
-import {AppRuntimeVars} from '../../resources/types';
+import {FimidaraRuntimeConfig} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -192,7 +192,12 @@ async function getRootWorkspace(
   appRuntimeState: AppRuntimeState,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const appRuntimeVars: AppRuntimeVars = {
+  const appRuntimeVars: Pick<
+    FimidaraRuntimeConfig,
+    | 'appWorkspaceId'
+    | 'appUsersImageUploadPermissionGroupId'
+    | 'appWorkspacesImageUploadPermissionGroupId'
+  > = {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
     appWorkspacesImageUploadPermissionGroupId:
       appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
@@ -249,7 +254,12 @@ async function setupAppWithMutationOptions(
       ),
     ]);
 
-  const appRuntimeVars: AppRuntimeVars = {
+  const appRuntimeVars: Pick<
+    FimidaraRuntimeConfig,
+    | 'appWorkspaceId'
+    | 'appUsersImageUploadPermissionGroupId'
+    | 'appWorkspacesImageUploadPermissionGroupId'
+  > = {
     appWorkspaceId: workspace.resourceId,
     appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
     appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,

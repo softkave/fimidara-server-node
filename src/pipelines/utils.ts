@@ -1,10 +1,6 @@
 import winston = require('winston');
 import {getTimestamp} from '../utils/dateFns';
-import {
-  decideTransport,
-  FimidaraLoggerServiceNames,
-  loggerFactory,
-} from '../utils/logger/loggerUtils';
+import {serverLogger} from '../utils/logger/loggerUtils';
 
 export enum FimidaraPipelineNames {
   AggregateUsageRecordsJob = 'aggregateUsageRecordsJob',
@@ -23,12 +19,6 @@ export function pipelineRunInfoFactory(
   return {
     job: opts.job,
     runId: getTimestamp(),
-    logger: loggerFactory({
-      transports: decideTransport(),
-      meta: {
-        service: FimidaraLoggerServiceNames.Pipeline,
-        job: opts.job,
-      },
-    }),
+    logger: serverLogger,
   };
 }

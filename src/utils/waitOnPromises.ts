@@ -1,5 +1,5 @@
 import {Dictionary, map} from 'lodash';
-import {getLogger} from '../endpoints/globalUtils';
+import {serverLogger} from './logger/loggerUtils';
 
 export interface IPromiseWithId<T = any> {
   promise: Promise<T>;
@@ -7,14 +7,8 @@ export interface IPromiseWithId<T = any> {
 }
 
 export type ISettledPromise<Value = any, Reason = any> =
-  | {
-      resolved: true;
-      value: Value;
-    }
-  | {
-      resolved: false;
-      reason?: Reason;
-    };
+  | {resolved: true; value: Value}
+  | {resolved: false; reason?: Reason};
 
 export type ISettledPromiseWithId<Value = any, Reason = any> = ISettledPromise<Value, Reason> & {
   id: string | number;
@@ -78,7 +72,7 @@ export function logRejectedPromisesAndThrow(p: PromiseSettledResult<any>[]) {
 
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      getLogger().error(p.reason);
+      serverLogger.error(p.reason);
     });
     throw new Error('One or more promises rejected');
   }

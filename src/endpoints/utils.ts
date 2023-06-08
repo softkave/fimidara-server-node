@@ -1,3 +1,4 @@
+import {serverLogger} from '@/utils/logger/loggerUtils';
 import {Express, Request, Response} from 'express';
 import {compact, defaultTo, isString} from 'lodash';
 import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
@@ -24,7 +25,6 @@ import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/
 import {executeWithMutationRunOptions} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
-import {getLogger} from './globalUtils';
 import EndpointReusableQueries from './queries';
 import {
   DeleteResourceCascadeFnHelperFns,
@@ -86,7 +86,7 @@ export const wrapEndpointREST = <
         res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
     } catch (error) {
-      getLogger().error(error);
+      serverLogger.error(error);
       let statusCode = endpointConstants.httpStatusCode.serverError;
       const errors = Array.isArray(error) ? error : [error];
       const preppedErrors = getPublicErrors(errors);

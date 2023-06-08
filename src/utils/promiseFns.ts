@@ -1,7 +1,7 @@
-import {getLogger} from '../endpoints/globalUtils';
+import {serverLogger} from './logger/loggerUtils';
 
 export async function waitOnPromisesAndLogErrors(promises: Promise<any>[]) {
   (await Promise.allSettled(promises)).forEach(
-    result => result.status === 'rejected' && getLogger().error(result.reason)
+    result => result.status === 'rejected' && serverLogger.error(result.reason)
   );
 }

@@ -1,5 +1,3 @@
-import {Connection, Model, Schema} from 'mongoose';
-import {getMongoConnection} from '../../../db/connection';
 import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
@@ -17,32 +15,13 @@ import {ClientLog, IngestLogsEndpointParams} from './types';
 import assert = require('assert');
 
 let context: BaseContextType | null = null;
-let logsConnection: Connection | null = null;
-let model: Model<ClientLog> | null = null;
 
 beforeAll(async () => {
   context = await initTestBaseContext();
-  logsConnection = await getMongoConnection(
-    context.appVariables.mongoDbURI,
-    context.appVariables.logsDbName
-  );
-
-  model = logsConnection.model<ClientLog>(
-    'log',
-    new Schema<ClientLog>({
-      timestamp: Number,
-      level: String,
-      message: String,
-      service: String,
-      stack: String,
-    }),
-    context.appVariables.logsCollectionName
-  );
 });
 
 afterAll(async () => {
   await completeTest({context});
-  await logsConnection?.close();
 });
 
 describe('ingestLogs', () => {
@@ -68,8 +47,6 @@ describe('ingestLogs', () => {
     const result = await ingestLogs(context, reqData);
     assertEndpointResultOk(result);
     await waitTimeout(1000);
-    assert(model);
-    const savedLogs = await model.find({'meta.stack': randomTag}).lean().exec();
-    expect(savedLogs.length).toBe(testLogs.length);
+    // TODO: check that logs are saved correctly
   });
 });

@@ -81,7 +81,7 @@ describe('readFile', () => {
           file.name + fileConstants.nameExtensionSeparator + file.extension,
           workspace.rootname
         ),
-        imageTranformation: {
+        imageResize: {
           width: expectedWidth,
           height: expectedHeight,
         },

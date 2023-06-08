@@ -3,7 +3,7 @@ import {AnyFn} from '../../../utils/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
-import {disposeApplicationGlobalUtilities} from '../../globalUtils';
+import {globalDispose} from '../../globalUtils';
 import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
 
 export function mutationTest(
@@ -49,5 +49,5 @@ export async function completeTest(
     );
   }
 
-  await disposeApplicationGlobalUtilities();
+  await globalDispose();
 }

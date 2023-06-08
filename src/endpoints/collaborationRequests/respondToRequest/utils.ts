@@ -64,12 +64,12 @@ export const internalRespondToCollaborationRequest = async (
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
   const isAccepted = data.response === CollaborationRequestStatusType.Accepted;
-  appAssert(
-    isExpired === false,
-    new ServerStateConflictError(
+
+  if (isExpired) {
+    throw new ServerStateConflictError(
       `Collaboration request expired on ${formatDate(request.expiresAt!)}`
-    )
-  );
+    );
+  }
 
   [request] = await Promise.all([
     context.semantic.collaborationRequest.getAndUpdateOneById(
