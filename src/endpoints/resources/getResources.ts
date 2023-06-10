@@ -178,7 +178,7 @@ function groupByContainerId(
 
   const getContainerKey = (resource: ResourceWrapper) => {
     let filepath: string | undefined = undefined;
-    const containerIds = getResourcePermissionContainers(workspaceId, resource.resource);
+    const containerIds = getResourcePermissionContainers(workspaceId, resource.resource, false);
     const containerKey = makeKey(containerIds, CONTAINERS_SEPARATOR);
 
     if (

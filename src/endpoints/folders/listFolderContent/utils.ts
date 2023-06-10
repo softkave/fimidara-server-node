@@ -27,7 +27,7 @@ export async function listFolderContentQuery(
     workspaceId: workspace.resourceId,
     action: AppActionType.Read,
     targets: {targetType: contentType, targetId: parentFolder?.resourceId},
-    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder),
+    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder, false),
   });
 
   const parentId = parentFolder?.resourceId ?? null;

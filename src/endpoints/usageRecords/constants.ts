@@ -6,7 +6,7 @@ import {getTimestamp} from '../../utils/dateFns';
 import {endpointConstants} from '../constants';
 
 export const usageRecordConstants = {
-  defaultTotalThresholdInUSD: 10,
+  defaultTotalThresholdInUSD: 30,
 
   /**
    * We leave some wiggle room for requests that slightly exceed the threshold

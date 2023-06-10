@@ -70,9 +70,7 @@ const positionEnum = FieldString.construct()
 const positionNum = FieldNumber.construct().setDescription(
   'Position to use when fit is cover or contain.'
 );
-const position = FieldOrCombination.construct()
-  .setTypes([positionEnum, positionNum])
-  .setDescription('Position, gravity, or strategy to use when fit is cover or contain.');
+const position = FieldOrCombination.construct().setTypes([positionEnum, positionNum]);
 const background = FieldString.construct()
   .setDescription('Hex background color to use when fit is contain.')
   .setExample('#FFFFFF');
@@ -220,8 +218,8 @@ const readFileParams = FieldObject.construct<ReadFileEndpointParams>()
         .setFields({
           width: FieldObject.optionalField(width),
           height: FieldObject.optionalField(height),
-          position: FieldObject.optionalField(position),
           fit: FieldObject.optionalField(fit),
+          position: FieldObject.optionalField(position),
           background: FieldObject.optionalField(background),
           withoutEnlargement: FieldObject.optionalField(withoutEnlargement),
         })

@@ -10,18 +10,20 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
 import {newResource} from '../../utils/resource';
-import {DELETE_AGENT_TOKEN_CASCADE_FNS} from '../agentTokens/deleteToken/handler';
-import {DELETE_COLLABORATION_REQUEST_CASCADE_FNS} from '../collaborationRequests/deleteRequest/handler';
-import {REMOVE_COLLABORATOR_CASCADE_FNS} from '../collaborators/removeCollaborator/handler';
 import {BaseContextType} from '../contexts/types';
-import {DELETE_FILE_CASCADE_FNS} from '../files/deleteFile/handler';
-import {DELETE_FOLDER_CASCADE_FNS} from '../folders/deleteFolder/handler';
-import {DELETE_PERMISSION_GROUP_CASCADE_FNS} from '../permissionGroups/deletePermissionGroup/handler';
-import {DELETE_PERMISSION_ITEMS_CASCADE_FNS} from '../permissionItems/deleteItems/utils';
-import {DELETE_TAG_CASCADE_FNS} from '../tags/deleteTag/handler';
+import {
+  DELETE_AGENT_TOKEN_CASCADE_FNS,
+  DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
+  DELETE_FILE_CASCADE_FNS,
+  DELETE_FOLDER_CASCADE_FNS,
+  DELETE_PERMISSION_GROUP_CASCADE_FNS,
+  DELETE_PERMISSION_ITEMS_CASCADE_FNS,
+  DELETE_TAG_CASCADE_FNS,
+  DELETE_WORKSPACE_CASCADE_FNS,
+  REMOVE_COLLABORATOR_CASCADE_FNS,
+} from '../deleteResourceCascadeDefs';
 import {DeleteResourceCascadeFnsMap} from '../types';
 import {executeCascadeDelete} from '../utils';
-import {DELETE_WORKSPACE_CASCADE_FNS} from '../workspaces/deleteWorkspace/handler';
 
 let lastTimestamp = 0;
 let noPendingJobs = false;

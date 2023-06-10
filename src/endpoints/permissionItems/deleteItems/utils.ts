@@ -3,61 +3,16 @@ import {File} from '../../../definitions/file';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType, ResourceWrapper, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {
-  extractResourceIdList,
-  isObjectEmpty,
-  noopAsync,
-  toNonNullableArray,
-} from '../../../utils/fns';
+import {extractResourceIdList, isObjectEmpty, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
-import {DeleteResourceCascadeFnsMap} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
-import {
-  DeletePermissionItemInput,
-  DeletePermissionItemsCascadeFnsArgs,
-  DeletePermissionItemsEndpointParams,
-} from './types';
-
-export const DELETE_PERMISSION_ITEMS_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
-  {
-    [AppResourceType.All]: noopAsync,
-    [AppResourceType.System]: noopAsync,
-    [AppResourceType.Public]: noopAsync,
-    [AppResourceType.Workspace]: noopAsync,
-    [AppResourceType.CollaborationRequest]: noopAsync,
-    [AppResourceType.AgentToken]: noopAsync,
-    [AppResourceType.Folder]: noopAsync,
-    [AppResourceType.File]: noopAsync,
-    [AppResourceType.User]: noopAsync,
-    [AppResourceType.UsageRecord]: noopAsync,
-    [AppResourceType.EndpointRequest]: noopAsync,
-    [AppResourceType.Job]: noopAsync,
-    [AppResourceType.Tag]: noopAsync,
-    [AppResourceType.PermissionGroup]: noopAsync,
-    [AppResourceType.FilePresignedPath]: noopAsync,
-    [AppResourceType.PermissionItem]: async (context, args, helpers) =>
-      helpers.withTxn(opts =>
-        Promise.all([
-          context.semantic.permissionItem.deleteManyByIdList(args.permissionItemsIdList, opts),
-          context.semantic.permissionItem.deleteManyByTargetId(args.permissionItemsIdList, opts),
-        ])
-      ),
-    [AppResourceType.AssignedItem]: async (context, args, helpers) =>
-      helpers.withTxn(opts =>
-        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-          args.workspaceId,
-          args.permissionItemsIdList,
-          undefined,
-          opts
-        )
-      ),
-  };
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
 
 export const INTERNAL_deletePermissionItems = async (
   context: BaseContextType,

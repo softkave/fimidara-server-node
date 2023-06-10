@@ -126,7 +126,7 @@ export async function checkFolderAuthorization(
       action,
       workspace,
       workspaceId: workspace.resourceId,
-      containerId: getFilePermissionContainers(workspace.resourceId, folder),
+      containerId: getFilePermissionContainers(workspace.resourceId, folder, false),
       targets: {targetId: folder.resourceId},
     });
   }

@@ -41,7 +41,7 @@ import {BaseContextType} from '../../types';
 import {
   checkAuthorization,
   getFilePermissionContainers,
-  getResourcePermissionContainers,
+  getWorkspacePermissionContainers,
   summarizeAgentPermissionItems,
 } from '../checkAuthorizaton';
 
@@ -94,7 +94,7 @@ describe('checkAuthorization', () => {
       action: AppActionType.Read,
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
-      containerId: getFilePermissionContainers(rawWorkspace.resourceId, file),
+      containerId: getFilePermissionContainers(rawWorkspace.resourceId, file, false),
     });
   });
 
@@ -118,7 +118,7 @@ describe('checkAuthorization', () => {
         agent: agent02,
         targets: {targetId: file.resourceId},
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, file),
+        containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       });
     }, [PermissionDeniedError.name]);
   });
@@ -155,7 +155,7 @@ describe('checkAuthorization', () => {
       workspaceId: workspace.resourceId,
       agent: agent02,
       targets: {targetId: file.resourceId},
-      containerId: getFilePermissionContainers(workspace.resourceId, file),
+      containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       action: AppActionType.Read,
     });
   });
@@ -195,7 +195,7 @@ describe('checkAuthorization', () => {
         agent: agent02,
         targets: {targetId: file.resourceId},
         action: AppActionType.Update,
-        containerId: getFilePermissionContainers(workspace.resourceId, file),
+        containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       });
     }, [EmailAddressNotVerifiedError.name]);
   });
@@ -292,7 +292,7 @@ describe('checkAuthorization', () => {
           targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder01),
+        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder01, false),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -307,7 +307,7 @@ describe('checkAuthorization', () => {
           targetAppliesTo: PermissionItemAppliesTo.Self,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder02),
+        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder02, false),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -322,7 +322,7 @@ describe('checkAuthorization', () => {
           containerAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder01),
+        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder01, false),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -337,7 +337,7 @@ describe('checkAuthorization', () => {
           containerAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder02),
+        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder02, false),
       });
     }, [PermissionDeniedError.name]);
   });
@@ -404,7 +404,7 @@ describe('checkAuthorization', () => {
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
         action: AppActionType.Read,
-        containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
+        containerId: getWorkspacePermissionContainers(workspace.resourceId),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
@@ -465,7 +465,7 @@ describe('checkAuthorization', () => {
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
         action: AppActionType.Read,
-        containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
+        containerId: getWorkspacePermissionContainers(workspace.resourceId),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
@@ -526,7 +526,7 @@ describe('checkAuthorization', () => {
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
         action: AppActionType.Read,
-        containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
+        containerId: getWorkspacePermissionContainers(workspace.resourceId),
       });
     expect(hasFullOrLimitedAccess).toBeFalsy();
     expect(noAccess).toBeFalsy();
@@ -587,7 +587,7 @@ describe('checkAuthorization', () => {
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
         action: AppActionType.Read,
-        containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
+        containerId: getWorkspacePermissionContainers(workspace.resourceId),
       });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
@@ -647,7 +647,7 @@ describe('checkAuthorization', () => {
         agent: clientTokenAgent,
         targets: {targetId: workspace.resourceId},
         action: AppActionType.Read,
-        containerId: getResourcePermissionContainers(workspace.resourceId, workspace),
+        containerId: getWorkspacePermissionContainers(workspace.resourceId),
       });
     expect(hasFullOrLimitedAccess).toBeFalsy();
     expect(noAccess).toBeTruthy();

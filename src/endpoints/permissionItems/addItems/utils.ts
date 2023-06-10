@@ -193,7 +193,8 @@ export const INTERNAL_addPermissionItems = async (
     ) {
       const containerIds = getResourcePermissionContainers(
         workspace.resourceId,
-        item.target.resource
+        item.target.resource,
+        false
       );
       const containerId = last(containerIds);
       appAssert(containerId);

@@ -1,4 +1,4 @@
-import {first, forEach, isString, merge, uniq} from 'lodash';
+import {first, forEach, isString, merge} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {
@@ -242,7 +242,8 @@ export const INTERNAL_resolveEntityPermissions = async (
         },
         containerId: getResourcePermissionContainers(
           workspace.resourceId,
-          nextItem.target.resource
+          nextItem.target.resource,
+          false
         ),
       })
     )
@@ -258,18 +259,14 @@ export const INTERNAL_resolveEntityPermissions = async (
         ({hasAccess, item} = checker.checkForTargetType(
           nextItem.targetType,
           nextItem.action,
-          uniq(
-            getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource).concat(
-              nextItem.target.resourceId
-            )
-          ),
+          getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource, true),
           /** nothrow */ true
         ));
       } else {
         ({hasAccess, item} = checker.checkForTargetId(
           nextItem.target.resourceId,
           nextItem.action,
-          getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource),
+          getResourcePermissionContainers(workspace.resourceId, nextItem.target.resource, false),
           /** nothrow */ true
         ));
       }

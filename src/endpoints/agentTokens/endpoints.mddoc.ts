@@ -155,6 +155,7 @@ export const addAgentTokenEndpointDefinition = HttpEndpointDefinition.construct<
   .setRequestBody(addAgentTokenParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setResponseBody(addAgentTokenSuccessResponseBody)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setName('AddAgentTokenEndpoint')
   .setDescription('Add agent token endpoint.');
 

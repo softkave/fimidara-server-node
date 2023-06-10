@@ -1,6 +1,8 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] stripe-like versioning
+- [ ] fix all cyclic deps cause they are silent corruptions
 - [ ] file transformation options
   - [ ] do not transform on read
   - [ ] set options
@@ -8,6 +10,7 @@
   - [ ] match closest pre-transformed
   - [ ] get path, get presigned path
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
+- [ ] Cron job to auto dump and archive db data
 - [ ] Use standard JWT secret for production
 - [ ] Move db to another thread
 - [ ] Test files like .env work on upload and read file

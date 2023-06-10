@@ -233,7 +233,7 @@ export async function fetchAgentPermissionItems(
       // under targetID of provided type. So, we can safely add the target ID to
       // the containers, seeing this is a container-only check.
       // TODO: should we uniq targetId and target type?
-      qContainerId = qContainerId.concat(qTargetId);
+      qContainerId = [qTargetId, ...qContainerId];
       qTargetId = undefined;
     }
 
@@ -461,17 +461,18 @@ export function getWorkspacePermissionContainers(workspaceId: string): string[] 
 export function getFilePermissionContainers(
   workspaceId: string,
   resource: {idPath: string[]},
-  includeResourceId = false
+  includeResourceId: boolean
 ) {
-  return getWorkspacePermissionContainers(workspaceId).concat(
-    resource.idPath.slice(0, includeResourceId ? undefined : -1)
-  );
+  return resource.idPath
+    .slice(0, includeResourceId ? undefined : -1)
+    .reverse()
+    .concat(getWorkspacePermissionContainers(workspaceId));
 }
 
 export function getResourcePermissionContainers(
   workspaceId: string,
-  resource?: Resource | (Resource & Pick<File, 'idPath'>) | null,
-  includeResourceId = false
+  resource: Resource | (Resource & Pick<File, 'idPath'>) | null | undefined,
+  includeResourceId: boolean
 ) {
   if (resource && (resource as Pick<File, 'idPath'>).idPath) {
     return getFilePermissionContainers(

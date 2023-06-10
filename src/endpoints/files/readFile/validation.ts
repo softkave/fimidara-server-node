@@ -2,7 +2,12 @@ import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {fileConstants} from '../constants';
 import fileValidationSchemas from '../validation';
-import {ImageResizeFitEnumMap, ImageResizePositionEnumMap, ReadFileEndpointParams} from './types';
+import {
+  ImageFormatEnumMap,
+  ImageResizeFitEnumMap,
+  ImageResizePositionEnumMap,
+  ReadFileEndpointParams,
+} from './types';
 
 export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
   .keys({
@@ -20,6 +25,9 @@ export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
         background: validationSchemas.color.allow(null),
         withoutEnlargement: Joi.boolean().allow(null),
       })
+      .allow(null),
+    imageFormat: Joi.string()
+      .valid(...Object.values(ImageFormatEnumMap))
       .allow(null),
   })
   .required();

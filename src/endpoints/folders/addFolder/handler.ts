@@ -108,9 +108,7 @@ export async function createFolderList(
       workspace,
       workspaceId: workspace.resourceId,
       containerId: cExistingFolder
-        ? getFilePermissionContainers(workspace.resourceId, cExistingFolder).concat(
-            cExistingFolder.resourceId
-          )
+        ? getFilePermissionContainers(workspace.resourceId, cExistingFolder, true)
         : getWorkspacePermissionContainers(workspace.resourceId),
       targets: {targetType: AppResourceType.Folder},
       action: AppActionType.Create,
