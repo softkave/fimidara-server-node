@@ -33,7 +33,7 @@ fimidara.setConfig({authToken: '<new auth token>'});
 
 // display file
 <img
-  src={fimidara.getReadFileURL({
+  src={fimidara.getFimidaraReadFileURL({
     filepath: 'workspace-rootname/folder/path/to/file.png',
     width: 100, // 100px
     height: 100, // 100px

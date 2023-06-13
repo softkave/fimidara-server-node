@@ -2,6 +2,7 @@
 
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] stripe-like versioning
+- [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions
 - [ ] file transformation options
   - [ ] do not transform on read

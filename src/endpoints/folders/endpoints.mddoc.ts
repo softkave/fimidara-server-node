@@ -91,16 +91,6 @@ const listFolderContentParams = FieldObject.construct<ListFolderContentEndpointP
   .setName('ListFolderContentEndpointParams')
   .setFields({
     ...folderMatcherParts,
-    // contentType: FieldObject.optionalField(
-    //   FieldArray.construct()
-    //     .setType(
-    //       FieldString.construct()
-    //         .setDescription('Fetch children files or folders or both.')
-    //         .setExample(AppResourceType.File)
-    //         .setValid([AppResourceType.File, AppResourceType.Folder])
-    //     )
-    //     .setMax(2)
-    // ),
     contentType: FieldObject.optionalField(
       FieldString.construct()
         .setDescription('Fetch children files or folders. To fetch both, pass nothing.')
@@ -129,14 +119,10 @@ const countFolderContentParams = FieldObject.construct<CountFolderContentEndpoin
   .setFields({
     ...folderMatcherParts,
     contentType: FieldObject.optionalField(
-      FieldArray.construct()
-        .setType(
-          FieldString.construct()
-            .setDescription('Count children files or folders or both.')
-            .setExample(AppResourceType.File)
-            .setValid([AppResourceType.File, AppResourceType.Folder])
-        )
-        .setMax(2)
+      FieldString.construct()
+        .setDescription('Count children files or folders. To count both, pass nothing.')
+        .setExample(AppResourceType.File)
+        .setValid([AppResourceType.File, AppResourceType.Folder])
     ),
   })
   .setRequired(true)

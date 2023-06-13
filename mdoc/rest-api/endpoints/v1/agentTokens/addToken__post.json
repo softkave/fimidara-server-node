@@ -80,6 +80,29 @@
             }
         }
     },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "description": "HTTP JSON response content type.",
+                    "__id": "FieldString",
+                    "valid": {
+                        "0": "application/json"
+                    }
+                },
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "description": "HTTP response content length in bytes.",
+                    "__id": "FieldString"
+                },
+                "required": true
+            }
+        }
+    },
     "responseBody": {
         "required": true,
         "description": "Add agent token endpoint success result.",

@@ -243,6 +243,12 @@ export type File = {
 export type GetFileDetailsEndpointResult = {
   file: File;
 };
+export type ImageResizeFitEnum =
+  | 'contain'
+  | 'cover'
+  | 'fill'
+  | 'inside'
+  | 'outside';
 export type ImageResizePositionEnum =
   | 'top'
   | 'right top'
@@ -263,17 +269,11 @@ export type ImageResizePositionEnum =
   | 'centre'
   | 'entropy'
   | 'attention';
-export type ImageResizeFitEnum =
-  | 'contain'
-  | 'cover'
-  | 'fill'
-  | 'inside'
-  | 'outside';
 export type ImageResizeParams = {
   width?: string;
   height?: string;
-  position?: ImageResizePositionEnum | number;
   fit?: ImageResizeFitEnum;
+  position?: ImageResizePositionEnum | number;
   background?: string;
   withoutEnlargement?: boolean;
 };
@@ -383,7 +383,7 @@ export type ListFolderContentEndpointResult = {
 export type CountFolderContentEndpointParams = {
   folderpath?: string;
   folderId?: string;
-  contentType?: Array<'file' | 'folder'>;
+  contentType?: 'file' | 'folder';
 };
 export type CountFolderContentEndpointResult = {
   foldersCount: number;

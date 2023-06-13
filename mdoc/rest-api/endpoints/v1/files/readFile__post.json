@@ -33,7 +33,6 @@
             },
             "pos": {
                 "data": {
-                    "description": "Position, gravity, or strategy to use when fit is cover or contain.",
                     "__id": "FieldOrCombination",
                     "types": {
                         "0": {
@@ -158,9 +157,23 @@
                             },
                             "optional": true
                         },
+                        "fit": {
+                            "data": {
+                                "description": "How the image should be resized to fit provided dimensions.",
+                                "__id": "FieldString",
+                                "valid": {
+                                    "0": "contain",
+                                    "1": "cover",
+                                    "2": "fill",
+                                    "3": "inside",
+                                    "4": "outside"
+                                },
+                                "enumName": "ImageResizeFitEnum"
+                            },
+                            "optional": true
+                        },
                         "position": {
                             "data": {
-                                "description": "Position, gravity, or strategy to use when fit is cover or contain.",
                                 "__id": "FieldOrCombination",
                                 "types": {
                                     "0": {
@@ -194,21 +207,6 @@
                                         "__id": "FieldNumber"
                                     }
                                 }
-                            },
-                            "optional": true
-                        },
-                        "fit": {
-                            "data": {
-                                "description": "How the image should be resized to fit provided dimensions.",
-                                "__id": "FieldString",
-                                "valid": {
-                                    "0": "contain",
-                                    "1": "cover",
-                                    "2": "fill",
-                                    "3": "inside",
-                                    "4": "outside"
-                                },
-                                "enumName": "ImageResizeFitEnum"
                             },
                             "optional": true
                         },

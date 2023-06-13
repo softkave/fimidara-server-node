@@ -33,7 +33,6 @@
             },
             "pos": {
                 "data": {
-                    "description": "Position, gravity, or strategy to use when fit is cover or contain.",
                     "__id": "FieldOrCombination",
                     "types": {
                         "0": {
