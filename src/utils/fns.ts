@@ -13,10 +13,10 @@ export function isObjectEmpty(data: Record<string | number, any>) {
 export function isObjectFieldsEmpty<T extends AnyObject>(data: T) {
   for (const k in data) {
     if (data[k] !== undefined && data[k] !== null) {
-      return true;
+      return false;
     }
   }
-  return false;
+  return true;
 }
 
 export function getFirstArg<T extends any[]>(...args: T): T[0] {

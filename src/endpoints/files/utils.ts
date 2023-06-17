@@ -166,6 +166,7 @@ export function assertFile(file: File | FilePresignedPath | null | undefined): a
 
 export function stringifyFileNamePath(file: File, rootname?: string) {
   const nm =
-    file.namePath.join(folderConstants.nameSeparator) + file.extension ? `.${file.extension}` : '';
+    file.namePath.join(folderConstants.nameSeparator) +
+    (file.extension ? `.${file.extension}` : '');
   return rootname ? addRootnameToPath(nm, rootname) : nm;
 }

@@ -16,7 +16,7 @@ export default class LocalFsFilePersistenceProviderContext
   }
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    const filepath = `${this.fileDir}/${params.bucket}/${params.key}`;
+    const filepath = `${this.fileDir}/${params.key}`;
 
     // TODO: possibly not perfomant. Look into possible alternatives before use
     // in production.
@@ -24,7 +24,7 @@ export default class LocalFsFilePersistenceProviderContext
   };
 
   getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
-    const filepath = `${this.fileDir}/${params.bucket}/${params.key}`;
+    const filepath = `${this.fileDir}/${params.key}`;
     const stat = await fse.promises.stat(filepath);
 
     if (!stat.isFile()) {
@@ -37,7 +37,7 @@ export default class LocalFsFilePersistenceProviderContext
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
     const rmPromises = params.keys.map(async key => {
-      const filepath = `${this.fileDir}/${params.bucket}/${key}`;
+      const filepath = `${this.fileDir}/${key}`;
       await fse.promises.rm(filepath);
     });
     await Promise.all(rmPromises);

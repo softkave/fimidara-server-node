@@ -200,7 +200,7 @@ async function aggregateRecordsLevel2(
     fulfillmentStatus
   );
   const totalRecord = records.find(r => r.category === UsageRecordCategory.Total);
-  assert(totalRecord, 'total record not found');
+  assert(totalRecord, 'Total usage record not found.');
   totalRecord.usageCost = 0;
   records.forEach(cur => {
     if (cur.category !== UsageRecordCategory.Total) {

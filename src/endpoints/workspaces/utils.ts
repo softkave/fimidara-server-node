@@ -70,7 +70,7 @@ export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);
 
 export function throwWorkspaceNotFound() {
-  throw new NotFoundError('Workspace not found');
+  throw new NotFoundError('Workspace not found.');
 }
 
 export function assertWorkspace(workspace: Workspace | null | undefined): asserts workspace {
