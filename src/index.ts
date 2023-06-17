@@ -89,6 +89,7 @@ async function setup() {
   httpServer.listen(ctx.appVariables.port, async () => {
     app.use(handleErrors);
     serverLogger.info(ctx.appVariables.appName);
+    serverLogger.info(ctx.appVariables.nodeEnv);
     serverLogger.info(`server listening on port ${ctx.appVariables.port}`);
 
     // start job runner

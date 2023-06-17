@@ -1,7 +1,7 @@
 import sharp = require('sharp');
 import stream = require('stream');
 import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
-import {isObjectEmpty} from '../../../utils/fns';
+import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
 import {insertBandwidthOutUsageRecordInput} from '../../usageRecords/utils';
@@ -27,14 +27,15 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
   });
 
   if (!persistedFile.body) {
-    throw new NotFoundError('File not found');
+    throw new NotFoundError('File not found.');
   }
 
-  if ((data.imageResize && !isObjectEmpty(data.imageResize)) || data.imageFormat) {
+  const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
+  if (!isImageResizeEmpty || data.imageFormat) {
     const outputStream = new stream.PassThrough();
     const transformer = sharp();
 
-    if (data.imageResize && !isObjectEmpty(data.imageResize)) {
+    if (data.imageResize && !isImageResizeEmpty) {
       transformer.resize({
         width: data.imageResize.width,
         height: data.imageResize.height,

@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Move logs to it's own service and not write directly to DB
+- [ ] Auto start programs on restart vm
 - [ ] stripe-like versioning
 - [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions
@@ -144,3 +145,4 @@
 - [ ] Scripts should run once
 - [ ] New usage thresholds very small
 - [ ] Articles
+- [ ] store more than files in fimidara
