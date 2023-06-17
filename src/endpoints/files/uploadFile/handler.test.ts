@@ -1,6 +1,5 @@
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {BaseContextType} from '../../contexts/types';
-import {addRootnameToPath} from '../../folders/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
@@ -42,10 +41,7 @@ describe('uploadFile', () => {
     assertContext(context);
     const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
     const update: Partial<UploadFileEndpointParams> = {
-      filepath: addRootnameToPath(
-        stringifyFileNamePath(savedFile),
-        insertWorkspaceResult.workspace.rootname
-      ),
+      filepath: stringifyFileNamePath(savedFile, insertWorkspaceResult.workspace.rootname),
     };
     const {savedFile: updatedFile} = await uploadFileBaseTest(
       context,
@@ -55,6 +51,28 @@ describe('uploadFile', () => {
       insertWorkspaceResult
     );
     await assertFileUpdated(context, insertUserResult.userToken, savedFile, updatedFile);
+  });
+
+  test('file not duplicated', async () => {
+    assertContext(context);
+    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
+    const update: Partial<UploadFileEndpointParams> = {
+      filepath: stringifyFileNamePath(savedFile, insertWorkspaceResult.workspace.rootname),
+    };
+    await uploadFileBaseTest(
+      context,
+      update,
+      /* type */ 'txt',
+      insertUserResult,
+      insertWorkspaceResult
+    );
+
+    const files = await context.semantic.file.getManyByQuery({
+      workspaceId: savedFile.workspaceId,
+      extension: savedFile.extension,
+      namePath: {$eq: savedFile.namePath},
+    });
+    expect(files.length).toBe(1);
   });
 
   test('file not saved if storage usage is exceeded', async () => {
