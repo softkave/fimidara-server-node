@@ -2,6 +2,11 @@
 
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] Auto start programs on restart vm
+- [ ] write example apps & proposals
+- [ ] sdk
+  - [ ] php
+  - [ ] go
+- [ ] log errors from express error handler
 - [ ] stripe-like versioning
 - [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions

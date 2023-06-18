@@ -1,6 +1,5 @@
 import {readFileSync} from 'fs';
 import {forEach, isBoolean, isString, isUndefined} from 'lodash';
-import {nanoid} from 'nanoid';
 import {UnionToIntersection} from 'type-fest';
 import {getFirstArg} from '../utils/fns';
 import {AnyFn, AnyObject} from '../utils/types';
@@ -9,6 +8,7 @@ import {
   FileBackendType,
   FimidaraConfig,
   FimidaraConfigSchema,
+  FimidaraRuntimeConfig,
   InputFimidaraConfig,
   InputFimidaraConfigItem,
 } from './types';
@@ -82,6 +82,7 @@ export const configSchema: FimidaraConfigSchema = {
   appName: {required: false, defaultValue: 'fimidara'},
   awsEmailEncoding: {required: false, defaultValue: 'UTF-8'},
   dateFormat: {required: false, defaultValue: 'MMM DD, YYYY'},
+  serverInstanceId: {required: false, defaultValue: 'main_000'},
 };
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
@@ -144,13 +145,13 @@ function checkRequiredSuppliedConfig(base: FimidaraConfig) {
 
 export function compileConfigFromFile() {
   const configJson = getAndParseConfigFile();
-  const config: AnyObject = {
+  const dummyRuntimeConfig: FimidaraRuntimeConfig = {
     // Added after the app initialization phase
     appWorkspaceId: '',
     appWorkspacesImageUploadPermissionGroupId: '',
     appUsersImageUploadPermissionGroupId: '',
-    serverInstanceId: nanoid(),
   };
+  const config: AnyObject = {...dummyRuntimeConfig};
 
   forEach(configJson, (item, field) => {
     const configItem = item as UnionToIntersection<InputFimidaraConfigItem>;

@@ -13,7 +13,6 @@ export enum FileBackendType {
 
 // Added after the app initialization phase.
 export interface FimidaraRuntimeConfig {
-  serverInstanceId: string;
   appWorkspaceId: string;
   appWorkspacesImageUploadPermissionGroupId: string;
   appUsersImageUploadPermissionGroupId: string;
@@ -35,6 +34,7 @@ export interface FimidaraSuppliedConfig {
   rootUserFirstName: string;
   rootUserLastName: string;
   fileBackend: FileBackendType;
+  serverInstanceId: string;
 
   /** Users on waitlist cannot create workspaces but can be added to an existing
    * workspace. */
