@@ -73,8 +73,8 @@ function extractUploadFilesParamsFromFormData(req: Request): UploadFileEndpointP
   return {
     ...req.body,
     data: file?.buffer,
-    mimetype: req.body.mimetype ?? file?.mimetype,
-    extension: req.body.extension ?? getFileExtenstion(file?.originalname),
+    mimetype: req.body.mimetype || file?.mimetype,
+    extension: req.body.extension || getFileExtenstion(file?.originalname),
   };
 }
 
