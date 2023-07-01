@@ -1,4 +1,5 @@
 import {PublicUser} from '../../definitions/user';
+import {PublicWorkspace} from '../../definitions/workspace';
 import {
   FieldArray,
   FieldObject,
@@ -11,11 +12,14 @@ import {
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
 import {userEndpointsMddocParts} from '../users/endpoint.mddoc';
+import {workspaceEndpointsMddocParts} from '../workspaces/endpoints.mddoc';
 import {internalConstants} from './constants';
+import {GetUsersEndpointParams, GetUsersEndpointResult} from './getUsers/types';
 import {
   GetWaitlistedUsersEndpointParams,
   GetWaitlistedUsersEndpointResult,
 } from './getWaitlistedUsers/types';
+import {GetWorkspacesEndpointParams, GetWorkspacesEndpointResult} from './getWorkspaces/types';
 import {UpgradeWaitlistedUsersEndpointParams} from './upgradeWaitlistedUsers/types';
 
 const getWaitlistedUsersParams = FieldObject.construct<GetWaitlistedUsersEndpointParams>()
@@ -32,6 +36,36 @@ const getWaitlistedUsersResponseBody = FieldObject.construct<GetWaitlistedUsersE
   })
   .setRequired(true)
   .setDescription('Retrieve waitlisted users result.');
+
+const getUsersParams = FieldObject.construct<GetUsersEndpointParams>()
+  .setName('GetUsersEndpointParams')
+  .setFields({})
+  .setRequired(true)
+  .setDescription('Retrieve users endpoint params.');
+const getUsersResponseBody = FieldObject.construct<GetUsersEndpointResult>()
+  .setName('GetUsersEndpointResult')
+  .setFields({
+    users: FieldObject.requiredField(
+      FieldArray.construct<PublicUser>().setType(userEndpointsMddocParts.user)
+    ),
+  })
+  .setRequired(true)
+  .setDescription('Retrieve users result.');
+
+const getWorkspacesParams = FieldObject.construct<GetWorkspacesEndpointParams>()
+  .setName('GetWorkspacesEndpointParams')
+  .setFields({})
+  .setRequired(true)
+  .setDescription('Retrieve workspaces endpoint params.');
+const getWorkspacesResponseBody = FieldObject.construct<GetWorkspacesEndpointResult>()
+  .setName('GetWorkspacesEndpointResult')
+  .setFields({
+    workspaceList: FieldObject.requiredField(
+      FieldArray.construct<PublicWorkspace>().setType(workspaceEndpointsMddocParts.workspace)
+    ),
+  })
+  .setRequired(true)
+  .setDescription('Retrieve workspaces result.');
 
 const upgradeWaitlistedUsersParams = FieldObject.construct<UpgradeWaitlistedUsersEndpointParams>()
   .setName('UpgradeWaitlistedUsersEndpointParams')
@@ -68,3 +102,33 @@ export const upgradeWaitlistedUsersEndpointDefinition = HttpEndpointDefinition.c
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setName('UpgradeWaitlistedUsersEndpoint')
   .setDescription('Upgrade waitlisted users endpoint.');
+
+export const getUsersEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetUsersEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetUsersEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(internalConstants.routes.getUsers)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getUsersParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getUsersResponseBody)
+  .setName('GetUsersEndpoint')
+  .setDescription('Get users endpoint.');
+
+export const getWorkspacesEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetWorkspacesEndpointParams;
+  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
+  responseBody: GetWorkspacesEndpointResult;
+  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
+}>()
+  .setBasePathname(internalConstants.routes.getWorkspaces)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getWorkspacesParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getWorkspacesResponseBody)
+  .setName('GetWorkspacesEndpoint')
+  .setDescription('Get workspaces endpoint.');

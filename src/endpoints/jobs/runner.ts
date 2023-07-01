@@ -26,15 +26,13 @@ import {DeleteResourceCascadeFnsMap} from '../types';
 import {executeCascadeDelete} from '../utils';
 
 let lastTimestamp = 0;
-let noPendingJobs = false;
 const pendingJobsIdList: string[] = [];
 const JOB_INTERVAL = 1000; // 1 second
 
 export async function startJobRunner(context: BaseContextType) {
   let nextJob: Job | null = null;
-  if (!noPendingJobs) await getNextUnfinishedJob(context);
+  nextJob = await getNextUnfinishedJob(context);
   if (!nextJob) {
-    noPendingJobs = true;
     nextJob = await getNextPendingJob(context);
   }
 
@@ -62,6 +60,9 @@ export async function startJobRunner(context: BaseContextType) {
 async function getNextUnfinishedJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
     status: JobStatus.InProgress,
+
+    // Avoid fetching in-progress jobs belonging to the current instance,
+    // seeing those jobs are already currently being run
     serverInstanceId: {$ne: context.appVariables.serverInstanceId},
     statusDate: {$gte: lastTimestamp},
     resourceId: {$nin: pendingJobsIdList},

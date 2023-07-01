@@ -2,6 +2,9 @@
 
 - [ ] Move logs to it's own service and not write directly to DB
 - [ ] Auto start programs on restart vm
+- [ ] show all users, workspaces, and usage
+- [ ] Agent token with same name used for different workspace on creation
+- [ ] Check exists using the resource ID when updating, because changin case for a resource fails
 - [ ] write example apps & proposals
 - [ ] sdk
   - [ ] php
@@ -19,6 +22,7 @@
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
 - [ ] Cron job to auto dump and archive db data
 - [ ] Use standard JWT secret for production
+- [ ] Introduce permisssions to allow fetching of file binary but not json
 - [ ] Move db to another thread
 - [ ] Test files like .env work on upload and read file
 - [ ] Make js sdk tree-shakeable

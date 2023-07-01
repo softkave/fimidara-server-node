@@ -2,6 +2,7 @@ import {readFileSync} from 'fs';
 import {forEach, isBoolean, isString, isUndefined} from 'lodash';
 import {UnionToIntersection} from 'type-fest';
 import {getFirstArg} from '../utils/fns';
+import {getNewId} from '../utils/resource';
 import {AnyFn, AnyObject} from '../utils/types';
 import {
   AppEnvVariables,
@@ -82,7 +83,7 @@ export const configSchema: FimidaraConfigSchema = {
   appName: {required: false, defaultValue: 'fimidara'},
   awsEmailEncoding: {required: false, defaultValue: 'UTF-8'},
   dateFormat: {required: false, defaultValue: 'MMM DD, YYYY'},
-  serverInstanceId: {required: false, defaultValue: 'main_000'},
+  serverInstanceId: {required: false, defaultValue: getNewId()},
 };
 
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;

@@ -22,6 +22,10 @@ import {
   GetWaitlistedUsersEndpointParams,
   GetWaitlistedUsersEndpointResult,
   UpgradeWaitlistedUsersEndpointParams,
+  GetUsersEndpointParams,
+  GetUsersEndpointResult,
+  GetWorkspacesEndpointParams,
+  GetWorkspacesEndpointResult,
 } from './privateTypes';
 
 export class UsersEndpoints extends FimidaraEndpointsBase {
@@ -156,6 +160,30 @@ export class InternalsEndpoints extends FimidaraEndpointsBase {
       {
         data: props?.body,
         path: '/v1/internals/upgradeWaitlistedUsers',
+        method: 'POST',
+      },
+      props
+    );
+  };
+  getUsers = async (
+    props?: FimidaraEndpointParamsOptional<GetUsersEndpointParams>
+  ): Promise<FimidaraEndpointResult<GetUsersEndpointResult>> => {
+    return this.executeJson(
+      {
+        data: props?.body,
+        path: '/v1/internals/getUsers',
+        method: 'POST',
+      },
+      props
+    );
+  };
+  getWorkspaces = async (
+    props?: FimidaraEndpointParamsOptional<GetWorkspacesEndpointParams>
+  ): Promise<FimidaraEndpointResult<GetWorkspacesEndpointResult>> => {
+    return this.executeJson(
+      {
+        data: props?.body,
+        path: '/v1/internals/getWorkspaces',
         method: 'POST',
       },
       props

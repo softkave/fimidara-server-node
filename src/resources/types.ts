@@ -34,6 +34,14 @@ export interface FimidaraSuppliedConfig {
   rootUserFirstName: string;
   rootUserLastName: string;
   fileBackend: FileBackendType;
+
+  // Primarily used by job runner to find unfinished jobs from previous
+  // instances of the server. Since we currently only run one instance, the
+  // runner can find jobs that are in progress from instances that are not the
+  // current server instance and prioritize running those first.
+  // `serverInstanceId` should be unique per server instance.
+  // TODO: This behaviour will need to change once we start running multiple
+  // instances.
   serverInstanceId: string;
 
   /** Users on waitlist cannot create workspaces but can be added to an existing

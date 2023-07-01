@@ -278,3 +278,5 @@ export const countUserWorkspacesEndpointDefinition = HttpEndpointDefinition.cons
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountUserWorkspacesEndpoint')
   .setDescription('Count workspace user workspaces endpoint.');
+
+export const workspaceEndpointsMddocParts = {workspace};
