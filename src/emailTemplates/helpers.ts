@@ -84,10 +84,8 @@ export function getDoNotReplyHTML() {
 export function getAccountAccessSectionHTML(props: BaseEmailTemplateProps) {
   return `
 <div class="${emailStylingHelpers.classNamePrefix}-body">
-  <div class="${emailStylingHelpers.classNamePrefix}-content-center">
-    <a href="${props.loginLink}">Login to fimidara here</a> - OR -<br />
-    <a href="${props.signupLink}">Signup on fimidara here</a>
-  </div>
+  <a href="${props.loginLink}">Login to fimidara here</a> - OR -<br />
+  <a href="${props.signupLink}">Signup on fimidara here</a>
 </div>
     `;
 }
@@ -102,9 +100,7 @@ Signup on fimidara here ${emailHelperChars.emDash} ${props.signupLink}
 export function getLoginSectionHTML(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
   return `
 <div class="${emailStylingHelpers.classNamePrefix}-body">
-  <div class="${emailStylingHelpers.classNamePrefix}-content-center">
-    <a href="${props.loginLink}">Login to your account here</a>
-  </div>
+  <a href="${props.loginLink}">Login to your account here</a>
 </div>
     `;
 }

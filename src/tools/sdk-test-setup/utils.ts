@@ -1,7 +1,8 @@
 import {faker} from '@faker-js/faker';
+import {promises as fspromises} from 'fs';
 import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
-import {internalCreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
+import {INTERNAL_CreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
@@ -73,7 +74,7 @@ async function createAgentToken(
   workspace: Workspace,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const token = await internalCreateAgentToken(
+  const token = await INTERNAL_CreateAgentToken(
     context,
     SYSTEM_SESSION_AGENT,
     workspace,
@@ -106,6 +107,21 @@ export async function setupSDKTestReq() {
     );
     return {workspace, token, tokenStr};
   });
+
+  try {
+    const jsSdkTestEnvFilepath = './sdk/js-sdk/.env.test';
+    await fspromises.access(jsSdkTestEnvFilepath);
+    const envText = `FIMIDARA_TEST_WORKSPACE_ID="${workspace.resourceId}"
+FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
+FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
+FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testfile.txt"
+FIMIDARA_SERVER_URL="http://localhost:5000"`;
+    await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
+    console.log(`Wrote to js sdk .env.test file`);
+  } catch (error: unknown) {
+    console.log('Error writing .env.test file');
+    console.error(error);
+  }
 
   serverLogger.info(`Workspace ID: ${workspace.resourceId}`);
   serverLogger.info(`Workspace rootname: ${workspace.rootname}`);

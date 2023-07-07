@@ -5,4 +5,4 @@ Sets up a dev user for testing the client app. It sets up the root workspace (Fi
 ## Commands
 
 Assuming you're running from the root of the server project with an environment file `.env.dev`:
-`npx env-cmd -f ".env.dev" npx ts-node src/tools/dev-user-setup/index.ts`
+`npx env-cmd -f ".env.dev" ts-node src/tools/dev-user-setup/index.ts`

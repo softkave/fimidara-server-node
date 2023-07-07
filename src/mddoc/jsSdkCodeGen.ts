@@ -42,6 +42,7 @@ class Doc {
   protected endpointsText = '';
   protected typesText = '';
   protected docImports: Record<string, {importing: string[]; from: string}> = {};
+  protected docTypeImports: Record<string, {importing: string[]; from: string}> = {};
   protected classes: Record<string, {entries: string[]; name: string; extendsName?: string}> = {};
 
   generatedTypeCache: Map<string, boolean> = new Map();
@@ -63,6 +64,18 @@ class Doc {
     if (!entry) {
       entry = {from, importing};
       this.docImports[from] = entry;
+    } else {
+      entry.importing = uniq(entry.importing.concat(importing));
+    }
+
+    return this;
+  }
+
+  appendTypeImport(importing: Array<string>, from: string) {
+    let entry = this.docTypeImports[from];
+    if (!entry) {
+      entry = {from, importing};
+      this.docTypeImports[from] = entry;
     } else {
       entry.importing = uniq(entry.importing.concat(importing));
     }
@@ -94,6 +107,8 @@ class Doc {
       '\n' +
       this.compileImports() +
       '\n' +
+      this.compileTypeImports() +
+      '\n' +
       this.typesText +
       '\n' +
       this.endpointsText +
@@ -107,6 +122,15 @@ class Doc {
     for (const from in this.docImports) {
       const {importing} = this.docImports[from];
       importsText += `import {${importing.join(', ')}} from "${from}"\n`;
+    }
+    return importsText;
+  }
+
+  protected compileTypeImports() {
+    let importsText = '';
+    for (const from in this.docTypeImports) {
+      const {importing} = this.docTypeImports[from];
+      importsText += `import type {${importing.join(', ')}} from "${from}"\n`;
     }
     return importsText;
   }
@@ -176,10 +200,10 @@ function getOrCombinationType(doc: Doc, item: MddocTypeFieldOrCombination) {
 }
 function getBinaryType(doc: Doc, item: MddocTypeFieldBinary, asFetchResponse: boolean) {
   if (asFetchResponse) {
-    doc.appendImport(['Response'], 'cross-fetch');
-    return 'Response';
+    doc.appendTypeImport(['Readable'], 'stream');
+    return 'Blob | Readable';
   } else {
-    doc.appendImport(['Readable'], 'isomorphic-form-data');
+    doc.appendTypeImport(['Readable'], 'stream');
     return 'string | Readable | ReadableStream';
   }
 }
@@ -332,28 +356,43 @@ function generateEndpointCode(
     compact([requestBodyObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
   );
 
+  let endpointParamsText = '';
   let resultTypeName = 'undefined';
+  const isBinaryRequest = isMddocMultipartFormdata(requestBodyRaw);
+  const isBinaryResponse = isMddocFieldBinary(successResponseBodyRaw);
+  const requestBodyObjectName = requestBodyObject?.assertGetName();
+
   if (successResponseBodyObject) {
     doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
     resultTypeName = successResponseBodyObject.assertGetName();
-  } else if (isMddocFieldBinary(successResponseBodyRaw)) {
+  } else if (isBinaryResponse) {
     resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
   }
 
-  const requestBodyObjectName = requestBodyObject?.assertGetName();
-  const endpointParamsText = requestBodyObject
-    ? requestBodyObjectHasRequiredFields
-      ? `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`
-      : `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`
-    : 'props?: FimidaraEndpointParamsOptional<undefined>';
-  const bodyText = isMddocMultipartFormdata(requestBodyRaw)
-    ? 'formdata: props.body,'
-    : requestBodyObject
-    ? 'data: props?.body,'
-    : '';
+  if (requestBodyObject) {
+    if (isBinaryResponse) {
+      if (requestBodyObjectHasRequiredFields)
+        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}>`;
+      else
+        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsOptional<${requestBodyObjectName}>`;
+    } else {
+      if (requestBodyObjectHasRequiredFields)
+        endpointParamsText = `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`;
+      else endpointParamsText = `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`;
+    }
+  } else {
+    endpointParamsText = 'props?: FimidaraEndpointParamsOptional<undefined>';
+  }
+
+  const bodyText: string[] = [];
+
+  if (isBinaryResponse) bodyText.push('responseType: props.responseType,');
+  if (isBinaryRequest) bodyText.push('formdata: props.body,');
+  else if (requestBodyObject) bodyText.push('data: props?.body,');
+
   const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
     return this.execute${isMddocFieldBinary(successResponseBodyRaw) ? 'Raw' : 'Json'}({
-      ${bodyText}
+      ${bodyText.join('')}
       path: "${endpoint.assertGetBasePathname()}",
       method: "${endpoint.assertGetMethod().toUpperCase()}"
     }, props);
@@ -397,6 +436,8 @@ function generateEveryEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpo
       'FimidaraEndpointResult',
       'FimidaraEndpointParamsRequired',
       'FimidaraEndpointParamsOptional',
+      'FimidaraEndpointWithBinaryResponseParamsRequired',
+      'FimidaraEndpointWithBinaryResponseParamsOptional',
     ],
     './utils'
   );
@@ -457,7 +498,7 @@ function uniqEnpoints(endpoints: Array<MddocTypeHttpEndpoint<any>>) {
 }
 
 async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix: string) {
-  const endpointsDir = './sdk/js-sdk/v1/src';
+  const endpointsDir = './sdk/js-sdk/src';
   const typesFilename = `${filenamePrefix}Types`;
   const typesFilepath = path.normalize(endpointsDir + '/' + typesFilename + '.ts');
   const codesFilepath = path.normalize(endpointsDir + `/${filenamePrefix}Endpoints.ts`);

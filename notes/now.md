@@ -1,6 +1,13 @@
 ## Now
 
-- [ ] Move logs to it's own service and not write directly to DB
+- [ ] Move logs to it's own service
+- [ ] Export FormData from js sdk
+- [ ] Support Blob in fimidara JS SDK uploadFile
+- [ ] JS sdk global config for setting server url and auth token globally
+- [ ] Move back to talking directly to mongodb
+- [ ] Move js sdk to axios
+- [ ] cdn endpoint for fetching files
+- [ ] Progress when uploading and downloading files
 - [ ] Auto start programs on restart vm
 - [ ] show all users, workspaces, and usage
 - [ ] Agent token with same name used for different workspace on creation

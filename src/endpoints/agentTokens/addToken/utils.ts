@@ -9,7 +9,7 @@ import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {NewAgentTokenInput} from './types';
 
-export const internalCreateAgentToken = async (
+export const INTERNAL_CreateAgentToken = async (
   context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
