@@ -35,7 +35,7 @@ export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps =
   containerId?: string | string[];
 };
 
-export interface SemanticDataAccessPermissionProviderType {
+export interface SemanticDataAccessPermissionProviderType<TTxn> {
   getEntityAssignedPermissionGroups(
     props: {
       context: BaseContextType;

@@ -52,6 +52,7 @@ beforeAll(async () => {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => dropMongoConnection(connection)
   );
   await ingestDataIntoMemStore(context);

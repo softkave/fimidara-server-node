@@ -1,11 +1,11 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessCollaborationRequestProvider} from './types';
 
 export class MemorySemanticDataAccessCollaborationRequest
-  extends SemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
   implements SemanticDataAccessCollaborationRequestProvider
 {
   async countByEmail(
@@ -39,7 +39,7 @@ export class MemorySemanticDataAccessCollaborationRequest
   async getManyByEmail(
     email: string,
     options?:
-      | (IDataProvideQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
+      | (DataProviderQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<CollaborationRequest[]> {
     return await this.memstore.readManyItems(

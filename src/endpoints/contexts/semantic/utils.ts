@@ -1,42 +1,55 @@
-import {Resource, WorkspaceResource} from '../../../definitions/system';
-import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {MemStore, MemStoreTransactionOptions} from '../mem/Mem';
-import {MemStoreType} from '../mem/types';
-import {BaseContextType} from '../types';
+import { Resource, WorkspaceResource } from '../../../definitions/system';
+import { AnyFn } from '../../../utils/types';
+import { DataProviderQueryListParams, LiteralDataQuery } from '../data/types';
+import { MemStore, MemStoreTransactionOptions } from '../mem/Mem';
+import { MemStoreTransactionType, MemStoreType } from '../mem/types';
+import {
+  BaseContextType
+} from '../types';
 import {
   SemanticDataAccessBaseProviderType,
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
+  SemanticDataAccessProviderUtils,
   SemanticDataAccessWorkspaceResourceProviderBaseType,
   SemanticDataAccessWorkspaceResourceProviderType,
 } from './types';
 
-export class SemanticDataAccessBaseProvider<T extends Resource>
-  implements SemanticDataAccessBaseProviderType<T>
+export class MemorySemanticDataAccessBaseProvider<T extends Resource>
+  implements SemanticDataAccessBaseProviderType<T, MemStoreTransactionType>
 {
   constructor(
     protected memstore: MemStoreType<T>,
     protected assertFn: (item?: T | null) => asserts item
   ) {}
 
-  async insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions) {
+  async insertItem(
+    item: T | T[],
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
+  ): Promise<void> {
     return await this.memstore.createItems(item, opts.transaction);
   }
 
   async insertWithQuery(
     queryFn: () => LiteralDataQuery<T>,
     itemsFn: (items: T[]) => T[],
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
+  ): Promise<T[]> {
     return await this.memstore.createWithQuery(queryFn, itemsFn, opts.transaction);
   }
 
-  async getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions) {
+  async getOneById(
+    id: string,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<T | null> {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
     return await this.memstore.readItem(query as LiteralDataQuery<T>, opts?.transaction);
   }
 
-  async existsById(id: string, opts?: SemanticDataAccessProviderRunOptions) {
+  async existsById(
+    id: string,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<boolean> {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
     return await this.memstore.exists(query as LiteralDataQuery<T>, opts?.transaction);
   }
@@ -44,8 +57,8 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
   async updateOneById(
     id: string,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
+  ): Promise<T | null> {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
     return await this.memstore.updateItem(query as LiteralDataQuery<T>, update, opts.transaction);
   }
@@ -53,16 +66,16 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
   async updateManyByQuery(
     query: LiteralDataQuery<T>,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
+  ): Promise<T[]> {
     return await this.memstore.updateManyItems(query, update, opts.transaction);
   }
 
   async getAndUpdateOneById(
     id: string,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
+  ): Promise<T> {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
     const item = await this.memstore.updateItem(
       query as LiteralDataQuery<T>,
@@ -75,7 +88,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
 
   async deleteManyByIdList(
     idList: string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
   ): Promise<void> {
     const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     await this.memstore.deleteManyItems(query as LiteralDataQuery<T>, opts.transaction);
@@ -83,7 +96,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
 
   async deleteOneById(
     id: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
   ): Promise<void> {
     const query: LiteralDataQuery<Resource> = {resourceId: id};
     await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
@@ -91,7 +104,7 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
 
   async countManyByIdList(
     idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<number> {
     const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
@@ -99,7 +112,10 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
 
   async getManyByIdList(
     idList: string[],
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
+    options?:
+      | (DataProviderQueryListParams<T, unknown> &
+          SemanticDataAccessProviderRunOptions<MemStoreTransactionType>)
+      | undefined
   ): Promise<T[]> {
     const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.memstore.readManyItems(
@@ -111,18 +127,21 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
   }
 
   async countByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
+    query: LiteralDataQuery<T>,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<number> {
-    return await this.memstore.countItems(q, opts?.transaction);
+    return await this.memstore.countItems(query, opts?.transaction);
   }
 
   async getManyByQuery(
-    q: LiteralDataQuery<T>,
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
+    query: LiteralDataQuery<T>,
+    options?:
+      | (DataProviderQueryListParams<T, unknown> &
+          SemanticDataAccessProviderRunOptions<MemStoreTransactionType>)
+      | undefined
   ): Promise<T[]> {
     return await this.memstore.readManyItems(
-      q,
+      query,
       options?.transaction,
       options?.pageSize,
       options?.page
@@ -130,55 +149,59 @@ export class SemanticDataAccessBaseProvider<T extends Resource>
   }
 
   async assertGetOneByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
+    query: LiteralDataQuery<T>,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<T> {
-    const item = await this.memstore.readItem(q, opts?.transaction);
+    const item = await this.memstore.readItem(query, opts?.transaction);
     this.assertFn(item);
     return item;
   }
 
   async existsByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
+    query: LiteralDataQuery<T>,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<boolean> {
-    return await this.memstore.exists(q, opts?.transaction);
+    return await this.memstore.exists(query, opts?.transaction);
   }
 
   async getOneByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
+    query: LiteralDataQuery<T>,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<T | null> {
-    return await this.memstore.readItem(q, opts?.transaction);
+    return await this.memstore.readItem(query, opts?.transaction);
   }
 
   async deleteManyByQuery(
-    q: LiteralDataQuery<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    query: LiteralDataQuery<T>,
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
   ): Promise<void> {
-    await this.memstore.deleteManyItems(q, opts.transaction);
+    await this.memstore.deleteManyItems(query, opts.transaction);
   }
 }
 
-export class SemanticDataAccessWorkspaceResourceProvider<
+export class MemorySemanticDataAccessWorkspaceResourceProvider<
     T extends SemanticDataAccessWorkspaceResourceProviderBaseType
   >
-  extends SemanticDataAccessBaseProvider<T>
-  implements SemanticDataAccessWorkspaceResourceProviderType<T>
+  extends MemorySemanticDataAccessBaseProvider<T>
+  implements SemanticDataAccessWorkspaceResourceProviderType<T, MemStoreTransactionType>
 {
-  async getByName(workspaceId: string, name: string, opts?: SemanticDataAccessProviderRunOptions) {
+  async getByName(
+    workspaceId: string,
+    name: string,
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<T | null> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
       name: {$lowercaseEq: name},
     };
-    return this.memstore.readItem(query as LiteralDataQuery<T>);
+    return await this.memstore.readItem(query as LiteralDataQuery<T>, opts?.transaction);
   }
 
   async existsByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<boolean> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
       name,
@@ -189,8 +212,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   async getByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<T | null> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
       providedResourceId: providedId,
@@ -201,8 +224,8 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   async existsByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
+  ): Promise<boolean> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
       providedResourceId: providedId,
@@ -212,7 +235,7 @@ export class SemanticDataAccessWorkspaceResourceProvider<
 
   async deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticDataAccessProviderMutationRunOptions<MemStoreTransactionType>
   ): Promise<void> {
     const query: LiteralDataQuery<WorkspaceResource> = {workspaceId};
     await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
@@ -220,7 +243,7 @@ export class SemanticDataAccessWorkspaceResourceProvider<
 
   async countManyByIdList(
     idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<number> {
     const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       resourceId: {$in: idList},
@@ -229,40 +252,43 @@ export class SemanticDataAccessWorkspaceResourceProvider<
   }
 
   async countManyByWorkspaceAndIdList(
-    q: {
+    query: {
       workspaceId: string;
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticDataAccessProviderRunOptions<MemStoreTransactionType> | undefined
   ): Promise<number> {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId: q.workspaceId,
+    const countQuery: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+      workspaceId: query.workspaceId,
       resourceId: {
-        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
-        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+        $in: query.resourceIdList?.length ? query.resourceIdList : undefined,
+        $nin: query.excludeResourceIdList?.length ? query.excludeResourceIdList : undefined,
       },
     };
-    return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
+    return await this.memstore.countItems(countQuery as LiteralDataQuery<T>, opts?.transaction);
   }
 
   async getManyByWorkspaceAndIdList(
-    q: {
+    query: {
       workspaceId: string;
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
+    options?:
+      | (DataProviderQueryListParams<T, unknown> &
+          SemanticDataAccessProviderRunOptions<MemStoreTransactionType>)
+      | undefined
   ): Promise<T[]> {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId: q.workspaceId,
+    const getQuery: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+      workspaceId: query.workspaceId,
       resourceId: {
-        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
-        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+        $in: query.resourceIdList?.length ? query.resourceIdList : undefined,
+        $nin: query.excludeResourceIdList?.length ? query.excludeResourceIdList : undefined,
       },
     };
     return await this.memstore.readManyItems(
-      query as LiteralDataQuery<T>,
+      getQuery as LiteralDataQuery<T>,
       options?.transaction,
       options?.pageSize,
       options?.page
@@ -285,4 +311,15 @@ export async function executeWithMutationRunOptions<T>(
         async transaction => await fn({transaction}),
         options
       );
+}
+
+export class MemorySemanticDataAccessProviderUtils
+  implements SemanticDataAccessProviderUtils<MemStoreTransactionType>
+{
+  async withTxn<TResult>(
+    ctx: BaseContextType,
+    fn: AnyFn<[txn: MemStoreTransactionType], Promise<TResult>>
+  ): Promise<TResult> {
+    return MemorySemanticDataAccessProviderUtils.
+  }
 }

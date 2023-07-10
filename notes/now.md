@@ -18,6 +18,7 @@
   - [ ] go
 - [ ] log errors from express error handler
 - [ ] stripe-like versioning
+- [ ] Use per request transactions. Reason is ops like usage records are recorded irrespective of whether request fails or not
 - [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions
 - [ ] file transformation options
@@ -117,6 +118,9 @@
 - [ ] In the future, look into deleting permission items sitting at the bottom not contributing to perm checks
 - [ ] How to speed up server start time when loading data from db
   - [ ] One way, separate out any data not mem into own model and leave only mem data in model for read all
+- [ ] External file depots and non-developer users
+- [ ] So, found out I've been saving the data for files all in DB. Fix the issue and clean them
+  - [ ] Reason is resource doesn't have a schema on it's resource field
 
 ## Later
 

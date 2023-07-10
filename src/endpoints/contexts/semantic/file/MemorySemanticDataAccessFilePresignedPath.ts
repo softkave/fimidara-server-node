@@ -1,7 +1,7 @@
 import {FilePresignedPath} from '../../../../definitions/file';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessFilePresignedPathProvider} from './types';
 
 export class MemorySemanticDataAccessFilePresignedPathProvider
-  extends SemanticDataAccessWorkspaceResourceProvider<FilePresignedPath>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<FilePresignedPath>
   implements SemanticDataAccessFilePresignedPathProvider {}

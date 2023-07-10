@@ -96,6 +96,7 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     async () => {
       await connection.close();
     }

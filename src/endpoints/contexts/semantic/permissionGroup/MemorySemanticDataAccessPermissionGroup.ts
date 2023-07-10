@@ -1,7 +1,7 @@
 import {PermissionGroup} from '../../../../definitions/permissionGroups';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessPermissionGroupProviderType} from './types';
 
 export class MemorySemanticDataAccessPermissionGroup
-  extends SemanticDataAccessWorkspaceResourceProvider<PermissionGroup>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<PermissionGroup>
   implements SemanticDataAccessPermissionGroupProviderType {}

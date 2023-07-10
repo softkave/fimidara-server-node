@@ -5,11 +5,11 @@ import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessAgentTokenProvider} from './types';
 
 export class MemorySemanticDataAccessAgentToken
-  extends SemanticDataAccessWorkspaceResourceProvider<AgentToken>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<AgentToken, MemStoreTransactionType>
   implements SemanticDataAccessAgentTokenProvider
 {
   async deleteAgentTokens(

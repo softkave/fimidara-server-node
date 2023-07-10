@@ -28,6 +28,7 @@ async function testGlobalSetup() {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => connection.close()
   );
 

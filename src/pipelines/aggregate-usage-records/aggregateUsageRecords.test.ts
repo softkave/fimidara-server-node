@@ -83,7 +83,8 @@ async function getContextAndConnection() {
     appVariables,
     mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem)
+    getSemanticDataProviders(mem),
+    connection
   );
 
   await ingestOnlyAppWorkspaceDataIntoMemstore(context);

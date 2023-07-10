@@ -1,26 +1,43 @@
 import {isNumber, isObject, isObjectLike} from 'lodash';
-import {FilterQuery, Model} from 'mongoose';
+import {BulkWriteOptions, ClientSession} from 'mongodb';
+import {FilterQuery, Model, QueryOptions} from 'mongoose';
+import {appAssert} from '../../../utils/assertion';
 import {cast} from '../../../utils/fns';
-import {AnyObject} from '../../../utils/types';
+import {AnyFn, AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
+import {BaseContextType} from '../types';
 import {
   BaseDataProvider,
   BulkOpItem,
   BulkOpType,
   ComparisonLiteralFieldQueryOps,
   DataProviderLiteralType,
+  DataProviderOpParams,
+  DataProviderQueryListParams,
+  DataProviderQueryParams,
+  DataProviderUtils,
   DataQuery,
   IArrayFieldQueryOps,
-  IDataProvideQueryListParams,
   IRecordFieldQueryOps,
   NumberLiteralFieldQueryOps,
 } from './types';
 
-export function getMongoQueryOptionsForOne(p?: IDataProvideQueryListParams<any>) {
-  return {
-    lean: true,
-    projection: p?.projection,
-  };
+export function getMongoQueryOptionsForOp(
+  params?: DataProviderOpParams<any, ClientSession>
+): QueryOptions {
+  return {session: params?.txn, lean: true};
+}
+
+export function getMongoBulkWriteOptions(
+  params?: DataProviderOpParams<any, ClientSession>
+): BulkWriteOptions {
+  return {session: params?.txn};
+}
+
+export function getMongoQueryOptionsForOne(
+  params?: DataProviderQueryListParams<any, ClientSession>
+): QueryOptions {
+  return {...getMongoQueryOptionsForOp(params), projection: params?.projection};
 }
 
 export function getPage(inputPage?: number, minPage = endpointConstants.minPage) {
@@ -44,23 +61,25 @@ export function getPageSize(
   return pageSize;
 }
 
-export function getMongoQueryOptionsForMany(p?: IDataProvideQueryListParams<any>) {
-  const page = getPage(p?.page);
-  const pageSize = getPageSize(p?.pageSize, page);
+export function getMongoQueryOptionsForMany(
+  params?: DataProviderQueryListParams<any, ClientSession>
+): QueryOptions {
+  const page = getPage(params?.page);
+  const pageSize = getPageSize(params?.pageSize, page);
   const skip = isNumber(page) && isNumber(pageSize) ? Math.max(page, 0) * pageSize : undefined;
   return {
+    ...getMongoQueryOptionsForOp(params),
     skip,
     limit: pageSize,
-    lean: true,
-    projection: p?.projection,
-    sort: p?.sort,
+    projection: params?.projection,
+    sort: params?.sort,
   };
 }
 
 export abstract class BaseMongoDataProvider<
   T extends AnyObject,
-  Q extends DataQuery<AnyObject> = DataQuery<T>
-> implements BaseDataProvider<T, Q>
+  TQuery extends DataQuery<AnyObject> = DataQuery<T>
+> implements BaseDataProvider<T, TQuery, ClientSession>
 {
   abstract throwNotFound: () => void;
   model: Model<T>;
@@ -69,60 +88,101 @@ export abstract class BaseMongoDataProvider<
     this.model = model;
   }
 
-  insertItem = async (item: T) => {
+  insertItem = async (item: T, otherProps?: DataProviderOpParams<T, ClientSession> | undefined) => {
     const doc = new this.model(item);
-    return await doc.save();
+    return await doc.save(getMongoQueryOptionsForOp(otherProps));
   };
 
-  insertList = async (items: T[]) => {
-    await this.model.insertMany(items);
+  insertList = async (
+    items: T[],
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    await this.model.insertMany(items, getMongoQueryOptionsForOp(otherProps));
   };
 
-  getManyByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
-    const opts = getMongoQueryOptionsForMany(p);
-    const mongoQuery = BaseMongoDataProvider.getMongoQuery(q);
-    const items = await this.model.find(mongoQuery, p?.projection, opts).lean().exec();
+  getManyByQuery = async (
+    query: TQuery,
+    otherProps?: DataProviderQueryListParams<T, ClientSession> | undefined
+  ) => {
+    const mongoQuery = BaseMongoDataProvider.getMongoQuery(query);
+    const items = await this.model
+      .find(mongoQuery, otherProps?.projection, getMongoQueryOptionsForMany(otherProps))
+      .lean()
+      .exec();
     return items as unknown as T[];
   };
 
-  getManyByQueryList = async (q: Q[], p?: IDataProvideQueryListParams<T>) => {
+  getManyByQueryList = async (
+    query: TQuery[],
+    otherProps?: DataProviderQueryListParams<T, ClientSession> | undefined
+  ) => {
     const items = await this.model
       .find(
-        {$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))},
-        p?.projection,
-        getMongoQueryOptionsForMany(p)
+        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
+        otherProps?.projection,
+        getMongoQueryOptionsForMany(otherProps)
       )
       .lean()
       .exec();
     return items as unknown as T[];
   };
 
-  getOneByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
+  getOneByQuery = async (
+    query: TQuery,
+    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+  ) => {
     const item = await this.model
-      .findOne(BaseMongoDataProvider.getMongoQuery(q), p?.projection)
+      .findOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOne(otherProps))
       .lean()
       .exec();
     return item as unknown as T | null;
   };
 
-  assertGetOneByQuery = async (q: Q, p?: IDataProvideQueryListParams<T>) => {
-    const item = await this.getOneByQuery(q, p);
+  assertGetOneByQuery = async (
+    query: TQuery,
+    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+  ) => {
+    const item = await this.getOneByQuery(query, otherProps);
     if (!item) this.throwNotFound();
     return item as unknown as T;
   };
 
-  updateManyByQuery = async (q: Q, d: Partial<T>) => {
-    await this.model.updateMany(BaseMongoDataProvider.getMongoQuery(q), d).exec();
+  updateManyByQuery = async (
+    query: TQuery,
+    data: Partial<T>,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    await this.model
+      .updateMany(
+        BaseMongoDataProvider.getMongoQuery(query),
+        data,
+        getMongoQueryOptionsForOp(otherProps)
+      )
+      .exec();
   };
 
-  updateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
-    await this.model.updateOne(BaseMongoDataProvider.getMongoQuery(q), d).exec();
+  updateOneByQuery = async (
+    query: TQuery,
+    data: Partial<T>,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    await this.model
+      .updateOne(
+        BaseMongoDataProvider.getMongoQuery(query),
+        data,
+        getMongoQueryOptionsForOp(otherProps)
+      )
+      .exec();
   };
 
-  getAndUpdateOneByQuery = async (q: Q, d: Partial<T>, p?: IDataProvideQueryListParams<T>) => {
+  getAndUpdateOneByQuery = async (
+    query: TQuery,
+    data: Partial<T>,
+    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+  ) => {
     const item = await this.model
-      .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(q), d, {
-        ...getMongoQueryOptionsForOne(p),
+      .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(query), data, {
+        ...getMongoQueryOptionsForOne(otherProps),
         new: true,
       })
       .exec();
@@ -130,42 +190,75 @@ export abstract class BaseMongoDataProvider<
   };
 
   assertGetAndUpdateOneByQuery = async (
-    q: Q,
-    d: Partial<T>,
-    p?: IDataProvideQueryListParams<T>
+    query: TQuery,
+    data: Partial<T>,
+    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
   ) => {
-    const item = await this.getAndUpdateOneByQuery(q, d, p);
+    const item = await this.getAndUpdateOneByQuery(query, data, otherProps);
     if (!item) this.throwNotFound();
     return item as unknown as T;
   };
 
-  existsByQuery = async (q: Q) => {
-    return !!(await this.model.exists(BaseMongoDataProvider.getMongoQuery(q)).lean().exec());
+  existsByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
+    query: ExtendedQueryType,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    return !!(await this.getOneByQuery(query, {...otherProps, projection: '_id'}));
   };
 
-  countByQuery = async (q: Q) => {
-    return await this.model.countDocuments(BaseMongoDataProvider.getMongoQuery(q)).exec();
+  countByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
+    query: ExtendedQueryType,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    return await this.model
+      .countDocuments(
+        BaseMongoDataProvider.getMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
+      .exec();
   };
 
-  countByQueryList = async (q: Q[]) => {
+  countByQueryList = async (
+    query: TQuery[],
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
     const count = await this.model
-      .countDocuments({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))})
+      .countDocuments(
+        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
     return count;
   };
 
-  deleteManyByQuery = async (q: Q) => {
-    await this.model.deleteMany(BaseMongoDataProvider.getMongoQuery(q)).exec();
-  };
-
-  deleteManyByQueryList = async (q: Q[]) => {
+  deleteManyByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
+    query: ExtendedQueryType,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
     await this.model
-      .deleteMany({$or: q.map(next => BaseMongoDataProvider.getMongoQuery(next))})
+      .deleteMany(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
       .exec();
   };
 
-  deleteOneByQuery = async (q: Q) => {
-    await this.model.deleteOne(BaseMongoDataProvider.getMongoQuery(q)).exec();
+  deleteManyByQueryList = async <ExtendedQueryType extends TQuery = TQuery>(
+    query: ExtendedQueryType[],
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    await this.model
+      .deleteMany(
+        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
+        getMongoQueryOptionsForOp(otherProps)
+      )
+      .exec();
+  };
+
+  deleteOneByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
+    query: ExtendedQueryType,
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ) => {
+    await this.model
+      .deleteOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .exec();
   };
 
   async TRANSACTION_bulkWrite(ops: BulkOpItem<T>[]): Promise<void> {
@@ -225,6 +318,68 @@ export abstract class BaseMongoDataProvider<
     });
   }
 
+  async bulkWrite(
+    ops: BulkOpItem<T>[],
+    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+  ): Promise<void> {
+    type ModelWithTypeParameter = Model<T>;
+    type MongoBulkOpsType = Parameters<ModelWithTypeParameter['bulkWrite']>[0];
+    const mongoOps: MongoBulkOpsType = [];
+
+    ops.forEach(op => {
+      let mongoOp: MongoBulkOpsType[number] | null = null;
+
+      switch (op.type) {
+        case BulkOpType.InsertOne:
+          mongoOp = {insertOne: {document: op.item as any}};
+          break;
+
+        case BulkOpType.UpdateOne:
+          mongoOp = {
+            updateOne: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+              upsert: op.upsert,
+            },
+          };
+          break;
+
+        case BulkOpType.UpdateMany:
+          mongoOp = {
+            updateMany: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+              update: op.update,
+            },
+          };
+          break;
+
+        case BulkOpType.DeleteOne:
+          mongoOp = {
+            deleteOne: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+            },
+          };
+          break;
+
+        case BulkOpType.DeleteMany:
+          mongoOp = {
+            deleteMany: {
+              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
+            },
+          };
+          break;
+
+        default: // do nothing
+      }
+
+      if (mongoOp) {
+        mongoOps.push(mongoOp);
+      }
+    });
+
+    await this.model.bulkWrite(mongoOps, getMongoBulkWriteOptions(otherProps));
+  }
+
   static getMongoQuery<
     Q extends DataQuery<AnyObject>,
     DataType = Q extends DataQuery<infer U> ? U : AnyObject
@@ -275,4 +430,22 @@ export function toDataQuery<T extends AnyObject, Q extends DataQuery<any> = Data
     if (!isObjectLike(v)) q[k] = {$eq: v};
     return q;
   }, {} as AnyObject) as Q;
+}
+
+export class MongoDataProviderUtils implements DataProviderUtils<ClientSession> {
+  async withTxn<TResult>(
+    ctx: BaseContextType,
+    fn: AnyFn<[txn: ClientSession], Promise<TResult>>
+  ): Promise<TResult> {
+    const connection = ctx.mongoConnection;
+    let result: TResult | undefined = undefined;
+    appAssert(connection);
+    await connection.transaction(async session => {
+      result = await fn(session);
+    });
+
+    // `connection.transaction` throws if error occurs so if the control flow
+    // gets here, `result` is set.
+    return result as unknown as TResult;
+  }
 }

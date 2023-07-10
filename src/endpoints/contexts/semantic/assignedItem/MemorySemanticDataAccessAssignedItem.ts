@@ -2,16 +2,16 @@ import {AssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessAssignedItemProvider} from './types';
 
 export class MemorySemanticDataAccessAssignedItem
-  extends SemanticDataAccessWorkspaceResourceProvider<AssignedItem>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<AssignedItem>
   implements SemanticDataAccessAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(
@@ -19,7 +19,7 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
@@ -40,7 +40,7 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
@@ -61,7 +61,7 @@ export class MemorySemanticDataAccessAssignedItem
   async getUserWorkspaces(
     assigneeId: string,
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
@@ -78,7 +78,7 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<boolean> {

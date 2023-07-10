@@ -83,6 +83,7 @@ export async function devUserSetupInitContext() {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => connection.close()
   );
 

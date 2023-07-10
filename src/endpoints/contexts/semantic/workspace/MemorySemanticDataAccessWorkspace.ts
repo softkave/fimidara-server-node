@@ -1,10 +1,10 @@
 import {Workspace} from '../../../../definitions/workspace';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessWorkspaceProviderType} from './types';
 
 export class MemorySemanticDataAccessWorkspace
-  extends SemanticDataAccessWorkspaceResourceProvider<Workspace>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<Workspace>
   implements SemanticDataAccessWorkspaceProviderType
 {
   async getByRootname(

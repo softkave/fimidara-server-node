@@ -324,7 +324,7 @@ export type GetFilePresignedPathsEndpointResult = {
 export type UploadFileEndpointParams = {
   filepath?: string;
   fileId?: string;
-  data: string | Readable | ReadableStream;
+  data: string | Readable | Blob;
   description?: string;
   mimetype?: string;
   encoding?: string;

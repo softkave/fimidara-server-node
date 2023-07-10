@@ -27,6 +27,7 @@ async function integrationTestGlobalSetup() {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => connection.close()
   );
 

@@ -1,4 +1,5 @@
 import {forEach} from 'lodash';
+import {Connection as MongoConnection} from 'mongoose';
 import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
@@ -36,6 +37,7 @@ export default class BaseContext<
   logic: Logic;
   semantic: SemanticData;
   session: SessionContextType = new SessionContext();
+  mongoConnection: MongoConnection | null = null;
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -46,6 +48,7 @@ export default class BaseContext<
     memory: MemStore,
     logic: Logic,
     semantic: SemanticData,
+    mongoConnection: MongoConnection | null,
     disposeFn?: () => Promise<void>
   ) {
     this.data = data;
@@ -56,6 +59,7 @@ export default class BaseContext<
     this.logic = logic;
     this.semantic = semantic;
     this.disposeFn = disposeFn;
+    this.mongoConnection = mongoConnection;
   }
 
   init = async () => {};

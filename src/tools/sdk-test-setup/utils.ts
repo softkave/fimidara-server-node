@@ -41,6 +41,7 @@ async function setupContext() {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => connection.close()
   );
 

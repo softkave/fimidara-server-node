@@ -4,8 +4,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessPermissionItemProviderType
-  extends SemanticDataAccessWorkspaceResourceProviderType<PermissionItem> {
+export interface SemanticDataAccessPermissionItemProviderType<TTxn>
+  extends SemanticDataAccessWorkspaceResourceProviderType<PermissionItem, TTxn> {
   deleteManyByTargetId(
     id: string | string[],
     opts: SemanticDataAccessProviderMutationRunOptions

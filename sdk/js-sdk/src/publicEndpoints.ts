@@ -118,6 +118,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<AddAgentTokenEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/addToken',
         method: 'POST',
@@ -130,6 +131,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/deleteToken',
         method: 'DELETE',
@@ -142,6 +144,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetAgentTokenEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/getToken',
         method: 'POST',
@@ -154,6 +157,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetWorkspaceAgentTokensEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/getWorkspaceTokens',
         method: 'POST',
@@ -166,6 +170,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/countWorkspaceTokens',
         method: 'POST',
@@ -178,6 +183,7 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdateAgentTokenEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/agentTokens/updateToken',
         method: 'POST',
@@ -192,6 +198,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/deleteRequest',
         method: 'DELETE',
@@ -206,6 +213,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/getUserRequest',
         method: 'POST',
@@ -220,6 +228,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/getUserRequests',
         method: 'POST',
@@ -232,6 +241,8 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
+
         path: '/v1/collaborationRequests/countUserRequests',
         method: 'POST',
       },
@@ -245,6 +256,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/getWorkspaceRequest',
         method: 'POST',
@@ -259,6 +271,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/getWorkspaceRequests',
         method: 'POST',
@@ -271,6 +284,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/countWorkspaceRequests',
         method: 'POST',
@@ -285,6 +299,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/respondToRequest',
         method: 'POST',
@@ -299,6 +314,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/revokeRequest',
         method: 'POST',
@@ -313,6 +329,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/sendRequest',
         method: 'POST',
@@ -327,6 +344,7 @@ export class CollaborationRequestsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborationRequests/updateRequest',
         method: 'POST',
@@ -341,6 +359,7 @@ export class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetCollaboratorEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborators/getCollaborator',
         method: 'POST',
@@ -355,6 +374,7 @@ export class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborators/getWorkspaceCollaborators',
         method: 'POST',
@@ -367,6 +387,7 @@ export class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborators/countWorkspaceCollaborators',
         method: 'POST',
@@ -379,6 +400,7 @@ export class CollaboratorsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/collaborators/removeCollaborator',
         method: 'POST',
@@ -393,6 +415,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/files/deleteFile',
         method: 'DELETE',
@@ -405,6 +428,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetFileDetailsEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/files/getFileDetails',
         method: 'POST',
@@ -417,6 +441,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<Blob | Readable>> => {
     return this.executeRaw(
       {
+        ...props,
         responseType: props.responseType,
         data: props?.body,
         path: '/v1/files/readFile',
@@ -430,6 +455,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdateFileDetailsEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/files/updateFileDetails',
         method: 'POST',
@@ -442,6 +468,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<IssueFilePresignedPathEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/files/issueFilePresignedPath',
         method: 'POST',
@@ -454,6 +481,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetFilePresignedPathsEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/files/getFilePresignedPaths',
         method: 'POST',
@@ -466,6 +494,7 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UploadFileEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         formdata: props.body,
         path: '/v1/files/uploadFile',
         method: 'POST',
@@ -480,6 +509,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<AddFolderEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/addFolder',
         method: 'POST',
@@ -492,6 +522,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/deleteFolder',
         method: 'DELETE',
@@ -504,6 +535,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetFolderEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/getFolder',
         method: 'POST',
@@ -516,6 +548,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<ListFolderContentEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/listFolderContent',
         method: 'POST',
@@ -528,6 +561,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountFolderContentEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/countFolderContent',
         method: 'POST',
@@ -540,6 +574,7 @@ export class FoldersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdateFolderEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/folders/updateFolder',
         method: 'POST',
@@ -554,6 +589,7 @@ export class JobsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetJobStatusEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/jobs/getJobStatus',
         method: 'POST',
@@ -568,6 +604,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<AddPermissionGroupEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/addPermissionGroup',
         method: 'POST',
@@ -580,6 +617,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<undefined>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/assignPermissionGroups',
         method: 'POST',
@@ -592,6 +630,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<undefined>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/unassignPermissionGroups',
         method: 'POST',
@@ -604,6 +643,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/deletePermissionGroup',
         method: 'DELETE',
@@ -616,6 +656,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetPermissionGroupEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/getPermissionGroup',
         method: 'POST',
@@ -630,6 +671,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/getEntityAssignedPermissionGroups',
         method: 'POST',
@@ -644,6 +686,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/getWorkspacePermissionGroups',
         method: 'POST',
@@ -656,6 +699,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/countWorkspacePermissionGroups',
         method: 'POST',
@@ -668,6 +712,7 @@ export class PermissionGroupsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdatePermissionGroupEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionGroups/updatePermissionGroup',
         method: 'POST',
@@ -682,6 +727,7 @@ export class PermissionItemsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<undefined>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionItems/addItems',
         method: 'POST',
@@ -694,6 +740,7 @@ export class PermissionItemsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionItems/deleteItems',
         method: 'DELETE',
@@ -708,6 +755,7 @@ export class PermissionItemsEndpoints extends FimidaraEndpointsBase {
   > => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/permissionItems/resolveEntityPermissions',
         method: 'POST',
@@ -722,6 +770,7 @@ export class ResourcesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetResourcesEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/resources/getResources',
         method: 'POST',
@@ -736,6 +785,8 @@ export class UsageRecordsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetUsageCostsEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
+
         path: '/v1/usageRecords/getUsageCosts',
         method: 'POST',
       },
@@ -747,6 +798,7 @@ export class UsageRecordsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetWorkspaceSummedUsageEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/usageRecords/getWorkspaceSummedUsage',
         method: 'POST',
@@ -759,6 +811,7 @@ export class UsageRecordsEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/usageRecords/countWorkspaceSummedUsage',
         method: 'POST',
@@ -773,6 +826,8 @@ export class UsersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LoginResult>> => {
     return this.executeJson(
       {
+        ...props,
+
         path: '/v1/users/getUserData',
         method: 'POST',
       },
@@ -784,6 +839,7 @@ export class UsersEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdateUserEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/users/updateUser',
         method: 'POST',
@@ -798,6 +854,7 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<AddWorkspaceEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/workspaces/addWorkspace',
         method: 'POST',
@@ -810,6 +867,7 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<LongRunningJobResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/workspaces/deleteWorkspace',
         method: 'DELETE',
@@ -822,6 +880,7 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetUserWorkspacesEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/workspaces/getUserWorkspaces',
         method: 'POST',
@@ -834,6 +893,8 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<CountItemsResult>> => {
     return this.executeJson(
       {
+        ...props,
+
         path: '/v1/workspaces/countUserWorkspaces',
         method: 'POST',
       },
@@ -845,6 +906,7 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<GetWorkspaceEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/workspaces/getWorkspace',
         method: 'POST',
@@ -857,6 +919,7 @@ export class WorkspacesEndpoints extends FimidaraEndpointsBase {
   ): Promise<FimidaraEndpointResult<UpdateWorkspaceEndpointResult>> => {
     return this.executeJson(
       {
+        ...props,
         data: props?.body,
         path: '/v1/workspaces/updateWorkspace',
         method: 'POST',

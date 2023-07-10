@@ -204,7 +204,7 @@ function getBinaryType(doc: Doc, item: MddocTypeFieldBinary, asFetchResponse: bo
     return 'Blob | Readable';
   } else {
     doc.appendTypeImport(['Readable'], 'stream');
-    return 'string | Readable | ReadableStream';
+    return 'string | Readable | Blob';
   }
 }
 
@@ -391,10 +391,11 @@ function generateEndpointCode(
   else if (requestBodyObject) bodyText.push('data: props?.body,');
 
   const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
-    return this.execute${isMddocFieldBinary(successResponseBodyRaw) ? 'Raw' : 'Json'}({
+    return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
+      ...props,
       ${bodyText.join('')}
       path: "${endpoint.assertGetBasePathname()}",
-      method: "${endpoint.assertGetMethod().toUpperCase()}"
+      method: "${endpoint.assertGetMethod().toUpperCase()}",
     }, props);
   }`;
 

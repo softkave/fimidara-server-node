@@ -1,11 +1,11 @@
 import {Folder} from '../../../../definitions/folder';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessFolderProvider} from './types';
 
 export class MemorySemanticDataAccessFolder
-  extends SemanticDataAccessWorkspaceResourceProvider<Folder>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<Folder>
   implements SemanticDataAccessFolderProvider
 {
   async getOneByNamePath(
@@ -27,7 +27,7 @@ export class MemorySemanticDataAccessFolder
       excludeResourceIdList?: string[] | undefined;
     },
     options?:
-      | (IDataProvideQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
+      | (DataProviderQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<Folder[]> {
     return await this.memstore.readManyItems(

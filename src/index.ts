@@ -76,6 +76,7 @@ async function setup() {
     mem,
     getLogicProviders(),
     getSemanticDataProviders(mem),
+    connection,
     () => connection.close()
   );
   await ingestDataIntoMemStore(ctx);

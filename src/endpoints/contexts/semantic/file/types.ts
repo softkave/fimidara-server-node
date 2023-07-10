@@ -1,12 +1,12 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderRunOptions,
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessFileProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<File> {
+export interface SemanticDataAccessFileProvider<TTxn>
+  extends SemanticDataAccessWorkspaceResourceProviderType<File, TTxn> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],
@@ -20,7 +20,7 @@ export interface SemanticDataAccessFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: IDataProvideQueryListParams<File> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions
   ): Promise<File[]>;
   countManyParentByIdList(
     q: {
@@ -33,5 +33,5 @@ export interface SemanticDataAccessFileProvider
   ): Promise<number>;
 }
 
-export interface SemanticDataAccessFilePresignedPathProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath> {}
+export interface SemanticDataAccessFilePresignedPathProvider<TTxn>
+  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath, TTxn> {}

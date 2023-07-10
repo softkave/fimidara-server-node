@@ -1,7 +1,7 @@
 import {UsageRecord} from '../../../../definitions/usageRecord';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessUsageRecordProviderType} from './types';
 
 export class MemorySemanticDataAccessUsageRecord
-  extends SemanticDataAccessWorkspaceResourceProvider<UsageRecord>
+  extends MemorySemanticDataAccessWorkspaceResourceProvider<UsageRecord>
   implements SemanticDataAccessUsageRecordProviderType {}

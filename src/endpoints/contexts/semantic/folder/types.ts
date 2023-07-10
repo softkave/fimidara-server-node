@@ -1,12 +1,12 @@
 import {Folder} from '../../../../definitions/folder';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderRunOptions,
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessFolderProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<Folder> {
+export interface SemanticDataAccessFolderProvider<TTxn>
+  extends SemanticDataAccessWorkspaceResourceProviderType<Folder, TTxn> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],
@@ -19,7 +19,7 @@ export interface SemanticDataAccessFolderProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: IDataProvideQueryListParams<Folder> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<Folder> & SemanticDataAccessProviderRunOptions
   ): Promise<Folder[]>;
   countManyParentByIdList(
     q: {

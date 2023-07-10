@@ -1,10 +1,10 @@
 import {User} from '../../../../definitions/user';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessBaseProvider} from '../utils';
+import {MemorySemanticDataAccessBaseProvider} from '../utils';
 import {SemanticDataAccessUserProviderType} from './types';
 
 export class MemorySemanticDataAccessUser
-  extends SemanticDataAccessBaseProvider<User>
+  extends MemorySemanticDataAccessBaseProvider<User>
   implements SemanticDataAccessUserProviderType
 {
   async getByEmail(
