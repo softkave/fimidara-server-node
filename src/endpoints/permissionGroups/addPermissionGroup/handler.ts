@@ -5,7 +5,6 @@ import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {permissionGroupExtractor} from '../utils';
@@ -26,7 +25,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async (context, instData)
     action: AppActionType.Create,
   });
 
-  let permissionGroup = await executeWithMutationRunOptions(context, async opts => {
+  let permissionGroup = await context.semantic.utils.withTxn(context, async opts => {
     await checkPermissionGroupNameExists(
       context,
       workspace.resourceId,

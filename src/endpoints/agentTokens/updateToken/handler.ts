@@ -6,10 +6,9 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent, tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
-import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
+import {assertAgentToken, checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
 import {UpdateAgentTokenEndpoint} from './types';
 import {updateAgentTokenJoiSchema} from './validation';
 
@@ -27,7 +26,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
     AppActionType.Update
   );
 
-  const updatedToken = await executeWithMutationRunOptions(context, async opts => {
+  const updatedToken = await context.semantic.utils.withTxn(context, async opts => {
     const tokenUpdate: Partial<AgentToken> = {
       ...omit(data.token, 'tags'),
       lastUpdatedAt: getTimestamp(),
@@ -42,11 +41,14 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
         checkAgentTokenNameExists(context, token.workspaceId, tokenUpdate.name!, opts),
     ]);
 
-    [token] = await Promise.all([
-      context.semantic.agentToken.getAndUpdateOneById(token.resourceId, tokenUpdate, opts),
-    ]);
+    const updatedToken = await context.semantic.agentToken.getAndUpdateOneById(
+      token.resourceId,
+      tokenUpdate,
+      opts
+    );
 
-    return token;
+    assertAgentToken(updatedToken);
+    return updatedToken;
   });
 
   appAssert(updatedToken.workspaceId);

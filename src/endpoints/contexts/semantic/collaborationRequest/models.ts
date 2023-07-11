@@ -1,20 +1,21 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
+import {getLowercaseRegExpForString} from '../../../../utils/fns';
 import {DataProviderQueryListParams} from '../../data/types';
+import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessCollaborationRequestProvider} from './types';
 
-export class MemorySemanticDataAccessCollaborationRequest
-  extends MemorySemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
+export class DataSemanticDataAccessCollaborationRequest
+  extends DataSemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
   implements SemanticDataAccessCollaborationRequestProvider
 {
   async countByEmail(
     email: string,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
-    return await this.memstore.countItems(
-      {recipientEmail: {$lowercaseEq: email}},
-      opts?.transaction
+    return await this.data.countByQuery(
+      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      opts
     );
   }
 
@@ -22,7 +23,10 @@ export class MemorySemanticDataAccessCollaborationRequest
     email: string,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
-    return await this.memstore.readItem({recipientEmail: {$lowercaseEq: email}}, opts?.transaction);
+    return await this.data.getOneByQuery(
+      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      opts
+    );
   }
 
   async getOneByWorkspaceIdEmail(
@@ -30,9 +34,9 @@ export class MemorySemanticDataAccessCollaborationRequest
     email: string,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
-    return await this.memstore.readItem(
-      {workspaceId, recipientEmail: {$lowercaseEq: email}},
-      opts?.transaction
+    return await this.data.getOneByQuery(
+      {workspaceId, recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      opts
     );
   }
 
@@ -42,11 +46,9 @@ export class MemorySemanticDataAccessCollaborationRequest
       | (DataProviderQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<CollaborationRequest[]> {
-    return await this.memstore.readManyItems(
-      {recipientEmail: {$lowercaseEq: email}},
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+    return await this.data.getManyByQuery(
+      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      options
     );
   }
 }

@@ -8,7 +8,6 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
@@ -46,7 +45,7 @@ test('email address is confirmed', async () => {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await executeWithMutationRunOptions(context, opts =>
+  await context.semantic.utils.withTxn(context, opts =>
     context!.semantic.agentToken.insertItem(token, opts)
   );
   const result = await confirmEmailAddress(

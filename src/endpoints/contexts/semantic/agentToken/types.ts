@@ -6,8 +6,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessAgentTokenProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<AgentToken, TTxn> {
+export interface SemanticDataAccessAgentTokenProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<AgentToken> {
   deleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,

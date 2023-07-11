@@ -4,7 +4,6 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
 import {AppResourceType} from '../../../definitions/system';
 import {
-  UsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
   UsageSummationType,
@@ -21,15 +20,12 @@ import {dropMongoConnection} from '../../testUtils/helpers/mongo';
 import {completeTest} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
 import {UsageRecordInput} from '../logic/UsageRecordLogicProvider';
-import {executeWithMutationRunOptions} from '../semantic/utils';
 import {BaseContextType} from '../types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestDataIntoMemStore,
 } from '../utils';
 import assert = require('assert');
 
@@ -43,19 +39,17 @@ beforeAll(async () => {
   connection = await getMongoConnection(testVars.mongoDbURI, dbName);
   const emptyObject = cast<any>({close() {}, dispose() {}});
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   context = new BaseContext(
-    getDataProviders(models),
+    data,
     /** emailProvider  */ emptyObject,
     /** fileBackend    */ emptyObject,
     /** appVariables   */ emptyObject,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
     connection,
     () => dropMongoConnection(connection)
   );
-  await ingestDataIntoMemStore(context);
 });
 
 afterAll(async () => {
@@ -69,17 +63,17 @@ function assertDeps() {
 }
 
 async function getSumRecords(ctx: BaseContextType, recordId: string) {
-  const record = await ctx.data.resource.assertGetOneByQuery(
+  const record = await ctx.data.usageRecord.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
-  return {record: record.resource as UsageRecord};
+  return {record};
 }
 
 describe('UsageRecordLogicProvider', () => {
   test('record is fulfilled', async () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
@@ -101,7 +95,7 @@ describe('UsageRecordLogicProvider', () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatus.BillOverdue;
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
@@ -122,7 +116,7 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause total threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Total]);
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);
@@ -143,7 +137,7 @@ describe('UsageRecordLogicProvider', () => {
   test('record dropped cause category threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Storage]);
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
     const recordId = getNewIdForResource(AppResourceType.UsageRecord);

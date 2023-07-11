@@ -1,7 +1,6 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
@@ -35,7 +34,7 @@ describe('getWaitlistedUsers', () => {
     const [waitlistedUsers, upgradedUsers] = await Promise.all([
       generateAndInsertUserListForTest(context, /** count */ 2, () => ({isOnWaitlist: true})),
       generateAndInsertUserListForTest(context, /** count */ 2),
-      executeWithMutationRunOptions(context, opts => {
+      context.semantic.utils.withTxn(context, opts => {
         assertContext(context);
         return assignWorkspaceToUser(
           context,

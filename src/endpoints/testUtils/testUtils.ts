@@ -23,12 +23,10 @@ import {
 import BaseContext from '../contexts/BaseContext';
 import {BaseContextType, IServerRequest} from '../contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
@@ -87,22 +85,19 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(models),
+    data,
     getTestEmailProvider(fimidaraConfig),
     getTestFileProvider(fimidaraConfig),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
     connection,
     async () => {
       await connection.close();
     }
   );
-
-  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   await setupApp(ctx);
   return ctx;
 }

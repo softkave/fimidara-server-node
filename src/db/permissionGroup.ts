@@ -19,4 +19,4 @@ export function getPermissionGroupModel(connection: Connection) {
   return model;
 }
 
-export type PermissionGroupPermissionsItemModel = Model<PermissionGroup>;
+export type PermissionGroupMongoModel = Model<PermissionGroup>;

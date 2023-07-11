@@ -22,7 +22,6 @@ import {endpointConstants} from './constants';
 import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
-import {executeWithMutationRunOptions} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import EndpointReusableQueries from './queries';
@@ -234,7 +233,7 @@ export async function executeCascadeDelete<Args>(
 ) {
   const helperFns: DeleteResourceCascadeFnHelperFns = {
     async withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>) {
-      await executeWithMutationRunOptions(context, opts => fn(opts));
+      await context.semantic.utils.withTxn(context, opts => fn(opts));
     },
   };
 

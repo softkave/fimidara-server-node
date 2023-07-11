@@ -4,7 +4,6 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
@@ -85,7 +84,7 @@ export async function generateAndInsertWorkspaceListForTest(
   extra: Partial<Workspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await executeWithMutationRunOptions(ctx, async opts =>
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
     ctx.semantic.workspace.insertItem(items, opts)
   );
   return items;

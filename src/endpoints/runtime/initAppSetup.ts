@@ -24,7 +24,6 @@ import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
 import {createFolderList} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
@@ -68,7 +67,7 @@ async function setupWorkspace(
 }
 
 async function setupDefaultUser(context: BaseContextType) {
-  return executeWithMutationRunOptions(context, async opts => {
+  return context.semantic.utils.withTxn(context, async opts => {
     let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
 
     if (!user) {
@@ -278,13 +277,9 @@ async function setupAppWithMutationOptions(
 
 export async function setupApp(context: BaseContextType) {
   const {agent} = await setupDefaultUser(context);
-  return await executeWithMutationRunOptions(
+  return await context.semantic.utils.withTxn(
     context,
     opts => setupAppWithMutationOptions(context, agent, opts),
-    undefined,
-    {
-      /** Involves a lot of processing so setting timout to 10 seconds. */
-      timeout: 10000,
-    }
+    undefined
   );
 }

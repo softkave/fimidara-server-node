@@ -14,7 +14,6 @@ import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {SemanticDataAccessProviderMutationRunOptions} from '../semantic/types';
-import {executeWithMutationRunOptions} from '../semantic/utils';
 import {BaseContextType} from '../types';
 
 export interface UsageRecordInput {
@@ -99,7 +98,7 @@ export class UsageRecordLogicProvider {
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus
   ) {
-    return await executeWithMutationRunOptions(context, async opts => {
+    return await context.semantic.utils.withTxn(context, async opts => {
       let usageL2 = await context.semantic.usageRecord.getOneByQuery(
         {
           category,
@@ -142,7 +141,7 @@ export class UsageRecordLogicProvider {
     // React's setState or lock usage insertion for that category all together
     // when doing usage check. This approach can lead to a bit of
     // congestion/slowness so we can look into better sharding mechanisms.
-    return await executeWithMutationRunOptions(context, async opts => {
+    return await context.semantic.utils.withTxn(context, async opts => {
       // TODO: preferrably workspace should be fetched with the same txn
       if (workspace.billStatus === WorkspaceBillStatus.BillOverdue) {
         await this.dropRecord(
@@ -165,7 +164,7 @@ export class UsageRecordLogicProvider {
     workspace: Workspace,
     record: UsageRecord
   ) => {
-    return await executeWithMutationRunOptions(context, async opts => {
+    return await context.semantic.utils.withTxn(context, async opts => {
       const usageLocks = workspace.usageThresholdLocks ?? {};
       if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
         await this.dropRecord(
@@ -201,7 +200,7 @@ export class UsageRecordLogicProvider {
     workspace: Workspace,
     record: UsageRecord
   ) => {
-    return await executeWithMutationRunOptions(context, async opts => {
+    return await context.semantic.utils.withTxn(context, async opts => {
       let [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
         this.getUsagel2(
           context,

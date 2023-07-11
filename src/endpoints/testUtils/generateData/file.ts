@@ -6,7 +6,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {getFilenameInfo} from '../../files/utils';
 import {generateTestFolderName} from './folder';
@@ -77,6 +76,6 @@ export async function generateAndInsertTestFiles(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
+  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
   return items;
 }

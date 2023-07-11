@@ -31,9 +31,7 @@ const targetSpecificAppliesToList: PermissionItemAppliesTo[] = [
 const containerSpecificAppliesToMap = indexArray(containerSpecificAppliesToList);
 const targetSpecificAppliesToMap = indexArray(targetSpecificAppliesToList);
 
-export class MemorySemanticDataAccessPermission
-  implements SemanticDataAccessPermissionProviderType
-{
+export class DataSemanticDataAccessPermission implements SemanticDataAccessPermissionProviderType {
   async getEntityInheritanceMap(
     props: {
       context: BaseContextType;
@@ -54,9 +52,9 @@ export class MemorySemanticDataAccessPermission
       const maxDepth = props.fetchDeep ? 20 : 1;
 
       for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
-        const assignedItems = await context.memstore.assignedItem.readManyItems(
+        const assignedItems = await context.semantic.assignedItem.getManyByQuery(
           {assigneeId: {$in: nextIdList}, assignedItemType: AppResourceType.PermissionGroup},
-          options?.transaction
+          options
         );
         const nextIdMap: Record<string, string> = {};
         assignedItems.forEach(item => {
@@ -94,9 +92,9 @@ export class MemorySemanticDataAccessPermission
   }> {
     const map = await this.getEntityInheritanceMap(props);
     const idList = Object.keys(map).filter(id => id !== props.entityId);
-    const permissionGroups = await props.context.memstore.permissionGroup.readManyItems(
+    const permissionGroups = await props.context.semantic.permissionGroup.getManyByQuery(
       {resourceId: {$in: idList}},
-      options?.transaction
+      options
     );
     return {permissionGroups, inheritanceMap: map};
   }
@@ -110,16 +108,10 @@ export class MemorySemanticDataAccessPermission
     // TODO: use $or query when implemented
     const [itemsFromContainer, itemsFromTarget] = await Promise.all([
       containeritemsquery
-        ? props.context.memstore.permissionItem.readManyItems(
-            containeritemsquery,
-            options?.transaction
-          )
+        ? props.context.semantic.permissionItem.getManyByQuery(containeritemsquery, options)
         : ([] as PermissionItem[]),
       targetitemsquery
-        ? props.context.memstore.permissionItem.readManyItems(
-            targetitemsquery,
-            options?.transaction
-          )
+        ? props.context.semantic.permissionItem.getManyByQuery(targetitemsquery, options)
         : ([] as PermissionItem[]),
     ]);
 
@@ -143,13 +135,10 @@ export class MemorySemanticDataAccessPermission
     // TODO: use $or query when implemented
     const [count01, count02] = await Promise.all([
       containeritemsquery
-        ? props.context.memstore.permissionItem.countItems(
-            containeritemsquery,
-            options?.transaction
-          )
+        ? props.context.semantic.permissionItem.countByQuery(containeritemsquery, options)
         : 0,
       targetitemsquery
-        ? props.context.memstore.permissionItem.countItems(targetitemsquery, options?.transaction)
+        ? props.context.semantic.permissionItem.countByQuery(targetitemsquery, options)
         : 0,
     ]);
 
@@ -166,11 +155,11 @@ export class MemorySemanticDataAccessPermission
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
     if (type === AppResourceType.User)
-      return await props.context.memstore.user.readItem(query, opts?.transaction);
+      return await props.context.semantic.user.getOneByQuery(query, opts);
     if (type === AppResourceType.AgentToken)
-      return await props.context.memstore.agentToken.readItem(query, opts?.transaction);
+      return await props.context.semantic.agentToken.getOneByQuery(query, opts);
     if (type === AppResourceType.PermissionGroup)
-      return await props.context.memstore.permissionGroup.readItem(query, opts?.transaction);
+      return await props.context.semantic.permissionGroup.getOneByQuery(query, opts);
     return null;
   }
 

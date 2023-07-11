@@ -5,7 +5,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 
 export function generateTestFolderName(
@@ -55,8 +54,6 @@ export async function generateAndInsertTestFolders(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFolders(count, extra);
-  await executeWithMutationRunOptions(ctx, async opts =>
-    ctx.semantic.folder.insertItem(items, opts)
-  );
+  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.folder.insertItem(items, opts));
   return items;
 }

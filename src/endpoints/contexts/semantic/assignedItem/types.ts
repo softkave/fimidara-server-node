@@ -7,8 +7,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessAssignedItemProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<AssignedItem, TTxn> {
+export interface SemanticDataAccessAssignedItemProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<AssignedItem> {
   getByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],

@@ -5,8 +5,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessFolderProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<Folder, TTxn> {
+export interface SemanticDataAccessFolderProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<Folder> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],

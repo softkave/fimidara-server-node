@@ -3,7 +3,6 @@ import {Agent, AppResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 
 export function generateTagForTest(seed: Partial<Tag> = {}) {
@@ -41,6 +40,6 @@ export async function generateAndInsertTagListForTest(
   seed: Partial<Tag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
-  await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.tag.insertItem(items, opts));
+  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.tag.insertItem(items, opts));
   return items;
 }

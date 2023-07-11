@@ -197,3 +197,7 @@ export function getFileExtenstion(name = '') {
   if (i !== -1) return name.slice(i + 1);
   return undefined;
 }
+
+export function getLowercaseRegExpForString(str: string) {
+  return new RegExp(`^${str}$`, 'i');
+}

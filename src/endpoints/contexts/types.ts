@@ -3,7 +3,23 @@ import {Connection as MongoConnection} from 'mongoose';
 import {BaseTokenData} from '../../definitions/system';
 import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
-import {AppRuntimeStateDataProvider, JobDataProvider, ResourceDataProvider} from './data/types';
+import {
+  AgentTokenDataProvider,
+  AppRuntimeStateDataProvider,
+  AssignedItemDataProvider,
+  CollaborationRequestDataProvider,
+  DataProviderUtils,
+  FileDataProvider,
+  FilePresignedPathDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
+  PermissionGroupDataProvider,
+  PermissionItemDataProvider,
+  TagDataProvider,
+  UsageRecordDataProvider,
+  UserDataProvider,
+  WorkspaceDataProvider,
+} from './data/types';
 import {IEmailProviderContext} from './email/types';
 import {FilePersistenceProviderContext} from './file/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
@@ -31,40 +47,56 @@ export interface IServerRequest extends Request {
 }
 
 export interface BaseContextDataProviders {
-  resource: ResourceDataProvider;
   job: JobDataProvider;
   appRuntimeState: AppRuntimeStateDataProvider;
+  workspace: WorkspaceDataProvider;
+  permissionGroup: PermissionGroupDataProvider;
+  permissionItem: PermissionItemDataProvider;
+  assignedItem: AssignedItemDataProvider;
+  agentToken: AgentTokenDataProvider;
+  collaborationRequest: CollaborationRequestDataProvider;
+  folder: FolderDataProvider;
+  file: FileDataProvider;
+  tag: TagDataProvider;
+  usageRecord: UsageRecordDataProvider;
+  user: UserDataProvider;
+  filePresignedPath: FilePresignedPathDataProvider;
+  utils: DataProviderUtils;
 }
+
+export type MongoDataProviders = BaseContextDataProviders;
 
 export interface BaseContextLogicProviders {
   usageRecord: UsageRecordLogicProvider;
   permissions: PermissionsLogicProvider;
 }
 
-export interface BaseContextSemanticDataProviders<TTxn = unknown> {
-  permissions: SemanticDataAccessPermissionProviderType<TTxn>;
-  workspace: SemanticDataAccessWorkspaceProviderType<TTxn>;
-  permissionGroup: SemanticDataAccessPermissionGroupProviderType<TTxn>;
-  permissionItem: SemanticDataAccessPermissionItemProviderType<TTxn>;
-  assignedItem: SemanticDataAccessAssignedItemProvider<TTxn>;
-  agentToken: SemanticDataAccessAgentTokenProvider<TTxn>;
-  collaborationRequest: SemanticDataAccessCollaborationRequestProvider<TTxn>;
-  folder: SemanticDataAccessFolderProvider<TTxn>;
-  file: SemanticDataAccessFileProvider<TTxn>;
-  tag: SemanticDataAccessTagProviderType<TTxn>;
-  usageRecord: SemanticDataAccessUsageRecordProviderType<TTxn>;
-  user: SemanticDataAccessUserProviderType<TTxn>;
-  filePresignedPath: SemanticDataAccessFilePresignedPathProvider<TTxn>;
-  utils: SemanticDataAccessProviderUtils<TTxn>;
+export interface BaseContextSemanticDataProviders {
+  permissions: SemanticDataAccessPermissionProviderType;
+  workspace: SemanticDataAccessWorkspaceProviderType;
+  permissionGroup: SemanticDataAccessPermissionGroupProviderType;
+  permissionItem: SemanticDataAccessPermissionItemProviderType;
+  assignedItem: SemanticDataAccessAssignedItemProvider;
+  agentToken: SemanticDataAccessAgentTokenProvider;
+  collaborationRequest: SemanticDataAccessCollaborationRequestProvider;
+  folder: SemanticDataAccessFolderProvider;
+  file: SemanticDataAccessFileProvider;
+  tag: SemanticDataAccessTagProviderType;
+  usageRecord: SemanticDataAccessUsageRecordProviderType;
+  user: SemanticDataAccessUserProviderType;
+  filePresignedPath: SemanticDataAccessFilePresignedPathProvider;
+  utils: SemanticDataAccessProviderUtils;
 }
+
+export type MongoBackedSemanticDataProviders = BaseContextSemanticDataProviders;
 
 export interface BaseContextType<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
   AppVars extends FimidaraConfig = FimidaraConfig,
-  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
-  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders
 > {
   appVariables: AppVars;
   session: SessionContextType;

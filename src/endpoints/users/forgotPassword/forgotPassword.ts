@@ -12,7 +12,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
@@ -79,7 +78,7 @@ export async function getForgotPasswordToken(
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
 
-  await executeWithMutationRunOptions(
+  await context.semantic.utils.withTxn(
     context,
     async opts => {
       await context.semantic.agentToken.insertItem(forgotToken, opts);

@@ -10,7 +10,6 @@ import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
@@ -43,7 +42,7 @@ describe('upgradeWaitlistedUsers', () => {
     const {userToken, user} = await insertUserForTest(context);
     const [waitlistedUsers] = await Promise.all([
       generateAndInsertUserListForTest(context, /** count */ 2, () => ({isOnWaitlist: true})),
-      executeWithMutationRunOptions(context, opts => {
+      context.semantic.utils.withTxn(context, opts => {
         assertContext(context);
         return assignWorkspaceToUser(
           context,

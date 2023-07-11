@@ -11,24 +11,18 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
-import {internalRespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import {
-  default as BaseContext,
-  default as BaseContextType,
-  getFileProvider,
-} from '../../endpoints/contexts/BaseContext';
+import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
+import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../../endpoints/contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
+import {BaseContextType} from '../../endpoints/contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
@@ -73,21 +67,17 @@ export async function devUserSetupInitContext() {
     fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const data = getDataProviders(models);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
     data,
     new NoopEmailProviderContext(),
     getFileProvider(fimidaraConfig),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
     connection,
     () => connection.close()
   );
-
-  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   return ctx;
 }
 
@@ -211,7 +201,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
   }
 
   if (user.isOnWaitlist) {
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context.semantic.user.updateOneById(
         user.resourceId,
         {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
@@ -220,7 +210,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
     );
   }
 
-  await executeWithMutationRunOptions(context, async opts => {
+  await context.semantic.utils.withTxn(context, async opts => {
     const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
       workspace.resourceId,
       DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -249,7 +239,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
         );
         assertAgentToken(agentToken);
         const agent = makeUserSessionAgent(user, agentToken);
-        await internalRespondToCollaborationRequest(
+        await INTERNAL_RespondToCollaborationRequest(
           context,
           agent,
           {

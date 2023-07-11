@@ -2,12 +2,12 @@ import {ProjectionType, SortOrder} from 'mongoose';
 import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File} from '../../../definitions/file';
+import {File, FilePresignedPath} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../definitions/permissionItem';
-import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system';
+import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {UsageRecord} from '../../../definitions/usageRecord';
 import {User} from '../../../definitions/user';
@@ -19,12 +19,11 @@ export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
 };
 
-export interface DataProviderOpParams<T, TTxn = unknown> {
-  txn?: TTxn;
+export interface DataProviderOpParams<T> {
+  txn?: unknown;
 }
 
-export interface DataProviderQueryListParams<T, TTxn = unknown>
-  extends DataProviderOpParams<T, TTxn> {
+export interface DataProviderQueryListParams<T> extends DataProviderOpParams<T> {
   /** zero-based index */
   page?: number;
   pageSize?: number;
@@ -32,10 +31,7 @@ export interface DataProviderQueryListParams<T, TTxn = unknown>
   sort?: DataQuerySort<T>;
 }
 
-export type DataProviderQueryParams<T, TTxn = unknown> = Pick<
-  DataProviderQueryListParams<T, TTxn>,
-  'projection' | 'txn'
->;
+export type DataProviderQueryParams<T> = Pick<DataProviderQueryListParams<T>, 'projection' | 'txn'>;
 
 export const INCLUDE_IN_PROJECTION = 1 as const;
 export const EXCLUDE_IN_PROJECTION = 0 as const;
@@ -44,9 +40,7 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 
 export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
-  $lowercaseEq?: T;
   $in?: T[] | Array<T | null>;
-  $lowercaseIn?: T[];
   $ne?: T | null;
   $nin?: Array<T | null>;
 
@@ -68,13 +62,11 @@ export interface NumberLiteralFieldQueryOps {
   $lte?: number;
 }
 
-export type LiteralFieldQueryOps<T = DataProviderLiteralType> = T extends DataProviderLiteralType
-  ? (ComparisonLiteralFieldQueryOps<T> & NumberLiteralFieldQueryOps) | T | null
-  : T extends Array<infer TArrayItem>
-  ?
-      | LiteralFieldQueryOps<TArrayItem>
-      | Pick<ComparisonLiteralFieldQueryOps<T>, '$eq' | '$in' | '$lowercaseIn' | '$lowercaseEq'>
-  : never;
+export type LiteralFieldQueryOps<T = DataProviderLiteralType> =
+  | (T extends DataProviderLiteralType
+      ? ComparisonLiteralFieldQueryOps<T> | NumberLiteralFieldQueryOps | T
+      : never)
+  | null;
 
 export type LiteralDataQuery<T> = {
   [P in keyof T]?: LiteralFieldQueryOps<T[P]>;
@@ -94,16 +86,17 @@ export interface IArrayFieldQueryOps<T> {
   // TODO: support $objMatch and $elemMatch in $all
   $all?: T extends DataProviderLiteralType ? Array<LiteralFieldQueryOps<T>> : never;
   $elemMatch?: ElemMatchQueryOp<T>;
+  $eq?: T[];
 }
 
 export type DataQuery<T> = {
-  [P in keyof T]?: T[P] extends DataProviderLiteralType | Date
-    ? LiteralFieldQueryOps<T[P]>
-    : NonNullable<T[P]> extends Array<infer U>
-    ? IArrayFieldQueryOps<U>
-    : NonNullable<T[P]> extends AnyObject
-    ? IRecordFieldQueryOps<NonNullable<T[P]>>
-    : void;
+  [P in keyof T]?:
+    | LiteralFieldQueryOps<T[P]>
+    | (NonNullable<T[P]> extends Array<infer U>
+        ? IArrayFieldQueryOps<U>
+        : NonNullable<T[P]> extends AnyObject
+        ? IRecordFieldQueryOps<NonNullable<T[P]>>
+        : {});
 };
 
 export enum BulkOpType {
@@ -132,89 +125,81 @@ export type BulkOpItem<T> =
   | {type: BulkOpType.DeleteMany; query: DataQuery<T>};
 
 // TODO: infer resulting type from projection, otherwise default to full object
-export interface BaseDataProvider<
-  DataType,
-  QueryType extends DataQuery<DataType> = DataQuery<DataType>,
-  TTxn = unknown
-> {
-  insertItem: (
-    item: DataType,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
-  ) => Promise<DataType>;
-  insertList: (
-    items: DataType[],
-    otherProps?: DataProviderOpParams<DataType, TTxn>
-  ) => Promise<void>;
-  existsByQuery: <ExtendedQueryType extends QueryType = QueryType>(
+export interface BaseDataProvider<TData, TQuery extends DataQuery<TData> = DataQuery<TData>> {
+  insertItem: (item: TData, otherProps?: DataProviderOpParams<TData>) => Promise<TData>;
+  insertList: (items: TData[], otherProps?: DataProviderOpParams<TData>) => Promise<void>;
+  existsByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<boolean>;
   getManyByQuery: (
-    query: QueryType,
-    otherProps?: DataProviderQueryListParams<DataType, TTxn>
-  ) => Promise<DataType[]>;
+    query: TQuery,
+    otherProps?: DataProviderQueryListParams<TData>
+  ) => Promise<TData[]>;
   getManyByQueryList: (
-    query: QueryType[],
-    otherProps?: DataProviderQueryListParams<DataType, TTxn>
-  ) => Promise<DataType[]>;
+    query: TQuery[],
+    otherProps?: DataProviderQueryListParams<TData>
+  ) => Promise<TData[]>;
   getOneByQuery: (
-    query: QueryType,
-    otherProps?: DataProviderQueryParams<DataType, TTxn>
-  ) => Promise<DataType | null>;
+    query: TQuery,
+    otherProps?: DataProviderQueryParams<TData>
+  ) => Promise<TData | null>;
   assertGetOneByQuery: (
-    query: QueryType,
-    otherProps?: DataProviderQueryParams<DataType, TTxn>
-  ) => Promise<DataType>;
+    query: TQuery,
+    otherProps?: DataProviderQueryParams<TData>
+  ) => Promise<TData>;
   assertGetAndUpdateOneByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: DataProviderQueryParams<DataType, TTxn>
-  ) => Promise<DataType>;
-  countByQuery: <ExtendedQueryType extends QueryType = QueryType>(
+    query: TQuery,
+    data: Partial<TData>,
+    otherProps?: DataProviderQueryParams<TData>
+  ) => Promise<TData>;
+  countByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<number>;
-  countByQueryList: (
-    query: QueryType[],
-    otherProps?: DataProviderOpParams<DataType, TTxn>
-  ) => Promise<number>;
+  countByQueryList: (query: TQuery[], otherProps?: DataProviderOpParams<TData>) => Promise<number>;
   updateManyByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    query: TQuery,
+    data: Partial<TData>,
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
   updateOneByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    query: TQuery,
+    data: Partial<TData>,
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
   getAndUpdateOneByQuery: (
-    query: QueryType,
-    data: Partial<DataType>,
-    otherProps?: DataProviderQueryParams<DataType, TTxn>
-  ) => Promise<DataType | null>;
-  deleteManyByQuery: <ExtendedQueryType extends QueryType = QueryType>(
-    query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    query: TQuery,
+    data: Partial<TData>,
+    otherProps?: DataProviderQueryParams<TData>
+  ) => Promise<TData | null>;
+  getAndUpdateManyByQuery: (
+    query: TQuery,
+    data: Partial<TData>,
+    otherProps?: DataProviderOpParams<TData>
+  ) => Promise<TData[]>;
+  deleteManyByQuery: <TOpQuery extends TQuery = TQuery>(
+    query: TOpQuery,
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
-  deleteManyByQueryList: <ExtendedQueryType extends QueryType = QueryType>(
+  deleteManyByQueryList: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType[],
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
-  deleteOneByQuery: <ExtendedQueryType extends QueryType = QueryType>(
+  deleteOneByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
+    otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
-  bulkWrite(
-    ops: Array<BulkOpItem<DataType>>,
-    otherProps?: DataProviderOpParams<DataType, TTxn>
-  ): Promise<void>;
+  bulkWrite(ops: Array<BulkOpItem<TData>>, otherProps?: DataProviderOpParams<TData>): Promise<void>;
 }
 
-export interface DataProviderUtils<TTxn> {
+export interface DataProviderUtils {
   withTxn<TResult>(
     ctx: BaseContextType,
-    fn: AnyFn<[txn: TTxn], Promise<TResult>>
+    fn: AnyFn<[txn: unknown], Promise<TResult>>,
+
+    /** Reuse existing txn when present */
+    txn?: unknown
   ): Promise<TResult>;
 }
 
@@ -231,17 +216,33 @@ export type UsageRecordQuery = DataQuery<UsageRecord>;
 export type UserQuery = DataQuery<User>;
 export type WorkspaceQuery = DataQuery<Workspace>;
 
-export type AgentTokenDataProvider = BaseDataProvider<AgentToken>;
-export type AppRuntimeStateDataProvider = BaseDataProvider<AppRuntimeState>;
-export type AssignedItemDataProvider = BaseDataProvider<AssignedItem>;
-export type CollaborationRequestDataProvider = BaseDataProvider<CollaborationRequest>;
-export type FileDataProvider = BaseDataProvider<File>;
-export type FolderDataProvider = BaseDataProvider<Folder>;
-export type PermissionGroupDataProvider = BaseDataProvider<PermissionGroup>;
-export type PermissionItemDataProvider = BaseDataProvider<PermissionItem>;
-export type TagDataProvider = BaseDataProvider<Tag>;
-export type UsageRecordDataProvider = BaseDataProvider<UsageRecord>;
-export type UserDataProvider = BaseDataProvider<User>;
-export type WorkspaceDataProvider = BaseDataProvider<Workspace>;
-export type ResourceDataProvider = BaseDataProvider<ResourceWrapper>;
-export type JobDataProvider = BaseDataProvider<Job>;
+export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
+export type AppRuntimeStateDataProvider = BaseDataProvider<
+  AppRuntimeState,
+  DataQuery<AppRuntimeState>
+>;
+export type AssignedItemDataProvider = BaseDataProvider<AssignedItem, DataQuery<AssignedItem>>;
+export type CollaborationRequestDataProvider = BaseDataProvider<
+  CollaborationRequest,
+  DataQuery<CollaborationRequest>
+>;
+export type FileDataProvider = BaseDataProvider<File, DataQuery<File>>;
+export type FilePresignedPathDataProvider = BaseDataProvider<
+  FilePresignedPath,
+  DataQuery<FilePresignedPath>
+>;
+export type FolderDataProvider = BaseDataProvider<Folder, DataQuery<Folder>>;
+export type PermissionGroupDataProvider = BaseDataProvider<
+  PermissionGroup,
+  DataQuery<PermissionGroup>
+>;
+export type PermissionItemDataProvider = BaseDataProvider<
+  PermissionItem,
+  DataQuery<PermissionItem>
+>;
+export type TagDataProvider = BaseDataProvider<Tag, DataQuery<Tag>>;
+export type UsageRecordDataProvider = BaseDataProvider<UsageRecord, DataQuery<UsageRecord>>;
+export type UserDataProvider = BaseDataProvider<User, DataQuery<User>>;
+export type WorkspaceDataProvider = BaseDataProvider<Workspace, DataQuery<Workspace>>;
+export type ResourceDataProvider = BaseDataProvider<ResourceWrapper, DataQuery<Resource>>;
+export type JobDataProvider = BaseDataProvider<Job, DataQuery<Job>>;

@@ -137,6 +137,10 @@ export function throwFileNotFound() {
   throw new NotFoundError('File not found.');
 }
 
+export function throwFilePresignedPathNotFound() {
+  throw new NotFoundError('File presigned path not found.');
+}
+
 export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
   const pathWithDetails = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(

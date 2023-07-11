@@ -1,7 +1,6 @@
 import {AppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {EmailAddressNotVerifiedError} from '../../users/errors';
 import {workspaceExtractor} from '../utils';
 import INTERNAL_createWorkspace from './internalCreateWorkspace';
@@ -18,7 +17,7 @@ const addWorkspace: AddWorkspaceEndpoint = async (context, instData) => {
   // calls
   if (!agent.user.isEmailVerified) throw new EmailAddressNotVerifiedError();
 
-  const {workspace} = await executeWithMutationRunOptions(context, async opts => {
+  const {workspace} = await context.semantic.utils.withTxn(context, async opts => {
     appAssert(agent.user);
     return await INTERNAL_createWorkspace(context, data, agent, agent.user.resourceId, opts);
   });

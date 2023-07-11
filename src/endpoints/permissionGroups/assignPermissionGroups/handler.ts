@@ -3,7 +3,6 @@ import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionGroupsExist} from '../utils';
@@ -34,7 +33,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
     await checkPermissionGroupsExist(context, workspace.resourceId, data.permissionGroups),
   ]);
 
-  await executeWithMutationRunOptions(context, async opts => {
+  await context.semantic.utils.withTxn(context, async opts => {
     // TODO: getEntityAssignedPermissionGroups should support entity ID array
 
     // Get entities' immediately existing permission groups to avoid assigning

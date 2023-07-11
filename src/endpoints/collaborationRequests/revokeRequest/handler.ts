@@ -11,10 +11,10 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {
+  assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
 } from '../utils';
@@ -27,9 +27,8 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-
-  let {request, workspace} = await executeWithMutationRunOptions(context, async opts => {
-    let {request, workspace} = await checkCollaborationRequestAuthorization02(
+  const {request, workspace} = await context.semantic.utils.withTxn(context, async opts => {
+    const {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,
       data.requestId,
@@ -42,13 +41,14 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
       isRevoked === false,
       new InvalidRequestError('Collaboration request already revoked.')
     );
-    request = await context.semantic.collaborationRequest.getAndUpdateOneById(
+    const updatedRequest = await context.semantic.collaborationRequest.getAndUpdateOneById(
       data.requestId,
       {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
       opts
     );
 
-    return {request, workspace};
+    assertCollaborationRequest(updatedRequest);
+    return {workspace, request: updatedRequest};
   });
 
   // TODO: fire and forget

@@ -47,7 +47,7 @@ async function sendCollaborationRequestResponseEmail(
   });
 }
 
-export const internalRespondToCollaborationRequest = async (
+export const INTERNAL_RespondToCollaborationRequest = async (
   context: BaseContextType,
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
@@ -71,7 +71,7 @@ export const internalRespondToCollaborationRequest = async (
     );
   }
 
-  [request] = await Promise.all([
+  const [updatedRequest] = await Promise.all([
     context.semantic.collaborationRequest.getAndUpdateOneById(
       data.requestId,
       {statusDate: getTimestamp(), status: data.response},
@@ -81,7 +81,8 @@ export const internalRespondToCollaborationRequest = async (
       assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user.resourceId, opts),
   ]);
 
-  return request;
+  assertCollaborationRequest(updatedRequest);
+  return updatedRequest;
 };
 
 export async function notifyUserOnCollaborationRequestResponse(

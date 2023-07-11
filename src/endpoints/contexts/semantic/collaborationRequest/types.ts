@@ -5,8 +5,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessCollaborationRequestProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<CollaborationRequest, TTxn> {
+export interface SemanticDataAccessCollaborationRequestProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<CollaborationRequest> {
   getManyByEmail(
     email: string,
     options?: DataProviderQueryListParams<CollaborationRequest> &

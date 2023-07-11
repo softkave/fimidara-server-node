@@ -1,6 +1,6 @@
 import {isNumber, isObject, isObjectLike} from 'lodash';
-import {BulkWriteOptions, ClientSession} from 'mongodb';
-import {FilterQuery, Model, QueryOptions} from 'mongoose';
+import {BulkWriteOptions} from 'mongodb';
+import {ClientSession, FilterQuery, Model, QueryOptions} from 'mongoose';
 import {appAssert} from '../../../utils/assertion';
 import {cast} from '../../../utils/fns';
 import {AnyFn, AnyObject} from '../../../utils/types';
@@ -22,20 +22,16 @@ import {
   NumberLiteralFieldQueryOps,
 } from './types';
 
-export function getMongoQueryOptionsForOp(
-  params?: DataProviderOpParams<any, ClientSession>
-): QueryOptions {
-  return {session: params?.txn, lean: true};
+export function getMongoQueryOptionsForOp(params?: DataProviderOpParams<any>): QueryOptions {
+  return {session: params?.txn as ClientSession, lean: true};
 }
 
-export function getMongoBulkWriteOptions(
-  params?: DataProviderOpParams<any, ClientSession>
-): BulkWriteOptions {
-  return {session: params?.txn};
+export function getMongoBulkWriteOptions(params?: DataProviderOpParams<any>): BulkWriteOptions {
+  return {session: params?.txn as ClientSession};
 }
 
 export function getMongoQueryOptionsForOne(
-  params?: DataProviderQueryListParams<any, ClientSession>
+  params?: DataProviderQueryListParams<any>
 ): QueryOptions {
   return {...getMongoQueryOptionsForOp(params), projection: params?.projection};
 }
@@ -62,7 +58,7 @@ export function getPageSize(
 }
 
 export function getMongoQueryOptionsForMany(
-  params?: DataProviderQueryListParams<any, ClientSession>
+  params?: DataProviderQueryListParams<any>
 ): QueryOptions {
   const page = getPage(params?.page);
   const pageSize = getPageSize(params?.pageSize, page);
@@ -79,7 +75,7 @@ export function getMongoQueryOptionsForMany(
 export abstract class BaseMongoDataProvider<
   T extends AnyObject,
   TQuery extends DataQuery<AnyObject> = DataQuery<T>
-> implements BaseDataProvider<T, TQuery, ClientSession>
+> implements BaseDataProvider<T, TQuery>
 {
   abstract throwNotFound: () => void;
   model: Model<T>;
@@ -88,21 +84,18 @@ export abstract class BaseMongoDataProvider<
     this.model = model;
   }
 
-  insertItem = async (item: T, otherProps?: DataProviderOpParams<T, ClientSession> | undefined) => {
+  insertItem = async (item: T, otherProps?: DataProviderOpParams<T> | undefined) => {
     const doc = new this.model(item);
     return await doc.save(getMongoQueryOptionsForOp(otherProps));
   };
 
-  insertList = async (
-    items: T[],
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
-  ) => {
+  insertList = async (items: T[], otherProps?: DataProviderOpParams<T> | undefined) => {
     await this.model.insertMany(items, getMongoQueryOptionsForOp(otherProps));
   };
 
   getManyByQuery = async (
     query: TQuery,
-    otherProps?: DataProviderQueryListParams<T, ClientSession> | undefined
+    otherProps?: DataProviderQueryListParams<T> | undefined
   ) => {
     const mongoQuery = BaseMongoDataProvider.getMongoQuery(query);
     const items = await this.model
@@ -114,7 +107,7 @@ export abstract class BaseMongoDataProvider<
 
   getManyByQueryList = async (
     query: TQuery[],
-    otherProps?: DataProviderQueryListParams<T, ClientSession> | undefined
+    otherProps?: DataProviderQueryListParams<T> | undefined
   ) => {
     const items = await this.model
       .find(
@@ -127,10 +120,7 @@ export abstract class BaseMongoDataProvider<
     return items as unknown as T[];
   };
 
-  getOneByQuery = async (
-    query: TQuery,
-    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
-  ) => {
+  getOneByQuery = async (query: TQuery, otherProps?: DataProviderQueryParams<T> | undefined) => {
     const item = await this.model
       .findOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOne(otherProps))
       .lean()
@@ -140,7 +130,7 @@ export abstract class BaseMongoDataProvider<
 
   assertGetOneByQuery = async (
     query: TQuery,
-    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+    otherProps?: DataProviderQueryParams<T> | undefined
   ) => {
     const item = await this.getOneByQuery(query, otherProps);
     if (!item) this.throwNotFound();
@@ -150,7 +140,7 @@ export abstract class BaseMongoDataProvider<
   updateManyByQuery = async (
     query: TQuery,
     data: Partial<T>,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
       .updateMany(
@@ -164,7 +154,7 @@ export abstract class BaseMongoDataProvider<
   updateOneByQuery = async (
     query: TQuery,
     data: Partial<T>,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
       .updateOne(
@@ -178,7 +168,7 @@ export abstract class BaseMongoDataProvider<
   getAndUpdateOneByQuery = async (
     query: TQuery,
     data: Partial<T>,
-    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+    otherProps?: DataProviderQueryParams<T> | undefined
   ) => {
     const item = await this.model
       .findOneAndUpdate(BaseMongoDataProvider.getMongoQuery(query), data, {
@@ -189,10 +179,25 @@ export abstract class BaseMongoDataProvider<
     return item as unknown as T;
   };
 
+  getAndUpdateManyByQuery = async (
+    query: TQuery,
+    data: Partial<T>,
+    otherProps?: DataProviderOpParams<T> | undefined
+  ) => {
+    await this.model
+      .updateMany(
+        BaseMongoDataProvider.getMongoQuery(query),
+        data,
+        getMongoQueryOptionsForOne(otherProps)
+      )
+      .exec();
+    return this.getManyByQuery(query, otherProps);
+  };
+
   assertGetAndUpdateOneByQuery = async (
     query: TQuery,
     data: Partial<T>,
-    otherProps?: DataProviderQueryParams<T, ClientSession> | undefined
+    otherProps?: DataProviderQueryParams<T> | undefined
   ) => {
     const item = await this.getAndUpdateOneByQuery(query, data, otherProps);
     if (!item) this.throwNotFound();
@@ -201,14 +206,14 @@ export abstract class BaseMongoDataProvider<
 
   existsByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     return !!(await this.getOneByQuery(query, {...otherProps, projection: '_id'}));
   };
 
   countByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     return await this.model
       .countDocuments(
@@ -218,10 +223,7 @@ export abstract class BaseMongoDataProvider<
       .exec();
   };
 
-  countByQueryList = async (
-    query: TQuery[],
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
-  ) => {
+  countByQueryList = async (query: TQuery[], otherProps?: DataProviderOpParams<T> | undefined) => {
     const count = await this.model
       .countDocuments(
         {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
@@ -233,7 +235,7 @@ export abstract class BaseMongoDataProvider<
 
   deleteManyByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
       .deleteMany(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
@@ -242,7 +244,7 @@ export abstract class BaseMongoDataProvider<
 
   deleteManyByQueryList = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType[],
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
       .deleteMany(
@@ -254,73 +256,16 @@ export abstract class BaseMongoDataProvider<
 
   deleteOneByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
       .deleteOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
       .exec();
   };
 
-  async TRANSACTION_bulkWrite(ops: BulkOpItem<T>[]): Promise<void> {
-    type Model02 = Model<T>;
-    type MongoBulkOpsType = Parameters<Model02['bulkWrite']>[0];
-    const mongoOps: MongoBulkOpsType = [];
-
-    ops.forEach(op => {
-      let mongoOp: MongoBulkOpsType[number] | null = null;
-
-      switch (op.type) {
-        case BulkOpType.InsertOne: {
-          mongoOp = {insertOne: {document: op.item as any}};
-          break;
-        }
-        case BulkOpType.UpdateOne: {
-          mongoOp = {
-            updateOne: {
-              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
-              update: op.update,
-              upsert: op.upsert,
-            },
-          };
-          break;
-        }
-        case BulkOpType.UpdateMany: {
-          mongoOp = {
-            updateMany: {
-              filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>,
-              update: op.update,
-            },
-          };
-          break;
-        }
-        case BulkOpType.DeleteOne: {
-          mongoOp = {
-            deleteOne: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
-          };
-          break;
-        }
-        case BulkOpType.DeleteMany: {
-          mongoOp = {
-            deleteMany: {filter: BaseMongoDataProvider.getMongoQuery(op.query) as FilterQuery<T>},
-          };
-          break;
-        }
-        default: // do nothing
-      }
-
-      if (mongoOp) {
-        mongoOps.push(mongoOp);
-      }
-    });
-
-    await this.model.db.transaction(async session => {
-      await this.model.bulkWrite(mongoOps, {session});
-    });
-  }
-
   async bulkWrite(
     ops: BulkOpItem<T>[],
-    otherProps?: DataProviderOpParams<T, ClientSession> | undefined
+    otherProps?: DataProviderOpParams<T> | undefined
   ): Promise<void> {
     type ModelWithTypeParameter = Model<T>;
     type MongoBulkOpsType = Parameters<ModelWithTypeParameter['bulkWrite']>[0];
@@ -432,17 +377,23 @@ export function toDataQuery<T extends AnyObject, Q extends DataQuery<any> = Data
   }, {} as AnyObject) as Q;
 }
 
-export class MongoDataProviderUtils implements DataProviderUtils<ClientSession> {
+export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(
     ctx: BaseContextType,
-    fn: AnyFn<[txn: ClientSession], Promise<TResult>>
+    fn: AnyFn<[txn: ClientSession], Promise<TResult>>,
+    txn?: ClientSession | undefined
   ): Promise<TResult> {
     const connection = ctx.mongoConnection;
     let result: TResult | undefined = undefined;
     appAssert(connection);
-    await connection.transaction(async session => {
-      result = await fn(session);
-    });
+
+    if (txn) {
+      result = await fn(txn);
+    } else {
+      await connection.transaction(async session => {
+        result = await fn(session);
+      });
+    }
 
     // `connection.transaction` throws if error occurs so if the control flow
     // gets here, `result` is set.

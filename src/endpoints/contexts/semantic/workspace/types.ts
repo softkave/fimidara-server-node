@@ -4,8 +4,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessWorkspaceProviderType<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<Workspace, TTxn> {
+export interface SemanticDataAccessWorkspaceProviderType
+  extends SemanticDataAccessWorkspaceResourceProviderType<Workspace> {
   getByRootname(
     name: string,
     opts?: SemanticDataAccessProviderRunOptions

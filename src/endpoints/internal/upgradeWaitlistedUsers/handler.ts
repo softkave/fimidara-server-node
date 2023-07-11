@@ -7,7 +7,6 @@ import {
 } from '../../../emailTemplates/upgradedFromWaitlist';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {UpgradeWaitlistedUsersEndpoint} from './types';
@@ -17,8 +16,8 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async (context, r
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await context.session.getAgent(context, reqData, [AppResourceType.User]);
   await assertUserIsPartOfRootWorkspace(context, agent);
-  const users = await executeWithMutationRunOptions(context, opts => {
-    return context.semantic.user.updateManyByQuery(
+  const users = await context.semantic.utils.withTxn(context, opts => {
+    return context.semantic.user.getAndUpdateManyByQuery(
       {resourceId: {$in: data.userIds}},
       {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
       opts

@@ -8,7 +8,6 @@ import {
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
@@ -36,7 +35,7 @@ async function createTestEmailVerificationToken(userId: string) {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await executeWithMutationRunOptions(context, opts =>
+  await context.semantic.utils.withTxn(context, opts =>
     context!.semantic.agentToken.insertItem(token, opts)
   );
   return token;

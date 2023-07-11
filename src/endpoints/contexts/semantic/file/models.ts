@@ -1,11 +1,11 @@
-import {File} from '../../../../definitions/file';
+import {File, FilePresignedPath} from '../../../../definitions/file';
 import {DataProviderQueryListParams} from '../../data/types';
+import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
-import {SemanticDataAccessFileProvider} from './types';
+import {SemanticDataAccessFilePresignedPathProvider, SemanticDataAccessFileProvider} from './types';
 
-export class MemorySemanticDataAccessFile
-  extends MemorySemanticDataAccessWorkspaceResourceProvider<File>
+export class DataSemanticDataAccessFile
+  extends DataSemanticDataAccessWorkspaceResourceProvider<File>
   implements SemanticDataAccessFileProvider
 {
   async getOneByNamePath(
@@ -14,10 +14,7 @@ export class MemorySemanticDataAccessFile
     extension?: string | undefined,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<File | null> {
-    return await this.memstore.readItem(
-      {workspaceId, extension, namePath: {$eq: namePath}},
-      opts?.transaction
-    );
+    return await this.data.getOneByQuery({workspaceId, extension, namePath: {$eq: namePath}}, opts);
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -29,15 +26,13 @@ export class MemorySemanticDataAccessFile
     },
     options?: (DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions) | undefined
   ): Promise<File[]> {
-    return await this.memstore.readManyItems(
+    return await this.data.getManyByQuery(
       {
         workspaceId: q.workspaceId,
         parentId: q.parentId,
         resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
       },
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      options
     );
   }
 
@@ -50,13 +45,17 @@ export class MemorySemanticDataAccessFile
     },
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
-    return await this.memstore.countItems(
+    return await this.data.countByQuery(
       {
         workspaceId: q.workspaceId,
         parentId: q.parentId,
         resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
       },
-      opts?.transaction
+      opts
     );
   }
 }
+
+export class DataSemanticDataAccessFilePresignedPathProvider
+  extends DataSemanticDataAccessWorkspaceResourceProvider<FilePresignedPath>
+  implements SemanticDataAccessFilePresignedPathProvider {}

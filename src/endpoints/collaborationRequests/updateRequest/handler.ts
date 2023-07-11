@@ -2,9 +2,9 @@ import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {assertUpdateNotEmpty} from '../../utils';
 import {
+  assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
 } from '../utils';
@@ -18,9 +18,8 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   assertUpdateNotEmpty(data.request);
   const agent = await context.session.getAgent(context, instData);
-
-  let {request} = await executeWithMutationRunOptions(context, async opts => {
-    let {request, workspace} = await checkCollaborationRequestAuthorization02(
+  const {request} = await context.semantic.utils.withTxn(context, async opts => {
+    const {request, workspace} = await checkCollaborationRequestAuthorization02(
       context,
       agent,
       data.requestId,
@@ -28,20 +27,19 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
       opts
     );
 
-    [request] = await Promise.all([
-      context.semantic.collaborationRequest.getAndUpdateOneById(
-        data.requestId,
-        {
-          message: data.request.message ?? request.message,
-          expiresAt: data.request.expires,
-          lastUpdatedAt: getTimestamp(),
-          lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-        },
-        opts
-      ),
-    ]);
+    const updatedRequest = await context.semantic.collaborationRequest.getAndUpdateOneById(
+      data.requestId,
+      {
+        message: data.request.message ?? request.message,
+        expiresAt: data.request.expires,
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+      },
+      opts
+    );
 
-    return {workspace, request};
+    assertCollaborationRequest(updatedRequest);
+    return {workspace, request: updatedRequest};
   });
 
   // TODO: send email if request description changed

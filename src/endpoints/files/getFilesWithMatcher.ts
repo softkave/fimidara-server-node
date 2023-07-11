@@ -8,7 +8,6 @@ import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
@@ -20,7 +19,7 @@ async function getCheckAndIncrementFilePresignedPathUsageCount(
   resourceId: string,
   opts?: SemanticDataAccessProviderMutationRunOptions
 ) {
-  return await executeWithMutationRunOptions(
+  return await context.semantic.utils.withTxn(
     context,
     async opts => {
       const presignedPath = await context.semantic.filePresignedPath.assertGetOneByQuery(
@@ -34,13 +33,13 @@ async function getCheckAndIncrementFilePresignedPathUsageCount(
 
       // TODO: possible race condition here, read and update should occur in the
       // same op
-      const updatedResource = await context.semantic.filePresignedPath.updateOneById(
+      const updatedFile = await context.semantic.filePresignedPath.getAndUpdateOneById(
         presignedPath.resourceId,
         {spentUsageCount: presignedPath.spentUsageCount + 1},
         opts
       );
-      assertFile(updatedResource);
-      return updatedResource;
+      assertFile(updatedFile);
+      return updatedFile;
     },
     opts
   );

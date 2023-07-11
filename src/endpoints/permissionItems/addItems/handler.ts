@@ -2,7 +2,6 @@ import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {AddPermissionItemsEndpoint} from './types';
 import {INTERNAL_addPermissionItems} from './utils';
@@ -21,7 +20,7 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
     action: AppActionType.Create,
     targets: {targetType: AppResourceType.PermissionItem},
   });
-  await executeWithMutationRunOptions(
+  await context.semantic.utils.withTxn(
     context,
     async opts => await INTERNAL_addPermissionItems(context, agent, workspace, data, opts)
   );

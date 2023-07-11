@@ -2,8 +2,7 @@ import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
-import {assertEmailAddressAvailable, userExtractor} from '../utils';
+import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';
 
@@ -22,8 +21,14 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     update.emailVerificationEmailSentAt = null;
   }
 
-  user = await executeWithMutationRunOptions(context, async opts => {
-    return await context.semantic.user.getAndUpdateOneById(user.resourceId, update, opts);
+  user = await context.semantic.utils.withTxn(context, async opts => {
+    const updatedUser = await context.semantic.user.getAndUpdateOneById(
+      user.resourceId,
+      update,
+      opts
+    );
+    assertUser(updatedUser);
+    return updatedUser;
   });
 
   const userWithWorkspaces = await populateUserWorkspaces(context, user);

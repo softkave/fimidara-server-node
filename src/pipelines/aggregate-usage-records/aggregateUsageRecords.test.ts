@@ -15,15 +15,12 @@ import {
 import {Workspace} from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
 import BaseContext from '../../endpoints/contexts/BaseContext';
-import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
 import {BaseContextType} from '../../endpoints/contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
@@ -75,19 +72,16 @@ async function getContextAndConnection() {
     appVariables.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const context = new BaseContext(
-    getDataProviders(models),
+    data,
     new NoopEmailProviderContext(),
     getTestFileProvider(appVariables),
     appVariables,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
     connection
   );
-
-  await ingestOnlyAppWorkspaceDataIntoMemstore(context);
   contexts.push(context);
   connections.push(connection);
   return {context, connection};
@@ -167,7 +161,7 @@ async function setupForFile(
     PUBLIC_SESSION_AGENT,
     generateTestUsageThresholdInputMap()
   );
-  await executeWithMutationRunOptions(context, opts =>
+  await context.semantic.utils.withTxn(context, opts =>
     context.semantic.workspace.insertItem(workspace, opts)
   );
   const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
@@ -364,7 +358,7 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context.semantic.workspace.insertItem(workspace, opts)
     );
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];
@@ -409,7 +403,7 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       context.semantic.workspace.insertItem(workspace, opts)
     );
     const ut = workspace.usageThresholds[UsageRecordCategory.Total];

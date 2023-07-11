@@ -2,8 +2,8 @@ import {TokenAccessScope} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
+import {assertUser} from '../utils';
 
 /**
  * Confirms the email address of the user. For internal use only.
@@ -14,7 +14,7 @@ export default async function INTERNAL_confirmEmailAddress(
   user: User | null,
   opts?: SemanticDataAccessProviderMutationRunOptions
 ) {
-  return await executeWithMutationRunOptions(
+  return await context.semantic.utils.withTxn(
     context,
     async opts => {
       [user] = await Promise.all([
@@ -30,6 +30,7 @@ export default async function INTERNAL_confirmEmailAddress(
         ),
       ]);
 
+      assertUser(user);
       return user;
     },
     opts

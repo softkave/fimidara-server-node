@@ -1,11 +1,11 @@
 import {Folder} from '../../../../definitions/folder';
 import {DataProviderQueryListParams} from '../../data/types';
+import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessFolderProvider} from './types';
 
-export class MemorySemanticDataAccessFolder
-  extends MemorySemanticDataAccessWorkspaceResourceProvider<Folder>
+export class DataSemanticDataAccessFolder
+  extends DataSemanticDataAccessWorkspaceResourceProvider<Folder>
   implements SemanticDataAccessFolderProvider
 {
   async getOneByNamePath(
@@ -13,10 +13,7 @@ export class MemorySemanticDataAccessFolder
     namePath: string[],
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<Folder | null> {
-    return await this.memstore.readItem(
-      {workspaceId, namePath: {$lowercaseEq: namePath}},
-      opts?.transaction
-    );
+    return await this.data.getOneByQuery({workspaceId, namePath: {$eq: namePath}}, opts);
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -30,15 +27,13 @@ export class MemorySemanticDataAccessFolder
       | (DataProviderQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<Folder[]> {
-    return await this.memstore.readManyItems(
+    return await this.data.getManyByQuery(
       {
         workspaceId: q.workspaceId,
         parentId: q.parentId,
         resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
       },
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      options
     );
   }
 
@@ -51,13 +46,13 @@ export class MemorySemanticDataAccessFolder
     },
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
-    return await this.memstore.countItems(
+    return await this.data.countByQuery(
       {
         workspaceId: q.workspaceId,
         parentId: q.parentId,
         resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
       },
-      opts?.transaction
+      opts
     );
   }
 }

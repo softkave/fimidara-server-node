@@ -1,15 +1,15 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
+import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../types';
-import {MemorySemanticDataAccessWorkspaceResourceProvider} from '../utils';
 import {SemanticDataAccessAgentTokenProvider} from './types';
 
-export class MemorySemanticDataAccessAgentToken
-  extends MemorySemanticDataAccessWorkspaceResourceProvider<AgentToken, MemStoreTransactionType>
+export class DataSemanticDataAccessAgentToken
+  extends DataSemanticDataAccessWorkspaceResourceProvider<AgentToken>
   implements SemanticDataAccessAgentTokenProvider
 {
   async deleteAgentTokens(
@@ -17,12 +17,12 @@ export class MemorySemanticDataAccessAgentToken
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    await this.data.deleteManyItems(
+    await this.data.deleteManyByQuery(
       {
         separateEntityId: agentId,
-        scope: tokenScope ? {$in: toNonNullableArray(tokenScope)} : undefined,
+        scope: tokenScope ? {$all: toNonNullableArray(tokenScope)} : undefined,
       },
-      opts?.transaction
+      opts
     );
   }
 
@@ -31,12 +31,12 @@ export class MemorySemanticDataAccessAgentToken
     tokenScope?: TokenAccessScope | TokenAccessScope[] | undefined,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<AgentToken | null> {
-    return await this.memstore.readItem(
+    return await this.data.getOneByQuery(
       {
         separateEntityId: agentId,
-        scope: tokenScope ? {$in: toNonNullableArray(tokenScope)} : undefined,
+        scope: tokenScope ? {$all: toNonNullableArray(tokenScope)} : undefined,
       },
-      opts?.transaction
+      opts
     );
   }
 }

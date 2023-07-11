@@ -5,8 +5,8 @@ import {
   SemanticDataAccessWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessFileProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<File, TTxn> {
+export interface SemanticDataAccessFileProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<File> {
   getOneByNamePath(
     workspaceId: string,
     namePath: string[],
@@ -33,5 +33,5 @@ export interface SemanticDataAccessFileProvider<TTxn>
   ): Promise<number>;
 }
 
-export interface SemanticDataAccessFilePresignedPathProvider<TTxn>
-  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath, TTxn> {}
+export interface SemanticDataAccessFilePresignedPathProvider
+  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath> {}

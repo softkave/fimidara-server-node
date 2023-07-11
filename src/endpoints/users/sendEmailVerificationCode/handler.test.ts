@@ -1,4 +1,3 @@
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -34,7 +33,7 @@ test('email verification code sent', async () => {
     /**userInput */ {},
     /**skipAutoVerifyEmail */ true
   );
-  await executeWithMutationRunOptions(context, opts => {
+  await context.semantic.utils.withTxn(context, opts => {
     assertContext(context);
     return context.semantic.user.getAndUpdateOneById(
       user.resourceId,

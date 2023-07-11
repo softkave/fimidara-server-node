@@ -9,7 +9,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -64,7 +63,7 @@ async function changePasswordWithTokenTest() {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await executeWithMutationRunOptions(context, opts =>
+  await context.semantic.utils.withTxn(context, opts =>
     context!.semantic.agentToken.insertItem(token, opts)
   );
   const result = await changePasswordWithToken(

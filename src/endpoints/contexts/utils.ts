@@ -1,226 +1,138 @@
-import {merge} from 'lodash';
 import {Connection} from 'mongoose';
+import {getAgentTokenModel} from '../../db/agentToken';
 import {getAppRuntimeStateModel} from '../../db/appRuntimeState';
+import {getAssignedItemModel} from '../../db/assignedItem';
+import {getCollaborationRequestModel} from '../../db/collaborationRequest';
+import {getFileModel} from '../../db/file';
+import {getFilePresignedPathMongoModel} from '../../db/filePresignedPath';
+import {getFolderDatabaseModel} from '../../db/folder';
 import {getJobModel} from '../../db/job';
+import {getPermissionGroupModel} from '../../db/permissionGroup';
+import {getPermissionItemModel} from '../../db/permissionItem';
 import {getResourceModel} from '../../db/resource';
+import {getTagModel} from '../../db/tag';
 import {AppMongoModels} from '../../db/types';
-import {AgentToken} from '../../definitions/agentToken';
-import {AssignedItem} from '../../definitions/assignedItem';
-import {CollaborationRequest} from '../../definitions/collaborationRequest';
-import {File, FilePresignedPath} from '../../definitions/file';
-import {Folder} from '../../definitions/folder';
-import {PermissionGroup} from '../../definitions/permissionGroups';
-import {PermissionItem} from '../../definitions/permissionItem';
-import {
-  AppResourceType,
-  Resource,
-  ResourceWrapper,
-  WorkspaceResource,
-} from '../../definitions/system';
-import {Tag} from '../../definitions/tag';
-import {UsageRecord, UsageSummationType} from '../../definitions/usageRecord';
-import {User} from '../../definitions/user';
-import {Workspace} from '../../definitions/workspace';
+import {getUsageRecordModel} from '../../db/usageRecord';
+import {getUserModel} from '../../db/user';
+import {getWorkspaceModel} from '../../db/workspace';
 import {assertNotFound} from '../../utils/assertion';
-import {toNonNullableArray} from '../../utils/fns';
-import {AnyFn} from '../../utils/types';
 import {assertAgentToken} from '../agentTokens/utils';
 import {assertCollaborationRequest} from '../collaborationRequests/utils';
 import {assertFile} from '../files/utils';
 import {assertFolder} from '../folders/utils';
 import {assertPermissionGroup} from '../permissionGroups/utils';
 import {assertPermissionItem} from '../permissionItems/utils';
-import {isRootWorkspaceSetup} from '../runtime/initAppSetup';
 import {assertTag} from '../tags/utils';
 import {assertUsageRecord} from '../usageRecords/utils';
 import {assertUser} from '../users/utils';
 import {assertWorkspace} from '../workspaces/utils';
 import {
+  AgentTokenMongoDataProvider,
   AppRuntimeStateMongoDataProvider,
+  AssignedItemMongoDataProvider,
+  CollaborationRequestMongoDataProvider,
+  FileMongoDataProvider,
+  FilePresignedPathMongoDataProvider,
+  FolderMongoDataProvider,
   JobMongoDataProvider,
-  ResourceMongoDataProvider,
+  PermissionGroupMongoDataProvider,
+  PermissionItemMongoDataProvider,
+  TagMongoDataProvider,
+  UsageRecordMongoDataProvider,
+  UserMongoDataProvider,
+  WorkspaceMongoDataProvider,
 } from './data/models';
-import {DataQuery} from './data/types';
+import {MongoDataProviderUtils} from './data/utils';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
+import {DataSemanticDataAccessAgentToken} from './semantic/agentToken/models';
+import {DataSemanticDataAccessAssignedItem} from './semantic/assignedItem/models';
+import {DataSemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/models';
 import {
-  AgentTokenMemStoreProvider,
-  AssignedItemMemStoreProvider,
-  CollaborationRequestMemStoreProvider,
-  FileMemStoreProvider,
-  FilePresignedPathMemStoreProvider,
-  FolderMemStoreProvider,
-  PermissionGroupMemStoreProvider,
-  PermissionItemMemStoreProvider,
-  TagMemStoreProvider,
-  UsageRecordMemStoreProvider,
-  UserMemStoreProvider,
-  WorkspaceMemStoreProvider,
-} from './mem/Mem';
-import {MemStoreIndexOptions, MemStoreIndexTypes} from './mem/types';
-import {MemorySemanticDataAccessAgentToken} from './semantic/agentToken/MemorySemanticDataAccessAgentToken';
-import {MemorySemanticDataAccessAssignedItem} from './semantic/assignedItem/MemorySemanticDataAccessAssignedItem';
-import {MemorySemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/MemorySemanticDataAccessCollaborationRequest';
-import {MemorySemanticDataAccessFile} from './semantic/file/MemorySemanticDataAccessFile';
-import {MemorySemanticDataAccessFilePresignedPathProvider} from './semantic/file/MemorySemanticDataAccessFilePresignedPath';
-import {MemorySemanticDataAccessFolder} from './semantic/folder/MemorySemanticDataAccessFolder';
-import {MemorySemanticDataAccessPermission} from './semantic/permission/MemorySemanticDataAccessPermission';
-import {MemorySemanticDataAccessPermissionGroup} from './semantic/permissionGroup/MemorySemanticDataAccessPermissionGroup';
-import {MemorySemanticDataAccessPermissionItem} from './semantic/permissionItem/MemorySemanticDataAccessPermissionItem';
-import {MemorySemanticDataAccessTag} from './semantic/tag/MemorySemanticDataAccessTag';
-import {MemorySemanticDataAccessUsageRecord} from './semantic/usageRecord/MemorySemanticDataAccessUsageRecord';
-import {MemorySemanticDataAccessUser} from './semantic/user/MemorySemanticDataAccessUser';
-import {MemorySemanticDataAccessWorkspace} from './semantic/workspace/MemorySemanticDataAccessWorkspace';
-import {BaseContextType} from './types';
+  DataSemanticDataAccessFile,
+  DataSemanticDataAccessFilePresignedPathProvider,
+} from './semantic/file/models';
+import {DataSemanticDataAccessFolder} from './semantic/folder/models';
+import {DataSemanticDataAccessPermission} from './semantic/permission/models';
+import {DataSemanticDataAccessPermissionGroup} from './semantic/permissionGroup/models';
+import {DataSemanticDataAccessPermissionItem} from './semantic/permissionItem/models';
+import {DataSemanticDataAccessTag} from './semantic/tag/models';
+import {DataSemanticDataAccessUsageRecord} from './semantic/usageRecord/models';
+import {DataSemanticDataAccessUser} from './semantic/user/models';
+import {DataSemanticDataAccessProviderUtils} from './semantic/utils';
+import {DataSemanticDataAccessWorkspace} from './semantic/workspace/models';
+import {BaseContextType, MongoBackedSemanticDataProviders, MongoDataProviders} from './types';
 
 export function getMongoModels(connection: Connection): AppMongoModels {
   return {
     resource: getResourceModel(connection),
     job: getJobModel(connection),
     appRuntimeState: getAppRuntimeStateModel(connection),
+    workspace: getWorkspaceModel(connection),
+    permissionGroup: getPermissionGroupModel(connection),
+    permissionItem: getPermissionItemModel(connection),
+    assignedItem: getAssignedItemModel(connection),
+    agentToken: getAgentTokenModel(connection),
+    collaborationRequest: getCollaborationRequestModel(connection),
+    folder: getFolderDatabaseModel(connection),
+    file: getFileModel(connection),
+    tag: getTagModel(connection),
+    usageRecord: getUsageRecordModel(connection),
+    user: getUserModel(connection),
+    filePresignedPath: getFilePresignedPathMongoModel(connection),
   };
 }
 
-export function getDataProviders(models: AppMongoModels): BaseContextType['data'] {
+export function getMongoDataProviders(models: AppMongoModels): MongoDataProviders {
   return {
-    resource: new ResourceMongoDataProvider(models.resource),
     job: new JobMongoDataProvider(models.job),
     appRuntimeState: new AppRuntimeStateMongoDataProvider(models.appRuntimeState),
+    workspace: new WorkspaceMongoDataProvider(models.workspace),
+    permissionGroup: new PermissionGroupMongoDataProvider(models.permissionGroup),
+    permissionItem: new PermissionItemMongoDataProvider(models.permissionItem),
+    assignedItem: new AssignedItemMongoDataProvider(models.assignedItem),
+    agentToken: new AgentTokenMongoDataProvider(models.agentToken),
+    collaborationRequest: new CollaborationRequestMongoDataProvider(models.collaborationRequest),
+    folder: new FolderMongoDataProvider(models.folder),
+    file: new FileMongoDataProvider(models.file),
+    tag: new TagMongoDataProvider(models.tag),
+    usageRecord: new UsageRecordMongoDataProvider(models.usageRecord),
+    user: new UserMongoDataProvider(models.user),
+    filePresignedPath: new FilePresignedPathMongoDataProvider(models.filePresignedPath),
+    utils: new MongoDataProviderUtils(),
   };
 }
 
-export function getMemstoreDataProviders(models: AppMongoModels): BaseContextType['memstore'] {
-  const workspaceIdIndexOpts: MemStoreIndexOptions<{workspaceId?: string | null}> = {
-    field: 'workspaceId',
-    type: MemStoreIndexTypes.MapIndex,
-  };
-  const nameIndexOpts: MemStoreIndexOptions<{name?: string | null}> = {
-    field: 'name',
-    type: MemStoreIndexTypes.MapIndex,
-    caseInsensitive: true,
-  };
-
-  const folderIndexOpts: MemStoreIndexOptions<Folder>[] = [
-    workspaceIdIndexOpts,
-    nameIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
-    {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
-    {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
-  ];
-  const fileIndexOpts: MemStoreIndexOptions<File>[] = [
-    workspaceIdIndexOpts,
-    nameIndexOpts,
-    {field: 'namePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
-    {field: 'idPath', type: MemStoreIndexTypes.ArrayMapIndex},
-    {field: 'parentId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'extension', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
-  ];
-  const agentTokenIndexOpts: MemStoreIndexOptions<AgentToken>[] = [
-    workspaceIdIndexOpts,
-    nameIndexOpts,
-    {field: 'separateEntityId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'agentType', type: MemStoreIndexTypes.MapIndex},
-  ];
-  const permissionItemIndexOpts: MemStoreIndexOptions<PermissionItem>[] = [
-    workspaceIdIndexOpts,
-    {field: 'entityId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'entityType', type: MemStoreIndexTypes.MapIndex},
-    {field: 'targetParentId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'targetId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'targetType', type: MemStoreIndexTypes.MapIndex},
-    {field: 'action', type: MemStoreIndexTypes.MapIndex},
-    {field: 'appliesTo', type: MemStoreIndexTypes.MapIndex},
-  ];
-  const permissionGroupIndexOpts: MemStoreIndexOptions<PermissionGroup>[] = [
-    workspaceIdIndexOpts,
-    nameIndexOpts,
-  ];
-  const workspaceIndexOpts: MemStoreIndexOptions<Workspace>[] = [
-    nameIndexOpts,
-    {field: 'rootname', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
-  ];
-  const collaborationRequestIndexOpts: MemStoreIndexOptions<CollaborationRequest>[] = [
-    workspaceIdIndexOpts,
-    {field: 'recipientEmail', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
-  ];
-  const userIndexOpts: MemStoreIndexOptions<User>[] = [
-    {field: 'email', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
-  ];
-  const tagIndexOpts: MemStoreIndexOptions<Tag>[] = [workspaceIdIndexOpts, nameIndexOpts];
-  const assignedItemIndexOpts: MemStoreIndexOptions<AssignedItem>[] = [
-    workspaceIdIndexOpts,
-    {field: 'assignedItemId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'assignedItemType', type: MemStoreIndexTypes.MapIndex},
-    {field: 'assigneeId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'assigneeType', type: MemStoreIndexTypes.MapIndex},
-  ];
-  const usageRecordIndexOpts: MemStoreIndexOptions<UsageRecord>[] = [
-    workspaceIdIndexOpts,
-    {field: 'category', type: MemStoreIndexTypes.MapIndex},
-    {field: 'fulfillmentStatus', type: MemStoreIndexTypes.MapIndex},
-    {field: 'summationType', type: MemStoreIndexTypes.MapIndex},
-    {field: 'month', type: MemStoreIndexTypes.MapIndex},
-    {field: 'year', type: MemStoreIndexTypes.MapIndex},
-  ];
-  const filePresignedPathIndexOpts: MemStoreIndexOptions<FilePresignedPath>[] = [
-    workspaceIdIndexOpts,
-    {field: 'action', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
-    {field: 'agentTokenId', type: MemStoreIndexTypes.MapIndex},
-    {field: 'fileNamePath', type: MemStoreIndexTypes.ArrayMapIndex, caseInsensitive: true},
-    {field: 'fileExtension', type: MemStoreIndexTypes.MapIndex, caseInsensitive: true},
-  ];
-
+export function getMongoBackedSemanticDataProviders(
+  data: MongoDataProviders
+): MongoBackedSemanticDataProviders {
   return {
-    folder: new FolderMemStoreProvider([], folderIndexOpts),
-    file: new FileMemStoreProvider([], fileIndexOpts),
-    agentToken: new AgentTokenMemStoreProvider([], agentTokenIndexOpts),
-    permissionItem: new PermissionItemMemStoreProvider([], permissionItemIndexOpts),
-    permissionGroup: new PermissionGroupMemStoreProvider([], permissionGroupIndexOpts),
-    workspace: new WorkspaceMemStoreProvider([], workspaceIndexOpts),
-    collaborationRequest: new CollaborationRequestMemStoreProvider(
-      [],
-      collaborationRequestIndexOpts
-    ),
-    user: new UserMemStoreProvider([], userIndexOpts),
-    tag: new TagMemStoreProvider([], tagIndexOpts),
-    assignedItem: new AssignedItemMemStoreProvider([], assignedItemIndexOpts),
-    usageRecord: new UsageRecordMemStoreProvider([], usageRecordIndexOpts, {
-      commitItemsFilter: items =>
-        toNonNullableArray(items).filter(item => item.summationType === UsageSummationType.Two),
-    }),
-    filePresignedPath: new FilePresignedPathMemStoreProvider([], filePresignedPathIndexOpts),
-  };
-}
-
-export function getSemanticDataProviders(
-  memstores: BaseContextType['memstore']
-): BaseContextType['semantic'] {
-  return {
-    folder: new MemorySemanticDataAccessFolder(memstores.folder, assertFolder),
-    file: new MemorySemanticDataAccessFile(memstores.file, assertFile),
-    agentToken: new MemorySemanticDataAccessAgentToken(memstores.agentToken, assertAgentToken),
-    permissions: new MemorySemanticDataAccessPermission(),
-    permissionItem: new MemorySemanticDataAccessPermissionItem(
-      memstores.permissionItem,
+    folder: new DataSemanticDataAccessFolder(data.folder, assertFolder),
+    file: new DataSemanticDataAccessFile(data.file, assertFile),
+    agentToken: new DataSemanticDataAccessAgentToken(data.agentToken, assertAgentToken),
+    permissions: new DataSemanticDataAccessPermission(),
+    permissionItem: new DataSemanticDataAccessPermissionItem(
+      data.permissionItem,
       assertPermissionItem
     ),
-    permissionGroup: new MemorySemanticDataAccessPermissionGroup(
-      memstores.permissionGroup,
+    permissionGroup: new DataSemanticDataAccessPermissionGroup(
+      data.permissionGroup,
       assertPermissionGroup
     ),
-    workspace: new MemorySemanticDataAccessWorkspace(memstores.workspace, assertWorkspace),
-    collaborationRequest: new MemorySemanticDataAccessCollaborationRequest(
-      memstores.collaborationRequest,
+    workspace: new DataSemanticDataAccessWorkspace(data.workspace, assertWorkspace),
+    collaborationRequest: new DataSemanticDataAccessCollaborationRequest(
+      data.collaborationRequest,
       assertCollaborationRequest
     ),
-    user: new MemorySemanticDataAccessUser(memstores.user, assertUser),
-    tag: new MemorySemanticDataAccessTag(memstores.tag, assertTag),
-    assignedItem: new MemorySemanticDataAccessAssignedItem(memstores.assignedItem, assertNotFound),
-    usageRecord: new MemorySemanticDataAccessUsageRecord(memstores.usageRecord, assertUsageRecord),
-    filePresignedPath: new MemorySemanticDataAccessFilePresignedPathProvider(
-      memstores.filePresignedPath,
+    user: new DataSemanticDataAccessUser(data.user, assertUser),
+    tag: new DataSemanticDataAccessTag(data.tag, assertTag),
+    assignedItem: new DataSemanticDataAccessAssignedItem(data.assignedItem, assertNotFound),
+    usageRecord: new DataSemanticDataAccessUsageRecord(data.usageRecord, assertUsageRecord),
+    filePresignedPath: new DataSemanticDataAccessFilePresignedPathProvider(
+      data.filePresignedPath,
       assertFile
     ),
+    utils: new DataSemanticDataAccessProviderUtils(),
   };
 }
 
@@ -229,100 +141,4 @@ export function getLogicProviders(): BaseContextType['logic'] {
     usageRecord: new UsageRecordLogicProvider(),
     permissions: new PermissionsLogicProvider(),
   };
-}
-
-export async function ingestDataIntoMemStore(
-  context: BaseContextType,
-  modifyQueryFn?: AnyFn<
-    ['*' | 'usage-records', DataQuery<ResourceWrapper>],
-    DataQuery<ResourceWrapper>
-  >
-) {
-  // TODO: we only want to fetch L2 usage records
-  let q1: DataQuery<ResourceWrapper> = {
-    resourceType: {$ne: AppResourceType.UsageRecord},
-  };
-  let q2: DataQuery<ResourceWrapper<UsageRecord>> = {
-    resourceType: {$eq: AppResourceType.UsageRecord},
-    resource: {
-      $objMatch: {summationType: UsageSummationType.Two},
-    },
-  };
-
-  if (modifyQueryFn) {
-    q1 = modifyQueryFn('*', q1);
-    q2 = modifyQueryFn('usage-records', q2);
-  }
-
-  const [data, usageRecordsL2] = await Promise.all([
-    context.data.resource.getManyByQuery(q1),
-    context.data.resource.getManyByQuery(q2),
-  ]);
-
-  const dataByType: Record<AppResourceType, Resource[]> = {
-    [AppResourceType.All]: [],
-    [AppResourceType.System]: [],
-    [AppResourceType.Public]: [],
-    [AppResourceType.User]: [],
-    [AppResourceType.UsageRecord]: usageRecordsL2.map(item => item.resource),
-    [AppResourceType.EndpointRequest]: [],
-    [AppResourceType.AssignedItem]: [],
-    [AppResourceType.Job]: [],
-    [AppResourceType.CollaborationRequest]: [],
-    [AppResourceType.Workspace]: [],
-    [AppResourceType.AgentToken]: [],
-    [AppResourceType.Folder]: [],
-    [AppResourceType.File]: [],
-    [AppResourceType.Tag]: [],
-    [AppResourceType.PermissionGroup]: [],
-    [AppResourceType.PermissionItem]: [],
-    [AppResourceType.FilePresignedPath]: [],
-  };
-  data.forEach(item => {
-    dataByType[item.resourceType].push(item.resource);
-  });
-
-  context.memstore.folder.UNSAFE_ingestItems(dataByType[AppResourceType.Folder] as Folder[]);
-  context.memstore.file.UNSAFE_ingestItems(dataByType[AppResourceType.File] as File[]);
-  context.memstore.agentToken.UNSAFE_ingestItems(
-    dataByType[AppResourceType.AgentToken] as AgentToken[]
-  );
-  context.memstore.permissionItem.UNSAFE_ingestItems(
-    dataByType[AppResourceType.PermissionItem] as PermissionItem[]
-  );
-  context.memstore.permissionGroup.UNSAFE_ingestItems(
-    dataByType[AppResourceType.PermissionGroup] as PermissionGroup[]
-  );
-  context.memstore.workspace.UNSAFE_ingestItems(
-    dataByType[AppResourceType.Workspace] as Workspace[]
-  );
-  context.memstore.collaborationRequest.UNSAFE_ingestItems(
-    dataByType[AppResourceType.CollaborationRequest] as CollaborationRequest[]
-  );
-  context.memstore.user.UNSAFE_ingestItems(dataByType[AppResourceType.User] as User[]);
-  context.memstore.tag.UNSAFE_ingestItems(dataByType[AppResourceType.Tag] as Tag[]);
-  context.memstore.assignedItem.UNSAFE_ingestItems(
-    dataByType[AppResourceType.AssignedItem] as AssignedItem[]
-  );
-  context.memstore.usageRecord.UNSAFE_ingestItems(
-    dataByType[AppResourceType.UsageRecord] as UsageRecord[]
-  );
-  context.memstore.filePresignedPath.UNSAFE_ingestItems(
-    dataByType[AppResourceType.FilePresignedPath] as FilePresignedPath[]
-  );
-}
-
-export async function ingestOnlyAppWorkspaceDataIntoMemstore(ctx: BaseContextType) {
-  const appRuntimeState = await isRootWorkspaceSetup(ctx);
-  if (!appRuntimeState) return;
-
-  // Ingest only app workspace resources
-  await ingestDataIntoMemStore(ctx, (args_0, query) => {
-    const workspaceResourceQuery: DataQuery<ResourceWrapper<WorkspaceResource>> = {
-      resource: {
-        $objMatch: {workspaceId: appRuntimeState.appWorkspaceId},
-      },
-    };
-    return merge(query, workspaceResourceQuery);
-  });
 }

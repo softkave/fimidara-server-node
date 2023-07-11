@@ -9,7 +9,6 @@ import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 
@@ -19,7 +18,7 @@ export async function withConfirmEmailAddressToken(
   link: string,
   opts?: SemanticDataAccessProviderMutationRunOptions
 ) {
-  return executeWithMutationRunOptions(
+  return context.semantic.utils.withTxn(
     context,
     async opts => {
       const url = new URL(link);

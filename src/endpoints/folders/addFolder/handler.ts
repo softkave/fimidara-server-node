@@ -1,4 +1,4 @@
-import {compact, last} from 'lodash';
+import {last} from 'lodash';
 import {Folder} from '../../../definitions/folder';
 import {
   AppActionType,
@@ -17,8 +17,8 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {FolderQuery} from '../../contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
 import {FolderExistsError} from '../errors';
@@ -38,64 +38,53 @@ export async function createFolderList(
   const pathWithDetails = getFolderpathInfo(input.folderpath);
   let closestExistingFolder: Folder | null = null;
   let previousFolder: Folder | null = null;
-
-  const newFolders = await context.semantic.folder.insertWithQuery(
-    () => {
-      const namePathList = pathWithDetails.itemSplitPath.map((p, i) =>
-        pathWithDetails.itemSplitPath.slice(0, i + 1)
-      );
-      return {
+  const folderQueries = pathWithDetails.itemSplitPath
+    .map((p, i) => pathWithDetails.itemSplitPath.slice(0, i + 1))
+    .map(
+      (nextNamePath): FolderQuery => ({
         workspaceId: workspace.resourceId,
-        namePath: {$lowercaseIn: namePathList},
-      };
-    },
+        namePath: {$eq: nextNamePath},
+      })
+    );
+  const existingFolders = await context.semantic.folder.getManyByQueryList(folderQueries, opts);
+  existingFolders.sort((f1, f2) => f1.namePath.length - f2.namePath.length);
 
-    existingFolders => {
-      existingFolders = compact(existingFolders).sort(
-        (f1, f2) => f1.namePath.length - f2.namePath.length
-      );
+  if (existingFolders.length >= pathWithDetails.itemSplitPath.length && throwOnFolderExists) {
+    throw new FolderExistsError();
+  }
 
-      if (existingFolders.length >= pathWithDetails.itemSplitPath.length && throwOnFolderExists) {
-        throw new FolderExistsError();
+  closestExistingFolder = last(existingFolders) ?? null;
+  previousFolder = closestExistingFolder ?? null;
+  const newFolders: Folder[] = [];
+
+  for (let i = existingFolders.length; i < pathWithDetails.itemSplitPath.length; i++) {
+    if (existingFolders[i]) {
+      previousFolder = existingFolders[i];
+      continue;
+    }
+
+    // The main folder we want to create
+    const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
+    const name = pathWithDetails.itemSplitPath[i];
+    const folderId = getNewIdForResource(AppResourceType.Folder);
+    const folder: Folder = newWorkspaceResource(
+      agent,
+      AppResourceType.Folder,
+      workspace.resourceId,
+      {
+        name,
+        workspaceId: workspace.resourceId,
+        resourceId: folderId,
+        parentId: previousFolder?.resourceId ?? null,
+        idPath: previousFolder ? previousFolder.idPath.concat(folderId) : [folderId],
+        namePath: previousFolder ? previousFolder.namePath.concat(name) : [name],
+        description: isMainFolder ? input.description : undefined,
       }
+    );
 
-      closestExistingFolder = last(existingFolders) ?? null;
-      previousFolder = closestExistingFolder ?? null;
-      const newFolders: Folder[] = [];
-
-      for (let i = existingFolders.length; i < pathWithDetails.itemSplitPath.length; i++) {
-        if (existingFolders[i]) {
-          previousFolder = existingFolders[i];
-          continue;
-        }
-
-        // The main folder we want to create
-        const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
-        const name = pathWithDetails.itemSplitPath[i];
-        const folderId = getNewIdForResource(AppResourceType.Folder);
-        const folder: Folder = newWorkspaceResource(
-          agent,
-          AppResourceType.Folder,
-          workspace.resourceId,
-          {
-            name,
-            workspaceId: workspace.resourceId,
-            resourceId: folderId,
-            parentId: previousFolder?.resourceId ?? null,
-            idPath: previousFolder ? previousFolder.idPath.concat(folderId) : [folderId],
-            namePath: previousFolder ? previousFolder.namePath.concat(name) : [name],
-            description: isMainFolder ? input.description : undefined,
-          }
-        );
-
-        previousFolder = folder;
-        newFolders.push(folder);
-      }
-
-      return newFolders;
-    },
-    opts
-  );
+    previousFolder = folder;
+    newFolders.push(folder);
+  }
 
   if (!UNSAFE_skipAuthCheck && newFolders.length) {
     const cExistingFolder = closestExistingFolder as Folder | null;
@@ -132,7 +121,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
   );
   assertWorkspace(workspace);
 
-  let folder = await executeWithMutationRunOptions(context, async opts => {
+  let folder = await context.semantic.utils.withTxn(context, async opts => {
     return createFolderList(context, agent, workspace, data.folder, opts);
   });
 

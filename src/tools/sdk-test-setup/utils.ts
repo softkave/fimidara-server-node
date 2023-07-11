@@ -7,15 +7,12 @@ import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../endpoints/contexts/semantic/utils';
 import {BaseContextType} from '../../endpoints/contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../../endpoints/contexts/utils';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
@@ -31,24 +28,17 @@ async function setupContext() {
     fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const data = getDataProviders(models);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
     data,
     new NoopEmailProviderContext(),
     getFileProvider(fimidaraConfig),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
     connection,
     () => connection.close()
   );
-
-  // TODO: the issue with this is there may be a conflict seeing we're not only
-  // dealing with app workspace. We're creating a workspace using user-supplied
-  // info which may conflict with an existing workspace.
-  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
   return ctx;
 }
 
@@ -92,7 +82,7 @@ async function createAgentToken(
 
 export async function setupSDKTestReq() {
   const context = await setupContext();
-  const {workspace, token, tokenStr} = await executeWithMutationRunOptions(context, async opts => {
+  const {workspace, token, tokenStr} = await context.semantic.utils.withTxn(context, async opts => {
     const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
     const {token, tokenStr} = await createAgentToken(context, workspace, opts);
     await addAssignedPermissionGroupList(

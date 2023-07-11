@@ -2,7 +2,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -32,7 +31,7 @@ describe('countUserWorkspaces', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const workspaces = await generateAndInsertWorkspaceListForTest(context, 15);
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       Promise.all(
         workspaces.map(w =>
           assignWorkspaceToUser(

@@ -1,7 +1,7 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File} from '../../../definitions/file';
+import {File, FilePresignedPath} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
@@ -13,7 +13,7 @@ import {User} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {throwAssignedItemNotFound} from '../../assignedItems/utils';
 import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
-import {throwFileNotFound} from '../../files/utils';
+import {throwFileNotFound, throwFilePresignedPathNotFound} from '../../files/utils';
 import {throwFolderNotFound} from '../../folders/utils';
 import {throwPermissionGroupNotFound} from '../../permissionGroups/utils';
 import {throwPermissionItemNotFound} from '../../permissionItems/utils';
@@ -29,6 +29,7 @@ import {
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   FileDataProvider,
+  FilePresignedPathDataProvider,
   FolderDataProvider,
   JobDataProvider,
   PermissionGroupDataProvider,
@@ -86,6 +87,13 @@ export class FolderMongoDataProvider
 
 export class FileMongoDataProvider extends BaseMongoDataProvider<File> implements FileDataProvider {
   throwNotFound = throwFileNotFound;
+}
+
+export class FilePresignedPathMongoDataProvider
+  extends BaseMongoDataProvider<FilePresignedPath>
+  implements FilePresignedPathDataProvider
+{
+  throwNotFound = throwFilePresignedPathNotFound;
 }
 
 export class CollaborationRequestMongoDataProvider

@@ -4,7 +4,6 @@ import {toArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {UnassignPermissionGroupsEndpoint} from './types';
 import {unassignPermissionGroupsJoiSchema} from './validation';
@@ -29,7 +28,7 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (contex
     });
   });
 
-  await executeWithMutationRunOptions(context, async opts => {
+  await context.semantic.utils.withTxn(context, async opts => {
     // TODO: use $or query when we implement $or
     await Promise.all(queries.map(q => context.semantic.assignedItem.deleteManyByQuery(q, opts)));
   });
