@@ -74,9 +74,10 @@ async function setup() {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     () => connection.close()
   );
-
+  await ctx.init();
   const defaultWorkspace = await setupApp(ctx);
   serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 

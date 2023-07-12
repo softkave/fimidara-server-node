@@ -80,8 +80,10 @@ async function getContextAndConnection() {
     appVariables,
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
-    connection
+    connection,
+    models
   );
+  await context.init();
   contexts.push(context);
   connections.push(connection);
   return {context, connection};

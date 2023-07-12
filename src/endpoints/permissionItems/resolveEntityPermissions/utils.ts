@@ -17,6 +17,7 @@ import {
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {folderConstants} from '../../folders/constants';
@@ -292,7 +293,8 @@ export async function checkResolveEntityPermissionsAuth(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  data: ResolveEntityPermissionsEndpointParams
+  data: ResolveEntityPermissionsEndpointParams,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   // Check is agent is resolving own permissions. If so, we don't need to do
   // auth check.
@@ -303,6 +305,7 @@ export async function checkResolveEntityPermissionsAuth(
       context,
       agent,
       workspace,
+      opts,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
       targets: {targetType: AppResourceType.PermissionItem},

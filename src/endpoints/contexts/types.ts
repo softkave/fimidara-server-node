@@ -1,5 +1,6 @@
 import {Request} from 'express';
 import {Connection as MongoConnection} from 'mongoose';
+import {AppMongoModels} from '../../db/types';
 import {BaseTokenData} from '../../definitions/system';
 import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
@@ -106,6 +107,7 @@ export interface BaseContextType<
   email: Email;
   fileBackend: FileBackend;
   mongoConnection: MongoConnection | null;
+  mongoModels: AppMongoModels | null;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

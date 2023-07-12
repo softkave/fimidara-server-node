@@ -26,8 +26,10 @@ async function testGlobalSetup() {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     () => connection.close()
   );
+  await ctx.init();
   await setupApp(ctx);
   await ctx.dispose();
 }

@@ -3,6 +3,7 @@ import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {AppActionType, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {getLowercaseRegExpForString} from '../../utils/fns';
 import {
   checkAuthorization,
   getFilePermissionContainers,
@@ -109,10 +110,11 @@ export async function checkFolderAuthorization(
   folder: Folder,
   action: AppActionType,
   workspace?: Workspace,
-  UNSAFE_skipAuthCheck = false
+  UNSAFE_skipAuthCheck = false,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (!workspace) {
-    workspace = await checkWorkspaceExists(context, folder.workspaceId);
+    workspace = await checkWorkspaceExists(context, folder.workspaceId, opts);
   }
 
   if (!UNSAFE_skipAuthCheck) {
@@ -125,6 +127,7 @@ export async function checkFolderAuthorization(
       agent,
       action,
       workspace,
+      opts,
       workspaceId: workspace.resourceId,
       containerId: getFilePermissionContainers(workspace.resourceId, folder, false),
       targets: {targetId: folder.resourceId},
@@ -186,4 +189,12 @@ export function assertFolder(folder: Folder | null | undefined): asserts folder 
 export function stringifyFolderNamePath(file: Folder, rootname?: string) {
   const nm = file.namePath.join(folderConstants.nameSeparator);
   return rootname ? addRootnameToPath(nm, rootname) : nm;
+}
+
+export function getCaseInsensitiveNamePathQuery(namePath: string[]) {
+  return namePath.reduce((map, name, index) => {
+    const key = `namePath.${index}`;
+    map[key] = {$regex: getLowercaseRegExpForString(name)};
+    return map;
+  }, {} as Record<string, {$regex?: RegExp}>);
 }

@@ -85,8 +85,8 @@ export abstract class BaseMongoDataProvider<
   }
 
   insertItem = async (item: T, otherProps?: DataProviderOpParams<T> | undefined) => {
-    const doc = new this.model(item);
-    return await doc.save(getMongoQueryOptionsForOp(otherProps));
+    await this.insertList([item], otherProps);
+    return item;
   };
 
   insertList = async (items: T[], otherProps?: DataProviderOpParams<T> | undefined) => {
@@ -121,8 +121,9 @@ export abstract class BaseMongoDataProvider<
   };
 
   getOneByQuery = async (query: TQuery, otherProps?: DataProviderQueryParams<T> | undefined) => {
+    const opts = getMongoQueryOptionsForOne(otherProps);
     const item = await this.model
-      .findOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOne(otherProps))
+      .findOne(BaseMongoDataProvider.getMongoQuery(query), opts.projection, opts)
       .lean()
       .exec();
     return item as unknown as T | null;
@@ -390,9 +391,14 @@ export class MongoDataProviderUtils implements DataProviderUtils {
     if (txn) {
       result = await fn(txn);
     } else {
-      await connection.transaction(async session => {
+      const session = await connection.startSession();
+      await session.withTransaction(async () => {
         result = await fn(session);
       });
+      // await connection.transaction(async session => {
+      //   result = await fn(session);
+      // });
+      await session.endSession();
     }
 
     // `connection.transaction` throws if error occurs so if the control flow

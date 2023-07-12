@@ -19,7 +19,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
     item: T | T[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    return await this.data.insertList(toArray(item), opts);
+    await this.data.insertList(toArray(item), opts);
   }
 
   async getOneById(

@@ -13,31 +13,25 @@ export const INTERNAL_signupUser = async (
   context: BaseContextType,
   data: SignupEndpointParams,
   otherParams: Partial<User> = {},
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
-  return await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      await assertEmailAddressAvailable(context, data.email, opts);
+  await assertEmailAddressAvailable(context, data.email, opts);
 
-      const hash = await argon2.hash(data.password);
-      const now = getTimestamp();
-      const user: User = newResource(AppResourceType.User, {
-        hash,
-        resourceId: getNewIdForResource(AppResourceType.User),
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        createdAt: now,
-        passwordLastChangedAt: now,
-        isEmailVerified: false,
-        lastUpdatedAt: now,
-        isOnWaitlist: context.appVariables.FLAG_waitlistNewSignups,
-        ...otherParams,
-      });
-      await context.semantic.user.insertItem(user, opts);
-      return await populateUserWorkspaces(context, user);
-    },
-    opts
-  );
+  const hash = await argon2.hash(data.password);
+  const now = getTimestamp();
+  const user: User = newResource(AppResourceType.User, {
+    hash,
+    resourceId: getNewIdForResource(AppResourceType.User),
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    createdAt: now,
+    passwordLastChangedAt: now,
+    isEmailVerified: false,
+    lastUpdatedAt: now,
+    isOnWaitlist: context.appVariables.FLAG_waitlistNewSignups,
+    ...otherParams,
+  });
+  await context.semantic.user.insertItem(user, opts);
+  return await populateUserWorkspaces(context, user, opts);
 };

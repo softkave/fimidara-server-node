@@ -94,10 +94,12 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     async () => {
       await connection.close();
     }
   );
+  await ctx.init();
   await setupApp(ctx);
   return ctx;
 }

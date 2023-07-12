@@ -95,6 +95,7 @@ export async function createFolderList(
       context,
       agent,
       workspace,
+      opts,
       workspaceId: workspace.resourceId,
       containerId: cExistingFolder
         ? getFilePermissionContainers(workspace.resourceId, cExistingFolder, true)

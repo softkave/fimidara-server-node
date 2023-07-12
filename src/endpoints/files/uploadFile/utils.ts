@@ -7,7 +7,10 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
+} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
@@ -18,7 +21,8 @@ export async function checkUploadFileAuth(
   agent: SessionAgent,
   workspace: Workspace,
   file: File | null,
-  closestExistingFolder: Folder | null
+  closestExistingFolder: Folder | null,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   // TODO: also have an update check if file exists The issue with implementing
   // it now is that it doesn't work with a scenario where we want a user to be
@@ -30,6 +34,7 @@ export async function checkUploadFileAuth(
     context,
     agent,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: [{targetType: AppResourceType.File, targetId: file?.resourceId}],
     containerId: file

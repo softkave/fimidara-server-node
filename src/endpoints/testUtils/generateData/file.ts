@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {first} from 'lodash';
 import {File} from '../../../definitions/file';
 import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -9,10 +8,6 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 import {getFilenameInfo} from '../../files/utils';
 import {generateTestFolderName} from './folder';
-
-function removeExtension(name: string) {
-  return first(name.split('.'));
-}
 
 function addExtenstion(name: string, ext: string) {
   return name + '.' + ext;

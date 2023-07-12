@@ -47,13 +47,15 @@ export async function checkCollaborationRequestAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   request: CollaborationRequest,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
   await checkAuthorization({
     context,
     agent,
     action,
+    opts,
     workspaceId: workspace.resourceId,
     workspace: workspace,
     targets: {targetId: request.resourceId},

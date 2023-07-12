@@ -12,7 +12,10 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
+} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
@@ -30,7 +33,8 @@ async function filterExistingItems<T extends AssignedItem>(
   context: BaseContextType,
   workspaceId: string,
   items: T[],
-  comparatorFn?: (item01: T, item02: AssignedItem) => boolean
+  comparatorFn?: (item01: T, item02: AssignedItem) => boolean,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const assigneeIdList: string[] = [];
   const assignedItemIdList: string[] = [];
@@ -41,7 +45,8 @@ async function filterExistingItems<T extends AssignedItem>(
   const existingItems = await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
     workspaceId,
     assignedItemIdList,
-    assigneeIdList
+    assigneeIdList,
+    opts
   );
   const indexer = (item: Pick<AssignedItem, 'assignedItemId' | 'assigneeId'>) =>
     makeKey([item.assignedItemId, item.assigneeId]);
@@ -90,7 +95,8 @@ export async function addAssignedItems<T extends AssignedItem>(
       context,
       workspaceId,
       items,
-      comparatorFn
+      comparatorFn,
+      opts
     );
     await Promise.all([
       context.semantic.assignedItem.insertItem(resolvedItems, opts),
@@ -130,6 +136,7 @@ export async function addAssignedPermissionGroupList(
     await checkAuthorization({
       context,
       agent,
+      opts,
       workspaceId: workspaceId,
       action: AppActionType.GrantPermission,
       targets: {targetType: AppResourceType.PermissionGroup},

@@ -40,14 +40,16 @@ export async function checkFileAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   file: File,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const workspace = await checkWorkspaceExists(context, file.workspaceId);
+  const workspace = await checkWorkspaceExists(context, file.workspaceId, opts);
   await checkAuthorization({
     context,
     agent,
     action,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     containerId: getFilePermissionContainers(workspace.resourceId, file, false),
     targets: {targetId: file.resourceId},

@@ -4,6 +4,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -30,7 +31,8 @@ export async function checkTagAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   tag: Tag,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, tag.workspaceId);
   await checkAuthorization({
@@ -38,6 +40,7 @@ export async function checkTagAuthorization(
     agent,
     action,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: {targetId: tag.resourceId},
   });

@@ -66,39 +66,40 @@ async function setupWorkspace(
   );
 }
 
-async function setupDefaultUser(context: BaseContextType) {
-  return context.semantic.utils.withTxn(context, async opts => {
-    let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
+async function setupDefaultUser(
+  context: BaseContextType,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
 
-    if (!user) {
-      const isDevEnv =
-        context.appVariables.nodeEnv === 'development' || context.appVariables.nodeEnv === 'test';
-      user = await INTERNAL_signupUser(
-        context,
-        {
-          email: context.appVariables.rootUserEmail,
-          firstName: context.appVariables.rootUserFirstName,
-          lastName: context.appVariables.rootUserLastName,
-          password: context.appVariables.rootUserEmail,
-        },
-        {
-          requiresPasswordChange: isDevEnv ? false : true,
-          isEmailVerified: isDevEnv ? true : false,
-          isOnWaitlist: false,
-        },
-        opts
-      );
+  if (!user) {
+    const isDevEnv =
+      context.appVariables.nodeEnv === 'development' || context.appVariables.nodeEnv === 'test';
+    user = await INTERNAL_signupUser(
+      context,
+      {
+        email: context.appVariables.rootUserEmail,
+        firstName: context.appVariables.rootUserFirstName,
+        lastName: context.appVariables.rootUserLastName,
+        password: context.appVariables.rootUserEmail,
+      },
+      {
+        requiresPasswordChange: isDevEnv ? false : true,
+        isEmailVerified: isDevEnv ? true : false,
+        isOnWaitlist: false,
+      },
+      opts
+    );
 
-      if (!isDevEnv) {
-        await INTERNAL_forgotPassword(context, user, opts);
-        await INTERNAL_sendEmailVerificationCode(context, user, opts);
-      }
+    if (!isDevEnv) {
+      await INTERNAL_forgotPassword(context, user, opts);
+      await INTERNAL_sendEmailVerificationCode(context, user, opts);
     }
+  }
 
-    const [userToken] = await Promise.all([getUserToken(context, user.resourceId, opts)]);
-    const agent = makeUserSessionAgent(user, userToken);
-    return {user, userToken, agent};
-  });
+  const userToken = await getUserToken(context, user.resourceId, opts);
+  const agent = makeUserSessionAgent(user, userToken);
+  return {user, userToken, agent};
 }
 
 async function setupFolders(
@@ -175,13 +176,16 @@ async function setupImageUploadPermissionGroup(
     await context.semantic.permissionGroup.insertItem(imageUploadPermissionGroup, opts),
     await context.semantic.permissionItem.insertItem(permissionItems, opts),
   ]);
-
   return imageUploadPermissionGroup;
 }
 
-export async function isRootWorkspaceSetup(context: BaseContextType) {
+export async function isRootWorkspaceSetup(
+  context: BaseContextType,
+  opts: SemanticDataAccessProviderRunOptions
+) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
+    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
+    opts
   );
   return appRuntimeState;
 }
@@ -216,7 +220,8 @@ async function setupAppWithMutationOptions(
   agent: SessionAgent,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const appRuntimeState = await isRootWorkspaceSetup(context);
+  const appRuntimeState = await isRootWorkspaceSetup(context, opts);
+
   if (appRuntimeState) {
     return await getRootWorkspace(context, appRuntimeState, opts);
   }
@@ -228,11 +233,9 @@ async function setupAppWithMutationOptions(
     appSetupVars.rootname,
     opts
   );
-
   const [{workspaceImagesFolder, userImagesFolder}] = await Promise.all([
     setupFolders(context, workspace, opts),
   ]);
-
   const [appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup] =
     await Promise.all([
       setupImageUploadPermissionGroup(
@@ -263,23 +266,27 @@ async function setupAppWithMutationOptions(
     appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
     appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
   };
-  await context.data.appRuntimeState.insertItem({
-    isAppSetup: true,
-    resourceId: APP_RUNTIME_STATE_DOC_ID,
-    ...appRuntimeVars,
-    createdAt: getTimestamp(),
-    lastUpdatedAt: getTimestamp(),
-  });
+  await context.data.appRuntimeState.insertItem(
+    {
+      isAppSetup: true,
+      resourceId: APP_RUNTIME_STATE_DOC_ID,
+      ...appRuntimeVars,
+      createdAt: getTimestamp(),
+      lastUpdatedAt: getTimestamp(),
+    },
+    opts
+  );
   merge(context.appVariables, appRuntimeVars);
-
   return workspace;
 }
 
 export async function setupApp(context: BaseContextType) {
-  const {agent} = await setupDefaultUser(context);
   return await context.semantic.utils.withTxn(
     context,
-    opts => setupAppWithMutationOptions(context, agent, opts),
+    async opts => {
+      const {agent} = await setupDefaultUser(context, opts);
+      return await setupAppWithMutationOptions(context, agent, opts);
+    },
     undefined
   );
 }

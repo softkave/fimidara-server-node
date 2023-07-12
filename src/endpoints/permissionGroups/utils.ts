@@ -51,7 +51,8 @@ export async function checkPermissionGroupAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
   await checkAuthorization({
@@ -59,6 +60,7 @@ export async function checkPermissionGroupAuthorization(
     agent,
     action,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: {targetId: permissionGroup.resourceId},
   });

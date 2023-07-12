@@ -1,4 +1,6 @@
+import {map} from 'lodash';
 import {Connection as MongoConnection} from 'mongoose';
+import {AppMongoModels} from '../../db/types';
 import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
@@ -33,6 +35,7 @@ export default class BaseContext<
   semantic: SemanticData;
   session: SessionContextType = new SessionContext();
   mongoConnection: MongoConnection | null = null;
+  mongoModels: AppMongoModels | null = null;
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -43,6 +46,7 @@ export default class BaseContext<
     logic: Logic,
     semantic: SemanticData,
     mongoConnection: MongoConnection | null,
+    mongoModels: AppMongoModels | null,
     disposeFn?: () => Promise<void>
   ) {
     this.data = data;
@@ -53,9 +57,21 @@ export default class BaseContext<
     this.semantic = semantic;
     this.disposeFn = disposeFn;
     this.mongoConnection = mongoConnection;
+    this.mongoModels = mongoModels;
   }
 
-  init = async () => {};
+  init = async () => {
+    if (this.mongoModels) {
+      await Promise.all(
+        map(this.mongoModels, model => {
+          if (model.db.modelNames().includes(model.modelName)) return;
+
+          console.log(`creating ${model.modelName} mongodb model`);
+          return model.createCollection();
+        })
+      );
+    }
+  };
 
   dispose = async () => {
     const promises = [this.fileBackend.close(), this.email.close()];

@@ -48,8 +48,10 @@ beforeAll(async () => {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     () => dropMongoConnection(connection)
   );
+  await context.init();
 });
 
 afterAll(async () => {

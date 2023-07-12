@@ -37,8 +37,10 @@ async function setupContext() {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     () => connection.close()
   );
+  await ctx.init();
   return ctx;
 }
 

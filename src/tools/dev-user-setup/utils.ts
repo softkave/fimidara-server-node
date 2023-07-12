@@ -76,8 +76,10 @@ export async function devUserSetupInitContext() {
     getLogicProviders(),
     getMongoBackedSemanticDataProviders(data),
     connection,
+    models,
     () => connection.close()
   );
+  await ctx.init();
   return ctx;
 }
 
@@ -175,7 +177,9 @@ async function getUser(context: BaseContextType, runtimeOptions: ISetupDevUserOp
     user = await getCompleteUserDataByEmail(context, email);
   } else {
     const userInfo = await runtimeOptions.getUserInfo();
-    user = await INTERNAL_signupUser(context, {...userInfo, email});
+    user = await context.semantic.utils.withTxn(context, opts =>
+      INTERNAL_signupUser(context, {...userInfo, email}, {}, opts)
+    );
   }
 
   assert.ok(user);

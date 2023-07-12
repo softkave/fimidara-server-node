@@ -15,6 +15,7 @@ import {
 } from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent, getWorkspaceIdNoThrow} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
@@ -36,7 +37,6 @@ const usageThresholdLockSchema = getFields<PublicUsageThresholdLock>({
 
 const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
 const usageThresholdLockIfExistExtractor = makeExtractIfPresent(usageThresholdLockSchema);
-
 const f: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
@@ -79,8 +79,12 @@ export function assertWorkspace(workspace: Workspace | null | undefined): assert
   }
 }
 
-export async function checkWorkspaceExists(ctx: BaseContextType, workspaceId: string) {
-  const w = await ctx.semantic.workspace.getOneById(workspaceId);
+export async function checkWorkspaceExists(
+  ctx: BaseContextType,
+  workspaceId: string,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const w = await ctx.semantic.workspace.getOneById(workspaceId, opts);
   assertWorkspace(w);
   return w;
 }
@@ -100,13 +104,15 @@ export async function checkWorkspaceAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   await checkAuthorization({
     context,
     agent,
     action,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: {targetId: workspace.resourceId},
   });

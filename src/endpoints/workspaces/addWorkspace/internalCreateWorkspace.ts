@@ -75,9 +75,8 @@ const INTERNAL_createWorkspace = async (
     permissionItems,
   } = generateDefaultWorkspacePermissionGroups(agent, workspace);
   workspace.publicPermissionGroupId = publicPermissionGroup.resourceId;
-
+  await context.semantic.workspace.insertItem(workspace, opts);
   await Promise.all([
-    context.semantic.workspace.insertItem(workspace, opts),
     context.semantic.permissionGroup.insertItem(
       [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
       opts

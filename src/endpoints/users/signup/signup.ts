@@ -8,7 +8,9 @@ import {signupJoiSchema} from './validation';
 
 const signup: SignupEndpoint = async (context, instData) => {
   const data = validate(instData.data, signupJoiSchema);
-  const user = await INTERNAL_signupUser(context, data);
+  const user = await context.semantic.utils.withTxn(context, opts =>
+    INTERNAL_signupUser(context, data, {}, opts)
+  );
   const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
     Promise.all([
       getUserToken(context, user.resourceId, opts),
