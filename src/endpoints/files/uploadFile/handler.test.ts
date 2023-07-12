@@ -1,4 +1,6 @@
+import {File} from '../../../definitions/file';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {getStringListQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -70,7 +72,7 @@ describe('uploadFile', () => {
     const files = await context.semantic.file.getManyByQuery({
       workspaceId: savedFile.workspaceId,
       extension: savedFile.extension,
-      namePath: {$eq: savedFile.namePath},
+      ...getStringListQuery<File>(savedFile.namePath, 'namePath'),
     });
     expect(files.length).toBe(1);
   });

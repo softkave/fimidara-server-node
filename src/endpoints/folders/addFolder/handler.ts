@@ -19,6 +19,7 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {getStringListQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
 import {FolderExistsError} from '../errors';
@@ -43,7 +44,7 @@ export async function createFolderList(
     .map(
       (nextNamePath): FolderQuery => ({
         workspaceId: workspace.resourceId,
-        namePath: {$eq: nextNamePath},
+        ...getStringListQuery<Folder>(nextNamePath, 'namePath'),
       })
     );
   const existingFolders = await context.semantic.folder.getManyByQueryList(folderQueries, opts);

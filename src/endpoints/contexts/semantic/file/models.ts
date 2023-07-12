@@ -2,6 +2,7 @@ import {File, FilePresignedPath} from '../../../../definitions/file';
 import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
+import {getStringListQuery} from '../utils';
 import {SemanticDataAccessFilePresignedPathProvider, SemanticDataAccessFileProvider} from './types';
 
 export class DataSemanticDataAccessFile
@@ -14,7 +15,10 @@ export class DataSemanticDataAccessFile
     extension?: string | undefined,
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<File | null> {
-    return await this.data.getOneByQuery({workspaceId, extension, namePath: {$eq: namePath}}, opts);
+    return await this.data.getOneByQuery(
+      {workspaceId, extension, ...getStringListQuery<File>(namePath, 'namePath')},
+      opts
+    );
   }
 
   async getManyByWorkspaceParentAndIdList(

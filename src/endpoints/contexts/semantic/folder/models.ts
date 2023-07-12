@@ -2,6 +2,7 @@ import {Folder} from '../../../../definitions/folder';
 import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
+import {getStringListQuery} from '../utils';
 import {SemanticDataAccessFolderProvider} from './types';
 
 export class DataSemanticDataAccessFolder
@@ -13,7 +14,10 @@ export class DataSemanticDataAccessFolder
     namePath: string[],
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<Folder | null> {
-    return await this.data.getOneByQuery({workspaceId, namePath: {$eq: namePath}}, opts);
+    return await this.data.getOneByQuery(
+      {workspaceId, ...getStringListQuery<Folder>(namePath, 'namePath')},
+      opts
+    );
   }
 
   async getManyByWorkspaceParentAndIdList(

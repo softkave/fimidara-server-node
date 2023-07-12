@@ -1,6 +1,8 @@
+import {FilePresignedPath} from '../definitions/file';
 import {AppResourceType} from '../definitions/system';
 import {extractResourceIdList, noopAsync} from '../utils/fns';
 import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
+import {getStringListQuery} from './contexts/semantic/utils';
 import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
 import FolderQueries from './folders/queries';
 import {DeletePermissionItemsCascadeFnsArgs} from './permissionItems/deleteItems/types';
@@ -206,7 +208,7 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
           args.files.map(f =>
             context.semantic.filePresignedPath.deleteManyByQuery(
               {
-                fileNamePath: {$eq: f.namePath},
+                ...getStringListQuery<FilePresignedPath>(f.namePath, 'fileNamePath'),
                 fileExtension: f.extension,
                 workspaceId: args.workspaceId,
               },

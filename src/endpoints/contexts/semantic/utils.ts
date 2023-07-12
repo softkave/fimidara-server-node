@@ -1,3 +1,4 @@
+import {getLowercaseRegExpForString} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
 import {BaseContextType} from '../types';
 import {
@@ -19,4 +20,15 @@ export class DataSemanticDataAccessProviderUtils implements SemanticDataAccessPr
       opts?.txn
     );
   }
+}
+
+export function getStringListQuery<TData extends Record<string, any>>(
+  stringList: string[],
+  prefix: keyof TData
+): Record<string, {$regex?: RegExp}> {
+  return stringList.reduce((map, name, index) => {
+    const key = `${prefix as string}.${index}`;
+    map[key] = {$regex: getLowercaseRegExpForString(name)};
+    return map;
+  }, {} as Record<string, {$regex?: RegExp}>);
 }

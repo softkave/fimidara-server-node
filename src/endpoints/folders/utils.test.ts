@@ -1,4 +1,6 @@
+import {Folder} from '../../definitions/folder';
 import {getRandomIntInclusive} from '../../utils/fns';
+import {getStringListQuery} from '../contexts/semantic/utils';
 import {BaseContextType} from '../contexts/types';
 import {
   generateAndInsertTestFolders,
@@ -6,7 +8,6 @@ import {
 } from '../testUtils/generateData/folder';
 import {completeTest} from '../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../testUtils/testUtils';
-import {getCaseInsensitiveNamePathQuery} from './utils';
 
 let context: BaseContextType | null = null;
 
@@ -32,11 +33,11 @@ describe('utils', () => {
     );
     const folderNamePathList = folders.map(folder => folder.namePath);
     const foldersByParent = await context.semantic.folder.getManyByQuery(
-      getCaseInsensitiveNamePathQuery(parentNamePath)
+      getStringListQuery<Folder>(parentNamePath, 'namePath')
     );
     const returnedFolders = await Promise.all(
       folderNamePathList.map(namePath =>
-        context!.semantic.folder.getOneByQuery(getCaseInsensitiveNamePathQuery(namePath))
+        context!.semantic.folder.getOneByQuery(getStringListQuery<Folder>(namePath, 'namePath'))
       )
     );
 
