@@ -10,6 +10,7 @@ import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
+
   if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
@@ -21,6 +22,8 @@ export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: stri
     email: item.email,
     joinedAt: userWorkspace.joinedAt,
     workspaceId: userWorkspace.workspaceId,
+    createdAt: 0,
+    lastUpdatedAt: 0,
   };
   return collaborator;
 };

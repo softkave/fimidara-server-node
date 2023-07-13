@@ -108,7 +108,6 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
       spentUsageCount: 0,
     }
   );
-
   await context.semantic.utils.withTxn(context, async opts => {
     await context.semantic.filePresignedPath.insertItem(resource, opts);
   });

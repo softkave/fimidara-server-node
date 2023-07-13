@@ -1,5 +1,6 @@
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
+import {isStringEqual} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils';
@@ -14,7 +15,7 @@ const updateUser: UpdateUserEndpoint = async (context, instData) => {
     lastUpdatedAt: getTimestamp(),
   };
 
-  if (data.email && data.email.toLowerCase() !== user.email.toLowerCase()) {
+  if (data.email && !isStringEqual(data.email, user.email)) {
     await assertEmailAddressAvailable(context, data.email);
     update.isEmailVerified = false;
     update.emailVerifiedAt = null;

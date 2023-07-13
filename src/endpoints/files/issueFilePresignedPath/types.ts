@@ -6,6 +6,9 @@ export type IssueFilePresignedPathEndpointParams = FileMatcher & {
   expires?: number;
   duration?: number;
   usageCount?: number;
+  // action?: AppActionType[]
+  // downloadUsageCount?: number;
+  // uploadUsageCount?: number;
   // origin?: string | string[];
   // userAgent?: string | string[];
   // ip?: string | string[];

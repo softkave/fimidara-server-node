@@ -16,6 +16,6 @@ export const fileConstants = {
     updateFileDetails: `${endpointConstants.apiv1}/files/updateFileDetails`,
     uploadFile: `${endpointConstants.apiv1}/files/uploadFile`,
     issueFilePresignedPath: `${endpointConstants.apiv1}/files/issueFilePresignedPath`,
-    getFilePresignedPaths: `${endpointConstants.apiv1}/files/getFilePresignedPaths`,
+    getPresignedPathsForFiles: `${endpointConstants.apiv1}/files/getPresignedPathsForFiles`,
   },
 };

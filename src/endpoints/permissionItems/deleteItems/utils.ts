@@ -6,7 +6,8 @@ import {Workspace} from '../../../definitions/workspace';
 import {extractResourceIdList, isObjectEmpty, toNonNullableArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
-import {LiteralDataQuery} from '../../contexts/data/types';
+import {DataQuery, LiteralDataQuery} from '../../contexts/data/types';
+import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
@@ -111,6 +112,7 @@ export const INTERNAL_deletePermissionItems = async (
   ) => {
     toNonNullableArray(entity).forEach(entityId => {
       let outerMap = entityIdMap[entityId];
+
       if (!outerMap) {
         entityIdMap[entityId] = outerMap = {
           targetsMap: {},
@@ -148,7 +150,6 @@ export const INTERNAL_deletePermissionItems = async (
       if (!item.entity) item.entity = data.entity;
 
       const targets = toNonNullableArray(item.target ?? []);
-
       toNonNullableArray(targets).forEach(target => {
         const itemTargetsMap = getTargets(target);
 
@@ -172,39 +173,30 @@ export const INTERNAL_deletePermissionItems = async (
     });
   }
 
-  const queries: LiteralDataQuery<PermissionItem>[] = [];
+  const queries: DataQuery<PermissionItem>[] = [];
 
   forEach(entityIdMap, (outerMap, entityId) => {
     const targets = Object.values(outerMap.targetsMap);
-
     targets.forEach(targetEntry => {
-      const appliesTo = toNonNullableArray(targetEntry.item.appliesTo ?? []);
-      const grantAccess = toNonNullableArray(targetEntry.item.grantAccess ?? []);
-      const query: LiteralDataQuery<PermissionItem> = {
+      const query: DataQuery<PermissionItem> = {
         entityId,
         targetId: targetEntry.resource.resourceId,
-        targetType: {$in: toNonNullableArray(targetEntry.targetType) as any},
-        appliesTo: appliesTo.length ? {$in: appliesTo as any[]} : undefined,
-        grantAccess: grantAccess.length ? {$in: grantAccess as any[]} : undefined,
-        action: targetEntry.item.action
-          ? {$in: toNonNullableArray(targetEntry.item.action) as any}
-          : undefined,
+        ...getInAndNinQuery<PermissionItem>('appliesTo', targetEntry.item.appliesTo),
+        ...getInAndNinQuery<PermissionItem>('grantAccess', targetEntry.item.grantAccess),
+        ...getInAndNinQuery<PermissionItem>('action', targetEntry.item.action),
+        ...getInAndNinQuery<PermissionItem>('targetType', targetEntry.targetType),
       };
-
       queries.push(query);
     });
 
     forEach(outerMap.targetTypesMap, ({item}, targetType) => {
-      const appliesTo = toNonNullableArray(item.appliesTo ?? []);
-      const grantAccess = toNonNullableArray(item.grantAccess ?? []);
-      const query: LiteralDataQuery<PermissionItem> = {
+      const query: DataQuery<PermissionItem> = {
         entityId,
         targetType: targetType as AppResourceType,
-        appliesTo: appliesTo.length ? {$in: appliesTo as any[]} : undefined,
-        grantAccess: grantAccess.length ? {$in: grantAccess as any[]} : undefined,
-        action: item.action ? {$in: toNonNullableArray(item.action) as any} : undefined,
+        ...getInAndNinQuery<PermissionItem>('appliesTo', item.appliesTo),
+        ...getInAndNinQuery<PermissionItem>('grantAccess', item.grantAccess),
+        ...getInAndNinQuery<PermissionItem>('action', item.action),
       };
-
       queries.push(query);
     });
   });
@@ -214,10 +206,7 @@ export const INTERNAL_deletePermissionItems = async (
       const entityId = toNonNullableArray(data.entity.entityId);
 
       if (entityId.length) {
-        const query: LiteralDataQuery<PermissionItem> = {
-          entityId: {$in: entityId},
-        };
-
+        const query: LiteralDataQuery<PermissionItem> = {entityId: {$in: entityId}};
         queries.push(query);
       }
     }
@@ -230,10 +219,7 @@ export const INTERNAL_deletePermissionItems = async (
   const permissionItemsIdList = extractResourceIdList(permissionItems);
   const job = await enqueueDeleteResourceJob(context, {
     type: AppResourceType.PermissionItem,
-    args: {
-      permissionItemsIdList,
-      workspaceId: workspace.resourceId,
-    },
+    args: {permissionItemsIdList, workspaceId: workspace.resourceId},
   });
   return job;
 };

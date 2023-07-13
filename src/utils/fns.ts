@@ -201,3 +201,15 @@ export function getFileExtenstion(name = '') {
 export function getLowercaseRegExpForString(str: string) {
   return new RegExp(`^${str}$`, 'i');
 }
+
+export function isStringEqual(
+  str00: string | undefined,
+  str01: string | undefined,
+  useLowercase = true
+) {
+  if (useLowercase) {
+    return str00?.toLowerCase() === str01?.toLowerCase();
+  } else {
+    return str00 === str01;
+  }
+}

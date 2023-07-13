@@ -7,21 +7,38 @@ import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 
+export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
+
 export function generateTestFolderName(
-  {separatorChars}: {separatorChars: string[]} = {separatorChars: ['-', '_', ' ', '.']}
+  {
+    separatorChars,
+    includeStraySlashes: includeStraySeparators,
+  }: {separatorChars?: string[]; includeStraySlashes?: boolean} = {
+    separatorChars: kTestFolderNameSeparatorChars,
+    includeStraySlashes: false,
+  }
 ) {
   const wordCount = getRandomIntInclusive(3, 10);
-  const separator = faker.helpers.arrayElement(separatorChars);
-  return faker.lorem
+  const seed = getRandomIntInclusive(1, 2);
+  const separator = faker.helpers.arrayElement(separatorChars ?? kTestFolderNameSeparatorChars);
+  const name = faker.lorem
     .words(wordCount)
     .split(' ')
     .map(word =>
       /** introduce a little randomness in the name, mixing uppercase and
        * lowercase characters to test that names are matched case-insensitively.
        * */
-      getRandomIntInclusive(1, 2) === 1 ? word : word.toUpperCase()
+      seed === 1 ? word : word.toUpperCase()
     )
     .join(separator);
+
+  // Randomly inlcude stray separators to test that empty names are handled
+  // appropriately
+  return includeStraySeparators
+    ? seed === 1
+      ? new Array(getRandomIntInclusive(1, 3)).fill('/').join('') + name
+      : name
+    : name;
 }
 
 export function generateTestFolder(

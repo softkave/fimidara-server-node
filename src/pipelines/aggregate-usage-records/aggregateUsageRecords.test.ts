@@ -111,26 +111,43 @@ async function insertUsageRecordsForFiles(
   const promises = [];
   let usage = random(1, limit - 1, true);
   let totalUsage = usage;
+
   for (; totalUsage <= limit; ) {
     const f = files[random(0, files.length - 1)];
     f.size = usage;
-    let p: Promise<void> | null = null;
-    if (category === UsageRecordCategory.Storage) {
-      p = insertStorageUsageRecordInput(
-        context,
-        reqData,
-        f,
-        AppActionType.Create,
-        /** artifactMetaInput */ {},
-        nothrow
-      );
-    } else if (category === UsageRecordCategory.BandwidthIn) {
-      p = insertBandwidthInUsageRecordInput(context, reqData, f, AppActionType.Create, nothrow);
-    } else if (category === UsageRecordCategory.BandwidthOut) {
-      p = insertBandwidthOutUsageRecordInput(context, reqData, f, AppActionType.Create, nothrow);
-    }
+    const insertPromise = context.semantic.utils.withTxn(context, async opts => {
+      if (category === UsageRecordCategory.Storage) {
+        return insertStorageUsageRecordInput(
+          context,
+          reqData,
+          f,
+          AppActionType.Create,
+          /** artifactMetaInput */ {},
+          opts,
+          nothrow
+        );
+      } else if (category === UsageRecordCategory.BandwidthIn) {
+        return insertBandwidthInUsageRecordInput(
+          context,
+          reqData,
+          f,
+          AppActionType.Create,
+          opts,
+          nothrow
+        );
+      } else if (category === UsageRecordCategory.BandwidthOut) {
+        return insertBandwidthOutUsageRecordInput(
+          context,
+          reqData,
+          f,
+          AppActionType.Create,
+          opts,
+          nothrow
+        );
+      }
+    });
 
-    promises.push(p);
+    promises.push(insertPromise);
     count++;
 
     // break if we exceed the limit
@@ -242,7 +259,9 @@ async function assertRecordInsertionFails(
   const f1 = generateTestFile({workspaceId: w1.resourceId, parentId: null});
   await expect(async () => {
     assertContext(context);
-    await insertStorageUsageRecordInput(context, reqData, f1);
+    await context.semantic.utils.withTxn(context, opts =>
+      insertStorageUsageRecordInput(context, reqData, f1, AppActionType.Create, {}, opts)
+    );
   }).rejects.toThrow(UsageLimitExceededError);
 
   assertContext(context);

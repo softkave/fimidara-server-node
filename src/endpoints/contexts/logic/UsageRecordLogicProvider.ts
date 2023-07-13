@@ -9,6 +9,7 @@ import {
   UsageSummationType,
 } from '../../../definitions/usageRecord';
 import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {appAssert} from '../../../utils/assertion';
 import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
@@ -25,16 +26,23 @@ export interface UsageRecordInput {
 }
 
 export class UsageRecordLogicProvider {
-  insert = async (ctx: BaseContextType, agent: Agent, input: UsageRecordInput) => {
+  insert = async (
+    ctx: BaseContextType,
+    agent: Agent,
+    input: UsageRecordInput,
+    opts: SemanticDataAccessProviderMutationRunOptions
+  ) => {
     const record = this.makeLevel01Record(agent, input);
-    const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId);
+    const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
     assertWorkspace(workspace);
-    const billOverdue = await this.checkWorkspaceBillStatus(ctx, agent, workspace, record);
+    const billOverdue = await this.checkWorkspaceBillStatus(ctx, agent, workspace, record, opts);
+
     if (billOverdue) {
       return false;
     }
 
-    const usageExceeded = await this.checkWorkspaceUsageLocks(ctx, agent, workspace, record);
+    const usageExceeded = await this.checkWorkspaceUsageLocks(ctx, agent, workspace, record, opts);
+
     if (usageExceeded) {
       return false;
     }
@@ -43,8 +51,10 @@ export class UsageRecordLogicProvider {
       ctx,
       agent,
       workspace,
-      record
+      record,
+      opts
     );
+
     if (exceedsRemainingUsage) {
       return false;
     }
@@ -96,167 +106,157 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     record: UsageRecord,
     category: UsageRecordCategory,
-    status: UsageRecordFulfillmentStatus
+    status: UsageRecordFulfillmentStatus,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) {
-    return await context.semantic.utils.withTxn(context, async opts => {
-      let usageL2 = await context.semantic.usageRecord.getOneByQuery(
-        {
-          category,
-          month: record.month,
-          year: record.year,
-          summationType: UsageSummationType.Two,
-          fulfillmentStatus: status,
-          workspaceId: record.workspaceId,
-        },
-        opts
-      );
+    let usageL2 = await context.semantic.usageRecord.getOneByQuery(
+      {
+        category,
+        month: record.month,
+        year: record.year,
+        summationType: UsageSummationType.Two,
+        fulfillmentStatus: status,
+        workspaceId: record.workspaceId,
+      },
+      opts
+    );
 
-      if (!usageL2) {
-        usageL2 = this.makeLevel02Record(agent, record, {
-          category,
-          fulfillmentStatus: status,
-          usage: 0,
-          usageCost: 0,
-        });
-        await context.semantic.usageRecord.insertItem(usageL2!, opts);
-      }
+    if (!usageL2) {
+      usageL2 = this.makeLevel02Record(agent, record, {
+        category,
+        fulfillmentStatus: status,
+        usage: 0,
+        usageCost: 0,
+      });
+      appAssert(usageL2);
+      await context.semantic.usageRecord.insertItem(usageL2, opts);
+    }
 
-      return usageL2;
-    });
+    return usageL2;
   }
 
   private checkWorkspaceBillStatus = async (
     context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
-    record: UsageRecord
+    record: UsageRecord,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
-    // Using per check txn plus Node.js' single-threadedness to ensure that
-    // record L2 isn't created twice.
-
-    // TODO: Also, as it is, if more than one usage checks from different
-    // requests happen at the same time, say during the await period of another,
-    // it's possible that we'll only save one and lose the rest which'll lead to
-    // dropped revenue. We need to find a way to either do a similar system as
-    // React's setState or lock usage insertion for that category all together
-    // when doing usage check. This approach can lead to a bit of
-    // congestion/slowness so we can look into better sharding mechanisms.
-    return await context.semantic.utils.withTxn(context, async opts => {
-      // TODO: preferrably workspace should be fetched with the same txn
-      if (workspace.billStatus === WorkspaceBillStatus.BillOverdue) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.BillOverdue,
-          undefined,
-          opts
-        );
-        return true;
-      }
-      return false;
-    });
+    if (workspace.billStatus === WorkspaceBillStatus.BillOverdue) {
+      await this.dropRecord(
+        context,
+        agent,
+        record,
+        UsageRecordDropReason.BillOverdue,
+        undefined,
+        opts
+      );
+      return true;
+    }
+    return false;
   };
 
   private checkWorkspaceUsageLocks = async (
     context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
-    record: UsageRecord
+    record: UsageRecord,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
-    return await context.semantic.utils.withTxn(context, async opts => {
-      const usageLocks = workspace.usageThresholdLocks ?? {};
-      if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.UsageExceeded,
-          undefined,
-          opts
-        );
-        return true;
-      }
+    const usageLocks = workspace.usageThresholdLocks ?? {};
 
-      if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.UsageExceeded,
-          undefined,
-          opts
-        );
-        return true;
-      }
+    if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
+      await this.dropRecord(
+        context,
+        agent,
+        record,
+        UsageRecordDropReason.UsageExceeded,
+        undefined,
+        opts
+      );
+      return true;
+    }
 
-      return false;
-    });
+    if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
+      await this.dropRecord(
+        context,
+        agent,
+        record,
+        UsageRecordDropReason.UsageExceeded,
+        undefined,
+        opts
+      );
+      return true;
+    }
+
+    return false;
   };
 
   private checkExceedsRemainingUsage = async (
     context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
-    record: UsageRecord
+    record: UsageRecord,
+    opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
-    return await context.semantic.utils.withTxn(context, async opts => {
-      let [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
-        this.getUsagel2(
-          context,
-          agent,
-          record,
-          record.category,
-          UsageRecordFulfillmentStatus.Fulfilled
-        ),
-        this.getUsagel2(
-          context,
-          agent,
-          record,
-          UsageRecordCategory.Total,
-          UsageRecordFulfillmentStatus.Fulfilled
-        ),
-        this.getUsagel2(
-          context,
-          agent,
-          record,
-          record.category,
-          UsageRecordFulfillmentStatus.Dropped
-        ),
-      ]);
+    let [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
+      this.getUsagel2(
+        context,
+        agent,
+        record,
+        record.category,
+        UsageRecordFulfillmentStatus.Fulfilled,
+        opts
+      ),
+      this.getUsagel2(
+        context,
+        agent,
+        record,
+        UsageRecordCategory.Total,
+        UsageRecordFulfillmentStatus.Fulfilled,
+        opts
+      ),
+      this.getUsagel2(
+        context,
+        agent,
+        record,
+        record.category,
+        UsageRecordFulfillmentStatus.Dropped,
+        opts
+      ),
+    ]);
 
-      const totalMonthUsageThreshold = workspace.usageThresholds[UsageRecordCategory.Total];
-      const categoryMonthUsageThreshold = workspace.usageThresholds[record.category];
+    const totalMonthUsageThreshold = workspace.usageThresholds[UsageRecordCategory.Total];
+    const categoryMonthUsageThreshold = workspace.usageThresholds[record.category];
+    const projectedUsage = usageFulfilledL2.usage + record.usage;
+    const projectedUsageCost = getCostForUsage(record.category, projectedUsage);
 
-      const projectedUsage = usageFulfilledL2.usage + record.usage;
-      const projectedUsageCost = getCostForUsage(record.category, projectedUsage);
-      if (totalMonthUsageThreshold && totalMonthUsageThreshold.budget < projectedUsageCost) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.ExceedsRemainingUsage,
-          usageDroppedL2,
-          opts
-        );
-        return true;
-      }
+    if (totalMonthUsageThreshold && totalMonthUsageThreshold.budget < projectedUsageCost) {
+      await this.dropRecord(
+        context,
+        agent,
+        record,
+        UsageRecordDropReason.ExceedsRemainingUsage,
+        usageDroppedL2,
+        opts
+      );
+      return true;
+    }
 
-      if (categoryMonthUsageThreshold && categoryMonthUsageThreshold.budget < projectedUsageCost) {
-        await this.dropRecord(
-          context,
-          agent,
-          record,
-          UsageRecordDropReason.ExceedsRemainingUsage,
-          usageDroppedL2,
-          opts
-        );
-        return true;
-      }
+    if (categoryMonthUsageThreshold && categoryMonthUsageThreshold.budget < projectedUsageCost) {
+      await this.dropRecord(
+        context,
+        agent,
+        record,
+        UsageRecordDropReason.ExceedsRemainingUsage,
+        usageDroppedL2,
+        opts
+      );
+      return true;
+    }
 
-      await this.fulfillRecord(context, agent, record, usageFulfilledL2, usageTotalFulfilled, opts);
-      return false;
-    });
+    await this.fulfillRecord(context, agent, record, usageFulfilledL2, usageTotalFulfilled, opts);
+    return false;
   };
 
   private fulfillRecord = async (
@@ -274,7 +274,8 @@ export class UsageRecordLogicProvider {
           agent,
           record,
           record.category,
-          UsageRecordFulfillmentStatus.Fulfilled
+          UsageRecordFulfillmentStatus.Fulfilled,
+          opts
         ),
       usageTotalFulfilled ??
         this.getUsagel2(
@@ -282,7 +283,8 @@ export class UsageRecordLogicProvider {
           agent,
           record,
           UsageRecordCategory.Total,
-          UsageRecordFulfillmentStatus.Fulfilled
+          UsageRecordFulfillmentStatus.Fulfilled,
+          opts
         ),
     ]);
 
@@ -319,7 +321,8 @@ export class UsageRecordLogicProvider {
         agent,
         record,
         record.category,
-        UsageRecordFulfillmentStatus.Dropped
+        UsageRecordFulfillmentStatus.Dropped,
+        opts
       );
     }
 

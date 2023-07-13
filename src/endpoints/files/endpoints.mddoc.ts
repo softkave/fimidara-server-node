@@ -12,6 +12,7 @@ import {
   HttpEndpointMethod,
   HttpEndpointMultipartFormdata,
 } from '../../mddoc/mddoc';
+import {multilineTextToParagraph} from '../../utils/fns';
 import {endpointConstants} from '../constants';
 import {
   fReusables,
@@ -29,10 +30,10 @@ import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
 import {
-  GetFilePresignedPathsEndpointParams,
-  GetFilePresignedPathsEndpointResult,
-  GetFilePresignedPathsItem,
-} from './getFilePresignedPaths/types';
+  GetPresignedPathsForFilesEndpointParams,
+  GetPresignedPathsForFilesEndpointResult,
+  GetPresignedPathsForFilesItem,
+} from './getPresignedPathsForFiles/types';
 import {
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult,
@@ -164,24 +165,25 @@ const issueFilePresignedPathResponseBody =
     .setRequired(true)
     .setDescription('Issue file presigned path endpoint success result.');
 
-const getFilePresignedPathsParams = FieldObject.construct<GetFilePresignedPathsEndpointParams>()
-  .setName('GetFilePresignedPathsEndpointParams')
-  .setFields({
-    files: FieldObject.optionalField(
-      FieldArray.construct().setType(fileMatcher).setMax(endpointConstants.inputListMax)
-    ),
-    workspaceId: FieldObject.optionalField(fReusables.workspaceId),
-  })
-  .setRequired(true)
-  .setDescription('Get file presigned paths endpoint params.');
-const getFilePresignedPathsResponseBody =
-  FieldObject.construct<GetFilePresignedPathsEndpointResult>()
-    .setName('GetFilePresignedPathsEndpointResult')
+const getPresignedPathsForFilesParams =
+  FieldObject.construct<GetPresignedPathsForFilesEndpointParams>()
+    .setName('GetPresignedPathsForFilesEndpointParams')
+    .setFields({
+      files: FieldObject.optionalField(
+        FieldArray.construct().setType(fileMatcher).setMax(endpointConstants.inputListMax)
+      ),
+      workspaceId: FieldObject.optionalField(fReusables.workspaceId),
+    })
+    .setRequired(true)
+    .setDescription('Get file presigned paths endpoint params.');
+const getPresignedPathsForFilesResponseBody =
+  FieldObject.construct<GetPresignedPathsForFilesEndpointResult>()
+    .setName('GetPresignedPathsForFilesEndpointResult')
     .setFields({
       paths: FieldObject.requiredField(
-        FieldArray.construct<GetFilePresignedPathsItem>().setType(
-          FieldObject.construct<GetFilePresignedPathsItem>()
-            .setName('GetFilePresignedPathsItem')
+        FieldArray.construct<GetPresignedPathsForFilesItem>().setType(
+          FieldObject.construct<GetPresignedPathsForFilesItem>()
+            .setName('GetPresignedPathsForFilesItem')
             .setFields({
               path: FieldObject.requiredField(filePresignedPath),
               filepath: FieldObject.requiredField(fReusables.filepath),
@@ -393,22 +395,25 @@ export const issueFilePresignedPathEndpointDefinition = HttpEndpointDefinition.c
   .setResponseBody(issueFilePresignedPathResponseBody)
   .setName('IssueFilePresignedPathEndpoint')
   .setDescription(
-    'Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
+    multilineTextToParagraph(
+      `Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.
+      It's only supports reading files at the moment. Eventually, we'll support uploading files.`
+    )
   );
 
-export const getFilePresignedPathsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetFilePresignedPathsEndpointParams;
+export const getPresignedPathsForFilesEndpointDefinition = HttpEndpointDefinition.construct<{
+  requestBody: GetPresignedPathsForFilesEndpointParams;
   requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetFilePresignedPathsEndpointResult;
+  responseBody: GetPresignedPathsForFilesEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
-  .setBasePathname(fileConstants.routes.getFilePresignedPaths)
+  .setBasePathname(fileConstants.routes.getPresignedPathsForFiles)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getFilePresignedPathsParams)
+  .setRequestBody(getPresignedPathsForFilesParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getFilePresignedPathsResponseBody)
-  .setName('GetFilePresignedPathsEndpoint')
+  .setResponseBody(getPresignedPathsForFilesResponseBody)
+  .setName('GetPresignedPathsForFilesEndpoint')
   .setDescription(
     'Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
   );

@@ -1,4 +1,4 @@
-import {isNumber, isObject, isObjectLike} from 'lodash';
+import {isNumber, isObject, isObjectLike, isUndefined} from 'lodash';
 import {BulkWriteOptions} from 'mongodb';
 import {ClientSession, FilterQuery, Model, QueryOptions} from 'mongoose';
 import {appAssert} from '../../../utils/assertion';
@@ -7,6 +7,7 @@ import {AnyFn, AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {BaseContextType} from '../types';
 import {
+  ArrayFieldQueryOps,
   BaseDataProvider,
   BulkOpItem,
   BulkOpType,
@@ -17,7 +18,6 @@ import {
   DataProviderQueryParams,
   DataProviderUtils,
   DataQuery,
-  IArrayFieldQueryOps,
   IRecordFieldQueryOps,
   NumberLiteralFieldQueryOps,
 } from './types';
@@ -327,41 +327,49 @@ export abstract class BaseMongoDataProvider<
   }
 
   static getMongoQuery<
-    Q extends DataQuery<AnyObject>,
-    DataType = Q extends DataQuery<infer U> ? U : AnyObject
-  >(q: Q) {
+    TQuery extends DataQuery<AnyObject>,
+    TData = TQuery extends DataQuery<infer U> ? U : AnyObject
+  >(query: TQuery) {
     type T = ComparisonLiteralFieldQueryOps &
       NumberLiteralFieldQueryOps &
-      IArrayFieldQueryOps<any> &
+      ArrayFieldQueryOps<any> &
       IRecordFieldQueryOps<any>;
-    const mq: FilterQuery<DataType> = {};
-    for (const k in q) {
-      const v = q[k];
-      if (isQueryBaseLiteralFn(v)) mq[k] = v;
-      else if (isObject(v)) {
-        const vops = Object.keys(v) as Array<keyof T>;
-        for (const vop of vops) {
-          switch (vop) {
+
+    const mongoQuery: FilterQuery<TData> = {};
+
+    for (const key in query) {
+      const value = query[key];
+
+      if (isQueryBaseLiteralFn(value) && !isUndefined(value)) {
+        mongoQuery[key] = value;
+      } else if (isObject(value)) {
+        const valueOps = Object.keys(value) as Array<keyof T>;
+
+        for (const op of valueOps) {
+          switch (op) {
             case '$objMatch': {
-              const vWithObjMatch = cast<IRecordFieldQueryOps<any>>(v);
-              const objMatchValue = vWithObjMatch['$objMatch'];
+              const valueWithObjMatch = cast<IRecordFieldQueryOps<any>>(value);
+              const objMatchValue = valueWithObjMatch['$objMatch'];
               Object.keys(objMatchValue).forEach(f => {
-                mq[`${k}.${f}`] = objMatchValue[f];
+                mongoQuery[`${key}.${f}`] = objMatchValue[f];
               });
               break;
             }
             default:
-              mq[k] = v;
+              if (!isUndefined(value)) {
+                mongoQuery[key] = value;
+              }
           }
         }
       }
     }
-    return mq;
+
+    return mongoQuery;
   }
 }
 
-export function isQueryBaseLiteralFn(q: any): q is DataProviderLiteralType {
-  return !isObjectLike(q);
+export function isQueryBaseLiteralFn(query: any): query is DataProviderLiteralType {
+  return !isObjectLike(query);
 }
 
 /**

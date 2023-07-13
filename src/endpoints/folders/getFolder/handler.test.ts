@@ -32,9 +32,7 @@ test('folder returned', async () => {
 
   const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-    }
+    {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
   );
 
   const result = await getFolder(context, instData);

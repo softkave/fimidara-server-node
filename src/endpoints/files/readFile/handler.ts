@@ -15,12 +15,21 @@ import {readFileJoiSchema} from './validation';
 const readFile: ReadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, readFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {file} = await checkFileAuthorization03(context, agent, data, AppActionType.Read);
+  const {file} = await checkFileAuthorization03(
+    context,
+    agent,
+    data,
+    AppActionType.Read,
+    /** support presigned path */ true,
+    /** increment presigned path usage count */ true
+  );
 
-  // TODO: bandwidth out should only fulfill after the request is complete, OR
-  // move bandwidth in and out check to proxy layer before calling request so it
-  // can track all requests
-  await insertBandwidthOutUsageRecordInput(context, instData, file);
+  await context.semantic.utils.withTxn(context, opts =>
+    // TODO: bandwidth out should only fulfill after the request is complete, OR
+    // move bandwidth in and out check to proxy layer before calling request so
+    // it can track all requests
+    insertBandwidthOutUsageRecordInput(context, instData, file, AppActionType.Read, opts)
+  );
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,
     key: file.resourceId,

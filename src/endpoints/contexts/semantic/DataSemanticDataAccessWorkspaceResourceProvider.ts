@@ -1,4 +1,5 @@
-import {WorkspaceResource} from '../../../definitions/system';
+import {Resource, WorkspaceResource} from '../../../definitions/system';
+import {getLowercaseRegExpForString} from '../../../utils/fns';
 import {DataProviderQueryListParams, DataQuery} from '../data/types';
 import {DataSemanticDataAccessBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
@@ -7,6 +8,7 @@ import {
   SemanticDataAccessWorkspaceResourceProviderBaseType,
   SemanticDataAccessWorkspaceResourceProviderType,
 } from './types';
+import {getInAndNinQuery} from './utils';
 
 export class DataSemanticDataAccessWorkspaceResourceProvider<
     T extends SemanticDataAccessWorkspaceResourceProviderBaseType
@@ -21,7 +23,7 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   ): Promise<T | null> {
     const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$lowercaseEq: name},
+      name: {$regex: getLowercaseRegExpForString(name)},
     };
     return await this.data.getOneByQuery(query as DataQuery<T>, opts);
   }
@@ -33,7 +35,7 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   ): Promise<boolean> {
     const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name,
+      name: {$regex: getLowercaseRegExpForString(name)},
     };
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
   }
@@ -90,10 +92,11 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   ): Promise<number> {
     const countQuery: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: query.workspaceId,
-      resourceId: {
-        $in: query.resourceIdList?.length ? query.resourceIdList : undefined,
-        $nin: query.excludeResourceIdList?.length ? query.excludeResourceIdList : undefined,
-      },
+      ...getInAndNinQuery<Resource>(
+        'resourceId',
+        query.resourceIdList,
+        query.excludeResourceIdList
+      ),
     };
     return await this.data.countByQuery(countQuery as DataQuery<T>, opts);
   }
@@ -108,10 +111,11 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   ): Promise<T[]> {
     const getQuery: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
       workspaceId: query.workspaceId,
-      resourceId: {
-        $in: query.resourceIdList?.length ? query.resourceIdList : undefined,
-        $nin: query.excludeResourceIdList?.length ? query.excludeResourceIdList : undefined,
-      },
+      ...getInAndNinQuery<Resource>(
+        'resourceId',
+        query.resourceIdList,
+        query.excludeResourceIdList
+      ),
     };
     return await this.data.getManyByQuery(getQuery as DataQuery<T>, options);
   }

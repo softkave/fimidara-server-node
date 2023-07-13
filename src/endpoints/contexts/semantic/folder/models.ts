@@ -1,8 +1,8 @@
 import {Folder} from '../../../../definitions/folder';
-import {DataProviderQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams, FolderQuery} from '../../data/types';
 import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {getStringListQuery} from '../utils';
+import {getInAndNinQuery} from '../utils';
 import {SemanticDataAccessFolderProvider} from './types';
 
 export class DataSemanticDataAccessFolder
@@ -15,13 +15,13 @@ export class DataSemanticDataAccessFolder
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<Folder | null> {
     return await this.data.getOneByQuery(
-      {workspaceId, ...getStringListQuery<Folder>(namePath, 'namePath')},
+      {workspaceId, namePath: {$all: namePath, $size: namePath.length}},
       opts
     );
   }
 
   async getManyByWorkspaceParentAndIdList(
-    q: {
+    query: {
       workspaceId: string;
       parentId: string | null;
       resourceIdList?: string[] | undefined;
@@ -31,18 +31,16 @@ export class DataSemanticDataAccessFolder
       | (DataProviderQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<Folder[]> {
-    return await this.data.getManyByQuery(
-      {
-        workspaceId: q.workspaceId,
-        parentId: q.parentId,
-        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
-      },
-      options
-    );
+    const folderQuery: FolderQuery = {
+      workspaceId: query.workspaceId,
+      parentId: query.parentId,
+      ...getInAndNinQuery<Folder>('resourceId', query.resourceIdList, query.excludeResourceIdList),
+    };
+    return await this.data.getManyByQuery(folderQuery, options);
   }
 
   async countManyParentByIdList(
-    q: {
+    query: {
       workspaceId: string;
       parentId: string | null;
       resourceIdList?: string[] | undefined;
@@ -52,9 +50,13 @@ export class DataSemanticDataAccessFolder
   ): Promise<number> {
     return await this.data.countByQuery(
       {
-        workspaceId: q.workspaceId,
-        parentId: q.parentId,
-        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+        workspaceId: query.workspaceId,
+        parentId: query.parentId,
+        ...getInAndNinQuery<Folder>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
       },
       opts
     );

@@ -63,10 +63,18 @@ export default class BaseContext<
   init = async () => {
     if (this.mongoModels) {
       await Promise.all(
-        map(this.mongoModels, model => {
-          if (model.db.modelNames().includes(model.modelName)) return;
+        map(this.mongoModels, async model => {
+          const existingCollections = await model.db.db.listCollections().toArray();
 
-          console.log(`creating ${model.modelName} mongodb model`);
+          if (
+            existingCollections.find(
+              collection => collection.name === model.collection.collectionName
+            )
+          ) {
+            return;
+          }
+
+          console.log(`creating ${model.collection.collectionName} mongodb model`);
           return model.createCollection();
         })
       );

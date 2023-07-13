@@ -1,8 +1,9 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
+import {Resource} from '../../../../definitions/system';
 import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
-import {getStringListQuery} from '../utils';
+import {getInAndNinQuery} from '../utils';
 import {SemanticDataAccessFilePresignedPathProvider, SemanticDataAccessFileProvider} from './types';
 
 export class DataSemanticDataAccessFile
@@ -16,13 +17,13 @@ export class DataSemanticDataAccessFile
     opts?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<File | null> {
     return await this.data.getOneByQuery(
-      {workspaceId, extension, ...getStringListQuery<File>(namePath, 'namePath')},
+      {workspaceId, extension, namePath: {$all: namePath, $size: namePath.length}},
       opts
     );
   }
 
   async getManyByWorkspaceParentAndIdList(
-    q: {
+    query: {
       workspaceId: string;
       parentId: string | null;
       resourceIdList?: string[] | undefined;
@@ -32,16 +33,20 @@ export class DataSemanticDataAccessFile
   ): Promise<File[]> {
     return await this.data.getManyByQuery(
       {
-        workspaceId: q.workspaceId,
-        parentId: q.parentId,
-        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+        workspaceId: query.workspaceId,
+        parentId: query.parentId,
+        ...getInAndNinQuery<Resource>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
       },
       options
     );
   }
 
   async countManyParentByIdList(
-    q: {
+    query: {
       workspaceId: string;
       parentId: string | null;
       resourceIdList?: string[] | undefined;
@@ -51,9 +56,13 @@ export class DataSemanticDataAccessFile
   ): Promise<number> {
     return await this.data.countByQuery(
       {
-        workspaceId: q.workspaceId,
-        parentId: q.parentId,
-        resourceId: {$in: q.resourceIdList, $nin: q.excludeResourceIdList},
+        workspaceId: query.workspaceId,
+        parentId: query.parentId,
+        ...getInAndNinQuery<Resource>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
       },
       opts
     );

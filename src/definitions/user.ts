@@ -37,5 +37,6 @@ export type PublicUser = PublicResource &
     | 'isOnWaitlist'
   > & {workspaces: UserWorkspace[]};
 
-export type PublicCollaborator = UserWorkspace &
+export type PublicCollaborator = PublicResource &
+  UserWorkspace &
   Pick<User, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

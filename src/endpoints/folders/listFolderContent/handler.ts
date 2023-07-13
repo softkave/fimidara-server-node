@@ -57,14 +57,14 @@ async function fetchFolders(
   parentFolder: Folder | null,
   pagination: PaginationQuery
 ) {
-  const q = await listFolderContentQuery(
+  const query = await listFolderContentQuery(
     context,
     agent,
     workspace,
     AppResourceType.Folder,
     parentFolder
   );
-  return await context.semantic.folder.getManyByWorkspaceParentAndIdList(q, pagination);
+  return await context.semantic.folder.getManyByWorkspaceParentAndIdList(query, pagination);
 }
 
 async function fetchFiles(
@@ -74,14 +74,14 @@ async function fetchFiles(
   parentFolder: Folder | null,
   pagination: PaginationQuery
 ) {
-  const q = await listFolderContentQuery(
+  const query = await listFolderContentQuery(
     context,
     agent,
     workspace,
     AppResourceType.File,
     parentFolder
   );
-  return await context.semantic.file.getManyByWorkspaceParentAndIdList(q, pagination);
+  return await context.semantic.file.getManyByWorkspaceParentAndIdList(query, pagination);
 }
 
 export default listFolderContent;

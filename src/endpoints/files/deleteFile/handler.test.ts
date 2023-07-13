@@ -1,5 +1,4 @@
 import {BaseContextType} from '../../contexts/types';
-import {addRootnameToPath} from '../../folders/utils';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -13,7 +12,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {fileConstants} from '../constants';
+import {stringifyFileNamePath} from '../utils';
 import deleteFile from './handler';
 import {DeleteFileEndpointParams} from './types';
 
@@ -42,10 +41,7 @@ test('file deleted', async () => {
   const instData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
-      filepath: addRootnameToPath(
-        file.name + fileConstants.nameExtensionSeparator + file.extension,
-        workspace.rootname
-      ),
+      filepath: stringifyFileNamePath(file, workspace.rootname),
     }
   );
   const result = await deleteFile(context, instData);

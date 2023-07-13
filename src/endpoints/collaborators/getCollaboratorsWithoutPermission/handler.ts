@@ -3,7 +3,7 @@ import {AppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {LiteralDataQuery} from '../../contexts/data/types';
+import {DataQuery} from '../../contexts/data/types';
 import {BaseContextType} from '../../contexts/types';
 import {PaginationQuery} from '../../types';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -32,7 +32,7 @@ export default getCollaboratorsWithoutPermission;
 
 export async function getPagedCollaboratorsWithoutPermission(
   context: BaseContextType,
-  assignedItemsQuery: LiteralDataQuery<AssignedItem>,
+  assignedItemsQuery: DataQuery<AssignedItem>,
   page?: PaginationQuery
 ) {
   const assignedItems_collaborators = await context.semantic.assignedItem.getManyByQuery(

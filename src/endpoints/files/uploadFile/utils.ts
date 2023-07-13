@@ -63,8 +63,14 @@ export async function createFileParentFolders(
       workspace,
       {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
       opts,
-      /** skip auth check */ false,
-      /** throw on folder exists */ false
+      /** Skip auth check. Since what we really care about is file creation, and
+       * a separate permission check is done for that. All of it is also done
+       * with transaction so should upload file permission check fail, it'll get
+       * rolled back. Also, this allows for creating presigned paths to files in
+       * folders that do not exist yet, which would otherwise fail seeing an
+       * anonymous user most likely won't have permission to create folders. */
+      true,
+      /** Throw on folder exists */ false
     );
   }
 

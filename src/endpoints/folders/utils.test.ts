@@ -37,7 +37,9 @@ describe('utils', () => {
     );
     const returnedFolders = await Promise.all(
       folderNamePathList.map(namePath =>
-        context!.semantic.folder.getOneByQuery(getStringListQuery<Folder>(namePath, 'namePath'))
+        context!.semantic.folder.getOneByQuery(
+          getStringListQuery<Folder>(namePath, 'namePath', /** include $size op */ true)
+        )
       )
     );
 

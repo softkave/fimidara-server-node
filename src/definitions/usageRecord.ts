@@ -7,12 +7,12 @@ import {
 } from './system';
 
 export enum UsageRecordCategory {
+  Total = 'total',
   Storage = 'storage',
   BandwidthIn = 'bin',
   BandwidthOut = 'bout',
   // Request = 'request',
   // DatabaseObject = 'dbObject',
-  Total = 'total',
 }
 
 export enum UsageRecordArtifactType {

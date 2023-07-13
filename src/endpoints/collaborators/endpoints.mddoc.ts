@@ -41,6 +41,8 @@ const collaborator = FieldObject.construct<PublicCollaborator>()
     email: FieldObject.requiredField(fReusables.emailAddress),
     workspaceId: FieldObject.requiredField(fReusables.workspaceId),
     joinedAt: FieldObject.requiredField(fReusables.date),
+    createdAt: FieldObject.requiredField(fReusables.date.clone().setDescription('Always 0.')),
+    lastUpdatedAt: FieldObject.requiredField(fReusables.date.clone().setDescription('Always 0.')),
   });
 
 const getWorkspaceCollaboratorsParams =

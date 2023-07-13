@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 describe('getWorkspaceAgentTokens', () => {
-  test("workspace's agent token returned", async () => {
+  test('workspace agent tokens returned', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);

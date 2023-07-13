@@ -35,7 +35,6 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-
   let file = await context.semantic.utils.withTxn(context, async opts => {
     let {file} = await getFileWithMatcher(context, data, opts);
     const isNewFile = !file;
@@ -68,13 +67,15 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       instData,
       file,
       isNewFile ? AppActionType.Create : AppActionType.Update,
-      isNewFile ? undefined : {oldFileSize: file.size}
+      isNewFile ? undefined : {oldFileSize: file.size},
+      opts
     );
     await insertBandwidthInUsageRecordInput(
       context,
       instData,
       file,
-      isNewFile ? AppActionType.Create : AppActionType.Update
+      isNewFile ? AppActionType.Create : AppActionType.Update,
+      opts
     );
 
     if (isNewFile) {
@@ -135,7 +136,7 @@ function getNewFile(
   const file = newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
-    extension: data.extension ?? pathWithDetails.extension ?? '',
+    extension: data.extension ?? pathWithDetails.extension,
     name: pathWithDetails.nameWithoutExtension,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder

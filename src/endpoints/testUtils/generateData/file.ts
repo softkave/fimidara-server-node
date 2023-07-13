@@ -13,15 +13,24 @@ function addExtenstion(name: string, ext: string) {
   return name + '.' + ext;
 }
 
-export function generateTestFileName({includeExtension = true} = {includeExtension: true}) {
-  const seed = getRandomIntInclusive(1, 2);
+export const kTestFileNameSeparatorChars = ['-', '_', ' '];
+
+export function generateTestFileName(
+  props: {separatorChars?: string[]; includeStraySlashes?: boolean} = {
+    separatorChars: kTestFileNameSeparatorChars,
+    includeStraySlashes: false,
+  }
+) {
+  const seed = getRandomIntInclusive(1, 3);
 
   if (seed === 1) {
-    const extCount = includeExtension ? getRandomIntInclusive(1, 5) : 0;
+    const extCount = getRandomIntInclusive(1, 5);
     return faker.system.fileName({extensionCount: extCount});
+  } else if (seed === 2) {
+    const name = generateTestFolderName(props);
+    return addExtenstion(name, faker.system.fileExt());
   } else {
-    const name = generateTestFolderName({separatorChars: ['-', '_', ' ']});
-    return includeExtension ? addExtenstion(name, faker.system.fileExt()) : name;
+    return generateTestFolderName(props);
   }
 }
 

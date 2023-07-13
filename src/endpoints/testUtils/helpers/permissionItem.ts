@@ -1,6 +1,8 @@
+import {PermissionItem} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {makeKey, toNonNullableArray} from '../../../utils/fns';
+import {makeKey, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
+import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 
 export async function expectEntityHavePermissionsTargetingId(
@@ -15,9 +17,9 @@ export async function expectEntityHavePermissionsTargetingId(
 
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByQuery({
-    entityId: {$in: toNonNullableArray(entityId)},
-    action: {$in: toNonNullableArray(action) as any[]},
-    targetId: {$in: toNonNullableArray(targetId)},
+    ...getInAndNinQuery<PermissionItem>('entityId', entityId),
+    ...getInAndNinQuery<PermissionItem>('action', action),
+    ...getInAndNinQuery<PermissionItem>('targetId', targetId),
   });
 
   // Index permission items by action - target ID - entity ID. We're going to
@@ -28,9 +30,9 @@ export async function expectEntityHavePermissionsTargetingId(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toNonNullableArray(targetId).forEach(nextTargetId => {
-    toNonNullableArray(entityId).forEach(nextEntityId => {
-      toNonNullableArray(action).forEach(nextAction => {
+  toArray(targetId).forEach(nextTargetId => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
         const key = makeKey([nextEntityId, nextAction, nextTargetId]);
         expect(map[key].grantAccess).toBe(access);
       });
@@ -48,10 +50,10 @@ export async function expectEntityHasPermissionsTargetingType(
 ) {
   // fetch permission items
   const items = await context.semantic.permissionItem.getManyByQuery({
-    entityId: {$in: toNonNullableArray(entityId)},
-    action: {$in: toNonNullableArray(action) as any[]},
-    targetType: {$in: toNonNullableArray(targetType) as any[]},
-    targetId: {$in: toNonNullableArray(targetId)},
+    ...getInAndNinQuery<PermissionItem>('entityId', entityId),
+    ...getInAndNinQuery<PermissionItem>('action', action),
+    ...getInAndNinQuery<PermissionItem>('targetType', targetType),
+    ...getInAndNinQuery<PermissionItem>('targetId', targetId),
   });
 
   // Index permission items by action - target type - entity ID. We're going to
@@ -62,9 +64,9 @@ export async function expectEntityHasPermissionsTargetingType(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toNonNullableArray(targetType).forEach(nextTargetType => {
-    toNonNullableArray(entityId).forEach(nextEntityId => {
-      toNonNullableArray(action).forEach(nextAction => {
+  toArray(targetType).forEach(nextTargetType => {
+    toArray(entityId).forEach(nextEntityId => {
+      toArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetType, nextEntityId]);
         expect(!!map[key]).toBe(result);
       });

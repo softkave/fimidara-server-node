@@ -85,7 +85,9 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
+    const status = await context.semantic.utils.withTxn(context, opts =>
+      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
+    );
     expect(status).toBe(true);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -107,7 +109,9 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
+    const status = await context.semantic.utils.withTxn(context, opts =>
+      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
+    );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -128,7 +132,9 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
+    const status = await context.semantic.utils.withTxn(context, opts =>
+      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
+    );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);
@@ -149,7 +155,9 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategory.Storage,
       usage: faker.datatype.number(),
     };
-    const status = await context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input);
+    const status = await context.semantic.utils.withTxn(context, opts =>
+      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
+    );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
     expect(record.summationType).toBe(UsageSummationType.One);

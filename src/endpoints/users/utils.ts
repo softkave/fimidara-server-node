@@ -3,7 +3,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {EmailAddressNotAvailableError} from './errors';
 
@@ -49,7 +49,7 @@ export function assertUser(user?: User | null): asserts user {
 export async function getCompleteUserDataByEmail(
   context: BaseContextType,
   email: string,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const user = await context.semantic.user.getByEmail(email, opts);
   assertUser(user);
@@ -59,7 +59,7 @@ export async function getCompleteUserDataByEmail(
 export async function assertEmailAddressAvailable(
   context: BaseContextType,
   email: string,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const userExists = await context.semantic.user.existsByEmail(email, opts);
   if (userExists) {

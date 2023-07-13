@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Move logs to it's own service
+- [ ] In-memory backed assigned permission groups lookup
 - [ ] Export FormData from js sdk
 - [ ] Support Blob in fimidara JS SDK uploadFile
 - [ ] JS sdk global config for setting server url and auth token globally
@@ -19,6 +20,7 @@
   - [ ] go
 - [ ] log errors from express error handler
 - [ ] stripe-like versioning
+- [ ] Sanitize input before using with $regex
 - [ ] Use per request transactions. Reason is ops like usage records are recorded irrespective of whether request fails or not
 - [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions
@@ -166,4 +168,5 @@
 - [ ] Scripts should run once
 - [ ] New usage thresholds very small
 - [ ] Articles
-- [ ] store more than files in fimidara
+- [ ] store more than files in fimidara, and use fimidara for buffered streaming and permissioned compute
+- [ ] Resource locing

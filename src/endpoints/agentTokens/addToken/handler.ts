@@ -6,7 +6,7 @@ import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthor
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
 import {AddAgentTokenEndpoint} from './types';
-import {INTERNAL_CreateAgentToken} from './utils';
+import {INTERNAL_createAgentToken} from './utils';
 import {addAgentTokenJoiSchema} from './validation';
 
 const addAgentTokenEndpoint: AddAgentTokenEndpoint = async (context, instData) => {
@@ -22,7 +22,7 @@ const addAgentTokenEndpoint: AddAgentTokenEndpoint = async (context, instData) =
     action: AppActionType.Create,
   });
   const token = await context.semantic.utils.withTxn(context, async opts => {
-    return await INTERNAL_CreateAgentToken(context, agent, workspace, data.token, opts);
+    return await INTERNAL_createAgentToken(context, agent, workspace, data.token, opts);
   });
   appAssert(token.workspaceId);
   const agentToken = await populateAssignedTags(context, token.workspaceId, token);

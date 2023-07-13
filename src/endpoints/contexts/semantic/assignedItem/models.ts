@@ -8,6 +8,7 @@ import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../types';
+import {getInAndNinQuery} from '../utils';
 import {SemanticDataAccessAssignedItemProvider} from './types';
 
 export class DataSemanticDataAccessAssignedItem
@@ -45,10 +46,8 @@ export class DataSemanticDataAccessAssignedItem
     return await this.data.getManyByQuery(
       {
         workspaceId,
-        assignedItemType: assignedItemType
-          ? {$in: toNonNullableArray(assignedItemType) as any[]}
-          : undefined,
         assigneeId: {$in: toNonNullableArray(assigneeId)},
+        ...getInAndNinQuery<AssignedItem>('assignedItemType', assignedItemType),
       },
       options
     );
@@ -109,10 +108,8 @@ export class DataSemanticDataAccessAssignedItem
     await this.data.deleteManyByQuery(
       {
         workspaceId,
-        assignedItemType: assignedItemType
-          ? {$in: toNonNullableArray(assignedItemType) as any[]}
-          : undefined,
         assigneeId: {$in: toNonNullableArray(assigneeId)},
+        ...getInAndNinQuery<AssignedItem>('assignedItemType', assignedItemType),
       },
       opts
     );

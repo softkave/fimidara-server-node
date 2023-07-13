@@ -118,7 +118,7 @@ export async function assertFolderPublicOps(
   const {file} = await assertCanUploadToPublicFile(
     ctx,
     insertWorkspaceResult.workspace,
-    folder02Path + folderConstants.nameSeparator + generateTestFileName()
+    folder02Path + folderConstants.nameSeparator + generateTestFileName({includeStraySlashes: true})
   );
 
   await assertCanListContentOfPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
@@ -131,18 +131,3 @@ export async function assertFolderPublicOps(
   await assertCanUploadToPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
   await assertCanDeletePublicFolder(ctx, insertWorkspaceResult.workspace, folderpath);
 }
-
-// export function makeEveryFolderPublicAccessOp() {
-//   const actions = getNonWorkspaceActionList();
-//   const types = [AppResourceType.File, AppResourceType.Folder];
-//   const ops: PublicAccessOpInput[] = [];
-//   actions.forEach(action => {
-//     types.forEach(type => {
-//       ops.push({
-//         action,
-//         resourceType: type,
-//       });
-//     });
-//   });
-//   return ops;
-// }

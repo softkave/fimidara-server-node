@@ -25,7 +25,7 @@ import {
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../users/errors';
-import {fileConstants} from '../constants';
+import {stringifyFileNamePath} from '../utils';
 import readFile from './handler';
 import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
@@ -50,12 +50,7 @@ describe('readFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
-      }
+      {filepath: stringifyFileNamePath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -77,10 +72,7 @@ describe('readFile', () => {
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
+        filepath: stringifyFileNamePath(file, workspace.rootname),
         imageResize: {
           width: expectedWidth,
           height: expectedHeight,
@@ -112,20 +104,15 @@ describe('readFile', () => {
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
-        folder.namePath.concat([generateTestFileName()]).join(folderConstants.nameSeparator),
+        folder.namePath
+          .concat([generateTestFileName({includeStraySlashes: true})])
+          .join(folderConstants.nameSeparator),
         workspace.rootname
       ),
     });
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {
-        filepath: addRootnameToPath(
-          file.namePath.join(folderConstants.nameSeparator) +
-            fileConstants.nameExtensionSeparator +
-            file.extension,
-          workspace.rootname
-        ),
-      }
+      {filepath: stringifyFileNamePath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -145,14 +132,7 @@ describe('readFile', () => {
     });
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {
-        filepath: addRootnameToPath(
-          file.namePath.join(folderConstants.nameSeparator) +
-            fileConstants.nameExtensionSeparator +
-            file.extension,
-          workspace.rootname
-        ),
-      }
+      {filepath: stringifyFileNamePath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -167,14 +147,7 @@ describe('readFile', () => {
     try {
       instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
-        {
-          filepath: addRootnameToPath(
-            file.namePath.join(folderConstants.nameSeparator) +
-              fileConstants.nameExtensionSeparator +
-              file.extension,
-            workspace.rootname
-          ),
-        }
+        {filepath: stringifyFileNamePath(file, workspace.rootname)}
       );
       await readFile(context, instData);
     } catch (error: any) {
@@ -194,12 +167,7 @@ describe('readFile', () => {
     ]);
     const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
-      }
+      {filepath: stringifyFileNamePath(file, workspace.rootname)}
     );
     await expectErrorThrown(async () => {
       assertContext(context);

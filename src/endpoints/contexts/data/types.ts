@@ -80,7 +80,7 @@ export interface IRecordFieldQueryOps<T extends AnyObject> {
 // TODO: support $objMatch in elemMatch
 type ElemMatchQueryOp<T> = T extends AnyObject ? LiteralDataQuery<T> : LiteralFieldQueryOps<T>;
 
-export interface IArrayFieldQueryOps<T> {
+export interface ArrayFieldQueryOps<T> {
   $size?: number;
 
   // TODO: support $objMatch and $elemMatch in $all
@@ -93,11 +93,15 @@ export type DataQuery<T> = {
   [P in keyof T]?:
     | LiteralFieldQueryOps<T[P]>
     | (NonNullable<T[P]> extends Array<infer U>
-        ? IArrayFieldQueryOps<U>
+        ? ArrayFieldQueryOps<U>
         : NonNullable<T[P]> extends AnyObject
         ? IRecordFieldQueryOps<NonNullable<T[P]>>
-        : {});
+        : never);
 };
+
+export type KeyedComparisonOps<TData extends AnyObject> = keyof TData extends string
+  ? `${keyof TData}.${keyof ComparisonLiteralFieldQueryOps}`
+  : '';
 
 export enum BulkOpType {
   InsertOne = 1,
@@ -208,6 +212,7 @@ export type AppRuntimeStateQuery = DataQuery<AppRuntimeState>;
 export type AssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<AssignedItem<T>>;
 export type CollaborationRequestQuery = DataQuery<CollaborationRequest>;
 export type FileQuery = DataQuery<File>;
+export type FilePresignedPathQuery = DataQuery<FilePresignedPath>;
 export type FolderQuery = DataQuery<Folder>;
 export type PermissionGroupQuery = DataQuery<PermissionGroup>;
 export type PermissionItemQuery = DataQuery<PermissionItem>;

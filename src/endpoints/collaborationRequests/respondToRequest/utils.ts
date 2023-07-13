@@ -14,6 +14,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
+import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
@@ -58,8 +59,8 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   const user = agent.user;
   assertUser(user);
   appAssert(
-    user.email === request.recipientEmail,
-    new PermissionDeniedError('User is not the collaboration request recipient')
+    isStringEqual(user.email, request.recipientEmail),
+    new PermissionDeniedError('User is not the collaboration request recipient.')
   );
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
@@ -67,7 +68,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 
   if (isExpired) {
     throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt!)}`
+      `Collaboration request expired on ${formatDate(request.expiresAt!)}.`
     );
   }
 

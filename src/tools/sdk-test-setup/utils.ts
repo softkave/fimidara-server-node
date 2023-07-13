@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
 import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
-import {INTERNAL_CreateAgentToken} from '../../endpoints/agentTokens/addToken/utils';
+import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
@@ -67,7 +67,7 @@ async function createAgentToken(
   workspace: Workspace,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const token = await INTERNAL_CreateAgentToken(
+  const token = await INTERNAL_createAgentToken(
     context,
     SYSTEM_SESSION_AGENT,
     workspace,

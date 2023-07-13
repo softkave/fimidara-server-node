@@ -4,17 +4,18 @@ import {PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system'
 import {Workspace} from '../../../definitions/workspace';
 import {indexArray} from '../../../utils/indexArray';
 import {validate} from '../../../utils/validate';
+import {FilePresignedPathQuery} from '../../contexts/data/types';
 import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {getFilepathInfo} from '../utils';
-import {GetFilePresignedPathsEndpoint, GetFilePresignedPathsItem} from './types';
-import {getFilePresignedPathsJoiSchema} from './validation';
+import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
+import {getPresignedPathsForFilesJoiSchema} from './validation';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
-const getFilePresignedPaths: GetFilePresignedPathsEndpoint = async (context, instData) => {
-  const data = validate(instData.data, getFilePresignedPathsJoiSchema);
+const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (context, instData) => {
+  const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let presignedPaths: Array<FilePresignedPath | null> = [];
 
@@ -63,7 +64,7 @@ const getFilePresignedPaths: GetFilePresignedPathsEndpoint = async (context, ins
   });
 
   // Transform presigned paths map to items.
-  const paths: GetFilePresignedPathsItem[] = map(activePathsMap, (filepath, pathId) => ({
+  const paths: GetPresignedPathsForFilesItem[] = map(activePathsMap, (filepath, pathId) => ({
     filepath,
     path: pathId,
   }));
@@ -87,11 +88,11 @@ async function getPresignedPathsByFileMatchers(
   // Sort matcher into fileId and filepath arrays. We're going to use the
   // fileIds to get the filepaths since presigned paths keep filepaths and not
   // fileIds
-  matchers.forEach(f => {
-    if (f.fileId) {
-      fileIdList.push(f.fileId);
-    } else if (f.filepath) {
-      const filepathInfo = getFilepathInfo(f.filepath);
+  matchers.forEach(matcher => {
+    if (matcher.fileId) {
+      fileIdList.push(matcher.fileId);
+    } else if (matcher.filepath) {
+      const filepathInfo = getFilepathInfo(matcher.filepath);
       filepathList.push({
         workspaceId,
         namepath: filepathInfo.splitPathWithoutExtension,
@@ -165,16 +166,15 @@ async function getPresignedPathsByFileMatchers(
   // Fetch and return presigned paths.
   // TODO: replace with $or query when we implement $or query
   // TODO: compact before use
-  return await Promise.all(
-    resolvedFilepathList.map(r =>
-      context.semantic.filePresignedPath.getOneByQuery({
-        fileNamePath: {$eq: r.namepath},
-        fileExtension: r.extension,
-        workspaceId: r.workspaceId,
-        agentTokenId: agent.agentTokenId,
-      })
-    )
+  const queries = resolvedFilepathList.map(
+    (matcher): FilePresignedPathQuery => ({
+      fileNamePath: {$all: matcher.namepath, $size: matcher.namepath.length},
+      fileExtension: matcher.extension,
+      workspaceId: matcher.workspaceId,
+      agentTokenId: agent.agentTokenId,
+    })
   );
+  return await context.semantic.filePresignedPath.getManyByQueryList(queries);
 }
 
 /** Separates active paths from expired or spent paths. */
@@ -196,4 +196,4 @@ function filterOutPaths(presignedPaths: Array<FilePresignedPath | null>) {
   return {activePaths, expiredOrSpentPaths};
 }
 
-export default getFilePresignedPaths;
+export default getPresignedPathsForFiles;

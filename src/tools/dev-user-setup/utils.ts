@@ -153,6 +153,7 @@ async function makeUserAdmin(
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
+
   if (!isAdmin) {
     serverLogger.info('Making user admin');
     await addAssignedPermissionGroupList(
@@ -169,16 +170,23 @@ async function makeUserAdmin(
   }
 }
 
-async function getUser(context: BaseContextType, runtimeOptions: ISetupDevUserOptions) {
+async function getUser(
+  context: BaseContextType,
+  runtimeOptions: ISetupDevUserOptions,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
   const {email} = await runtimeOptions.getUserEmail();
-  const userExists = await context.semantic.user.existsByEmail(email);
+  const userExists = await context.semantic.user.existsByEmail(email, opts);
   let user: UserWithWorkspace;
+
   if (userExists) {
-    user = await getCompleteUserDataByEmail(context, email);
+    user = await getCompleteUserDataByEmail(context, email, opts);
   } else {
     const userInfo = await runtimeOptions.getUserInfo();
-    user = await context.semantic.utils.withTxn(context, opts =>
-      INTERNAL_signupUser(context, {...userInfo, email}, {}, opts)
+    user = await context.semantic.utils.withTxn(
+      context,
+      opts => INTERNAL_signupUser(context, {...userInfo, email}, {}, opts),
+      opts
     );
   }
 
@@ -190,7 +198,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
   const consoleLogger = serverLogger;
   const workspace = await setupApp(context);
   const user = await getUser(context, appOptions);
-  const isInWorkspace = await isUserInWorkspace(user, workspace.resourceId);
+  const isInWorkspace = isUserInWorkspace(user, workspace.resourceId);
 
   if (user.requiresPasswordChange) {
     const forgotToken = await getForgotPasswordToken(context, user);
@@ -272,11 +280,11 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
       );
     }
 
-    if (!user.isEmailVerified) {
-      consoleLogger.info(`Verifying email address for user ${user.email}`);
-      await INTERNAL_confirmEmailAddress(context, user.resourceId, user);
-    }
-
     consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
   });
+
+  if (!user.isEmailVerified) {
+    consoleLogger.info(`Verifying email address for user ${user.email}`);
+    await INTERNAL_confirmEmailAddress(context, user.resourceId, user);
+  }
 }

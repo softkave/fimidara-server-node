@@ -75,13 +75,17 @@ export async function checkFileAuthorization03(
   agent: SessionAgent,
   matcher: FileMatcher,
   action: AppActionType,
+  supportPresignedPath = false,
+  incrementPresignedPathUsageCount = false,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
-  if (matcher.filepath) {
+  if (matcher.filepath && supportPresignedPath) {
     const presignedPathResult = await getFileByPresignedPath(
       context,
       matcher.filepath,
-      AppActionType.Read
+      AppActionType.Read,
+      incrementPresignedPathUsageCount,
+      opts
     );
 
     if (presignedPathResult) {
@@ -108,6 +112,8 @@ export function getFilenameInfo(providedName: string): FilenameInfo {
   );
   let extension: string | undefined = extensionList.join(fileConstants.nameExtensionSeparator);
 
+  // Handle file names without extension, seeing arr.join() would always produce
+  // a string
   if (extension === '' && !providedName.endsWith(fileConstants.nameExtensionSeparator)) {
     extension = undefined;
   }
@@ -170,7 +176,10 @@ export function assertFile(file: File | FilePresignedPath | null | undefined): a
   if (!file) throwFileNotFound();
 }
 
-export function stringifyFileNamePath(file: File, rootname?: string) {
+export function stringifyFileNamePath(
+  file: Pick<File, 'namePath' | 'extension'>,
+  rootname?: string
+) {
   const nm =
     file.namePath.join(folderConstants.nameSeparator) +
     (file.extension ? `.${file.extension}` : '');

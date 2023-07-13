@@ -119,6 +119,6 @@ export interface SemanticDataAccessProviderUtils<> {
     fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions], Promise<TResult>>,
 
     /** Reuse existing txn options when present */
-    opts?: SemanticDataAccessProviderMutationRunOptions
+    opts?: SemanticDataAccessProviderRunOptions
   ): Promise<TResult>;
 }
