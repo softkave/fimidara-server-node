@@ -1,26 +1,30 @@
 import {Request} from 'express';
+import {Connection as MongoConnection} from 'mongoose';
+import {AppMongoModels} from '../../db/types';
 import {BaseTokenData} from '../../definitions/system';
 import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
-import {AppRuntimeStateDataProvider, JobDataProvider, ResourceDataProvider} from './data/types';
+import {
+  AgentTokenDataProvider,
+  AppRuntimeStateDataProvider,
+  AssignedItemDataProvider,
+  CollaborationRequestDataProvider,
+  DataProviderUtils,
+  FileDataProvider,
+  FilePresignedPathDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
+  PermissionGroupDataProvider,
+  PermissionItemDataProvider,
+  TagDataProvider,
+  UsageRecordDataProvider,
+  UserDataProvider,
+  WorkspaceDataProvider,
+} from './data/types';
 import {IEmailProviderContext} from './email/types';
 import {FilePersistenceProviderContext} from './file/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
-import {FilePresignedPathMemStoreProvider} from './mem/Mem';
-import {
-  AgentTokenMemStoreProviderType,
-  AssignedItemMemStoreProviderType,
-  CollaborationRequestMemStoreProviderType,
-  FileMemStoreProviderType,
-  FolderMemStoreProviderType,
-  PermissionGroupMemStoreProviderType,
-  PermissionItemMemStoreProviderType,
-  TagMemStoreProviderType,
-  UsageRecordMemStoreProviderType,
-  UserMemStoreProviderType,
-  WorkspaceMemStoreProviderType,
-} from './mem/types';
 import {SemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
 import {SemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
 import {SemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
@@ -33,6 +37,7 @@ import {SemanticDataAccessPermissionProviderType} from './semantic/permission/ty
 import {SemanticDataAccessPermissionGroupProviderType} from './semantic/permissionGroup/types';
 import {SemanticDataAccessPermissionItemProviderType} from './semantic/permissionItem/types';
 import {SemanticDataAccessTagProviderType} from './semantic/tag/types';
+import {SemanticDataAccessProviderUtils} from './semantic/types';
 import {SemanticDataAccessUsageRecordProviderType} from './semantic/usageRecord/types';
 import {SemanticDataAccessUserProviderType} from './semantic/user/types';
 import {SemanticDataAccessWorkspaceProviderType} from './semantic/workspace/types';
@@ -43,25 +48,24 @@ export interface IServerRequest extends Request {
 }
 
 export interface BaseContextDataProviders {
-  resource: ResourceDataProvider;
   job: JobDataProvider;
   appRuntimeState: AppRuntimeStateDataProvider;
+  workspace: WorkspaceDataProvider;
+  permissionGroup: PermissionGroupDataProvider;
+  permissionItem: PermissionItemDataProvider;
+  assignedItem: AssignedItemDataProvider;
+  agentToken: AgentTokenDataProvider;
+  collaborationRequest: CollaborationRequestDataProvider;
+  folder: FolderDataProvider;
+  file: FileDataProvider;
+  tag: TagDataProvider;
+  usageRecord: UsageRecordDataProvider;
+  user: UserDataProvider;
+  filePresignedPath: FilePresignedPathDataProvider;
+  utils: DataProviderUtils;
 }
 
-export interface BaseContextMemStoreProviders {
-  folder: FolderMemStoreProviderType;
-  file: FileMemStoreProviderType;
-  agentToken: AgentTokenMemStoreProviderType;
-  permissionItem: PermissionItemMemStoreProviderType;
-  permissionGroup: PermissionGroupMemStoreProviderType;
-  workspace: WorkspaceMemStoreProviderType;
-  collaborationRequest: CollaborationRequestMemStoreProviderType;
-  user: UserMemStoreProviderType;
-  tag: TagMemStoreProviderType;
-  assignedItem: AssignedItemMemStoreProviderType;
-  usageRecord: UsageRecordMemStoreProviderType;
-  filePresignedPath: FilePresignedPathMemStoreProvider;
-}
+export type MongoDataProviders = BaseContextDataProviders;
 
 export interface BaseContextLogicProviders {
   usageRecord: UsageRecordLogicProvider;
@@ -82,25 +86,28 @@ export interface BaseContextSemanticDataProviders {
   usageRecord: SemanticDataAccessUsageRecordProviderType;
   user: SemanticDataAccessUserProviderType;
   filePresignedPath: SemanticDataAccessFilePresignedPathProvider;
+  utils: SemanticDataAccessProviderUtils;
 }
+
+export type MongoBackedSemanticDataProviders = BaseContextSemanticDataProviders;
 
 export interface BaseContextType<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
   AppVars extends FimidaraConfig = FimidaraConfig,
-  MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
-  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
-  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders
 > {
   appVariables: AppVars;
   session: SessionContextType;
   data: Data;
   semantic: SemanticData;
-  memstore: MemStore;
   logic: Logic;
   email: Email;
   fileBackend: FileBackend;
+  mongoConnection: MongoConnection | null;
+  mongoModels: AppMongoModels | null;
   init: () => Promise<void>;
   dispose: () => Promise<void>;
 }

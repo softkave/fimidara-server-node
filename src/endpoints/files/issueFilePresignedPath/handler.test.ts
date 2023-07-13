@@ -6,6 +6,7 @@ import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
+import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {assertFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -22,9 +23,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../users/errors';
-import {fileConstants} from '../constants';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
+import {stringifyFileNamePath} from '../utils';
 import issueFilePresignedPath from './handler';
 import {IssueFilePresignedPathEndpointParams} from './types';
 
@@ -47,12 +48,7 @@ describe('issueFilePresignedPath', () => {
 
     const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
-      }
+      {filepath: stringifyFileNamePath(file, workspace.rootname)}
     );
     const result = await issueFilePresignedPath(context, instData);
     assertEndpointResultOk(result);
@@ -89,10 +85,7 @@ describe('issueFilePresignedPath', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         duration,
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
+        filepath: stringifyFileNamePath(file, workspace.rootname),
       }
     );
     const result = await issueFilePresignedPath(context, instData);
@@ -114,10 +107,7 @@ describe('issueFilePresignedPath', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         expires,
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
+        filepath: stringifyFileNamePath(file, workspace.rootname),
       }
     );
     const result = await issueFilePresignedPath(context, instData);
@@ -138,10 +128,7 @@ describe('issueFilePresignedPath', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         usageCount,
-        filepath: addRootnameToPath(
-          file.name + fileConstants.nameExtensionSeparator + file.extension,
-          workspace.rootname
-        ),
+        filepath: stringifyFileNamePath(file, workspace.rootname),
       }
     );
     const result = await issueFilePresignedPath(context, instData);
@@ -169,10 +156,7 @@ describe('issueFilePresignedPath', () => {
         mockExpressRequestWithAgentToken(token),
         {
           usageCount,
-          filepath: addRootnameToPath(
-            file.name + fileConstants.nameExtensionSeparator + file.extension,
-            workspace.rootname
-          ),
+          filepath: stringifyFileNamePath(file, workspace.rootname),
         }
       );
       await issueFilePresignedPath(context, instData);
@@ -208,7 +192,7 @@ describe('issueFilePresignedPath', () => {
     const {folder} = await insertFolderForTest(context, userToken, workspace);
 
     const filepath = addRootnameToPath(
-      folder.namePath.join('/') + `/${faker.lorem.word()}`,
+      folder.namePath.join('/') + `/${generateTestFileName({includeStraySlashes: true})}`,
       workspace.rootname
     );
     const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(

@@ -1,5 +1,5 @@
-import {sortStringListLexographically} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
+import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -8,6 +8,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
+import {addRootnameToPath} from '../utils';
 
 /**
  * TODO:
@@ -31,33 +32,23 @@ describe('addFolder', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
 
-    const folderpath01 = '/' + workspace.rootname + '/folders/images/first';
-    const folderpath02 = '/' + workspace.rootname + '/folders/images/second';
-    const folderpath03 = '/' + workspace.rootname + '/folders/images/third';
+    const folderName00 = generateTestFolderName();
+    const folderName01 = generateTestFolderName();
+    const folderName02 = generateTestFolderName();
+    const folderpath02 = addRootnameToPath(
+      '/' + folderName00 + '/' + folderName01 + '/' + folderName02,
+      workspace.rootname
+    );
     await insertFolderForTest(context, userToken, workspace, {
-      folderpath: folderpath03,
+      folderpath: folderpath02,
     });
-    await Promise.all([
-      insertFolderForTest(context, userToken, workspace, {
-        folderpath: folderpath01,
-      }),
-      insertFolderForTest(context, userToken, workspace, {
-        folderpath: folderpath02,
-      }),
-    ]);
 
-    const inputNames = sortStringListLexographically([
-      'folders',
-      'images',
-      'first',
-      'second',
-      'third',
-    ]);
+    const inputNames = [folderName00, folderName01, folderName02];
     const savedFolders = await context.semantic.folder.getManyByQuery({
       workspaceId: workspace.resourceId,
       name: {$in: inputNames},
     });
-    const savedFolderNames = sortStringListLexographically(savedFolders.map(f => f.name));
+    const savedFolderNames = savedFolders.map(f => f.name);
     expect(savedFolderNames).toEqual(expect.arrayContaining(inputNames));
     expect(savedFolderNames).toHaveLength(inputNames.length);
   });

@@ -1,11 +1,13 @@
 ## Now
 
 - [ ] Move logs to it's own service
+- [ ] In-memory backed assigned permission groups lookup
 - [ ] Export FormData from js sdk
 - [ ] Support Blob in fimidara JS SDK uploadFile
 - [ ] JS sdk global config for setting server url and auth token globally
 - [ ] Move back to talking directly to mongodb
 - [ ] Move js sdk to axios
+  - [ ] Cancel token
 - [ ] cdn endpoint for fetching files
 - [ ] Progress when uploading and downloading files
 - [ ] Auto start programs on restart vm
@@ -18,6 +20,8 @@
   - [ ] go
 - [ ] log errors from express error handler
 - [ ] stripe-like versioning
+- [ ] Sanitize input before using with $regex
+- [ ] Use per request transactions. Reason is ops like usage records are recorded irrespective of whether request fails or not
 - [ ] server should crash on unhandled rejection
 - [ ] fix all cyclic deps cause they are silent corruptions
 - [ ] file transformation options
@@ -117,6 +121,9 @@
 - [ ] In the future, look into deleting permission items sitting at the bottom not contributing to perm checks
 - [ ] How to speed up server start time when loading data from db
   - [ ] One way, separate out any data not mem into own model and leave only mem data in model for read all
+- [ ] External file depots and non-developer users
+- [ ] So, found out I've been saving the data for files all in DB. Fix the issue and clean them
+  - [ ] Reason is resource doesn't have a schema on it's resource field
 
 ## Later
 
@@ -161,4 +168,5 @@
 - [ ] Scripts should run once
 - [ ] New usage thresholds very small
 - [ ] Articles
-- [ ] store more than files in fimidara
+- [ ] store more than files in fimidara, and use fimidara for buffered streaming and permissioned compute
+- [ ] Resource locing

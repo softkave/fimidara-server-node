@@ -3,7 +3,6 @@ import {Tag} from '../../../definitions/tag';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {tagExtractor} from '../utils';
@@ -26,7 +25,7 @@ const addTag: AddTagEndpoint = async (context, instData) => {
   const tag = newWorkspaceResource<Tag>(agent, AppResourceType.Tag, workspace.resourceId, {
     ...data.tag,
   });
-  await executeWithMutationRunOptions(context, async opts => {
+  await context.semantic.utils.withTxn(context, async opts => {
     await checkTagNameExists(context, workspace.resourceId, data.tag.name, opts);
     await context.semantic.tag.insertItem(tag, opts);
   });

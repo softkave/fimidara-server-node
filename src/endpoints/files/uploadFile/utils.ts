@@ -7,7 +7,10 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
+} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {createFolderList} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
@@ -18,7 +21,8 @@ export async function checkUploadFileAuth(
   agent: SessionAgent,
   workspace: Workspace,
   file: File | null,
-  closestExistingFolder: Folder | null
+  closestExistingFolder: Folder | null,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   // TODO: also have an update check if file exists The issue with implementing
   // it now is that it doesn't work with a scenario where we want a user to be
@@ -30,6 +34,7 @@ export async function checkUploadFileAuth(
     context,
     agent,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: [{targetType: AppResourceType.File, targetId: file?.resourceId}],
     containerId: file
@@ -58,8 +63,14 @@ export async function createFileParentFolders(
       workspace,
       {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
       opts,
-      /** skip auth check */ false,
-      /** throw on folder exists */ false
+      /** Skip auth check. Since what we really care about is file creation, and
+       * a separate permission check is done for that. All of it is also done
+       * with transaction so should upload file permission check fail, it'll get
+       * rolled back. Also, this allows for creating presigned paths to files in
+       * folders that do not exist yet, which would otherwise fail seeing an
+       * anonymous user most likely won't have permission to create folders. */
+      true,
+      /** Throw on folder exists */ false
     );
   }
 

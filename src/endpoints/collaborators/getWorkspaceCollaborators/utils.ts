@@ -4,7 +4,8 @@ import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {LiteralDataQuery} from '../../contexts/data/types';
+import {DataQuery} from '../../contexts/data/types';
+import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 
@@ -12,7 +13,7 @@ export async function getWorkspaceCollaboratorsQuery(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace
-): Promise<LiteralDataQuery<AssignedItem>> {
+): Promise<DataQuery<AssignedItem>> {
   const permissionsSummaryReport = await summarizeAgentPermissionItems({
     context,
     agent,
@@ -25,11 +26,13 @@ export async function getWorkspaceCollaboratorsQuery(
   if (permissionsSummaryReport.hasFullOrLimitedAccess) {
     return {
       workspaceId: workspace.resourceId,
-      assigneeId: permissionsSummaryReport.deniedResourceIdList && {
-        $nin: permissionsSummaryReport.deniedResourceIdList,
-      },
       assignedItemType: AppResourceType.Workspace,
       assigneeType: AppResourceType.User,
+      ...getInAndNinQuery<AssignedItem>(
+        'assigneeId',
+        /** inList */ undefined,
+        permissionsSummaryReport.deniedResourceIdList
+      ),
     };
   } else if (permissionsSummaryReport.allowedResourceIdList) {
     return {

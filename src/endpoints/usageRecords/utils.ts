@@ -15,6 +15,7 @@ import {appMessages} from '../../utils/messages';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
+import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {stringifyFileNamePath} from '../files/utils';
@@ -26,12 +27,13 @@ async function insertRecord(
   ctx: BaseContextType,
   reqData: RequestData,
   input: UsageRecordInput,
+  opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
   );
-  const allowed = await ctx.logic.usageRecord.insert(ctx, agent, input);
+  const allowed = await ctx.logic.usageRecord.insert(ctx, agent, input, opts);
   if (!allowed && !nothrow) {
     throw new UsageLimitExceededError();
   }
@@ -45,6 +47,7 @@ export async function insertStorageUsageRecordInput(
   file: File,
   action: AppActionType = AppActionType.Create,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
+  opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: FileUsageRecordArtifact = {
@@ -68,7 +71,7 @@ export async function insertStorageUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, nothrow);
+  await insertRecord(ctx, reqData, input, opts, nothrow);
 }
 
 export async function insertBandwidthInUsageRecordInput(
@@ -76,6 +79,7 @@ export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: AppActionType = AppActionType.Create,
+  opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
@@ -98,7 +102,7 @@ export async function insertBandwidthInUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, nothrow);
+  await insertRecord(ctx, reqData, input, opts, nothrow);
 }
 
 export async function insertBandwidthOutUsageRecordInput(
@@ -106,6 +110,7 @@ export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: AppActionType = AppActionType.Read,
+  opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
@@ -128,7 +133,7 @@ export async function insertBandwidthOutUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, nothrow);
+  await insertRecord(ctx, reqData, input, opts, nothrow);
 }
 
 // export async function insertDbObjectUsageRecordInput(

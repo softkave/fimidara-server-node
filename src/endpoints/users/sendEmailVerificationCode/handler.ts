@@ -2,7 +2,6 @@ import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
@@ -21,7 +20,7 @@ export async function INTERNAL_sendEmailVerificationCode(
   user: User,
   opts?: SemanticDataAccessProviderMutationRunOptions
 ) {
-  await executeWithMutationRunOptions(
+  await context.semantic.utils.withTxn(
     context,
     async opts => {
       if (user.isEmailVerified) {

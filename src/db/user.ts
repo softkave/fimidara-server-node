@@ -4,7 +4,7 @@ import {ensureMongoTypeFields, resourceSchema} from './utils';
 
 const userSchema = ensureMongoTypeFields<User>({
   ...resourceSchema,
-  email: {type: String, unique: true, index: true, lowercase: true},
+  email: {type: String, unique: true, index: true},
   firstName: {type: String, index: true},
   lastName: {type: String, index: true},
   hash: {type: String},

@@ -5,6 +5,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
@@ -25,13 +26,15 @@ export async function checkAgentTokenAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   token: AgentToken,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   appAssert(token.workspaceId);
   await checkAuthorization({
     context,
     agent,
     action,
+    opts,
     workspaceId: token.workspaceId,
     targets: {targetId: token.resourceId},
   });

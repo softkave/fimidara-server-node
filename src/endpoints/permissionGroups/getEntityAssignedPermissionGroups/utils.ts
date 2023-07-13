@@ -8,7 +8,8 @@ export async function checkReadEntityAssignedPermissionGroups(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  entityId: string
+  entityId: string,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (isFetchingOwnPermissionGroups(agent, entityId)) {
     return true;
@@ -17,6 +18,7 @@ export async function checkReadEntityAssignedPermissionGroups(
       context,
       agent,
       workspace,
+      opts,
       workspaceId: workspace.resourceId,
       action: AppActionType.Read,
       targets: {targetId: entityId},

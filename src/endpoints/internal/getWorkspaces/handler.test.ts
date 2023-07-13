@@ -1,7 +1,6 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
@@ -34,7 +33,7 @@ describe('getWorkspaces', () => {
     const {userToken, user} = await insertUserForTest(context);
     const [workspaceList] = await Promise.all([
       generateAndInsertWorkspaceListForTest(context, /** count */ 2),
-      executeWithMutationRunOptions(context, opts => {
+      context.semantic.utils.withTxn(context, opts => {
         assertContext(context);
         return assignWorkspaceToUser(
           context,

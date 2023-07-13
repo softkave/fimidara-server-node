@@ -14,6 +14,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
+import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
@@ -47,7 +48,7 @@ async function sendCollaborationRequestResponseEmail(
   });
 }
 
-export const internalRespondToCollaborationRequest = async (
+export const INTERNAL_RespondToCollaborationRequest = async (
   context: BaseContextType,
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
@@ -58,8 +59,8 @@ export const internalRespondToCollaborationRequest = async (
   const user = agent.user;
   assertUser(user);
   appAssert(
-    user.email === request.recipientEmail,
-    new PermissionDeniedError('User is not the collaboration request recipient')
+    isStringEqual(user.email, request.recipientEmail),
+    new PermissionDeniedError('User is not the collaboration request recipient.')
   );
 
   const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
@@ -67,11 +68,11 @@ export const internalRespondToCollaborationRequest = async (
 
   if (isExpired) {
     throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt!)}`
+      `Collaboration request expired on ${formatDate(request.expiresAt!)}.`
     );
   }
 
-  [request] = await Promise.all([
+  const [updatedRequest] = await Promise.all([
     context.semantic.collaborationRequest.getAndUpdateOneById(
       data.requestId,
       {statusDate: getTimestamp(), status: data.response},
@@ -81,7 +82,8 @@ export const internalRespondToCollaborationRequest = async (
       assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user.resourceId, opts),
   ]);
 
-  return request;
+  assertCollaborationRequest(updatedRequest);
+  return updatedRequest;
 };
 
 export async function notifyUserOnCollaborationRequestResponse(

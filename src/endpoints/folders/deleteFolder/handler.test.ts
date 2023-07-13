@@ -59,13 +59,17 @@ test('folder deleted', async () => {
   const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
   const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
     folderpath: addRootnameToPath(
-      folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+      folder01.namePath
+        .concat(generateTestFolderName({includeStraySlashes: true}))
+        .join(folderConstants.nameSeparator),
       workspace.rootname
     ),
   });
   const {file} = await insertFileForTest(context, userToken, workspace, {
     filepath: addRootnameToPath(
-      folder01.namePath.concat(generateTestFileName()).join(folderConstants.nameSeparator),
+      folder01.namePath
+        .concat(generateTestFileName({includeStraySlashes: true}))
+        .join(folderConstants.nameSeparator),
       workspace.rootname
     ),
   });

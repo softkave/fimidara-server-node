@@ -1,4 +1,6 @@
-import {forEach} from 'lodash';
+import {map} from 'lodash';
+import {Connection as MongoConnection} from 'mongoose';
+import {AppMongoModels} from '../../db/types';
 import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
@@ -9,33 +11,31 @@ import LocalFsFilePersistenceProviderContext from './file/LocalFsFilePersistence
 import MemoryFilePersistenceProviderContext from './file/MemoryFilePersistenceProviderContext';
 import {S3FilePersistenceProviderContext} from './file/S3FilePersistenceProviderContext';
 import {FilePersistenceProviderContext} from './file/types';
-import {MemStoreType} from './mem/types';
 import {
   BaseContextDataProviders,
   BaseContextLogicProviders,
-  BaseContextMemStoreProviders,
   BaseContextSemanticDataProviders,
   BaseContextType,
 } from './types';
 
 export default class BaseContext<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
+  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
   FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
   AppVars extends FimidaraConfig = FimidaraConfig,
-  MemStore extends BaseContextMemStoreProviders = BaseContextMemStoreProviders,
-  Logic extends BaseContextLogicProviders = BaseContextLogicProviders,
-  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders
-> implements BaseContextType<Data, Email, FileBackend, AppVars, MemStore, Logic, SemanticData>
+  Logic extends BaseContextLogicProviders = BaseContextLogicProviders
+> implements BaseContextType<Data, SemanticData, Email, FileBackend, AppVars, Logic>
 {
   data: Data;
   email: Email;
   fileBackend: FileBackend;
   appVariables: AppVars;
-  memstore: MemStore;
   logic: Logic;
   semantic: SemanticData;
   session: SessionContextType = new SessionContext();
+  mongoConnection: MongoConnection | null = null;
+  mongoModels: AppMongoModels | null = null;
   disposeFn?: () => Promise<void>;
 
   constructor(
@@ -43,28 +43,45 @@ export default class BaseContext<
     emailProvider: Email,
     fileBackend: FileBackend,
     appVariables: AppVars,
-    memory: MemStore,
     logic: Logic,
     semantic: SemanticData,
+    mongoConnection: MongoConnection | null,
+    mongoModels: AppMongoModels | null,
     disposeFn?: () => Promise<void>
   ) {
     this.data = data;
     this.email = emailProvider;
     this.fileBackend = fileBackend;
     this.appVariables = appVariables;
-    this.memstore = memory;
     this.logic = logic;
     this.semantic = semantic;
     this.disposeFn = disposeFn;
+    this.mongoConnection = mongoConnection;
+    this.mongoModels = mongoModels;
   }
 
-  init = async () => {};
+  init = async () => {
+    if (this.mongoModels) {
+      await Promise.all(
+        map(this.mongoModels, async model => {
+          const existingCollections = await model.db.db.listCollections().toArray();
+
+          if (
+            existingCollections.find(
+              collection => collection.name === model.collection.collectionName
+            )
+          ) {
+            return;
+          }
+
+          console.log(`creating ${model.collection.collectionName} mongodb model`);
+          return model.createCollection();
+        })
+      );
+    }
+  };
 
   dispose = async () => {
-    forEach(this.memstore, store => {
-      (store as MemStoreType<any>).dispose();
-    });
-
     const promises = [this.fileBackend.close(), this.email.close()];
     logRejectedPromisesAndThrow(await Promise.allSettled(promises));
 

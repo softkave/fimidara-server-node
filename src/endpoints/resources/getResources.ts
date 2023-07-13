@@ -89,18 +89,27 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
 
   resources = resources.concat(files, folders, workspaceResource);
 
-  if (fillAssignedItems)
+  if (fillAssignedItems) {
     resources = await resourceListWithAssignedItems(context, workspaceId, resources);
+  }
 
   if (checkBelongsToWorkspace) {
-    if (!fillAssignedItems)
+    if (!fillAssignedItems) {
       resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
         AppResourceType.User,
       ]);
+    }
+
     checkResourcesBelongsToWorkspace(workspaceId, resources);
   }
 
   if (checkAuth) {
+    if (!fillAssignedItems) {
+      resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+        AppResourceType.User,
+      ]);
+    }
+
     resources = await authCheckResources(
       context,
       agent,

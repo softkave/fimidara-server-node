@@ -9,7 +9,7 @@ import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {NewAgentTokenInput} from './types';
 
-export const INTERNAL_CreateAgentToken = async (
+export const INTERNAL_createAgentToken = async (
   context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
@@ -26,7 +26,9 @@ export const INTERNAL_CreateAgentToken = async (
     );
   }
 
-  if (token) throw reuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
+  if (token) {
+    throw reuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
+  }
 
   token = newWorkspaceResource<AgentToken>(
     agent,

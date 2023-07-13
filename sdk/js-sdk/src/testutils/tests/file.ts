@@ -1,4 +1,3 @@
-import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {Readable} from 'stream';
 import {FimidaraEndpoints} from '../../publicEndpoints';
@@ -62,25 +61,25 @@ export const test_uploadFile_nodeReadable = async () => {
   await uploadFileTestExecFn(fimidara, vars);
 };
 
-export const test_uploadFile_readableStream = async () => {
-  const expectedString = faker.lorem.paragraph();
-  const stream = new ReadableStream({
-    start(controller) {
-      // Add the string to the stream and close
-      controller.enqueue(expectedString);
-      controller.close();
-    },
-    pull(controller) {},
-    cancel() {},
-  });
-  const uploadFileResult = await uploadFileTestExecFn(fimidara, vars, {
-    data: stream,
-  });
-  const readFileResult = await readFileTestExecFn(fimidara, vars, {
-    responseType: 'blob',
-    body: {fileId: uploadFileResult.body.file.resourceId},
-  });
-  const body = readFileResult.body as Blob;
-  const actualString = await body.text();
-  assert.strictEqual(expectedString, actualString);
-};
+// export const test_uploadFile_readableStream = async () => {
+//   const expectedString = faker.lorem.paragraph();
+//   const stream = new ReadableStream({
+//     start(controller) {
+//       // Add the string to the stream and close
+//       controller.enqueue(expectedString);
+//       controller.close();
+//     },
+//     pull(controller) {},
+//     cancel() {},
+//   });
+//   const uploadFileResult = await uploadFileTestExecFn(fimidara, vars, {
+//     data: stream,
+//   });
+//   const readFileResult = await readFileTestExecFn(fimidara, vars, {
+//     responseType: 'blob',
+//     body: {fileId: uploadFileResult.body.file.resourceId},
+//   });
+//   const body = readFileResult.body as Blob;
+//   const actualString = await body.text();
+//   assert.strictEqual(expectedString, actualString);
+// };

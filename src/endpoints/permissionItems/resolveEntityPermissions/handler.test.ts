@@ -178,7 +178,7 @@ describe('resolveEntityPermissions', () => {
     expect(result.items.length).toBe(expected.length);
   });
 
-  test.only('combination of wildcard and appliesTo', async () => {
+  test('combination of wildcard and appliesTo', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);

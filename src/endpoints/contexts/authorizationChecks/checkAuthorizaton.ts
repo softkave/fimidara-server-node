@@ -25,6 +25,7 @@ import {reuseableErrors} from '../../../utils/reusableErrors';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {SemanticDataAccessPermissionProviderType_GetPermissionItemsProps} from '../semantic/permission/types';
+import {SemanticDataAccessProviderRunOptions} from '../semantic/types';
 import {BaseContextType} from '../types';
 
 export type AuthTarget = {
@@ -46,6 +47,7 @@ export interface ICheckAuthorizationParams {
   containerId?: string | string[];
   targets: AuthTarget | Array<AuthTarget>;
   action: AppActionType;
+  opts?: SemanticDataAccessProviderRunOptions;
 }
 
 type AccessMap = Partial<Record<string, PermissionItem>>;
@@ -183,7 +185,8 @@ export async function fetchAgentPermissionItems(
   appAssert(agentId);
 
   const workspace =
-    params.workspace ?? (await context.semantic.workspace.getOneById(params.workspaceId));
+    params.workspace ??
+    (await context.semantic.workspace.getOneById(params.workspaceId, params.opts));
   appAssert(workspace, reuseableErrors.workspace.notFound());
   appAssert(
     Array.isArray(targets) ? targets.length > 0 : targets,
@@ -192,16 +195,22 @@ export async function fetchAgentPermissionItems(
   );
 
   const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
-    context.semantic.permissions.getEntityInheritanceMap({
-      context,
-      entityId: agentId,
-      fetchDeep: params.fetchEntitiesDeep,
-    }),
-    context.semantic.permissions.getEntityInheritanceMap({
-      context,
-      entityId: workspace.publicPermissionGroupId,
-      fetchDeep: params.fetchEntitiesDeep,
-    }),
+    context.semantic.permissions.getEntityInheritanceMap(
+      {
+        context,
+        entityId: agentId,
+        fetchDeep: params.fetchEntitiesDeep,
+      },
+      params.opts
+    ),
+    context.semantic.permissions.getEntityInheritanceMap(
+      {
+        context,
+        entityId: workspace.publicPermissionGroupId,
+        fetchDeep: params.fetchEntitiesDeep,
+      },
+      params.opts
+    ),
   ]);
   const {sortedItemsList: entitySortedItemList} = context.logic.permissions.sortInheritanceMap({
     map: entityInheritanceMap,
@@ -254,7 +263,7 @@ export async function fetchAgentPermissionItems(
   });
 
   const pItemsList = await Promise.all(
-    qList.map(q => context.semantic.permissions.getPermissionItems(q))
+    qList.map(q => context.semantic.permissions.getPermissionItems(q, params.opts))
   );
   const pItems = flatten(pItemsList);
   return pItems;

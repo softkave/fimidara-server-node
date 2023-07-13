@@ -1,13 +1,12 @@
 import {AppResourceType} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {assertUser} from '../utils';
 import {GetUserDataEndpoint} from './types';
 
 const getUserData: GetUserDataEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
-  const [userToken, clientAssignedToken] = await executeWithMutationRunOptions(context, opts =>
+  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
     Promise.all([
       getUserToken(context, agent.agentId, opts),
       getUserClientAssignedToken(context, agent.agentId, opts),

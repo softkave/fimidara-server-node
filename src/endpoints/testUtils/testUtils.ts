@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
+import {merge} from 'lodash';
 import {getMongoConnection} from '../../db/connection';
 import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
@@ -23,12 +24,10 @@ import {
 import BaseContext from '../contexts/BaseContext';
 import {BaseContextType, IServerRequest} from '../contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
@@ -87,21 +86,21 @@ export async function initTestBaseContext(): Promise<ITestBaseContext> {
     fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(models),
+    data,
     getTestEmailProvider(fimidaraConfig),
     getTestFileProvider(fimidaraConfig),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
+    connection,
+    models,
     async () => {
       await connection.close();
     }
   );
-
-  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
+  await ctx.init();
   await setupApp(ctx);
   return ctx;
 }
@@ -168,6 +167,7 @@ export async function insertUserForTest(
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
+
   if (!skipAutoVerifyEmail) {
     const user = await INTERNAL_confirmEmailAddress(context, result.user.resourceId, null);
     rawUser = await populateUserWorkspaces(context, user);
@@ -315,7 +315,7 @@ export async function insertFolderForTest(
     {
       folder: {
         folderpath: addRootnameToPath(
-          [generateTestFolderName()].join(folderConstants.nameSeparator),
+          [generateTestFolderName({includeStraySlashes: true})].join(folderConstants.nameSeparator),
           workspace.rootname
         ),
         description: faker.lorem.paragraph(),
@@ -366,9 +366,8 @@ export async function insertFileForTest(
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),
-    data: Buffer.from(''), // to fulfill all TS righteousness
+    data: Buffer.from('Hello world!'),
     mimetype: 'application/octet-stream',
-    ...fileInput,
   };
 
   assert(input.filepath);
@@ -376,25 +375,28 @@ export async function insertFileForTest(
     if (type === 'png') {
       input.data = await generateTestImage(imageProps);
       input.mimetype = 'image/png';
-      input.extension = 'png';
+
+      // If there's an input filepath, adding extension would make the file
+      // unmatchable because the caller won't have the extension
+      if (!fileInput.filepath) input.extension = 'png';
     } else {
       input.data = generateTestTextFile();
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
-      input.extension = 'txt';
+      if (!fileInput.filepath) input.extension = 'txt';
     }
   }
 
-  const pathWithDetails = getFilepathInfo(input.filepath);
-  if (!pathWithDetails.extension) {
+  const filepathInfo = getFilepathInfo(input.filepath);
+  if (!filepathInfo.extension) {
     input.filepath = input.filepath + '.' + input.extension;
   }
 
+  merge(input, fileInput);
   const instData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
     userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
     input
   );
-
   const result = await uploadFile(context, instData);
   assertEndpointResultOk(result);
   return {...result, buffer: input.data, reqData: instData};

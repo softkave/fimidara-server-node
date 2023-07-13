@@ -9,7 +9,6 @@ import {
   checkAuthorization,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {InvalidRequestError} from '../../errors';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -109,8 +108,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
       spentUsageCount: 0,
     }
   );
-
-  await executeWithMutationRunOptions(context, async opts => {
+  await context.semantic.utils.withTxn(context, async opts => {
     await context.semantic.filePresignedPath.insertItem(resource, opts);
   });
 

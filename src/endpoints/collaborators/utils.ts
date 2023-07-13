@@ -2,6 +2,7 @@ import {AppActionType, SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../users/utils';
@@ -9,6 +10,7 @@ import {checkWorkspaceExists} from '../workspaces/utils';
 
 export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
+
   if (!userWorkspace) {
     throw new NotFoundError('Collaborator not found');
   }
@@ -20,6 +22,8 @@ export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: stri
     email: item.email,
     joinedAt: userWorkspace.joinedAt,
     workspaceId: userWorkspace.workspaceId,
+    createdAt: 0,
+    lastUpdatedAt: 0,
   };
   return collaborator;
 };
@@ -33,7 +37,8 @@ export async function checkCollaboratorAuthorization(
   agent: SessionAgent,
   workspaceId: string,
   collaborator: UserWithWorkspace,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
   if (!userWorkspace) {
@@ -45,6 +50,7 @@ export async function checkCollaboratorAuthorization(
     context,
     agent,
     action,
+    opts,
     workspaceId: workspace.resourceId,
     workspace: workspace,
     targets: {targetId: collaborator.resourceId},

@@ -1,4 +1,5 @@
-import {defaultTo, first, isArray, last} from 'lodash';
+import {compact, defaultTo, first, isArray, last} from 'lodash';
+import {posix} from 'path';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {AppActionType, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
@@ -38,13 +39,13 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
-  path = path.startsWith(folderConstants.nameSeparator) ? path.slice(1) : path;
-  const p = path.split(folderConstants.nameSeparator).filter(item => !!item);
-  if (p.length > folderConstants.maxFolderDepth) {
-    throw new Error('Path depth exceeds max path depth (10).');
+  const nameList = compact(posix.normalize(path).split(folderConstants.nameSeparator));
+
+  if (nameList.length > folderConstants.maxFolderDepth) {
+    throw new Error(`Path depth exceeds max path depth of ${folderConstants.maxFolderDepth}.`);
   }
 
-  return p;
+  return nameList;
 }
 
 export function assertSplitFolderpath(path: string) {
@@ -109,10 +110,11 @@ export async function checkFolderAuthorization(
   folder: Folder,
   action: AppActionType,
   workspace?: Workspace,
-  UNSAFE_skipAuthCheck = false
+  UNSAFE_skipAuthCheck = false,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (!workspace) {
-    workspace = await checkWorkspaceExists(context, folder.workspaceId);
+    workspace = await checkWorkspaceExists(context, folder.workspaceId, opts);
   }
 
   if (!UNSAFE_skipAuthCheck) {
@@ -125,6 +127,7 @@ export async function checkFolderAuthorization(
       agent,
       action,
       workspace,
+      opts,
       workspaceId: workspace.resourceId,
       containerId: getFilePermissionContainers(workspace.resourceId, folder, false),
       targets: {targetId: folder.resourceId},

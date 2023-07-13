@@ -35,12 +35,11 @@ const name = Joi.string().trim().max(endpointConstants.maxNameLength);
 const description = Joi.string().allow(null, '').max(endpointConstants.maxDescriptionLength).trim();
 const zipcode = Joi.string().regex(regExPatterns.zipcode);
 const phone = Joi.string().regex(regExPatterns.phone);
-const time = Joi.date().timestamp();
+const time = Joi.date().timestamp().cast('number');
 const verificationCode = Joi.string()
   .trim()
   .min(validationConstants.minVerificationCodeLength)
   .max(validationConstants.maxVerificationCodeLength);
-
 const resourceId = Joi.string().trim().max(50);
 const resourceIdList = Joi.array()
   .items(resourceId)

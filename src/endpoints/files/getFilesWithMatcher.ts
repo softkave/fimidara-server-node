@@ -1,66 +1,67 @@
-import {File, FileMatcher} from '../../definitions/file';
+import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
 import {AppActionType, AppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
-import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-} from '../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
 import {assertWorkspace} from '../workspaces/utils';
 import {assertFile, checkFileAuthorization, getFilepathInfo} from './utils';
 
-async function getCheckAndIncrementFilePresignedPathUsageCount(
+export async function checkAndIncrementFilePresignedPathUsageCount(
   context: BaseContextType,
-  resourceId: string,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  presignedPath: FilePresignedPath,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  return await executeWithMutationRunOptions(
+  return await context.semantic.utils.withTxn(
     context,
     async opts => {
-      const presignedPath = await context.semantic.filePresignedPath.assertGetOneByQuery(
-        {resourceId},
-        opts
-      );
-
-      if (presignedPath.usageCount && presignedPath.usageCount <= presignedPath.spentUsageCount)
+      if (presignedPath.usageCount && presignedPath.usageCount <= presignedPath.spentUsageCount) {
         // TODO: should we use a different error type?
         throw new PermissionDeniedError();
+      }
 
-      // TODO: possible race condition here, read and update should occur in the
-      // same op
-      const updatedResource = await context.semantic.filePresignedPath.updateOneById(
+      const updatedPresignedPath = await context.semantic.filePresignedPath.getAndUpdateOneById(
         presignedPath.resourceId,
         {spentUsageCount: presignedPath.spentUsageCount + 1},
         opts
       );
-      assertFile(updatedResource);
-      return updatedResource;
+      assertFile(updatedPresignedPath);
+      return updatedPresignedPath;
     },
     opts
   );
 }
 
+export function extractFilePresignedPathIdFromFilepath(filepath: string) {
+  return filepath.startsWith(folderConstants.nameSeparator) ? filepath.slice(1) : filepath;
+}
+
+export function isFilePresignedPath(filepath: string) {
+  const resourceId = extractFilePresignedPathIdFromFilepath(filepath);
+  const type = tryGetResourceTypeFromId(resourceId);
+  return type === AppResourceType.FilePresignedPath;
+}
+
 export async function getFileByPresignedPath(
   context: BaseContextType,
   filepath: string,
-  action: AppActionType
+  action: AppActionType,
+  incrementUsageCount = false,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const resourceId = filepath.startsWith(folderConstants.nameSeparator)
-    ? filepath.slice(1)
-    : filepath;
-  const type = tryGetResourceTypeFromId(resourceId);
-
-  if (type !== AppResourceType.FilePresignedPath) {
+  if (!isFilePresignedPath(filepath)) {
     return null;
   }
 
-  const presignedPath = await getCheckAndIncrementFilePresignedPathUsageCount(context, resourceId);
+  const resourceId = extractFilePresignedPathIdFromFilepath(filepath);
+  let presignedPath = await context.semantic.filePresignedPath.assertGetOneByQuery(
+    {resourceId},
+    opts
+  );
   const now = Date.now();
 
   if (presignedPath.expiresAt && presignedPath.expiresAt < now) {
@@ -69,10 +70,20 @@ export async function getFileByPresignedPath(
   }
 
   appAssert(presignedPath.action.includes(action), new PermissionDeniedError());
+
+  if (incrementUsageCount) {
+    presignedPath = await checkAndIncrementFilePresignedPathUsageCount(
+      context,
+      presignedPath,
+      opts
+    );
+  }
+
   const file = await context.semantic.file.getOneByNamePath(
     presignedPath.workspaceId,
     presignedPath.fileNamePath,
-    presignedPath.fileExtension
+    presignedPath.fileExtension,
+    opts
   );
   assertFile(file);
 
@@ -83,9 +94,10 @@ export async function getFileByPresignedPath(
   // deleted, etc. We don't need to explicitly handle invalidating presigned
   // paths through these multiple surface areas seeing we can just simply check
   // if the issuing agent token exists and still has permission.
-  const agentToken = await context.semantic.agentToken.assertGetOneByQuery({
-    resourceId: presignedPath.agentTokenId,
-  });
+  const agentToken = await context.semantic.agentToken.assertGetOneByQuery(
+    {resourceId: presignedPath.agentTokenId},
+    opts
+  );
   await checkFileAuthorization(
     context,
     agentToken
@@ -98,7 +110,8 @@ export async function getFileByPresignedPath(
         )
       : makeWorkspaceAgentTokenAgent(agentToken),
     file,
-    action
+    action,
+    opts
   );
   return {presignedPath, file};
 }
@@ -119,7 +132,8 @@ export async function getFileWithFilepath(
 ) {
   const pathWithDetails = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
-    pathWithDetails.workspaceRootname
+    pathWithDetails.workspaceRootname,
+    opts
   );
   assertWorkspace(workspace);
   const file = await context.semantic.file.getOneByNamePath(

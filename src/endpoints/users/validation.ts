@@ -8,7 +8,6 @@ const password = Joi.string()
   .min(userConstants.minPasswordLength)
   .max(userConstants.maxPasswordLength)
   .regex(regExPatterns.password);
-
 const name = Joi.string().trim().min(userConstants.minNameLength).max(userConstants.maxNameLength);
 
 const userValidationSchemas = {

@@ -206,7 +206,7 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
           args.files.map(f =>
             context.semantic.filePresignedPath.deleteManyByQuery(
               {
-                fileNamePath: {$eq: f.namePath},
+                fileNamePath: {$all: f.namePath, $size: f.namePath.length},
                 fileExtension: f.extension,
                 workspaceId: args.workspaceId,
               },

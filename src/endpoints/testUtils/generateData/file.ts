@@ -1,33 +1,36 @@
 import {faker} from '@faker-js/faker';
-import {first} from 'lodash';
 import {File} from '../../../definitions/file';
 import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {getFilenameInfo} from '../../files/utils';
 import {generateTestFolderName} from './folder';
-
-function removeExtension(name: string) {
-  return first(name.split('.'));
-}
 
 function addExtenstion(name: string, ext: string) {
   return name + '.' + ext;
 }
 
-export function generateTestFileName({includeExtension = true} = {includeExtension: true}) {
-  const seed = getRandomIntInclusive(1, 2);
+export const kTestFileNameSeparatorChars = ['-', '_', ' '];
+
+export function generateTestFileName(
+  props: {separatorChars?: string[]; includeStraySlashes?: boolean} = {
+    separatorChars: kTestFileNameSeparatorChars,
+    includeStraySlashes: false,
+  }
+) {
+  const seed = getRandomIntInclusive(1, 3);
 
   if (seed === 1) {
-    const extCount = includeExtension ? getRandomIntInclusive(1, 5) : 0;
+    const extCount = getRandomIntInclusive(1, 5);
     return faker.system.fileName({extensionCount: extCount});
+  } else if (seed === 2) {
+    const name = generateTestFolderName(props);
+    return addExtenstion(name, faker.system.fileExt());
   } else {
-    const name = generateTestFolderName({separatorChars: ['-', '_', ' ']});
-    return includeExtension ? addExtenstion(name, faker.system.fileExt()) : name;
+    return generateTestFolderName(props);
   }
 }
 
@@ -77,6 +80,6 @@ export async function generateAndInsertTestFiles(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await executeWithMutationRunOptions(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
+  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
   return items;
 }

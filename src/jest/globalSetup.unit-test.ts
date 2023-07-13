@@ -1,12 +1,10 @@
 import {getMongoConnection} from '../db/connection';
 import BaseContext from '../endpoints/contexts/BaseContext';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestOnlyAppWorkspaceDataIntoMemstore,
 } from '../endpoints/contexts/utils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
@@ -19,19 +17,19 @@ async function testGlobalSetup() {
     fimidaraConfig.mongoDbDatabaseName
   );
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(models),
+    data,
     new NoopEmailProviderContext(),
     new NoopFilePersistenceProviderContext(),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
+    connection,
+    models,
     () => connection.close()
   );
-
-  await ingestOnlyAppWorkspaceDataIntoMemstore(ctx);
+  await ctx.init();
   await setupApp(ctx);
   await ctx.dispose();
 }

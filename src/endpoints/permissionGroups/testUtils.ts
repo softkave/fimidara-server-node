@@ -3,7 +3,6 @@ import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppActionType, SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {executeWithMutationRunOptions} from '../contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from '../contexts/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
 import RequestData from '../RequestData';
@@ -31,7 +30,7 @@ export async function assignPgListToIdList(
   entityIdList: string[],
   pgInputList: AssignPermissionGroupInput[]
 ) {
-  await executeWithMutationRunOptions(context, async opts =>
+  await context.semantic.utils.withTxn(context, async opts =>
     addAssignedPermissionGroupList(
       context,
       agent,

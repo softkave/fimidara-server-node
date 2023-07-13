@@ -1,288 +1,77 @@
-import {Resource, WorkspaceResource} from '../../../definitions/system';
-import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {MemStore, MemStoreTransactionOptions} from '../mem/Mem';
-import {MemStoreType} from '../mem/types';
+import {isNil, set} from 'lodash';
+import {getLowercaseRegExpForString, toArray} from '../../../utils/fns';
+import {AnyFn, OrArray, StringKeysOnly} from '../../../utils/types';
+import {
+  ArrayFieldQueryOps,
+  ComparisonLiteralFieldQueryOps,
+  DataQuery,
+  KeyedComparisonOps,
+} from '../data/types';
 import {BaseContextType} from '../types';
 import {
-  SemanticDataAccessBaseProviderType,
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
-  SemanticDataAccessWorkspaceResourceProviderBaseType,
-  SemanticDataAccessWorkspaceResourceProviderType,
+  SemanticDataAccessProviderUtils,
 } from './types';
 
-export class SemanticDataAccessBaseProvider<T extends Resource>
-  implements SemanticDataAccessBaseProviderType<T>
-{
-  constructor(
-    protected memstore: MemStoreType<T>,
-    protected assertFn: (item?: T | null) => asserts item
-  ) {}
-
-  async insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions) {
-    return await this.memstore.createItems(item, opts.transaction);
-  }
-
-  async insertWithQuery(
-    queryFn: () => LiteralDataQuery<T>,
-    itemsFn: (items: T[]) => T[],
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
-    return await this.memstore.createWithQuery(queryFn, itemsFn, opts.transaction);
-  }
-
-  async getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions) {
-    const query: LiteralDataQuery<Resource> = {resourceId: id};
-    return await this.memstore.readItem(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async existsById(id: string, opts?: SemanticDataAccessProviderRunOptions) {
-    const query: LiteralDataQuery<Resource> = {resourceId: id};
-    return await this.memstore.exists(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async updateOneById(
-    id: string,
-    update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
-    const query: LiteralDataQuery<Resource> = {resourceId: id};
-    return await this.memstore.updateItem(query as LiteralDataQuery<T>, update, opts.transaction);
-  }
-
-  async updateManyByQuery(
-    query: LiteralDataQuery<T>,
-    update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
-    return await this.memstore.updateManyItems(query, update, opts.transaction);
-  }
-
-  async getAndUpdateOneById(
-    id: string,
-    update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ) {
-    const query: LiteralDataQuery<Resource> = {resourceId: id};
-    const item = await this.memstore.updateItem(
-      query as LiteralDataQuery<T>,
-      update,
-      opts.transaction
-    );
-    this.assertFn(item);
-    return item;
-  }
-
-  async deleteManyByIdList(
-    idList: string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
-    await this.memstore.deleteManyItems(query as LiteralDataQuery<T>, opts.transaction);
-  }
-
-  async deleteOneById(
-    id: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    const query: LiteralDataQuery<Resource> = {resourceId: id};
-    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
-  }
-
-  async countManyByIdList(
-    idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<number> {
-    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
-    return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async getManyByIdList(
-    idList: string[],
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
-  ): Promise<T[]> {
-    const query: LiteralDataQuery<Resource> = {resourceId: {$in: idList}};
-    return await this.memstore.readManyItems(
-      query as LiteralDataQuery<T>,
-      options?.transaction,
-      options?.pageSize,
-      options?.page
-    );
-  }
-
-  async countByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<number> {
-    return await this.memstore.countItems(q, opts?.transaction);
-  }
-
-  async getManyByQuery(
-    q: LiteralDataQuery<T>,
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
-  ): Promise<T[]> {
-    return await this.memstore.readManyItems(
-      q,
-      options?.transaction,
-      options?.pageSize,
-      options?.page
-    );
-  }
-
-  async assertGetOneByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<T> {
-    const item = await this.memstore.readItem(q, opts?.transaction);
-    this.assertFn(item);
-    return item;
-  }
-
-  async existsByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<boolean> {
-    return await this.memstore.exists(q, opts?.transaction);
-  }
-
-  async getOneByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<T | null> {
-    return await this.memstore.readItem(q, opts?.transaction);
-  }
-
-  async deleteManyByQuery(
-    q: LiteralDataQuery<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    await this.memstore.deleteManyItems(q, opts.transaction);
-  }
-}
-
-export class SemanticDataAccessWorkspaceResourceProvider<
-    T extends SemanticDataAccessWorkspaceResourceProviderBaseType
-  >
-  extends SemanticDataAccessBaseProvider<T>
-  implements SemanticDataAccessWorkspaceResourceProviderType<T>
-{
-  async getByName(workspaceId: string, name: string, opts?: SemanticDataAccessProviderRunOptions) {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      name: {$lowercaseEq: name},
-    };
-    return this.memstore.readItem(query as LiteralDataQuery<T>);
-  }
-
-  async existsByName(
-    workspaceId: string,
-    name: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      name,
-    };
-    return await this.memstore.exists(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async getByProvidedId(
-    workspaceId: string,
-    providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      providedResourceId: providedId,
-    };
-    return this.memstore.readItem(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async existsByProvidedId(
-    workspaceId: string,
-    providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions
-  ) {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      providedResourceId: providedId,
-    };
-    return await this.memstore.exists(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async deleteManyByWorkspaceId(
-    workspaceId: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<void> {
-    const query: LiteralDataQuery<WorkspaceResource> = {workspaceId};
-    await this.memstore.deleteItem(query as LiteralDataQuery<T>, opts.transaction);
-  }
-
-  async countManyByIdList(
-    idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<number> {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      resourceId: {$in: idList},
-    };
-    return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async countManyByWorkspaceAndIdList(
-    q: {
-      workspaceId: string;
-      resourceIdList?: string[] | undefined;
-      excludeResourceIdList?: string[] | undefined;
-    },
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<number> {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId: q.workspaceId,
-      resourceId: {
-        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
-        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
+export class DataSemanticDataAccessProviderUtils implements SemanticDataAccessProviderUtils {
+  async withTxn<TResult>(
+    ctx: BaseContextType,
+    fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions], Promise<TResult>>,
+    opts?: SemanticDataAccessProviderRunOptions | undefined
+  ): Promise<TResult> {
+    return ctx.data.utils.withTxn(
+      ctx,
+      async txn => {
+        return await fn({txn});
       },
-    };
-    return await this.memstore.countItems(query as LiteralDataQuery<T>, opts?.transaction);
-  }
-
-  async getManyByWorkspaceAndIdList(
-    q: {
-      workspaceId: string;
-      resourceIdList?: string[] | undefined;
-      excludeResourceIdList?: string[] | undefined;
-    },
-    options?: (IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
-  ): Promise<T[]> {
-    const query: LiteralDataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
-      workspaceId: q.workspaceId,
-      resourceId: {
-        $in: q.resourceIdList?.length ? q.resourceIdList : undefined,
-        $nin: q.excludeResourceIdList?.length ? q.excludeResourceIdList : undefined,
-      },
-    };
-    return await this.memstore.readManyItems(
-      query as LiteralDataQuery<T>,
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      opts?.txn
     );
   }
 }
 
-export async function executeWithMutationRunOptions<T>(
-  context: BaseContextType,
-  fn: (opts: SemanticDataAccessProviderMutationRunOptions) => Promise<T>,
+export function getStringListQuery<TData extends Record<string, any>>(
+  stringList: string[],
+  prefix: keyof TData,
+  includeSizeOp = false
+): Record<string, {$regex?: RegExp}> {
+  const query: Record<
+    string,
+    Pick<ComparisonLiteralFieldQueryOps, '$regex'> & Pick<ArrayFieldQueryOps<any>, '$size'>
+  > = {};
+  stringList.reduce((map, name, index) => {
+    const key = `${prefix as string}.${index}`;
+    map[key] = {$regex: getLowercaseRegExpForString(name)};
+    return map;
+  }, query);
 
-  /** Reuse existing txn options when present */
-  opts?: SemanticDataAccessProviderMutationRunOptions,
-  options?: MemStoreTransactionOptions
-): Promise<T> {
-  return opts
-    ? await fn(opts)
-    : await MemStore.withTransaction(
-        context,
-        async transaction => await fn({transaction}),
-        options
-      );
+  if (includeSizeOp) {
+    query[prefix as string] = {$size: stringList.length};
+  }
+
+  return query;
+}
+
+export function getInAndNinQuery<
+  TData extends Record<string, any>,
+  TKey extends StringKeysOnly<TData> = StringKeysOnly<TData>
+>(
+  prefix: TKey,
+
+  /** `null` or `undefined` will not go into query. To explicitly handle them,
+   * pass `[null]` or `[undefined]` */
+  inList: OrArray<TData[TKey]> | undefined,
+
+  /** `null` or `undefined` will not go into query. To explicitly handle them,
+   * pass `[null]` or `[undefined]` */
+  ninList?: OrArray<TData[TKey]> | undefined
+) {
+  const inKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$in` as const;
+  const ninKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$nin` as const;
+  const query: DataQuery<TData> = {};
+
+  if (!isNil(inList)) set(query, inKey, toArray(inList));
+  if (!isNil(ninList)) set(query, ninKey, toArray(ninList));
+
+  return query;
 }

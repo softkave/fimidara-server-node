@@ -4,7 +4,7 @@ import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
 import OperationError from '../utils/OperationError';
 import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
-import {IDataProvideQueryListParams} from './contexts/data/types';
+import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
 
@@ -56,7 +56,7 @@ export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspac
   providedResourceId?: string;
 }
 
-export type PaginationQuery = Pick<IDataProvideQueryListParams<any>, 'page' | 'pageSize'>;
+export type PaginationQuery = Pick<DataProviderQueryListParams<any>, 'page' | 'pageSize'>;
 export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,
   keyof PaginationQuery

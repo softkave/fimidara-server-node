@@ -1,26 +1,22 @@
 import {Resource} from '../../../definitions/system';
-import {IDataProvideQueryListParams, LiteralDataQuery} from '../data/types';
-import {MemStoreTransactionType} from '../mem/types';
+import {AnyFn} from '../../../utils/types';
+import {DataProviderQueryListParams, DataQuery} from '../data/types';
+import {BaseContextType} from '../types';
 
 export interface SemanticDataAccessProviderRunOptions {
-  transaction?: MemStoreTransactionType;
+  txn?: unknown;
 }
 
 export interface SemanticDataAccessProviderMutationRunOptions {
-  transaction: MemStoreTransactionType;
+  txn: unknown;
 }
 
 export interface SemanticDataAccessBaseProviderType<T extends Resource> {
   insertItem(item: T | T[], opts: SemanticDataAccessProviderMutationRunOptions): Promise<void>;
-  insertWithQuery(
-    queryFn: () => LiteralDataQuery<T>,
-    itemsFn: (items: T[]) => T[],
-    opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T[]>;
   getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions): Promise<T | null>;
   getManyByIdList(
     idList: string[],
-    options?: IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
   ): Promise<T[]>;
   countManyByIdList(idList: string[], opts?: SemanticDataAccessProviderRunOptions): Promise<number>;
   existsById(id: string, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
@@ -28,44 +24,44 @@ export interface SemanticDataAccessBaseProviderType<T extends Resource> {
     id: string,
     update: Partial<T>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T | null>;
+  ): Promise<void>;
   updateManyByQuery(
-    q: LiteralDataQuery<T>,
+    query: DataQuery<T>,
     update: Partial<T>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T[]>;
+  ): Promise<void>;
   getAndUpdateOneById(
     id: string,
     update: Partial<T>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T>;
+  ): Promise<T | null>;
+  getAndUpdateManyByQuery(
+    query: DataQuery<T>,
+    update: Partial<T>,
+    opts: SemanticDataAccessProviderMutationRunOptions
+  ): Promise<T[]>;
   deleteOneById(id: string, opts: SemanticDataAccessProviderMutationRunOptions): Promise<void>;
   deleteManyByIdList(
     idList: string[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getOneByQuery(
-    q: LiteralDataQuery<T>,
+    query: DataQuery<T>,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<T | null>;
   getManyByQuery(
-    q: LiteralDataQuery<T>,
-    options?: IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions
+    query: DataQuery<T>,
+    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
   ): Promise<T[]>;
-  countByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<number>;
-  assertGetOneByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<T>;
-  existsByQuery(
-    q: LiteralDataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<boolean>;
+  getManyByQueryList(
+    query: DataQuery<T>[],
+    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
+  ): Promise<T[]>;
+  countByQuery(query: DataQuery<T>, opts?: SemanticDataAccessProviderRunOptions): Promise<number>;
+  assertGetOneByQuery(query: DataQuery<T>, opts?: SemanticDataAccessProviderRunOptions): Promise<T>;
+  existsByQuery(query: DataQuery<T>, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
   deleteManyByQuery(
-    q: LiteralDataQuery<T>,
+    query: DataQuery<T>,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
 }
@@ -104,15 +100,25 @@ export interface SemanticDataAccessWorkspaceResourceProviderType<
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getManyByWorkspaceAndIdList(
-    q: {workspaceId: string; resourceIdList?: string[]; excludeResourceIdList?: string[]},
-    options?: IDataProvideQueryListParams<T> & SemanticDataAccessProviderRunOptions
+    query: {workspaceId: string; resourceIdList?: string[]; excludeResourceIdList?: string[]},
+    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
   ): Promise<T[]>;
   countManyByWorkspaceAndIdList(
-    q: {
+    query: {
       workspaceId: string;
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
+}
+
+export interface SemanticDataAccessProviderUtils<> {
+  withTxn<TResult>(
+    ctx: BaseContextType,
+    fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions], Promise<TResult>>,
+
+    /** Reuse existing txn options when present */
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<TResult>;
 }

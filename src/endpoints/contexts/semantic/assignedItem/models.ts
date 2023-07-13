@@ -2,16 +2,17 @@ import {AssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
+import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
 } from '../types';
-import {SemanticDataAccessWorkspaceResourceProvider} from '../utils';
+import {getInAndNinQuery} from '../utils';
 import {SemanticDataAccessAssignedItemProvider} from './types';
 
-export class MemorySemanticDataAccessAssignedItem
-  extends SemanticDataAccessWorkspaceResourceProvider<AssignedItem>
+export class DataSemanticDataAccessAssignedItem
+  extends DataSemanticDataAccessWorkspaceResourceProvider<AssignedItem>
   implements SemanticDataAccessAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(
@@ -19,19 +20,17 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
-    return await this.memstore.readManyItems(
+    return await this.data.getManyByQuery(
       {
         workspaceId,
         assignedItemId: {$in: toNonNullableArray(assignedItemId)},
         assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      options
     );
   }
 
@@ -40,36 +39,30 @@ export class MemorySemanticDataAccessAssignedItem
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
-    return await this.memstore.readManyItems(
+    return await this.data.getManyByQuery(
       {
         workspaceId,
-        assignedItemType: assignedItemType
-          ? {$in: toNonNullableArray(assignedItemType) as any[]}
-          : undefined,
         assigneeId: {$in: toNonNullableArray(assigneeId)},
+        ...getInAndNinQuery<AssignedItem>('assignedItemType', assignedItemType),
       },
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      options
     );
   }
 
   async getUserWorkspaces(
     assigneeId: string,
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
-    return await this.memstore.readManyItems(
+    return await this.data.getManyByQuery(
       {assigneeId, assignedItemType: AppResourceType.Workspace},
-      options?.transaction,
-      options?.pageSize,
-      options?.page
+      options
     );
   }
 
@@ -78,17 +71,17 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     assigneeId: string | string[],
     options?:
-      | (IDataProvideQueryListParams<AssignedItem<AnyObject>> &
+      | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticDataAccessProviderRunOptions)
       | undefined
   ): Promise<boolean> {
-    return await this.memstore.exists(
+    return await this.data.existsByQuery(
       {
         workspaceId,
         assignedItemId: {$in: toNonNullableArray(assignedItemId)},
         assigneeId: {$in: toNonNullableArray(assigneeId)},
       },
-      options?.transaction
+      options
     );
   }
 
@@ -97,12 +90,12 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemId: string | string[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    await this.memstore.deleteManyItems(
+    await this.data.deleteManyByQuery(
       {
         workspaceId,
         assignedItemId: {$in: toNonNullableArray(assignedItemId)},
       },
-      opts.transaction
+      opts
     );
   }
 
@@ -112,15 +105,13 @@ export class MemorySemanticDataAccessAssignedItem
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void> {
-    await this.memstore.deleteManyItems(
+    await this.data.deleteManyByQuery(
       {
         workspaceId,
-        assignedItemType: assignedItemType
-          ? {$in: toNonNullableArray(assignedItemType) as any[]}
-          : undefined,
         assigneeId: {$in: toNonNullableArray(assigneeId)},
+        ...getInAndNinQuery<AssignedItem>('assignedItemType', assignedItemType),
       },
-      opts.transaction
+      opts
     );
   }
 }

@@ -9,7 +9,6 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
@@ -72,7 +71,7 @@ export async function generateAndInsertUsageRecordList(
   extra: Partial<UsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await executeWithMutationRunOptions(ctx, async opts =>
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
     ctx.semantic.usageRecord.insertItem(items, opts)
   );
   return items;

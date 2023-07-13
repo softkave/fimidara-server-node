@@ -5,7 +5,6 @@ import {File, FileMatcher} from '../../../definitions/file';
 import {waitTimeout} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
-import {addRootnameToPath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -22,8 +21,9 @@ import issueFilePresignedPath from '../issueFilePresignedPath/handler';
 import {IssueFilePresignedPathEndpointParams} from '../issueFilePresignedPath/types';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
-import getFilePresignedPaths from './handler';
-import {GetFilePresignedPathsEndpointParams} from './types';
+import {stringifyFileNamePath} from '../utils';
+import getPresignedPathsForFiles from './handler';
+import {GetPresignedPathsForFilesEndpointParams} from './types';
 
 /**
  * - expired and spent
@@ -39,7 +39,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-describe('getFilePresignedPaths', () => {
+describe('getPresignedPathsForFiles', () => {
   test('with file matcher', async () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
@@ -59,11 +59,11 @@ describe('getFilePresignedPaths', () => {
     const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
       toInterspersedMatchers(files02, w2.rootname)
     );
-    const instData = RequestData.fromExpressRequest<GetFilePresignedPathsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {files: matchers}
     );
-    const result = await getFilePresignedPaths(context, instData);
+    const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -95,11 +95,11 @@ describe('getFilePresignedPaths', () => {
     const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
       toInterspersedMatchers(files02, w2.rootname)
     );
-    const instData = RequestData.fromExpressRequest<GetFilePresignedPathsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {files: matchers, workspaceId: w1.resourceId}
     );
-    const result = await getFilePresignedPaths(context, instData);
+    const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -129,11 +129,11 @@ describe('getFilePresignedPaths', () => {
       ),
     ]);
 
-    const instData = RequestData.fromExpressRequest<GetFilePresignedPathsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: w1.resourceId}
     );
-    const result = await getFilePresignedPaths(context, instData);
+    const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -157,11 +157,11 @@ describe('getFilePresignedPaths', () => {
       files01.concat(files02).map(f => ({fileId: f.resourceId}))
     );
 
-    const instData = RequestData.fromExpressRequest<GetFilePresignedPathsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {}
     );
-    const result = await getFilePresignedPaths(context, instData);
+    const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -177,7 +177,7 @@ describe('getFilePresignedPaths', () => {
       generateAndInsertTestFiles(context, 1, {workspaceId: w1.resourceId, parentId: null}),
       generateAndInsertTestFiles(context, 1, {workspaceId: w1.resourceId, parentId: null}),
     ]);
-    const [paths01, paths02, paths03] = await Promise.all([
+    const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all([
       issuePaths(
         userToken,
         files01.map(f => ({fileId: f.resourceId}))
@@ -194,8 +194,10 @@ describe('getFilePresignedPaths', () => {
       ),
     ]);
 
+    // Spend the usage count. Wrapped, expected to throw because the file does
+    // not exist yet
     await expectErrorThrown(async () => {
-      const spentPath = first(paths03);
+      const spentPath = first(pathsWithUsageCount);
       assert(spentPath);
       await tryReadFile(spentPath);
     });
@@ -203,17 +205,17 @@ describe('getFilePresignedPaths', () => {
     // Wait 1ms for path with duration 1ms
     await waitTimeout(1);
 
-    const instData = RequestData.fromExpressRequest<GetFilePresignedPathsEndpointParams>(
+    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: w1.resourceId}
     );
-    const result = await getFilePresignedPaths(context, instData);
+    const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
     expect(returnedPaths).toEqual(expect.arrayContaining(paths01));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(paths03));
+    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithDuration));
+    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithUsageCount));
   });
 });
 
@@ -241,9 +243,7 @@ async function issuePaths(
 
 function toInterspersedMatchers(files: File[], rootname: string) {
   return files.map((f, i) =>
-    i % 2 === 0
-      ? {fileId: f.resourceId}
-      : {filepath: addRootnameToPath(f.namePath.join('/'), rootname)}
+    i % 2 === 0 ? {fileId: f.resourceId} : {filepath: stringifyFileNamePath(f, rootname)}
   );
 }
 

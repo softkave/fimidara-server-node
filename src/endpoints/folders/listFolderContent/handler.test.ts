@@ -50,13 +50,17 @@ describe('listFolderContent', () => {
     const [{folder: folder02}, {file}] = await Promise.all([
       insertFolderForTest(context, userToken, workspace, {
         folderpath: addRootnameToPath(
-          folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+          folder01.namePath
+            .concat(generateTestFolderName({includeStraySlashes: true}))
+            .join(folderConstants.nameSeparator),
           workspace.rootname
         ),
       }),
       insertFileForTest(context, userToken, workspace, {
         filepath: addRootnameToPath(
-          folder01.namePath.concat(generateTestFileName()).join(folderConstants.nameSeparator),
+          folder01.namePath
+            .concat(generateTestFileName({includeStraySlashes: true}))
+            .join(folderConstants.nameSeparator),
           workspace.rootname
         ),
       }),
@@ -78,10 +82,16 @@ describe('listFolderContent', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const [{folder: folder02}, {file}] = await Promise.all([
       insertFolderForTest(context, userToken, workspace, {
-        folderpath: addRootnameToPath(generateTestFolderName(), workspace.rootname),
+        folderpath: addRootnameToPath(
+          generateTestFolderName({includeStraySlashes: true}),
+          workspace.rootname
+        ),
       }),
       insertFileForTest(context, userToken, workspace, {
-        filepath: addRootnameToPath(generateTestFileName(), workspace.rootname),
+        filepath: addRootnameToPath(
+          generateTestFileName({includeStraySlashes: true}),
+          workspace.rootname
+        ),
       }),
     ]);
 
@@ -102,13 +112,17 @@ describe('listFolderContent', () => {
     const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
     const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
       folderpath: addRootnameToPath(
-        folder01.namePath.concat(generateTestFolderName()).join(folderConstants.nameSeparator),
+        folder01.namePath
+          .concat(generateTestFolderName({includeStraySlashes: true}))
+          .join(folderConstants.nameSeparator),
         workspace.rootname
       ),
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
-        folder01.namePath.concat(generateTestFileName()).join(folderConstants.nameSeparator),
+        folder01.namePath
+          .concat(generateTestFileName({includeStraySlashes: true}))
+          .join(folderConstants.nameSeparator),
         workspace.rootname
       ),
     });
@@ -149,18 +163,6 @@ describe('listFolderContent', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    // const [foldersPage01, foldersPage02, filesPage01, filesPage02] = await Promise.all([
-    //   generateAndInsertTestFolders(context, 10, {
-    //     workspaceId: workspace.resourceId,
-    //     parentId: null,
-    //   }),
-    //   generateAndInsertTestFolders(context, 5, {
-    //     workspaceId: workspace.resourceId,
-    //     parentId: null,
-    //   }),
-    //   generateAndInsertTestFiles(context, 10, {workspaceId: workspace.resourceId, parentId: null}),
-    //   generateAndInsertTestFiles(context, 5, {workspaceId: workspace.resourceId, parentId: null}),
-    // ]);
     const [foldersPage01, filesPage01] = await Promise.all([
       generateAndInsertTestFolders(context, 10, {
         workspaceId: workspace.resourceId,

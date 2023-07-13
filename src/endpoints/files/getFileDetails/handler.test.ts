@@ -1,5 +1,4 @@
 import {BaseContextType} from '../../contexts/types';
-import {addRootnameToPath} from '../../folders/utils';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -11,7 +10,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {fileConstants} from '../constants';
+import {stringifyFileNamePath} from '../utils';
 import getFileDetails from './handler';
 import {GetFileDetailsEndpointParams} from './types';
 
@@ -33,12 +32,7 @@ test('file details returned', async () => {
 
   const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      filepath: addRootnameToPath(
-        file.name + fileConstants.nameExtensionSeparator + file.extension,
-        workspace.rootname
-      ),
-    }
+    {filepath: stringifyFileNamePath(file, workspace.rootname)}
   );
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);

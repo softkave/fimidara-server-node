@@ -3,7 +3,6 @@ import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/perm
 import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {randomAction, randomResourceType} from './utils';
 
@@ -51,7 +50,7 @@ export async function generateAndInsertPermissionItemListForTest(
   seed: Partial<PermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
-  await executeWithMutationRunOptions(ctx, async opts =>
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
     ctx.semantic.permissionItem.insertItem(items, opts)
   );
   return items;

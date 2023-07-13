@@ -39,7 +39,11 @@ describe('uploadFile', () => {
 
   test('file updated when new data uploaded', async () => {
     assertContext(context);
-    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
+    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(
+      context,
+      /** seed */ {},
+      /** type */ 'png'
+    );
     const update: Partial<UploadFileEndpointParams> = {
       filepath: stringifyFileNamePath(savedFile, insertWorkspaceResult.workspace.rootname),
     };
@@ -70,7 +74,7 @@ describe('uploadFile', () => {
     const files = await context.semantic.file.getManyByQuery({
       workspaceId: savedFile.workspaceId,
       extension: savedFile.extension,
-      namePath: {$eq: savedFile.namePath},
+      namePath: {$all: savedFile.namePath, $size: savedFile.namePath.length},
     });
     expect(files.length).toBe(1);
   });

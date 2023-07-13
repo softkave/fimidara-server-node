@@ -1,5 +1,5 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderRunOptions,
   SemanticDataAccessWorkspaceResourceProviderType,
@@ -20,7 +20,7 @@ export interface SemanticDataAccessFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: IDataProvideQueryListParams<File> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions
   ): Promise<File[]>;
   countManyParentByIdList(
     q: {

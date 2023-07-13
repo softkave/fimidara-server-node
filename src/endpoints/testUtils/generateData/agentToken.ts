@@ -2,7 +2,6 @@ import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 
 export function generateAgentTokenForTest(
@@ -45,7 +44,7 @@ export async function generateAndInsertAgentTokenListForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
   const items = generateAgentTokenListForTest(count, seed);
-  await executeWithMutationRunOptions(ctx, async opts =>
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
     ctx.semantic.agentToken.insertItem(items, opts)
   );
   return items;

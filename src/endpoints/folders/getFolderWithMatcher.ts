@@ -1,5 +1,6 @@
-import {compact, last} from 'lodash';
+import {last} from 'lodash';
 import {FolderMatcher} from '../../definitions/folder';
+import {FileQuery} from '../contexts/data/types';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {assertWorkspace} from '../workspaces/utils';
@@ -10,12 +11,16 @@ export async function getClosestExistingFolder(
   workspaceId: string,
   namepath: string[]
 ) {
-  const namePathList = namepath.map((p, i) => namepath.slice(0, i + 1));
-  let folders = await context.semantic.folder.getManyByQuery({
-    workspaceId: workspaceId,
-    namePath: {$lowercaseIn: namePathList},
-  });
-  folders = compact(folders).sort((f1, f2) => f1.namePath.length - f2.namePath.length);
+  const folderQueries = namepath
+    .map((p, i) => namepath.slice(0, i + 1))
+    .map(
+      (nextNamePath): FileQuery => ({
+        workspaceId: workspaceId,
+        namePath: {$all: nextNamePath, $size: nextNamePath.length},
+      })
+    );
+  const folders = await context.semantic.folder.getManyByQueryList(folderQueries);
+  folders.sort((f1, f2) => f1.namePath.length - f2.namePath.length);
   return {folders, closestFolder: last(folders)};
 }
 

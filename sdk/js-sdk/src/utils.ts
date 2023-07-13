@@ -109,8 +109,9 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
   if (formdata) {
     const contentFormdata = new FormData();
     for (const key in formdata) {
-      if (formdata[key] !== undefined || formdata[key] !== null)
+      if (formdata[key] !== undefined && formdata[key] !== null) {
         contentFormdata.append(key, formdata[key]);
+      }
     }
     contentBody = contentFormdata;
   } else if (data) {
@@ -125,6 +126,15 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
   const endpointURL = (serverURL || defaultServerURL) + path;
 
   try {
+    /**
+     * Axios accepts the following:
+     * - string, plain object, ArrayBuffer, ArrayBufferView, URLSearchParams
+     * - Browser only: FormData, File, Blob
+     * - Node only: Stream, Buffer
+     *
+     * TODO: enforce environment dependent options or have a universal
+     * transformRequest
+     */
     const result = await axios({
       method,
       responseType,

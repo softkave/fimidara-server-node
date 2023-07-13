@@ -15,29 +15,44 @@ import {
 } from '../../utils/extract';
 import {getWorkspaceIdFromSessionAgent, getWorkspaceIdNoThrow} from '../../utils/sessionUtils';
 import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
 import {EndpointOptionalWorkspaceIDParam} from '../types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 
-const usageThresholdSchema = getFields<PublicUsageThreshold>({
+const usageThresholdItemPublicFields = getFields<PublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
   budget: true,
 });
-const usageThresholdLockSchema = getFields<PublicUsageThresholdLock>({
+const usageThresholdLockItemPublicFields = getFields<PublicUsageThresholdLock>({
   lastUpdatedBy: agentExtractor,
   lastUpdatedAt: true,
   category: true,
   locked: true,
 });
-
-const usageThresholdIfExistExtractor = makeExtractIfPresent(usageThresholdSchema);
-const usageThresholdLockIfExistExtractor = makeExtractIfPresent(usageThresholdLockSchema);
-
-const f: ExtractFieldsFrom<PublicWorkspace> = {
+const usageThresholdItemIfExistExtractor = makeExtractIfPresent(usageThresholdItemPublicFields);
+const usageThresholdLockItemIfExistExtractor = makeExtractIfPresent(
+  usageThresholdLockItemPublicFields
+);
+const usageThresholdsPublicFields = getFields<PublicWorkspace['usageThresholds']>({
+  [UsageRecordCategory.Total]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategory.Storage]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategory.BandwidthIn]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategory.BandwidthOut]: usageThresholdItemIfExistExtractor,
+});
+const usageThresholdLocksPublicFields = getFields<PublicWorkspace['usageThresholdLocks']>({
+  [UsageRecordCategory.Total]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategory.Storage]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategory.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategory.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
+});
+const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);
+const usageThresholdLockExistExtractor = makeExtract(usageThresholdLocksPublicFields);
+const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
   rootname: true,
@@ -45,27 +60,10 @@ const f: ExtractFieldsFrom<PublicWorkspace> = {
   publicPermissionGroupId: true,
   billStatus: true,
   billStatusAssignedAt: true,
-  usageThresholds: data => {
-    const extract = {} as PublicWorkspace['usageThresholds'];
-    for (const key in data) {
-      extract[key as UsageRecordCategory] = usageThresholdIfExistExtractor(
-        data[key as UsageRecordCategory]
-      );
-    }
-    return extract;
-  },
-  usageThresholdLocks: data => {
-    const extract = {} as PublicWorkspace['usageThresholdLocks'];
-    for (const key in data) {
-      extract[key as UsageRecordCategory] = usageThresholdLockIfExistExtractor(
-        data[key as UsageRecordCategory]
-      );
-    }
-    return extract;
-  },
+  usageThresholds: usageThresholdExistExtractor,
+  usageThresholdLocks: usageThresholdLockExistExtractor,
 };
-const workspaceFields = getFields<PublicWorkspace>(f);
-
+const workspaceFields = getFields<PublicWorkspace>(workspacePublicFields);
 export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);
 
@@ -79,8 +77,12 @@ export function assertWorkspace(workspace: Workspace | null | undefined): assert
   }
 }
 
-export async function checkWorkspaceExists(ctx: BaseContextType, workspaceId: string) {
-  const w = await ctx.semantic.workspace.getOneById(workspaceId);
+export async function checkWorkspaceExists(
+  ctx: BaseContextType,
+  workspaceId: string,
+  opts?: SemanticDataAccessProviderRunOptions
+) {
+  const w = await ctx.semantic.workspace.getOneById(workspaceId, opts);
   assertWorkspace(w);
   return w;
 }
@@ -100,13 +102,15 @@ export async function checkWorkspaceAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  action: AppActionType
+  action: AppActionType,
+  opts?: SemanticDataAccessProviderRunOptions
 ) {
   await checkAuthorization({
     context,
     agent,
     action,
     workspace,
+    opts,
     workspaceId: workspace.resourceId,
     targets: {targetId: workspace.resourceId},
   });

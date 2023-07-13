@@ -8,7 +8,7 @@ import deleteFile from './deleteFile/handler';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  getFilePresignedPathsEndpointDefinition,
+  getPresignedPathsForFilesEndpointDefinition,
   issueFilePresignedPathEndpointDefinition,
   readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
@@ -16,7 +16,7 @@ import {
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
 import getFileDetails from './getFileDetails/handler';
-import getFilePresignedPaths from './getFilePresignedPaths/handler';
+import getPresignedPathsForFiles from './getPresignedPathsForFiles/handler';
 import issueFilePresignedPath from './issueFilePresignedPath/handler';
 import {multerUploadFileExpressMiddleware} from './multer';
 import readFile from './readFile/handler';
@@ -114,9 +114,9 @@ export function getFilesPublicHttpEndpoints() {
       fn: issueFilePresignedPath,
       mddocHttpDefinition: issueFilePresignedPathEndpointDefinition,
     },
-    getFilePresignedPaths: {
-      fn: getFilePresignedPaths,
-      mddocHttpDefinition: getFilePresignedPathsEndpointDefinition,
+    getPresignedPathsForFiles: {
+      fn: getPresignedPathsForFiles,
+      mddocHttpDefinition: getPresignedPathsForFilesEndpointDefinition,
     },
     uploadFile: {
       fn: uploadFile,

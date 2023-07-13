@@ -7,12 +7,10 @@ import {endpointConstants} from './endpoints/constants';
 import BaseContext, {getEmailProvider, getFileProvider} from './endpoints/contexts/BaseContext';
 import {BaseContextType} from './endpoints/contexts/types';
 import {
-  getDataProviders,
   getLogicProviders,
-  getMemstoreDataProviders,
+  getMongoBackedSemanticDataProviders,
+  getMongoDataProviders,
   getMongoModels,
-  getSemanticDataProviders,
-  ingestDataIntoMemStore,
 } from './endpoints/contexts/utils';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startJobRunner} from './endpoints/jobs/runner';
@@ -67,19 +65,19 @@ async function setup() {
   // End of scripts
 
   const models = getMongoModels(connection);
-  const mem = getMemstoreDataProviders(models);
+  const data = getMongoDataProviders(models);
   const ctx = new BaseContext(
-    getDataProviders(models),
+    data,
     getEmailProvider(fimidaraConfig),
     getFileProvider(fimidaraConfig),
     fimidaraConfig,
-    mem,
     getLogicProviders(),
-    getSemanticDataProviders(mem),
+    getMongoBackedSemanticDataProviders(data),
+    connection,
+    models,
     () => connection.close()
   );
-  await ingestDataIntoMemStore(ctx);
-
+  await ctx.init();
   const defaultWorkspace = await setupApp(ctx);
   serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 

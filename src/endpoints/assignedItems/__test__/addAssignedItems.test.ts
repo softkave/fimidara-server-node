@@ -2,7 +2,6 @@ import {AssignedItem} from '../../../definitions/assignedItem';
 import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
@@ -48,7 +47,7 @@ describe('addAssignedItems', () => {
       pgListAssignedTo01Input
     );
 
-    const assignedItems = await executeWithMutationRunOptions(context, opts =>
+    const assignedItems = await context.semantic.utils.withTxn(context, opts =>
       addAssignedPermissionGroupList(
         context!,
         agent,

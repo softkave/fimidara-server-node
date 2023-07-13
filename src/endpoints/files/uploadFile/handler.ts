@@ -15,7 +15,6 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {executeWithMutationRunOptions} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {
   insertBandwidthInUsageRecordInput,
@@ -24,6 +23,7 @@ import {
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
   FilepathInfo,
+  assertFile,
   fileExtractor,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
@@ -35,8 +35,7 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-
-  let file = await executeWithMutationRunOptions(context, async opts => {
+  let file = await context.semantic.utils.withTxn(context, async opts => {
     let {file} = await getFileWithMatcher(context, data, opts);
     const isNewFile = !file;
     const workspace = await getWorkspaceFromFileOrFilepath(context, file, data.filepath);
@@ -68,13 +67,15 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       instData,
       file,
       isNewFile ? AppActionType.Create : AppActionType.Update,
-      isNewFile ? undefined : {oldFileSize: file.size}
+      isNewFile ? undefined : {oldFileSize: file.size},
+      opts
     );
     await insertBandwidthInUsageRecordInput(
       context,
       instData,
       file,
-      isNewFile ? AppActionType.Create : AppActionType.Update
+      isNewFile ? AppActionType.Create : AppActionType.Update,
+      opts
     );
 
     if (isNewFile) {
@@ -83,6 +84,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       file = await INTERNAL_updateFile(context, agent, file, data, opts);
     }
 
+    assertFile(file);
     await Promise.all([
       context.fileBackend.uploadFile({
         bucket: context.appVariables.S3Bucket,
@@ -134,7 +136,7 @@ function getNewFile(
   const file = newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
-    extension: data.extension ?? pathWithDetails.extension ?? '',
+    extension: data.extension ?? pathWithDetails.extension,
     name: pathWithDetails.nameWithoutExtension,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder

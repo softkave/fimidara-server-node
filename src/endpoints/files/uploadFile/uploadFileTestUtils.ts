@@ -76,8 +76,12 @@ export async function assertFileUpdated(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
 
+  expect(savedFile.resourceId).toBe(updatedFile.resourceId);
+  expect(savedFile.name).toBe(updatedFile.name);
+  expect(savedFile.extension).toBe(updatedFile.extension);
+  expect(savedFile.idPath).toEqual(expect.arrayContaining(updatedFile.idPath));
+  expect(savedFile.namePath).toEqual(expect.arrayContaining(updatedFile.namePath));
   expect(savedFile.description).not.toBe(updatedFile.description);
-  expect(savedFile.extension).not.toBe(updatedFile.extension);
   expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
   expect(savedFile.size).not.toBe(updatedFile.size);
   expect(savedFile.encoding).not.toBe(updatedFile.encoding);

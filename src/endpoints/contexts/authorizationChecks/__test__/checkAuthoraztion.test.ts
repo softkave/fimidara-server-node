@@ -36,7 +36,6 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
-import {executeWithMutationRunOptions} from '../../semantic/utils';
 import {BaseContextType} from '../../types';
 import {
   checkAuthorization,
@@ -133,7 +132,7 @@ describe('checkAuthorization', () => {
     );
 
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       assignWorkspaceToUser(
         context!,
         SYSTEM_SESSION_AGENT,
@@ -169,7 +168,7 @@ describe('checkAuthorization', () => {
       /** skipAutoVerifyEmail */ true
     );
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    await executeWithMutationRunOptions(context, opts =>
+    await context.semantic.utils.withTxn(context, opts =>
       assignWorkspaceToUser(
         context!,
         SYSTEM_SESSION_AGENT,
@@ -681,7 +680,7 @@ async function setupForSummarizeAgentPermissionItemsTest() {
       context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
     ),
-    executeWithMutationRunOptions(context, opts =>
+    context.semantic.utils.withTxn(context, opts =>
       addAssignedPermissionGroupList(
         context!,
         userAgent,

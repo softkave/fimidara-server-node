@@ -1,6 +1,6 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
@@ -13,23 +13,23 @@ export interface SemanticDataAccessAssignedItemProvider
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
-    options?: IDataProvideQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
   ): Promise<AssignedItem[]>;
   existsByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
-    options?: IDataProvideQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
   ): Promise<boolean>;
   getWorkspaceResourceAssignedItems(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[],
-    options?: IDataProvideQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
   ): Promise<AssignedItem[]>;
   getUserWorkspaces(
     assigneeId: string,
-    options?: IDataProvideQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<AssignedItem> & SemanticDataAccessProviderRunOptions
   ): Promise<AssignedItem[]>;
   deleteWorkspaceResourceAssignedItems(
     workspaceId: string,

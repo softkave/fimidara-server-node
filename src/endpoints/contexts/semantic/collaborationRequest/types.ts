@@ -1,5 +1,5 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
-import {IDataProvideQueryListParams} from '../../data/types';
+import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticDataAccessProviderRunOptions,
   SemanticDataAccessWorkspaceResourceProviderType,
@@ -9,7 +9,7 @@ export interface SemanticDataAccessCollaborationRequestProvider
   extends SemanticDataAccessWorkspaceResourceProviderType<CollaborationRequest> {
   getManyByEmail(
     email: string,
-    options?: IDataProvideQueryListParams<CollaborationRequest> &
+    options?: DataProviderQueryListParams<CollaborationRequest> &
       SemanticDataAccessProviderRunOptions
   ): Promise<CollaborationRequest[]>;
   getOneByEmail(
