@@ -6,8 +6,8 @@ export const fileConstants = {
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
   maxExtensionCharLength: 100,
-  maxFileWidth: 10000, // px
-  maxFileHeight: 10000, // px
+  maxFileWidth: 5000, // px
+  maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',
   routes: {
     readFile: `${endpointConstants.apiv1}/files/readFile`,

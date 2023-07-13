@@ -36,6 +36,7 @@
 - [ ] Introduce permisssions to allow fetching of file binary but not json
 - [ ] Move db to another thread
 - [ ] Test files like .env work on upload and read file
+- [ ] Presigned path for upload
 - [ ] Make js sdk tree-shakeable
 - [ ] Delete presigned paths endpoint
 - [ ] Research other resize options and allow users pass in resize options
