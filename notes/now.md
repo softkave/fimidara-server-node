@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Move logs to it's own service
+- [ ] Script to export runtome logs to you and process them
 - [ ] In-memory backed assigned permission groups lookup
 - [ ] Export FormData from js sdk
 - [ ] Support Blob in fimidara JS SDK uploadFile
