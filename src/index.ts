@@ -18,7 +18,6 @@ import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {fimidaraConfig} from './resources/vars';
-import {script_resourceToDataModelTransfer} from './scripts/script_resourceToDataModels';
 import {serverLogger} from './utils/logger/loggerUtils';
 
 serverLogger.info('server initialization');
@@ -63,7 +62,6 @@ async function setup() {
   );
 
   // Run scripts here
-  await script_resourceToDataModelTransfer(connection);
   // End of scripts
 
   const models = getMongoModels(connection);
