@@ -25,7 +25,7 @@ import {
   SemanticDataAccessProviderRunOptions,
 } from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
-import {createFolderList} from '../folders/addFolder/handler';
+import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
 import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword';
@@ -107,27 +107,24 @@ async function setupFolders(
   workspace: Workspace,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const [workspaceImagesFolder, userImagesFolder] = await Promise.all([
-    createFolderList(
-      context,
-      SYSTEM_SESSION_AGENT,
-      workspace,
-      {folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname)},
-      opts,
-      /** skip auth check */ true,
-      /** throw on folder exists */ false
-    ),
-    createFolderList(
-      context,
-      SYSTEM_SESSION_AGENT,
-      workspace,
-      {folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname)},
-      opts,
-      /** skip auth check */ true,
-      /** throw on folder exists */ false
-    ),
-  ]);
-
+  const workspaceImagesFolder = await createFolderListWithTransaction(
+    context,
+    SYSTEM_SESSION_AGENT,
+    workspace,
+    {folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname)},
+    /** skip auth check */ true,
+    /** throw on folder exists */ false,
+    opts
+  );
+  const userImagesFolder = await createFolderListWithTransaction(
+    context,
+    SYSTEM_SESSION_AGENT,
+    workspace,
+    {folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname)},
+    /** skip auth check */ true,
+    /** throw on folder exists */ false,
+    opts
+  );
   appAssert(workspaceImagesFolder && userImagesFolder);
   return {workspaceImagesFolder, userImagesFolder};
 }
@@ -215,7 +212,7 @@ async function getRootWorkspace(
   return workspace;
 }
 
-async function setupAppWithMutationOptions(
+async function setupAppArtifacts(
   context: BaseContextType,
   agent: SessionAgent,
   opts: SemanticDataAccessProviderMutationRunOptions
@@ -285,7 +282,7 @@ export async function setupApp(context: BaseContextType) {
     context,
     async opts => {
       const {agent} = await setupDefaultUser(context, opts);
-      return await setupAppWithMutationOptions(context, agent, opts);
+      return await setupAppArtifacts(context, agent, opts);
     },
     undefined
   );

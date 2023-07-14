@@ -130,6 +130,20 @@
                                 "__id": "FieldNumber"
                             },
                             "required": true
+                        },
+                        "createdAt": {
+                            "data": {
+                                "description": "Always 0.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
+                        },
+                        "lastUpdatedAt": {
+                            "data": {
+                                "description": "Always 0.",
+                                "__id": "FieldNumber"
+                            },
+                            "required": true
                         }
                     }
                 },

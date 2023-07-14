@@ -110,7 +110,7 @@
         }
     },
     "name": "IssueFilePresignedPathEndpoint",
-    "description": "Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.",
+    "description": "Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags. It's only supports reading files at the moment. Eventually, we'll support uploading files.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",

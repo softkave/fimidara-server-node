@@ -1,10 +1,10 @@
 import assert = require('assert');
+import {faker} from '@faker-js/faker';
 import {createReadStream} from 'fs';
 import {get} from 'lodash';
 import {Readable} from 'stream';
 import {fimidaraAddRootnameToPath} from '../utils';
 import path = require('path');
-import faker = require('faker');
 
 export interface ITestVars {
   workspaceId: string;

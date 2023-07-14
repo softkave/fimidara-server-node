@@ -194,6 +194,8 @@ export type Collaborator = {
   email: string;
   workspaceId: string;
   joinedAt: number;
+  createdAt: number;
+  lastUpdatedAt: number;
 };
 export type GetCollaboratorEndpointResult = {
   collaborator: Collaborator;
@@ -310,16 +312,16 @@ export type FileMatcher = {
   filepath?: string;
   fileId?: string;
 };
-export type GetFilePresignedPathsEndpointParams = {
+export type GetPresignedPathsForFilesEndpointParams = {
   files?: Array<FileMatcher>;
   workspaceId?: string;
 };
-export type GetFilePresignedPathsItem = {
+export type GetPresignedPathsForFilesItem = {
   path: string;
   filepath: string;
 };
-export type GetFilePresignedPathsEndpointResult = {
-  paths: Array<GetFilePresignedPathsItem>;
+export type GetPresignedPathsForFilesEndpointResult = {
+  paths: Array<GetPresignedPathsForFilesItem>;
 };
 export type UploadFileEndpointParams = {
   filepath?: string;
@@ -616,7 +618,7 @@ export type UsageCosts = {
 export type GetUsageCostsEndpointResult = {
   costs: UsageCosts;
 };
-export type UsageRecordCategory = 'storage' | 'bin' | 'bout' | 'total';
+export type UsageRecordCategory = 'total' | 'storage' | 'bin' | 'bout';
 export type UsageRecordFulfillmentStatus =
   | 'undecided'
   | 'fulfilled'

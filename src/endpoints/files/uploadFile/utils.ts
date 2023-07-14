@@ -12,7 +12,7 @@ import {
   SemanticDataAccessProviderRunOptions,
 } from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
-import {createFolderList} from '../../folders/addFolder/handler';
+import {createFolderListWithTransaction} from '../../folders/addFolder/handler';
 import {addRootnameToPath} from '../../folders/utils';
 import {FilepathInfo} from '../utils';
 
@@ -57,12 +57,11 @@ export async function createFileParentFolders(
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   if (pathWithDetails.hasParent) {
-    return await createFolderList(
+    return await createFolderListWithTransaction(
       context,
       agent,
       workspace,
       {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
-      opts,
       /** Skip auth check. Since what we really care about is file creation, and
        * a separate permission check is done for that. All of it is also done
        * with transaction so should upload file permission check fail, it'll get
@@ -70,7 +69,8 @@ export async function createFileParentFolders(
        * folders that do not exist yet, which would otherwise fail seeing an
        * anonymous user most likely won't have permission to create folders. */
       true,
-      /** Throw on folder exists */ false
+      /** Throw on folder exists */ false,
+      opts
     );
   }
 

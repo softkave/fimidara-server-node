@@ -293,10 +293,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -361,10 +361,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -429,10 +429,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -497,10 +497,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -574,10 +574,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -641,10 +641,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -708,10 +708,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -775,10 +775,10 @@
                                                         "__id": "FieldString",
                                                         "example": "storage",
                                                         "valid": {
-                                                            "0": "storage",
-                                                            "1": "bin",
-                                                            "2": "bout",
-                                                            "3": "total"
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "bin",
+                                                            "3": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },

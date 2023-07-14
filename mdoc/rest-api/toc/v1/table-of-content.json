@@ -108,7 +108,7 @@
         "post"
     ],
     [
-        "/v1/files/getFilePresignedPaths",
+        "/v1/files/getPresignedPathsForFiles",
         "post"
     ],
     [

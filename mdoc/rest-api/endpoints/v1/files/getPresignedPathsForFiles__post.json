@@ -1,11 +1,11 @@
 {
-    "basePathname": "/v1/files/getFilePresignedPaths",
+    "basePathname": "/v1/files/getPresignedPathsForFiles",
     "method": "post",
     "requestBody": {
         "required": true,
         "description": "Get file presigned paths endpoint params.",
         "__id": "FieldObject",
-        "name": "GetFilePresignedPathsEndpointParams",
+        "name": "GetPresignedPathsForFilesEndpointParams",
         "fields": {
             "files": {
                 "data": {
@@ -98,14 +98,14 @@
         "required": true,
         "description": "Get file presigned paths endpoint success result.",
         "__id": "FieldObject",
-        "name": "GetFilePresignedPathsEndpointResult",
+        "name": "GetPresignedPathsForFilesEndpointResult",
         "fields": {
             "paths": {
                 "data": {
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
-                        "name": "GetFilePresignedPathsItem",
+                        "name": "GetPresignedPathsForFilesItem",
                         "fields": {
                             "path": {
                                 "data": {
@@ -129,7 +129,7 @@
             }
         }
     },
-    "name": "GetFilePresignedPathsEndpoint",
+    "name": "GetPresignedPathsForFilesEndpoint",
     "description": "Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.",
     "errorResponseHeaders": {
         "__id": "FieldObject",

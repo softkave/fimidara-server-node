@@ -26,14 +26,14 @@ import {folderExtractor, getFolderpathInfo} from '../utils';
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
-export async function createFolderList(
+export async function createFolderListWithTransaction(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput,
-  opts: SemanticDataAccessProviderMutationRunOptions,
   UNSAFE_skipAuthCheck = false,
-  throwOnFolderExists = true
+  throwOnFolderExists = true,
+  opts: SemanticDataAccessProviderMutationRunOptions
 ) {
   const pathWithDetails = getFolderpathInfo(input.folderpath);
   let closestExistingFolder: Folder | null = null;
@@ -116,6 +116,32 @@ export async function createFolderList(
   return previousFolder;
 }
 
+export async function createFolderList(
+  context: BaseContextType,
+  agent: SessionAgent,
+  workspace: Workspace,
+  input: NewFolderInput,
+  UNSAFE_skipAuthCheck = false,
+  throwOnFolderExists = true,
+  opts?: SemanticDataAccessProviderMutationRunOptions
+) {
+  return await context.semantic.utils.withTxn(
+    context,
+    async opts => {
+      return await createFolderListWithTransaction(
+        context,
+        agent,
+        workspace,
+        input,
+        UNSAFE_skipAuthCheck,
+        throwOnFolderExists,
+        opts
+      );
+    },
+    opts
+  );
+}
+
 // TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
@@ -125,11 +151,7 @@ const addFolder: AddFolderEndpoint = async (context, instData) => {
     pathWithDetails.workspaceRootname
   );
   assertWorkspace(workspace);
-
-  let folder = await context.semantic.utils.withTxn(context, async opts => {
-    return createFolderList(context, agent, workspace, data.folder, opts);
-  });
-
+  let folder = await createFolderList(context, agent, workspace, data.folder);
   appAssert(folder, new ServerError('Error creating folder.'));
   folder = await populateAssignedTags(context, folder.workspaceId, folder);
   return {folder: folderExtractor(folder)};

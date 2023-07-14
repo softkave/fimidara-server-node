@@ -75,7 +75,7 @@ export type Agent = {
   agentType: AgentType;
 };
 export type WorkspaceBillStatus = 'ok' | 'gracePeriod' | 'billOverdue';
-export type UsageRecordCategory = 'storage' | 'bin' | 'bout' | 'total';
+export type UsageRecordCategory = 'total' | 'storage' | 'bin' | 'bout';
 export type UsageThreshold = {
   lastUpdatedBy: Agent;
   lastUpdatedAt: number;
