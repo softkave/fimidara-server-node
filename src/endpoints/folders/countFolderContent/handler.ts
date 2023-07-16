@@ -10,7 +10,18 @@ import {countFolderContentJoiSchema} from './validation';
 const countFolderContent: CountFolderContentEndpoint = async (context, instData) => {
   const data = validate(instData.data, countFolderContentJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(context, agent, data);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
+    context,
+    agent,
+    data,
+
+    //  Skip auth check seeing the calling agent doesn't need to have read
+    //  permission to the folder, just to it's content, the same way public
+    //  agents don't need the workspace to be public but just a file to be
+    //  public.
+    // TODO: Let me (@abayomi) know if there's an issue with this.
+    /** skip auth check */ true
+  );
   const [foldersCount, filesCount] = await Promise.all([
     countFolders(context, agent, workspace, parentFolder),
     countFiles(context, agent, workspace, parentFolder),

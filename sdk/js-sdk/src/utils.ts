@@ -1,12 +1,9 @@
 import axios, {AxiosProgressEvent, AxiosResponse, Method} from 'axios';
 import FormData from 'isomorphic-form-data';
 import {compact, isArray, isObject, isString, last, map} from 'lodash';
-import path from 'path';
-import {File, Folder} from './publicTypes';
+import path from 'path-browserify';
 
-const defaultServerURL =
-  (process ? process.env.FIMIDARA_SERVER_URL : undefined) ??
-  'https://api.fimidara.com';
+const kDefaultServerURL = 'https://api.fimidara.com';
 
 export type EndpointHeaders = {
   [key: string]: string | string[] | number | boolean | null;
@@ -123,7 +120,7 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
     incomingHeaders[HTTP_HEADER_AUTHORIZATION] = `Bearer ${token}`;
   }
 
-  const endpointURL = (serverURL || defaultServerURL) + path;
+  const endpointURL = (serverURL || kDefaultServerURL) + path;
 
   try {
     /**
@@ -431,7 +428,7 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
   }
 
   return (
-    (props.serverURL || defaultServerURL) +
+    (props.serverURL || kDefaultServerURL) +
     '/v1/files/readFile' +
     (filepath.startsWith('/') ? '' : '/') +
     encodeURIComponent(filepath) +
@@ -450,7 +447,7 @@ export function getFimidaraUploadFileURL(props: {
 }) {
   const filepath = getFilepath(props);
   return (
-    (props.serverURL || defaultServerURL) +
+    (props.serverURL || kDefaultServerURL) +
     '/v1/files/uploadFile' +
     (filepath.startsWith('/') ? '' : '/') +
     encodeURIComponent(filepath)
@@ -458,7 +455,7 @@ export function getFimidaraUploadFileURL(props: {
 }
 
 export function stringifyFimidaraFileNamePath(
-  file: Pick<File, 'namePath' | 'extension'>,
+  file: {namePath: string[]; extension?: string},
   rootname?: string
 ) {
   const name =
@@ -467,7 +464,7 @@ export function stringifyFimidaraFileNamePath(
 }
 
 export function stringifyFimidaraFolderNamePath(
-  file: Pick<Folder, 'namePath'>,
+  file: {namePath: string[]; extension?: string},
   rootname?: string
 ) {
   const name = file.namePath.join('/');

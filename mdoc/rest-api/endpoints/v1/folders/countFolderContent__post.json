@@ -22,18 +22,6 @@
                     "example": "folder0_000000000000000000000"
                 },
                 "optional": true
-            },
-            "contentType": {
-                "data": {
-                    "description": "Count children files or folders. To count both, pass nothing.",
-                    "__id": "FieldString",
-                    "example": "file",
-                    "valid": {
-                        "0": "file",
-                        "1": "folder"
-                    }
-                },
-                "optional": true
             }
         }
     },

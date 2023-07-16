@@ -385,7 +385,6 @@ export type ListFolderContentEndpointResult = {
 export type CountFolderContentEndpointParams = {
   folderpath?: string;
   folderId?: string;
-  contentType?: 'file' | 'folder';
 };
 export type CountFolderContentEndpointResult = {
   foldersCount: number;

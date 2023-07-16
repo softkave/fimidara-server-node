@@ -17,7 +17,10 @@ import {
 } from '../utils';
 
 const vars: ITestVars = getTestVars();
-const fimidara = new FimidaraEndpoints({authToken: vars.authToken});
+const fimidara = new FimidaraEndpoints({
+  authToken: vars.authToken,
+  serverURL: vars.serverURL,
+});
 
 export const test_deleteFile = async () => {
   await deleteFileTestExecFn(fimidara, vars);

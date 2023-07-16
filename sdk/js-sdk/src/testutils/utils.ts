@@ -11,6 +11,7 @@ export interface ITestVars {
   workspaceRootname: string;
   authToken: string;
   testFilepath: string;
+  serverURL?: string;
 }
 
 export function makeTestFilepath(workspaceRootname: string, filepath: string) {
@@ -22,11 +23,12 @@ export function getTestVars(): ITestVars {
   const authToken = process.env.FIMIDARA_TEST_AUTH_TOKEN;
   const testFilepath = process.env.FIMIDARA_TEST_FILEPATH;
   const workspaceRootname = process.env.FIMIDARA_TEST_WORKSPACE_ROOTNAME;
+  const serverURL = process.env.FIMIDARA_SERVER_URL;
   assert.ok(workspaceId);
   assert.ok(authToken);
   assert.ok(testFilepath);
   assert.ok(workspaceRootname);
-  return {workspaceId, workspaceRootname, authToken, testFilepath};
+  return {workspaceId, workspaceRootname, authToken, testFilepath, serverURL};
 }
 
 export type LoopAndCollateFn<R> = (index: number) => R;
