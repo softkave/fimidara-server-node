@@ -118,12 +118,12 @@ const countFolderContentParams = FieldObject.construct<CountFolderContentEndpoin
   .setName('CountFolderContentEndpointParams')
   .setFields({
     ...folderMatcherParts,
-    // contentType: FieldObject.optionalField(
-    //   FieldString.construct()
-    //     .setDescription('Count children files or folders. To count both, pass nothing.')
-    //     .setExample(AppResourceType.File)
-    //     .setValid([AppResourceType.File, AppResourceType.Folder])
-    // ),
+    contentType: FieldObject.optionalField(
+      FieldString.construct()
+        .setDescription('Count children files or folders. To count both, pass nothing.')
+        .setExample(AppResourceType.File)
+        .setValid([AppResourceType.File, AppResourceType.Folder])
+    ),
   })
   .setRequired(true)
   .setDescription('List folder content endpoint params.');

@@ -10,9 +10,6 @@ export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<ListFolderConte
   {
     ...folderValidationSchemas.folderMatcherParts,
     contentType,
-    // contentType: Joi.array()
-    //   .items(Joi.string().valid(AppResourceType.File, AppResourceType.Folder))
-    //   .max(2),
   };
 
 export const listFolderContentJoiSchema = Joi.object<ListFolderContentEndpointParams>()
