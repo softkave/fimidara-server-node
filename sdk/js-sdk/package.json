@@ -28,7 +28,6 @@
     "show-packlist": "npm pack --dry-run"
   },
   "devDependencies": {
-    "@types/isomorphic-form-data": "^2.0.1",
     "@types/jest": "^29.5.1",
     "@types/node": "^14.11.2",
     "@types/path-browserify": "^1.0.0",
@@ -39,7 +38,6 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "isomorphic-form-data": "^2.0.0",
     "lodash": "^4.17.21",
     "path-browserify": "^1.0.1"
   }

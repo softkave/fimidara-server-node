@@ -7,16 +7,18 @@
 - [ ] In-memory backed assigned permission groups lookup
 - [ ] Export FormData from js sdk
 - [ ] Support Blob in fimidara JS SDK uploadFile
+- [ ] Make sure sdk works with deno and other JS environments
 - [ ] JS sdk global config for setting server url and auth token globally
 - [ ] Move back to talking directly to mongodb
 - [ ] Move js sdk to axios
   - [ ] Cancel token
 - [ ] cdn endpoint for fetching files
+- [ ] Include failing endpoint in JS SDK errors
 - [ ] Progress when uploading and downloading files
 - [ ] Auto start programs on restart vm
 - [ ] show all users, workspaces, and usage
 - [ ] Agent token with same name used for different workspace on creation
-- [ ] Check exists using the resource ID when updating, because changin case for a resource fails
+- [ ] Check exists using the resource ID when updating, because changing case for a resource fails
 - [ ] write example apps & proposals
 - [ ] sdk
   - [ ] php

@@ -1,5 +1,9 @@
-import axios, {AxiosProgressEvent, AxiosResponse, Method} from 'axios';
-import FormData from 'isomorphic-form-data';
+import axios, {
+  AxiosProgressEvent,
+  AxiosResponse,
+  Method,
+  toFormData,
+} from 'axios';
 import {compact, isArray, isObject, isString, last, map} from 'lodash';
 import path from 'path-browserify';
 
@@ -104,16 +108,9 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
   let contentBody = undefined;
 
   if (formdata) {
-    const contentFormdata = new FormData();
-    for (const key in formdata) {
-      if (formdata[key] !== undefined && formdata[key] !== null) {
-        contentFormdata.append(key, formdata[key]);
-      }
-    }
-    contentBody = contentFormdata;
+    contentBody = toFormData(formdata);
   } else if (data) {
-    contentBody = JSON.stringify(data);
-    incomingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
+    contentBody = data;
   }
 
   if (token) {
@@ -299,7 +296,7 @@ export const ImageResizeFitEnumMap = {
   fill: 'fill',
   inside: 'inside',
   outside: 'outside',
-};
+} as const;
 export const ImageResizePositionEnumMap = {
   top: 'top',
   rightTop: 'right top',
@@ -325,7 +322,7 @@ export const ImageResizePositionEnumMap = {
   /** focus on the region with the highest luminance frequency, colour
    * saturation and presence of skin tones. */
   attention: 'attention',
-};
+} as const;
 export type ImageResizeFitEnum = ObjectValues<typeof ImageResizeFitEnumMap>;
 export type ImageResizePositionEnum = ObjectValues<
   typeof ImageResizePositionEnumMap
@@ -360,7 +357,7 @@ export const ImageFormatEnumMap = {
   raw: 'raw',
 
   // TODO: support gif
-};
+} as const;
 export type ImageFormatEnum = ObjectValues<typeof ImageFormatEnumMap>;
 
 export type GetFimidaraReadFileURLProps = {

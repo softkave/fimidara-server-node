@@ -64,6 +64,18 @@ export const test_uploadFile_nodeReadable = async () => {
   await uploadFileTestExecFn(fimidara, vars);
 };
 
+export const test_uploadFile_string = async () => {
+  const text = 'Hello World!';
+  await uploadFileTestExecFn(fimidara, vars, {data: text});
+};
+
+export const test_uploadFile_nodeReadableNotFromFile = async () => {
+  const stringStream = Readable.from([
+    'Hello world! Node Readable stream not from file test.',
+  ]);
+  await uploadFileTestExecFn(fimidara, vars, {data: stringStream});
+};
+
 // export const test_uploadFile_readableStream = async () => {
 //   const expectedString = faker.lorem.paragraph();
 //   const stream = new ReadableStream({

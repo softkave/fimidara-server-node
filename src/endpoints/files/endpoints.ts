@@ -72,7 +72,10 @@ function extractUploadFilesParamsFromFormData(req: Request): UploadFileEndpointP
   const file = req.file;
   return {
     ...req.body,
-    data: file?.buffer,
+
+    // strings passed through formdata are not encoded as files, and multer
+    // treats them as part of data, so we extract them from req body
+    data: file?.buffer ?? req.body?.data,
     mimetype: req.body.mimetype || file?.mimetype,
     extension: req.body.extension || getFileExtenstion(file?.originalname),
   };

@@ -83,9 +83,9 @@ async function setup() {
 
   setupJWT(ctx);
   setupFimidaraHttpEndpoints(ctx, app);
+  app.use(handleErrors);
 
   httpServer.listen(ctx.appVariables.port, async () => {
-    app.use(handleErrors);
     serverLogger.info(ctx.appVariables.appName);
     serverLogger.info(ctx.appVariables.nodeEnv);
     serverLogger.info(`server listening on port ${ctx.appVariables.port}`);
